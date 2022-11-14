@@ -230,7 +230,7 @@ describe('extensions/payment-network/any/declarative', () => {
           TestDataDeclarative.extensionStatePaymentInstructionAdded,
         );
         expectedFromPayeeDelegate[
-          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE as string
         ].events[1].from = TestDataDeclarative.payeeDelegate;
 
         expect(
@@ -258,7 +258,7 @@ describe('extensions/payment-network/any/declarative', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.emptyRequestWithPayeeDelegate);
         previousState.payee = undefined;
         previousState.extensions[
-          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE as string
         ].values.payeeDelegate = undefined;
 
         expect(() => {
@@ -314,13 +314,13 @@ describe('extensions/payment-network/any/declarative', () => {
           TestDataDeclarative.extensionStateRefundInstructionAdded,
         );
         expectedFromThirdParty[
-          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE as string
         ].events[1].from = TestDataDeclarative.payerDelegate;
         expectedFromThirdParty[
-          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE as string
         ].values.payeeDelegate = undefined;
         expectedFromThirdParty[
-          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE as string
         ].values.payerDelegate = TestData.payerDelegateRaw.identity;
 
         expect(
@@ -348,7 +348,7 @@ describe('extensions/payment-network/any/declarative', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.emptyRequestWithPayeeDelegate);
         previousState.payer = undefined;
         previousState.extensions[
-          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE as string
         ].values.payeeDelegate = undefined;
 
         expect(() => {
@@ -404,10 +404,10 @@ describe('extensions/payment-network/any/declarative', () => {
           TestDataDeclarative.extensionStateDeclaredSent,
         );
         expectedFromThirdParty[
-          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE as string
         ].events[1].from = TestDataDeclarative.payerDelegate;
         expectedFromThirdParty[
-          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE as string
         ].values.payerDelegate = TestDataDeclarative.payerDelegate;
 
         expect(
@@ -435,7 +435,7 @@ describe('extensions/payment-network/any/declarative', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.emptyRequestWithPayeeDelegate);
         previousState.payer = undefined;
         previousState.extensions[
-          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE as string
         ].values.payeeDelegate = undefined;
 
         expect(() => {
@@ -493,10 +493,10 @@ describe('extensions/payment-network/any/declarative', () => {
           TestDataDeclarative.declarativeExtStateRefundDeclared,
         );
         expectedFromThirdParty[
-          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE as string
         ].events[1].from = TestDataDeclarative.payerDelegate;
         expectedFromThirdParty[
-          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE as string
         ].values.payerDelegate = TestDataDeclarative.payerDelegate;
 
         expect(
@@ -524,7 +524,7 @@ describe('extensions/payment-network/any/declarative', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.emptyRequestWithPayeeDelegate);
         previousState.payer = undefined;
         previousState.extensions[
-          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE as string
         ].values.payeeDelegate = undefined;
 
         expect(() => {
@@ -580,7 +580,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('can applyActionToExtensions of declareSentRefund from payeeDelegate', () => {
         const expectedFromThirdParty = Utils.deepCopy(TestDataDeclarative.extensionStateSentRefund);
         expectedFromThirdParty[
-          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE as string
         ].events[1].from = TestDataDeclarative.payeeDelegate;
 
         expect(
@@ -608,7 +608,7 @@ describe('extensions/payment-network/any/declarative', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.emptyRequestWithPayeeDelegate);
         previousState.payee = undefined;
         previousState.extensions[
-          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE as string
         ].values.payeeDelegate = undefined;
 
         expect(() => {
@@ -666,7 +666,7 @@ describe('extensions/payment-network/any/declarative', () => {
           TestDataDeclarative.extensionStateReceivedPayment,
         );
         expectedFromThirdParty[
-          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE as string
         ].events[1].from = TestDataDeclarative.payeeDelegate;
 
         expect(
@@ -694,7 +694,7 @@ describe('extensions/payment-network/any/declarative', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.emptyRequestWithPayeeDelegate);
         previousState.payee = undefined;
         previousState.extensions[
-          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE as string
         ].values.payeeDelegate = undefined;
 
         expect(() => {

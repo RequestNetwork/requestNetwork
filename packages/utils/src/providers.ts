@@ -41,11 +41,11 @@ const networkRpcs: Record<string, string> = {
   'arbitrum-rinkeby': 'https://rinkeby.arbitrum.io/rpc',
   'arbitrum-one': 'https://arb1.arbitrum.io/rpc',
   avalanche: 'https://api.avax.network/ext/bc/C/rpc',
+  optimism: 'https://mainnet.optimism.io',
 };
 
 /**
  * @see getDefaultProvider
- * @param network
  */
 const defaultProviderFactory: ProviderFactory = (network: string | undefined) => {
   if (!network) {

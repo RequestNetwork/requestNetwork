@@ -4,8 +4,10 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { SuperFluidPaymentDetector } from '../../src/erc777/superfluid-detector';
 import { genTransferEventsByMonth } from './mocks';
+import { mockAdvancedLogicBase } from '../utils';
 
 let superfluidPaymentDetector: SuperFluidPaymentDetector;
 
@@ -17,12 +19,9 @@ const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+  ...mockAdvancedLogicBase,
   extensions: {
     feeProxyContractErc20: {
-      supportedNetworks: ['mainnet', 'private'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -31,7 +30,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
-  },
+  } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 const baseRequestData = {
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
@@ -52,9 +51,9 @@ const mockOriginalRequest: RequestLogicTypes.IRequest = {
   ...baseRequestData,
   requestId: '0xoriginal',
   extensions: {
-    [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
@@ -72,9 +71,9 @@ const mockSecondSubrequest: RequestLogicTypes.IRequest = {
   ...baseRequestData,
   requestId: '0xsubseq1',
   extensions: {
-    [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
@@ -95,9 +94,9 @@ const mockThirdSubrequest: RequestLogicTypes.IRequest = {
   ...baseRequestData,
   requestId: '0xsubseq2',
   extensions: {
-    [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
@@ -131,7 +130,10 @@ const mockTransferEventsForMonth = (monthNumber: number) => {
 
 describe('superfluid balance computation', () => {
   beforeEach(() => {
-    superfluidPaymentDetector = new SuperFluidPaymentDetector({ advancedLogic: mockAdvancedLogic });
+    superfluidPaymentDetector = new SuperFluidPaymentDetector({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager: CurrencyManager.getDefault(),
+    });
   });
   afterEach(() => {
     jest.clearAllMocks();

@@ -2,7 +2,7 @@
 import { BigNumber, BigNumberish, constants, ContractTransaction, providers, Signer } from 'ethers';
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20EscrowToPay__factory } from '@requestnetwork/smart-contracts/types/';
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import {
   getAmountToPay,
   getProvider,
@@ -12,6 +12,37 @@ import {
 } from './utils';
 import { ITransactionOverrides } from './transaction-overrides';
 import { encodeApproveAnyErc20 } from './erc20';
+import { IPreparedTransaction } from './prepared-transaction';
+
+/**
+ * Prepare the approval transaction of the payment ERC20 to be spent by the escrow contract
+ * @param request request to pay
+ * @param paymentTokenAddress currency to approve
+ * @param signerOrProvider the web3 provider
+ * @param overrides optionally overrides default transaction values, like gas
+ * @returns the prepared transaction
+ */
+export function prepareErc20EscrowApproval(
+  request: ClientTypes.IRequestData,
+  paymentTokenAddress: string,
+  signerOrProvider: providers.Provider | Signer = getProvider(),
+  amount?: BigNumber,
+  overrides?: ITransactionOverrides,
+): IPreparedTransaction {
+  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
+  const encodedTx = encodeApproveAnyErc20(
+    paymentTokenAddress,
+    contractAddress,
+    signerOrProvider,
+    amount,
+  );
+  return {
+    data: encodedTx,
+    to: paymentTokenAddress,
+    value: 0,
+    ...overrides,
+  };
+}
 
 /**
  * Processes the approval transaction of the payment ERC20 to be spent by the erc20EscrowToPay
@@ -25,18 +56,18 @@ export async function approveErc20ForEscrow(
   request: ClientTypes.IRequestData,
   paymentTokenAddress: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),
+  amount?: BigNumber,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
-  const encodedTx = encodeApproveAnyErc20(paymentTokenAddress, contractAddress, signerOrProvider);
+  const preparedTx = prepareErc20EscrowApproval(
+    request,
+    paymentTokenAddress,
+    signerOrProvider,
+    amount,
+    overrides,
+  );
   const signer = getSigner(signerOrProvider);
-  const tx = await signer.sendTransaction({
-    data: encodedTx,
-    to: paymentTokenAddress,
-    value: 0,
-    ...overrides,
-  });
-  return tx;
+  return await signer.sendTransaction(preparedTx);
 }
 
 /**
@@ -54,17 +85,9 @@ export async function payEscrow(
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const encodedTx = encodePayEscrow(request, amount, feeAmount);
-  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
+  const preparedTx = preparePayEscrow(request, amount, feeAmount, overrides);
   const signer = getSigner(signerOrProvider);
-
-  const tx = await signer.sendTransaction({
-    data: encodedTx,
-    to: contractAddress,
-    value: 0,
-    ...overrides,
-  });
-  return tx;
+  return await signer.sendTransaction(preparedTx);
 }
 
 /**
@@ -222,7 +245,7 @@ export function encodePayEscrow(
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
   const tokenAddress = request.currencyInfo.value;
 
   // collects the parameters to be used, from the request
@@ -245,13 +268,37 @@ export function encodePayEscrow(
 }
 
 /**
+ * Prepare a transaction pay the escrow contract.
+ * @param request request to pay.
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param amount optional, if you want to override the amount in the request.
+ * @param feeAmount optional, if you want to override the feeAmount in the request.
+ * @param overrides optionally, override default transaction values, like gas.
+ */
+export function preparePayEscrow(
+  request: ClientTypes.IRequestData,
+  amount?: BigNumberish,
+  feeAmount?: BigNumberish,
+  overrides?: ITransactionOverrides,
+): IPreparedTransaction {
+  const encodedTx = encodePayEscrow(request, amount, feeAmount);
+  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
+  return {
+    data: encodedTx,
+    to: contractAddress,
+    value: 0,
+    ...overrides,
+  };
+}
+
+/**
  * Encapsulates the validation, paymentReference calculation and escrow contract interface creation.
  * These steps are used in all subsequent functions encoding escrow interaction transactions
  * @param request Request data
  * @returns {erc20EscrowToPayContract, paymentReference}
  */
 function prepareForEncoding(request: ClientTypes.IRequestData) {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
 
   // collects the parameters to be used from the request
   const { paymentReference } = getRequestPaymentValues(request);

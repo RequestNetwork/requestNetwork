@@ -23,7 +23,6 @@ export default class HttpRequestNetwork extends RequestNetwork {
    * @param options.nodeConnectionConfig Configuration options to connect to the node. Follows Axios configuration format.
    * @param options.useMockStorage When true, will use a mock storage in memory. Meant to simplify local development and should never be used in production.
    * @param options.signatureProvider Module to handle the signature. If not given it will be impossible to create new transaction (it requires to sign).
-   * @param options.useLocalEthereumBroadcast When true, persisting use the node only for IPFS but persisting on ethereum through local provider (given in ethereumProviderUrl).
    * @param options.currencies custom currency list
    * @param options.currencyManager custom currency manager (will override `currencies`)
    */
@@ -43,14 +42,12 @@ export default class HttpRequestNetwork extends RequestNetwork {
       nodeConnectionConfig?: AxiosRequestConfig;
       signatureProvider?: SignatureProviderTypes.ISignatureProvider;
       useMockStorage?: boolean;
-      useLocalEthereumBroadcast?: boolean;
       currencies?: CurrencyInput[];
       currencyManager?: ICurrencyManager;
-      paymentOptions?: PaymentNetworkOptions;
+      paymentOptions?: Partial<PaymentNetworkOptions>;
     } = {
       httpConfig: {},
       nodeConnectionConfig: {},
-      useLocalEthereumBroadcast: false,
       useMockStorage: false,
     },
   ) {

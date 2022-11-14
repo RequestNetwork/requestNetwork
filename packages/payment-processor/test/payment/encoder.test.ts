@@ -3,12 +3,13 @@ import {
   ClientTypes,
   ExtensionTypes,
   IdentityTypes,
-  PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { encodeRequestApprovalAndPayment } from '../../src';
+import { IRequestPaymentOptions } from '../../src/payment/settings';
 import { currencyManager } from './shared';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
+import { MAX_ALLOWANCE } from '../../src/payment/utils';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */
@@ -24,7 +25,7 @@ const alphaConversionSettings = {
     value: alphaContractAddress,
     network: 'private',
   },
-  maxToSpend: BigNumber.from(2).pow(256).sub(1),
+  maxToSpend: MAX_ALLOWANCE,
   currencyManager,
 };
 const ethConversionSettings = {
@@ -72,9 +73,9 @@ const baseValidRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,
@@ -97,9 +98,9 @@ const baseValidRequest: ClientTypes.IRequestData = {
 const validRequestERC20FeeProxy: ClientTypes.IRequestData = {
   ...baseValidRequest,
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -120,9 +121,9 @@ const validRequestERC20ConversionProxy: ClientTypes.IRequestData = {
     value: 'EUR',
   },
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -146,9 +147,9 @@ const validRequestEthProxy: ClientTypes.IRequestData = {
     value: RequestLogicTypes.CURRENCY.ETH,
   },
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,
@@ -169,9 +170,9 @@ const validRequestEthFeeProxy: ClientTypes.IRequestData = {
     value: RequestLogicTypes.CURRENCY.ETH,
   },
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -193,9 +194,9 @@ const validRequestEthConversionProxy: ClientTypes.IRequestData = {
     value: 'EUR',
   },
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -207,6 +208,61 @@ const validRequestEthConversionProxy: ClientTypes.IRequestData = {
       version: '0.1.0',
     },
   },
+};
+
+type Option = 'erc20' | 'erc20Fee' | 'erc20Conv' | 'erc20Swap' | 'erc20SwapConv';
+const getOption = (withApproval: boolean, type: Option): IRequestPaymentOptions | undefined => {
+  switch (type) {
+    case 'erc20': {
+      return withApproval
+        ? {
+            approval: {
+              amount: BigNumber.from(baseValidRequest.expectedAmount),
+            },
+          }
+        : undefined;
+    }
+    case 'erc20Fee': {
+      return withApproval
+        ? {
+            approval: {
+              amount: BigNumber.from(102),
+            },
+          }
+        : undefined;
+    }
+    case 'erc20Conv': {
+      return {
+        conversion: alphaConversionSettings,
+        approval: withApproval
+          ? {
+              amount: alphaConversionSettings.maxToSpend,
+            }
+          : undefined,
+      };
+    }
+    case 'erc20Swap': {
+      return {
+        swap: alphaSwapSettings,
+        approval: withApproval
+          ? {
+              amount: BigNumber.from(alphaSwapSettings.maxInputAmount + 1),
+            }
+          : undefined,
+      };
+    }
+    case 'erc20SwapConv': {
+      return {
+        swap: alphaSwapConversionSettings,
+        conversion: alphaConversionSettings,
+        approval: withApproval
+          ? {
+              amount: BigNumber.from(alphaSwapConversionSettings.maxInputAmount),
+            }
+          : undefined,
+      };
+    }
+  }
 };
 
 beforeAll(async () => {
@@ -223,99 +279,57 @@ beforeAll(async () => {
   wallet = Wallet.fromMnemonic(mnemonic, mnemonicPath).connect(provider);
 });
 
-describe('Encoder', () => {
-  it('Should handle ERC20 Proxy request', async () => {
-    const encodedTransactions = await encodeRequestApprovalAndPayment(baseValidRequest, provider);
-
-    let tx = await wallet.sendTransaction(encodedTransactions[0]);
-    let confirmedTx = await tx.wait(1);
-    expect(confirmedTx.status).toBe(1);
-    expect(tx.hash).not.toBeUndefined();
-
-    tx = await wallet.sendTransaction(encodedTransactions[1]);
-    confirmedTx = await tx.wait(1);
-    expect(confirmedTx.status).toBe(1);
-    expect(tx.hash).not.toBeUndefined();
-  });
-
-  it('Should handle ERC20 Fee Proxy request', async () => {
-    const encodedTransactions = await encodeRequestApprovalAndPayment(
-      validRequestERC20FeeProxy,
-      provider,
-    );
-
-    let tx = await wallet.sendTransaction(encodedTransactions[0]);
-    let confirmedTx = await tx.wait(1);
-    expect(confirmedTx.status).toBe(1);
-    expect(tx.hash).not.toBeUndefined();
-
-    tx = await wallet.sendTransaction(encodedTransactions[1]);
-    confirmedTx = await tx.wait(1);
-    expect(confirmedTx.status).toBe(1);
-    expect(tx.hash).not.toBeUndefined();
-  });
-
-  it('Should handle ERC20 Conversion Proxy request', async () => {
-    let encodedTransactions = await encodeRequestApprovalAndPayment(
-      validRequestERC20ConversionProxy,
-      provider,
+describe.each([
+  { name: 'Without specific approval', withApproval: false },
+  { name: ' With specific approval', withApproval: true },
+])('Encoder for ERC20 requests', ({ name, withApproval }) => {
+  describe(`${name}`, () => {
+    [
+      { task: 'Should handle ERC20 Proxy request', type: 'erc20', request: baseValidRequest },
       {
-        conversion: alphaConversionSettings,
+        task: 'Should handle ERC20 Fee Proxy request',
+        type: 'erc20Fee',
+        request: validRequestERC20FeeProxy,
       },
-    );
-
-    let tx = await wallet.sendTransaction(encodedTransactions[0]);
-    let confirmedTx = await tx.wait(1);
-    expect(confirmedTx.status).toBe(1);
-    expect(tx.hash).not.toBeUndefined();
-
-    tx = await wallet.sendTransaction(encodedTransactions[1]);
-    confirmedTx = await tx.wait(1);
-    expect(confirmedTx.status).toBe(1);
-    expect(tx.hash).not.toBeUndefined();
-  });
-
-  it('Should handle ERC20 Swap Proxy request', async () => {
-    let encodedTransactions = await encodeRequestApprovalAndPayment(
-      validRequestERC20FeeProxy,
-      provider,
       {
-        swap: alphaSwapSettings,
+        task: 'Should handle ERC20 Conversion Proxy request',
+        type: 'erc20Conv',
+        request: validRequestERC20ConversionProxy,
       },
-    );
-
-    let tx = await wallet.sendTransaction(encodedTransactions[0]);
-    let confirmedTx = await tx.wait(1);
-    expect(confirmedTx.status).toBe(1);
-    expect(tx.hash).not.toBeUndefined();
-
-    tx = await wallet.sendTransaction(encodedTransactions[1]);
-    confirmedTx = await tx.wait(1);
-    expect(confirmedTx.status).toBe(1);
-    expect(tx.hash).not.toBeUndefined();
-  });
-
-  it('Should handle ERC20 Swap and Conversion Proxy request', async () => {
-    let encodedTransactions = await encodeRequestApprovalAndPayment(
-      validRequestERC20ConversionProxy,
-      provider,
       {
-        swap: alphaSwapConversionSettings,
-        conversion: alphaConversionSettings,
+        task: 'Should handle ERC20 Swap Proxy request',
+        type: 'erc20Swap',
+        request: validRequestERC20FeeProxy,
       },
-    );
+      {
+        task: 'Should handle ERC20 Swap and Conversion Proxy request',
+        type: 'erc20SwapConv',
+        request: validRequestERC20ConversionProxy,
+      },
+    ].forEach(({ task, type, request }) => {
+      it(`${task}`, async () => {
+        const options = getOption(withApproval, type as Option);
+        const encodedTransactions = await encodeRequestApprovalAndPayment(
+          request,
+          provider,
+          options,
+        );
 
-    let tx = await wallet.sendTransaction(encodedTransactions[0]);
-    let confirmedTx = await tx.wait(1);
-    expect(confirmedTx.status).toBe(1);
-    expect(tx.hash).not.toBeUndefined();
+        let tx = await wallet.sendTransaction(encodedTransactions[0]);
+        let confirmedTx = await tx.wait(1);
+        expect(confirmedTx.status).toBe(1);
+        expect(tx.hash).not.toBeUndefined();
 
-    tx = await wallet.sendTransaction(encodedTransactions[1]);
-    confirmedTx = await tx.wait(1);
-    expect(confirmedTx.status).toBe(1);
-    expect(tx.hash).not.toBeUndefined();
+        tx = await wallet.sendTransaction(encodedTransactions[1]);
+        confirmedTx = await tx.wait(1);
+        expect(confirmedTx.status).toBe(1);
+        expect(tx.hash).not.toBeUndefined();
+      });
+    });
   });
+});
 
+describe('Encoder for Eth requests', () => {
   it('Should handle Eth Proxy request', async () => {
     let encodedTransactions = await encodeRequestApprovalAndPayment(validRequestEthProxy, provider);
 

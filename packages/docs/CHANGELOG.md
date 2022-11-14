@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/docs@0.1.16...@requestnetwork/docs@0.11.0) (2022-11-04)
+
+### Bug Fixes
+
+- balance of detected payments for declared extensions ([#646](https://github.com/RequestNetwork/requestNetwork/issues/646)) ([f0d5492](https://github.com/RequestNetwork/requestNetwork/commit/f0d5492dc612a5be8e8cf2d63f8a9689b53fd18e))
+- docs ([#661](https://github.com/RequestNetwork/requestNetwork/issues/661)) ([a478226](https://github.com/RequestNetwork/requestNetwork/commit/a4782262371cf228a2ff80d86f8f4be3fc4cda12))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- remove empty keywords ([#666](https://github.com/RequestNetwork/requestNetwork/issues/666)) ([0360c0a](https://github.com/RequestNetwork/requestNetwork/commit/0360c0a757a4a58f61428db50d45a359bdd0ce71))
+- revert 'fix: docs ([#661](https://github.com/RequestNetwork/requestNetwork/issues/661))' ([#668](https://github.com/RequestNetwork/requestNetwork/issues/668)) ([7f35bf0](https://github.com/RequestNetwork/requestNetwork/commit/7f35bf009239c909cd612e5c4b771e8a1d52101d))
+- updating URL to RF ([#915](https://github.com/RequestNetwork/requestNetwork/issues/915)) ([d3d2bd4](https://github.com/RequestNetwork/requestNetwork/commit/d3d2bd4c649ac95e20e312325056e48d0c7fb776))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+
+### Features
+
+- OLY token & extra token cleanup ([#500](https://github.com/RequestNetwork/requestNetwork/issues/500)) ([93a1037](https://github.com/RequestNetwork/requestNetwork/commit/93a1037f7c6b8ff0ae45708c9c9b2c8ddd32ceae))
+- update token list ([#384](https://github.com/RequestNetwork/requestNetwork/issues/384)) ([4913626](https://github.com/RequestNetwork/requestNetwork/commit/4913626c74458e17c27b1b21e2a7f4937fe2e841))
+
 # [0.10.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/docs@0.1.16...@requestnetwork/docs@0.10.0) (2021-06-22)
 
 ### Bug Fixes

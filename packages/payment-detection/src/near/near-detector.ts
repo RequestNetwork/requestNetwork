@@ -1,12 +1,8 @@
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
-
-import { ReferenceBasedDetector } from '../reference-based-detector';
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { NearInfoRetriever } from './retrievers/near-info-retriever';
+import { NativeTokenPaymentDetector } from '../native-token-detector';
+import { NetworkNotSupported } from '../balance-error';
+import { NativeDetectorOptions } from '../types';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -22,15 +18,9 @@ const CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment detection for NEAR native token payment
  */
-export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
-  ExtensionTypes.PnReferenceBased.IReferenceBased,
-  PaymentTypes.IETHPaymentEventParameters
-> {
-  /**
-   * @param extension The advanced logic payment network extension
-   */
-  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    super(PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN, advancedLogic.extensions.nativeToken[0]);
+export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
+  constructor(args: NativeDetectorOptions) {
+    super(args);
   }
 
   public static getContractName = (chainName: string, paymentNetworkVersion = '0.2.0'): string => {
@@ -41,11 +31,17 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
         '0.1.0': 'dev-1626339335241-5544297',
         '0.2.0': 'dev-1631521265288-35171138540673',
       },
+      'near-testnet': {
+        '0.1.0': 'dev-1626339335241-5544297',
+        '0.2.0': 'dev-1631521265288-35171138540673',
+      },
     };
     if (versionMap[chainName]?.[version]) {
       return versionMap[chainName][version];
     }
-    throw Error(`Unconfigured chain '${chainName}' and version '${version}'.`);
+    throw new NetworkNotSupported(
+      `Unconfigured near-detector chain '${chainName}' and version '${version}'`,
+    );
   };
 
   /**
@@ -53,7 +49,6 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
    *
    * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
-   * @param requestCurrency The request currency
    * @param paymentReference The reference to identify the payment
    * @param paymentNetwork the payment network state
    * @returns The balance with events

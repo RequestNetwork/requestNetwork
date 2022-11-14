@@ -1,4 +1,4 @@
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import * as Utils from '@requestnetwork/utils';
 
@@ -24,9 +24,9 @@ const request: any = {
   expectedAmount: '100',
   currencyInfo: usdCurrency,
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         salt,
@@ -41,7 +41,7 @@ const request: any = {
 };
 
 // Use the default currency manager
-const conversionSettings = {} as unknown as IConversionPaymentSettings;
+const conversionSettings: IConversionPaymentSettings = { maxToSpend: '30' };
 
 describe('payNearWithConversionRequest', () => {
   afterEach(() => {
@@ -65,7 +65,13 @@ describe('payNearWithConversionRequest', () => {
       paymentAddress,
     );
 
-    await payNearConversionRequest(request, mockedNearWalletConnection, conversionSettings);
+    await payNearConversionRequest(
+      request,
+      mockedNearWalletConnection,
+      conversionSettings,
+      undefined,
+      { callbackUrl: 'https://some.callback.url', meta: 'param' },
+    );
     expect(paymentSpy).toHaveBeenCalledWith(
       expect.anything(),
       'aurora',
@@ -75,8 +81,13 @@ describe('payNearWithConversionRequest', () => {
       'USD',
       feeAddress,
       feeAmount,
+      conversionSettings.maxToSpend,
       '0',
       '0.1.0',
+      {
+        callbackUrl: 'https://some.callback.url',
+        meta: 'param',
+      },
     );
   });
   it('throws when tyring to pay another payment extension', async () => {
@@ -94,8 +105,8 @@ describe('payNearWithConversionRequest', () => {
     invalidRequest = {
       ...invalidRequest,
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: {
-          ...invalidRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE],
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: {
+          ...invalidRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN],
         },
       },
     };
@@ -147,10 +158,11 @@ describe('payNearWithConversionRequest', () => {
     invalidRequest = {
       ...invalidRequest,
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE]: {
-          ...invalidRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE],
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN]: {
+          ...invalidRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN],
           values: {
-            ...invalidRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE].values,
+            ...invalidRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN]
+              .values,
             network: 'unknown-network',
           },
         },
@@ -159,7 +171,7 @@ describe('payNearWithConversionRequest', () => {
 
     await expect(
       payNearConversionRequest(invalidRequest, mockedNearWalletConnection, conversionSettings),
-    ).rejects.toThrowError('Should be a near network');
+    ).rejects.toThrowError('Should be a Near network');
     expect(paymentSpy).toHaveBeenCalledTimes(0);
   });
 });

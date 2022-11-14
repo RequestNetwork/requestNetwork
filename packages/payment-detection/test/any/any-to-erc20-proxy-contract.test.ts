@@ -1,6 +1,4 @@
 import { ethers } from 'ethers';
-import { GraphQLClient } from 'graphql-request';
-import { mocked } from 'ts-jest/utils';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -11,9 +9,12 @@ import {
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { AnyToERC20PaymentDetector } from '../../src/any/any-to-erc20-proxy';
+import { getTheGraphClient } from '../../src/thegraph';
+import { mocked } from 'ts-jest/utils';
+import { mockAdvancedLogicBase } from '../utils';
 
-jest.mock('graphql-request');
-const graphql = mocked(GraphQLClient.prototype);
+jest.mock('../../src/thegraph/client');
+const theGraphClientMock = mocked(getTheGraphClient(''));
 
 let anyToErc20Proxy: AnyToERC20PaymentDetector;
 const currencyManager = CurrencyManager.getDefault();
@@ -26,12 +27,9 @@ const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+  ...mockAdvancedLogicBase,
   extensions: {
     anyToErc20Proxy: {
-      supportedNetworks: ['mainnet', 'rinkeby', 'goerli', 'private'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -40,7 +38,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
-  },
+  } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -49,6 +47,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
     anyToErc20Proxy = new AnyToERC20PaymentDetector({
       advancedLogic: mockAdvancedLogic,
       currencyManager,
+      getSubgraphClient: () => theGraphClientMock,
     });
   });
 
@@ -187,9 +186,9 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       events: [],
       expectedAmount: '1000',
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
           events: [],
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
           values: {
             feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
@@ -312,7 +311,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
     // Payments: 5 (correct fee address)
     // Refunds: 5 (correct fee address)
     expect(
-      mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.feeBalance
+      mockRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.feeBalance
         .balance,
     ).toBe('10');
   });
@@ -349,9 +348,9 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       events: [],
       expectedAmount: '100',
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
           events: [],
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
           values: {
             feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',
@@ -371,7 +370,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       version: '0.2',
     };
 
-    graphql.request.mockResolvedValue({
+    theGraphClientMock.GetPaymentsAndEscrowState.mockResolvedValue({
       payments: [
         {
           amount: '100000000',
@@ -388,8 +387,11 @@ describe('api/any/conversion-fee-proxy-contract', () => {
           maxRateTimespan: 0,
           gasUsed: '130259',
           gasPrice: '73500000000',
+          contractAddress: '0x78334ed20da456e89cd7e5a90de429d705f5bc88',
+          to: '0x98f32171d88f9511b397809534ee42acfce4f640',
         },
       ],
+      escrowEvents: [],
     });
 
     const balance = await anyToErc20Proxy.getBalance(mockRequest);

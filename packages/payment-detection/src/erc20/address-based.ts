@@ -4,11 +4,9 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { BalanceError } from '../balance-error';
 import Erc20InfoRetriever from './address-based-info-retriever';
 
 import { PaymentDetectorBase } from '../payment-detector-base';
-const supportedNetworks = ['mainnet', 'rinkeby', 'goerli', 'private'];
 
 /**
  * Handle payment networks with ERC20 based address extension
@@ -22,7 +20,7 @@ export class ERC20AddressBasedPaymentDetector extends PaymentDetectorBase<
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
     super(
-      PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
+      ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
       advancedLogic.extensions.addressBasedErc20,
     );
   }
@@ -83,16 +81,6 @@ export class ERC20AddressBasedPaymentDetector extends PaymentDetectorBase<
       request.currency.network = 'mainnet';
     }
 
-    if (!supportedNetworks.includes(request.currency.network)) {
-      throw new BalanceError(
-        `Payment network ${
-          request.currency.network
-        } not supported by ERC20 payment detection. Supported networks: ${supportedNetworks.join(
-          ', ',
-        )}`,
-        PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-      );
-    }
     const { paymentAddress, refundAddress } = this.getPaymentExtension(request).values;
     this.checkRequiredParameter(paymentAddress, 'paymentAddress');
 

@@ -7,6 +7,7 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { Erc20PaymentNetwork } from '../../src';
+import { mockAdvancedLogicBase } from '../utils';
 
 let erc20FeeProxyDetector: Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector;
 
@@ -18,12 +19,9 @@ const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+  ...mockAdvancedLogicBase,
   extensions: {
     feeProxyContractErc20: {
-      supportedNetworks: ['mainnet', 'private'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -32,7 +30,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
-  },
+  } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
 const currencyManager = CurrencyManager.getDefault();
@@ -43,6 +41,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
     erc20FeeProxyDetector = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
       advancedLogic: mockAdvancedLogic,
       currencyManager,
+      getSubgraphClient: jest.fn(),
     });
   });
 
@@ -167,9 +166,9 @@ describe('api/erc20/escrow-proxy-contract', () => {
       events: [],
       expectedAmount: '1000',
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
           events: [],
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
           values: {
             feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
@@ -264,6 +263,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
     erc20FeeProxyDetector = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
       advancedLogic: mockAdvancedLogic,
       currencyManager,
+      getSubgraphClient: jest.fn(),
     });
 
     jest
@@ -276,7 +276,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
     // 500 + 500 + 100 (3 payments) - 10 - 10 (2 refunds) = 1100 - 20 = 1080
     expect(balance.balance).toBe('1080');
     expect(
-      mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT].values
+      mockRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT].values
         .feeBalance.balance,
     ).toBe('5');
   });

@@ -1,6 +1,6 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes, TypesUtils } from '@requestnetwork/types';
+import { ICurrencyManager } from '@requestnetwork/currency';
 import Utils from '@requestnetwork/utils';
-import { BalanceError } from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { DeclarativePaymentDetectorBase } from './declarative';
@@ -10,17 +10,21 @@ import { DeclarativePaymentDetectorBase } from './declarative';
  */
 export abstract class ReferenceBasedDetector<
   TExtension extends ExtensionTypes.PnReferenceBased.IReferenceBased,
-  TPaymentEventParameters,
+  TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters<string>,
 > extends DeclarativePaymentDetectorBase<
   TExtension,
   TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
 > {
   /**
-   * @param paymentNetworkId Example : PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
+   * @param paymentNetworkId Example : ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
    * @param extension The advanced logic payment network extension, reference based
+   * @param currencyManager The currency manager
    */
-
-  public constructor(paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
+  protected constructor(
+    paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
+    extension: TExtension,
+    protected readonly currencyManager: ICurrencyManager,
+  ) {
     super(paymentNetworkId, extension);
     if (!TypesUtils.isPaymentNetworkId(paymentNetworkId)) {
       throw new Error(
@@ -88,15 +92,6 @@ export abstract class ReferenceBasedDetector<
     const paymentExtension = this.getPaymentExtension(request);
     const paymentChain = this.getPaymentChain(request);
 
-    const supportedNetworks = this.extension.supportedNetworks;
-    if (!supportedNetworks.includes(paymentChain)) {
-      throw new BalanceError(
-        `Payment network ${paymentChain} not supported by ${
-          this.paymentNetworkId
-        } payment detection. Supported networks: ${supportedNetworks.join(', ')}`,
-        PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-      );
-    }
     this.checkRequiredParameter(paymentExtension.values.salt, 'salt');
     this.checkRequiredParameter(paymentExtension.values.paymentAddress, 'paymentAddress');
 

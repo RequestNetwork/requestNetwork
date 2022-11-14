@@ -1,5 +1,5 @@
 import { BigNumberish, ContractTransaction, providers, Signer } from 'ethers';
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { EthInputDataPaymentDetector } from '@requestnetwork/payment-detection';
 import { EthereumProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ITransactionOverrides } from './transaction-overrides';
@@ -15,7 +15,6 @@ import { IPreparedTransaction } from './prepared-transaction';
 
 /**
  * Processes a transaction to pay an ETH Request with the proxy contract.
- * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param overrides optionally, override default transaction values, like gas.
@@ -38,7 +37,7 @@ export async function payEthProxyRequest(
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
 export function encodePayEthProxyRequest(request: ClientTypes.IRequestData): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA);
 
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
 
@@ -53,7 +52,7 @@ export function prepareEthProxyPaymentTransaction(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
 ): IPreparedTransaction {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA);
 
   const encodedTx = encodePayEthProxyRequest(request);
   const proxyAddress = getProxyAddress(request, (network, version) =>

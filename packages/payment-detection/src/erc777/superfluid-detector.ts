@@ -1,13 +1,9 @@
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { SuperFluidInfoRetriever } from './superfluid-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import { BigNumber } from 'ethers';
+import { ReferenceBasedDetectorOptions } from '../types';
 /**
  * Handle payment networks with ERC777 Superfluid streaming extension
  */
@@ -18,8 +14,12 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    super(PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM, advancedLogic.extensions.erc777Stream);
+  public constructor({ advancedLogic, currencyManager }: ReferenceBasedDetectorOptions) {
+    super(
+      ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
+      advancedLogic.extensions.erc777Stream,
+      currencyManager,
+    );
   }
 
   protected isSubsequentRequest(request: RequestLogicTypes.IRequest): boolean {

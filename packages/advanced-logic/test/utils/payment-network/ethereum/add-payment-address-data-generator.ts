@@ -16,14 +16,14 @@ export const salt = 'ea3bc7caf64110ca';
 // actions
 export const actionAddPaymentAddress = {
   action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
   parameters: {
     paymentAddress,
   },
 };
 export const actionAddRefundAddress = {
   action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
   parameters: {
     refundAddress,
   },
@@ -32,7 +32,7 @@ export const actionAddRefundAddress = {
 // ---------------------------------------------------------------------
 // extensions states
 export const extensionStateWithPaymentAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA as string]: {
     events: [
       {
         name: ExtensionTypes.PnReferenceBased.ACTION.CREATE,
@@ -47,7 +47,7 @@ export const extensionStateWithPaymentAfterCreation = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentAddress,
@@ -57,7 +57,7 @@ export const extensionStateWithPaymentAfterCreation = {
 };
 
 export const extensionStateWithRefundAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA as string]: {
     events: [
       {
         name: ExtensionTypes.PnReferenceBased.ACTION.CREATE,
@@ -72,7 +72,7 @@ export const extensionStateWithRefundAfterCreation = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       refundAddress,

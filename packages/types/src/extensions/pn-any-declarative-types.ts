@@ -15,7 +15,7 @@ export interface IAnyDeclarative<TCreationParameters = ICreationParameters>
   createAddRefundInstructionAction: (
     parameters: IAddRefundInstructionParameters,
   ) => Extension.IAction;
-  createCreationAction: (parameters?: TCreationParameters) => Extension.IAction;
+  createCreationAction: (parameters: TCreationParameters) => Extension.IAction<TCreationParameters>;
   createAddDelegateAction: (parameters: IAddDelegateParameters) => Extension.IAction;
 }
 

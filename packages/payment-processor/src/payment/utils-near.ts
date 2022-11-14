@@ -6,6 +6,16 @@ import {
   NearConversionNativeTokenPaymentDetector,
 } from '@requestnetwork/payment-detection';
 
+/**
+ * Callback arguments for the Near web wallet.
+ * @member callbackUrl called upon transaction approval
+ * @member callbackMeta (according to Near docs: `meta` will be attached to the `callbackUrl` as a url search param)
+ */
+export interface INearTransactionCallback {
+  callbackUrl?: string;
+  meta?: string;
+}
+
 export const isValidNearAddress = async (nearNetwork: Near, address: string): Promise<boolean> => {
   try {
     await nearNetwork.connection.provider.query(`account/${address}`, '');
@@ -16,7 +26,10 @@ export const isValidNearAddress = async (nearNetwork: Near, address: string): Pr
 };
 
 export const isNearNetwork = (network?: string): boolean => {
-  return !!network && (network === 'aurora-testnet' || network === 'aurora');
+  return (
+    !!network &&
+    (network === 'near-testnet' || network === 'aurora-testnet' || network === 'aurora')
+  );
 };
 
 export const isNearAccountSolvent = (
@@ -34,6 +47,8 @@ export const isNearAccountSolvent = (
 
 const GAS_LIMIT_IN_TGAS = 50;
 const GAS_LIMIT = ethers.utils.parseUnits(GAS_LIMIT_IN_TGAS.toString(), 12);
+const GAS_LIMIT_NATIVE = GAS_LIMIT.toString();
+const GAS_LIMIT_CONVERSION_TO_NATIVE = GAS_LIMIT.mul(2).toString();
 
 export const processNearPayment = async (
   walletConnection: WalletConnection,
@@ -42,6 +57,7 @@ export const processNearPayment = async (
   to: string,
   paymentReference: string,
   version = '0.2.0',
+  callback: INearTransactionCallback | undefined = undefined,
 ): Promise<void> => {
   if (version !== '0.2.0') {
     if (version === '0.1.0') {
@@ -64,14 +80,15 @@ export const processNearPayment = async (
         viewMethods: [],
       },
     ) as any;
-    await contract.transfer_with_reference(
-      {
+    await contract.transfer_with_reference({
+      args: {
         to,
         payment_reference: paymentReference,
       },
-      GAS_LIMIT.toString(),
-      amount.toString(),
-    );
+      gas: GAS_LIMIT_NATIVE,
+      amount: amount.toString(),
+      ...callback,
+    });
     return;
   } catch (e) {
     throw new Error(`Could not pay Near request. Got ${e.message}`);
@@ -94,8 +111,10 @@ export const processNearPaymentWithConversion = async (
   currency: string,
   feeAddress: string,
   feeAmount: BigNumberish,
+  maxToSpend: BigNumberish,
   maxRateTimespan = '0',
   version = '0.1.0',
+  callback: INearTransactionCallback | undefined = undefined,
 ): Promise<void> => {
   if (version !== '0.1.0') {
     throw new Error('Native Token with conversion payments on Near only support v0.1.0 extensions');
@@ -117,8 +136,8 @@ export const processNearPaymentWithConversion = async (
         viewMethods: [],
       },
     ) as any;
-    await contract.transfer_with_reference(
-      {
+    await contract.transfer_with_reference({
+      args: {
         payment_reference: paymentReference,
         to,
         amount,
@@ -127,9 +146,10 @@ export const processNearPaymentWithConversion = async (
         fee_amount: feeAmount,
         max_rate_timespan: maxRateTimespan,
       },
-      GAS_LIMIT.toString(),
-      amount.toString(),
-    );
+      gas: GAS_LIMIT_CONVERSION_TO_NATIVE,
+      amount: maxToSpend.toString(),
+      ...callback,
+    });
     return;
   } catch (e) {
     throw new Error(`Could not pay Near request. Got ${e.message}`);

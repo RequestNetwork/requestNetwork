@@ -1,7 +1,7 @@
 import { batchPaymentsArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
-import utils from '@requestnetwork/utils';
 import {
+  getSignerAndGasPrice,
   updateBatchPaymentFees,
   updatePaymentErc20FeeProxy,
   updatePaymentEthFeeProxy,
@@ -23,24 +23,18 @@ export const setupBatchPayments = async (
   );
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network) => {
-      let provider;
-      if (network === 'celo') {
-        provider = utils.getCeloProvider();
-      } else {
-        provider = utils.getDefaultProvider(network);
-      }
-      const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
-      const signer = wallet.connect(provider);
-      const batchPaymentConnected = await batchPaymentContract.connect(signer);
-      const adminNonce = await signer.getTransactionCount();
-      const gasPrice = await provider.getGasPrice();
+      try {
+        const { signer, gasPrice } = await getSignerAndGasPrice(network, hre);
+        const batchPaymentConnected = await batchPaymentContract.connect(signer);
 
-      // start from the adminNonce, increase gasPrice if needed
-      await Promise.all([
-        updateBatchPaymentFees(batchPaymentConnected, adminNonce, gasPrice.mul(2)),
-        updatePaymentErc20FeeProxy(batchPaymentConnected, network, adminNonce + 1, gasPrice.mul(2)),
-        updatePaymentEthFeeProxy(batchPaymentConnected, network, adminNonce + 2, gasPrice.mul(2)),
-      ]);
+        await updateBatchPaymentFees(batchPaymentConnected, gasPrice.mul(2));
+        await updatePaymentErc20FeeProxy(batchPaymentConnected, network, gasPrice.mul(2));
+        await updatePaymentEthFeeProxy(batchPaymentConnected, network, gasPrice.mul(2));
+        console.log(`Setup of BatchPayment successful on ${network}`);
+      } catch (err) {
+        console.warn(`An error occurred during the setup of BatchPayment on ${network}`);
+        console.warn(err);
+      }
     }),
   );
   console.log('Setup for setupBatchPayment successfull');

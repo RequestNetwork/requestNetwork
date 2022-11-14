@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/advanced-logic",
-  "version": "0.34.0",
+  "version": "0.35.0",
   "publishConfig": {
     "access": "public"
   },
@@ -39,9 +39,9 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/currency": "0.8.0",
-    "@requestnetwork/types": "0.35.0",
-    "@requestnetwork/utils": "0.35.0",
+    "@requestnetwork/currency": "0.9.0",
+    "@requestnetwork/types": "0.36.0",
+    "@requestnetwork/utils": "0.36.0",
     "@types/node": "14.14.16",
     "lodash": "4.17.21",
     "tslib": "2.3.1"
@@ -51,7 +51,6 @@
     "@types/lodash": "4.14.161",
     "jest": "26.4.2",
     "nyc": "15.1.0",
-    "prettier": "2.2.1",
     "shx": "0.3.2",
     "ts-jest": "26.3.0",
     "ts-node": "9.0.0",

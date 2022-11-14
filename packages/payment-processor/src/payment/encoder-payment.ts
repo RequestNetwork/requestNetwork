@@ -47,17 +47,17 @@ export function encodeRequestPaymentWithoutSwap(
   const overrides = options?.overrides ? options.overrides : {};
 
   switch (paymentNetwork) {
-    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
+    case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT:
       return {
         ...prepareErc20ProxyPaymentTransaction(request, amount),
         ...overrides,
       };
-    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
+    case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT:
       return {
         ...prepareErc20FeeProxyPaymentTransaction(request, amount, feeAmount),
         ...overrides,
       };
-    case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY: {
+    case ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY: {
       if (
         !options ||
         !options.conversion ||
@@ -76,7 +76,7 @@ export function encodeRequestPaymentWithoutSwap(
         ...overrides,
       };
     }
-    case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY: {
+    case ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY: {
       if (
         !options ||
         !options.conversion ||
@@ -95,12 +95,12 @@ export function encodeRequestPaymentWithoutSwap(
         ...overrides,
       };
     }
-    case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
+    case ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA:
       return {
         ...prepareEthProxyPaymentTransaction(request, amount),
         ...overrides,
       };
-    case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT:
+    case ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT:
       return {
         ...prepareEthFeeProxyPaymentTransaction(request, amount, feeAmount),
         ...overrides,
@@ -125,7 +125,7 @@ export async function encodeRequestPaymentWithStream(
   const overrides = options?.overrides ? options.overrides : {};
 
   switch (paymentNetwork) {
-    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM:
+    case ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM:
       return {
         ...(await prepareErc777StreamPaymentTransaction(request, provider)),
         ...overrides,
@@ -152,7 +152,7 @@ export function encodeRequestPaymentWithSwap(
   const overrides = options?.overrides ? options.overrides : undefined;
 
   switch (paymentNetwork) {
-    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
+    case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT:
       if (options && options.swap) {
         return prepareSwapToPayErc20FeeRequest(request, provider, options.swap, {
           amount,
@@ -162,7 +162,7 @@ export function encodeRequestPaymentWithSwap(
       } else {
         throw new Error('No swap options');
       }
-    case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY: {
+    case ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY: {
       if (
         !options ||
         !options.conversion ||

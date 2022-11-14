@@ -1,8 +1,9 @@
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
-import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { mockAdvancedLogic } from './mocks';
 import { Types, Utils } from '@requestnetwork/request-client.js';
+import { CurrencyManager } from '@requestnetwork/currency';
 import {
   erc20requestCreationHash,
   localErc20PaymentNetworkParams,
@@ -14,6 +15,8 @@ import {
 
 const erc20ProxyAddressedBased = new Erc20PaymentNetwork.ERC20ProxyPaymentDetector({
   advancedLogic: mockAdvancedLogic,
+  currencyManager: CurrencyManager.getDefault(),
+  getSubgraphClient: jest.fn(),
 });
 
 describe('ERC20 Proxy detection test-suite', () => {
@@ -21,7 +24,7 @@ describe('ERC20 Proxy detection test-suite', () => {
     const request = await requestNetwork.createRequest({
       paymentNetwork: {
         ...localErc20PaymentNetworkParams,
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       },
       requestInfo: erc20requestCreationHash,
       signer: payeeIdentity,
@@ -52,7 +55,7 @@ describe('ERC20 Proxy detection test-suite', () => {
     const request = await requestNetwork.createRequest({
       paymentNetwork: {
         ...localErc20PaymentNetworkParams,
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       },
       requestInfo: erc20requestCreationHash,
       signer: payeeIdentity,

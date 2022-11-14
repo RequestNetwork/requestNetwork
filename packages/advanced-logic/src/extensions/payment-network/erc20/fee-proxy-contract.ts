@@ -10,28 +10,10 @@ export default class Erc20FeeProxyPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnFeeReferenceBased.ICreationParameters = ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
 > extends FeeReferenceBasedPaymentNetwork<TCreationParameters> {
   public constructor(
-    extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+    extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
+      .ERC20_FEE_PROXY_CONTRACT,
     currentVersion: string = CURRENT_VERSION,
-    public supportedNetworks: string[] = [
-      'mainnet',
-      'rinkeby',
-      'goerli',
-      'private',
-      'matic',
-      'mumbai',
-      'celo',
-      'alfajores',
-      'fuse',
-      'bsctest',
-      'bsc',
-      'xdai',
-      'fantom',
-      'arbitrum-rinkeby',
-      'arbitrum-one',
-      'avalanche',
-    ],
-    public supportedCurrencyType: RequestLogicTypes.CURRENCY = RequestLogicTypes.CURRENCY.ERC20,
   ) {
-    super(extensionId, currentVersion, supportedNetworks, supportedCurrencyType);
+    super(extensionId, currentVersion, RequestLogicTypes.CURRENCY.ERC20);
   }
 }

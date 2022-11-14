@@ -66,8 +66,12 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
       );
       const maxPriorityFeePerGas = BigNumber.from(suggestedFee.maxPriorityFeeSuggestions.urgent);
       const maxFeePerGas = maxPriorityFeePerGas.add(suggestedFee.baseFeeSuggestion);
-      overrides.maxPriorityFeePerGas = maxPriorityFeePerGas;
-      overrides.maxFeePerGas = maxFeePerGas;
+      if (maxPriorityFeePerGas.gt(0)) {
+        overrides.maxPriorityFeePerGas = maxPriorityFeePerGas;
+      }
+      if (maxFeePerGas.gt(0)) {
+        overrides.maxFeePerGas = maxFeePerGas;
+      }
     }
     const tx = await this.hashSubmitter.submitHash(
       ipfsHash,

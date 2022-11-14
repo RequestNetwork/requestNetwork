@@ -35,8 +35,6 @@ export default class IpfsManager {
    * @param options.ipfsConnection Object to connect to the ipfs gateway
    * If no values are provided default values from config are used
    * Private network is used for default values
-   * @param options.ipfsErrorHandling
-   * @param options.logger
    */
   public constructor(options?: {
     ipfsGatewayConnection?: StorageTypes.IIpfsGatewayConnection;

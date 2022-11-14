@@ -3,11 +3,10 @@ import {
   ClientTypes,
   ExtensionTypes,
   IdentityTypes,
-  PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { encodeRequestPayment, encodeRequestPaymentWithStream } from '../../src';
-import { getProxyAddress } from '../../src/payment/utils';
+import { getProxyAddress, MAX_ALLOWANCE } from '../../src/payment/utils';
 import {
   AnyToERC20PaymentDetector,
   AnyToEthFeeProxyPaymentDetector,
@@ -36,7 +35,7 @@ const alphaConversionSettings = {
     value: alphaContractAddress,
     network: 'private',
   },
-  maxToSpend: BigNumber.from(2).pow(256).sub(1),
+  maxToSpend: MAX_ALLOWANCE,
   currencyManager,
 };
 const ethConversionSettings = {
@@ -85,9 +84,9 @@ const baseValidRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,
@@ -110,9 +109,9 @@ const baseValidRequest: ClientTypes.IRequestData = {
 const validRequestERC20FeeProxy: ClientTypes.IRequestData = {
   ...baseValidRequest,
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -134,9 +133,9 @@ const validRequestERC777Stream: ClientTypes.IRequestData = {
     value: DAIX_ADDRESS,
   },
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         expectedStartDate,
@@ -157,9 +156,9 @@ const validRequestERC20ConversionProxy: ClientTypes.IRequestData = {
     value: 'EUR',
   },
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -183,9 +182,9 @@ const validRequestEthProxy: ClientTypes.IRequestData = {
     value: RequestLogicTypes.CURRENCY.ETH,
   },
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,
@@ -206,9 +205,9 @@ const validRequestEthFeeProxy: ClientTypes.IRequestData = {
     value: RequestLogicTypes.CURRENCY.ETH,
   },
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -230,9 +229,9 @@ const validRequestEthConversionProxy: ClientTypes.IRequestData = {
     value: 'EUR',
   },
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,

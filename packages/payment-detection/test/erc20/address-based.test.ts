@@ -4,29 +4,24 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { ERC20AddressBasedPaymentDetector } from '../../src/erc20/address-based';
+import { ERC20AddressBasedPaymentDetector } from '../../src/erc20';
+import { mockAdvancedLogicBase } from '../utils';
+import { AdvancedLogic } from '@requestnetwork/advanced-logic';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 jest.setTimeout(10000);
 
 let erc20AddressedBased: ERC20AddressBasedPaymentDetector;
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+  ...mockAdvancedLogicBase,
   extensions: {
     addressBasedErc20: {
-      createAddPaymentAddressAction(): any {
-        return;
-      },
-      createAddRefundAddressAction(): any {
-        return;
-      },
-      createCreationAction(): any {
-        return;
-      },
-    },
-  },
+      createAddPaymentAddressAction: jest.fn(),
+      createAddRefundAddressAction: jest.fn(),
+      createCreationAction: jest.fn(),
+    } as any,
+  } as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
 // Most of the tests are done as integration tests in ../index.test.ts
@@ -86,7 +81,7 @@ describe('api/erc20/address-based', () => {
       events: [],
       expectedAmount: '0',
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED]: {
           events: [],
           id: '0',
           type: 'none',
@@ -117,18 +112,13 @@ describe('api/erc20/address-based', () => {
   });
 
   it('should not throw when getBalance fail', async () => {
-    expect(
-      await erc20AddressedBased.getBalance({
+    erc20AddressedBased = new ERC20AddressBasedPaymentDetector({
+      advancedLogic: new AdvancedLogic(CurrencyManager.getDefault()),
+    });
+    await expect(
+      erc20AddressedBased.getBalance({
         currency: { network: 'wrong' },
       } as RequestLogicTypes.IRequest),
-    ).toMatchObject({
-      balance: null,
-      error: {
-        code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-        message:
-          'Payment network wrong not supported by ERC20 payment detection. Supported networks: mainnet, rinkeby, goerli, private',
-      },
-      events: [],
-    });
+    ).resolves.not.toThrowError();
   });
 });

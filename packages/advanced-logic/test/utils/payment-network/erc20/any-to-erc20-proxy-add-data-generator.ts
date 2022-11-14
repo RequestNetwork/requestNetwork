@@ -19,21 +19,21 @@ export const salt = 'ea3bc7caf64110ca';
 // actions
 export const actionAddPaymentAddress = {
   action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
   parameters: {
     paymentAddress,
   },
 };
 export const actionAddRefundAddress = {
   action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_REFUND_ADDRESS,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
   parameters: {
     refundAddress,
   },
 };
 export const actionAddFee = {
   action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
   parameters: {
     feeAddress,
     feeAmount,
@@ -41,7 +41,7 @@ export const actionAddFee = {
 };
 export const declareReceivedPayment = {
   action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
   parameters: {
     amount: '123400000000000000',
     note: 'this is your payment',
@@ -53,7 +53,7 @@ export const declareReceivedPayment = {
 // ---------------------------------------------------------------------
 // extensions states
 export const extensionStateWithPaymentAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY as string]: {
     events: [
       {
         name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
@@ -68,7 +68,7 @@ export const extensionStateWithPaymentAfterCreation = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentAddress,
@@ -79,7 +79,7 @@ export const extensionStateWithPaymentAfterCreation = {
 };
 
 export const extensionStateWithRefundAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY as string]: {
     events: [
       {
         name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
@@ -94,7 +94,7 @@ export const extensionStateWithRefundAfterCreation = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       refundAddress,
@@ -105,7 +105,7 @@ export const extensionStateWithRefundAfterCreation = {
 };
 
 export const extensionStateWithFeeAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY as string]: {
     events: [
       {
         name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
@@ -121,7 +121,7 @@ export const extensionStateWithFeeAfterCreation = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       feeAddress,
