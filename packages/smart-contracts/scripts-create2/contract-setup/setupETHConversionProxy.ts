@@ -3,12 +3,12 @@ import { HardhatRuntimeEnvironmentExtended } from '../types';
 import {
   getSignerAndGasPrice,
   updateChainlinkConversionPath,
-  updatePaymentEthFeeProxy,
+  updatePaymentFeeProxyAddress,
 } from './adminTasks';
 
 /**
- * Updates the values of the batch fees of the BatchPayments contract, if needed
- * @param contractAddress address of the BatchPayments Proxy
+ * Updates the values of the chainlinkConversionPath and EthFeeProxy addresses if needed
+ * @param contractAddress address of the ETHConversion Proxy
  * @param hre Hardhat runtime environment
  */
 export const setupETHConversionProxy = async (
@@ -24,9 +24,13 @@ export const setupETHConversionProxy = async (
     hre.config.xdeploy.networks.map(async (network) => {
       try {
         const { signer, gasPrice } = await getSignerAndGasPrice(network, hre);
-        const EthConversionProxyConnected = await EthConversionProxyContract.connect(signer);
-
-        await updatePaymentEthFeeProxy(EthConversionProxyConnected, network, gasPrice);
+        const EthConversionProxyConnected = EthConversionProxyContract.connect(signer);
+        await updatePaymentFeeProxyAddress(
+          EthConversionProxyConnected,
+          network,
+          gasPrice,
+          'native',
+        );
         await updateChainlinkConversionPath(EthConversionProxyConnected, network, gasPrice);
         console.log(`Setup of EthConversionProxy successful on ${network}`);
       } catch (err) {
