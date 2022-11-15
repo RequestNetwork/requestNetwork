@@ -4,7 +4,7 @@ import { HardhatRuntimeEnvironmentExtended } from './types';
 import { xdeploy } from './xdeployer';
 import { getConstructorArgs } from './constructor-args';
 import { setupERC20SwapToConversion } from './contract-setup';
-import { setupBatchPayments } from './contract-setup/setupBatchPayments';
+import { setupBatchConversionPayments } from './contract-setup/setupBatchConversionPayments';
 import { setupETHConversionProxy } from './contract-setup/setupETHConversionProxy';
 import { setupErc20ConversionProxy } from './contract-setup/setupErc20ConversionProxy';
 
@@ -86,11 +86,11 @@ export const deployWithCreate2FromList = async (
         await deployOneWithCreate2({ contract, constructorArgs }, hre);
         break;
       }
-      case 'BatchPayments': {
+      case 'BatchConversionPayments': {
         const network = hre.config.xdeploy.networks[0];
         const constructorArgs = getConstructorArgs(contract, network);
         const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
-        await setupBatchPayments(address, hre);
+        await setupBatchConversionPayments(address, hre);
         break;
       }
       // Other cases to add when necessary
