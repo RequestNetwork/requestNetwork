@@ -48,6 +48,7 @@ const noConversionNetworks: AggregatorsMap = {
   xdai: {},
   avalanche: {},
   bsc: {},
+  optimism: {},
 };
 
 /**
