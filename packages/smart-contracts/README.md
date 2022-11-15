@@ -157,7 +157,10 @@ This command will output details about each contract deployment on each chain:
 
 ### Verify the contracts
 
-Verify and publish the contract code automatically to blockchain explorers, right after smart contracts compilation. You should first set the `ETHERSCAN_API_KEY` environment variable.
+Verify and publish the contract code automatically to blockchain explorers, right after smart contracts compilation.
+Environment variables needed: `ADMIN_...` key and wallet, `ETHERSCAN_API_KEY`, and `REQUEST_DEPLOYER_LIVE`.
+Depending on the contracts you're verifying you will need to set up `WEB3_PROVIDER_URL`.
+See `hardhat.config.ts`.
 
 ```bash
 yarn hardhat verify-contract-from-deployer --network <NETWORK>

@@ -1,10 +1,10 @@
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import { setupETHConversionProxy } from './setupETHConversionProxy';
-import { setupBatchPayments } from './setupBatchPayments';
+import { setupBatchConversionPayments } from './setupBatchConversionPayments';
 import { setupERC20SwapToConversion } from './setupERC20SwapToConversion';
 
 /**
- * Updates the values of either BatchPayments, ETHConversionProxy, or ERC20SwapToConversion contract, if needed
+ * Updates the values of either BatchConversionPayments, ETHConversionProxy, or ERC20SwapToConversion contract, if needed
  * @param contractAddress address of the proxy
  * @param hre Hardhat runtime environment
  * @param contractName name of the contract
@@ -23,8 +23,8 @@ export const setupContract = async (
       await setupERC20SwapToConversion(contractAddress, hre);
       break;
     }
-    case 'BatchPayments': {
-      await setupBatchPayments(contractAddress, hre);
+    case 'BatchConversionPayments': {
+      await setupBatchConversionPayments(contractAddress, hre);
       break;
     }
     default: {
