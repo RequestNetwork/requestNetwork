@@ -51,9 +51,6 @@ function applyActionToRequest(
   if (!action.data.parameters.requestId) {
     throw new Error('requestId must be given');
   }
-  if (!action.data.parameters.stakeholder) {
-    throw new Error('stakeholder must be given');
-  }
 
   const signer: IdentityTypes.IIdentity = Action.getSignerIdentityFromAction(action);
 
@@ -62,6 +59,7 @@ function applyActionToRequest(
   requestCopied = Request.pushExtensionsData(requestCopied, action.data.parameters.extensionsData);
   requestCopied.events.push(generateEvent(action, timestamp, signer));
 
+  // TODO: Anything else to do here?
   return requestCopied;
 }
 

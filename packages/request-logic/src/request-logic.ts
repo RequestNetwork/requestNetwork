@@ -366,10 +366,11 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   }
 
   /**
-   * Function to add a stakeholder to a request and persist it on through the transaction manager layer
+   * Function to add stakeholder to a request and persist it on through the transaction manager layer
    *
-   * @param IAddStakeholderParameters requestParameters parameters to add a stakeholder to a request
+   * @param IAddStakeholderParameters requestParameters parameters to add stakeholder to a request
    * @param IIdentity signerIdentity Identity of the signer
+   * @param IEncryptionParameters encryptionParams list of addtional encryption parameters to encrypt the channel key with
    * @param boolean validate specifies if a validation should be done before persisting the transaction. Requires a full load of the Request.
    *
    * @returns Promise<IRequestLogicReturn> the meta data
@@ -377,6 +378,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async addStakeholder(
     requestParameters: RequestLogicTypes.IAddStakeholderParameters,
     signerIdentity: IdentityTypes.IIdentity,
+    encryptionParams: EncryptionTypes.IEncryptionParameters[],
     validate = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
@@ -395,6 +397,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       requestId,
+      undefined,
+      encryptionParams,
     );
 
     const result = Object.assign(new EventEmitter(), {

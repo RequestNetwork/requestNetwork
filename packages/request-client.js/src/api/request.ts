@@ -4,7 +4,12 @@ import {
   DeclarativePaymentDetector,
   EscrowERC20InfoRetriever,
 } from '@requestnetwork/payment-detection';
-import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  IdentityTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+  EncryptionTypes,
+} from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
@@ -288,13 +293,13 @@ export default class Request {
   /**
    * Adds a stakeholder to a request
    *
-   * @param stakeholderIdentity Identity of the stakeholder. The identity type must be supported by the signature provider.
+   * @param IEncryptionParameters encryptionParams list of addtional encryption parameters to encrypt the channel key with
    * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
    * @param refundInformation refund information to add (any because it is specific to the payment network used by the request)
    * @returns The updated request
    */
   public async addStakeholder(
-    stakeholderIdentity: IdentityTypes.IIdentity,
+    encryptionParams: EncryptionTypes.IEncryptionParameters[],
     signerIdentity: IdentityTypes.IIdentity,
     refundInformation?: any,
   ): Promise<Types.IRequestDataWithEvents> {
@@ -309,7 +314,6 @@ export default class Request {
     }
 
     const parameters: RequestLogicTypes.IAddStakeholderParameters = {
-      stakeholderIdentity,
       extensionsData,
       requestId: this.requestId,
     };
@@ -317,6 +321,7 @@ export default class Request {
     const addStakeholderResult = await this.requestLogic.addStakeholder(
       parameters,
       signerIdentity,
+      encryptionParams,
       true,
     );
 

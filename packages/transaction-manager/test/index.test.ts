@@ -276,6 +276,7 @@ describe('index', () => {
         ).rejects.toThrowError(`Impossible to retrieve the channel: ${channelId}`);
       });
 
+      // TODO: Remove this
       it('cannot persist a encrypted transaction in an existing channel with encryption parameters given', async () => {
         const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
           TestData.idRaw1.encryptionParams,

@@ -46,6 +46,7 @@ export interface IRequestLogic {
   addStakeholder: (
     requestParameters: IAddStakeholderParameters,
     signerIdentity: Identity.IIdentity,
+    encryptionParams: Encryption.IEncryptionParameters[],
     validate?: boolean,
   ) => Promise<IRequestLogicReturnWithConfirmation>;
   addExtensionsDataRequest: (
@@ -236,7 +237,6 @@ export interface IReduceExpectedAmountParameters {
 
 /** Parameters to add stakeholder to a request */
 export interface IAddStakeholderParameters {
-  stakeholder: Identity.IIdentity;
   requestId: RequestId;
   extensionsData?: any[];
 }
