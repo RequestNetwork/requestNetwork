@@ -4,13 +4,14 @@ import * as artifacts from '../../src/lib';
 import { BigNumber, Wallet } from 'ethers';
 import utils from '@requestnetwork/utils';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
+import { parseUnits } from 'ethers/lib/utils';
 
 // Fees: 0.5%
 export const REQUEST_SWAP_FEES = 5;
 // Batch Fees: .3%
 export const BATCH_FEE = BigNumber.from(30);
 // Batch fee amount in USD Limit: 150 * 1e8 ($150)
-const BATCH_FEE_AMOUNT_USD_LIMIT = parseUnits("150", 8);
+const BATCH_FEE_AMOUNT_USD_LIMIT = parseUnits('150', 8);
 
 /**
  * Updates the chainlink address used by the contract.
@@ -92,7 +93,7 @@ export const updateBatchPaymentFeeAmountUSDLimit = async (
     });
     await tx.wait(1);
     console.log(
-      `Batch: the current fee amount in USD limit: ${currentFeeAmountUSDLimit.toString()}, have been replaced by: ${BATCH_FEE_AMOUNT_USD_LIMIT}. ($1 = 1e8)`,
+      `Batch: the current fee amount in USD limit: ${currentFeeAmountUSDLimit.toString()}, have been replaced by: ${BATCH_FEE_AMOUNT_USD_LIMIT.toString()}. ($1 = 1e8)`,
     );
   }
 };
@@ -154,27 +155,32 @@ export const updateBatchConversionProxy = async (
   let proxyAddress: string;
   let batchSetProxy: any;
   let currentAddress: string;
-  if (proxyName === 'native') {
-    proxyAddress = artifacts.ethereumFeeProxyArtifact.getAddress(network);
-    batchSetProxy = await contract.setPaymentNativeProxy;
-    currentAddress = await contract.paymentNativeProxy();
-  } else if (proxyName === 'nativeConversion') {
-    proxyAddress = artifacts.ethConversionArtifact.getAddress(network);
-    batchSetProxy = await contract.setPaymentNativeConversionProxy;
-    currentAddress = await contract.paymentNativeConversionProxy();
-  } else if (proxyName === 'erc20') {
-    proxyAddress = artifacts.erc20FeeProxyArtifact.getAddress(network);
-    batchSetProxy = await contract.setPaymentErc20Proxy;
-    currentAddress = await contract.paymentErc20Proxy();
-  } else if (proxyName === 'erc20Conversion') {
-    proxyAddress = artifacts.erc20ConversionProxy.getAddress(network);
-    batchSetProxy = await contract.setPaymentErc20ConversionProxy;
-    currentAddress = await contract.paymentErc20ConversionProxy();
-  } else {
-    // (proxyName === 'chainlinkConversionPath')
-    proxyAddress = artifacts.chainlinkConversionPath.getAddress(network);
-    batchSetProxy = await contract.setChainlinkConversionPath;
-    currentAddress = await contract.chainlinkConversionPath();
+  switch (proxyName) {
+    case 'native':
+      proxyAddress = artifacts.ethereumFeeProxyArtifact.getAddress(network);
+      batchSetProxy = await contract.setPaymentNativeProxy;
+      currentAddress = await contract.paymentNativeProxy();
+      break;
+    case 'nativeConversion':
+      proxyAddress = artifacts.ethConversionArtifact.getAddress(network);
+      batchSetProxy = await contract.setPaymentNativeConversionProxy;
+      currentAddress = await contract.paymentNativeConversionProxy();
+      break;
+    case 'erc20':
+      proxyAddress = artifacts.erc20FeeProxyArtifact.getAddress(network);
+      batchSetProxy = await contract.setPaymentErc20Proxy;
+      currentAddress = await contract.paymentErc20Proxy();
+      break;
+    case 'erc20Conversion':
+      proxyAddress = artifacts.erc20ConversionProxy.getAddress(network);
+      batchSetProxy = await contract.setPaymentErc20ConversionProxy;
+      currentAddress = await contract.paymentErc20ConversionProxy();
+      break;
+    case 'chainlinkConversionPath':
+      proxyAddress = artifacts.chainlinkConversionPath.getAddress(network);
+      batchSetProxy = await contract.setChainlinkConversionPath;
+      currentAddress = await contract.chainlinkConversionPath();
+      break;
   }
 
   if (currentAddress.toLocaleLowerCase() !== proxyAddress.toLocaleLowerCase()) {
