@@ -32,7 +32,7 @@ const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = {
   getConfirmationDeferDelay: 0,
 };
 
-const encryptionData = {
+const idRaw1 = {
   decryptionParams: {
     key: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
     method: EncryptionTypes.METHOD.ECIES,
@@ -47,21 +47,39 @@ const encryptionData = {
   },
 };
 
+const idRaw2 = {
+  decryptionParams: {
+    key: '0x0906ff14227cead2b25811514302d57706e7d5013fcc40eca5985b216baeb998',
+    method: EncryptionTypes.METHOD.ECIES,
+  },
+  encryptionParams: {
+    key: '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
+    method: EncryptionTypes.METHOD.ECIES,
+  },
+  identity: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+  },
+};
+
 const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider = {
   decrypt: (
     data: EncryptionTypes.IEncryptedData,
     identity: IdentityTypes.IIdentity,
   ): Promise<string> => {
     switch (identity.value.toLowerCase()) {
-      case encryptionData.identity.value:
-        return Utils.encryption.decrypt(data, encryptionData.decryptionParams);
+      case idRaw1.identity.value:
+        return Utils.encryption.decrypt(data, idRaw1.decryptionParams);
+
+      case idRaw2.identity.value:
+        return Utils.encryption.decrypt(data, idRaw2.decryptionParams);
 
       default:
         throw new Error('Identity not registered');
     }
   },
   isIdentityRegistered: async (identity: IdentityTypes.IIdentity): Promise<boolean> => {
-    return [encryptionData.identity.value].includes(identity.value.toLowerCase());
+    return [idRaw1.identity.value, idRaw2.identity.value].includes(identity.value.toLowerCase());
   },
   supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
   supportedMethods: [EncryptionTypes.METHOD.ECIES],
@@ -793,7 +811,7 @@ describe('request-client.js', () => {
           requestInfo: TestData.parametersWithoutExtensionsData,
           signer: TestData.payee.identity,
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
 
       const requestFromId = await requestNetwork.fromRequestId(request.requestId);
@@ -838,7 +856,7 @@ describe('request-client.js', () => {
           signer: TestData.payee.identity,
           topics: ['my amazing test topic'],
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
 
       const requestsFromTopic = await requestNetwork.fromTopic('my amazing test topic');
@@ -863,7 +881,7 @@ describe('request-client.js', () => {
           signer: TestData.payee.identity,
           topics: ['my amazing test topic'],
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
 
       const request2 = await requestNetwork._createEncryptedRequest(
@@ -875,7 +893,7 @@ describe('request-client.js', () => {
           signer: TestData.payee.identity,
           topics: ['my second best test topic'],
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
 
       const requestsFromTopic = await requestNetwork.fromMultipleTopics([
@@ -906,7 +924,7 @@ describe('request-client.js', () => {
           signer: TestData.payee.identity,
           topics: ['my amazing test topic'],
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
 
       const requestFromIdentity = await requestNetwork.fromIdentity(TestData.payee.identity);
@@ -930,7 +948,7 @@ describe('request-client.js', () => {
           requestInfo: TestData.parametersWithoutExtensionsData,
           signer: TestData.payee.identity,
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
       await request.waitForConfirmation();
 
@@ -963,7 +981,7 @@ describe('request-client.js', () => {
           requestInfo: TestData.parametersWithoutExtensionsData,
           signer: TestData.payee.identity,
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
@@ -994,7 +1012,7 @@ describe('request-client.js', () => {
           requestInfo: TestData.parametersWithoutExtensionsData,
           signer: TestData.payee.identity,
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
@@ -1038,7 +1056,7 @@ describe('request-client.js', () => {
           requestInfo: TestData.parametersWithoutExtensionsData,
           signer: TestData.payee.identity,
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
@@ -1074,6 +1092,38 @@ describe('request-client.js', () => {
       expect(declareReceivedPaymentResult.balance!.balance).toBe(
         TestData.parametersWithoutExtensionsData.expectedAmount,
       );
+    });
+
+    it('creates an encrypted request and adds a stakeholder', async () => {
+      jest.useFakeTimers('modern');
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: TestData.fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const request = await requestNetwork._createEncryptedRequest(
+        {
+          requestInfo: TestData.parametersWithoutExtensionsData,
+          signer: TestData.payee.identity,
+        },
+        [idRaw1.encryptionParams],
+      );
+
+      const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
+
+      expect(fetchedRequest).toMatchObject(request);
+
+      const requestData = fetchedRequest.getData();
+      expect(requestData.meta).not.toBeNull();
+      expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
+
+      jest.advanceTimersByTime(150);
+      await fetchedRequest.addStakeholder(idRaw2.identity, TestData.payee.identity);
+      jest.advanceTimersByTime(150);
+      // TODO: Figure out a better expect here
+      expect((await fetchedRequest.refresh()).state).toBe(RequestLogicTypes.STATE.CANCELED);
+      jest.useRealTimers();
     });
   });
 
