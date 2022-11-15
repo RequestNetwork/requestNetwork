@@ -33,6 +33,11 @@ export interface IRequestLogic {
     signerIdentity: Identity.IIdentity,
     validate?: boolean,
   ) => Promise<IRequestLogicReturnWithConfirmation>;
+  addStakeholder: (
+    requestParameters: IAddStakeholderParameters,
+    signerIdentity: Identity.IIdentity,
+    validate?: boolean,
+  ) => Promise<IRequestLogicReturnWithConfirmation>;
   increaseExpectedAmountRequest: (
     requestParameters: IIncreaseExpectedAmountParameters,
     signerIdentity: Identity.IIdentity,
