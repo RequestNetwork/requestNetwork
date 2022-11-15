@@ -1119,7 +1119,7 @@ describe('request-client.js', () => {
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
 
       jest.advanceTimersByTime(150);
-      await fetchedRequest.addStakeholder([idRaw2.encryptionParams], TestData.payee.identity);
+      await fetchedRequest.addStakeholders([idRaw2.encryptionParams], TestData.payee.identity);
       jest.advanceTimersByTime(150);
       // TODO: Figure out a better expect here
       expect((await fetchedRequest.refresh()).state).toBe(RequestLogicTypes.STATE.CANCELED);

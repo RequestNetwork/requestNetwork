@@ -291,14 +291,14 @@ export default class Request {
   }
 
   /**
-   * Adds a stakeholder to a request
+   * Adds stakeholders to a request
    *
    * @param IEncryptionParameters encryptionParams list of addtional encryption parameters to encrypt the channel key with
    * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
    * @param refundInformation refund information to add (any because it is specific to the payment network used by the request)
    * @returns The updated request
    */
-  public async addStakeholder(
+  public async addStakeholders(
     encryptionParams: EncryptionTypes.IEncryptionParameters[],
     signerIdentity: IdentityTypes.IIdentity,
     refundInformation?: any,
@@ -313,19 +313,19 @@ export default class Request {
       );
     }
 
-    const parameters: RequestLogicTypes.IAddStakeholderParameters = {
+    const parameters: RequestLogicTypes.IAddStakeholdersParameters = {
       extensionsData,
       requestId: this.requestId,
     };
 
-    const addStakeholderResult = await this.requestLogic.addStakeholder(
+    const addStakeholdersResult = await this.requestLogic.addStakeholders(
       parameters,
       signerIdentity,
       encryptionParams,
       true,
     );
 
-    return this.handleRequestDataEvents(addStakeholderResult);
+    return this.handleRequestDataEvents(addStakeholdersResult);
   }
 
   /**

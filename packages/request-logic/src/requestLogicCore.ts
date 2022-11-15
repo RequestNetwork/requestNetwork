@@ -9,7 +9,7 @@ import CancelAction from './actions/cancel';
 import CreateAction from './actions/create';
 import IncreaseExpectedAmountAction from './actions/increaseExpectedAmount';
 import ReduceExpectedAmountAction from './actions/reduceExpectedAmount';
-import AddStakeholderAction from './actions/addStakeholder';
+import AddStakeholdersAction from './actions/addStakeholders';
 
 /**
  * Implementation of Request Logic Core
@@ -22,7 +22,7 @@ export default {
   formatCreate: CreateAction.format,
   formatIncreaseExpectedAmount: IncreaseExpectedAmountAction.format,
   formatReduceExpectedAmount: ReduceExpectedAmountAction.format,
-  formatAddStakeholder: AddStakeholderAction.format,
+  formatAddStakeholders: AddStakeholdersAction.format,
   getRequestIdFromAction,
 };
 
@@ -90,8 +90,8 @@ function applyActionToRequest(
       );
     }
 
-    if (action.data.name === RequestLogicTypes.ACTION_NAME.ADD_STAKEHOLDER) {
-      requestAfterApply = AddStakeholderAction.applyActionToRequest(
+    if (action.data.name === RequestLogicTypes.ACTION_NAME.ADD_STAKEHOLDERS) {
+      requestAfterApply = AddStakeholdersAction.applyActionToRequest(
         action,
         timestamp,
         requestCopied,

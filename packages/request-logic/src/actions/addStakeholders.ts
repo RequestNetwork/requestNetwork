@@ -14,21 +14,21 @@ export default {
 };
 
 /**
- * Function to format an action to add stakeholder to a Request
+ * Function to format an action to add stakeholders to a Request
  *
- * @param IAddStakeholderParameters addStakeholderParameters parameters to add stakeholder to a request
+ * @param IAddStakeholdersParameters addStakeholdersParameters parameters to add stakeholders to a request
  * @param IIdentity signerIdentity Identity of the signer
  * @param ISignatureProvider signatureProvider Signature provider in charge of the signature
  *
  * @returns IAction  the action with the signature
  */
 function format(
-  addStakeholderParameters: RequestLogicTypes.IAddStakeholderParameters,
+  addStakeholderParameters: RequestLogicTypes.IAddStakeholdersParameters,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
 ): Promise<RequestLogicTypes.IAction> {
   const unsignedAction: RequestLogicTypes.IUnsignedAction = {
-    name: RequestLogicTypes.ACTION_NAME.ADD_STAKEHOLDER,
+    name: RequestLogicTypes.ACTION_NAME.ADD_STAKEHOLDERS,
     parameters: addStakeholderParameters,
     version: Version.currentVersion,
   };
@@ -80,7 +80,7 @@ function generateEvent(
 
   const event: RequestLogicTypes.IEvent = {
     actionSigner,
-    name: RequestLogicTypes.ACTION_NAME.ADD_STAKEHOLDER,
+    name: RequestLogicTypes.ACTION_NAME.ADD_STAKEHOLDERS,
     parameters: {
       extensionsDataLength: params.extensionsData ? params.extensionsData.length : 0,
     },
