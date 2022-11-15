@@ -6,6 +6,8 @@ import {
   updatePaymentFeeProxyAddress,
 } from './adminTasks';
 
+const ERC20ConversionVersion = '0.1.2';
+
 /**
  * Updates the values of the chainlinkConversionPath and ERC20FeeProxy addresses if needed
  * @param contractAddress address of the ERC20Conversion Proxy
@@ -18,14 +20,13 @@ export const setupErc20ConversionProxy = async (
   // Setup contract parameters
   const Erc20ConversionProxyContract = new hre.ethers.Contract(
     contractAddress,
-    erc20ConversionProxy.getContractAbi(),
+    erc20ConversionProxy.getContractAbi(ERC20ConversionVersion),
   );
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network) => {
       try {
         const { signer, gasPrice } = await getSignerAndGasPrice(network, hre);
-        const Erc20ConversionProxyConnected = await Erc20ConversionProxyContract.connect(signer);
-
+        const Erc20ConversionProxyConnected = Erc20ConversionProxyContract.connect(signer);
         await updatePaymentFeeProxyAddress(
           Erc20ConversionProxyConnected,
           network,

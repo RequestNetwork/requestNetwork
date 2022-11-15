@@ -13,7 +13,7 @@ export const create2ContractDeploymentList = [
   'Erc20ConversionProxy',
   'ERC20SwapToConversion',
   'ERC20EscrowToPay',
-  'BatchPayments',
+  'BatchConversionPayments',
   // FIXME: EthConversionProxy cannot be deployed using xDeployer yet
   //        We need to be able to administrate the nativeTokenHash first.
   // 'EthConversionProxy',
@@ -49,8 +49,8 @@ export const getArtifact = (contract: string): artifacts.ContractArtifact<Contra
       return artifacts.erc20SwapConversionArtifact;
     case 'ERC20EscrowToPay':
       return artifacts.erc20EscrowToPayArtifact;
-    case 'BatchPayments':
-      return artifacts.batchPaymentsArtifact;
+    case 'BatchConversionPayments':
+      return artifacts.batchConversionPaymentsArtifact;
     default:
       throw new Error('Contract unknown');
   }
