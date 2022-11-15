@@ -85,11 +85,6 @@ export default class TransactionManager implements TransactionTypes.ITransaction
       }
 
       if (channelType === TransactionTypes.ChannelType.ENCRYPTED) {
-        // we cannot add new stakeholders to an existing channel
-        if (encryptionParams.length !== 0) {
-          throw new Error('Impossible to add new stakeholder to an existing channel');
-        }
-
         if (!channelKey) {
           throw new Error(`Impossible to decrypt the channel key of: ${channelId}`);
         }
@@ -97,6 +92,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
         transaction = await TransactionsFactory.createEncryptedTransaction(
           transactionData,
           channelKey,
+          encryptionParams,
         );
 
         channelEncryptionMethod = encryptionMethod;
