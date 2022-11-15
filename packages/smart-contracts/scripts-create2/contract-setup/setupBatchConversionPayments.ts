@@ -1,18 +1,19 @@
 import { batchConversionPaymentsArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
-import utils from '@requestnetwork/utils';
 import {
   updateBatchPaymentFees,
   updateBatchConversionProxy,
   updateBatchPaymentFeeAmountUSDLimit,
   updateNativeAndUSDAddress,
+  getSignerAndGasPrice,
 } from './adminTasks';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
+
 /**
- * Updates the values of the batch fees of the BatchConversionPayments contract, if needed
- * @param contractAddress address of the BatchConversionPayments Proxy
- * @param hre Hardhat runtime environment
+ * Updates the values of the batch fees of the BatchConversionPayments contract, if needed.
+ * @param contractAddress address of the BatchConversionPayments proxy.
+ * @param hre Hardhat runtime environment.
  */
 export const setupBatchConversionPayments = async (
   contractAddress: string,
@@ -27,25 +28,19 @@ export const setupBatchConversionPayments = async (
   const currencyManager = CurrencyManager.getDefault();
 
   const setUpActions = async (network: string) => {
+    console.log(`Setup BatchConversionPayments on ${network}`);
+
     const NativeAddress = currencyManager.getNativeCurrency(
       RequestLogicTypes.CURRENCY.ETH,
       network,
     )!.hash;
     const USDAddress = currencyManager.fromSymbol('USD')!.hash;
-    console.log(`Setup BatchConversionPayments on ${network}`);
-    let provider;
-    if (network === 'celo') {
-      provider = utils.getCeloProvider();
-    } else {
-      provider = utils.getDefaultProvider(network);
-    }
-    const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
-    const signer = wallet.connect(provider);
+
+    const { signer, gasPrice } = await getSignerAndGasPrice(network, hre);
     const batchConversionPaymentConnected = batchConversionPaymentContract.connect(signer);
-    const gasPrice = await provider.getGasPrice();
 
     // start from the adminNonce, increase gasPrice if needed
-    const gasCoef = 3;
+    const gasCoef = 2;
     await updateBatchPaymentFees(batchConversionPaymentConnected, gasPrice.mul(gasCoef));
     await updateBatchPaymentFeeAmountUSDLimit(
       batchConversionPaymentConnected,
@@ -89,7 +84,12 @@ export const setupBatchConversionPayments = async (
     );
   };
   for (const network of hre.config.xdeploy.networks) {
-    await Promise.resolve(setUpActions(network));
+    try {
+      await Promise.resolve(setUpActions(network));
+    } catch (err) {
+      console.warn(`An error occurred during the setup of BatchConversion on ${network}`);
+      console.warn(err);
+    }
   }
   console.log('Setup for setupBatchConversionPayment successfull');
 };
