@@ -218,7 +218,7 @@ export interface ICancelParameters {
 
 /** Parameters to add stakeholder to a request */
 export interface IAddStakeholderParameters {
-  stakeholders: Identity.IIdentity;
+  stakeholder: Identity.IIdentity;
   requestId: RequestId;
   extensionsData?: any[];
 }
@@ -277,6 +277,7 @@ export enum ACTION_NAME {
   CANCEL = 'cancel',
   REDUCE_EXPECTED_AMOUNT = 'reduceExpectedAmount',
   INCREASE_EXPECTED_AMOUNT = 'increaseExpectedAmount',
+  ADD_STAKEHOLDER = 'addStakeholder',
   ADD_EXTENSIONS_DATA = 'addExtensionsData',
 }
 

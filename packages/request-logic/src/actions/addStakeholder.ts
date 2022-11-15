@@ -6,7 +6,7 @@ import Request from '../request';
 import Version from '../version';
 
 /**
- * Implementation of the action add extensions data from request logic specification
+ * Implementation of the action add stakeholder from request logic specification
  */
 export default {
   applyActionToRequest,
@@ -14,29 +14,22 @@ export default {
 };
 
 /**
- * Function to format an action to add extensions data to a Request
+ * Function to format an action to add stakeholder to a Request
  *
- * @param IAddExtensionsDataParameters acceptParameters parameters to accept a request
+ * @param IAddStakeholderParameters addStakeholderParameters parameters to add stakeholder to a request
  * @param IIdentity signerIdentity Identity of the signer
  * @param ISignatureProvider signatureProvider Signature provider in charge of the signature
  *
  * @returns IAction  the action with the signature
  */
 function format(
-  addExtensionsDataParameters: RequestLogicTypes.IAddExtensionsDataParameters,
+  addStakeholderParameters: RequestLogicTypes.IAddStakeholderParameters,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
 ): Promise<RequestLogicTypes.IAction> {
-  if (
-    !addExtensionsDataParameters.extensionsData ||
-    addExtensionsDataParameters.extensionsData.length === 0
-  ) {
-    throw new Error('extensionsData must be given');
-  }
-
   const unsignedAction: RequestLogicTypes.IUnsignedAction = {
-    name: RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA,
-    parameters: addExtensionsDataParameters,
+    name: RequestLogicTypes.ACTION_NAME.ADD_STAKEHOLDER,
+    parameters: addStakeholderParameters,
     version: Version.currentVersion,
   };
 
@@ -44,9 +37,9 @@ function format(
 }
 
 /**
- * Function to apply an addition of extensions data to a request
+ * Function to apply an addStakeholder action to a request
  *
- * @param Types.IAction action  the action to apply
+ * @param Types.IAction action the action to apply
  *
  * @returns Types.IRequest the new request
  */
@@ -58,11 +51,8 @@ function applyActionToRequest(
   if (!action.data.parameters.requestId) {
     throw new Error('requestId must be given');
   }
-  if (
-    !action.data.parameters.extensionsData ||
-    action.data.parameters.extensionsData.length === 0
-  ) {
-    throw new Error('extensionsData must be given');
+  if (!action.data.parameters.stakeholder) {
+    throw new Error('stakeholder must be given');
   }
 
   const signer: IdentityTypes.IIdentity = Action.getSignerIdentityFromAction(action);
@@ -76,7 +66,7 @@ function applyActionToRequest(
 }
 
 /**
- * Private function to generate the event 'Accept' from an action
+ * Private function to generate the event 'addStakeholder' from an action
  *
  * @param Types.IAction action the action that create the event
  * @param IdentityTypes.IIdentity actionSigner the signer of the action
@@ -92,7 +82,7 @@ function generateEvent(
 
   const event: RequestLogicTypes.IEvent = {
     actionSigner,
-    name: RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA,
+    name: RequestLogicTypes.ACTION_NAME.ADD_STAKEHOLDER,
     parameters: {
       extensionsDataLength: params.extensionsData ? params.extensionsData.length : 0,
     },
