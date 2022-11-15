@@ -211,6 +211,13 @@ export interface ICancelParameters {
   extensionsData?: any[];
 }
 
+/** Parameters to add stakeholder to a request */
+export interface IAddStakeholderParameters {
+  stakeholders: Identity.IIdentity;
+  requestId: RequestId;
+  extensionsData?: any[];
+}
+
 /** Parameters to increase amount of a request */
 export interface IIncreaseExpectedAmountParameters {
   deltaAmount: Amount;

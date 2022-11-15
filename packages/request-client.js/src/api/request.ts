@@ -286,6 +286,44 @@ export default class Request {
   }
 
   /**
+   * Adds a stakeholder to a request
+   *
+   * @param stakeholderIdentity Identity of the stakeholder. The identity type must be supported by the signature provider.
+   * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @param refundInformation refund information to add (any because it is specific to the payment network used by the request)
+   * @returns The updated request
+   */
+  public async addStakeholder(
+    stakeholderIdentity: IdentityTypes.IIdentity,
+    signerIdentity: IdentityTypes.IIdentity,
+    refundInformation?: any,
+  ): Promise<Types.IRequestDataWithEvents> {
+    const extensionsData: any[] = [];
+    if (refundInformation) {
+      if (!this.paymentNetwork) {
+        throw new Error('Cannot add refund information without payment network');
+      }
+      extensionsData.push(
+        this.paymentNetwork.createExtensionsDataForAddRefundInformation(refundInformation),
+      );
+    }
+
+    const parameters: RequestLogicTypes.IAddStakeholderParameters = {
+      stakeholderIdentity,
+      extensionsData,
+      requestId: this.requestId,
+    };
+
+    const addStakeholderResult = await this.requestLogic.addStakeholder(
+      parameters,
+      signerIdentity,
+      true,
+    );
+
+    return this.handleRequestDataEvents(addStakeholderResult);
+  }
+
+  /**
    * Adds payment information
    *
    * @param paymentInformation Payment information to add (any because it is specific to the payment network used by the request)
