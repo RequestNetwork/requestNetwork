@@ -276,8 +276,7 @@ describe('index', () => {
         ).rejects.toThrowError(`Impossible to retrieve the channel: ${channelId}`);
       });
 
-      // TODO: Remove this test
-      it('cannot persist a encrypted transaction in an existing channel with encryption parameters given', async () => {
+      it('can persist a encrypted transaction in an existing channel with encryption parameters given', async () => {
         const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
           TestData.idRaw1.encryptionParams,
         ]);
@@ -314,11 +313,27 @@ describe('index', () => {
           fakeDataAccess,
           TestData.fakeDecryptionProvider,
         );
-        await expect(
-          transactionManager.persistTransaction(data2, channelId, extraTopics, [
-            TestData.idRaw1.encryptionParams,
-          ]),
-        ).rejects.toThrowError('Impossible to add new stakeholder to an existing channel');
+
+        const ret = await transactionManager.persistTransaction(data2, channelId, extraTopics, [
+          TestData.idRaw2.encryptionParams,
+        ]);
+
+        // 'ret.result is wrong'
+        expect(ret.result).toEqual({});
+        // 'ret.meta is wrong'
+        expect(ret.meta).toEqual({
+          dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
+          encryptionMethod: 'ecies-aes256-gcm',
+        });
+
+        // TODO challenge this
+        expect(fakeDataAccess.persistTransaction).toHaveBeenCalledWith(
+          {
+            encryptedData: expect.stringMatching(/^04.{76}/),
+          },
+          channelId,
+          extraTopics.concat([channelId2]),
+        );
       });
     });
   });
