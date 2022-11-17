@@ -216,7 +216,11 @@ export const encodeErc777OneOffPayment = (
   validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
   const erc777 = ethers.ContractFactory.getInterface(erc777Artefact.abi);
-  return erc777.encodeFunctionData('send', [paymentAddress, amount, `0x${paymentReference}`]);
+  return erc777.encodeFunctionData('send', [
+    paymentAddress,
+    amount,
+    `${USERDATA_PREFIX}${paymentReference}`,
+  ]);
 };
 
 /**
