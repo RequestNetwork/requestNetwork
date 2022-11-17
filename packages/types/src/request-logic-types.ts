@@ -28,6 +28,11 @@ export interface IRequestLogic {
     signerIdentity: Identity.IIdentity,
     validate?: boolean,
   ) => Promise<IRequestLogicReturnWithConfirmation>;
+  addStakeholders: (
+    requestParameters: IAcceptParameters, // TODO change it
+    _signerIdentity: Identity.IIdentity, // TODO ??
+    encryptionParams: Encryption.IEncryptionParameters[],
+  ) => Promise<IRequestLogicReturnWithConfirmation>;
   cancelRequest: (
     requestParameters: ICancelParameters,
     signerIdentity: Identity.IIdentity,

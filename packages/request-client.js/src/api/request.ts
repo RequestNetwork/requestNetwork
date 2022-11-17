@@ -180,6 +180,30 @@ export default class Request {
   }
 
   /**
+   * TODO !
+   *
+   * @returns The updated request
+   */
+  public async addStakeholders(
+    encryptionParams: Types.Encryption.IEncryptionParameters[],
+    signerIdentity: IdentityTypes.IIdentity,
+  ): Promise<Types.IRequestDataWithEvents> {
+    const extensionsData: any[] = [];
+    const parameters: RequestLogicTypes.IAcceptParameters = {
+      extensionsData,
+      requestId: this.requestId,
+    };
+
+    const acceptResult = await this.requestLogic.addStakeholders(
+      parameters,
+      signerIdentity,
+      encryptionParams,
+    );
+
+    return this.handleRequestDataEvents(acceptResult);
+  }
+
+  /**
    * Cancels a request
    *
    * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.

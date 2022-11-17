@@ -59,21 +59,21 @@ export default class TransactionsParser {
 
       // if we don't have the channel key we need to decrypt it
       if (!channelKey) {
-        if (!persistedTransaction.encryptionMethod || !persistedTransaction.keys) {
-          throw new Error(
-            'the properties "encryptionMethod" and "keys" are needed to compute the channel key',
-          );
-        }
-        channelKey = await this.decryptChannelKey(
-          persistedTransaction.keys,
-          persistedTransaction.encryptionMethod,
+        // if (!persistedTransaction.encryptionMethod || !persistedTransaction.keys) {
+        throw new Error(
+          'the properties "encryptionMethod" and "keys" are needed to compute the channel key',
         );
+        // }
+        // channelKey = await this.decryptChannelKey(
+        //   persistedTransaction.keys,
+        //   persistedTransaction.encryptionMethod,
+        // );
       } else {
-        if (persistedTransaction.encryptionMethod || persistedTransaction.keys) {
-          throw new Error(
-            'the properties "encryptionMethod" and "keys" have been already given for this channel',
-          );
-        }
+        // if (persistedTransaction.encryptionMethod) {
+        //   throw new Error(
+        //     'the properties "encryptionMethod" have been already given for this channel',
+        //   );
+        // }
       }
 
       return {
@@ -93,7 +93,7 @@ export default class TransactionsParser {
    * @param encryptionMethod encryption method used for the channel
    * @returns the channel key
    */
-  private async decryptChannelKey(
+  public async decryptChannelKey(
     keys: TransactionTypes.IKeysDictionary,
     encryptionMethod: string,
   ): Promise<EncryptionTypes.IDecryptionParameters> {

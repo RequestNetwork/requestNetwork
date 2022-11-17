@@ -35,6 +35,20 @@ export default class ChannelParser {
       ignored: TransactionTypes.IIgnoredTransaction | null;
     }
 
+    const allKeys = transactions.reduce(
+      (acc, t) => {
+        return { ...acc, ...t.transaction.keys };
+      }, // TODO: a new keys will erased previous one!!!!!!!!!!!  /!\ /!\ /!\
+      {},
+    );
+
+    // TODO: possibility of several channelKey candidates (DoS attack adding random keys) /!\
+    // TODO encryption method must not be hardcoded (more method possible)
+    channelKey = await this.transactionParser.decryptChannelKey(
+      allKeys,
+      `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`,
+    );
+
     // use of .reduce instead of .map to keep a sequential execution
     const validAndIgnoredTransactions: IValidAndIgnoredTransactions[] = await transactions.reduce(
       async (

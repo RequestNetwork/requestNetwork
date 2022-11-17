@@ -166,6 +166,55 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   }
 
   /**
+   * Function to TODO!
+   *
+   * @param IAcceptParameters acceptParameters parameters to accept a request
+   * @param IIdentity signerIdentity Identity of the signer
+   * @param boolean validate specifies if a validation should be done before persisting the transaction. Requires a full load of the Request.
+   *
+   * @returns Promise<IRequestLogicReturn> the meta data
+   */
+  public async addStakeholders(
+    requestParameters: RequestLogicTypes.IAcceptParameters,
+    _signerIdentity: IdentityTypes.IIdentity,
+    encryptionParams: EncryptionTypes.IEncryptionParameters[],
+  ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
+    if (!this.signatureProvider) {
+      throw new Error('You must give a signature provider to create actions');
+    }
+    // const action = await RequestLogicCore.formatAccept(
+    //   requestParameters,
+    //   signerIdentity,
+    //   this.signatureProvider,
+    // );
+    const requestId = requestParameters.requestId; //RequestLogicCore.getRequestIdFromAction(action);
+
+    const resultPersistTx = await this.transactionManager.persistTransaction(
+      '{}', // JSON.stringify(action),
+      requestId,
+      [],
+      encryptionParams,
+    );
+
+    const result = Object.assign(new EventEmitter(), {
+      meta: { transactionManagerMeta: resultPersistTx.meta },
+    });
+
+    // When receive the confirmation from transaction manager propagate it
+    resultPersistTx
+      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+        result.emit('confirmed', {
+          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
+        });
+      })
+      .on('error', (error) => {
+        result.emit('error', error);
+      });
+
+    return result;
+  }
+
+  /**
    * Function to accept a request   it on through the transaction manager layer
    *
    * @param IAcceptParameters acceptParameters parameters to accept a request
