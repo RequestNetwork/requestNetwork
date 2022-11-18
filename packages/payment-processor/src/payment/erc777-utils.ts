@@ -3,7 +3,13 @@ import { ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
-import { getNetworkProvider, getProvider, validateRequest, MAX_ALLOWANCE } from './utils';
+import {
+  getNetworkProvider,
+  getProvider,
+  validateRequest,
+  MAX_ALLOWANCE,
+  getRequestPaymentValues,
+} from './utils';
 import Token from '@superfluid-finance/sdk-core/dist/module/Token';
 import { getSuperFluidFramework } from './erc777-stream';
 import Operation from '@superfluid-finance/sdk-core/dist/module/Operation';
@@ -252,4 +258,33 @@ export async function unwrapSuperToken(
     amount,
   );
   return signer.sendTransaction(preparedTx);
+}
+
+/**
+ * Check if there's an existing stream for the trio (Sender, Receiver, Currency)
+ * @param sender address
+ * @param receiver address
+ * @param currency to stream
+ * @param provider web3 provider.
+ * @returns
+ */
+export async function checkExistingStream(
+  request: ClientTypes.IRequestData,
+  sender: string,
+  provider: providers.Provider = getProvider(),
+): Promise<boolean> {
+  const id = getPaymentNetworkExtension(request)?.id;
+  if (id !== ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM) {
+    throw new Error('Not a supported ERC777 payment network request');
+  }
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
+  const { paymentAddress } = getRequestPaymentValues(request);
+  const sf = await getSuperFluidFramework(request, provider);
+  const streams = await sf.query.listStreams({
+    sender,
+    receiver: paymentAddress,
+    token: request.currencyInfo.value,
+  });
+
+  return streams.data.length === 1 && streams.data[0].currentFlowRate !== '0';
 }
