@@ -416,7 +416,7 @@ describe('Payment encoder handles Eth Conversion Proxy', () => {
   });
 });
 
-describe.only('Payment encoder handles ERC777 Stream', () => {
+describe('Payment encoder handles ERC777 Stream', () => {
   it('Should return a valid start stream transaction', async () => {
     const paymentTransaction = await encodeRequestPaymentWithStream(
       validRequestERC777Stream,
