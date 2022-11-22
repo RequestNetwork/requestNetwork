@@ -10,7 +10,7 @@ import {
 import Utils from '@requestnetwork/utils';
 
 import {
-  completeErc777StreamRequest,
+  closeErc777StreamRequest,
   makeErc777OneOffPayment,
   payErc777StreamRequest,
   RESOLVER_ADDRESS,
@@ -202,7 +202,7 @@ describe('erc777-stream', () => {
       expect(paymentFlowRate).toBe(expectedFlowRate);
     });
 
-    it('completeErc777StreamRequest should complete an ERC777 request', async () => {
+    it('closeErc777StreamRequest should close an ERC777 request', async () => {
       let tx;
       let confirmedTx;
       // initialize the superfluid framework...put custom and web3 only bc we are using ganache locally
@@ -221,7 +221,7 @@ describe('erc777-stream', () => {
       await new Promise((r) => setTimeout(r, 2000));
 
       // Stopping fDAIX stream request
-      tx = await completeErc777StreamRequest(validRequest, wallet);
+      tx = await closeErc777StreamRequest(validRequest, wallet);
       confirmedTx = await tx.wait(1);
       expect(confirmedTx.status).toBe(1);
       expect(tx.hash).not.toBeUndefined();
