@@ -202,7 +202,7 @@ describe('erc777-stream', () => {
       expect(paymentFlowRate).toBe(expectedFlowRate);
     });
 
-    it('closeErc777StreamRequest should complete an ERC777 request', async () => {
+    it('closeErc777StreamRequest should close an ERC777 request', async () => {
       let tx;
       let confirmedTx;
       // initialize the superfluid framework...put custom and web3 only bc we are using ganache locally
