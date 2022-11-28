@@ -44,6 +44,8 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
   async append(content: string): Promise<StorageTypes.IAppendResult> {
     const { ipfsHash, ipfsSize } = await this.ipfsStorage.ipfsAdd(content);
 
+    const tx = await this.txSubmitter.submit(ipfsHash, ipfsSize);
+
     const eventEmitter = new EventEmitter() as StorageEventEmitter;
     const result: StorageTypes.IEntry = {
       id: ipfsHash,
@@ -56,8 +58,6 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
         timestamp: Utils.getCurrentTimestampInSecond(),
       },
     };
-
-    const tx = await this.txSubmitter.submit(ipfsHash, ipfsSize);
 
     this.logger.debug(`TX ${tx.hash} submitted, waiting for confirmation...`);
 
