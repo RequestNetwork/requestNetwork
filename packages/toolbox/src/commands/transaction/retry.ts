@@ -7,7 +7,7 @@ import { getWallet } from './utils';
 import { providers, utils } from 'ethers';
 
 export const command = 'transaction retry <txHash>';
-export const describe = 'Retries a transaction';
+export const describe = 'Retries sending a pending transaction stuck in the mempool';
 
 export const builder = (y: yargs.Argv) =>
   y
