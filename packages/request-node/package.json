@@ -63,7 +63,7 @@
     "shelljs": "0.8.5",
     "tslib": "2.3.1",
     "web3-providers-ws": "1.6.1",
-    "yargs": "16.2.0"
+    "yargs": "17.6.2"
   },
   "devDependencies": {
     "@types/cors": "2.8.9",
@@ -72,7 +72,7 @@
     "@types/keyv": "3.1.1",
     "@types/node": "14.14.16",
     "@types/supertest": "2.0.10",
-    "@types/yargs": "15.0.5",
+    "@types/yargs": "17.0.14",
     "jest": "26.4.2",
     "shx": "0.3.2",
     "source-map-support": "0.5.19",

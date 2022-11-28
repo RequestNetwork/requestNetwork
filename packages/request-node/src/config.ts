@@ -1,6 +1,8 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
-import { argv } from 'yargs';
+import * as yargs from 'yargs';
 import { modeType } from './logger';
+
+const argv = yargs.parseSync();
 
 // Load environment variables from .env file (without overriding variables already set)
 import { config } from 'dotenv';
