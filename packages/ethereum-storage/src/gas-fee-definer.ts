@@ -30,7 +30,7 @@ export class GasFeeDefiner {
     }
 
     maxPriorityFeePerGas = BigNumber.from(suggestedFee.maxPriorityFeeSuggestions.urgent);
-    maxFeePerGas = maxPriorityFeePerGas.add(baseFee);
+    maxFeePerGas = baseFee.add(maxPriorityFeePerGas);
 
     maxPriorityFeePerGas = maxPriorityFeePerGas.gt(0) ? maxPriorityFeePerGas : undefined;
     maxFeePerGas = maxFeePerGas.gt(0) ? maxFeePerGas : undefined;
