@@ -10,6 +10,7 @@ import IgnoredDataIds from './ignored-dataIds';
 import SmartContractManager from './smart-contract-manager';
 
 import * as Keyv from 'keyv';
+import { BigNumber } from 'ethers';
 
 // time to wait before considering the web3 provider is not reachable
 const WEB3_PROVIDER_TIMEOUT = 10000;
@@ -77,12 +78,14 @@ export class EthereumStorage implements StorageTypes.IStorage {
       maxConcurrency,
       maxRetries,
       retryDelay,
+      gasPriceMin,
     }: {
       getLastBlockNumberDelay?: number;
       logger?: LogTypes.ILogger;
       maxConcurrency?: number;
       maxRetries?: number;
       retryDelay?: number;
+      gasPriceMin?: BigNumber;
     } = {},
     metadataStore?: Keyv.Store<any>,
   ) {
@@ -95,6 +98,7 @@ export class EthereumStorage implements StorageTypes.IStorage {
       maxConcurrency: this.maxConcurrency,
       maxRetries,
       retryDelay,
+      gasPriceMin,
     });
     this.ethereumMetadataCache = new EthereumMetadataCache(metadataStore);
     this.ignoredDataIds = new IgnoredDataIds(metadataStore);
