@@ -9,6 +9,7 @@ import Utils from '@requestnetwork/utils';
 
 import { BigNumber } from 'ethers';
 import XDaiFixedProvider from './gas-price-providers/xdai-fixed-provider';
+import { GasDefinerProps } from './ethereum-storage-ethers';
 
 /**
  * Determines the gas price to use depending on the used network
@@ -36,12 +37,19 @@ export class GasPriceDefiner {
    */
   private logger: LogTypes.ILogger;
 
+  private readonly gasPriceMin: BigNumber | undefined;
+
   /**
    * Constructor
    * @param logger Logger instance
+   * @param gasPriceMin Minimum gas price to return
    */
-  public constructor(logger?: LogTypes.ILogger) {
+  public constructor({
+    logger,
+    gasPriceMin,
+  }: GasDefinerProps & { logger?: LogTypes.ILogger } = {}) {
     this.logger = logger || new Utils.SimpleLogger();
+    this.gasPriceMin = gasPriceMin;
   }
 
   /**
@@ -60,10 +68,11 @@ export class GasPriceDefiner {
       const gasPriceArray = await this.pollProviders(type, network);
       if (gasPriceArray.length > 0) {
         // Get the highest gas price from the providers
-        return gasPriceArray.reduce(
+        const gasPrice = gasPriceArray.reduce(
           (currentMax, gasPrice) => (currentMax.gt(gasPrice) ? currentMax : gasPrice),
           BigNumber.from(0),
         );
+        return this.gasPriceMin && gasPrice.lt(this.gasPriceMin) ? this.gasPriceMin : gasPrice;
       } else {
         this.logger.warn('Cannot determine gas price: There is no available gas price provider', [
           'ethereum',

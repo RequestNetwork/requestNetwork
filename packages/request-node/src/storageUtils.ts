@@ -69,6 +69,7 @@ export function getEthereumStorage(
       logger,
       maxConcurrency: config.getStorageConcurrency(),
       retryDelay: config.getEthereumRetryDelay(),
+      gasPriceMin: config.getGasPriceMin(),
     },
     store,
   );
