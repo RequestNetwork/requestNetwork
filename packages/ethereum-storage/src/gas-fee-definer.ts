@@ -20,18 +20,20 @@ export class GasFeeDefiner {
   }> {
     const suggestedFee = await suggestFees(this.provider);
 
+    let baseFee: BigNumber | undefined;
     let maxPriorityFeePerGas: BigNumber | undefined;
     let maxFeePerGas: BigNumber | undefined;
 
+    baseFee = BigNumber.from(suggestedFee.baseFeeSuggestion);
+    if (this.gasPriceMin && baseFee.lt(this.gasPriceMin)) {
+      baseFee = BigNumber.from(this.gasPriceMin);
+    }
+
     maxPriorityFeePerGas = BigNumber.from(suggestedFee.maxPriorityFeeSuggestions.urgent);
-    maxFeePerGas = maxPriorityFeePerGas.add(suggestedFee.baseFeeSuggestion);
+    maxFeePerGas = maxPriorityFeePerGas.add(baseFee);
 
     maxPriorityFeePerGas = maxPriorityFeePerGas.gt(0) ? maxPriorityFeePerGas : undefined;
     maxFeePerGas = maxFeePerGas.gt(0) ? maxFeePerGas : undefined;
-
-    if (this.gasPriceMin && maxFeePerGas && maxFeePerGas.lt(this.gasPriceMin)) {
-      maxFeePerGas = BigNumber.from(this.gasPriceMin);
-    }
 
     return {
       maxPriorityFeePerGas,
