@@ -1,13 +1,13 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import * as yargs from 'yargs';
 import { modeType } from './logger';
-// Load environment variables from .env file (without overriding variables already set)
 import { config } from 'dotenv';
 import { formatUnits } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
 
 const argv = yargs.parseSync();
 
+// Load environment variables from .env file (without overriding variables already set)
 config();
 
 /**
