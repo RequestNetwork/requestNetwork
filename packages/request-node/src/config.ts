@@ -2,7 +2,7 @@ import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import * as yargs from 'yargs';
 import { modeType } from './logger';
 import { config } from 'dotenv';
-import { formatUnits } from 'ethers/lib/utils';
+import { parseUnits } from 'ethers/lib/utils';
 import { BigNumber } from 'ethers';
 
 const argv = yargs.parseSync();
@@ -19,7 +19,7 @@ const defaultValues: any = {
     ethereum: {
       networkId: 0,
       web3ProviderUrl: 'http://localhost:8545',
-      gasPriceMin: formatUnits('1', 'gwei'),
+      gasPriceMin: parseUnits('1', 'gwei'),
     },
     ipfs: {
       host: 'localhost',
