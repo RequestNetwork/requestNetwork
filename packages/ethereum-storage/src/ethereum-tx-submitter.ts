@@ -27,6 +27,10 @@ export class EthereumTransactionSubmitter {
     this.gasFeeDefiner = new GasFeeDefiner({ provider, gasPriceMin });
   }
 
+  get hashSubmitterAddress(): string {
+    return this.hashSubmitter.address;
+  }
+
   async initialize(): Promise<void> {
     try {
       await this.provider.send('eth_feeHistory', [1, 'latest', []]);
