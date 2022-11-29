@@ -72,9 +72,7 @@ export class GasPriceDefiner {
           (currentMax, gasPrice) => (currentMax.gt(gasPrice) ? currentMax : gasPrice),
           BigNumber.from(0),
         );
-        return this.gasPriceMin && gasPrice.lt(this.gasPriceMin)
-          ? BigNumber.from(this.gasPriceMin)
-          : gasPrice;
+        return this.gasPriceMin && gasPrice.lt(this.gasPriceMin) ? this.gasPriceMin : gasPrice;
       } else {
         this.logger.warn('Cannot determine gas price: There is no available gas price provider', [
           'ethereum',

@@ -26,7 +26,7 @@ export class GasFeeDefiner {
 
     baseFee = BigNumber.from(suggestedFee.baseFeeSuggestion);
     if (this.gasPriceMin && baseFee.lt(this.gasPriceMin)) {
-      baseFee = BigNumber.from(this.gasPriceMin);
+      baseFee = this.gasPriceMin;
     }
 
     maxPriorityFeePerGas = BigNumber.from(suggestedFee.maxPriorityFeeSuggestions.urgent);
