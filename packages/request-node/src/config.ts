@@ -115,7 +115,7 @@ export function getGasPriceMin(): BigNumber | undefined {
   const gasPriceMin =
     argv.gasPriceMin ||
     process.env.GAS_PRICE_MIN ||
-    defaultValues.ethereumStorage.ethereum.graphNodeUrl;
+    defaultValues.ethereumStorage.ethereum.gasPriceMin;
   return gasPriceMin && BigNumber.from(gasPriceMin);
 }
 
