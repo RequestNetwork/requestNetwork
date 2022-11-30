@@ -208,6 +208,7 @@ describe('erc20-batch-conversion-proxy', () => {
       EURValidRequest,
       wallet.address,
       wallet.provider,
+      undefined,
       conversionPaymentSettings,
     );
     expect(approvalTx).toBeDefined();
