@@ -1489,7 +1489,7 @@ describe('request-client.js', () => {
         'function transfer(address _to, uint _value) returns (bool transfer)',
       ];
 
-      // Setup the ERC20 contract interface
+      // Set up the ERC20 contract interface
       const contract = new ethers.Contract(
         testErc20TokenAddress,
         erc20abiFragment,

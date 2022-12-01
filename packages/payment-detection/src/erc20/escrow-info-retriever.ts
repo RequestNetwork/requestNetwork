@@ -1,9 +1,8 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
+import Utils from '@requestnetwork/utils';
 import { BigNumber, ethers } from 'ethers';
 import { IEventRetriever } from '../types';
-
-import { getDefaultProvider } from '../provider';
 import { makeGetDeploymentInformation, parseLogArgs } from '../utils';
 
 const ESCROW_CONTRACT_ADDRESS_MAP = {
@@ -25,8 +24,7 @@ type TransferWithReferenceAndFeeArgs = EscrowArgs & {
 };
 
 /**
- * Retrieves a list of payment events from a escrow contract.
- *
+ * Retrieves a list of payment events from an escrow contract.
  */
 export class EscrowERC20InfoRetriever
   implements
@@ -57,9 +55,9 @@ export class EscrowERC20InfoRetriever
     private eventName?: PaymentTypes.ESCROW_EVENTS_NAMES,
   ) {
     // Creates a local or default provider.
-    this.provider = getDefaultProvider(this.network);
+    this.provider = Utils.getDefaultProvider(this.network);
 
-    // Setup the ERC20 escrow contract interface.
+    // Set up the ERC20 escrow contract interface.
     this.contractEscrow = new ethers.Contract(
       this.escrowContractAddress,
       erc20EscrowToPayArtifact.getContractAbi(),
