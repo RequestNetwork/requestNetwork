@@ -25,6 +25,7 @@ export const uniswapV2RouterAddresses: Record<string, string> = {
   avalanche: '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506',
   // No swap v2 found
   optimism: '0x0000000000000000000000000000000000000000',
+  moonbeam: '0x0000000000000000000000000000000000000000',
 };
 
 /**

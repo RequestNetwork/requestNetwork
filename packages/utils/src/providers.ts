@@ -42,6 +42,7 @@ const networkRpcs: Record<string, string> = {
   'arbitrum-one': 'https://arb1.arbitrum.io/rpc',
   avalanche: 'https://api.avax.network/ext/bc/C/rpc',
   optimism: 'https://mainnet.optimism.io',
+  moonbeam: 'https://moonbeam.public.blastapi.io',
 };
 
 /**
