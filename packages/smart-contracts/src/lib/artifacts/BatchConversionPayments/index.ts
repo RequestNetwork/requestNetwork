@@ -45,6 +45,14 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
           address: '0x3cF63891928B8CeebB81C95426600a18cd59C03f',
           creationBlockNumber: 21564537,
         },
+        optimism: {
+          address: '0x3cF63891928B8CeebB81C95426600a18cd59C03f',
+          creationBlockNumber: 44224282,
+        },
+        moonbeam: {
+          address: '0x3cF63891928B8CeebB81C95426600a18cd59C03f',
+          creationBlockNumber: 2415525,
+        },
         // Caution: no ETHConversion proxy on xDai
         xdai: {
           address: '0x3cF63891928B8CeebB81C95426600a18cd59C03f',
