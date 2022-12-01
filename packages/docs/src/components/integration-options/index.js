@@ -66,7 +66,10 @@ const options = [
     description: <>Fully managed solution, over REST API using Request Finance</>,
     details: (
       <>
-        <p>Reach out to us if you want to integrate Request Finance APIs.</p>
+        <p>
+          Reach out to us if you want to integrate Request Finance APIs. Documentation is available
+          at https://docs.request.finance/
+        </p>
       </>
     ),
   },
