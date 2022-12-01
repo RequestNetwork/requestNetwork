@@ -1,7 +1,7 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
 import { PaymentTypes } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 import { BigNumber, ethers } from 'ethers';
-import { getDefaultProvider } from '../../provider';
 import { parseLogArgs, unpadAmountFromChainlink } from '../../utils';
 import type { JsonFragment } from '@ethersproject/abi';
 
@@ -53,7 +53,7 @@ export abstract class ConversionInfoRetriever {
     protected maxRateTimespan: number = 0,
   ) {
     // Creates a local or default provider
-    this.provider = getDefaultProvider(this.network);
+    this.provider = Utils.getDefaultProvider(this.network);
 
     // Setup the conversion proxy contract interface
     this.contractConversionProxy = new ethers.Contract(

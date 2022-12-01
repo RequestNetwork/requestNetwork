@@ -4,6 +4,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import {
   ContractBasedDetector,
@@ -24,7 +25,6 @@ import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './an
 import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetector } from './near';
 import { getPaymentNetworkExtension } from './utils';
 import { getTheGraphClient } from './thegraph';
-import { getDefaultProvider } from './provider';
 
 const PN_ID = ExtensionTypes.PAYMENT_NETWORK_ID;
 
@@ -99,7 +99,7 @@ export class PaymentNetworkFactory {
             );
       },
       explorerApiKeys: {},
-      getRpcProvider: getDefaultProvider,
+      getRpcProvider: Utils.getDefaultProvider,
     };
     return { ...defaultOptions, ...options };
   }
