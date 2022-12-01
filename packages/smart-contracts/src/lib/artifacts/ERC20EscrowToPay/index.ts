@@ -38,6 +38,10 @@ export const erc20EscrowToPayArtifact = new ContractArtifact<ERC20EscrowToPay>(
           address: '0x26d4912fA5aC84F185843E19eeEdcc47f4Cc9F1a',
           creationBlockNumber: 35498500,
         },
+        moonbeam: {
+          address: '0x26d4912fA5aC84F185843E19eeEdcc47f4Cc9F1a',
+          creationBlockNumber: 2415523,
+        },
       },
     },
   },
