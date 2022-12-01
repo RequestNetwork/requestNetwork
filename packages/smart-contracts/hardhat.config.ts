@@ -130,6 +130,11 @@ export default {
       chainId: 10,
       accounts,
     },
+    moonbeam: {
+      url: url('moonbeam'),
+      chainId: 1284,
+      accounts,
+    },
   },
   etherscan: {
     apiKey: {
@@ -152,6 +157,8 @@ export default {
       xdai: process.env.GNOSISSCAN_API_KEY,
       // optimism
       optimism: process.env.OPTIMISM_API_KEY,
+      // moonbeam
+      moonbeam: process.env.MOONBEAM_API_KEY,
       // other networks don't need an API key, but you still need
       // to specify one; any string placeholder will work
       sokol: 'api-key',
