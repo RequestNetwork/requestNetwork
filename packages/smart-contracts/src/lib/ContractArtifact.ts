@@ -42,6 +42,7 @@ export class ContractArtifact<TContract extends Contract> {
     this.getDeploymentInformation = this.getDeploymentInformation.bind(this);
     this.getAllAddresses = this.getAllAddresses.bind(this);
     this.getOptionalDeploymentInformation = this.getOptionalDeploymentInformation.bind(this);
+    this.isDeployedOnNetwork = this.isDeployedOnNetwork.bind(this);
   }
 
   /**
@@ -134,5 +135,18 @@ export class ContractArtifact<TContract extends Contract> {
     version = this.lastVersion,
   ): DeploymentInformation | null {
     return this.info[version]?.deployment[networkName] || null;
+  }
+
+  /**
+   * Check if the artifact has been deployed on a specific network
+   * @param networkName the network to check the deployment for
+   * @param version optional version to check the deployment for. If not set check for all versions
+   * @returns the check result
+   */
+  isDeployedOnNetwork(networkName: string, version?: string): boolean {
+    const entries = Object.entries(this.info);
+    return entries.some(
+      ([vrs, { deployment }]) => !!deployment[networkName] && (!version || version === vrs),
+    );
   }
 }
