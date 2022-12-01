@@ -40,17 +40,6 @@ const fluxCurrencyPairs: AggregatorsMap = {
   'near-testnet': nearTestnetAggregator,
 };
 
-// FIX ME: This fix enables to get these networks registered in conversionSupportedNetworks.
-// Could be improved by removing the supported network check from the protocol
-const noConversionNetworks: AggregatorsMap = {
-  'arbitrum-rinkeby': {},
-  'arbitrum-one': {},
-  xdai: {},
-  avalanche: {},
-  bsc: {},
-  optimism: {},
-};
-
 /**
  * Conversion paths per network used by default if no other path given to the Currency Manager.
  * Must be updated every time an aggregator is added to one network.
@@ -58,10 +47,7 @@ const noConversionNetworks: AggregatorsMap = {
 export const defaultConversionPairs: AggregatorsMap = {
   ...chainlinkCurrencyPairs,
   ...fluxCurrencyPairs,
-  ...noConversionNetworks,
 };
-
-export const conversionSupportedNetworks = Object.keys(defaultConversionPairs);
 
 /**
  * Gets the on-chain conversion path between two currencies.

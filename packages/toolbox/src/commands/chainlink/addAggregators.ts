@@ -2,7 +2,7 @@ import * as yargs from 'yargs';
 import inquirer from 'inquirer';
 import { runUpdate } from './contractUtils';
 import { Aggregator, getAvailableAggregators, getCurrencyManager } from './aggregatorsUtils';
-import { conversionSupportedNetworks } from '@requestnetwork/currency';
+import { erc20ConversionProxy, ethConversionArtifact } from '@requestnetwork/smart-contracts';
 
 type Options = {
   dryRun: boolean;
@@ -73,11 +73,11 @@ export const handler = async (args: Options): Promise<void> => {
 
   const currencyManager = await getCurrencyManager(args.list);
 
-  if (!conversionSupportedNetworks.includes(network)) {
-    console.warn(
-      `WARNING: ${network} is missing in conversionSupportedNetworks from the Currency package.`,
-      `Add '${network}: {}' to chainlinkCurrencyPairs, in currency/src/conversion-aggregators.ts.`,
-    );
+  if (
+    !erc20ConversionProxy.isDeployedOnNetwork(network) &&
+    !ethConversionArtifact.isDeployedOnNetwork(network)
+  ) {
+    console.warn(`WARNING: ${network} does not support any-to-eth nor any-to-erc.`);
   }
 
   const availableAggregators = await getAvailableAggregators(

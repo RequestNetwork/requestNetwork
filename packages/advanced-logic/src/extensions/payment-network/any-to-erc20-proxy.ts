@@ -1,10 +1,7 @@
-import {
-  conversionSupportedNetworks,
-  ICurrencyManager,
-  UnsupportedCurrencyError,
-} from '@requestnetwork/currency';
+import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Erc20FeeProxyPaymentNetwork from './erc20/fee-proxy-contract';
+import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 
 const CURRENT_VERSION = '0.1.0';
 
@@ -135,7 +132,7 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
       return;
     }
 
-    if (!conversionSupportedNetworks.includes(network)) {
+    if (!erc20ConversionProxy.isDeployedOnNetwork(network)) {
       throw new Error(`The network (${network}) is not supported for this payment network.`);
     }
 
