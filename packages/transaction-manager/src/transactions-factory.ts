@@ -142,7 +142,7 @@ export default class TransactionsFactory {
 
     const encryptedDataSerialized: string = MultiFormat.serialize(encryptedData);
 
-    if (encryptionParams.length !== 0) {
+    if (encryptionParams) {
       // Check that all the encryption parameters given are ECIES (the only encryption method supported for now)
       if (
         !encryptionParams.every(
