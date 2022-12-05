@@ -1,11 +1,12 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import * as yargs from 'yargs';
 import { modeType } from './logger';
+import { config } from 'dotenv';
+import { BigNumber } from 'ethers';
 
 const argv = yargs.parseSync();
 
 // Load environment variables from .env file (without overriding variables already set)
-import { config } from 'dotenv';
 config();
 
 /**
@@ -17,6 +18,7 @@ const defaultValues: any = {
     ethereum: {
       networkId: 0,
       web3ProviderUrl: 'http://localhost:8545',
+      gasPriceMin: '1000000000', // one gwei
     },
     ipfs: {
       host: 'localhost',
@@ -107,6 +109,14 @@ export function getGraphNodeUrl(): string | undefined {
     process.env.GRAPH_NODE_URL ||
     defaultValues.ethereumStorage.ethereum.graphNodeUrl
   );
+}
+
+export function getGasPriceMin(): BigNumber | undefined {
+  const gasPriceMin =
+    argv.gasPriceMin ||
+    process.env.GAS_PRICE_MIN ||
+    defaultValues.ethereumStorage.ethereum.gasPriceMin;
+  return gasPriceMin && BigNumber.from(gasPriceMin);
 }
 
 /**

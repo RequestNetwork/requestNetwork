@@ -10,7 +10,6 @@ export const create2ContractDeploymentList = [
   'EthereumProxy',
   'EthereumFeeProxy',
   'ERC20FeeProxy',
-  'Erc20ConversionProxy',
   'ERC20SwapToConversion',
   'ERC20EscrowToPay',
   'BatchConversionPayments',

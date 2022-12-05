@@ -1,10 +1,10 @@
-import { BigNumber, ContractTransaction, providers, utils } from 'ethers';
+import { ContractTransaction, providers, utils } from 'ethers';
 import Utils from '@requestnetwork/utils';
 import { LogTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
-import { suggestFees } from 'eip1559-fee-suggestions-ethers';
 import { SubmitterProps } from './ethereum-storage-ethers';
+import { GasFeeDefiner } from './gas-fee-definer';
 
 /**
  * Handles the submission of a hash on the request HashSubmitter contract
@@ -14,14 +14,21 @@ export class EthereumTransactionSubmitter {
   private enableEip1559 = true;
   private readonly hashSubmitter: RequestOpenHashSubmitter;
   private readonly provider: providers.JsonRpcProvider;
+  private readonly gasFeeDefiner: GasFeeDefiner;
 
-  constructor({ network, signer, logger }: SubmitterProps) {
+  constructor({ network, signer, logger, gasPriceMin }: SubmitterProps) {
     this.logger = logger || new Utils.SimpleLogger();
-    this.provider = signer.provider as providers.JsonRpcProvider;
+    const provider = signer.provider as providers.JsonRpcProvider;
+    this.provider = provider;
     this.hashSubmitter = requestHashSubmitterArtifact.connect(
       network,
       signer,
     ) as RequestOpenHashSubmitter; // type mismatch with ethers.
+    this.gasFeeDefiner = new GasFeeDefiner({ provider, gasPriceMin });
+  }
+
+  get hashSubmitterAddress(): string {
+    return this.hashSubmitter.address;
   }
 
   async initialize(): Promise<void> {
@@ -44,7 +51,7 @@ export class EthereumTransactionSubmitter {
   /** Encodes the submission of an IPFS hash, with fees according to `ipfsSize` */
   async prepareSubmit(ipfsHash: string, ipfsSize: number): Promise<providers.TransactionRequest> {
     const fee = await this.hashSubmitter.getFeesAmount(ipfsSize);
-    const gasFees = await this.getGasFees();
+    const gasFees = this.enableEip1559 ? await this.gasFeeDefiner.getGasFees() : {};
 
     const tx = this.hashSubmitter.interface.encodeFunctionData('submitHash', [
       ipfsHash,
@@ -52,24 +59,5 @@ export class EthereumTransactionSubmitter {
     ]);
 
     return { to: this.hashSubmitter.address, data: tx, value: fee, ...gasFees };
-  }
-
-  private async getGasFees(): Promise<{
-    maxFeePerGas?: BigNumber;
-    maxPriorityFeePerGas?: BigNumber;
-  }> {
-    if (!this.enableEip1559) {
-      return {};
-    }
-    const suggestedFee = await suggestFees(
-      this.hashSubmitter.provider as providers.JsonRpcProvider,
-    );
-    const maxPriorityFeePerGas = BigNumber.from(suggestedFee.maxPriorityFeeSuggestions.urgent);
-    const maxFeePerGas = maxPriorityFeePerGas.add(suggestedFee.baseFeeSuggestion);
-
-    return {
-      maxPriorityFeePerGas: maxPriorityFeePerGas.gt(0) ? maxPriorityFeePerGas : undefined,
-      maxFeePerGas: maxFeePerGas.gt(0) ? maxFeePerGas : undefined,
-    };
   }
 }

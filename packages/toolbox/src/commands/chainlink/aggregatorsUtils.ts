@@ -37,6 +37,7 @@ const feedMap: Record<string, [chainKey: string, networkName: string]> = {
   avalanche: ['avalanche', 'Avalanche Mainnet'],
   optimism: ['optimism', 'Optimism Mainnet'],
   'arbitrum-one': ['arbitrum', 'Arbitrum Mainnet'],
+  moonbeam: ['moonbeam', 'Moonbeam Mainnet'],
 };
 
 export const getAllAggregators = async (network: string): Promise<Proxy[]> => {
