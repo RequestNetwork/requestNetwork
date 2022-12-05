@@ -87,6 +87,10 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
           address: '0x7Ebf48a26253810629C191b56C3212Fd0D211c26',
           creationBlockNumber: 30490295,
         },
+        moonbeam: {
+          address: '0x7Ebf48a26253810629C191b56C3212Fd0D211c26',
+          creationBlockNumber: 2415431,
+        },
       },
     },
   },

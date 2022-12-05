@@ -49,6 +49,7 @@ const noConversionNetworks: AggregatorsMap = {
   avalanche: {},
   bsc: {},
   optimism: {},
+  moonbeam: {},
 };
 
 /**

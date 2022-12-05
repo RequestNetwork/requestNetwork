@@ -74,6 +74,11 @@ export default class SmartContractManager {
   private retryDelay: number | undefined;
 
   /**
+   * Handler to get gas price
+   */
+  private readonly gasPriceDefiner: GasPriceDefiner;
+
+  /**
    * Constructor
    * @param web3Connection Object to connect to the Ethereum network
    * @param [options.getLastBlockNumberDelay] the minimum delay to wait between fetches of lastBlockNumber
@@ -87,12 +92,14 @@ export default class SmartContractManager {
       logger,
       maxRetries,
       retryDelay,
+      gasPriceMin,
     }: {
       maxConcurrency: number;
       logger?: LogTypes.ILogger;
       getLastBlockNumberDelay?: number;
       maxRetries?: number;
       retryDelay?: number;
+      gasPriceMin?: BigNumber;
     } = {
       maxConcurrency: Number.MAX_SAFE_INTEGER,
     },
@@ -160,6 +167,8 @@ export default class SmartContractManager {
       getLastBlockNumberDelay,
       this.logger,
     );
+
+    this.gasPriceDefiner = new GasPriceDefiner({ logger, gasPriceMin });
   }
 
   /**
@@ -254,9 +263,6 @@ export default class SmartContractManager {
     // Get the account for the transaction
     const account = await this.getMainAccount();
 
-    // Handler to get gas price
-    const gasPriceDefiner = new GasPriceDefiner();
-
     // Get the fee from the size of the content
     // Throws an error if timeout is reached
     const fee = await Utils.timeoutPromise<string>(
@@ -272,7 +278,7 @@ export default class SmartContractManager {
     // Otherwise, we use default value from config
     const gasPriceToUse =
       gasPrice ||
-      (await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.FAST, this.networkName));
+      (await this.gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.FAST, this.networkName));
 
     // parse the fees parameters to hex bytes
     const feesParametersAsBytes = web3Utils.padLeft(
@@ -323,7 +329,7 @@ export default class SmartContractManager {
             }
 
             // Get the new gas price for the transaction
-            const newGasPrice = await gasPriceDefiner.getGasPrice(
+            const newGasPrice = await this.gasPriceDefiner.getGasPrice(
               StorageTypes.GasPriceType.FAST,
               this.networkName,
             );

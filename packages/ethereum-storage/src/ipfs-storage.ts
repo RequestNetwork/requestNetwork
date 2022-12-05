@@ -42,7 +42,19 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
       throw Error(`Ipfs add request error: ${error}`);
     }
 
-    // Get content length from ipfs
+    const ipfsSize = await this.getSize(ipfsHash);
+
+    return {
+      ipfsHash,
+      ipfsSize,
+    };
+  }
+
+  public async getSize(ipfsHash: string): Promise<number> {
+    if (!ipfsHash) {
+      throw Error('No hash provided');
+    }
+
     let ipfsSize;
     try {
       ipfsSize = await this.ipfsManager.getContentLength(ipfsHash);
@@ -50,10 +62,7 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
       throw new Error(`Ipfs get length request error: ${error}`);
     }
 
-    return {
-      ipfsHash,
-      ipfsSize,
-    };
+    return ipfsSize;
   }
 
   /**

@@ -1,23 +1,22 @@
+import Utils from '@requestnetwork/utils';
 import { PaymentNetworkFactory } from './payment-network-factory';
 import PaymentReferenceCalculator from './payment-reference-calculator';
-
 import * as BtcPaymentNetwork from './btc';
 import { DeclarativePaymentDetector } from './declarative';
 import * as Erc20PaymentNetwork from './erc20';
 import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
 import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
-import { initPaymentDetectionApiKeys, setProviderFactory, getDefaultProvider } from './provider';
 import { getTheGraphClient, getTheGraphNearClient } from './thegraph';
 import {
-  parseLogArgs,
-  padAmountForChainlink,
-  unpadAmountFromChainlink,
   calculateEscrowState,
+  formatAddress,
   getPaymentNetworkExtension,
   getPaymentReference,
-  formatAddress,
+  padAmountForChainlink,
+  parseLogArgs,
+  unpadAmountFromChainlink,
 } from './utils';
-import { NearNativeTokenPaymentDetector, NearConversionNativeTokenPaymentDetector } from './near';
+import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetector } from './near';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
 import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
 import { EscrowERC20InfoRetriever } from './erc20/escrow-info-retriever';
@@ -25,6 +24,10 @@ import { SuperFluidInfoRetriever } from './erc777/superfluid-retriever';
 import { PaymentNetworkOptions } from './types';
 
 export type { TheGraphClient } from './thegraph';
+
+const setProviderFactory = Utils.setProviderFactory;
+const initPaymentDetectionApiKeys = Utils.initPaymentDetectionApiKeys;
+const getDefaultProvider = Utils.getDefaultProvider;
 
 export {
   PaymentNetworkFactory,

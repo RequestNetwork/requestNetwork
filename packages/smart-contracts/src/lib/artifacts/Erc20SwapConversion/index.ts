@@ -84,6 +84,10 @@ export const erc20SwapConversionArtifact = new ContractArtifact<ERC20SwapToConve
           address: '0x80D1EE67ffAf7047d3E6EbF7317cF0eAd63FFc78',
           creationBlockNumber: 35496076,
         },
+        moonbeam: {
+          address: '0x80D1EE67ffAf7047d3E6EbF7317cF0eAd63FFc78',
+          creationBlockNumber: 2415496,
+        },
       },
     },
   },

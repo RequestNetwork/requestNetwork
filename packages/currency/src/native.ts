@@ -105,6 +105,12 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       name: 'Optimism Ether',
       network: 'optimism',
     },
+    {
+      symbol: 'GLMR',
+      decimals: 18,
+      name: 'Glimmer',
+      network: 'moonbeam',
+    },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [
     {

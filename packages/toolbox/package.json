@@ -44,6 +44,7 @@
   "dependencies": {
     "@requestnetwork/currency": "0.9.0",
     "@requestnetwork/epk-signature": "0.5.35",
+    "@requestnetwork/ethereum-storage": "0.27.0",
     "@requestnetwork/payment-detection": "0.36.0",
     "@requestnetwork/request-client.js": "0.40.0",
     "@requestnetwork/smart-contracts": "0.29.0",
@@ -55,11 +56,11 @@
     "inquirer": "8.2.0",
     "lodash": "4.17.21",
     "tslib": "2.3.1",
-    "yargs": "16.2.0"
+    "yargs": "17.6.2"
   },
   "devDependencies": {
     "@types/inquirer": "8.1.3",
-    "@types/yargs": "16.0.1",
+    "@types/yargs": "17.0.14",
     "cross-env": "7.0.2",
     "shx": "0.3.2",
     "ts-node": "9.0.0",

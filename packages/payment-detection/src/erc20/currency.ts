@@ -7,7 +7,7 @@ import {
 } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
-import { getDefaultProvider } from '../provider';
+import Utils from '@requestnetwork/utils';
 
 export const loadCurrencyFromContract = async (
   currency: StorageCurrency,
@@ -17,7 +17,10 @@ export const loadCurrencyFromContract = async (
   }
 
   try {
-    const contract = ERC20__factory.connect(currency.value, getDefaultProvider(currency.network));
+    const contract = ERC20__factory.connect(
+      currency.value,
+      Utils.getDefaultProvider(currency.network),
+    );
     const decimals = await contract.decimals();
 
     if (!decimals) {

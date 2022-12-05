@@ -10,4 +10,5 @@ yargs
   })
   .demandCommand()
   .help()
-  .version(false).argv;
+  .version(false)
+  .parseSync();
