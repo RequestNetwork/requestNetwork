@@ -12,9 +12,9 @@ export abstract class BtcAddressBasedDetector extends PaymentDetectorBase<
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor(
+  protected constructor(
     private networkId: number,
-    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: ExtensionTypes.PnAddressBased.IAddressBased<ExtensionTypes.PnAddressBased.ICreationParameters>,
     private bitcoinDetectionProvider: PaymentTypes.IBitcoinDetectionProvider = new DefaultBitcoinDetectionProvider(),
   ) {
@@ -74,7 +74,7 @@ export abstract class BtcAddressBasedDetector extends PaymentDetectorBase<
    */
   protected async getEvents(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IBTCPaymentEventParameters>[]> {
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IBTCPaymentEventParameters>> {
     const { paymentAddress, refundAddress } = this.getPaymentExtension(request).values;
 
     this.checkRequiredParameter(paymentAddress, 'paymentAddress');
@@ -93,6 +93,9 @@ export abstract class BtcAddressBasedDetector extends PaymentDetectorBase<
           )
         : { events: [] },
     ]);
-    return [...payments.events, ...refunds.events];
+    const paymentEvents = [...payments.events, ...refunds.events];
+    return {
+      paymentEvents,
+    };
   }
 }

@@ -6,12 +6,6 @@ import { getMaxIpfsReadRetry } from './config';
 import IgnoredDataIds from './ignored-dataIds';
 import IpfsConnectionError from './ipfs-connection-error';
 
-// rate of the size of the Header of a ipfs file regarding its content size
-// used to estimate the size of a ipfs file from the content size
-const SAFE_RATE_HEADER_SIZE = 0.3;
-// max ipfs header size
-const SAFE_MAX_HEADER_SIZE = 500;
-
 /**
  * Verify the hashes are present on IPFS for the corresponding ethereum entry
  * Filtered incorrect hashes
@@ -158,18 +152,12 @@ async function getIpfsContent(
   // Get content from ipfs and verify provided size is correct
   let ipfsObject;
 
-  // To limit the read response size, calculate a reasonable margin for the IPFS headers compared to the size stored on ethereum
-  const ipfsHeaderMargin = Math.max(
-    ethereumEntry.feesParameters.contentSize * SAFE_RATE_HEADER_SIZE,
-    SAFE_MAX_HEADER_SIZE,
-  );
-
   try {
     const startTime = Date.now();
     // Send ipfs request
     ipfsObject = await ipfsStorage.read(
       ethereumEntry.hash,
-      Number(ethereumEntry.feesParameters.contentSize) + ipfsHeaderMargin,
+      ethereumEntry.feesParameters.contentSize,
     );
     logger.debug(
       `read ${ethereumEntry.hash}, try; ${tryIndex}. Took ${Date.now() - startTime} ms`,

@@ -56,7 +56,7 @@ export default class Web3SignatureProvider implements SignatureProviderTypes.ISi
     }
 
     // some wallets (like Metamask) do a personal_sign (ECDSA_ETHEREUM),
-    //  some (like Trust) do a simple sign (ECDSA)
+    // some (like Trust) do a simple sign (ECDSA)
     const signedData =
       this.getSignedData(data, signatureValue, SignatureTypes.METHOD.ECDSA_ETHEREUM, signer) ||
       this.getSignedData(data, signatureValue, SignatureTypes.METHOD.ECDSA, signer);

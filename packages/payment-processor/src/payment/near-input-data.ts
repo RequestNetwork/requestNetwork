@@ -1,7 +1,7 @@
 import { BigNumberish } from 'ethers';
 import { WalletConnection } from 'near-api-js';
 
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import {
   getRequestPaymentValues,
@@ -9,7 +9,7 @@ import {
   getAmountToPay,
   getPaymentExtensionVersion,
 } from './utils';
-import { isNearNetwork, processNearPayment } from './utils-near';
+import { INearTransactionCallback, isNearNetwork, processNearPayment } from './utils-near';
 
 /**
  * processes the transaction to pay a Near request.
@@ -21,16 +21,20 @@ export async function payNearInputDataRequest(
   request: ClientTypes.IRequestData,
   walletConnection: WalletConnection,
   amount?: BigNumberish,
+  callback?: INearTransactionCallback,
 ): Promise<void> {
   if (!request.currencyInfo.network || !isNearNetwork(request.currencyInfo.network)) {
     throw new Error('request.currencyInfo should be a Near network');
   }
 
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN);
 
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, amount).toString();
   const version = getPaymentExtensionVersion(request);
+  if (!paymentReference) {
+    throw new Error('Cannot pay without a paymentReference');
+  }
 
   return processNearPayment(
     walletConnection,
@@ -39,5 +43,6 @@ export async function payNearInputDataRequest(
     paymentAddress,
     paymentReference,
     version,
+    callback,
   );
 }

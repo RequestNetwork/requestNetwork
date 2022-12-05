@@ -4,7 +4,6 @@ import {
   ClientTypes,
   ExtensionTypes,
   IdentityTypes,
-  PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
@@ -19,6 +18,7 @@ const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
+const gasPrice = 2 * 10 ** 10; // await provider.getGasPrice()
 
 const validRequest: ClientTypes.IRequestData = {
   balance: {
@@ -40,9 +40,9 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '1',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,
@@ -123,6 +123,9 @@ describe('payEthInputDataRequest', () => {
     const balanceAfter = await wallet.getBalance();
     expect(confirmedTx.status).toBe(1);
     // new_balance = old_balance + amount + fees
+    expect(balanceAfter).toEqual(
+      balanceBefore.sub(validRequest.expectedAmount).sub(confirmedTx.gasUsed.mul(gasPrice) || 0),
+    );
     expect(
       balanceAfter.eq(balanceBefore.sub(validRequest.expectedAmount).sub(confirmedTx.gasUsed || 0)),
     );

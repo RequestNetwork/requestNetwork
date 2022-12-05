@@ -2,7 +2,12 @@
 import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
 import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
-import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  IdentityTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+  ExtensionTypes,
+} from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import {
   payRequest,
@@ -47,8 +52,7 @@ const encryptionData = {
     method: Types.Encryption.METHOD.ECIES,
   },
   encryptionParams: {
-    key:
-      '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+    key: '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
     method: Types.Encryption.METHOD.ECIES,
   },
   privateKey: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
@@ -103,8 +107,8 @@ describe('Request client using a request node', () => {
   });
 
   it('can create a request with declarative payment network and content data', async () => {
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
       parameters: {
         paymentInfo: {
           paymentInstruction: 'Arbitrary payment instruction',
@@ -136,7 +140,7 @@ describe('Request client using a request node', () => {
     expect(requestData.meta).toBeDefined();
     expect(requestData.pending!.state).toBe(Types.RequestLogic.STATE.CREATED);
 
-    const extension = requestData.extensions[PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE];
+    const extension = requestData.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE];
     expect(extension).toBeDefined();
     expect(extension.events[0].name).toBe('create');
     expect(extension.events[0].parameters).toEqual(paymentNetwork.parameters);
@@ -416,7 +420,7 @@ describe('Request client using a request node', () => {
 
     await fetchedRequest.refresh();
     expect(fetchedRequest.getData().expectedAmount).toBe('0');
-  });
+  }, 60000);
 
   it('create an encrypted and unencrypted request with the same content', async () => {
     const requestNetwork = new RequestNetwork({
@@ -503,8 +507,8 @@ describe('Request client using a request node', () => {
 });
 
 describe('ERC20 localhost request creation and detection test', () => {
-  const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-    id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
+  const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
     parameters: {
       paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
     },
@@ -534,7 +538,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     expect(requestData.pending).toBeNull();
   });
 
-  it('can create ERC20 requests with any to erc20 proxy', async () => {
+  it.only('can create ERC20 requests with any to erc20 proxy', async () => {
     const tokenContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 
     const currencies = [
@@ -553,8 +557,8 @@ describe('ERC20 localhost request creation and detection test', () => {
       currencies,
     });
 
-    const paymentNetworkAnyToERC20: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+    const paymentNetworkAnyToERC20: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
       parameters: {
         paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
         refundAddress: '0x821aEa9a577a9b44299B9c15c88cf3087F3b5544',
@@ -637,14 +641,12 @@ describe('ETH localhost request creation and detection test', () => {
       currencies,
     });
 
-    const paymentNetworkETHFeeProxy: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
+    const paymentNetworkETHFeeProxy: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
       parameters: {
         paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
         feeAddress: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2',
         feeAmount: '200',
-        network: 'private',
-        maxRateTimespan: 1000000,
       },
     };
 
@@ -690,8 +692,8 @@ describe('ETH localhost request creation and detection test', () => {
       currencies,
     });
 
-    const paymentNetworkAnyToETH: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
+    const paymentNetworkAnyToETH: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
       parameters: {
         paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
         refundAddress: '0x821aEa9a577a9b44299B9c15c88cf3087F3b5544',

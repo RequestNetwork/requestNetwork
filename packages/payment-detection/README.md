@@ -28,8 +28,9 @@ A good part of the logic is implemented in the abstract class `PaymentDetectorBa
 ```typescript
 export abstract class PaymentDetectorBase<
   TExtension extends ExtensionTypes.IExtension,
-  TPaymentEventParameters
-> implements PaymentTypes.IPaymentNetwork<TPaymentEventParameters> {
+  TPaymentEventParameters,
+> implements PaymentTypes.IPaymentNetwork<TPaymentEventParameters>
+{
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents<TPaymentEventParameters>> {

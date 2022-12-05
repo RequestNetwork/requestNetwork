@@ -1,7 +1,7 @@
 import { PaymentTypes } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 import { IPaymentRetriever } from '../types';
 import { BigNumber, ethers } from 'ethers';
-import { getDefaultProvider } from '../provider';
 import { parseLogArgs } from '../utils';
 
 // The ERC20 proxy smart contract ABI fragment containing TransferWithReference event
@@ -28,7 +28,8 @@ type TransferWithReferenceAndFeeArgs = TransferWithReferenceArgs & {
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
 export default class ProxyERC20InfoRetriever
-  implements IPaymentRetriever<PaymentTypes.ERC20PaymentNetworkEvent> {
+  implements IPaymentRetriever<PaymentTypes.ERC20PaymentNetworkEvent>
+{
   public contractProxy: ethers.Contract;
   public provider: ethers.providers.Provider;
 
@@ -51,9 +52,9 @@ export default class ProxyERC20InfoRetriever
     private network: string,
   ) {
     // Creates a local or default provider
-    this.provider = getDefaultProvider(this.network);
+    this.provider = Utils.getDefaultProvider(this.network);
 
-    // Setup the ERC20 proxy contract interface
+    // Set up the ERC20 proxy contract interface
     this.contractProxy = new ethers.Contract(
       this.proxyContractAddress,
       erc20proxyContractAbiFragment,

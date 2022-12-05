@@ -26,7 +26,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
         parameters: {
           feeAddress: '0x0000000000000000000000000000000000000001',
           feeAmount: '0',
@@ -52,7 +52,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -139,7 +139,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       }).toThrowError('acceptedTokens must contains only valid ethereum addresses');
     });
 
-    it('cannot createCreationAction with network not supported', () => {
+    it('cannot createCreationAction with currency not supported', () => {
       // 'must throw'
       expect(() => {
         anyToErc20Proxy.createCreationAction({
@@ -148,7 +148,9 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           network: 'kovan',
           acceptedTokens: ['0x0000000000000000000000000000000000000003'],
         });
-      }).toThrowError('network kovan not supported');
+      }).toThrowError(
+        "The currency '0x0000000000000000000000000000000000000003' on kovan is unknown or not supported.",
+      );
     });
 
     it('cannot createCreationAction with tokens accepted not supported', () => {
@@ -227,7 +229,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
         },
@@ -252,7 +254,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
         parameters: {
           refundAddress: '0x0000000000000000000000000000000000000002',
         },
@@ -278,7 +280,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         }),
       ).toEqual({
         action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
         parameters: {
           feeAddress: '0x0000000000000000000000000000000000000002',
           feeAmount: '2000',

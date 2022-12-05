@@ -1,6 +1,10 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
-import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import {
+  CurrencyDefinition,
+  CurrencyManager,
+  UnsupportedCurrencyError,
+} from '@requestnetwork/currency';
 import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { Erc20ConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
@@ -20,13 +24,13 @@ import { IConversionPaymentSettings } from './index';
 
 /**
  * Processes a transaction to pay a request with an ERC20 currency that is different from the request currency (eg. fiat).
- * The payment is made by the ERC20 fee proxy contract.
- * @param request the request to pay
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param paymentSettings payment settings
- * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
- * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
- * @param overrides optionally, override default transaction values, like gas.
+ * The payment is made by the ERC20 Conversion fee proxy contract.
+ * @param request The request to pay
+ * @param signerOrProvider The Web3 provider, or signer. Defaults to window.ethereum.
+ * @param paymentSettings The payment settings
+ * @param amount Optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param feeAmount Optionally, the fee amount to pay. Defaults to the fee amount.
+ * @param overrides Optionally, override default transaction values, like gas.
  */
 export async function payAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
@@ -47,12 +51,12 @@ export async function payAnyToErc20ProxyRequest(
 }
 
 /**
- * Encodes the call to pay a request with an ERC20 currency that is different from the request currency (eg. fiat). The payment is made by the ERC20 fee proxy contract.
- * @param request request to pay
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param paymentSettings payment settings
- * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
- * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
+ * Encodes the call to pay a request with an ERC20 currency that is different from the request currency (eg. fiat).
+ * The payment is made by the ERC20 Conversion fee proxy contract.
+ * @param request The request to pay
+ * @param paymentSettings The payment settings
+ * @param amount Optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param feeAmountOverride Optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
 export function encodePayAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
@@ -60,6 +64,41 @@ export function encodePayAnyToErc20ProxyRequest(
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): string {
+  const {
+    path,
+    paymentReference,
+    paymentAddress,
+    feeAddress,
+    maxRateTimespan,
+    amountToPay,
+    feeToPay,
+  } = prepareAnyToErc20Arguments(request, paymentSettings, amount, feeAmountOverride);
+  const proxyContract = Erc20ConversionProxy__factory.createInterface();
+  return proxyContract.encodeFunctionData('transferFromWithReferenceAndFee', [
+    paymentAddress,
+    amountToPay,
+    path,
+    `0x${paymentReference}`,
+    feeToPay,
+    feeAddress || constants.AddressZero,
+    BigNumber.from(paymentSettings.maxToSpend),
+    maxRateTimespan || 0,
+  ]);
+}
+
+/**
+ * It checks paymentSettings values, it get request's path and requestCurrency
+ * @param request The request to pay
+ * @param paymentSettings The payment settings
+ * @param amount Optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param feeAmountOverride Optionally, the fee amount to pay. Defaults to the fee amount of the request.
+ */
+export function checkRequestAndGetPathAndCurrency(
+  request: ClientTypes.IRequestData,
+  paymentSettings: IConversionPaymentSettings,
+  amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish,
+): { path: string[]; requestCurrency: CurrencyDefinition<unknown> } {
   if (!paymentSettings.currency) {
     throw new Error('currency must be provided in the paymentSettings');
   }
@@ -94,29 +133,53 @@ export function encodePayAnyToErc20ProxyRequest(
 
   // Check request
   validateConversionFeeProxyRequest(request, path, amount, feeAmountOverride);
+  return { path, requestCurrency };
+}
 
-  const {
+/**
+ * Prepares all necessaries arguments required to encode an any-to-erc20 request
+ * @param request The request to pay
+ * @param paymentSettings The payment settings
+ * @param amount Optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param feeAmountOverride Optionally, the fee amount to pay. Defaults to the fee amount of the request.
+ */
+function prepareAnyToErc20Arguments(
+  request: ClientTypes.IRequestData,
+  paymentSettings: IConversionPaymentSettings,
+  amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish,
+): {
+  path: string[];
+  paymentReference: string;
+  paymentAddress: string;
+  feeAddress: string | undefined;
+  maxRateTimespan: string | undefined;
+  amountToPay: BigNumber;
+  feeToPay: BigNumber;
+} {
+  const { path, requestCurrency } = checkRequestAndGetPathAndCurrency(
+    request,
+    paymentSettings,
+    amount,
+    feeAmountOverride,
+  );
+
+  const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan } =
+    getRequestPaymentValues(request);
+  if (!paymentReference) {
+    throw new Error('paymentReference is missing');
+  }
+  const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
+  const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
+  return {
+    path,
     paymentReference,
     paymentAddress,
     feeAddress,
-    feeAmount,
     maxRateTimespan,
-  } = getRequestPaymentValues(request);
-
-  const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
-  const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
-
-  const proxyContract = Erc20ConversionProxy__factory.createInterface();
-  return proxyContract.encodeFunctionData('transferFromWithReferenceAndFee', [
-    paymentAddress,
     amountToPay,
-    path,
-    `0x${paymentReference}`,
     feeToPay,
-    feeAddress || constants.AddressZero,
-    BigNumber.from(paymentSettings.maxToSpend),
-    maxRateTimespan || 0,
-  ]);
+  };
 }
 
 export function prepareAnyToErc20ProxyPaymentTransaction(

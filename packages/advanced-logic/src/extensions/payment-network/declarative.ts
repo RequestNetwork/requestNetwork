@@ -8,27 +8,28 @@ const CURRENT_VERSION = '0.1.0';
  * Core of the declarative payment network
  */
 export default class DeclarativePaymentNetwork<
-  TCreationParameters extends ExtensionTypes.PnAnyDeclarative.ICreationParameters = ExtensionTypes.PnAnyDeclarative.ICreationParameters
+  TCreationParameters extends ExtensionTypes.PnAnyDeclarative.ICreationParameters = ExtensionTypes.PnAnyDeclarative.ICreationParameters,
 > extends AbstractExtension<TCreationParameters> {
   public constructor(
-    public extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
-    public currentVersion: string = CURRENT_VERSION,
+    public readonly extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes
+      .PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
+    public readonly currentVersion: string = CURRENT_VERSION,
   ) {
     super(ExtensionTypes.TYPE.PAYMENT_NETWORK, extensionId, currentVersion);
     this.actions = {
       ...this.actions,
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .ADD_PAYMENT_INSTRUCTION]: this.applyAddPaymentInstruction.bind(this),
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .ADD_REFUND_INSTRUCTION]: this.applyAddRefundInstruction.bind(this),
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .DECLARE_SENT_PAYMENT]: this.applyDeclareSentPayment.bind(this),
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .DECLARE_SENT_REFUND]: this.applyDeclareSentRefund.bind(this),
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .DECLARE_RECEIVED_PAYMENT]: this.applyDeclareReceivedPayment.bind(this),
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .DECLARE_RECEIVED_REFUND]: this.applyDeclareReceivedRefund.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION]:
+        this.applyAddPaymentInstruction.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION]:
+        this.applyAddRefundInstruction.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT]:
+        this.applyDeclareSentPayment.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND]:
+        this.applyDeclareSentRefund.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT]:
+        this.applyDeclareReceivedPayment.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND]:
+        this.applyDeclareReceivedRefund.bind(this),
       [ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE]: this.applyAddDelegate.bind(this),
     };
   }
@@ -186,7 +187,7 @@ export default class DeclarativePaymentNetwork<
    * @returns state of the extension created
    */
   protected applyCreation(
-    extensionAction: ExtensionTypes.IAction,
+    extensionAction: ExtensionTypes.IAction<TCreationParameters>,
     timestamp: number,
   ): ExtensionTypes.IState {
     const genericCreationAction = super.applyCreation(extensionAction, timestamp);
@@ -197,23 +198,25 @@ export default class DeclarativePaymentNetwork<
         {
           name: 'create',
           parameters: {
-            paymentInfo: extensionAction.parameters.paymentInfo,
-            refundInfo: extensionAction.parameters.refundInfo,
-            payeeDelegate: extensionAction.parameters.payeeDelegate,
-            payerDelegate: extensionAction.parameters.payerDelegate,
+            paymentInfo: extensionAction.parameters?.paymentInfo,
+            refundInfo: extensionAction.parameters?.refundInfo,
+            salt: extensionAction.parameters?.salt,
+            payeeDelegate: extensionAction.parameters?.payeeDelegate,
+            payerDelegate: extensionAction.parameters?.payerDelegate,
           },
           timestamp,
         },
       ],
       values: {
-        paymentInfo: extensionAction.parameters.paymentInfo,
+        paymentInfo: extensionAction.parameters?.paymentInfo,
+        refundInfo: extensionAction.parameters?.refundInfo,
+        salt: extensionAction.parameters?.salt,
+        payeeDelegate: extensionAction.parameters?.payeeDelegate,
+        payerDelegate: extensionAction.parameters?.payerDelegate,
         receivedPaymentAmount: '0',
         receivedRefundAmount: '0',
-        refundInfo: extensionAction.parameters.refundInfo,
         sentPaymentAmount: '0',
         sentRefundAmount: '0',
-        payeeDelegate: extensionAction.parameters.payeeDelegate,
-        payerDelegate: extensionAction.parameters.payerDelegate,
       },
     };
   }

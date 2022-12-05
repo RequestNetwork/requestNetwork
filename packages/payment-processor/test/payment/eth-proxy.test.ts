@@ -4,7 +4,6 @@ import {
   ClientTypes,
   ExtensionTypes,
   IdentityTypes,
-  PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
@@ -45,9 +44,9 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,
@@ -110,8 +109,7 @@ describe('payEthProxyRequest', () => {
       gasPrice: '20000000000',
     });
     expect(spy).toHaveBeenCalledWith({
-      data:
-        '0xeb7d8df3000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
+      data: '0xeb7d8df3000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
       gasPrice: '20000000000',
       to: '0xf204a4Ef082f5c04bB89F7D5E6568B796096735a',
       value: BigNumber.from('0x64'),
@@ -155,8 +153,8 @@ describe('prepareEthProxyPaymentTransaction', () => {
     const valid010Request = {
       ...validRequest,
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
-          ...validRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA],
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+          ...validRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA],
           version: '0.1.0',
         },
       },
@@ -164,8 +162,8 @@ describe('prepareEthProxyPaymentTransaction', () => {
     const valid020Request = {
       ...validRequest,
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
-          ...validRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA],
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+          ...validRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA],
           version: '0.2.0',
         },
       },

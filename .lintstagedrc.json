@@ -1,3 +1,4 @@
 {
-  "*.[jt]s": ["eslint --fix --quiet", "prettier --write"]
+  "*.[jt]s": ["eslint --fix --quiet", "prettier --write"],
+  "!(*.[jt]s)": ["prettier --write --ignore-unknown"]
 }

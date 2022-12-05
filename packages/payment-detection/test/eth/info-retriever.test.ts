@@ -33,7 +33,7 @@ describe('api/eth/info-retriever', () => {
     );
     expect(typeof events[0].parameters!.block).toBe('number');
     expect(typeof events[0].parameters!.confirmations).toBe('number');
-  });
+  }, 10000);
 
   it('throws when trying to use it in local', async () => {
     const infoRetreiver = new EthInputDataInfoRetriever(
@@ -46,12 +46,14 @@ describe('api/eth/info-retriever', () => {
   });
 
   describe('Multichain', () => {
-    // TODO temporary disable CELO
+    // TODO temporary disable xDAI, CELO, Sokol, and Goerli
+    // FIXME: API-based checks should run nightly and be mocked for CI
     [
       'mainnet',
       'rinkeby',
-      'xdai',
-      'sokol',
+      // 'goerli',
+      // 'xdai',
+      // 'sokol',
       'fuse',
       //'celo',
       'matic',

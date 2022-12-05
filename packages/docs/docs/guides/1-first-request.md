@@ -16,7 +16,7 @@ If you want to jump to the decentralized options, head towards the [Request Clie
 
 ## Request identity and API Key
 
-Head towards [Request Invoicing](https://invoicing.request.network) and create your account, you will need it to get your API keys and pursue the first steps of Request. Once you logged in, go to [My Account > API](https://invoicing.request.network/account/api-keys) to get your API Key.
+Head towards [Request Finance](https://app.request.finance) and create your account, you will need it to get your API keys and pursue the first steps of Request. Once you logged in, go to the [Developers page](https://app.request.finance/account/api-keys) to get your API Key.
 
 More info about the Request Portal [in the next section](./3-Portal-API/0-portal-intro.md).
 
@@ -45,7 +45,7 @@ try {
 
   if (request.data?.requestId) {
     console.log(request.data);
-    console.log(`https://pay.request.network/${request.data.requestId}`);
+    console.log(`https://app.request.finance/${request.data.requestId}`);
   } else {
     console.log(`Error, something went wrong fetching the requestId.`);
   }

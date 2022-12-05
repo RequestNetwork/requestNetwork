@@ -1,13 +1,12 @@
 import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { BtcTestnetAddressBasedDetector } from '../../src/btc/testnet-address-based';
+import { mockAdvancedLogicBase } from '../utils';
 
 let btcAddressedBased: BtcTestnetAddressBasedDetector;
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+  ...mockAdvancedLogicBase,
   extensions: {
     addressBasedTestnetBtc: {
       createAddPaymentAddressAction(): any {
@@ -20,7 +19,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
         return;
       },
     },
-  },
+  } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
 // Most of the tests are done as integration tests in ../index.test.ts

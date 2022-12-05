@@ -1,7 +1,7 @@
 import { PaymentTypes } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 import { IPaymentRetriever } from '../types';
 import { ethers } from 'ethers';
-import { getDefaultProvider } from '../provider';
 
 // The ERC20 smart contract ABI fragment containing decimals property and Transfer event
 const erc20BalanceOfAbiFragment = [
@@ -49,10 +49,11 @@ const erc20BalanceOfAbiFragment = [
  * Retrieves a list of transfer events for an address
  */
 export default class ERC20InfoRetriever
-  implements IPaymentRetriever<PaymentTypes.ERC20PaymentNetworkEvent> {
+  implements IPaymentRetriever<PaymentTypes.ERC20PaymentNetworkEvent>
+{
   /**
    * @param tokenContractAddress The address of the ERC20 contract
-   * @param address Address of the balance we want to check
+   * @param toAddress Address of the balance we want to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The Ethereum network to use
    */
@@ -68,9 +69,9 @@ export default class ERC20InfoRetriever
    */
   public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
     // Creates a local or default provider
-    const provider = getDefaultProvider(this.network);
+    const provider = Utils.getDefaultProvider(this.network);
 
-    // Setup the ERC20 contract interface
+    // Set up the ERC20 contract interface
     const contract = new ethers.Contract(
       this.tokenContractAddress,
       erc20BalanceOfAbiFragment,
@@ -78,6 +79,11 @@ export default class ERC20InfoRetriever
     );
 
     // Create a filter to find all the Transfer logs for the toAddress
+    console.warn(
+      'It is not recommended to use the ERC20InfoRetriever to retrieve ' +
+        'all Transfer events from block "0" to block "latest", ' +
+        'as this operation is not supported by most RPC providers',
+    );
     const filter = contract.filters.Transfer(null, this.toAddress) as ethers.providers.Filter;
     filter.fromBlock = 0;
     filter.toBlock = 'latest';

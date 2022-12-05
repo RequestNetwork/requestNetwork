@@ -48,7 +48,6 @@ export interface IRequestPaymentOptions {
 
 /**
  * Processes a transaction to swap tokens and pay an ERC20 Request through a proxy with fees.
- * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param swapSettings settings for the swap: swap path, max amount to swap, deadline
  * @param options to override amount, feeAmount and transaction parameters
@@ -72,7 +71,6 @@ export async function swapErc20FeeProxyRequest(
 
 /**
  * Prepare a transaction to swap tokens and pay an ERC20 Request through a proxy with fees.
- * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param swapSettings settings for the swap: swap path, max amount to swap, deadline
  * @param options to override amount, feeAmount and transaction parameters
@@ -115,9 +113,8 @@ export function encodeSwapToPayErc20FeeRequest(
 
   const signer = getSigner(signerOrProvider);
   const tokenAddress = request.currencyInfo.value;
-  const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
-    request,
-  );
+  const { paymentReference, paymentAddress, feeAddress, feeAmount } =
+    getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, options?.amount);
   const feeToPay = BigNumber.from(options?.feeAmount || feeAmount || 0);
 

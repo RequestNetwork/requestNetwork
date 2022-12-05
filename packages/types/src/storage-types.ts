@@ -2,14 +2,21 @@ import { EventEmitter } from 'events';
 
 import { BigNumber } from 'ethers';
 
-/** Interface of the storage */
-export interface IStorage {
+export interface IStorageWrite {
   initialize: () => Promise<void>;
   append: (data: string) => Promise<IAppendResult>;
+}
+
+export interface IStorageRead {
+  initialize: () => Promise<void>;
   read: (dataId: string) => Promise<IEntry>;
   readMany: (dataIds: string[]) => Promise<IEntry[]>;
   getData: (options?: ITimestampBoundaries) => Promise<IEntriesWithLastTimestamp>;
   getIgnoredData: () => Promise<IEntry[]>;
+}
+
+/** Interface of the storage */
+export interface IStorage extends IStorageRead, IStorageWrite {
   _getStatus: (detailed?: boolean) => Promise<any>;
 }
 
@@ -136,6 +143,7 @@ export enum EthereumNetwork {
   PRIVATE = 0,
   MAINNET = 1,
   RINKEBY = 4,
+  GOERLI = 5,
   KOVAN = 42,
   SOKOL = 77,
   XDAI = 100,
@@ -148,7 +156,7 @@ export interface IWeb3Connection {
   timeout?: number;
 }
 
-/** Information to connect to a ipfs gateway */
+/** Information to connect to an IPFS gateway */
 export interface IIpfsGatewayConnection {
   host: string;
   port: number;

@@ -16,6 +16,12 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       network: 'rinkeby',
     },
     {
+      symbol: 'ETH-goerli',
+      decimals: 18,
+      name: 'Goerli Ether',
+      network: 'goerli',
+    },
+    {
       symbol: 'MATIC',
       decimals: 18,
       name: 'Matic',
@@ -55,12 +61,6 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       symbol: 'BNB',
       decimals: 18,
       name: 'BNB',
-      network: 'bsctest',
-    },
-    {
-      symbol: 'BNB',
-      decimals: 18,
-      name: 'BNB',
       network: 'bsc',
     },
     {
@@ -74,6 +74,12 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       decimals: 24,
       name: 'Near Testnet',
       network: 'aurora-testnet',
+    },
+    {
+      symbol: 'NEAR-testnet',
+      decimals: 24,
+      name: 'Test Near',
+      network: 'near-testnet',
     },
     {
       symbol: 'ARETH',
@@ -92,6 +98,18 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       decimals: 18,
       name: 'AVAX',
       network: 'avalanche',
+    },
+    {
+      symbol: 'ETH-optimism',
+      decimals: 18,
+      name: 'Optimism Ether',
+      network: 'optimism',
+    },
+    {
+      symbol: 'GLMR',
+      decimals: 18,
+      name: 'Glimmer',
+      network: 'moonbeam',
     },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [

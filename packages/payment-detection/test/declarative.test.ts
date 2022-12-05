@@ -7,13 +7,12 @@ import {
 } from '@requestnetwork/types';
 
 import { DeclarativePaymentDetector } from '../src/declarative';
+import { mockAdvancedLogicBase } from './utils';
 
 let declarative: DeclarativePaymentDetector;
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+  ...mockAdvancedLogicBase,
   extensions: {
     declarative: {
       createAddPaymentInstructionAction(): any {
@@ -38,7 +37,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
         return;
       },
     },
-  },
+  } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
 const requestMock: RequestLogicTypes.IRequest = {
@@ -153,7 +152,7 @@ describe('api/declarative', () => {
   });
 
   it('getBalance get the correct balance', async () => {
-    requestMock.extensions[PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE] = {
+    requestMock.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE] = {
       events: [
         {
           name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,

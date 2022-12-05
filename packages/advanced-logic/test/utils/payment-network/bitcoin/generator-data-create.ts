@@ -15,7 +15,7 @@ export const refundTestnetBTCAddress = 'mfsSPZdcdXwSMVkPwCsiW39P5y6eYE1bDM';
 // actions
 export const actionCreationWithPaymentAndRefund = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
   parameters: {
     paymentAddress: paymentBTCAddress,
     refundAddress: refundBTCAddress,
@@ -24,7 +24,7 @@ export const actionCreationWithPaymentAndRefund = {
 };
 export const actionCreationOnlyPayment = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
   parameters: {
     paymentAddress: paymentBTCAddress,
   },
@@ -32,7 +32,7 @@ export const actionCreationOnlyPayment = {
 };
 export const actionCreationOnlyRefund = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
   parameters: {
     refundAddress: refundBTCAddress,
   },
@@ -40,7 +40,7 @@ export const actionCreationOnlyRefund = {
 };
 export const actionCreationEmpty = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
   parameters: {},
   version: '0.1.0',
 };
@@ -48,7 +48,7 @@ export const actionCreationEmpty = {
 // ---------------------------------------------------------------------
 // extensions states
 export const extensionStateWithPaymentAndRefund = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED as string]: {
     events: [
       {
         name: 'create',
@@ -59,7 +59,7 @@ export const extensionStateWithPaymentAndRefund = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       payeeDelegate: undefined,
@@ -72,12 +72,13 @@ export const extensionStateWithPaymentAndRefund = {
       sentRefundAmount: '0',
       paymentAddress: paymentBTCAddress,
       refundAddress: refundBTCAddress,
+      salt: undefined,
     },
     version: '0.1.0',
   },
 };
 export const extensionStateCreatedEmpty = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED as string]: {
     events: [
       {
         name: 'create',
@@ -85,7 +86,7 @@ export const extensionStateCreatedEmpty = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {},
     version: '0.1.0',

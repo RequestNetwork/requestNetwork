@@ -1,20 +1,12 @@
-import {
-  conversionSupportedNetworks,
-  ICurrencyManager,
-  UnsupportedCurrencyError,
-} from '@requestnetwork/currency';
+import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import EthereumFeeProxyPaymentNetwork from './ethereum/fee-proxy-contract';
 
 const CURRENT_VERSION = '0.2.0';
 
 export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPaymentNetwork {
-  public constructor(
-    private currencyManager: ICurrencyManager,
-    extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
-    currentVersion: string = CURRENT_VERSION,
-  ) {
-    super(extensionId, currentVersion, conversionSupportedNetworks);
+  public constructor(private currencyManager: ICurrencyManager) {
+    super(ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY, CURRENT_VERSION);
   }
 
   /**
@@ -27,13 +19,7 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
   public createCreationAction(
     creationParameters: ExtensionTypes.PnAnyToEth.ICreationParameters,
   ): ExtensionTypes.IAction {
-    const network = creationParameters.network;
-    if (!network) {
-      throw Error('network is required');
-    }
-    if (!conversionSupportedNetworks.includes(network)) {
-      throw Error(`network ${network} not supported`);
-    }
+    this.throwIfInvalidNetwork(creationParameters.network);
     return super.createCreationAction(creationParameters);
   }
 
@@ -83,8 +69,6 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
   /**
    * Validate the extension action regarding the currency and network
    * It must throw in case of error
-   *
-   * @param request
    */
   protected validate(
     request: RequestLogicTypes.IRequest,
@@ -99,10 +83,6 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
       throw new Error(
         `The network must be provided from the creation action or from the extension state`,
       );
-    }
-
-    if (!conversionSupportedNetworks.includes(network)) {
-      throw new Error(`The network (${network}) is not supported for this payment network.`);
     }
 
     const currency = this.currencyManager.fromStorageCurrency(request.currency);

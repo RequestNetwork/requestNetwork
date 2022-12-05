@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/payment-detection",
-  "version": "0.35.0",
+  "version": "0.36.0",
   "publishConfig": {
     "access": "public"
   },
@@ -18,7 +18,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=16.0.0"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -38,19 +38,19 @@
     "prepare": "yarn run build",
     "test": "jest --runInBand",
     "test:watch": "yarn test --watch",
-    "codegen": "graphql-codegen --config codegen.yml; graphql-codegen --config codegen-superfluid.yml"
+    "codegen": "graphql-codegen --config codegen.yml ; graphql-codegen --config codegen-superfluid.yml; graphql-codegen --config codegen-near.yml"
   },
   "dependencies": {
-    "@requestnetwork/currency": "0.8.0",
-    "@requestnetwork/smart-contracts": "0.28.0",
-    "@requestnetwork/types": "0.35.0",
-    "@requestnetwork/utils": "0.35.0",
-    "autobahn": "20.9.2",
-    "axios": "0.21.1",
+    "@requestnetwork/currency": "0.9.0",
+    "@requestnetwork/smart-contracts": "0.29.0",
+    "@requestnetwork/types": "0.36.0",
+    "@requestnetwork/utils": "0.36.0",
+    "axios": "0.27.2",
     "ethers": "5.5.1",
     "graphql": "15.5.1",
     "graphql-request": "3.4.0",
     "graphql-tag": "2.12.4",
+    "lodash": "4.17.21",
     "satoshi-bitcoin": "1.0.4",
     "tslib": "2.3.1"
   },
@@ -61,19 +61,15 @@
     "@graphql-codegen/typescript-graphql-request": "3.2.1",
     "@graphql-codegen/typescript-operations": "1.18.0",
     "@graphql-codegen/typescript-resolvers": "1.19.2",
-    "@requestnetwork/advanced-logic": "0.34.0",
-    "@types/autobahn": "18.10.1",
+    "@requestnetwork/advanced-logic": "0.35.0",
     "@types/jest": "26.0.13",
+    "@types/lodash": "4.14.161",
     "jest": "26.4.2",
     "nyc": "15.1.0",
-    "prettier": "2.2.1",
     "shx": "0.3.2",
     "source-map-support": "0.5.19",
     "ts-jest": "26.3.0",
     "ts-node": "9.0.0",
     "typescript": "4.4.4"
-  },
-  "resolutions": {
-    "**/autobahn/ws": "<8"
   }
 }

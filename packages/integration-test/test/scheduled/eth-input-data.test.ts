@@ -1,5 +1,6 @@
 import { EthInputDataPaymentDetector } from '@requestnetwork/payment-detection';
 import { RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 import { mockAdvancedLogic } from './mocks';
 import { Types, Utils } from '@requestnetwork/request-client.js';
@@ -14,6 +15,9 @@ import {
 
 const ethInputContract = new EthInputDataPaymentDetector({
   advancedLogic: mockAdvancedLogic,
+  currencyManager: CurrencyManager.getDefault(),
+  explorerApiKeys: {},
+  getSubgraphClient: jest.fn(),
 });
 
 describe('ETH Fee proxy detection test-suite', () => {
@@ -35,18 +39,18 @@ describe('ETH Fee proxy detection test-suite', () => {
     const balance = await ethInputContract.getBalance({
       ...requestData,
       currency: {
-        network: 'private',
+        network: 'rinkeby',
         type: RequestLogicTypes.CURRENCY.ETH,
         value: privateErc20Address,
       },
     });
-
+    expect(balance.error).toBeUndefined();
     expect(balance.balance).toBe('50000000000000000');
     expect(balance.events).toHaveLength(1);
     expect(balance.events[0].name).toBe('payment');
-    expect(balance.events[0].amount).toBe('1');
+    expect(balance.events[0].amount).toBe('50000000000000000');
     expect(Math.abs(declarationTimestamp - (balance.events[0].timestamp ?? 0))).toBeLessThan(5);
-  });
+  }, 20000);
 
   it('getBalance = 0 if the payer declared the payment', async () => {
     // Create a request

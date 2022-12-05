@@ -8,6 +8,9 @@ const networks: Record<string, ethers.providers.Network> = {
   'arbitrum-rinkeby': { chainId: 421611, name: 'arbitrum-rinkeby' },
   'arbitrum-one': { chainId: 42161, name: 'arbitrum-one' },
   avalanche: { chainId: 43114, name: 'avalanche' },
+  bsc: { chainId: 56, name: 'bsc' },
+  optimism: { chainId: 10, name: 'optimism' },
+  moonbeam: { chainId: 1284, name: 'moonbeam' },
 };
 
 /**
@@ -28,11 +31,11 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
     switch (this.network.name) {
       case 'sokol':
       case 'xdai':
-        return `https://blockscout.com/poa/${this.network.name}`;
+        return 'https://api.gnosisscan.io';
       case 'fuse':
         return 'https://explorer.fuse.io';
       case 'celo':
-        return 'https://explorer.celo.org';
+        return 'https://api.celoscan.io';
       case 'matic':
         return 'https://api.polygonscan.com';
       case 'fantom':
@@ -45,6 +48,7 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
       case 'aurora':
         return 'https://explorer.mainnet.near.org';
       case 'aurora-testnet':
+      case 'near-testnet':
         return 'https://explorer.testnet.near.org';
       case 'arbitrum-rinkeby':
         return 'https://testnet.arbiscan.io/';

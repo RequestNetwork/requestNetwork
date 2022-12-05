@@ -24,7 +24,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
         parameters: {
           feeAddress: '0x0000000000000000000000000000000000000001',
           feeAmount: '0',
@@ -48,7 +48,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -111,18 +111,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
       }).toThrowError('feeAmount is not a valid amount');
     });
 
-    it('cannot createCreationAction with network not supported', () => {
-      // 'must throw'
-      expect(() => {
-        anyToEthProxy.createCreationAction({
-          paymentAddress: '0x0000000000000000000000000000000000000001',
-          salt: 'ea3bc7caf64110ca',
-          network: 'kovan',
-        });
-      }).toThrowError('network kovan not supported');
-    });
-
-    it('cannot applyActionToExtensions of creation with an invalid network', () => {
+    it('cannot applyActionToExtensions of creation with an invalid network/currency pair', () => {
       const requestCreatedNoExtension: RequestLogicTypes.IRequest = Utils.deepCopy(
         TestData.requestCreatedNoExtension,
       );
@@ -145,7 +134,9 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
           TestData.otherIdRaw.identity,
           TestData.arbitraryTimestamp,
         );
-      }).toThrowError(`The network (invalid network) is not supported for this payment network.`);
+      }).toThrowError(
+        `The currency (ETH) of the request is not supported for this payment network.`,
+      );
     });
 
     it('cannot applyActionToExtensions of creation on a non supported currency', () => {
@@ -182,7 +173,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
         },
@@ -207,7 +198,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
         parameters: {
           refundAddress: '0x0000000000000000000000000000000000000002',
         },
@@ -233,7 +224,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
         }),
       ).toEqual({
         action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
         parameters: {
           feeAddress: '0x0000000000000000000000000000000000000002',
           feeAmount: '2000',

@@ -22,13 +22,13 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
         },
-        version: '0.2.0',
+        version: '0.3.0',
       });
     });
 
@@ -40,11 +40,11 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           salt: 'ea3bc7caf64110ca',
         },
-        version: '0.2.0',
+        version: '0.3.0',
       });
     });
 
@@ -80,7 +80,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
         },
@@ -106,7 +106,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           refundAddress: '0x0000000000000000000000000000000000000002',
         },

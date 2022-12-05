@@ -1,12 +1,12 @@
 import { ethers, BigNumberish } from 'ethers';
+import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
 import { ClientTypes } from '@requestnetwork/types';
 
-import { getAmountToPay, getPaymentNetworkExtension } from './utils';
+import { getAmountToPay } from './utils';
 
 /**
  * Returns the BIP21 payment URL based on the Request's value
- * @param request
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
 export function getBtcPaymentUrl(request: ClientTypes.IRequestData, amount?: BigNumberish): string {

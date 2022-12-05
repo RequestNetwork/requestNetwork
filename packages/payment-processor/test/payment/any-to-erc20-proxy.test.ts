@@ -4,7 +4,6 @@ import {
   ClientTypes,
   ExtensionTypes,
   IdentityTypes,
-  PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
@@ -16,6 +15,8 @@ import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { currencyManager } from './shared';
 import { IConversionPaymentSettings } from '../../src/index';
 import { UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
+import { getProxyAddress, MAX_ALLOWANCE, revokeErc20Approval } from '../../src/payment/utils';
 
 // Cf. ERC20Alpha in TestERC20.sol
 const erc20ContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
@@ -25,7 +26,7 @@ const alphaPaymentSettings: IConversionPaymentSettings = {
     value: erc20ContractAddress,
     network: 'private',
   },
-  maxToSpend: BigNumber.from(2).pow(256).sub(1),
+  maxToSpend: MAX_ALLOWANCE,
   currencyManager,
 };
 
@@ -54,9 +55,9 @@ const validEuroRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -81,6 +82,15 @@ const validEuroRequest: ClientTypes.IRequestData = {
 };
 
 describe('conversion-erc20-fee-proxy', () => {
+  beforeAll(async () => {
+    // reset approval
+    await revokeErc20Approval(
+      getProxyAddress(validEuroRequest, AnyToERC20PaymentDetector.getDeploymentInformation),
+      erc20ContractAddress,
+      wallet.provider,
+    );
+  });
+
   describe('error checking', () => {
     it('should throw an error if the token is not accepted', async () => {
       await expect(
@@ -131,8 +141,7 @@ describe('conversion-erc20-fee-proxy', () => {
         },
       );
       expect(spy).toHaveBeenCalledWith({
-        data:
-          '0x3af2c012000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000005f5e1000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000000000001e8480000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fefffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000300000000000000000000000017b4158805772ced11225e77339f90beb5aae968000000000000000000000000775eb53d00dd0acd3ec1696472105d579b9b386b00000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa35000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
+        data: '0x3af2c012000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000005f5e1000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000000000001e8480000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fefffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000300000000000000000000000017b4158805772ced11225e77339f90beb5aae968000000000000000000000000775eb53d00dd0acd3ec1696472105d579b9b386b00000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa35000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
         gasPrice: '20000000000',
         to: '0xdE5491f774F0Cb009ABcEA7326342E105dbb1B2E',
         value: 0,
@@ -205,7 +214,7 @@ describe('conversion-erc20-fee-proxy', () => {
       };
       validEthRequest.expectedAmount = '1000000000000000000'; // 1 ETH
       validEthRequest.extensions[
-        PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
+        ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
       ].values.feeAmount = '1000000000000000'; // 0.001 ETH
       // first approve the contract
       const approvalTx = await approveErc20ForProxyConversionIfNeeded(

@@ -14,7 +14,7 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
   private logger: LogTypes.ILogger;
 
   constructor({ ipfsGatewayConnection, logger }: IpfsStorageProps) {
-    this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
+    this.ipfsManager = new IpfsManager({ ipfsGatewayConnection, logger });
     this.logger = logger || new Utils.SimpleLogger();
   }
 
@@ -42,7 +42,19 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
       throw Error(`Ipfs add request error: ${error}`);
     }
 
-    // Get content length from ipfs
+    const ipfsSize = await this.getSize(ipfsHash);
+
+    return {
+      ipfsHash,
+      ipfsSize,
+    };
+  }
+
+  public async getSize(ipfsHash: string): Promise<number> {
+    if (!ipfsHash) {
+      throw Error('No hash provided');
+    }
+
     let ipfsSize;
     try {
       ipfsSize = await this.ipfsManager.getContentLength(ipfsHash);
@@ -50,10 +62,7 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
       throw new Error(`Ipfs get length request error: ${error}`);
     }
 
-    return {
-      ipfsHash,
-      ipfsSize,
-    };
+    return ipfsSize;
   }
 
   /**
@@ -91,13 +100,9 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
    * @param maxSize The maximum size of the file to read
    * @returns Promise resolving retrieved ipfs object
    */
-  public async read(
-    hash: string,
-    maxSize?: number,
-    retries?: number,
-  ): Promise<StorageTypes.IIpfsObject> {
+  public async read(hash: string, maxSize?: number): Promise<StorageTypes.IIpfsObject> {
     try {
-      return this.ipfsManager.read(hash, maxSize, retries);
+      return this.ipfsManager.read(hash, maxSize);
     } catch (error) {
       throw Error(`Ipfs read request error: ${error}`);
     }
@@ -129,12 +134,7 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
     this.logger.info('Checking ipfs network', ['ipfs', 'sanity']);
     try {
       const bootstrapList = await this.ipfsManager.getBootstrapList();
-
-      const bootstrapNodeFoundCount: number = getIpfsExpectedBootstrapNodes().filter(
-        (nodeExpected) => bootstrapList.includes(nodeExpected),
-      ).length;
-
-      if (bootstrapNodeFoundCount !== getIpfsExpectedBootstrapNodes().length) {
+      if (!IpfsStorage.hasRequiredBootstrapNodes(bootstrapList)) {
         throw Error(
           `The list of bootstrap node in the ipfs config don't match the expected bootstrap nodes`,
         );
@@ -142,5 +142,12 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
     } catch (error) {
       throw Error(`IPFS node bootstrap node check failed: ${error}`);
     }
+  }
+
+  static hasRequiredBootstrapNodes(actualList: string[]): boolean {
+    const expectedList = getIpfsExpectedBootstrapNodes();
+    return expectedList.every((nodeExpected) =>
+      actualList.some((actual) => nodeExpected.test(actual)),
+    );
   }
 }

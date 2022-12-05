@@ -7,6 +7,9 @@ import retry from './retry';
 import signature from './signature';
 import SimpleLogger from './simple-logger';
 import utils from './utils';
+import providers from './providers';
+import bignumbers from './bignumber';
+
 /**
  * Collection of general purpose utility function
  */
@@ -19,5 +22,7 @@ export default {
   identity,
   retry,
   signature,
+  ...providers,
   ...utils,
+  ...bignumbers,
 };

@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.27.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-access@0.23.0...@requestnetwork/data-access@0.27.0) (2022-11-04)
+
+### Bug Fixes
+
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+
+### Features
+
+- graceful shutdown of request-node ([#463](https://github.com/RequestNetwork/requestNetwork/issues/463)) ([ba5b7c2](https://github.com/RequestNetwork/requestNetwork/commit/ba5b7c257d65996c971dedf71ac6fa1ea44ec891))
+
 # [0.26.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-access@0.23.0...@requestnetwork/data-access@0.26.0) (2021-06-22)
 
 ### Features

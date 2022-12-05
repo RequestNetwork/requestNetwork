@@ -52,7 +52,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
 
     // Creates a local or default provider
     this.provider = web3
-      ? new ethers.providers.Web3Provider(web3.currentProvider)
+      ? new ethers.providers.Web3Provider(web3)
       : new ethers.providers.JsonRpcProvider({ url: ethereumProviderUrl });
   }
 
@@ -202,11 +202,12 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     )();
 
     // get the transactions from the cache
-    const transactionsCached: DataAccessTypes.IReturnGetTransactions = this.getCachedTransactionsAndCleanCache(
-      channelId,
-      data.meta.transactionsStorageLocation,
-      timestampBoundaries,
-    );
+    const transactionsCached: DataAccessTypes.IReturnGetTransactions =
+      this.getCachedTransactionsAndCleanCache(
+        channelId,
+        data.meta.transactionsStorageLocation,
+        timestampBoundaries,
+      );
 
     // merge cache and data from the node
     return {

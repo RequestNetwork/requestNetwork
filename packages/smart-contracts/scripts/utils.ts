@@ -11,6 +11,7 @@ export const uniswapV2RouterAddresses: Record<string, string> = {
   kovan: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
   private: '0x4E72770760c011647D4873f60A3CF6cDeA896CD8',
   bsctest: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
+  bsc: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
   xdai: '0x1C232F01118CB8B424793ae03F870aa7D0ac7f77',
   // https://layer3.gitbook.io/spirit-swap/contracts
   fantom: '0x16327e3fbdaca3bcf7e38f5af2599d2ddc33ae52',
@@ -22,6 +23,9 @@ export const uniswapV2RouterAddresses: Record<string, string> = {
   'arbitrum-rinkeby': '0x0000000000000000000000000000000000000000',
   'arbitrum-one': '0x0000000000000000000000000000000000000000',
   avalanche: '0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506',
+  // No swap v2 found
+  optimism: '0x0000000000000000000000000000000000000000',
+  moonbeam: '0x0000000000000000000000000000000000000000',
 };
 
 /**
@@ -30,15 +34,38 @@ export const uniswapV2RouterAddresses: Record<string, string> = {
  */
 export const jumpToNonce = async (args: any, hre: HardhatRuntimeEnvironment, nonce: number) => {
   const [deployer] = await hre.ethers.getSigners();
+  let nextNonce = await deployer.getTransactionCount();
   if (args.simulate) {
-    const currentNonce = await deployer.getTransactionCount();
-    if (currentNonce < nonce) {
-      console.log(`Simulating a jump to nonce ${nonce} (current: ${currentNonce})`);
+    if (nextNonce < nonce) {
+      console.log(`Simulating a jump to nonce ${nonce} (current: ${nextNonce})`);
     }
     return;
   }
-  while ((await deployer.getTransactionCount()) < nonce) {
+  while (nextNonce < nonce) {
     // Atificially increase nonce if needed
-    await deployer.sendTransaction({ to: deployer.address });
+    const tx = await deployer.sendTransaction({ to: deployer.address, nonce: nextNonce });
+    await tx.wait(1);
+    nextNonce = await deployer.getTransactionCount();
+  }
+};
+
+/** Variable used to count the number of contracts deployed at the wrong address */
+export let NUMBER_ERRORS = 0;
+
+/**
+ * The function compare the address of the contract deployed with the existing one, usually stored in artifacts
+ * @param contratName name of the contract used to deployed an instance, or name of the instance if they are many implementations
+ * @param contractAddress address of the current deployement
+ * @param contractAddressExpected usually stored in artifacts
+ */
+export const deployAddressChecking = (
+  contratName: string,
+  contractAddress: string,
+  contractAddressExpected: string,
+): void => {
+  if (contractAddress !== contractAddressExpected) {
+    NUMBER_ERRORS += 1;
+    const msg = `${contratName} deployed at ${contractAddress} is different from the one expected: ${contractAddressExpected}, please update your code or the artifact`;
+    throw Error(msg);
   }
 };

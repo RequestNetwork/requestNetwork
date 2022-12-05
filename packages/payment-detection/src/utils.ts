@@ -1,9 +1,10 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
-import { RequestLogicTypes } from '@requestnetwork/types';
-import { BigNumber, BigNumberish, Contract } from 'ethers';
-import { LogDescription } from 'ethers/lib/utils';
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { BigNumber, BigNumberish, Contract, errors, logger } from 'ethers';
+import { getAddress, keccak256, LogDescription } from 'ethers/lib/utils';
 import { ContractArtifact, DeploymentInformation } from '@requestnetwork/smart-contracts';
 import { NetworkNotSupported, VersionNotSupported } from './balance-error';
+import PaymentReferenceCalculator from './payment-reference-calculator';
 
 /**
  * Converts the Log's args from array to an object with keys being the name of the arguments
@@ -68,7 +69,7 @@ export type GetDeploymentInformation<TAllowUndefined extends boolean> = (
  */
 export const makeGetDeploymentInformation = <
   TVersion extends string = string,
-  TAllowUndefined extends boolean = false
+  TAllowUndefined extends boolean = false,
 >(
   artifact: ContractArtifact<Contract>,
   map: Record<string, TVersion>,
@@ -95,4 +96,96 @@ export const makeGetDeploymentInformation = <
     }
     return { ...info, contractVersion };
   };
+};
+
+export const hashReference = (paymentReference: string): string => {
+  return keccak256(`0x${paymentReference}`);
+};
+
+/**
+ * Returns escrow status based on array of escrow events
+ * @param escrowEvents Balance of the request being updated
+ * @returns
+ */
+export const calculateEscrowState = (
+  escrowEvents: PaymentTypes.EscrowNetworkEvent[],
+): PaymentTypes.ESCROW_STATE | null => {
+  if (escrowEvents.length === 0) {
+    return null;
+  }
+  const latestEscrowEvent = escrowEvents[escrowEvents.length - 1];
+  switch (latestEscrowEvent.parameters?.eventName) {
+    case PaymentTypes.ESCROW_EVENTS_NAMES.FREEZE_ESCROW:
+      return PaymentTypes.ESCROW_STATE.IN_FROZEN;
+    case PaymentTypes.ESCROW_EVENTS_NAMES.INITIATE_EMERGENCY_CLAIM:
+      return PaymentTypes.ESCROW_STATE.IN_EMERGENCY;
+    case PaymentTypes.ESCROW_EVENTS_NAMES.PAID_ESCROW:
+    case PaymentTypes.ESCROW_EVENTS_NAMES.REVERT_EMERGENCY_CLAIM:
+      return PaymentTypes.ESCROW_STATE.PAID_ESCROW;
+    case PaymentTypes.ESCROW_EVENTS_NAMES.PAID_ISSUER:
+      return PaymentTypes.ESCROW_STATE.PAID_ISSUER;
+  }
+  return null;
+};
+
+/**
+ * Return the payment network extension of a Request.
+ */
+export function getPaymentNetworkExtension<T = any>(
+  request: Pick<RequestLogicTypes.IRequest, 'extensions'>,
+): ExtensionTypes.IPaymentNetworkState<T> | undefined {
+  return Object.values(request.extensions).find(
+    (x) => x.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
+  ) as ExtensionTypes.IPaymentNetworkState<T>;
+}
+
+type PaymentParameters = PaymentTypes.IReferenceBasedCreationParameters &
+  PaymentTypes.IDeclarativePaymentEventParameters;
+
+/** Gets the payment info based on parameters, for payment reference calculation */
+const getInfo = (
+  { paymentAddress, paymentInfo, refundAddress, refundInfo }: PaymentParameters,
+  event: PaymentTypes.EVENTS_NAMES,
+) => {
+  if (event === PaymentTypes.EVENTS_NAMES.REFUND) {
+    return refundAddress || JSON.stringify(refundInfo);
+  }
+  return paymentAddress || JSON.stringify(paymentInfo);
+};
+
+/** Gets a payment (or refund) reference for any type of Request */
+export function getPaymentReference(
+  request: Pick<RequestLogicTypes.IRequest, 'extensions' | 'requestId'>,
+  event: PaymentTypes.EVENTS_NAMES = PaymentTypes.EVENTS_NAMES.PAYMENT,
+): string | undefined {
+  const extension = getPaymentNetworkExtension<PaymentParameters>(request);
+  if (!extension) {
+    throw new Error('no payment network found');
+  }
+  const requestId = request.requestId;
+  const salt = extension.values.salt;
+  if (!salt) return;
+
+  const info = getInfo(extension.values, event);
+  if (!info) return;
+
+  return PaymentReferenceCalculator.calculate(requestId, salt, info);
+}
+
+/** Alias to ethers.utils.getAddress that adds the key to error message, and supports nullish values */
+export const formatAddress: {
+  (address: string | null | undefined, key?: string, allowsUndefined?: false): string;
+  (address: string | null | undefined, key?: string, allowsUndefined?: true): string | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} = (address: string | null | undefined, key?: string, allowsUndefined = false): any => {
+  if (!address && allowsUndefined) return undefined;
+  try {
+    return getAddress(address || '');
+  } catch (e) {
+    logger.throwError('invalid address', errors.INVALID_ARGUMENT, {
+      argument: 'address',
+      value: address,
+      key,
+    });
+  }
 };

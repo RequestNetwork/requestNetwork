@@ -8,30 +8,27 @@ import DeclarativePaymentNetwork from './declarative';
  * This module is called by the address based payment networks to avoid code redundancy
  */
 export default abstract class AddressBasedPaymentNetwork<
-  TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters
+  TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters,
 > extends DeclarativePaymentNetwork<TCreationParameters> {
-  public constructor(
-    public extensionId: ExtensionTypes.ID,
-    public currentVersion: string,
-    public supportedNetworks: string[],
-    public supportedCurrencyType: RequestLogicTypes.CURRENCY,
+  protected constructor(
+    extensionId: ExtensionTypes.PAYMENT_NETWORK_ID,
+    currentVersion: string,
+    public readonly supportedCurrencyType: RequestLogicTypes.CURRENCY,
   ) {
     super(extensionId, currentVersion);
     this.actions = {
       ...this.actions,
-      [ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS]: this.applyAddPaymentAddress.bind(
-        this,
-      ),
-      [ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS]: this.applyAddRefundAddress.bind(
-        this,
-      ),
+      [ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS]:
+        this.applyAddPaymentAddress.bind(this),
+      [ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS]:
+        this.applyAddRefundAddress.bind(this),
     };
   }
 
   /**
    * Creates the extensionsData for address based payment networks
    *
-   * @param extensions extensions parameters to create
+   * @param creationParameters extensions parameters to create
    *
    * @returns IExtensionCreationAction the extensionsData to be stored in the request
    */
@@ -60,7 +57,7 @@ export default abstract class AddressBasedPaymentNetwork<
   /**
    * Creates the extensionsData to add a payment address
    *
-   * @param extensions extensions parameters to create
+   * @param addPaymentAddressParameters extensions parameters to create
    *
    * @returns IAction the extensionsData to be stored in the request
    */
@@ -84,7 +81,7 @@ export default abstract class AddressBasedPaymentNetwork<
   /**
    * Creates the extensionsData to add a refund address
    *
-   * @param extensions extensions parameters to create
+   * @param addRefundAddressParameters extensions parameters to create
    *
    * @returns IAction the extensionsData to be stored in the request
    */
@@ -142,25 +139,11 @@ export default abstract class AddressBasedPaymentNetwork<
     };
   }
 
-  protected isValidAddress(address: string, networkName?: string): boolean {
-    if (networkName) {
-      return this.isValidAddressForNetwork(address, networkName);
-    }
-    return this.supportedNetworks.some((network) =>
-      this.isValidAddressForNetwork(address, network),
-    );
-  }
-
-  protected isValidAddressForNetwork(address: string, network: string): boolean {
+  protected isValidAddress(address: string): boolean {
     switch (this.supportedCurrencyType) {
-      case RequestLogicTypes.CURRENCY.BTC:
-        return this.isValidAddressForSymbolAndNetwork(
-          address,
-          network === 'testnet' ? 'BTC-testnet' : 'BTC',
-          network,
-        );
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
+      case RequestLogicTypes.CURRENCY.ERC777:
         return this.isValidAddressForSymbolAndNetwork(address, 'ETH', 'mainnet');
       default:
         throw new Error(
@@ -183,7 +166,7 @@ export default abstract class AddressBasedPaymentNetwork<
   }
 
   /**
-   * Applies add payment address
+   * Applies the add payment address action
    *
    * @param extensionState previous state of the extension
    * @param extensionAction action to apply
@@ -201,7 +184,7 @@ export default abstract class AddressBasedPaymentNetwork<
   ): ExtensionTypes.IState {
     if (
       extensionAction.parameters.paymentAddress &&
-      !this.isValidAddress(extensionAction.parameters.paymentAddress, requestState.currency.network)
+      !this.isValidAddress(extensionAction.parameters.paymentAddress)
     ) {
       throw new InvalidPaymentAddressError(extensionAction.parameters.paymentAddress);
     }
@@ -248,7 +231,7 @@ export default abstract class AddressBasedPaymentNetwork<
   ): ExtensionTypes.IState {
     if (
       extensionAction.parameters.refundAddress &&
-      !this.isValidAddress(extensionAction.parameters.refundAddress, requestState.currency.network)
+      !this.isValidAddress(extensionAction.parameters.refundAddress)
     ) {
       throw Error('refundAddress is not a valid address');
     }
@@ -284,8 +267,12 @@ export default abstract class AddressBasedPaymentNetwork<
     if (request.currency.type !== this.supportedCurrencyType) {
       throw Error(`This extension can be used only on ${this.supportedCurrencyType} requests`);
     }
-    if (request.currency.network && !this.supportedNetworks.includes(request.currency.network)) {
-      throw new UnsupportedNetworkError(request.currency.network, this.supportedNetworks);
+    this.throwIfInvalidNetwork(request.currency.network);
+  }
+
+  protected throwIfInvalidNetwork(network?: string): asserts network is string {
+    if (!network) {
+      throw Error('network is required');
     }
   }
 }

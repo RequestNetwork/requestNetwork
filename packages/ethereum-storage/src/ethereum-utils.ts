@@ -8,6 +8,7 @@ const networks = {
   [StorageTypes.EthereumNetwork.MAINNET]: 'mainnet',
   [StorageTypes.EthereumNetwork.KOVAN]: 'kovan',
   [StorageTypes.EthereumNetwork.RINKEBY]: 'rinkeby',
+  [StorageTypes.EthereumNetwork.GOERLI]: 'goerli',
   [StorageTypes.EthereumNetwork.SOKOL]: 'sokol',
   [StorageTypes.EthereumNetwork.XDAI]: 'xdai',
 };

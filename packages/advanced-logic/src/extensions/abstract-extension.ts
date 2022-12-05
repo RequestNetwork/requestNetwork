@@ -4,13 +4,13 @@ import Utils from '@requestnetwork/utils';
 /**
  * Abstract class to create extension
  */
-export abstract class AbstractExtension<TCreationParameters> {
+export abstract class AbstractExtension<TCreationParameters> implements ExtensionTypes.IExtension {
   protected actions: ExtensionTypes.SupportedActions;
 
-  public constructor(
-    public extensionType: ExtensionTypes.TYPE,
-    public extensionId: ExtensionTypes.ID,
-    public currentVersion: string,
+  protected constructor(
+    public readonly extensionType: ExtensionTypes.TYPE,
+    public readonly extensionId: ExtensionTypes.ID,
+    public readonly currentVersion: string,
   ) {
     this.actions = {};
   }
@@ -53,9 +53,8 @@ export abstract class AbstractExtension<TCreationParameters> {
   ): RequestLogicTypes.IExtensionStates {
     this.validate(requestState, extensionAction);
 
-    const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(
-      extensionsState,
-    );
+    const copiedExtensionState: RequestLogicTypes.IExtensionStates =
+      Utils.deepCopy(extensionsState);
 
     if (extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE) {
       if (requestState.extensions[extensionAction.id]) {
@@ -68,7 +67,7 @@ export abstract class AbstractExtension<TCreationParameters> {
     }
 
     // if the action is not "create", the state must have been created before
-    if (!requestState.extensions[extensionAction.id]) {
+    if (!extensionsState[extensionAction.id]) {
       throw Error(`The extension should be created before receiving any other action`);
     }
 
@@ -120,7 +119,6 @@ export abstract class AbstractExtension<TCreationParameters> {
    * It is called at the beginning of every applyActionToExtension()
    * It must throw in case of error
    *
-   * @param request
    * @param extensionAction action to apply
    */
   protected validate(

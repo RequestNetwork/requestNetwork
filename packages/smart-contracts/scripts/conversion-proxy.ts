@@ -34,18 +34,23 @@ export async function deployERC20ConversionProxy(
   }
 
   return deployOne<Erc20ConversionProxy>(args, hre, contractName, {
-    constructorArguments: [args.erc20FeeProxyAddress, args.chainlinkConversionPathAddress],
+    constructorArguments: [
+      args.erc20FeeProxyAddress,
+      args.chainlinkConversionPathAddress,
+      process.env.ADMIN_WALLET_ADDRESS ?? (await (await hre.ethers.getSigners())[0].getAddress()),
+    ],
     artifact: erc20ConversionProxyArtifact,
     nonceCondition: args.nonceCondition,
     version: '0.1.1',
   });
 }
 
-export async function deployETHConversionProxy(
+export async function deployEthConversionProxy(
   args: {
     chainlinkConversionPathAddress?: string;
     ethFeeProxyAddress?: string;
     nonceCondition?: number;
+    version?: string;
   },
   hre: HardhatRuntimeEnvironment,
 ) {
@@ -85,5 +90,6 @@ export async function deployETHConversionProxy(
     ],
     artifact: ethConversionArtifact,
     nonceCondition: args.nonceCondition,
+    version: args.version,
   });
 }

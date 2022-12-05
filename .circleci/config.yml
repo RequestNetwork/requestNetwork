@@ -3,11 +3,11 @@ version: 2.1
 references:
   working_directory: &working_directory ~/repo
   attach_workspace: &attach_workspace
-  image_name: &image_name 'circleci/python:3.7'
+  image_name: &image_name 'cimg/python:3.7'
   node_image: &node_image
-    image: circleci/node:14
+    image: cimg/node:16.15
   ipfs_image: &ipfs_image
-    image: requestnetwork/request-ipfs
+    image: requestnetwork/request-ipfs:v0.13.0
   ganache_image: &ganache_image
     image: trufflesuite/ganache-cli:v6.8.2
     command:
@@ -33,6 +33,27 @@ references:
       POSTGRES_USER: graph-node
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
+  step_graph_deploy: &step_graph_deploy
+    name: 'Subgraph deployment and configuration'
+    working_directory: ~/
+    command: |
+      git clone https://github.com/RequestNetwork/storage-subgraph
+      cd storage-subgraph
+      yarn
+      yarn codegen  ./subgraph-private.yaml
+      yarn create-local ./subgraph-private.yaml
+      yarn deploy-local --version-label v0.0.1 ./subgraph-private.yaml
+      sleep 5
+  step_wait_for_node: &step_wait_for_node
+    name: 'Waiting for Request Node to be ready'
+    command: |
+      for i in `seq 1 10`;
+      do
+        curl -s -o /dev/null -f http://localhost:3000/readyz > /dev/null && echo Success && exit 0
+        echo -n .
+        sleep 1
+      done
+      echo Failed waiting for Node initialization && exit 1
 jobs:
   build:
     docker:
@@ -73,6 +94,10 @@ jobs:
       - run:
           name: Generate Payment Detection queries
           command: yarn workspace @requestnetwork/payment-detection run codegen
+
+      - run:
+          name: Build all packages (tsc)
+          command: yarn build:tsc
 
       - persist_to_workspace:
           root: *working_directory
@@ -240,6 +265,8 @@ jobs:
       - *node_image
       - *ipfs_image
       - *ganache_image
+      - *postgres_image
+      - *graph_image
     working_directory: *working_directory
     steps:
       - attach_workspace:
@@ -250,6 +277,7 @@ jobs:
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+      - run: *step_graph_deploy
       - run:
           name: 'Test request-node'
           command: 'yarn workspace @requestnetwork/request-node run test --ci'
@@ -355,16 +383,7 @@ jobs:
           name: 'Start request-node'
           command: 'yarn workspace @requestnetwork/request-node run start'
           background: true
-      - run:
-          name: 'Waiting for Request Node to be ready'
-          command: |
-            for i in `seq 1 10`;
-            do
-              curl -s -o /dev/null -f http://localhost:3000/readyz > /dev/null && echo Success && exit 0
-              echo -n .
-              sleep 1
-            done
-            echo Failed waiting for Node initialization && exit 1
+      - run: *step_wait_for_node
       - run:
           name: 'Test integration-test (node)'
           command: 'yarn workspace @requestnetwork/integration-test run test:node --ci --maxWorkers=1'
@@ -372,7 +391,7 @@ jobs:
           name: 'Test integration-test (layers)'
           command: 'yarn workspace @requestnetwork/integration-test run test:layers --ci --maxWorkers=1'
   # This test runs the node-client tests against a node backed by TheGraph data access
-  test-graph-node:
+  test-integration-graph-node:
     docker:
       - *node_image
       - *ipfs_image
@@ -389,33 +408,14 @@ jobs:
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
-      - run:
-          name: 'Subgraph deployment and configuration'
-          working_directory: ~/
-          command: |
-            git clone https://github.com/RequestNetwork/storage-subgraph
-            cd storage-subgraph
-            yarn
-            yarn codegen  ./subgraph-private.yaml
-            yarn create-local ./subgraph-private.yaml
-            yarn deploy-local --version-label v0.0.1 ./subgraph-private.yaml
-            sleep 5
+      - run: *step_graph_deploy
       - run:
           name: 'Start request-node'
           command: 'yarn workspace @requestnetwork/request-node run start'
           background: true
           environment:
             GRAPH_NODE_URL: http://localhost:8000/subgraphs/name/RequestNetwork/request-storage
-      - run:
-          name: 'Waiting for Request Node to be ready'
-          command: |
-            for i in `seq 1 10`;
-            do
-              curl -s -o /dev/null -f http://localhost:3000/readyz > /dev/null && echo Success && exit 0
-              echo -n .
-              sleep 1
-            done
-            echo Failed waiting for Node initialization && exit 1
+      - run: *step_wait_for_node
       - run:
           name: 'Confirm TheGraph mode'
           command: |
@@ -666,7 +666,7 @@ workflows:
       - test-integration-test:
           requires:
             - build
-      - test-graph-node:
+      - test-integration-graph-node:
           requires:
             - build
       - test-prototype-estimator:
@@ -709,7 +709,7 @@ workflows:
             - test-epk-signature
             - test-ethereum-storage
             - test-integration-test
-            - test-graph-node
+            - test-integration-graph-node
             - test-smart-contracts
             - test-multi-format
             - test-request-client

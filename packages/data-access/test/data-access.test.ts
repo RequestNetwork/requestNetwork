@@ -4,6 +4,7 @@ import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 
 import RequestDataAccessBlock from '../src/block';
 import DataAccess from '../src/data-access';
+import TransactionIndex from '../src/transaction-index';
 
 // We use this function to flush the call stack
 // If we don't use this function, the fake timer will be increased before the interval function being called
@@ -109,9 +110,8 @@ const emptyDataResult: StorageTypes.IEntriesWithLastTimestamp = {
   lastTimestamp: 0,
 };
 
-const defaultTestData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise.resolve(
-  getDataResult,
-);
+const defaultTestData: Promise<StorageTypes.IEntriesWithLastTimestamp> =
+  Promise.resolve(getDataResult);
 
 const defaultFakeStorage: StorageTypes.IStorage = {
   _getStatus: jest.fn((): any => ({
@@ -638,10 +638,10 @@ describe('data-access', () => {
       readMany: jest.fn(),
     };
 
-    const dataAccess = new DataAccess(fakeStorageWithNotJsonData);
+    const transactionIndex = new TransactionIndex();
+    const dataAccess = new DataAccess(fakeStorageWithNotJsonData, { transactionIndex });
+    const spy = jest.spyOn(transactionIndex, 'addTransaction').mockImplementation();
     await dataAccess.initialize();
-    const spy = jest.fn();
-    dataAccess.transactionIndex.addTransaction = spy;
     await dataAccess.synchronizeNewDataIds();
 
     expect(spy).not.toHaveBeenCalled();

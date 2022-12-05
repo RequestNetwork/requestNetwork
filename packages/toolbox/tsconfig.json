@@ -3,5 +3,6 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "lib": ["ES2019"]
-  }
+  },
+  "include": ["src/", "test/"]
 }

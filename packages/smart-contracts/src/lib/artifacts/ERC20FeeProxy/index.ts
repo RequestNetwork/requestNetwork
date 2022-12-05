@@ -21,6 +21,10 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           address: '0xda46309973bFfDdD5a10cE12c44d2EE266f45A44',
           creationBlockNumber: 7118080,
         },
+        goerli: {
+          address: '0x399F5EE127ce7432E4921a61b8CF52b0af52cbfE',
+          creationBlockNumber: 7091472,
+        },
         matic: {
           address: '0x2171a0dc12a9E5b1659feF2BB20E54c84Fa7dB0C',
           creationBlockNumber: 14163521,
@@ -62,6 +66,10 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
         rinkeby: {
           address: '0xda46309973bFfDdD5a10cE12c44d2EE266f45A44',
           creationBlockNumber: 7118080,
+        },
+        goerli: {
+          address: '0x399F5EE127ce7432E4921a61b8CF52b0af52cbfE',
+          creationBlockNumber: 7091472,
         },
         matic: {
           address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
@@ -110,6 +118,18 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
         avalanche: {
           address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
           creationBlockNumber: 11671431,
+        },
+        ronin: {
+          address: '0xAe23992483FeDA6E718a808Ce824f6864F13B64B',
+          creationBlockNumber: 17901276,
+        },
+        optimism: {
+          address: '0x399F5EE127ce7432E4921a61b8CF52b0af52cbfE',
+          creationBlockNumber: 34638633,
+        },
+        moonbeam: {
+          address: '0x399F5EE127ce7432E4921a61b8CF52b0af52cbfE',
+          creationBlockNumber: 2415492,
         },
       },
     },

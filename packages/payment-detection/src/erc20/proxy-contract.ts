@@ -1,15 +1,10 @@
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import ProxyInfoRetriever from './proxy-info-retriever';
-import TheGraphInfoRetriever from './thegraph-info-retriever';
-import { networkSupportsTheGraph } from '../thegraph';
+import { TheGraphInfoRetriever } from '../thegraph';
 import { makeGetDeploymentInformation } from '../utils';
 import { ReferenceBasedDetector } from '../reference-based-detector';
+import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
@@ -22,14 +17,22 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
   PaymentTypes.IERC20PaymentEventParameters
 > {
+  private readonly getSubgraphClient: PaymentNetworkOptions['getSubgraphClient'];
+
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
+  public constructor({
+    advancedLogic,
+    currencyManager,
+    getSubgraphClient,
+  }: ReferenceBasedDetectorOptions & Pick<PaymentNetworkOptions, 'getSubgraphClient'>) {
     super(
-      PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+      ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       advancedLogic.extensions.proxyContractErc20,
+      currencyManager,
     );
+    this.getSubgraphClient = getSubgraphClient;
   }
 
   /**
@@ -44,41 +47,47 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
    */
   protected async extractEvents(
     eventName: PaymentTypes.EVENTS_NAMES,
-    address: string | undefined,
+    toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
     paymentChain: string,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20PaymentEventParameters>[]> {
-    if (!address) {
-      return [];
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20PaymentEventParameters>> {
+    if (!toAddress) {
+      return {
+        paymentEvents: [],
+      };
     }
 
-    const {
-      address: proxyContractAddress,
-      creationBlockNumber: proxyCreationBlockNumber,
-    } = ERC20ProxyPaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
+    const { address: proxyContractAddress, creationBlockNumber: proxyCreationBlockNumber } =
+      ERC20ProxyPaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
 
-    const infoRetriever = networkSupportsTheGraph(paymentChain)
-      ? new TheGraphInfoRetriever(
-          paymentReference,
-          proxyContractAddress,
-          requestCurrency.value,
-          address,
-          eventName,
-          paymentChain,
-        )
-      : new ProxyInfoRetriever(
-          paymentReference,
-          proxyContractAddress,
-          proxyCreationBlockNumber,
-          requestCurrency.value,
-          address,
-          eventName,
-          paymentChain,
-        );
+    const subgraphClient = this.getSubgraphClient(paymentChain);
+    if (subgraphClient) {
+      const graphInfoRetriever = new TheGraphInfoRetriever(subgraphClient, this.currencyManager);
 
-    return infoRetriever.getTransferEvents();
+      return graphInfoRetriever.getTransferEvents({
+        paymentReference,
+        toAddress,
+        eventName,
+        contractAddress: proxyContractAddress,
+        paymentChain,
+      });
+    } else {
+      const proxyInfoRetriever = new ProxyInfoRetriever(
+        paymentReference,
+        proxyContractAddress,
+        proxyCreationBlockNumber,
+        requestCurrency.value,
+        toAddress,
+        eventName,
+        paymentChain,
+      );
+      const paymentEvents = await proxyInfoRetriever.getTransferEvents();
+      return {
+        paymentEvents,
+      };
+    }
   }
 
   /*

@@ -2,6 +2,7 @@ import * as yargs from 'yargs';
 import inquirer from 'inquirer';
 import { runUpdate } from './contractUtils';
 import { Aggregator, getAvailableAggregators, getCurrencyManager } from './aggregatorsUtils';
+import { conversionSupportedNetworks } from '@requestnetwork/currency';
 
 type Options = {
   dryRun: boolean;
@@ -10,6 +11,7 @@ type Options = {
   mnemonic?: string;
   pair?: string[];
   list?: string;
+  listAll?: boolean;
 };
 
 export const command = 'addAggregators <network>';
@@ -41,6 +43,11 @@ export const builder = (): yargs.Argv<Options> =>
       describe:
         'If specified, limits aggregators to currencies existing in the given list. The list NAME must be available at https://api.request.network/currency/list/NAME',
     },
+    listAll: {
+      type: 'boolean',
+      describe:
+        'If true, list aggregation paths already known by deployed contracts. Useful to replace an aggregation path contract completely.',
+    },
   });
 
 const pickAggregators = async (aggregators: Aggregator[], pairs?: string[]) => {
@@ -66,7 +73,19 @@ export const handler = async (args: Options): Promise<void> => {
 
   const currencyManager = await getCurrencyManager(args.list);
 
-  const availableAggregators = await getAvailableAggregators(network, currencyManager, pairs);
+  if (!conversionSupportedNetworks.includes(network)) {
+    console.warn(
+      `WARNING: ${network} is missing in conversionSupportedNetworks from the Currency package.`,
+      `Add '${network}: {}' to chainlinkCurrencyPairs, in currency/src/conversion-aggregators.ts.`,
+    );
+  }
+
+  const availableAggregators = await getAvailableAggregators(
+    network,
+    currencyManager,
+    pairs,
+    args.listAll,
+  );
   if (availableAggregators.length === 0) {
     console.log('no available aggregators');
     return;

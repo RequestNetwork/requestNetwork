@@ -23,7 +23,7 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
         parameters: {
           feeAddress: '0x0000000000000000000000000000000000000001',
           feeAmount: '0',
@@ -31,7 +31,7 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
           refundAddress: '0x0000000000000000000000000000000000000003',
           salt: 'ea3bc7caf64110ca',
         },
-        version: '0.1.0',
+        version: '0.2.0',
       });
     });
 
@@ -44,13 +44,13 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
         },
-        version: '0.1.0',
+        version: '0.2.0',
       });
     });
 
@@ -61,11 +61,11 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
         parameters: {
           salt: 'ea3bc7caf64110ca',
         },
-        version: '0.1.0',
+        version: '0.2.0',
       });
     });
 
@@ -122,7 +122,7 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
         },
@@ -147,7 +147,7 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
         parameters: {
           refundAddress: '0x0000000000000000000000000000000000000002',
         },
@@ -173,7 +173,7 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
         }),
       ).toEqual({
         action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
         parameters: {
           feeAddress: '0x0000000000000000000000000000000000000002',
           feeAmount: '2000',

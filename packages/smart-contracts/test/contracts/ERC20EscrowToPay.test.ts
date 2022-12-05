@@ -3,6 +3,17 @@ import { Contract, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
 
+let latestBlockchainSnapshot: number;
+const moveTimeForward = async (timeInSeconds: number) => {
+  latestBlockchainSnapshot = await ethers.provider.send('evm_snapshot', []);
+  await ethers.provider.send('evm_increaseTime', [timeInSeconds]);
+  await ethers.provider.send('evm_mine', []);
+};
+
+const revertTimeToSnapshot = async () => {
+  await ethers.provider.send('evm_revert', [latestBlockchainSnapshot]);
+};
+
 import {
   ERC20EscrowToPay__factory,
   TestERC20__factory,
@@ -23,29 +34,36 @@ describe('Contract: ERC20EscrowToPay', () => {
   const referenceExample7 = '0xaabb';
   const referenceExample8 = '0xaacc';
   const referenceExample9 = '0xaadd';
+  const referenceExample10 = '0xaadb';
 
   let testERC20: Contract, erc20EscrowToPay: ERC20EscrowToPay, erc20FeeProxy: ERC20FeeProxy;
-  let owner: Signer, payer: Signer, payee: Signer, buidler: Signer;
+  let owner: Signer, payer: Signer, payee: Signer, buidler: Signer, admin: Signer;
   let payerAddress: string,
     payeeAddress: string,
     feeAddress: string,
-    erc20EscrowToPayAddress: string;
+    erc20EscrowToPayAddress: string,
+    adminAddress: string;
 
   before(async () => {
     // Get the Signers
-    [owner, payer, payee, buidler] = await ethers.getSigners();
+    [owner, payer, payee, buidler, admin] = await ethers.getSigners();
     payerAddress = await payer.getAddress();
     payeeAddress = await payee.getAddress();
     feeAddress = await buidler.getAddress();
+    adminAddress = await admin.getAddress();
 
     // Deploy the smart-contracts.
     testERC20 = await new TestERC20__factory(owner).deploy('100000000000000000');
     erc20FeeProxy = await new ERC20FeeProxy__factory(owner).deploy();
-    erc20EscrowToPay = await new ERC20EscrowToPay__factory(owner).deploy(erc20FeeProxy.address);
+    erc20EscrowToPay = await new ERC20EscrowToPay__factory(owner).deploy(
+      erc20FeeProxy.address,
+      adminAddress,
+    );
 
     erc20EscrowToPayAddress = erc20EscrowToPay.address;
     await testERC20.connect(owner).transfer(payerAddress, 100000000);
   });
+
   describe('Normal flow:', () => {
     it('Should transfer amount to escrow and fees to buidler', async () => {
       await testERC20.connect(payer).approve(erc20EscrowToPayAddress, 1001);
@@ -99,7 +117,7 @@ describe('Contract: ERC20EscrowToPay', () => {
     });
   });
   describe('Emergency claim flow:', () => {
-    it('Should initiate emergencyClaim w/ 26 week lockperiod and emit event.', async () => {
+    it('Should initiate emergencyClaim w/ 24 week lockperiod and emit event.', async () => {
       await testERC20.connect(payer).approve(erc20EscrowToPayAddress, 1001);
       await erc20EscrowToPay
         .connect(payer)
@@ -108,11 +126,12 @@ describe('Contract: ERC20EscrowToPay', () => {
       expect(await erc20EscrowToPay.connect(payee).initiateEmergencyClaim(referenceExample3))
         .to.emit(erc20EscrowToPay, 'InitiatedEmergencyClaim')
         .withArgs(ethers.utils.keccak256(referenceExample3));
-
+      const total24WeekMiliseconds = 3600 * 24 * 7 * 24;
+      const contractEmergencyPeriod = await erc20EscrowToPay.connect(payee).emergencyClaimPeriod();
+      expect(contractEmergencyPeriod).to.be.equal(total24WeekMiliseconds);
       const requestMapping = await erc20EscrowToPay
         .connect(payer)
         .requestMapping(referenceExample3);
-      expect(requestMapping.amount).to.be.equal(1000);
       expect(requestMapping.emergencyState).to.be.true;
     });
     it('Should revert if claimed before claimDate.', async () => {
@@ -130,6 +149,32 @@ describe('Contract: ERC20EscrowToPay', () => {
 
       expect(requestMapping.amount).to.be.equal(1000);
       expect(requestMapping.emergencyState).to.be.true;
+    });
+
+    it('Should be able to withdraw funds after emergency lockperiod ends', async () => {
+      const thisReference = referenceExample10;
+      // Create the escrow and initiate emergency
+      await testERC20.connect(payer).approve(erc20EscrowToPayAddress, 1001);
+      await erc20EscrowToPay
+        .connect(payer)
+        .payEscrow(testERC20.address, payeeAddress, 1000, thisReference, 1, feeAddress);
+      expect(await erc20EscrowToPay.connect(payee).initiateEmergencyClaim(thisReference))
+        .to.emit(erc20EscrowToPay, 'InitiatedEmergencyClaim')
+        .withArgs(ethers.utils.keccak256(thisReference));
+      const total24WeekMiliseconds = 3600 * 24 * 7 * 24;
+      const futureDateTimestamp = Math.floor(Date.now() / 1000) + total24WeekMiliseconds;
+      const requestMapping = await erc20EscrowToPay.connect(payer).requestMapping(thisReference);
+      expect(parseInt(requestMapping.emergencyClaimDate.toString())).to.be.greaterThanOrEqual(
+        futureDateTimestamp - 5,
+      );
+      // move the time forward
+      moveTimeForward(total24WeekMiliseconds + 10);
+      // withdraw the escrow funds
+      const payeeOldBalance = await testERC20.balanceOf(payeeAddress);
+      await erc20EscrowToPay.connect(payee).completeEmergencyClaim(thisReference);
+      const payeeNewBalance = await testERC20.balanceOf(payeeAddress);
+      expect(payeeNewBalance.toString()).to.equals(payeeOldBalance.add(1000).toString());
+      revertTimeToSnapshot();
     });
   });
   describe('Cancel emergency flow:', () => {
@@ -169,7 +214,7 @@ describe('Contract: ERC20EscrowToPay', () => {
     });
   });
   describe('Freeze request flow:', () => {
-    it('Should set to frozen w/ lockperiod, cancel emergency claim and emit event.', async () => {
+    it('Should set to frozen w/ 52 week lockperiod, cancel emergency claim and emit event.', async () => {
       await testERC20.connect(payer).approve(erc20EscrowToPayAddress, 2002);
       await erc20EscrowToPay
         .connect(payer)
@@ -211,6 +256,42 @@ describe('Contract: ERC20EscrowToPay', () => {
       // Expect the call to be reverted.
       expect(erc20EscrowToPay.connect(payee).initiateEmergencyClaim(referenceExample9)).to.be
         .reverted;
+    });
+  });
+  describe('Admin should be able to change emergency and freeze periods', () => {
+    it('Minimum emergency period is 30 days', async () => {
+      const twoDaysInSeconds = 3600 * 24 * 2;
+      expect(
+        erc20EscrowToPay.connect(admin).setEmergencyClaimPeriod(twoDaysInSeconds),
+      ).to.be.revertedWith('emergency period too short');
+    });
+
+    it('Minimum frozen period is 30 days', async () => {
+      const twentyNineDaysInSeconds = 3600 * 24 * 29;
+      expect(
+        erc20EscrowToPay.connect(admin).setFrozenPeriod(twentyNineDaysInSeconds),
+      ).to.be.revertedWith('frozen period too short');
+    });
+
+    it('Should be able to adjust emergency period', async () => {
+      const thirtyOneDaysInSeconds = 3600 * 24 * 31;
+      await erc20EscrowToPay.connect(admin).setEmergencyClaimPeriod(thirtyOneDaysInSeconds);
+      const contractEmergencyPeriod = await erc20EscrowToPay.connect(payee).emergencyClaimPeriod();
+      expect(contractEmergencyPeriod).to.be.equal(thirtyOneDaysInSeconds);
+    });
+    it('Should be able to adjust freeze period', async () => {
+      const thirtyOneDaysInSeconds = 3600 * 24 * 31;
+      await erc20EscrowToPay.connect(admin).setFrozenPeriod(thirtyOneDaysInSeconds);
+      const contractFreezePeriod = await erc20EscrowToPay.connect(payee).frozenPeriod();
+      expect(contractFreezePeriod).to.be.equal(thirtyOneDaysInSeconds);
+    });
+    it('Contract creator who is not the owner, should not be able to change periods', async () => {
+      expect(erc20EscrowToPay.connect(owner).setEmergencyClaimPeriod(100)).to.be.revertedWith(
+        'Ownable: caller is not the owner',
+      );
+      expect(erc20EscrowToPay.connect(owner).setFrozenPeriod(100)).to.be.revertedWith(
+        'Ownable: caller is not the owner',
+      );
     });
   });
 });

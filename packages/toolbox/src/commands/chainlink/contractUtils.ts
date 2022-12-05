@@ -9,32 +9,36 @@ export const runUpdate = async <T extends 'updateAggregator' | 'updateAggregator
   params: Parameters<ChainlinkConversionPath['functions'][T]>,
   args: SharedOptions,
 ): Promise<void> => {
-  const contract = connectChainlinkContract(args);
+  const contractsWithVersion = connectChainlinkContracts(args);
   const dryRunText = args.dryRun ? '[dry-run] ' : '';
 
-  console.log(`${dryRunText} will call ${method} on ${contract.address} (${args.network}))`);
-  console.log(JSON.stringify(params));
-  if (args.dryRun) {
-    process.exit();
-  }
-  // TS hack to fix params type
-  const neverParams = params as [never, never, never];
+  for (const { version, contract } of contractsWithVersion) {
+    console.log(
+      `${dryRunText} will call ${method} on chainlinkConversionPath version ${version} at ${contract.address} (${args.network}))`,
+    );
+    console.log(JSON.stringify(params));
+    if (args.dryRun) {
+      process.exit();
+    }
+    // TS hack to fix params type
+    const neverParams = params as [never, never, never];
 
-  try {
-    const gas = await contract.estimateGas[method](...neverParams);
-    console.log(`Gas Estimation: ${utils.formatUnits(gas, 'gwei')} gwei`);
-  } catch (e) {
-    console.log('Cannot estimate gas');
-  }
-  const { proceed } = await inquirer.prompt([
-    { name: 'proceed', type: 'confirm', message: 'Proceed?' },
-  ]);
-  if (!proceed) {
-    process.exit();
-  }
+    try {
+      const gas = await contract.estimateGas[method](...neverParams);
+      console.log(`Gas Estimation: ${utils.formatUnits(gas, 'gwei')} gwei`);
+    } catch (e) {
+      console.log('Cannot estimate gas');
+    }
+    const { proceed } = await inquirer.prompt([
+      { name: 'proceed', type: 'confirm', message: 'Proceed?' },
+    ]);
+    if (!proceed) {
+      process.exit();
+    }
 
-  const tx = await contract.functions[method](...neverParams);
-  console.log(`Transaction: ${tx.hash}`);
+    const tx = await contract.functions[method](...neverParams);
+    console.log(`Transaction: ${tx.hash}`);
+  }
 };
 
 export type SharedOptions = {
@@ -43,12 +47,18 @@ export type SharedOptions = {
   dryRun?: boolean;
   network: string;
 };
-const connectChainlinkContract = ({
+
+type ChainlinkContractWithVersion = {
+  version: string;
+  contract: ChainlinkConversionPath;
+};
+
+const connectChainlinkContracts = ({
   privateKey,
   mnemonic,
   dryRun,
   network,
-}: SharedOptions): ChainlinkConversionPath => {
+}: SharedOptions): ChainlinkContractWithVersion[] => {
   const provider = getDefaultProvider(network);
 
   const wallet = privateKey
@@ -62,5 +72,15 @@ const connectChainlinkContract = ({
   if (!wallet) {
     throw new Error('one of mnemonic or privateKey is mandatory when dryRun is false');
   }
-  return chainlinkConversionPath.connect(network, wallet as any) as any; // TODO
+  const versions = chainlinkConversionPath
+    .getAllAddresses(network)
+    .filter((x) => !!x.address)
+    .map((x) => x.version);
+
+  return versions.map((version) => {
+    return {
+      version,
+      contract: chainlinkConversionPath.connect(network, wallet as any, version) as any, // TODO}
+    };
+  });
 };

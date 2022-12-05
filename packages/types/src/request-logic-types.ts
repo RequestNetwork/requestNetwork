@@ -182,6 +182,10 @@ export interface IVersionSupportConfig {
 /** Parameters to create a request */
 export interface ICreateParameters {
   currency: ICurrency;
+  /**
+   * `expectedAmount` in `currency`, given with the most precise decimal know for this currency.
+   * By convention, fiat amounts have a precision of 2, so '1000' for 'EUR' means '10.00 EUR'.
+   */
   expectedAmount: Amount;
   payee?: Identity.IIdentity;
   payer?: Identity.IIdentity;
@@ -245,7 +249,7 @@ export interface IEvent {
 
 /** Currency interface */
 export interface ICurrency {
-  /** The main currency name (e.g.: 'ERC20', 'ISO4217', 'ETH') */
+  /** The main currency name (e.g.: 'ERC20', 'ERC777', 'ISO4217', 'ETH') */
   type: CURRENCY;
   /** The currency value (e.g.: '0x123...789', 'EUR', 'ETH') */
   value: string;
@@ -270,6 +274,7 @@ export enum CURRENCY {
   BTC = 'BTC',
   ISO4217 = 'ISO4217',
   ERC20 = 'ERC20',
+  ERC777 = 'ERC777',
 }
 
 /** States of a request */
@@ -286,6 +291,4 @@ export enum ROLE {
   PAYEE = 'payee',
   PAYER = 'payer',
   THIRD_PARTY = 'third-party',
-  PAYEE_DELEGATE = 'payeeDelegate',
-  PAYER_DELEGATE = 'payerDelegate',
 }

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./legacy_openzeppelin/contracts/access/roles/WhitelistAdminRole.sol";
-
+import './legacy_openzeppelin/contracts/access/roles/WhitelistAdminRole.sol';
 
 /**
  * @title StorageFeeCollector
@@ -30,7 +29,11 @@ contract StorageFeeCollector is WhitelistAdminRole {
   // address of the contract that will burn req token
   address payable public requestBurnerContract;
 
-  event UpdatedFeeParameters(uint256 minimumFee, uint256 rateFeesNumerator, uint256 rateFeesDenominator);
+  event UpdatedFeeParameters(
+    uint256 minimumFee,
+    uint256 rateFeesNumerator,
+    uint256 rateFeesDenominator
+  );
   event UpdatedMinimumFeeThreshold(uint256 threshold);
   event UpdatedBurnerContract(address burnerAddress);
 
@@ -51,10 +54,11 @@ contract StorageFeeCollector is WhitelistAdminRole {
     * @param _rateFeesNumerator numerator rate
     * @param _rateFeesDenominator denominator rate
     */
-  function setFeeParameters(uint256 _minimumFee, uint256 _rateFeesNumerator, uint256 _rateFeesDenominator)
-    external
-    onlyWhitelistAdmin
-  {
+  function setFeeParameters(
+    uint256 _minimumFee,
+    uint256 _rateFeesNumerator,
+    uint256 _rateFeesDenominator
+  ) external onlyWhitelistAdmin {
     minimumFee = _minimumFee;
     rateFeesNumerator = _rateFeesNumerator;
     rateFeesDenominator = _rateFeesDenominator;
@@ -62,9 +66,9 @@ contract StorageFeeCollector is WhitelistAdminRole {
   }
 
   /**
-    * @notice Set the request burner address.
-    * @param _requestBurnerContract address of the contract that will burn req token (probably through Kyber)
-    */
+   * @notice Set the request burner address.
+   * @param _requestBurnerContract address of the contract that will burn req token (probably through Kyber)
+   */
   function setRequestBurnerContract(address payable _requestBurnerContract)
     external
     onlyWhitelistAdmin
@@ -74,15 +78,11 @@ contract StorageFeeCollector is WhitelistAdminRole {
   }
 
   /**
-    * @notice Computes the fees.
-    * @param _contentSize Size of the content of the block to be stored
-    * @return the expected amount of fees in wei
-    */
-  function getFeesAmount(uint256 _contentSize)
-    public
-    view
-    returns(uint256)
-  {
+   * @notice Computes the fees.
+   * @param _contentSize Size of the content of the block to be stored
+   * @return the expected amount of fees in wei
+   */
+  function getFeesAmount(uint256 _contentSize) public view returns (uint256) {
     // Transactions fee
     uint256 computedAllFee = _contentSize * rateFeesNumerator;
 
@@ -98,12 +98,10 @@ contract StorageFeeCollector is WhitelistAdminRole {
   }
 
   /**
-    * @notice Sends fees to the request burning address.
-    * @param _amount amount to send to the burning address
-    */
-  function collectForREQBurning(uint256 _amount)
-    internal
-  {
+   * @notice Sends fees to the request burning address.
+   * @param _amount amount to send to the burning address
+   */
+  function collectForREQBurning(uint256 _amount) internal {
     // .transfer throws on failure
     requestBurnerContract.transfer(_amount);
   }

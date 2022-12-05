@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 const GET_TRANSACTIONS_TIMEOUT = 600000;
 
 export default class GetTransactionsByChannelIdHandler {
-  constructor(private logger: LogTypes.ILogger, private dataAccess: DataAccessTypes.IDataAccess) {
+  constructor(private logger: LogTypes.ILogger, private dataAccess: DataAccessTypes.IDataRead) {
     this.handler = this.handler.bind(this);
   }
 

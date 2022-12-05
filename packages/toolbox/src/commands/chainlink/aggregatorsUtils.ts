@@ -1,4 +1,4 @@
-import { CurrencyManager, CurrencyInput, CurrencyPairs } from '@requestnetwork/currency';
+import { CurrencyManager, CurrencyInput, AggregatorsMap } from '@requestnetwork/currency';
 import axios from 'axios';
 import { RequestLogicTypes } from '@requestnetwork/types';
 
@@ -27,21 +27,25 @@ export type Aggregator = {
 };
 
 const feedMap: Record<string, [chainKey: string, networkName: string]> = {
-  mainnet: ['ethereum-addresses', 'Ethereum Mainnet'],
-  rinkeby: ['ethereum-addresses', 'Rinkeby Testnet'],
-  fantom: ['fantom-price-feeds', 'Fantom Mainnet'],
-  matic: ['matic-addresses', 'Polygon Mainnet'],
-  xdai: ['data-feeds-gnosis-chain', 'Gnosis Chain Mainnet'],
+  mainnet: ['ethereum', 'Ethereum Mainnet'],
+  goerli: ['ethereum', 'Goerli Testnet'],
+  rinkeby: ['ethereum', 'Rinkeby Testnet'],
+  fantom: ['fantom', 'Fantom Mainnet'],
+  matic: ['polygon', 'Polygon Mainnet'],
+  xdai: ['gnosis-chain', 'Gnosis Chain Mainnet'],
+  bsc: ['bnb-chain', 'BNB Chain Mainnet'],
+  avalanche: ['avalanche', 'Avalanche Mainnet'],
+  optimism: ['optimism', 'Optimism Mainnet'],
+  'arbitrum-one': ['arbitrum', 'Arbitrum Mainnet'],
+  moonbeam: ['moonbeam', 'Moonbeam Mainnet'],
 };
 
-export const getAvailableAggregators = async (
-  network: string,
-  cm: CurrencyManager,
-  pairs?: string[],
-): Promise<Aggregator[]> => {
+export const getAllAggregators = async (network: string): Promise<Proxy[]> => {
   const [feedName, networkName] = feedMap[network] || [];
   if (!feedName || !networkName) {
-    throw new Error(`network ${network} not supported`);
+    throw new Error(
+      `network ${network} not supported by feed provider. Is it supported by Chainlink?`,
+    );
   }
   const { data } = await axios.get<Record<string, Feed>>(
     'https://cl-docs-addresses.web.app/addresses.json',
@@ -51,11 +55,22 @@ export const getAvailableAggregators = async (
   if (!proxies) {
     throw new Error(`not proxies for feed ${feedName} > ${networkName}`);
   }
+  return proxies;
+};
+
+export const getAvailableAggregators = async (
+  network: string,
+  cm: CurrencyManager,
+  pairs?: string[],
+  listAll?: boolean,
+): Promise<Aggregator[]> => {
+  const proxies = await getAllAggregators(network);
+
   const missingAggregators: Aggregator[] = [];
   for (const proxy of proxies) {
     const [from, to] = proxy.pair.split(' / ');
-    const fromCurrency = cm.from(from);
-    const toCurrency = cm.from(to);
+    const fromCurrency = cm.from(from, network) || cm.from(from);
+    const toCurrency = cm.from(to, network) || cm.from(to);
     if (pairs && !pairs.includes(`${from}-${to}`.toLowerCase())) {
       continue;
     }
@@ -66,7 +81,7 @@ export const getAvailableAggregators = async (
       toCurrency.type !== RequestLogicTypes.CURRENCY.BTC &&
       (fromCurrency.type === RequestLogicTypes.CURRENCY.ISO4217 ||
         fromCurrency.network === network) &&
-      !cm.getConversionPath(fromCurrency, toCurrency, network)
+      (listAll || !cm.getConversionPath(fromCurrency, toCurrency, network))
     ) {
       missingAggregators.push({
         name: proxy.pair,
@@ -88,7 +103,7 @@ const loadCurrencyApi = async <T>(path: string): Promise<T> => {
 };
 
 export const getCurrencyManager = async (list?: string): Promise<CurrencyManager> => {
-  const aggregators = await loadCurrencyApi<Record<string, CurrencyPairs>>('/aggregators');
+  const aggregators = await loadCurrencyApi<AggregatorsMap>('/aggregators');
   const currencyList = list
     ? await loadCurrencyApi<CurrencyInput[]>(`/list/${list}`)
     : CurrencyManager.getDefaultList();

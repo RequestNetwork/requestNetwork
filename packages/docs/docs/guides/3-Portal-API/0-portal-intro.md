@@ -23,14 +23,14 @@ Two mechanisms are currently allowed:
 
 ## Portal outlook
 
-If you have not already done it, head towards [Request Invoicing](https://invoicing.request.network) and create your account, you will need it to get your API keys and pursue the first steps of Request.
+If you have not already done it, head towards [Request Finance](https://app.request.finance) and create your account, you will need it to get your API keys and pursue the first steps of Request.
 
 Once your account is created, you are able to:
 
 - Create a request, which is useful for manual testing for example
 - List requests you sent or received, useful for debugging
 - Know your Request identity (cf. below)
-- Access your API keys, by going to [My Account > API](https://invoicing.request.network/account/api-keys) to get your API Key.
+- Access your API keys, by going to [My Account > API](https://app.request.finance/account/api-keys) to get your API Key.
 
 ## Request identity
 

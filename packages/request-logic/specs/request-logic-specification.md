@@ -60,7 +60,7 @@ You don't need to read this document if:
     - [Identity type](#identity-type)
     - [Signature type](#signature-type)
     - [Amount type](#amount-type)
-  - [Identity, Role and Signature](#identity--role-and-signature)
+  - [Identity, Role and Signature](#identity-role-and-signature)
     - [Identity](#identity)
     - [Roles](#roles)
     - [Signature](#signature)

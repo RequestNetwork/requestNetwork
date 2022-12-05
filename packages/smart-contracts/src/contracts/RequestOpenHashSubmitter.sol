@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./StorageFeeCollector.sol";
-import "./RequestHashStorage.sol";
-import "./Bytes.sol";
-
+import './StorageFeeCollector.sol';
+import './RequestHashStorage.sol';
+import './Bytes.sol';
 
 /**
  * @title RequestOpenHashSubmitter
@@ -13,9 +12,8 @@ import "./Bytes.sol";
  * @notice Anyone can submit hashes.
  */
 contract RequestOpenHashSubmitter is StorageFeeCollector {
-
   RequestHashStorage public requestHashStorage;
-  
+
   /**
    * @param _addressRequestHashStorage contract address which manages the hashes declarations
    * @param _addressBurner Burner address
@@ -28,7 +26,7 @@ contract RequestOpenHashSubmitter is StorageFeeCollector {
 
   // Fallback function returns funds to the sender
   receive() external payable {
-    revert("not payable receive");
+    revert('not payable receive');
   }
 
   /**
@@ -37,15 +35,12 @@ contract RequestOpenHashSubmitter is StorageFeeCollector {
    * @param _hash Hash of the request to be stored
    * @param _feesParameters fees parameters used to compute the fees. Here, it is the content size in an uint256
    */
-  function submitHash(string calldata _hash, bytes calldata _feesParameters)
-    external
-    payable
-  {
+  function submitHash(string calldata _hash, bytes calldata _feesParameters) external payable {
     // extract the contentSize from the _feesParameters
     uint256 contentSize = uint256(Bytes.extractBytes32(_feesParameters, 0));
 
     // Check fees are paid
-    require(getFeesAmount(contentSize) == msg.value, "msg.value does not match the fees");
+    require(getFeesAmount(contentSize) == msg.value, 'msg.value does not match the fees');
 
     // Send fees to burner, throws on failure
     collectForREQBurning(msg.value);
