@@ -35,6 +35,28 @@ export default class ChannelParser {
       ignored: TransactionTypes.IIgnoredTransaction | null;
     }
 
+    if (transactions[0].transaction.hasOwnProperty('encryptedData')) {
+      // Search for encrypted channel key, break when found
+      for (let timestampedTransaction of transactions) {
+        const persistedTransaction = timestampedTransaction.transaction;
+        try {
+          channelKey = await this.transactionParser.decryptChannelKey(
+            persistedTransaction.keys,
+            persistedTransaction.encryptionMethod,
+          );
+          break;
+        }
+        catch (error) {
+          if (error.message.includes('Impossible to decrypt the channel key from this transaction')) {
+            continue;
+          }
+          else {
+            throw error;
+          }
+        }
+      }
+    }
+
     // use of .reduce instead of .map to keep a sequential execution
     const validAndIgnoredTransactions: IValidAndIgnoredTransactions[] = await transactions.reduce(
       async (
