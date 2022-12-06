@@ -241,6 +241,8 @@ describe('index', () => {
         expect(fakeDataAccess.persistTransaction).toHaveBeenCalledWith(
           {
             encryptedData: expect.stringMatching(/^04.{76}/),
+            encryptionMethod: 'ecies-aes256-gcm',
+            keys: {},
           },
           channelId,
           extraTopics.concat([channelId2]),
