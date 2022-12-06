@@ -35,9 +35,9 @@ export default class ChannelParser {
       ignored: TransactionTypes.IIgnoredTransaction | null;
     }
 
-    if (transactions[0].transaction.hasOwnProperty('encryptedData')) {
+    if (Object.prototype.hasOwnProperty.call(transactions[0].transaction, 'encryptedData')) {
       // Search for encrypted channel key, break when found
-      for (let timestampedTransaction of transactions) {
+      for (const timestampedTransaction of transactions) {
         const persistedTransaction = timestampedTransaction.transaction;
         try {
           channelKey = await this.transactionParser.decryptChannelKey(
@@ -45,12 +45,12 @@ export default class ChannelParser {
             persistedTransaction.encryptionMethod,
           );
           break;
-        }
-        catch (error) {
-          if (error.message.includes('Impossible to decrypt the channel key from this transaction')) {
+        } catch (error) {
+          if (
+            error.message.includes('Impossible to decrypt the channel key from this transaction')
+          ) {
             continue;
-          }
-          else {
+          } else {
             throw error;
           }
         }
