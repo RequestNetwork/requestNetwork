@@ -35,7 +35,8 @@ export default class ChannelParser {
       ignored: TransactionTypes.IIgnoredTransaction | null;
     }
 
-    if (Object.prototype.hasOwnProperty.call(transactions[0].transaction, 'encryptedData')) {
+    const firstTransaction = transactions[0].transaction;
+    if (Object.prototype.hasOwnProperty.call(firstTransaction, 'encryptedData')) {
       // Search for encrypted channel key, break when found
       for (const timestampedTransaction of transactions) {
         const persistedTransaction = timestampedTransaction.transaction;
