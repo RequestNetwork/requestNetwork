@@ -40,6 +40,11 @@ export default class ChannelParser {
       for (const timestampedTransaction of transactions) {
         const persistedTransaction = timestampedTransaction.transaction;
         try {
+          if (!persistedTransaction.encryptionMethod || !persistedTransaction.keys) {
+            throw new Error(
+              'the properties "encryptionMethod" and "keys" are needed to compute the channel key',
+            );
+          }
           channelKey = await this.transactionParser.decryptChannelKey(
             persistedTransaction.keys,
             persistedTransaction.encryptionMethod,
