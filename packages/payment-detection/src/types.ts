@@ -35,7 +35,7 @@ export interface IEventRetriever<
 /** Object interface to list the payment network module by id */
 export type IPaymentNetworkModuleByType = Partial<
   Record<
-    PaymentTypes.PAYMENT_NETWORK_ID,
+    ExtensionTypes.PAYMENT_NETWORK_ID,
     new (...pnParams: any) => PaymentDetectorBase<ExtensionTypes.IExtension, any>
   >
 >;

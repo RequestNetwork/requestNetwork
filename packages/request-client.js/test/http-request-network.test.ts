@@ -15,25 +15,33 @@ afterAll(() => {
 
 describe('HttpRequestNetwork', () => {
   describe('should emmit errors throwing on refresh after the confirmation happened', () => {
-    const failAtCall = (call: number) => {
+    const failAtCall = (call: number, skipPaymentInfo = false) => {
       let requestCount = 0;
       mockAxios.onGet('/getTransactionsByChannelId').reply(() => {
         requestCount++;
         return [
           requestCount >= call ? 500 : 200,
           {
-            result: { transactions: [TestData.timestampedTransactionWithDeclarative] },
+            result: {
+              transactions: [
+                skipPaymentInfo
+                  ? TestData.timestampedTransactionWithoutPaymentInfo
+                  : TestData.timestampedTransaction,
+              ],
+            },
           },
         ];
       });
     };
 
-    const createRequest = async () => {
+    const createRequest = async (skipPaymentInfo = false) => {
       const requestNetwork = new HttpRequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
       });
       return await requestNetwork.createRequest({
-        paymentNetwork: TestData.declarativePaymentNetwork,
+        paymentNetwork: skipPaymentInfo
+          ? TestData.declarativePaymentNetworkNoPaymentInfo
+          : TestData.declarativePaymentNetwork,
         requestInfo: TestData.parametersWithoutExtensionsData,
         signer: TestData.payee.identity,
       });
@@ -87,8 +95,9 @@ describe('HttpRequestNetwork', () => {
     }, 10000);
 
     it('add payment information', async () => {
-      failAtCall(6);
-      const request = await createRequest();
+      // Skipping payment information at creation and faked storage
+      failAtCall(6, true);
+      const request = await createRequest(true);
       await request.waitForConfirmation();
       await request.addPaymentInformation('payment info added', TestData.payee.identity);
       await checkForError(request);

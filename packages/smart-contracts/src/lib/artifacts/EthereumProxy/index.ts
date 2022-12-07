@@ -176,6 +176,14 @@ export const ethereumProxyArtifact = new ContractArtifact<EthereumProxy>(
           address: '0x322F0037d272E980984F89E94Aae43BD0FC065E6',
           creationBlockNumber: 11988954,
         },
+        optimism: {
+          address: '0x171Ee0881407d4c0C11eA1a2FB7D5b4cdED71e6e',
+          creationBlockNumber: 34638528,
+        },
+        moonbeam: {
+          address: '0x171Ee0881407d4c0C11eA1a2FB7D5b4cdED71e6e',
+          creationBlockNumber: 2415488,
+        },
       },
     },
   },

@@ -31,7 +31,7 @@ export interface IRequestDataWithEvents extends IRequestData {
 export interface ICreateRequestParameters {
   requestInfo: RequestLogic.ICreateParameters | IRequestInfo;
   signer: Identity.IIdentity;
-  paymentNetwork?: Payment.IPaymentNetworkCreateParameters;
+  paymentNetwork?: Payment.PaymentNetworkCreateParameters;
   topics?: any[];
   contentData?: any;
   disablePaymentDetection?: boolean;

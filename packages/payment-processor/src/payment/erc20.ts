@@ -2,7 +2,7 @@ import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 
 
 import { Erc20PaymentNetwork, getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { _getErc20FeeProxyPaymentUrl, payErc20FeeProxyRequest } from './erc20-fee-proxy';
 import { ISwapSettings, swapErc20FeeProxyRequest } from './swap-erc20-fee-proxy';
@@ -36,13 +36,13 @@ export async function payErc20Request(
   swapSettings?: ISwapSettings,
 ): Promise<ContractTransaction> {
   const id = getPaymentNetworkExtension(request)?.id;
-  if (swapSettings && id !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
+  if (swapSettings && id !== ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT) {
     throw new Error(`ExtensionType: ${id} is not supported by swapToPay contract`);
   }
-  if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT) {
+  if (id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT) {
     return payErc20ProxyRequest(request, signerOrProvider, amount, overrides);
   }
-  if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
+  if (id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT) {
     if (swapSettings) {
       return swapErc20FeeProxyRequest(request, signerOrProvider, swapSettings, {
         amount,
@@ -166,8 +166,7 @@ export function encodeApproveErc20(
   signerOrProvider: providers.Provider | Signer = getProvider(),
   amount: BigNumber = MAX_ALLOWANCE,
 ): string {
-  const paymentNetworkId = getPaymentNetworkExtension(request)
-    ?.id as unknown as PaymentTypes.PAYMENT_NETWORK_ID;
+  const paymentNetworkId = getPaymentNetworkExtension(request)?.id;
   if (!paymentNetworkId) {
     throw new Error('No payment network Id');
   }
@@ -240,10 +239,10 @@ export function _getErc20PaymentUrl(
   amount?: BigNumberish,
 ): string {
   const id = getPaymentNetworkExtension(request)?.id;
-  if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT) {
+  if (id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT) {
     return _getErc20ProxyPaymentUrl(request, amount);
   }
-  if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
+  if (id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT) {
     return _getErc20FeeProxyPaymentUrl(request, amount);
   }
   throw new Error('Not a supported ERC20 proxy payment network request');
@@ -256,17 +255,17 @@ export function _getErc20PaymentUrl(
 function getProxyAddress(request: ClientTypes.IRequestData): string {
   const pn = getPaymentNetworkExtension(request);
   const id = pn?.id;
-  if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED) {
+  if (id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED) {
     throw new Error(`ERC20 address based payment network doesn't need approval`);
   }
 
-  if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT) {
+  if (id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT) {
     return genericGetProxyAddress(
       request,
       Erc20PaymentNetwork.ERC20ProxyPaymentDetector.getDeploymentInformation,
     );
   }
-  if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
+  if (id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT) {
     return genericGetProxyAddress(
       request,
       Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector.getDeploymentInformation,

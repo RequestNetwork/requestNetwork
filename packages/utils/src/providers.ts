@@ -41,6 +41,8 @@ const networkRpcs: Record<string, string> = {
   'arbitrum-rinkeby': 'https://rinkeby.arbitrum.io/rpc',
   'arbitrum-one': 'https://arb1.arbitrum.io/rpc',
   avalanche: 'https://api.avax.network/ext/bc/C/rpc',
+  optimism: 'https://mainnet.optimism.io',
+  moonbeam: 'https://moonbeam.public.blastapi.io',
 };
 
 /**
@@ -98,7 +100,7 @@ const defaultProviderFactory: ProviderFactory = (network: string | undefined) =>
 
 /**
  * Defines the behaviour to obtain a Provider for a given Network.
- * May be overriden using setProviderFactory
+ * May be overridden using setProviderFactory
  */
 let currentProviderFactory: CurrentProviderFactory = defaultProviderFactory;
 

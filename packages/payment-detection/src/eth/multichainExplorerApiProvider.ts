@@ -9,6 +9,8 @@ const networks: Record<string, ethers.providers.Network> = {
   'arbitrum-one': { chainId: 42161, name: 'arbitrum-one' },
   avalanche: { chainId: 43114, name: 'avalanche' },
   bsc: { chainId: 56, name: 'bsc' },
+  optimism: { chainId: 10, name: 'optimism' },
+  moonbeam: { chainId: 1284, name: 'moonbeam' },
 };
 
 /**

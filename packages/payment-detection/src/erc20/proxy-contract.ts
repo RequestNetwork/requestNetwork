@@ -28,7 +28,7 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
     getSubgraphClient,
   }: ReferenceBasedDetectorOptions & Pick<PaymentNetworkOptions, 'getSubgraphClient'>) {
     super(
-      PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+      ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       advancedLogic.extensions.proxyContractErc20,
       currencyManager,
     );

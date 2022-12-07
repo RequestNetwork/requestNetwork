@@ -108,7 +108,7 @@ describe('api/eth/input-data', () => {
       events: [],
       expectedAmount: '0',
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
           events: [],
           id: '0',
           type: 'none',
@@ -146,7 +146,7 @@ describe('api/eth/input-data', () => {
       events: [],
       expectedAmount: '0',
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
           events: [],
           id: '0',
           type: 'none',

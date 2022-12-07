@@ -2,7 +2,6 @@ import '@nomiclabs/hardhat-ethers';
 import {
   chainlinkConversionPath as chainlinkConversionPathArtifact,
   ContractArtifact,
-  erc20FeeProxyArtifact,
   erc20SwapToPayArtifact,
 } from '../src/lib';
 import { deployERC20ConversionProxy, deployEthConversionProxy } from './conversion-proxy';
@@ -298,18 +297,16 @@ export async function deployAllPaymentContracts(
 
     // #region MAIN - Deployments
 
-    // Batch 1
-    await jumpToNonce(args, hre, 1);
-    const { address: erc20FeeProxyAddress } = await runEasyDeployment({
-      contractName: 'ERC20FeeProxy',
-      artifact: erc20FeeProxyArtifact,
-      nonceCondition: 1,
-    });
+    // Batch 1 - REMOVED -> Deployment CREATE2
+    const erc20FeeProxyAddress = await computeCreate2DeploymentAddress(
+      { contract: 'ERC20FeeProxy' },
+      hre,
+    );
 
     // Batch 2
     await runDeploymentBatch_2(erc20FeeProxyAddress);
 
-    // Batch 3 - SwapToConversion : REMOVED -> Deployment CREATE2
+    // Batch 3 - REMOVED -> Deployment CREATE2
 
     // Compute EthereumFeeProxy address (CREATE2)
     const ethFeeProxyAddress = await computeCreate2DeploymentAddress(

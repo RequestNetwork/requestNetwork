@@ -11,7 +11,7 @@ export default class Erc20ProxyPaymentNetwork<
 > extends ReferenceBasedPaymentNetwork<TCreationParameters> {
   public constructor() {
     super(
-      ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+      ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       CURRENT_VERSION,
       RequestLogicTypes.CURRENCY.ERC20,
     );

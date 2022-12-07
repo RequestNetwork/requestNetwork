@@ -21,9 +21,9 @@ export const createMockErc20FeeRequest = ({
   events: [],
   expectedAmount: '0',
   extensions: {
-    [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,

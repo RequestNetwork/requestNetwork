@@ -81,7 +81,7 @@ describe('api/erc20/address-based', () => {
       events: [],
       expectedAmount: '0',
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED]: {
           events: [],
           id: '0',
           type: 'none',

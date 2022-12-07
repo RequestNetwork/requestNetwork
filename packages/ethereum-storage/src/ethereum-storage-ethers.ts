@@ -1,17 +1,23 @@
 import { EventEmitter } from 'events';
-import { BigNumber, ContractReceipt, PayableOverrides, providers, Signer, utils } from 'ethers';
+import { BigNumber, ContractReceipt, providers, Signer } from 'ethers';
 import TypedEmitter from 'typed-emitter';
 import Utils from '@requestnetwork/utils';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
-import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
-import { suggestFees } from 'eip1559-fee-suggestions-ethers';
+import { EthereumTransactionSubmitter } from './ethereum-tx-submitter';
 
-type StorageProps = {
+export type GasDefinerProps = {
+  gasPriceMin?: BigNumber;
+};
+
+export type SubmitterProps = GasDefinerProps & {
   network: string;
   signer: Signer;
-  ipfsStorage: StorageTypes.IIpfsStorage;
   logger?: LogTypes.ILogger;
+};
+
+type StorageProps = SubmitterProps & {
+  ipfsStorage: StorageTypes.IIpfsStorage;
 };
 
 export type StorageEventEmitter = TypedEmitter<{
@@ -22,58 +28,27 @@ export type StorageEventEmitter = TypedEmitter<{
 export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
   private readonly logger: LogTypes.ILogger;
   private readonly ipfsStorage: StorageTypes.IIpfsStorage;
-  private readonly hashSubmitter: RequestOpenHashSubmitter;
-  private readonly network: string;
-  private readonly provider: providers.JsonRpcProvider;
-  private enableEip1559 = true;
 
-  constructor({ network, signer, ipfsStorage, logger }: StorageProps) {
+  private readonly network: string;
+  private readonly txSubmitter: EthereumTransactionSubmitter;
+
+  constructor({ network, signer, ipfsStorage, logger, gasPriceMin }: StorageProps) {
     this.logger = logger || new Utils.SimpleLogger();
     this.ipfsStorage = ipfsStorage;
     this.network = network;
-    this.provider = signer.provider as providers.JsonRpcProvider;
-    this.hashSubmitter = requestHashSubmitterArtifact.connect(
-      network,
-      signer,
-    ) as RequestOpenHashSubmitter; // type mismatch with ethers.
+    this.txSubmitter = new EthereumTransactionSubmitter({ network, signer, logger, gasPriceMin });
   }
 
   async initialize(): Promise<void> {
     await this.ipfsStorage.initialize();
-    try {
-      await this.provider.send('eth_feeHistory', [1, 'latest', []]);
-    } catch (e) {
-      this.logger.warn(
-        'This RPC provider does not support the "eth_feeHistory" method: switching to legacy gas price',
-      );
-      this.enableEip1559 = false;
-    }
+    await this.txSubmitter.initialize();
     this.logger.debug(`${EthereumStorageEthers.name} storage initialized`);
   }
 
   async append(content: string): Promise<StorageTypes.IAppendResult> {
     const { ipfsHash, ipfsSize } = await this.ipfsStorage.ipfsAdd(content);
 
-    const fee = await this.hashSubmitter.getFeesAmount(ipfsSize);
-    const overrides: PayableOverrides = { value: fee };
-    if (this.enableEip1559) {
-      const suggestedFee = await suggestFees(
-        this.hashSubmitter.provider as providers.JsonRpcProvider,
-      );
-      const maxPriorityFeePerGas = BigNumber.from(suggestedFee.maxPriorityFeeSuggestions.urgent);
-      const maxFeePerGas = maxPriorityFeePerGas.add(suggestedFee.baseFeeSuggestion);
-      if (maxPriorityFeePerGas.gt(0)) {
-        overrides.maxPriorityFeePerGas = maxPriorityFeePerGas;
-      }
-      if (maxFeePerGas.gt(0)) {
-        overrides.maxFeePerGas = maxFeePerGas;
-      }
-    }
-    const tx = await this.hashSubmitter.submitHash(
-      ipfsHash,
-      utils.hexZeroPad(utils.hexlify(ipfsSize), 32),
-      overrides,
-    );
+    const tx = await this.txSubmitter.submit(ipfsHash, ipfsSize);
 
     const eventEmitter = new EventEmitter() as StorageEventEmitter;
     const result: StorageTypes.IEntry = {
@@ -82,6 +57,15 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
       meta: {
         ipfs: { size: ipfsSize },
         local: { location: ipfsHash },
+        ethereum: {
+          blockConfirmation: tx.confirmations,
+          blockNumber: Number(tx.blockNumber),
+          // wrong value, but this metadata will not be used, as it's in Pending state
+          blockTimestamp: -1,
+          networkName: this.network,
+          smartContractAddress: this.txSubmitter.hashSubmitterAddress,
+          transactionHash: tx.hash,
+        },
         state: StorageTypes.ContentState.PENDING,
         storageType: StorageTypes.StorageSystemType.LOCAL,
         timestamp: Utils.getCurrentTimestampInSecond(),

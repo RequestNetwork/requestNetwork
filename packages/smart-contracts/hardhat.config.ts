@@ -125,6 +125,16 @@ export default {
       chainId: 43114,
       accounts,
     },
+    optimism: {
+      url: url('optimism'),
+      chainId: 10,
+      accounts,
+    },
+    moonbeam: {
+      url: url('moonbeam'),
+      chainId: 1284,
+      accounts,
+    },
   },
   etherscan: {
     apiKey: {
@@ -143,13 +153,28 @@ export default {
       arbitrumOne: process.env.ARBISCAN_API_KEY,
       // avalanche
       avalanche: process.env.SNOWTRACE_API_KEY,
-      // xdai and sokol don't need an API key, but you still need
+      // xdai
+      xdai: process.env.GNOSISSCAN_API_KEY,
+      // optimism
+      optimism: process.env.OPTIMISM_API_KEY,
+      // moonbeam
+      moonbeam: process.env.MOONBEAM_API_KEY,
+      // other networks don't need an API key, but you still need
       // to specify one; any string placeholder will work
-      xdai: 'api-key',
       sokol: 'api-key',
       aurora: 'api-key',
       auroraTestnet: 'api-key',
     },
+    customChains: [
+      {
+        network: 'optimism',
+        chainId: 10,
+        urls: {
+          apiURL: 'https://api-optimistic.etherscan.io/api',
+          browserURL: 'https://optimistic.etherscan.io/',
+        },
+      },
+    ],
   },
   typechain: {
     outDir: 'src/types',

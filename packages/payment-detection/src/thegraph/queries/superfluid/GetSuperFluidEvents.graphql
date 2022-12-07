@@ -7,6 +7,13 @@ fragment EventFragment on FlowUpdatedEvent {
   oldFlowRate
   type
 }
+fragment PaymentFragment on SentEvent {
+  transactionHash
+  blockNumber
+  timestamp
+  from
+  amount
+}
 query GetSuperFluidEvents($tokenAddress: Bytes!, $to: Bytes!, $reference: Bytes!) {
   untagged: flowUpdatedEvents(
     orderBy: timestamp
@@ -20,5 +27,12 @@ query GetSuperFluidEvents($tokenAddress: Bytes!, $to: Bytes!, $reference: Bytes!
     where: { userData: $reference, token: $tokenAddress, receiver: $to }
   ) {
     ...EventFragment
+  }
+
+  payment: sentEvents(
+    orderBy: timestamp
+    where: { data: $reference, token: $tokenAddress, to: $to }
+  ) {
+    ...PaymentFragment
   }
 }

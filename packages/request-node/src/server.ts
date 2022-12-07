@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 import { LogTypes } from '@requestnetwork/types';
-import { argv } from 'yargs';
+import * as yargs from 'yargs';
 import * as config from './config';
 import { Logger } from './logger';
 import { RequestNode } from './requestNode';
 import withShutdown from 'http-shutdown';
 import { TheGraphRequestNode } from './thegraph-node';
+
+const argv = yargs.parseSync();
 
 // Initialize the node logger
 const { logLevel, logMode } = config.getLogConfig();

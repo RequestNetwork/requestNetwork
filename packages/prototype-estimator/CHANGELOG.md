@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.21.10](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/prototype-estimator@1.21.0...@requestnetwork/prototype-estimator@1.21.10) (2022-11-04)
+
+### Bug Fixes
+
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+
 ## [1.21.9](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/prototype-estimator@1.21.0...@requestnetwork/prototype-estimator@1.21.9) (2021-06-22)
 
 **Note:** Version bump only for package @requestnetwork/prototype-estimator

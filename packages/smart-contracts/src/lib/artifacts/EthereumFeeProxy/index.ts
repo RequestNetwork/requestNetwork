@@ -106,6 +106,18 @@ export const ethereumFeeProxyArtifact = new ContractArtifact<EthereumFeeProxy>(
           address: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
           creationBlockNumber: 11988955,
         },
+        ronin: {
+          address: '0xe9cbD1Aa5496628F4302426693Ad63006C56959F',
+          creationBlockNumber: 18379590,
+        },
+        optimism: {
+          address: '0xe11BF2fDA23bF0A98365e1A4c04A87C9339e8687',
+          creationBlockNumber: 34638587,
+        },
+        moonbeam: {
+          address: '0xe11BF2fDA23bF0A98365e1A4c04A87C9339e8687',
+          creationBlockNumber: 2415490,
+        },
       },
     },
   },

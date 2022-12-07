@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-node",
-  "version": "0.26.0",
+  "version": "0.27.0",
   "publishConfig": {
     "access": "public"
   },
@@ -42,12 +42,12 @@
   },
   "dependencies": {
     "@ethersproject/experimental": "5.5.0",
-    "@requestnetwork/data-access": "0.26.0",
-    "@requestnetwork/ethereum-storage": "0.26.0",
-    "@requestnetwork/smart-contracts": "0.28.0",
-    "@requestnetwork/thegraph-data-access": "0.35.0",
-    "@requestnetwork/types": "0.35.0",
-    "@requestnetwork/utils": "0.35.0",
+    "@requestnetwork/data-access": "0.27.0",
+    "@requestnetwork/ethereum-storage": "0.27.0",
+    "@requestnetwork/smart-contracts": "0.29.0",
+    "@requestnetwork/thegraph-data-access": "0.35.1",
+    "@requestnetwork/types": "0.36.0",
+    "@requestnetwork/utils": "0.36.0",
     "@truffle/hdwallet-provider": "1.2.3",
     "chalk": "4.1.0",
     "cors": "2.8.5",
@@ -63,7 +63,7 @@
     "shelljs": "0.8.5",
     "tslib": "2.3.1",
     "web3-providers-ws": "1.6.1",
-    "yargs": "16.2.0"
+    "yargs": "17.6.2"
   },
   "devDependencies": {
     "@types/cors": "2.8.9",
@@ -72,7 +72,7 @@
     "@types/keyv": "3.1.1",
     "@types/node": "14.14.16",
     "@types/supertest": "2.0.10",
-    "@types/yargs": "15.0.5",
+    "@types/yargs": "17.0.14",
     "jest": "26.4.2",
     "shx": "0.3.2",
     "source-map-support": "0.5.19",

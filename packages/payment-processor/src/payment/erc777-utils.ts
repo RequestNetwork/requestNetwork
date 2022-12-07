@@ -1,9 +1,15 @@
 import { ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
-import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
-import { getNetworkProvider, getProvider, validateRequest, MAX_ALLOWANCE } from './utils';
+import {
+  getNetworkProvider,
+  getProvider,
+  validateRequest,
+  MAX_ALLOWANCE,
+  getRequestPaymentValues,
+} from './utils';
 import Token from '@superfluid-finance/sdk-core/dist/module/Token';
 import { getSuperFluidFramework } from './erc777-stream';
 import Operation from '@superfluid-finance/sdk-core/dist/module/Operation';
@@ -20,10 +26,10 @@ export async function getRequestUnderlyingToken(
   provider: providers.Provider = getNetworkProvider(request),
 ): Promise<Token> {
   const id = getPaymentNetworkExtension(request)?.id;
-  if (id !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM) {
+  if (id !== ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM) {
     throw new Error('Not a supported ERC777 payment network request');
   }
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
   const sf = await getSuperFluidFramework(request, provider);
   const superToken = await sf.loadSuperToken(request.currencyInfo.value);
   return superToken.underlyingToken;
@@ -157,6 +163,22 @@ export async function approveUnderlyingToken(
 }
 
 /**
+ * Prepare the wrap transaction of the specified amount of underlying token into supertoken
+ * @param request the request that contains currency information
+ * @param provider the web3 provider
+ * @param amount to allow, defaults to max allowance
+ * @returns
+ */
+export async function prepareWrapUnderlyingToken(
+  request: ClientTypes.IRequestData,
+  provider: providers.Provider = getNetworkProvider(request),
+  amount: BigNumber = MAX_ALLOWANCE,
+): Promise<IPreparedTransaction> {
+  const wrapOp = await getWrapUnderlyingTokenOp(request, provider, amount);
+  return (await wrapOp.populateTransactionPromise) as IPreparedTransaction;
+}
+
+/**
  * Wrap the speicified amount of underlying token into supertokens
  * @param request the request that contains currency information
  * @param signer the web3 signer
@@ -176,8 +198,37 @@ export async function wrapUnderlyingToken(
   if (!(await hasEnoughUnderlyingToken(request, senderAddress, provider, amount))) {
     throw new Error('Sender does not have enough underlying token');
   }
-  const wrapOp = await getWrapUnderlyingTokenOp(request, signer.provider ?? getProvider(), amount);
-  return wrapOp.exec(signer);
+  const preparedTx = await prepareWrapUnderlyingToken(
+    request,
+    signer.provider ?? getProvider(),
+    amount,
+  );
+  return signer.sendTransaction(preparedTx);
+}
+
+/**
+ * Prepare the unwrapping transaction of the supertoken (ERC777) into underlying asset (ERC20)
+ * @param request the request that contains currency information
+ * @param provider the web3 provider
+ * @param amount to unwrap
+ */
+export async function prepareUnwrapSuperToken(
+  request: ClientTypes.IRequestData,
+  provider: providers.Provider = getNetworkProvider(request),
+  amount: BigNumber,
+): Promise<IPreparedTransaction> {
+  const sf = await getSuperFluidFramework(request, provider);
+  const superToken = await sf.loadSuperToken(request.currencyInfo.value);
+  const underlyingToken = await getRequestUnderlyingToken(request, provider);
+
+  if (underlyingToken.address === superToken.address) {
+    throw new Error('This is a native super token');
+  }
+
+  const downgradeOp = superToken.downgrade({
+    amount: amount.toString(),
+  });
+  return (await downgradeOp.populateTransactionPromise) as IPreparedTransaction;
 }
 
 /**
@@ -193,15 +244,6 @@ export async function unwrapSuperToken(
 ): Promise<ContractTransaction> {
   const sf = await getSuperFluidFramework(request, signer.provider ?? getProvider());
   const superToken = await sf.loadSuperToken(request.currencyInfo.value);
-  const underlyingToken = await getRequestUnderlyingToken(
-    request,
-    signer.provider ?? getProvider(),
-  );
-
-  if (underlyingToken.address === superToken.address) {
-    throw new Error('This is a native super token');
-  }
-
   const userAddress = await signer.getAddress();
   const userBalance = await superToken.balanceOf({
     account: userAddress,
@@ -210,8 +252,39 @@ export async function unwrapSuperToken(
   if (amount.gt(userBalance)) {
     throw new Error('Sender does not have enough supertoken');
   }
-  const downgradeOp = superToken.downgrade({
-    amount: amount.toString(),
+  const preparedTx = await prepareUnwrapSuperToken(
+    request,
+    signer.provider ?? getProvider(),
+    amount,
+  );
+  return signer.sendTransaction(preparedTx);
+}
+
+/**
+ * Check if there's an existing stream for the trio (Sender, Receiver, Currency)
+ * @param sender address
+ * @param receiver address
+ * @param currency to stream
+ * @param provider web3 provider.
+ * @returns
+ */
+export async function checkExistingStream(
+  request: ClientTypes.IRequestData,
+  sender: string,
+  provider: providers.Provider = getProvider(),
+): Promise<boolean> {
+  const id = getPaymentNetworkExtension(request)?.id;
+  if (id !== ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM) {
+    throw new Error('Not a supported ERC777 payment network request');
+  }
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
+  const { paymentAddress } = getRequestPaymentValues(request);
+  const sf = await getSuperFluidFramework(request, provider);
+  const streams = await sf.query.listStreams({
+    sender,
+    receiver: paymentAddress,
+    token: request.currencyInfo.value,
   });
-  return downgradeOp.exec(signer);
+
+  return streams.data.length === 1 && streams.data[0].currentFlowRate !== '0';
 }

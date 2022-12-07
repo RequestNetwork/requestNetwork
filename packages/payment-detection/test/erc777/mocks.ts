@@ -181,18 +181,66 @@ const mockFlows = [
     },
   ],
 ];
+const mockOneOff = [
+  // One-off payment indexed before any event
+  {
+    transactionHash: '0xc331a269515c27836051cc4618097f5f1a1c37f79dcb975361022fe3ecfb5c00',
+    blockNumber: '9806850',
+    timestamp: '1639387670',
+    from: '0x9c040e2d6fd83a8b35069aa7154b69674961e0f7',
+    amount: '5',
+  },
+  // One-off payment indexed between end stream - start stream
+  {
+    transactionHash: '0xe472ca1b52751b058fbdaeaffebd98c0cc43b45aa31794b3eb06834ede19f700',
+    blockNumber: '9948965',
+    timestamp: '1641547131',
+    from: '0x9c040e2d6fd83a8b35069aa7154b69674961e0f7',
+    amount: '10',
+  },
+  // One-off payment indexed between start stream - end stream
+  {
+    transactionHash: '0xe472ca1b52751b058fbdaeaffebd98c0cc43b45aa31794b3eb06834ede19f700',
+    blockNumber: '9948967',
+    timestamp: '1641547133',
+    from: '0x9c040e2d6fd83a8b35069aa7154b69674961e0f7',
+    amount: '15',
+  },
+  // One-off payment indexed after all events
+  {
+    transactionHash: '0xc331a269515c27836051cc4618097f5f1a1c37f79dcb975361022fe3ecfb5c00',
+    blockNumber: '10185750',
+    timestamp: '1645131645',
+    from: '0x9c040e2d6fd83a8b35069aa7154b69674961e0f7',
+    amount: '20',
+  },
+];
+
 export const mockSuperfluidSubgraph = [
   {
     untagged: mockUntagged,
     flow: mockFlows[0],
+    payment: [],
   },
   {
     untagged: mockUntagged,
     flow: mockFlows[1],
+    payment: [],
   },
   {
     untagged: [],
     flow: mockFlows[2],
+    payment: [],
+  },
+  {
+    untagged: [],
+    flow: [],
+    payment: mockOneOff,
+  },
+  {
+    untagged: mockUntagged,
+    flow: mockFlows[0],
+    payment: mockOneOff,
   },
 ];
 

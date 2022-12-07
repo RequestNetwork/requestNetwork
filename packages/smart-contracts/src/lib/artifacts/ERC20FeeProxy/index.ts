@@ -120,8 +120,16 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           creationBlockNumber: 11671431,
         },
         ronin: {
-          address: '0xae23992483feda6e718a808ce824f6864f13b64b',
+          address: '0xAe23992483FeDA6E718a808Ce824f6864F13B64B',
           creationBlockNumber: 17901276,
+        },
+        optimism: {
+          address: '0x399F5EE127ce7432E4921a61b8CF52b0af52cbfE',
+          creationBlockNumber: 34638633,
+        },
+        moonbeam: {
+          address: '0x399F5EE127ce7432E4921a61b8CF52b0af52cbfE',
+          creationBlockNumber: 2415492,
         },
       },
     },

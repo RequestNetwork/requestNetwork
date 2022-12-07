@@ -68,7 +68,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment):
 
     // Swap-to-pay related contracts
     // Payment erc20: ALPHA
-    const erc20AlphaInstance = await erc20Factory.deploy('1000000000000000000000000000000');
+    const erc20AlphaInstance = await erc20Factory.deploy('1000000000000000000000000000000000000');
     // Mock a swap router
     const { address: FakeSwapRouterAddress } = await deployOne(args, hre, 'FakeSwapRouter');
     // 1 ERC20 = 2 ALPHA

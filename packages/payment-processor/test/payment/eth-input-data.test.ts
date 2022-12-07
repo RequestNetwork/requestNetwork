@@ -4,7 +4,6 @@ import {
   ClientTypes,
   ExtensionTypes,
   IdentityTypes,
-  PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
@@ -41,9 +40,9 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '1',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,

@@ -18,14 +18,14 @@ export const salt = 'ea3bc7caf64110ca';
 // actions
 export const actionAddPaymentAddress = {
   action: ExtensionTypes.PnStreamReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
   parameters: {
     paymentAddress,
   },
 };
 export const actionAddRefundAddress = {
   action: ExtensionTypes.PnStreamReferenceBased.ACTION.ADD_REFUND_ADDRESS,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
   parameters: {
     refundAddress,
   },
@@ -33,7 +33,7 @@ export const actionAddRefundAddress = {
 // TODO: Fee will be added later
 // export const actionAddFee = {
 //   action: ExtensionTypes.PnStreamReferenceBased.ACTION.ADD_FEE,
-//   id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+//   id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
 //   parameters: {
 //     expectedFlowRate,
 //     expectedStartDate,
@@ -43,7 +43,7 @@ export const actionAddRefundAddress = {
 // ---------------------------------------------------------------------
 // extensions states
 export const extensionStateWithPaymentAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM as string]: {
     events: [
       {
         name: ExtensionTypes.PnStreamReferenceBased.ACTION.CREATE,
@@ -58,7 +58,7 @@ export const extensionStateWithPaymentAfterCreation = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentAddress,
@@ -68,7 +68,7 @@ export const extensionStateWithPaymentAfterCreation = {
 };
 
 export const extensionStateWithRefundAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM as string]: {
     events: [
       {
         name: ExtensionTypes.PnStreamReferenceBased.ACTION.CREATE,
@@ -83,7 +83,7 @@ export const extensionStateWithRefundAfterCreation = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       refundAddress,
@@ -94,7 +94,7 @@ export const extensionStateWithRefundAfterCreation = {
 
 // TODO: Fee will be added later
 // export const extensionStateWithFeeAfterCreation = {
-//   [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM as string]: {
+//   [ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM as string]: {
 //     events: [
 //       {
 //         name: ExtensionTypes.PnStreamReferenceBased.ACTION.CREATE,
@@ -110,7 +110,7 @@ export const extensionStateWithRefundAfterCreation = {
 //         timestamp: arbitraryTimestamp,
 //       },
 //     ],
-//     id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+//     id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
 //     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
 //     values: {
 //       expectedFlowRate,

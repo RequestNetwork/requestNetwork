@@ -3,10 +3,13 @@ import {
   ClientTypes,
   ExtensionTypes,
   IdentityTypes,
-  PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { encodeRequestPayment, encodeRequestPaymentWithStream } from '../../src';
+import {
+  encodeRequestPayment,
+  encodeRequestPaymentWithStream,
+  prepareCloseStreamTransaction,
+} from '../../src';
 import { getProxyAddress, MAX_ALLOWANCE } from '../../src/payment/utils';
 import {
   AnyToERC20PaymentDetector,
@@ -85,9 +88,9 @@ const baseValidRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,
@@ -110,9 +113,9 @@ const baseValidRequest: ClientTypes.IRequestData = {
 const validRequestERC20FeeProxy: ClientTypes.IRequestData = {
   ...baseValidRequest,
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -134,9 +137,9 @@ const validRequestERC777Stream: ClientTypes.IRequestData = {
     value: DAIX_ADDRESS,
   },
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         expectedStartDate,
@@ -157,9 +160,9 @@ const validRequestERC20ConversionProxy: ClientTypes.IRequestData = {
     value: 'EUR',
   },
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -183,9 +186,9 @@ const validRequestEthProxy: ClientTypes.IRequestData = {
     value: RequestLogicTypes.CURRENCY.ETH,
   },
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,
@@ -206,9 +209,9 @@ const validRequestEthFeeProxy: ClientTypes.IRequestData = {
     value: RequestLogicTypes.CURRENCY.ETH,
   },
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -230,9 +233,9 @@ const validRequestEthConversionProxy: ClientTypes.IRequestData = {
     value: 'EUR',
   },
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -414,7 +417,7 @@ describe('Payment encoder handles Eth Conversion Proxy', () => {
 });
 
 describe('Payment encoder handles ERC777 Stream', () => {
-  it('Should return a valid transaction', async () => {
+  it('Should return a valid start stream transaction', async () => {
     const paymentTransaction = await encodeRequestPaymentWithStream(
       validRequestERC777Stream,
       provider,
@@ -422,6 +425,20 @@ describe('Payment encoder handles ERC777 Stream', () => {
 
     expect(paymentTransaction).toEqual({
       data: '0x6ad3ca7d00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000c90000000000000000000000000dd64f3458f32a277ccd94bfbdb31952b84d99ee000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000001600000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000a462fc305e0000000000000000000000007d782d2cc2755ca324de57d42e28cc63278dfe12000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b73200000000000000000000000000000000000000000000000000000000000186a00000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000bbeefac86dfbccad783599a000000000000000000000000000000000000000000',
+      to: '0x75076e4fbba61f65efB41D64e45cFF340b1e518A',
+      value: 0,
+    });
+  });
+
+  it('Should return a valid close stream transaction', async () => {
+    const paymentTransaction = await prepareCloseStreamTransaction(
+      wallet.address,
+      validRequestERC777Stream,
+      provider,
+    );
+
+    expect(paymentTransaction).toEqual({
+      data: '0x6ad3ca7d00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000c90000000000000000000000000dd64f3458f32a277ccd94bfbdb31952b84d99ee000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000001600000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000a4b4b333c60000000000000000000000007d782d2cc2755ca324de57d42e28cc63278dfe12000000000000000000000000627306090abab3a6e1400e9345bc60c78a8bef57000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000bbeefac86dfbccad783599a000000000000000000000000000000000000000000',
       to: '0x75076e4fbba61f65efB41D64e45cFF340b1e518A',
       value: 0,
     });

@@ -12,7 +12,7 @@ const CURRENT_VERSION = '0.1.0';
 export default class Erc20AddressBasedPaymentNetwork extends AddressBasedPaymentNetwork {
   public constructor() {
     super(
-      ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
+      ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
       CURRENT_VERSION,
       RequestLogicTypes.CURRENCY.ERC20,
     );

@@ -69,6 +69,20 @@ const testCasesPerNetwork: Record<string, Record<string, Partial<CurrencyDefinit
       network: 'rinkeby',
     },
   },
+  moonbeam: {
+    'USDC-multichain-moonbeam': {
+      address: '0x818ec0A7Fe18Ff94269904fCED6AE3DaE6d6dC0b',
+      decimals: 6,
+      symbol: 'USDC-multichain',
+      network: 'moonbeam',
+    },
+    'USDC-wormhole-moonbeam': {
+      address: '0x931715FEE2d06333043d11F658C8CE934aC61D0c',
+      decimals: 6,
+      symbol: 'USDC-wormhole',
+      network: 'moonbeam',
+    },
+  },
   bitcoin: {
     BTC: { symbol: 'BTC' },
     'BTC-testnet': { symbol: 'BTC-testnet', network: 'testnet' },

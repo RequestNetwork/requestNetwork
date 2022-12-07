@@ -1,4 +1,10 @@
-import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import {
   ContractBasedDetector,
@@ -19,9 +25,8 @@ import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './an
 import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetector } from './near';
 import { getPaymentNetworkExtension } from './utils';
 import { getTheGraphClient } from './thegraph';
-import { getDefaultProvider } from './provider';
 
-const PN_ID = PaymentTypes.PAYMENT_NETWORK_ID;
+const PN_ID = ExtensionTypes.PAYMENT_NETWORK_ID;
 
 /** Register the payment network by currency and type */
 const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
@@ -62,9 +67,9 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
 
 const anyCurrencyPaymentNetwork: IPaymentNetworkModuleByType = {
   [PN_ID.ANY_TO_ERC20_PROXY]: AnyToERC20PaymentDetector,
-  [PN_ID.DECLARATIVE]: DeclarativePaymentDetector,
+  [PN_ID.ANY_DECLARATIVE]: DeclarativePaymentDetector,
   [PN_ID.ANY_TO_ETH_PROXY]: AnyToEthFeeProxyPaymentDetector,
-  [PN_ID.ANY_TO_NATIVE]: NearConversionNativeTokenPaymentDetector,
+  [PN_ID.ANY_TO_NATIVE_TOKEN]: NearConversionNativeTokenPaymentDetector,
 };
 
 /** Factory to create the payment network according to the currency and payment network type */
@@ -94,7 +99,7 @@ export class PaymentNetworkFactory {
             );
       },
       explorerApiKeys: {},
-      getRpcProvider: getDefaultProvider,
+      getRpcProvider: Utils.getDefaultProvider,
     };
     return { ...defaultOptions, ...options };
   }
@@ -105,16 +110,16 @@ export class PaymentNetworkFactory {
    *
    * @param paymentNetworkId the ID of the payment network to instantiate
    * @param currencyType the currency type of the request
-   * @param currencyNetwork the network of the currency of the payment to detect
+   * @param paymentChain Different from request.currency.network for on-chain conversion payment networks (any-to-something)
    * @returns the module to handle the payment network
    */
   public createPaymentNetwork(
-    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currencyType: RequestLogicTypes.CURRENCY,
-    currencyNetwork?: string,
+    paymentChain?: string,
     paymentNetworkVersion?: string,
   ): PaymentTypes.IPaymentNetwork {
-    const network = currencyNetwork || 'mainnet';
+    const network = paymentChain ?? 'mainnet';
     const currencyPaymentMap =
       supportedPaymentNetwork[currencyType]?.[network] ||
       supportedPaymentNetwork[currencyType]?.['*'] ||
@@ -165,11 +170,13 @@ export class PaymentNetworkFactory {
       return null;
     }
 
+    const detectionChain = pn.values?.network ?? request.currency.network;
+
     const { id, version } = pn;
     return this.createPaymentNetwork(
-      id as unknown as PaymentTypes.PAYMENT_NETWORK_ID,
+      id as unknown as ExtensionTypes.PAYMENT_NETWORK_ID,
       request.currency.type,
-      request.currency.network,
+      detectionChain,
       version,
     );
   }

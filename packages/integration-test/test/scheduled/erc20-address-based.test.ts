@@ -47,7 +47,7 @@ describe('ERC20 Address Based detection test-suite', () => {
       events: [],
       expectedAmount: '0',
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED]: {
           events: [],
           id: '0',
           type: 'none',

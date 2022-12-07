@@ -10,7 +10,8 @@ export default class EthereumFeeProxyPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnFeeReferenceBased.ICreationParameters = ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
 > extends FeeReferenceBasedPaymentNetwork<TCreationParameters> {
   public constructor(
-    extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+    extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
+      .ETH_FEE_PROXY_CONTRACT,
     currentVersion: string = CURRENT_VERSION,
   ) {
     super(extensionId, currentVersion, RequestLogicTypes.CURRENCY.ETH);

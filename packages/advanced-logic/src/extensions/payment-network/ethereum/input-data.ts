@@ -9,7 +9,8 @@ const CURRENT_VERSION = '0.3.0';
  */
 export default class EthInputPaymentNetwork extends ReferenceBasedPaymentNetwork {
   public constructor(
-    extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+    extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
+      .ETH_INPUT_DATA,
     currentVersion: string = CURRENT_VERSION,
   ) {
     super(extensionId, currentVersion, RequestLogicTypes.CURRENCY.ETH);

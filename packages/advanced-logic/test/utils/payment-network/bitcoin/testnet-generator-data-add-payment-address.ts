@@ -17,14 +17,14 @@ export const refundTestnetBTCAddress = 'mfsSPZdcdXwSMVkPwCsiW39P5y6eYE1bDM';
 // actions
 export const actionAddPaymentAddress = {
   action: ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
   parameters: {
     paymentAddress: paymentTestnetBTCAddress,
   },
 };
 export const actionAddRefundAddress = {
   action: ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
   parameters: {
     refundAddress: refundTestnetBTCAddress,
   },
@@ -33,7 +33,7 @@ export const actionAddRefundAddress = {
 // ---------------------------------------------------------------------
 // extensions states
 export const extensionStateWithPaymentAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED as string]: {
     events: [
       {
         name: ExtensionTypes.PnAddressBased.ACTION.CREATE,
@@ -48,7 +48,7 @@ export const extensionStateWithPaymentAfterCreation = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentAddress: paymentTestnetBTCAddress,
@@ -58,7 +58,7 @@ export const extensionStateWithPaymentAfterCreation = {
 };
 
 export const extensionStateWithRefundAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED as string]: {
     events: [
       {
         name: ExtensionTypes.PnAddressBased.ACTION.CREATE,
@@ -73,7 +73,7 @@ export const extensionStateWithRefundAfterCreation = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       refundAddress: refundTestnetBTCAddress,
