@@ -35,34 +35,10 @@ export default class ChannelParser {
       ignored: TransactionTypes.IIgnoredTransaction | null;
     }
 
-    // looks like an encrypted channel
-    const firstTransaction = transactions[0].transaction;
-    if (Object.prototype.hasOwnProperty.call(firstTransaction, 'encryptedData')) {
-      // Search for encrypted channel key, break when found
-      for (const timestampedTransaction of transactions) {
-        const persistedTransaction = timestampedTransaction.transaction;
-        try {
-          if (!persistedTransaction.encryptionMethod || !persistedTransaction.keys) {
-            throw new Error(
-              'the properties "encryptionMethod" and "keys" are needed to compute the channel key',
-            );
-          }
-          channelKey = await this.transactionParser.decryptChannelKey(
-            persistedTransaction.keys,
-            persistedTransaction.encryptionMethod,
-          );
-          break;
-        } catch (error) {
-          if (
-            error.message.includes('Impossible to decrypt the channel key from this transaction')
-          ) {
-            continue;
-          } else {
-            throw error;
-          }
-        }
-      }
-    }
+    ({ channelType, channelKey, encryptionMethod } = await this.getChannelTypeAndChannelKey(
+      channelId,
+      transactions,
+    ));
 
     // use of .reduce instead of .map to keep a sequential execution
     const validAndIgnoredTransactions: IValidAndIgnoredTransactions[] = await transactions.reduce(
@@ -196,49 +172,34 @@ export default class ChannelParser {
       ) => {
         const result = await accumulatorPromise;
 
-        // if we know the channel type, we skip the remaining transactions
-        if (result.channelType !== TransactionTypes.ChannelType.UNKNOWN) {
+        // Skip remaining transactions if channel is CLEAR or after channelKey is found
+        if (result.channelType === TransactionTypes.ChannelType.CLEAR || result.channelKey) {
           return result;
         }
 
-        let parsedData;
-        try {
-          // Parse the transaction from data-access to get a transaction object and the channel key if encrypted
-          parsedData = await this.transactionParser.parsePersistedTransaction(
-            timestampedTransaction.transaction,
-            TransactionTypes.ChannelType.UNKNOWN,
-          );
-        } catch (error) {
-          // Error during the parsing, we just ignore this transaction
-          return result;
-        }
+        const transaction = timestampedTransaction.transaction;
 
-        const transaction: TransactionTypes.ITransaction = parsedData.transaction;
-
-        // We check if the transaction is valid
-        const error = await transaction.getError();
-        if (error !== '') {
-          // Error in the transaction, we just ignore it
-          return result;
-        }
-
-        // check if the data hash matches the channel id
-        const hash = await transaction.getHash();
-        if (hash !== channelId) {
-          // we just ignored it
-          return result;
-        }
-
-        // We can deduce the type of the channel
-        result.channelType = parsedData.channelKey
+        // Deduce the type of the channel
+        result.channelType = transaction.encryptedData
           ? TransactionTypes.ChannelType.ENCRYPTED
           : TransactionTypes.ChannelType.CLEAR;
 
-        // we keep the channelKey for this channel
-        result.channelKey = parsedData.channelKey;
-
-        // we keep the encryption method for this channel
-        result.encryptionMethod = parsedData.encryptionMethod;
+        if (result.channelType === TransactionTypes.ChannelType.ENCRYPTED) {
+          try {
+            if (!transaction.encryptionMethod || !transaction.keys) {
+              throw new Error(
+                'the "encryptionMethod" and "keys" properties are needed to decrypt the channel key',
+              );
+            }
+            result.channelKey = await this.transactionParser.decryptChannelKey(
+              transaction.keys,
+              transaction.encryptionMethod,
+            );
+            result.encryptionMethod = transaction.encryptionMethod;
+          } catch (error) {
+            return result;
+          }
+        }
 
         return result;
       },
