@@ -10,6 +10,7 @@ import { supportedXDAIERC20 } from './xdai';
 import { supportedGoerliERC20 } from './goerli';
 import { supportedAvalancheERC20 } from './avalanche';
 import { supportedOptimismERC20 } from './optimism';
+import { supportedMoonbeamERC20 } from './moonbeam';
 
 export const supportedNetworks: Record<string, TokenMap> = {
   celo: supportedCeloERC20,
@@ -24,6 +25,7 @@ export const supportedNetworks: Record<string, TokenMap> = {
   xdai: supportedXDAIERC20,
   avalanche: supportedAvalancheERC20,
   optimism: supportedOptimismERC20,
+  moonbeam: supportedMoonbeamERC20,
 };
 
 export type { TokenMap };
