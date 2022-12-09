@@ -120,9 +120,6 @@ export default class TransactionsFactory {
     channelKey: EncryptionTypes.IEncryptionParameters,
     encryptionParams: EncryptionTypes.IEncryptionParameters[] = [],
   ): Promise<TransactionTypes.IPersistedTransaction> {
-    // format encryption method property
-    const encryptionMethod = `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`;
-
     // check if the encryption method is the good one
     if (channelKey.method !== EncryptionTypes.METHOD.AES256_GCM) {
       throw new Error(`encryption method not supported for the channel key: ${channelKey.method}`);
@@ -195,7 +192,7 @@ export default class TransactionsFactory {
         {},
       );
 
-      return { encryptedData: encryptedDataSerialized, keys, encryptionMethod };
+      return { encryptedData: encryptedDataSerialized, keys };
     }
 
     return { encryptedData: encryptedDataSerialized };
