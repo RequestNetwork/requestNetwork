@@ -144,12 +144,13 @@ export default class ChannelParser {
   /**
    * Get channel type and channel key from a list of transactions (if applicable)
    *
-   * @param channelId the channelId of the channel
+   * @param _channelId the channelId of the channel
    * @param transactions the transactions of the channel to decrypt and clean
    * @returns Promise resolving the channel type and the channel key (if applicable)
    */
   public async getChannelTypeAndChannelKey(
-    channelId: string,
+    // TODO: Consider removing channelId argument
+    _channelId: string,
     transactions: TransactionTypes.ITimestampedTransaction[],
   ): Promise<{
     channelType: TransactionTypes.ChannelType;
