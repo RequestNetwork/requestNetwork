@@ -35,6 +35,7 @@ export default class ChannelParser {
       ignored: TransactionTypes.IIgnoredTransaction | null;
     }
 
+    // Search for channel key
     ({ channelType, channelKey, encryptionMethod } = await this.getChannelTypeAndChannelKey(
       channelId,
       transactions,
@@ -178,29 +179,37 @@ export default class ChannelParser {
           return result;
         }
 
-        const transaction = timestampedTransaction.transaction;
+        let parsedData;
+        try {
+          // Parse the transaction from data-access to get a transaction object and the channel key if encrypted
+          parsedData = await this.transactionParser.parsePersistedTransaction(
+            timestampedTransaction.transaction,
+            result.channelType,
+          );
+        } catch (error) {
+          // Error during the parsing, we just ignore this transaction
+          return result;
+        }
 
-        // Deduce the type of the channel
-        result.channelType = transaction.encryptedData
+        const transaction: TransactionTypes.ITransaction = parsedData.transaction;
+
+        // We check if the transaction is valid
+        const error = await transaction.getError();
+        if (error !== '') {
+          // Error in the transaction, we just ignore it
+          return result;
+        }
+
+        // We can deduce the type of the channel
+        result.channelType = parsedData.channelKey
           ? TransactionTypes.ChannelType.ENCRYPTED
           : TransactionTypes.ChannelType.CLEAR;
 
-        if (result.channelType === TransactionTypes.ChannelType.ENCRYPTED) {
-          try {
-            if (!transaction.encryptionMethod || !transaction.keys) {
-              throw new Error(
-                'the "encryptionMethod" and "keys" properties are needed to decrypt the channel key',
-              );
-            }
-            result.channelKey = await this.transactionParser.decryptChannelKey(
-              transaction.keys,
-              transaction.encryptionMethod,
-            );
-            result.encryptionMethod = transaction.encryptionMethod;
-          } catch (error) {
-            return result;
-          }
-        }
+        // we keep the channelKey for this channel
+        result.channelKey = parsedData.channelKey;
+
+        // we keep the encryption method for this channel
+        result.encryptionMethod = parsedData.encryptionMethod;
 
         return result;
       },

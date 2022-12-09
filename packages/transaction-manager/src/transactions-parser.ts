@@ -86,7 +86,7 @@ export default class TransactionsParser {
    * @param encryptionMethod encryption method used for the channel
    * @returns the channel key
    */
-  public async decryptChannelKey(
+  private async decryptChannelKey(
     keys: TransactionTypes.IKeysDictionary,
     encryptionMethod: string,
   ): Promise<EncryptionTypes.IDecryptionParameters> {
