@@ -58,7 +58,15 @@ export default class TransactionsParser {
       }
 
       if (!channelKey) {
-        throw new Error('Missing channelKey is required to parse encrypted transaction');
+        // Channel key not given. Fallback, try to decrypt channel key
+        if (persistedTransaction.encryptionMethod && persistedTransaction.keys) {
+          channelKey = await this.decryptChannelKey(
+            persistedTransaction.keys,
+            persistedTransaction.encryptionMethod,
+          );
+        } else {
+          throw new Error('Channel key not given');
+        }
       }
 
       return {
