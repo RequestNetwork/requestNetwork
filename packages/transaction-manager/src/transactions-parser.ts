@@ -57,15 +57,15 @@ export default class TransactionsParser {
         throw new Error('Encrypted transactions are not allowed in clear channel');
       }
 
+      // if we don't have the channel key, try to decrypt it
       if (!channelKey) {
-        // Channel key not given. Fallback, try to decrypt channel key
         if (persistedTransaction.encryptionMethod && persistedTransaction.keys) {
           channelKey = await this.decryptChannelKey(
             persistedTransaction.keys,
             persistedTransaction.encryptionMethod,
           );
         } else {
-          throw new Error('Channel key not given');
+          throw new Error('Channel key not given and not found');
         }
       }
 
