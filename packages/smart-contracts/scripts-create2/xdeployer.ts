@@ -72,7 +72,7 @@ export const xdeploy = async (
     let deployed = false;
     let error = undefined;
 
-    const txOverrides: Overrides = await utils.calculateGasFees(provider);
+    const txOverrides: Overrides = await utils.calculateGasFees(provider as any, true);
     try {
       const gasLimit = hre.config.xdeploy.gasLimit;
       txOverrides.gasLimit = gasLimit;

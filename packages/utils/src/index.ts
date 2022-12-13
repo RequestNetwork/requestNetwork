@@ -9,6 +9,7 @@ import SimpleLogger from './simple-logger';
 import utils from './utils';
 import providers from './providers';
 import bignumbers from './bignumber';
+import calculateGasFees from './calculate-gas-fees';
 
 /**
  * Collection of general purpose utility function
@@ -25,4 +26,5 @@ export default {
   ...providers,
   ...utils,
   ...bignumbers,
+  calculateGasFees,
 };
