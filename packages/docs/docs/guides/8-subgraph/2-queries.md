@@ -23,7 +23,7 @@ You can build your own queries using a [GraphQL Explorer](https://graphiql-onlin
     feeAmount
     reference
     block
-    txHash 
+    txHash
   }
 }
 ```
