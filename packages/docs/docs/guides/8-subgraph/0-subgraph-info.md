@@ -6,11 +6,11 @@ description: General information and links about the subgraph.
 
 # Request Subgraph Introduction
 
-Request has a GraphQL API Endpoint hosted by [The Graph](https://thegraph.com/docs/about/introduction#what-the-graph-is) called a subgraph for indexing and organizing data from the Unlock smart contracts.
+Request has a GraphQL API Endpoint hosted by [The Graph](https://thegraph.com/docs/about/introduction#what-the-graph-is) called a subgraph for indexing and organizing data from the Request smart contracts.
 
-Request leverages the [Graph Protocol](https://thegraph.com) to simplify the process of making meaningful applications leveraging the Unlock Smart Contracts and associated data.
+Request leverages the [Graph Protocol](https://thegraph.com) to simplify the process of making meaningful applications leveraging the Request Smart Contracts and associated data.
 
-The Graph Protocol provides an accessible GraphQL service providing useful aggregate Unlock data from the Ethereum blockchain. The links below provide a rudimentary tool to build and test your queries.
+The Graph Protocol provides an accessible GraphQL service providing useful aggregate Request data from the Ethereum blockchain. The links below provide a rudimentary tool to build and test your queries.
 
 ## Ethereum Decentralized Mainnet
 
