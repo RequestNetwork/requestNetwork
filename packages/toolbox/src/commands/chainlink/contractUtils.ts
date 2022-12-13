@@ -1,7 +1,8 @@
-import { utils, Wallet } from 'ethers';
+import { Overrides, Wallet } from 'ethers';
 import inquirer from 'inquirer';
 import { getDefaultProvider } from '@requestnetwork/payment-detection';
 import { chainlinkConversionPath } from '@requestnetwork/smart-contracts';
+import { GasFeeDefiner } from '@requestnetwork/ethereum-storage';
 import { ChainlinkConversionPath } from '@requestnetwork/smart-contracts/types';
 
 export const runUpdate = async <T extends 'updateAggregator' | 'updateAggregatorsList'>(
@@ -23,11 +24,21 @@ export const runUpdate = async <T extends 'updateAggregator' | 'updateAggregator
     // TS hack to fix params type
     const neverParams = params as [never, never, never];
 
+    const gasPriceDefiner = new GasFeeDefiner({ provider: contract.provider as any });
+    let txOverrides: Overrides;
+
     try {
-      const gas = await contract.estimateGas[method](...neverParams);
-      console.log(`Gas Estimation: ${utils.formatUnits(gas, 'gwei')} gwei`);
+      txOverrides = await gasPriceDefiner.getGasFees();
     } catch (e) {
-      console.log('Cannot estimate gas');
+      console.log('Fallback to gasPrice');
+      const gasPrice = await contract.provider.getGasPrice();
+      txOverrides = { gasPrice };
+    }
+    try {
+      const gasLimit = await contract.estimateGas[method](...neverParams);
+      txOverrides.gasLimit = gasLimit;
+    } catch (e) {
+      console.log('Cannot estimate gasLimit');
     }
     const { proceed } = await inquirer.prompt([
       { name: 'proceed', type: 'confirm', message: 'Proceed?' },
@@ -36,8 +47,11 @@ export const runUpdate = async <T extends 'updateAggregator' | 'updateAggregator
       process.exit();
     }
 
-    const tx = await contract.functions[method](...neverParams);
+    const tx = await contract.functions[method](...neverParams, txOverrides);
     console.log(`Transaction: ${tx.hash}`);
+    await tx.wait();
+    console.log('Confirmed!');
+    console.log();
   }
 };
 
