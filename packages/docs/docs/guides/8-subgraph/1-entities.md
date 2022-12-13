@@ -4,7 +4,6 @@ keywords: [Subgraph, Entities, Schema]
 description: Subgraph entities and descriptions.
 ---
 
-
 # Entities
 
 - [`Payment`](#payment)

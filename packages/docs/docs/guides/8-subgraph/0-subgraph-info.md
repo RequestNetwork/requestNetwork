@@ -4,8 +4,6 @@ keywords: [Subgraph, API, Indexing]
 description: General information and links about the subgraph.
 ---
 
-
-
 # Request Subgraph Introduction
 
 Request has a GraphQL API Endpoint hosted by [The Graph](https://thegraph.com/docs/about/introduction#what-the-graph-is) called a subgraph for indexing and organizing data from the Unlock smart contracts.
