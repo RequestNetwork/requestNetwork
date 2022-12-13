@@ -10,7 +10,7 @@ Request has a GraphQL API Endpoint hosted by [The Graph](https://thegraph.com/do
 
 Request leverages the [Graph Protocol](https://thegraph.com) to simplify the process of making meaningful applications leveraging the Request Smart Contracts and associated data.
 
-The Graph Protocol provides an accessible GraphQL service providing useful aggregate Requqest data from the Ethereum blockchain. The links below provide a rudimentary tool to build and test your queries.
+The Graph Protocol provides an accessible GraphQL service providing useful aggregate Request data from the Ethereum blockchain. The links below provide a rudimentary tool to build and test your queries.
 
 ## Ethereum Decentralized Mainnet
 
