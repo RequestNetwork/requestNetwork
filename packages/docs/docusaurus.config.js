@@ -40,7 +40,6 @@ module.exports = {
         { to: 'docs/guides/0-getting-started', label: 'Get started', position: 'left' },
         { to: 'integration-options', label: 'Integration', position: 'left' },
         { to: 'docs/client', label: 'Request-client.js', position: 'left' },
-        { to: 'portal', label: 'Portal REST API', position: 'left' },
         {
           href: 'https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-logic/specs',
           label: 'Protocol Specs',
@@ -59,10 +58,6 @@ module.exports = {
         {
           title: 'Docs',
           items: [
-            {
-              label: 'Portal API',
-              to: 'portal',
-            },
             {
               label: 'Request Client library',
               to: 'docs/client/index',
