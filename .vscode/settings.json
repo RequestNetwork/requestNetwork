@@ -3,8 +3,5 @@
   "mochaExplorer.files": "**/test/**/*.test.ts",
   "mochaExplorer.cwd": "./",
   "typescript.tsdk": "node_modules/typescript/lib",
-  "prettier.prettierPath": "node_modules/prettier",
-  "githubPullRequests.ignoredPullRequestBranches": [
-    "master"
-  ]
+  "prettier.prettierPath": "node_modules/prettier"
 }
