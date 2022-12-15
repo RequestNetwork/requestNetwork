@@ -18,6 +18,6 @@ export class GasFeeDefiner {
     maxFeePerGas?: BigNumber;
     maxPriorityFeePerGas?: BigNumber;
   }> {
-    return Utils.calculateGasFees(this.provider, false, this.gasPriceMin);
+    return Utils.estimateGasFees({ provider: this.provider, gasPriceMin: this.gasPriceMin });
   }
 }

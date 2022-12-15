@@ -224,7 +224,7 @@ export const updateNativeAndUSDAddress = async (
 };
 
 /**
- * Gets the signer and gas fees informations.
+ * Gets the signer and gas fees information.
  * @param network The network used.
  * @param hre Hardhat runtime environment.
  * @returns An object:
@@ -239,7 +239,6 @@ export const getSignerAndGasFees = async (
   txOverrides: {
     maxFeePerGas?: BigNumber;
     maxPriorityFeePerGas?: BigNumber;
-    gasPrice?: BigNumber;
   };
 }> => {
   let provider;
@@ -249,7 +248,7 @@ export const getSignerAndGasFees = async (
     provider = utils.getDefaultProvider(network);
   }
   const signer = new hre.ethers.Wallet(hre.config.xdeploy.signer).connect(provider);
-  const txOverrides = await utils.calculateGasFees(provider as any, true);
+  const txOverrides = await utils.estimateGasFees({ provider });
 
   return {
     signer,
