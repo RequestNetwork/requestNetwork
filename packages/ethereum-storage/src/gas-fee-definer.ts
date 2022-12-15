@@ -1,7 +1,6 @@
 import { BigNumber, providers, constants } from 'ethers';
-import { suggestFees } from 'eip1559-fee-suggestions-ethers';
-import { GasDefinerProps } from './ethereum-storage-ethers';
 import Utils from '@requestnetwork/utils';
+import { GasDefinerProps } from './ethereum-storage-ethers';
 
 export class GasFeeDefiner {
   private readonly provider: providers.JsonRpcProvider;
@@ -19,23 +18,6 @@ export class GasFeeDefiner {
     maxFeePerGas?: BigNumber;
     maxPriorityFeePerGas?: BigNumber;
   }> {
-    const suggestedFee = await suggestFees(this.provider);
-
-    const baseFee = Utils.max(suggestedFee.baseFeeSuggestion, this.gasPriceMin);
-
-    const maxPriorityFeePerGas = Utils.max(
-      suggestedFee.maxPriorityFeeSuggestions.urgent,
-      this.gasPriceMin,
-    );
-    const maxFeePerGas = baseFee.add(maxPriorityFeePerGas);
-
-    if (maxPriorityFeePerGas.eq(0) || maxFeePerGas.eq(0)) {
-      return {};
-    }
-
-    return {
-      maxPriorityFeePerGas,
-      maxFeePerGas,
-    };
+    return Utils.estimateGasFees({ provider: this.provider, gasPriceMin: this.gasPriceMin });
   }
 }
