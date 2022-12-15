@@ -1,4 +1,3 @@
-import { utils as ethersUtils } from 'ethers';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { PaymentNetworkFactory, PaymentNetworkOptions } from '@requestnetwork/payment-detection';
 import { RequestLogic } from '@requestnetwork/request-logic';
@@ -383,11 +382,9 @@ export default class RequestNetwork {
     const contentData = parameters.contentData;
     const topics = parameters.topics?.slice() || [];
 
-    // If ERC20, validate that the value is a checksum address
-    if (requestParameters.currency.type === RequestLogicTypes.CURRENCY.ERC20) {
-      if (!this.validERC20Address(requestParameters.currency.value)) {
-        throw new Error('The ERC20 currency address needs to be a valid Ethereum checksum address');
-      }
+    // Check that currency is valid
+    if (!CurrencyManager.validateCurrency(currency)) {
+      throw new Error('The currency is not valid');
     }
 
     // avoid mutation of the parameters
@@ -434,15 +431,5 @@ export default class RequestNetwork {
     }
 
     return { requestParameters: copiedRequestParameters, topics, paymentNetwork };
-  }
-
-  /**
-   * Returns true if the address is a valid checksum address
-   *
-   * @param address The address to validate
-   * @returns If the address is valid or not
-   */
-  private validERC20Address(address: string): boolean {
-    return ethersUtils.getAddress(address) === address;
   }
 }
