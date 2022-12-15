@@ -41,6 +41,10 @@ export default class ChannelParser {
       transactions,
     ));
 
+    // Pretend we don't know the channelType yet
+    // TODO: Refactor logic so this isn't necessary
+    channelType = TransactionTypes.ChannelType.UNKNOWN;
+
     // use of .reduce instead of .map to keep a sequential execution
     const validAndIgnoredTransactions: IValidAndIgnoredTransactions[] = await transactions.reduce(
       async (
