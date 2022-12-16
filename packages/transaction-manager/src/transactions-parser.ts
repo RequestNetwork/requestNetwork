@@ -57,16 +57,8 @@ export default class TransactionsParser {
         throw new Error('Encrypted transactions are not allowed in clear channel');
       }
 
-      // if we have the channel key, assume encryptionMethod already given
-      if (channelKey) {
-        if (persistedTransaction.encryptionMethod) {
-          throw new Error(
-            'the property "encryptionMethod" has been already given for this channel',
-          );
-        }
-      }
       // if we don't have the channel key, try to decrypt it
-      else {
+      if (!channelKey) {
         if (!persistedTransaction.encryptionMethod || !persistedTransaction.keys) {
           throw new Error(
             'the properties "encryptionMethod" and "keys" are needed to compute the channel key',
