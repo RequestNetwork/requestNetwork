@@ -68,8 +68,5 @@
     "docusaurus-plugin-typedoc": "0.2.0",
     "typedoc": "0.19.1",
     "typedoc-plugin-markdown": "3.0.5"
-  },
-  "lint-staged": {
-    "{**/*,*}.{js,vue,html,css}": "prettier --write"
   }
 }
