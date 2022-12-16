@@ -4,13 +4,13 @@ keywords: [Subgraph, Entities, Schema]
 description: Subgraph entities and descriptions.
 ---
 
-# Entities
+## Entities
 
 - [`Payment`](#payment)
 - [`Escrow`](#escrow)
 - [`EscrowEvent`](#escrowevent)
 
-# Payment
+## Payment
 
 Description: get specific details of the payment
 
@@ -35,7 +35,7 @@ Description: get specific details of the payment
 | feeAmountInCrypto | BigDecimal  | fee amoount in crypto                            |
 | maxRateTimespan   | Int         | maximum time span payment will reoccur           |
 
-# Escrow
+## Escrow
 
 Description: It acts like a transparent, safe deposit box which automatically disburses the funds held inside when both parties agree that the contract has been satisfied.
 
@@ -56,7 +56,7 @@ Description: It acts like a transparent, safe deposit box which automatically di
 | to                  | Bytes                          | address escrow is paid to                        |
 | events              | [`EscrowEvent!`](#escrowevent) | refer to Escrow Event                            |
 
-# EscrowEvent
+## EscrowEvent
 
 Description: get specific details of the Escrow Event
 
@@ -73,4 +73,3 @@ Description: get specific details of the Escrow Event
 | from            | Bytes!     | address escrow is set up from                            |
 | gasUsed         | BigInt!    | gas used for event                                       |
 | gasPrice        | BigInt!    | price of gas at time of event                            |
-

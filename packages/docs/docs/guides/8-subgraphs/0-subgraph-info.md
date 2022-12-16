@@ -4,7 +4,7 @@ keywords: [Subgraph, API, Indexing]
 description: General information and links about the subgraph.
 ---
 
-# Request Subgraph Introduction
+## Request Subgraph Introduction
 
 Request has a GraphQL API Endpoint hosted by [The Graph](https://thegraph.com/docs/about/introduction#what-the-graph-is) called a subgraph for indexing and organizing data from the Request smart contracts.
 
@@ -15,7 +15,7 @@ The Graph Protocol provides an accessible GraphQL service providing useful aggre
 ## Ethereum Decentralized Mainnet
 
 - [Explorer Page](https://thegraph.com/explorer/subgraphs/4cuRFnNSqAme2pVuBckSVQogQPXR8Wqw72AEC6TShLkc?view=Overview)
-- Graphql Endpoint: https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-mainnet
+- Graphql Endpoint: <https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-mainnet>
 - [Code Repo](https://github.com/RequestNetwork/payments-subgraph)
 
 ## Helpful Resources
