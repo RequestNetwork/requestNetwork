@@ -1,7 +1,7 @@
 import { erc20ConversionProxy } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import {
-  getSignerAndGasPrice,
+  getSignerAndGasFees,
   updateChainlinkConversionPath,
   updatePaymentFeeProxyAddress,
 } from './adminTasks';
@@ -25,15 +25,15 @@ export const setupErc20ConversionProxy = async (
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network) => {
       try {
-        const { signer, gasPrice } = await getSignerAndGasPrice(network, hre);
+        const { signer, txOverrides } = await getSignerAndGasFees(network, hre);
         const Erc20ConversionProxyConnected = Erc20ConversionProxyContract.connect(signer);
         await updatePaymentFeeProxyAddress(
           Erc20ConversionProxyConnected,
           network,
-          gasPrice,
+          txOverrides,
           'erc20',
         );
-        await updateChainlinkConversionPath(Erc20ConversionProxyConnected, network, gasPrice);
+        await updateChainlinkConversionPath(Erc20ConversionProxyConnected, network, txOverrides);
         console.log(`Setup of Erc20ConversionProxy successful on ${network}`);
       } catch (err) {
         console.warn(`An error occurred during the setup of Erc20ConversionProxy on ${network}`);
