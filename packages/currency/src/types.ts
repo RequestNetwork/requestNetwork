@@ -85,6 +85,7 @@ export type CurrencyDefinition<TMeta = unknown> = CurrencyInput & {
   id: string;
   hash: string;
   meta: TMeta;
+  isDeclarative?: boolean;
 };
 
 /**
