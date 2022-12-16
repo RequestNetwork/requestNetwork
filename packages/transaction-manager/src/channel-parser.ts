@@ -27,23 +27,16 @@ export default class ChannelParser {
     ignoredTransactions: Array<TransactionTypes.IIgnoredTransaction | null>;
   }> {
     let channelType: TransactionTypes.ChannelType = TransactionTypes.ChannelType.UNKNOWN;
-    let channelKey: EncryptionTypes.IDecryptionParameters | undefined;
-    let encryptionMethod: string | undefined;
-
     interface IValidAndIgnoredTransactions {
       valid: TransactionTypes.ITimestampedTransaction | null;
       ignored: TransactionTypes.IIgnoredTransaction | null;
     }
 
     // Search for channel key
-    ({ channelType, channelKey, encryptionMethod } = await this.getChannelTypeAndChannelKey(
+    const { channelKey, encryptionMethod } = await this.getChannelTypeAndChannelKey(
       channelId,
       transactions,
-    ));
-
-    // Pretend we don't know the channelType yet
-    // TODO: Refactor logic so this isn't necessary
-    channelType = TransactionTypes.ChannelType.UNKNOWN;
+    );
 
     // use of .reduce instead of .map to keep a sequential execution
     const validAndIgnoredTransactions: IValidAndIgnoredTransactions[] = await transactions.reduce(
@@ -108,11 +101,6 @@ export default class ChannelParser {
           channelType = parsedData.channelKey
             ? TransactionTypes.ChannelType.ENCRYPTED
             : TransactionTypes.ChannelType.CLEAR;
-
-          encryptionMethod = parsedData.encryptionMethod;
-
-          // we keep the channelKey for this channel
-          channelKey = parsedData.channelKey;
         }
 
         const data = await transaction.getData();
