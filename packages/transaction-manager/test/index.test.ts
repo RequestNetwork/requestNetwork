@@ -564,7 +564,7 @@ describe('index', () => {
       });
     });
 
-    it('can get two transactions with different encryptions from the same encrypted channel', async () => {
+    it('can get two transactions from the same encrypted channel both have encryption method', async () => {
       const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
@@ -621,8 +621,7 @@ describe('index', () => {
           ignoredTransactions: [
             null,
             {
-              reason:
-                'the properties "encryptionMethod" and "keys" have been already given for this channel',
+              reason: 'the "encryptionMethod" property has been already given for this channel',
               transaction: {
                 state: TransactionTypes.TransactionState.PENDING,
                 timestamp: 2,
