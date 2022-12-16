@@ -25,12 +25,14 @@ export default class TransactionsParser {
    * @param persistedTransaction the persisted transaction to parse
    * @param channelType The channel type (unknown, clear or encrypted)
    * @param channelKey the channel key to decrypt the transaction if needed
+   * @param encryptionMethod the channel encryption method to decrypt the transaction if needed
    * @returns the transaction object and the channel key (if applicable)
    */
   public async parsePersistedTransaction(
     persistedTransaction: TransactionTypes.IPersistedTransaction,
     channelType: TransactionTypes.ChannelType,
     channelKey?: EncryptionTypes.IDecryptionParameters,
+    encryptionMethod?: string,
   ): Promise<{
     transaction: TransactionTypes.ITransaction;
     channelKey?: EncryptionTypes.IDecryptionParameters;
@@ -57,22 +59,35 @@ export default class TransactionsParser {
         throw new Error('Encrypted transactions are not allowed in clear channel');
       }
 
-      // if we don't have the channel key, try to decrypt it
+      // no channel key, try to decrypt it
       if (!channelKey) {
-        if (!persistedTransaction.encryptionMethod || !persistedTransaction.keys) {
-          throw new Error(
-            'the properties "encryptionMethod" and "keys" are needed to compute the channel key',
-          );
+        // no encryptionMethod, this is first tx, must contain encryptionMethod
+        if (!encryptionMethod) {
+          if (!persistedTransaction.encryptionMethod || !persistedTransaction.keys) {
+            throw new Error(
+              'the properties "encryptionMethod" and "keys" are needed to compute the channel key',
+            );
+          }
+          encryptionMethod = persistedTransaction.encryptionMethod;
+          channelKey = await this.decryptChannelKey(persistedTransaction.keys, encryptionMethod);
         }
-        channelKey = await this.decryptChannelKey(
-          persistedTransaction.keys,
-          persistedTransaction.encryptionMethod,
-        );
+        // given encryptionMethod, this not first tx, must not contain encryptionMethod
+        else {
+          if (persistedTransaction.encryptionMethod) {
+            throw new Error(
+              'the "encryptionMethod" property has been already given for this channel',
+            );
+          }
+          if (!persistedTransaction.keys) {
+            throw new Error('the "keys" property is needed to compute the channel key');
+          }
+          channelKey = await this.decryptChannelKey(persistedTransaction.keys, encryptionMethod);
+        }
       }
 
       return {
         channelKey,
-        encryptionMethod: persistedTransaction.encryptionMethod,
+        encryptionMethod,
         transaction: new EncryptedTransaction(persistedTransaction.encryptedData, channelKey),
       };
     }
