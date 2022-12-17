@@ -104,6 +104,8 @@ export default class ChannelParser {
           encryptionMethod = parsedData.encryptionMethod;
         }
 
+        // TODO: Remove log
+        console.log(transaction);
         const data = await transaction.getData();
 
         // add the decrypted transaction as valid

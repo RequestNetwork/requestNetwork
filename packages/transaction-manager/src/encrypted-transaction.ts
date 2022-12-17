@@ -37,6 +37,9 @@ export default class EncryptedTransaction implements TransactionTypes.ITransacti
    * @returns a promise resolving the transaction data
    */
   public async getData(): Promise<TransactionTypes.ITransactionData> {
+    // TODO: Remove logs
+    console.log('getData');
+    console.log(this);
     if (this.data === '') {
       try {
         const encryptedData = MultiFormat.deserialize(this.persistedData);

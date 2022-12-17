@@ -569,6 +569,9 @@ describe('index', () => {
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
       ]);
+
+      // TODO get channelKey from encryptedTx
+      // Create encrypted Transaction 2 using channelKey
       const encryptedTx2 = await TransactionsFactory.createEncryptedTransactionInNewChannel(data2, [
         TestData.idRaw3.encryptionParams,
       ]);
