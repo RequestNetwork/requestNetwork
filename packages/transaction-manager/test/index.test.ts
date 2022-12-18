@@ -7,6 +7,7 @@ import { DataAccessTypes, EncryptionTypes, TransactionTypes } from '@requestnetw
 
 import { TransactionManager } from '../src/index';
 import TransactionsFactory from '../src/transactions-factory';
+import TransactionsParser from '../src/transactions-parser';
 
 import * as TestData from './unit/utils/test-data';
 
@@ -570,11 +571,20 @@ describe('index', () => {
         TestData.idRaw2.encryptionParams,
       ]);
 
-      // TODO get channelKey from encryptedTx
-      // Create encrypted Transaction 2 using channelKey
-      const encryptedTx2 = await TransactionsFactory.createEncryptedTransactionInNewChannel(data2, [
+      // Get channel key of 1st encrypted transaction
+      const transactionsParser = new TransactionsParser(TestData.fakeDecryptionProvider);
+      let { channelKey } = await transactionsParser.parsePersistedTransaction(
+        encryptedTx,
+        TransactionTypes.ChannelType.ENCRYPTED,
+      );
+      channelKey = <EncryptionTypes.IEncryptionParameters>channelKey;
+
+      // Create 2nd encrypted transaction using same channel key
+      let encryptedTx2 = await TransactionsFactory.createEncryptedTransaction(data2, channelKey, [
         TestData.idRaw3.encryptionParams,
       ]);
+      encryptedTx2.encryptionMethod = 'diffferent-encryption-method';
+
       const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
         {
           meta: {
