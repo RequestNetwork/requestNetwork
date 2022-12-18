@@ -585,9 +585,6 @@ describe('index', () => {
       ]);
       encryptedTx2.encryptionMethod = 'diffferent-encryption-method';
 
-      console.log(encryptedTx);
-      console.log(encryptedTx2);
-
       const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
         {
           meta: {

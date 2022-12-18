@@ -38,11 +38,6 @@ export default class TransactionsParser {
     channelKey?: EncryptionTypes.IDecryptionParameters;
     encryptionMethod?: string;
   }> {
-    console.log(persistedTransaction);
-    console.log(channelType);
-    console.log(channelKey);
-    console.log(encryptionMethod);
-
     // looks like a clear transaction
     if (persistedTransaction.data) {
       if (channelType === TransactionTypes.ChannelType.ENCRYPTED) {
@@ -105,7 +100,6 @@ export default class TransactionsParser {
         }
       }
 
-      console.log(encryptionMethod);
       return {
         channelKey,
         encryptionMethod,
