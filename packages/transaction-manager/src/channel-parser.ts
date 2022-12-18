@@ -53,7 +53,6 @@ export default class ChannelParser {
             channelKey,
             encryptionMethod,
           );
-          console.log(parsedData);
         } catch (error) {
           return result.concat([
             {
