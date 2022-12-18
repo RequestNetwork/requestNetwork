@@ -85,9 +85,6 @@ export default class TransactionsParser {
         }
       }
 
-      // TODO Remove
-      console.log(channelKey);
-
       return {
         channelKey,
         encryptionMethod,
