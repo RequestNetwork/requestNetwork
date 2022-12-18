@@ -38,6 +38,9 @@ export default class TransactionsParser {
     channelKey?: EncryptionTypes.IDecryptionParameters;
     encryptionMethod?: string;
   }> {
+    console.log(persistedTransaction);
+    console.log(channelType);
+    console.log(channelKey);
     console.log(encryptionMethod);
 
     // looks like a clear transaction
@@ -61,7 +64,7 @@ export default class TransactionsParser {
         throw new Error('Encrypted transactions are not allowed in clear channel');
       }
 
-      // no channel key, try to decrypt it
+      // no channel key, try to decrypt it and validate encryption method
       if (!channelKey) {
         // no encryptionMethod, this is first tx, must contain encryptionMethod
         if (!encryptionMethod) {
@@ -86,7 +89,23 @@ export default class TransactionsParser {
           channelKey = await this.decryptChannelKey(persistedTransaction.keys, encryptionMethod);
         }
       }
+      // given channel key, validate encryption method
+      else {
+        // no encryptionMethod, this is first tx, must contain encryptionMethod
+        if (!encryptionMethod) {
+          encryptionMethod = persistedTransaction.encryptionMethod;
+        }
+        // given encryptionMethod, this not first tx, must not contain encryptionMethod
+        else {
+          if (persistedTransaction.encryptionMethod) {
+            throw new Error(
+              'the "encryptionMethod" property has been already given for this channel',
+            );
+          }
+        }
+      }
 
+      console.log(encryptionMethod);
       return {
         channelKey,
         encryptionMethod,
