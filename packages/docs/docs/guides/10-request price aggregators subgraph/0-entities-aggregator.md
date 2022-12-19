@@ -4,14 +4,12 @@ keywords: [Subgraph, Entities, Schema]
 description: Subgraph entities and descriptions.
 ---
 
-
 # Aggregator
 
 Description: get specific details of the aggregator
 
-| Field             | Type        | Description                                      |
-| ----------------- | ----------- | ------------------------------------------------ |
-| id                | ID!         | The input of the aggregator                |
-| input   | String!      | input data of aggregator                         |
-| outputs      | [String!]!       | output data of aggregator             |
-
+| Field   | Type       | Description                 |
+| ------- | ---------- | --------------------------- |
+| id      | ID!        | The input of the aggregator |
+| input   | String!    | input data of aggregator    |
+| outputs | [String!]! | output data of aggregator   |

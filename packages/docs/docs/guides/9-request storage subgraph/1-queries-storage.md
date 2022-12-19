@@ -24,8 +24,8 @@ query AllTransactions {
     topics
     data
     encryptedData
-    encryptionMethod	
-    publicKeys    
+    encryptionMethod
+    publicKeys
   }
 }
 ```
@@ -33,8 +33,8 @@ query AllTransactions {
 # Get transactions by channelID
 
 ```graphql
- query ByChannelId($channelId:String!) {
-  transactions(where:{ channelId: $channelId  }){
+query ByChannelId($channelId: String!) {
+  transactions(where: { channelId: $channelId }) {
     id
     hash
     channelId
@@ -44,8 +44,8 @@ query AllTransactions {
     topics
     data
     encryptedData
-    encryptionMethod	
-    publicKeys    
+    encryptionMethod
+    publicKeys
   }
 }
 ```
@@ -53,8 +53,8 @@ query AllTransactions {
 # Get transactoins by topic
 
 ```graphql
-query ByChannelId($topics:[String!]) {
-  transactions(where:{ topics_contains: $topics }){
+query ByChannelId($topics: [String!]) {
+  transactions(where: { topics_contains: $topics }) {
     id
     hash
     channelId
@@ -64,8 +64,8 @@ query ByChannelId($topics:[String!]) {
     topics
     data
     encryptedData
-    encryptionMethod	
-    publicKeys    
+    encryptionMethod
+    publicKeys
   }
 }
 ```

@@ -33,9 +33,7 @@ You can build your own queries using a [GraphQL Explorer](https://graphiql-onlin
 ```graphql
 {
   payments(
-    where: {
-      reference: "0x2e2b6851447f35e0ae5018b2049138402ec089f744e6a691af030f0fa731d8d8"
-    }
+    where: { reference: "0x2e2b6851447f35e0ae5018b2049138402ec089f744e6a691af030f0fa731d8d8" }
   ) {
     contractAddress
     tokenAddress
