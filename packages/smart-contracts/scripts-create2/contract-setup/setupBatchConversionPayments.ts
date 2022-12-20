@@ -5,7 +5,7 @@ import {
   updateBatchConversionProxy,
   updateBatchPaymentFeeAmountUSDLimit,
   updateNativeAndUSDAddress,
-  getSignerAndGasPrice,
+  getSignerAndGasFees,
 } from './adminTasks';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
@@ -36,51 +36,45 @@ export const setupBatchConversionPayments = async (
     )!.hash;
     const USDAddress = currencyManager.fromSymbol('USD')!.hash;
 
-    const { signer, gasPrice } = await getSignerAndGasPrice(network, hre);
+    const { signer, txOverrides } = await getSignerAndGasFees(network, hre);
     const batchConversionPaymentConnected = batchConversionPaymentContract.connect(signer);
-
-    // start from the adminNonce, increase gasPrice if needed
-    const gasCoef = 2;
-    await updateBatchPaymentFees(batchConversionPaymentConnected, gasPrice.mul(gasCoef));
-    await updateBatchPaymentFeeAmountUSDLimit(
-      batchConversionPaymentConnected,
-      gasPrice.mul(gasCoef),
-    );
+    await updateBatchPaymentFees(batchConversionPaymentConnected, txOverrides);
+    await updateBatchPaymentFeeAmountUSDLimit(batchConversionPaymentConnected, txOverrides);
     await updateBatchConversionProxy(
       batchConversionPaymentConnected,
       network,
-      gasPrice.mul(gasCoef),
+      txOverrides,
       'erc20',
     );
     await updateBatchConversionProxy(
       batchConversionPaymentConnected,
       network,
-      gasPrice.mul(gasCoef),
+      txOverrides,
       'native',
     );
     await updateBatchConversionProxy(
       batchConversionPaymentConnected,
       network,
-      gasPrice.mul(gasCoef),
+      txOverrides,
       'erc20Conversion',
     );
     await updateBatchConversionProxy(
       batchConversionPaymentConnected,
       network,
-      gasPrice.mul(gasCoef),
+      txOverrides,
       'nativeConversion',
     );
     await updateBatchConversionProxy(
       batchConversionPaymentConnected,
       network,
-      gasPrice.mul(gasCoef),
+      txOverrides,
       'chainlinkConversionPath',
     );
     await updateNativeAndUSDAddress(
       batchConversionPaymentConnected,
       NativeAddress,
       USDAddress,
-      gasPrice.mul(gasCoef),
+      txOverrides,
     );
   };
   for (const network of hre.config.xdeploy.networks) {
