@@ -88,6 +88,9 @@ export default class TransactionsParser {
       else {
         // no encryptionMethod, this is first tx, must contain encryptionMethod
         if (!encryptionMethod) {
+          if (!persistedTransaction.encryptionMethod) {
+            throw new Error('the "encryptionMethod" property is needed to use the channel key');
+          }
           encryptionMethod = persistedTransaction.encryptionMethod;
         }
         // given encryptionMethod, this not first tx, must not contain encryptionMethod
