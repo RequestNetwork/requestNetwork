@@ -227,11 +227,30 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * Validates an address for a given currency.
    * Throws if the currency is an ISO4217 currency.
    */
-  static validateAddress(address: string, currency: CurrencyInput): boolean {
+  static validateAddress(address: string, currency: CurrencyInput | StorageCurrency): boolean {
     if (currency.type === RequestLogicTypes.CURRENCY.ISO4217) {
       throw new Error(`Could not validate an address for an ISO4217 currency`);
     }
-    return this.validateAddressWithNetworkAndType(address, currency.type, currency.network);
+    switch (currency.type) {
+      case RequestLogicTypes.CURRENCY.ETH:
+      case RequestLogicTypes.CURRENCY.ERC20:
+      case RequestLogicTypes.CURRENCY.ERC777:
+        switch (currency.network) {
+          case 'aurora':
+          case 'aurora-testnet':
+            return isValidNearAddress(address, currency.network);
+          default:
+            return addressValidator.validate(address, 'ETH');
+        }
+      case RequestLogicTypes.CURRENCY.BTC:
+        return addressValidator.validate(
+          address,
+          'BTC',
+          currency.network === 'testnet' ? 'testnet' : 'prod',
+        );
+      default:
+        throw new Error(`Could not validate an address for an unknown currency type`);
+    }
   }
 
   /**
@@ -244,41 +263,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       currency.type === RequestLogicTypes.CURRENCY.BTC
     )
       return true;
-    return this.validateAddressWithNetworkAndType(
-      currency.value,
-      currency.type,
-      currency.network as string,
-    );
-  }
-
-  /**
-   * Validates the correctness of an address based on a currency type and a network
-   */
-  static validateAddressWithNetworkAndType(
-    address: string,
-    type: RequestLogicTypes.CURRENCY,
-    network: string,
-  ): boolean {
-    switch (type) {
-      case RequestLogicTypes.CURRENCY.ETH:
-      case RequestLogicTypes.CURRENCY.ERC20:
-      case RequestLogicTypes.CURRENCY.ERC777:
-        switch (network) {
-          case 'aurora':
-          case 'aurora-testnet':
-            return isValidNearAddress(address, network);
-          default:
-            return addressValidator.validate(address, 'ETH');
-        }
-      case RequestLogicTypes.CURRENCY.BTC:
-        return addressValidator.validate(
-          address,
-          'BTC',
-          network === 'testnet' ? 'testnet' : 'prod',
-        );
-      default:
-        throw new Error(`Could not validate an address for an unknown currency type`);
-    }
+    return this.validateAddress(currency.value, currency);
   }
 
   /**
