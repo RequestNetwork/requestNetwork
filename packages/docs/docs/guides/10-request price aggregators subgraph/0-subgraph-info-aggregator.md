@@ -12,10 +12,9 @@ Request leverages the [Graph Protocol](https://thegraph.com) to simplify the pro
 
 The Graph Protocol provides an accessible GraphQL service providing useful aggregate Request data from the Ethereum blockchain. The links below provide a rudimentary tool to build and test your queries.
 
-# Price Aggregator 
+# Price Aggregator
 
 The price aggregator subgraphs can be found here:
-
 
 - [Mainnet](https://thegraph.com/hosted-service/subgraph/requestnetwork/price-aggregators-mainnet)
 

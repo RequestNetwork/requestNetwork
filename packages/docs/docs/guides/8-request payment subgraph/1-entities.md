@@ -73,4 +73,3 @@ Description: get specific details of the Escrow Event
 | from            | Bytes!     | address escrow is set up from                            |
 | gasUsed         | BigInt!    | gas used for event                                       |
 | gasPrice        | BigInt!    | price of gas at time of event                            |
-

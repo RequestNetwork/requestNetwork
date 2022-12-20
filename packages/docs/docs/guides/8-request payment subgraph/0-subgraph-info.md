@@ -25,7 +25,6 @@ The Graph Protocol provides an accessible GraphQL service providing useful aggre
 - [Querying from an application](https://thegraph.com/docs/en/developer/querying-from-your-app/)
 - [How to use the explorer and playground to query on-chain data](https://medium.com/@chidubem_/how-to-query-on-chain-data-with-the-graph-f8507488215)
 
-
 # Hosted Service
 
 The hosted service versions can be found here:

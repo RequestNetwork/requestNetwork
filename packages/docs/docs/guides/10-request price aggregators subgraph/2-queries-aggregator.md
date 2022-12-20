@@ -21,4 +21,3 @@ You can build your own queries using a [GraphQL Explorer](https://graphiql-onlin
   }
 }
 ```
-
