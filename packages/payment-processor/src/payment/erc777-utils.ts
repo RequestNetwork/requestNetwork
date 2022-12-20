@@ -286,5 +286,5 @@ export async function checkExistingStream(
     token: request.currencyInfo.value,
   });
 
-  return streams.data.length === 1 && streams.data[0].currentFlowRate !== '0';
+  return streams.data.length > 0 && streams.data[0].currentFlowRate !== '0';
 }
