@@ -591,7 +591,7 @@ describe('CurrencyManager', () => {
     });
   });
 
-  describe.only('Validate currencies', () => {
+  describe('Validate currencies', () => {
     describe('Valid cases', () => {
       it.each([
         {
