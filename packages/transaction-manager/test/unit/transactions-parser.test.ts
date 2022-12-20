@@ -202,28 +202,16 @@ describe('transaction-parser', () => {
           ),
         ).rejects.toThrowError('the "encryptionMethod" property is needed to use the channel key');
       });
-      it('cannot parse encrypted transaction with channelKey AND with encryptionMethod or keys', async () => {
+      it('cannot parse encrypted transaction with channelKey with encryptionMethod and transaction contains encryptionMethod', async () => {
         await expect(
           transactionParser.parsePersistedTransaction(
             { encryptedData: 'encryptedData', encryptionMethod: 'encryptionMethod' },
             TransactionTypes.ChannelType.UNKNOWN,
             { key: 'channelKey', method: EncryptionTypes.METHOD.AES256_GCM },
+            `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`,
           ),
         ).rejects.toThrowError(
-          'the properties "encryptionMethod" and "keys" have been already given for this channel',
-        );
-
-        await expect(
-          transactionParser.parsePersistedTransaction(
-            {
-              encryptedData: 'encryptedData',
-              keys: {},
-            },
-            TransactionTypes.ChannelType.UNKNOWN,
-            { key: 'channelKey', method: EncryptionTypes.METHOD.AES256_GCM },
-          ),
-        ).rejects.toThrowError(
-          'the properties "encryptionMethod" and "keys" have been already given for this channel',
+          'the "encryptionMethod" property has been already given for this channel',
         );
       });
     });
