@@ -647,7 +647,7 @@ describe('CurrencyManager', () => {
       });
     });
 
-    describe('Valid cases', () => {
+    describe('Invalid cases', () => {
       it.each([
         {
           currency: {
