@@ -183,6 +183,16 @@ describe('transaction-parser', () => {
           'the "encryptionMethod" property has been already given for this channel',
         );
       });
+      it('cannot parse encrypted transaction without channelKey with encryptionMethod and transaction missing keys', async () => {
+        await expect(
+          transactionParser.parsePersistedTransaction(
+            { encryptedData: 'encryptedData' },
+            TransactionTypes.ChannelType.UNKNOWN,
+            undefined,
+            `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`,
+          ),
+        ).rejects.toThrowError('the "keys" property is needed to compute the channel key');
+      });
       it('cannot parse encrypted transaction with channelKey AND with encryptionMethod or keys', async () => {
         await expect(
           transactionParser.parsePersistedTransaction(
