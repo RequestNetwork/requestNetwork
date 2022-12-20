@@ -730,18 +730,18 @@ describe('index', () => {
                 transaction: encryptedTxFakeHash,
               },
             },
-            null,
+            {
+              reason: 'the "encryptionMethod" property is needed to use the channel key',
+              transaction: {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: encryptedTx2,
+              },
+            },
           ],
         },
         result: {
-          transactions: [
-            null,
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 2,
-              transaction: { data },
-            },
-          ],
+          transactions: [null, null],
         },
       });
     });
