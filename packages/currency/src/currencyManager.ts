@@ -194,7 +194,9 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     ...input
   }: CurrencyInput & { id?: string; hash?: string; meta?: TMeta }): CurrencyDefinition<TMeta> {
     if ('address' in input) {
-      input.address = utils.getAddress(input.address);
+      if ('network' in input && !['aurora', 'aurora-testnet'].includes(input.network)) {
+        input.address = utils.getAddress(input.address);
+      }
     }
     return {
       id: id || CurrencyManager.currencyId(input),

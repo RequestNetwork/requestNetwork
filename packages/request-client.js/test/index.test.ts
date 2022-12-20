@@ -1532,42 +1532,49 @@ describe('request-client.js', () => {
     });
   });
 
-  it('cannot create ERC20 address based requests with invalid currency', async () => {
-    const testErc20TokenAddress = 'invalidErc20Address';
+  it.only('Can create ERC20 declarative requests with non-evm currency', async () => {
+    const testErc20TokenAddress = 'usdc.near';
 
     const requestNetwork = new RequestNetwork({
       signatureProvider: TestData.fakeSignatureProvider,
       useMockStorage: true,
     });
-    // generate address randomly to avoid collisions
-    const paymentAddress =
-      '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
-    const refundAddress =
-      '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
 
     const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
-      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
-      parameters: {
-        paymentAddress,
-        refundAddress,
-      },
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
+      parameters: {},
     };
 
     const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
       currency: {
-        network: 'private',
+        network: 'aurora',
         type: RequestLogicTypes.CURRENCY.ERC20,
         value: testErc20TokenAddress,
       },
     });
 
-    await expect(
-      requestNetwork.createRequest({
-        paymentNetwork,
-        requestInfo,
-        signer: TestData.payee.identity,
-      }),
-    ).rejects.toThrowError('The currency is not valid');
+    const request = await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo,
+      signer: TestData.payee.identity,
+    });
+
+    await new Promise((resolve): any => setTimeout(resolve, 150));
+    let data = await request.refresh();
+
+    expect(data).toBeDefined();
+    expect(data.balance?.balance).toBe('0');
+    expect(data.balance?.events.length).toBe(0);
+    expect(data.meta).toBeDefined();
+    expect(data.currency).toBe('unknown');
+
+    expect(data.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE].values).toEqual({
+      receivedPaymentAmount: '0',
+      receivedRefundAmount: '0',
+      sentPaymentAmount: '0',
+      sentRefundAmount: '0',
+    });
+    expect(data.expectedAmount).toBe(requestParameters.expectedAmount);
   });
 
   describe('ERC20 proxy contract requests', () => {
