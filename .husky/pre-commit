@@ -3,4 +3,4 @@
 
 yarn lint-staged
 npm run recommit
-npm run recommit
+
