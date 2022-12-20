@@ -1532,7 +1532,7 @@ describe('request-client.js', () => {
     });
   });
 
-  it.only('cannot create ERC20 address based requests with invalid currency', async () => {
+  it('cannot create ERC20 address based requests with invalid currency', async () => {
     const testErc20TokenAddress = 'invalidErc20Address';
 
     const requestNetwork = new RequestNetwork({
