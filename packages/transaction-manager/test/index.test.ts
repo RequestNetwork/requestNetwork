@@ -662,7 +662,16 @@ describe('index', () => {
         [TestData.idRaw3.encryptionParams],
       );
 
-      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
+      // Get channel key of 1st encrypted transaction
+      const transactionsParser = new TransactionsParser(TestData.fakeDecryptionProvider);
+      let { channelKey } = await transactionsParser.parsePersistedTransaction(
+        encryptedTxFakeHash,
+        TransactionTypes.ChannelType.ENCRYPTED,
+      );
+      channelKey = <EncryptionTypes.IEncryptionParameters>channelKey;
+
+      // Create 2nd encrypted transaction using same channel key
+      let encryptedTx2 = await TransactionsFactory.createEncryptedTransaction(data, channelKey, [
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
       ]);
@@ -681,7 +690,7 @@ describe('index', () => {
               {
                 state: TransactionTypes.TransactionState.PENDING,
                 timestamp: 2,
-                transaction: encryptedTx,
+                transaction: encryptedTx2,
               },
             ],
           },
@@ -711,7 +720,6 @@ describe('index', () => {
           dataAccessMeta: {
             transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
           },
-          encryptionMethod: 'ecies-aes256-gcm',
           ignoredTransactions: [
             {
               reason:
