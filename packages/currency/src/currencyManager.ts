@@ -227,22 +227,19 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * Validates an address for a given currency.
    * Throws if the currency is an ISO4217 currency.
    */
-  static validateAddress(address: string, currency: CurrencyInput): boolean {
+  static validateAddress(address: string, currency: CurrencyInput | StorageCurrency): boolean {
+    if (currency.type === RequestLogicTypes.CURRENCY.ISO4217) {
+      throw new Error(`Could not validate an address for an ISO4217 currency`);
+    }
     switch (currency.type) {
-      case RequestLogicTypes.CURRENCY.ISO4217:
-        throw new Error(`Could not validate an address for an ISO4217 currency`);
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
       case RequestLogicTypes.CURRENCY.ERC777:
-        switch (currency.symbol) {
-          case 'NEAR':
-          case 'NEAR-testnet':
+        switch (currency.network) {
+          case 'aurora':
+          case 'aurora-testnet':
             return isValidNearAddress(address, currency.network);
           default:
-            // we don't pass a third argument to the validate method here
-            // because there is no difference between testnet and prod
-            // for the ethereum validator, see:
-            // https://github.com/christsim/multicoin-address-validator/blob/f8f3626f441c0d53fdc3b89678629dc1d33c0546/src/ethereum_validator.js
             return addressValidator.validate(address, 'ETH');
         }
       case RequestLogicTypes.CURRENCY.BTC:
@@ -254,6 +251,19 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       default:
         throw new Error(`Could not validate an address for an unknown currency type`);
     }
+  }
+
+  /**
+   * Validate the correctness of a Storage Currency
+   */
+  static validateCurrency(currency: StorageCurrency): boolean {
+    if (
+      currency.type === RequestLogicTypes.CURRENCY.ISO4217 ||
+      currency.type === RequestLogicTypes.CURRENCY.ETH ||
+      currency.type === RequestLogicTypes.CURRENCY.BTC
+    )
+      return true;
+    return this.validateAddress(currency.value, currency);
   }
 
   /**

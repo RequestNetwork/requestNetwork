@@ -270,10 +270,15 @@ export enum ACTION_NAME {
 
 /** Supported currencies */
 export enum CURRENCY {
+  /** ETH Currency type refers to any kind of blockchain native currency - excepted bitcoin */
   ETH = 'ETH',
+  /** BTC Currency type refers to the Bitcoin native currency */
   BTC = 'BTC',
+  /** ISO4217 Currency type refers to fiat currencies (e.g. EUR, USD, ...) */
   ISO4217 = 'ISO4217',
+  /** ERC20 Currency type refers to any kind of fungible token (USDC, DAI, ...) */
   ERC20 = 'ERC20',
+  /** ERC777 Currency type refers to any kind of streamable fungible token (USDCx, DAIx, ...) */
   ERC777 = 'ERC777',
 }
 
