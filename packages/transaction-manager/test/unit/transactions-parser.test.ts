@@ -149,7 +149,7 @@ describe('transaction-parser', () => {
           ),
         ).rejects.toThrowError('Encrypted transactions are not allowed in clear channel');
       });
-      it('cannot parse encrypted transaction without channelKey with no encryptionMethod or keys', async () => {
+      it('cannot parse encrypted transaction without channelKey without encryptionMethod and transaction missing encryptionMethod or keys', async () => {
         await expect(
           transactionParser.parsePersistedTransaction(
             { encryptedData: 'encryptedData', encryptionMethod: 'encryptionMethod' },
