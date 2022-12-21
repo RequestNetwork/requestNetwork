@@ -1582,6 +1582,44 @@ describe('request-client.js', () => {
     });
   });
 
+  it('cannot create ERC20 address based requests with invalid currency', async () => {
+    const testErc20TokenAddress = 'invalidErc20Address';
+
+    const requestNetwork = new RequestNetwork({
+      signatureProvider: TestData.fakeSignatureProvider,
+      useMockStorage: true,
+    });
+    // generate address randomly to avoid collisions
+    const paymentAddress =
+      '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
+    const refundAddress =
+      '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
+
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
+      parameters: {
+        paymentAddress,
+        refundAddress,
+      },
+    };
+
+    const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+      currency: {
+        network: 'private',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: testErc20TokenAddress,
+      },
+    });
+
+    await expect(
+      requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo,
+        signer: TestData.payee.identity,
+      }),
+    ).rejects.toThrowError('The currency is not valid');
+  });
+
   describe('ERC20 proxy contract requests', () => {
     it('can create ERC20 requests with given salt', async () => {
       const requestNetwork = new RequestNetwork({
