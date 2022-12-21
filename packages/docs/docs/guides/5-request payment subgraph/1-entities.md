@@ -32,7 +32,7 @@ Description: get specific details of the payment
 | feeAddress        | Bytes       | address where the fee is sent                    |
 | currency          | Bytes       | fiat currency payment is based on                |
 | amountInCrypto    | BigDecimal  | amount of payment in crypto                      |
-| feeAmountInCrypto | BigDecimal  | fee amoount in crypto                            |
+| feeAmountInCrypto | BigDecimal  | fee amount in crypto                            |
 | maxRateTimespan   | Int         | maximum time span payment will reoccur           |
 
 ## Escrow
@@ -42,7 +42,7 @@ Description: It acts like a transparent, safe deposit box which automatically di
 | Field               | Type                           | Description                                      |
 | ------------------- | ------------------------------ | ------------------------------------------------ |
 | id                  | ID!                            | hash transaction of the escrow                   |
-| contractAddress     | Bytes!                         | network contract address                         |
+| contractAddress     | Bytes!                         | escrow contract address                         |
 | paymentProxyAddress | Bytes                          | payment proxy contract address |
 | reference           | Bytes!                         | is the reference data used to track the escrow   |
 | creationBlock       | Int!                           | block escrow was created                         |
