@@ -43,7 +43,7 @@ Description: It acts like a transparent, safe deposit box which automatically di
 | ------------------- | ------------------------------ | ------------------------------------------------ |
 | id                  | ID!                            | hash transaction of the escrow                   |
 | contractAddress     | Bytes!                         | network contract address                         |
-| paymentProxyAddress | Bytes                          | identifies a recipient and their payment account |
+| paymentProxyAddress | Bytes                          | payment proxy contract address |
 | reference           | Bytes!                         | is the reference data used to track the escrow   |
 | creationBlock       | Int!                           | block escrow was created                         |
 | creationTimestamp   | Int!                           | time stamp escrow was created                    |
