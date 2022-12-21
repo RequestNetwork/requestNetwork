@@ -1122,7 +1122,7 @@ describe('request-client.js', () => {
       await fetchedRequest.addStakeholders([idRaw2.encryptionParams], TestData.payee.identity);
       jest.advanceTimersByTime(150);
       // TODO: Figure out a better expect here
-      expect((await fetchedRequest.refresh()).state).toBe(RequestLogicTypes.STATE.CANCELED);
+      expect((await fetchedRequest.refresh()).state).toBe(RequestLogicTypes.STATE.CREATED);
       jest.useRealTimers();
     });
   });
