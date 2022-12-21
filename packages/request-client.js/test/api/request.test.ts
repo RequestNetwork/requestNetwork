@@ -507,6 +507,9 @@ describe('api/request', () => {
         async reduceExpectedAmountRequest(): Promise<any> {
           return { meta: {} };
         },
+        async addStakeholders(): Promise<any> {
+          return { meta: {} };
+        },
         async addExtensionsDataRequest(): Promise<any> {
           return { meta: {}, result: {} };
         },
