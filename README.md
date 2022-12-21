@@ -81,7 +81,16 @@ yarn run lint
 
 Test all the packages in the monorepo.
 
+In one terminal, run ganache.
+
 ```bash
+yarn workspace @requestnetwork/smart-contracts ganache
+```
+
+In another terminal, deploy smart contracts and run tests
+
+```bash
+yarn workspace @requestnetwork/smart-contracts run deploy
 yarn run test
 ```
 
