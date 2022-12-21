@@ -17,10 +17,10 @@ Description: get specific details of the payment
 | Field             | Type        | Description                                      |
 | ----------------- | ----------- | ------------------------------------------------ |
 | id                | ID!         | hash transaction of the payment                  |
-| contractAddress   | Bytes!      | network contract address                         |
+| contractAddress   | Bytes!      | payment proxy contract address                        |
 | tokenAddress      | Bytes       | contract of token used for payment               |
-| to                | Bytes!      | address payment was made from                    |
-| from              | Bytes!      | address payment was made to                      |
+| to                | Bytes!      | address payment was made to                    |
+| from              | Bytes!      | address payment was made from                      |
 | reference         | Bytes!      | is the reference data used to track the transfer |
 | block             | Int!        | block payment took place                         |
 | timestamp         | Int!        | time stamp of payment                            |
@@ -29,7 +29,7 @@ Description: get specific details of the payment
 | gasPrice          | BigInt!     | gas fee at time of payment                       |
 | amount            | BigDecimal! | amount of payment                                |
 | feeAmount         | BigDecimal  | fee charged for payment                          |
-| feeAddress        | Bytes       | address of person paying fee                     |
+| feeAddress        | Bytes       | address where the fee is sent                    |
 | currency          | Bytes       | fiat currency payment is based on                |
 | amountInCrypto    | BigDecimal  | amount of payment in crypto                      |
 | feeAmountInCrypto | BigDecimal  | fee amoount in crypto                            |
@@ -51,7 +51,7 @@ Description: It acts like a transparent, safe deposit box which automatically di
 | tokenAddress        | Bytes!                         | contract of token used for payment               |
 | amount              | BigDecimal!                    | amount of escrow set up                          |
 | feeAmount           | BigDecimal!                    | fee charged for escrow                           |
-| feeAddress          | Bytes!                         | address of person paying escrow                  |
+| feeAddress          | Bytes!                         | address where fees are sent                  |
 | from                | Bytes!                         | address escrow is set up from                    |
 | to                  | Bytes                          | address escrow is paid to                        |
 | events              | [`EscrowEvent!`](#escrowevent) | refer to Escrow Event                            |
@@ -62,11 +62,11 @@ Description: get specific details of the Escrow Event
 
 | Field           | Type       | Description                                              |
 | --------------- | ---------- | -------------------------------------------------------- |
-| id              | ID!        | date payment set up                                      |
-| contractAddress | Bytes!     | network contract address                                 |
+| id              | ID!        | hash transaction of the escrow                                     |
+| contractAddress | Bytes!     | escrow contract address                                |
 | reference       | Bytes!     | is the reference data used to track the escrow event     |
-| escrow          | Escrow!    | smart contract that triggers when a payment is dispursed |
-| block           | Int!       | block event took place                                   |
+| escrow          | Escrow!    | the Escrow where this event occurred |
+| block           | Int!       | block in which event took place                                  |
 | timestamp       | Int!       | timestamp of event                                       |
 | txHash          | Bytes!     | transaction hash of escrow event                         |
 | eventName       | EventName! | name of the escrow event                                 |
