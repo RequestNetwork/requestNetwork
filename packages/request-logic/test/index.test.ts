@@ -886,6 +886,8 @@ describe('index', () => {
       expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(actionExpected),
         requestId,
+        undefined,
+        [TestData.otherIdRaw.encryptionParams],
       );
     });
   });
