@@ -57,10 +57,7 @@ describe('Encryption', () => {
 
   describe('encrypt', () => {
     it('can encrypt with ECIES', async () => {
-      const encryptedData = await encrypt(
-        JSON.stringify(data),
-        otherIdRaw.encryptionParams,
-      );
+      const encryptedData = await encrypt(JSON.stringify(data), otherIdRaw.encryptionParams);
       // 'encrypt() error'
       expect(encryptedData.value.length).toBe(258);
       // 'encrypt() error'
@@ -72,10 +69,7 @@ describe('Encryption', () => {
     });
 
     it('can encrypt with AES256-cbc', async () => {
-      const encryptedData = await encrypt(
-        JSON.stringify(data),
-        arbitraryAES256cbcEncryptionParams,
-      );
+      const encryptedData = await encrypt(JSON.stringify(data), arbitraryAES256cbcEncryptionParams);
       // 'encrypt() error'
       expect(encryptedData.value.length).toBe(88);
       // 'encrypt() error'
@@ -87,10 +81,7 @@ describe('Encryption', () => {
     });
 
     it('can encrypt with AES256-gcm', async () => {
-      const encryptedData = await encrypt(
-        JSON.stringify(data),
-        arbitraryAES256gcmEncryptionParams,
-      );
+      const encryptedData = await encrypt(JSON.stringify(data), arbitraryAES256gcmEncryptionParams);
       // 'encrypt() error'
       expect(encryptedData.value.length).toBe(100);
       // 'encrypt() error'

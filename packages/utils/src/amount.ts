@@ -6,11 +6,7 @@ import { BigNumber } from 'ethers';
 /**
  * Function to manage amounts
  */
-export {
-  add,
-  isValid,
-  reduce,
-};
+export { add, isValid, reduce };
 
 const regexInteger = RegExp(/^[\d]+$/);
 

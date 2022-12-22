@@ -5,11 +5,7 @@ import { EcUtils, normalize, normalizeKeccak256Hash } from './crypto';
 /**
  * Function to manage Request Logic Signature
  */
-export {
-  getIdentityFromSignatureParams,
-  recover,
-  sign,
-};
+export { getIdentityFromSignatureParams, recover, sign };
 
 // Use to localize the parameter V in an ECDSA signature in hex format
 const V_POSITION_FROM_END_IN_ECDSA_HEX = -2;
@@ -49,19 +45,13 @@ function sign(
 ): SignatureTypes.ISignedData {
   let value: string;
   if (signatureParams.method === SignatureTypes.METHOD.ECDSA) {
-    value = EcUtils.sign(
-      signatureParams.privateKey,
-      normalizeKeccak256Hash(data).value,
-    );
+    value = EcUtils.sign(signatureParams.privateKey, normalizeKeccak256Hash(data).value);
     return { data, signature: { method: signatureParams.method, value } };
   }
 
   if (signatureParams.method === SignatureTypes.METHOD.ECDSA_ETHEREUM) {
     const normalizedData = normalize(data);
-    value = EcUtils.sign(
-      signatureParams.privateKey,
-      ethers.utils.hashMessage(normalizedData),
-    );
+    value = EcUtils.sign(signatureParams.privateKey, ethers.utils.hashMessage(normalizedData));
 
     return { data, signature: { method: signatureParams.method, value } };
   }
