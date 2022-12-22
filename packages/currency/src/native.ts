@@ -111,6 +111,12 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       name: 'Glimmer',
       network: 'moonbeam',
     },
+    {
+      symbol: 'TOMB',
+      decimals: 18,
+      name: 'Tomb',
+      network: 'tombchain',
+    },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [
     {

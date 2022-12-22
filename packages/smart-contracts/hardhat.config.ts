@@ -135,6 +135,11 @@ export default {
       chainId: 1284,
       accounts,
     },
+    tombchain: {
+      url: url('tombchain'),
+      chainId: 6969,
+      accounts,
+    },
   },
   etherscan: {
     apiKey: {
