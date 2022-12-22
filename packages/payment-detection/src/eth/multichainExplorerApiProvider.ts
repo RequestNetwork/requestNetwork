@@ -11,6 +11,7 @@ const networks: Record<string, ethers.providers.Network> = {
   bsc: { chainId: 56, name: 'bsc' },
   optimism: { chainId: 10, name: 'optimism' },
   moonbeam: { chainId: 1284, name: 'moonbeam' },
+  tombchain: { chainId: 6969, name: 'tombchain' },
 };
 
 /**
