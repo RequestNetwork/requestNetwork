@@ -71,12 +71,15 @@ export const xdeploy = async (
     let receipt = undefined;
     let deployed = false;
     let error = undefined;
+    let txOverrides: Overrides;
 
-    const txOverrides: Overrides = await utils.estimateGasFees({ provider });
     try {
+      txOverrides = await utils.estimateGasFees({ provider });
       const gasLimit = hre.config.xdeploy.gasLimit;
       txOverrides.gasLimit = gasLimit;
     } catch (e) {
+      // NOTE: On some networks utils.estimateGasFees do not work
+      txOverrides = {};
       console.log('Cannot estimate gasLimit');
     }
 
