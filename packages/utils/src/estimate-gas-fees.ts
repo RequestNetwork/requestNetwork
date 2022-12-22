@@ -43,4 +43,4 @@ async function estimateGasFees({
   };
 }
 
-export  { estimateGasFees };
+export { estimateGasFees };

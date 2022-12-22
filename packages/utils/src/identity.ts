@@ -8,12 +8,7 @@ const supportedIdentities: IdentityTypes.TYPE[] = [
 /**
  * Module to manage Request Logic Identity
  */
-export {
-  areEqual,
-  hasError,
-  normalizeIdentityValue,
-  supportedIdentities,
-};
+export { areEqual, hasError, normalizeIdentityValue, supportedIdentities };
 
 /**
  * Checks if two identities are equals

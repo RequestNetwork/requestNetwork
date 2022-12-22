@@ -2,20 +2,11 @@
  * Collection of general purpose utility function
  */
 
-export {
-  add,
-  isValid,
-  reduce,
-} from './amount';
+export { add, isValid, reduce } from './amount';
 
-export {
-  min,
-  max,
-} from './bignumber';
+export { min, max } from './bignumber';
 
-export {
-  cachedThrottle,
-} from './cached-throttle';
+export { cachedThrottle } from './cached-throttle';
 
 export {
   CryptoWrapper,
@@ -28,20 +19,11 @@ export {
   normalizeKeccak256Hash,
 } from './crypto';
 
-export {
-  decrypt,
-  encrypt,
-  getIdentityFromEncryptionParams,
-} from './encryption';
+export { decrypt, encrypt, getIdentityFromEncryptionParams } from './encryption';
 
 export { estimateGasFees } from './estimate-gas-fees';
 
-export {
-  areEqual,
-  hasError,
-  normalizeIdentityValue,
-  supportedIdentities,
-} from './identity';
+export { areEqual, hasError, normalizeIdentityValue, supportedIdentities } from './identity';
 
 export {
   setProviderFactory,
@@ -53,15 +35,9 @@ export {
 
 export { retry } from './retry';
 
-export {
-  getIdentityFromSignatureParams,
-  recover,
-  sign,
-} from './signature';
+export { getIdentityFromSignatureParams, recover, sign } from './signature';
 
-export {
-  SimpleLogger,
-} from './simple-logger';
+export { SimpleLogger } from './simple-logger';
 
 export {
   deepCopy,
@@ -74,5 +50,3 @@ export {
   uniqueByProperty,
   notNull,
 } from './utils';
-
-

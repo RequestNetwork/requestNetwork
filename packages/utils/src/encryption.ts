@@ -4,11 +4,7 @@ import { CryptoWrapper, EcUtils } from './crypto';
 /**
  * Functions to manage encryption
  */
-export {
-  decrypt,
-  encrypt,
-  getIdentityFromEncryptionParams,
-};
+export { decrypt, encrypt, getIdentityFromEncryptionParams };
 
 /**
  * Function to get the identity from the encryption parameters
