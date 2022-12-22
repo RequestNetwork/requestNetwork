@@ -1,10 +1,10 @@
 import { EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
-import Crypto from './crypto';
+import { CryptoWrapper, EcUtils } from './crypto';
 
 /**
  * Functions to manage encryption
  */
-export default {
+export {
   decrypt,
   encrypt,
   getIdentityFromEncryptionParams,
@@ -23,7 +23,7 @@ function getIdentityFromEncryptionParams(
   if (encryptionParams.method === EncryptionTypes.METHOD.ECIES) {
     return {
       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-      value: Crypto.EcUtils.getAddressFromPublicKey(encryptionParams.key),
+      value: EcUtils.getAddressFromPublicKey(encryptionParams.key),
     };
   }
 
@@ -42,7 +42,7 @@ async function encrypt(
   encryptionParams: EncryptionTypes.IEncryptionParameters,
 ): Promise<EncryptionTypes.IEncryptedData> {
   if (encryptionParams.method === EncryptionTypes.METHOD.ECIES) {
-    const encryptedData = await Crypto.EcUtils.encrypt(encryptionParams.key, data);
+    const encryptedData = await EcUtils.encrypt(encryptionParams.key, data);
     return {
       type: EncryptionTypes.METHOD.ECIES,
       value: encryptedData,
@@ -50,7 +50,7 @@ async function encrypt(
   }
 
   if (encryptionParams.method === EncryptionTypes.METHOD.AES256_CBC) {
-    const encryptedDataBuffer = await Crypto.CryptoWrapper.encryptWithAes256cbc(
+    const encryptedDataBuffer = await CryptoWrapper.encryptWithAes256cbc(
       Buffer.from(data, 'utf-8'),
       Buffer.from(encryptionParams.key, 'base64'),
     );
@@ -61,7 +61,7 @@ async function encrypt(
   }
 
   if (encryptionParams.method === EncryptionTypes.METHOD.AES256_GCM) {
-    const encryptedDataBuffer = await Crypto.CryptoWrapper.encryptWithAes256gcm(
+    const encryptedDataBuffer = await CryptoWrapper.encryptWithAes256gcm(
       Buffer.from(data, 'utf-8'),
       Buffer.from(encryptionParams.key, 'base64'),
     );
@@ -91,14 +91,14 @@ async function decrypt(
     if (decryptionParams.method !== EncryptionTypes.METHOD.ECIES) {
       throw new Error(`decryptionParams.method should be ${EncryptionTypes.METHOD.ECIES}`);
     }
-    return Crypto.EcUtils.decrypt(decryptionParams.key, encryptedData.value);
+    return EcUtils.decrypt(decryptionParams.key, encryptedData.value);
   }
 
   if (encryptedData.type === EncryptionTypes.METHOD.AES256_CBC) {
     if (decryptionParams.method !== EncryptionTypes.METHOD.AES256_CBC) {
       throw new Error(`decryptionParams.method should be ${EncryptionTypes.METHOD.AES256_CBC}`);
     }
-    const dataBuffer = await Crypto.CryptoWrapper.decryptWithAes256cbc(
+    const dataBuffer = await CryptoWrapper.decryptWithAes256cbc(
       // remove the multi-format padding and decode from the base64 to a buffer
       Buffer.from(encryptedData.value, 'base64'),
       Buffer.from(decryptionParams.key, 'base64'),
@@ -111,7 +111,7 @@ async function decrypt(
       throw new Error(`decryptionParams.method should be ${EncryptionTypes.METHOD.AES256_GCM}`);
     }
 
-    const dataBuffer = await Crypto.CryptoWrapper.decryptWithAes256gcm(
+    const dataBuffer = await CryptoWrapper.decryptWithAes256gcm(
       // remove the multi-format padding and decode from the base64 to a buffer
       Buffer.from(encryptedData.value, 'base64'),
       Buffer.from(decryptionParams.key, 'base64'),

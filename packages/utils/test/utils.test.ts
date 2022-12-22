@@ -1,4 +1,13 @@
-import Utils from '../src/utils';
+import {
+  deepCopy,
+  deepSort,
+  flatten2DimensionsArray,
+  getCurrentTimestampInSecond,
+  isString,
+  timeoutPromise,
+  unique,
+  uniqueByProperty,
+} from '../src';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Utils', () => {
@@ -37,7 +46,7 @@ describe('Utils', () => {
     };
     /* eslint-enable  */
     // 'deepSort(arbitraryObject) error'
-    expect(JSON.stringify(Utils.deepSort(arbitraryObjectNotSorted))).toBe(
+    expect(JSON.stringify(deepSort(arbitraryObjectNotSorted))).toBe(
       JSON.stringify(arbitraryObjectSorted),
     );
   });
@@ -55,7 +64,7 @@ describe('Utils', () => {
       },
       attribut3: 'valeurA',
     };
-    const arbitraryObjectDeepCopy = Utils.deepCopy(arbitraryObject);
+    const arbitraryObjectDeepCopy = deepCopy(arbitraryObject);
     // 'deepCopy(arbitraryObject) error'
     expect(arbitraryObjectDeepCopy).toEqual(arbitraryObject);
     arbitraryObjectDeepCopy.attribut1 = 'new value';
@@ -71,17 +80,17 @@ describe('Utils', () => {
 
   it('can return true if variable is String or string', () => {
     // 'istring("") error'
-    expect(Utils.isString('this is a string')).toBe(true);
+    expect(isString('this is a string')).toBe(true);
     // 'istring("") error'
-    expect(Utils.isString(String('this is a string'))).toBe(true);
+    expect(isString(String('this is a string'))).toBe(true);
   });
 
   it('cannot return true if variable is not a string', () => {
     /* eslint-disable no-magic-numbers */
     // 'istring("") error'
-    expect(Utils.isString(1234)).toBe(false);
+    expect(isString(1234)).toBe(false);
     // 'istring("") error'
-    expect(Utils.isString({ var: 'plop' })).toBe(false);
+    expect(isString({ var: 'plop' })).toBe(false);
   });
 
   it('getCurrentTimestampInSecond()', () => {
@@ -89,7 +98,7 @@ describe('Utils', () => {
 
     const time = Math.floor(Date.now() / 1000);
     // 'getCurrentTimestampInSecond() error'
-    expect(Utils.getCurrentTimestampInSecond()).toBe(time);
+    expect(getCurrentTimestampInSecond()).toBe(time);
 
     // Cleanup
     jest.useRealTimers();
@@ -106,7 +115,7 @@ describe('Utils', () => {
 
       /* eslint-disable  */
       // 'unique(arbitraryArray) error'
-      expect(Utils.unique(arbitraryArray)).toEqual({
+      expect(unique(arbitraryArray)).toEqual({
         uniqueItems: [
           { att1: 'value1', att2: 'value2' },
           { att3: 'value3', att4: 'value4' },
@@ -128,7 +137,7 @@ describe('Utils', () => {
 
       /* eslint-disable  */
       // 'unique(arbitraryArray) error'
-      expect(Utils.unique(arbitraryArray)).toEqual({
+      expect(unique(arbitraryArray)).toEqual({
         uniqueItems: [
           { att1: 'value1', att2: 'value2' },
           { att1: 'value1', Att2: 'Value2' },
@@ -148,7 +157,7 @@ describe('Utils', () => {
 
       /* eslint-disable  */
       // 'unique(arbitraryArray) error'
-      expect(Utils.unique(arbitraryArray)).toEqual({
+      expect(unique(arbitraryArray)).toEqual({
         uniqueItems: [
           { att1: 'value1', att2: 'value2' },
           { att1: 'value1', Att2: 'Value2' },
@@ -171,7 +180,7 @@ describe('Utils', () => {
 
       /* eslint-disable  */
       // 'uniqueByProperty(arbitraryArray) error'
-      expect(Utils.uniqueByProperty(arbitraryArray, 'att1')).toEqual({
+      expect(uniqueByProperty(arbitraryArray, 'att1')).toEqual({
         uniqueItems: [
           { att1: 'value1', att2: 'value2' },
           { att1: 'value3', att4: 'value4' },
@@ -193,7 +202,7 @@ describe('Utils', () => {
 
       /* eslint-disable  */
       // 'unique(arbitraryArray) error'
-      expect(Utils.uniqueByProperty(arbitraryArray, 'att1')).toEqual({
+      expect(uniqueByProperty(arbitraryArray, 'att1')).toEqual({
         uniqueItems: [
           { att1: 'value1', att2: 'value2' },
           { att1: 'value12', Att2: 'Value2' },
@@ -208,28 +217,28 @@ describe('Utils', () => {
   describe('flatten2DimensionsArray', () => {
     it('can flatten2DimensionsArray() 1 dimension array', () => {
       const arbitraryArray: any[] = [1, 2, 3, 4, 5];
-      const flattenArray = Utils.flatten2DimensionsArray(arbitraryArray);
+      const flattenArray = flatten2DimensionsArray(arbitraryArray);
       // 'flatten2DimensionsArray(twoDimensionsArray) error'
       expect(flattenArray).toEqual([1, 2, 3, 4, 5]);
     });
 
     it('can flatten2DimensionsArray() 3 dimensions array', () => {
       const arbitraryArray: any[] = [[1, 2], [3], [4, [5, 6]]];
-      const flattenArray = Utils.flatten2DimensionsArray(arbitraryArray);
+      const flattenArray = flatten2DimensionsArray(arbitraryArray);
       // 'flatten2DimensionsArray(twoDimensionsArray) error'
       expect(flattenArray).toEqual([1, 2, 3, 4, [5, 6]]);
     });
 
     it('can flatten2DimensionsArray() empty array', () => {
       const emptyArray: any[] = [];
-      const flattenArray = Utils.flatten2DimensionsArray(emptyArray);
+      const flattenArray = flatten2DimensionsArray(emptyArray);
       // 'flatten2DimensionsArray(twoDimensionsArray) error'
       expect(flattenArray).toEqual([]);
     });
 
     it('can flatten2DimensionsArray() two dimensionals array', () => {
       const twoDimensionsArray = [[1, 2], [3], [4, 5]];
-      const flattenArray = Utils.flatten2DimensionsArray(twoDimensionsArray);
+      const flattenArray = flatten2DimensionsArray(twoDimensionsArray);
       // 'flatten2DimensionsArray(twoDimensionsArray) error'
       expect(flattenArray).toEqual([1, 2, 3, 4, 5]);
     });
@@ -250,8 +259,9 @@ describe('Utils', () => {
 
       expect.assertions(3);
 
-      const promise = new Promise(() => {});
-      Utils.timeoutPromise(promise, 1000, errorMessage)
+      const promise = new Promise(() => {
+      });
+      timeoutPromise(promise, 1000, errorMessage)
         .then(() => {
           fail('timeoutPromise should not be fulfilled');
         })

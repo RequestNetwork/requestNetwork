@@ -1,12 +1,12 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
-import Utils from './utils';
+import { isString } from './utils';
 
 import { BigNumber } from 'ethers';
 
 /**
  * Function to manage amounts
  */
-export default {
+export {
   add,
   isValid,
   reduce,
@@ -23,7 +23,7 @@ const regexInteger = RegExp(/^[\d]+$/);
  */
 function isValid(amount: RequestLogicTypes.Amount | BigNumber): boolean {
   return (
-    (Utils.isString(amount) && regexInteger.test(amount as string)) ||
+    (isString(amount) && regexInteger.test(amount as string)) ||
     (typeof amount === 'number' && Number.isSafeInteger(Number(amount)) && Number(amount) >= 0)
   );
 }

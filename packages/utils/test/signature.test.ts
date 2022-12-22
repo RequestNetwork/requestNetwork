@@ -1,6 +1,5 @@
 import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
-import Crypto from '../src/crypto';
-import Signature from '../src/signature';
+import { getIdentityFromSignatureParams, normalizeKeccak256Hash, recover, sign } from '../src';
 
 const otherIdRaw = {
   address: '0x818B6337657A23F58581715Fc610577292e521D0',
@@ -31,7 +30,7 @@ const dataDiffCase = {
 describe('Signature', () => {
   describe('getIdentityFromSignatureParams', () => {
     it('can getIdentityFromSignatureParams()', () => {
-      const identity = Signature.getIdentityFromSignatureParams({
+      const identity = getIdentityFromSignatureParams({
         method: SignatureTypes.METHOD.ECDSA,
         privateKey: otherIdRaw.privateKey,
       });
@@ -44,7 +43,7 @@ describe('Signature', () => {
         method: 'notECDSA',
         privateKey: otherIdRaw.privateKey,
       };
-      expect(() => Signature.getIdentityFromSignatureParams(params)).toThrowError(
+      expect(() => getIdentityFromSignatureParams(params)).toThrowError(
         'signatureParams.method not supported',
       );
     });
@@ -52,7 +51,7 @@ describe('Signature', () => {
 
   describe('sign', () => {
     it('can sign() with ECDSA', () => {
-      const signature = Signature.sign(data, {
+      const signature = sign(data, {
         method: SignatureTypes.METHOD.ECDSA,
         privateKey: otherIdRaw.privateKey,
       });
@@ -68,7 +67,7 @@ describe('Signature', () => {
     });
 
     it('can sign() with ECDSA_ETHEREUM', () => {
-      const signature = Signature.sign(data, {
+      const signature = sign(data, {
         method: SignatureTypes.METHOD.ECDSA_ETHEREUM,
         privateKey: otherIdRaw.privateKey,
       });
@@ -84,7 +83,7 @@ describe('Signature', () => {
     });
 
     it('can sign() with different case', () => {
-      const signature = Signature.sign(dataDiffCase, {
+      const signature = sign(dataDiffCase, {
         method: SignatureTypes.METHOD.ECDSA,
         privateKey: otherIdRaw.privateKey,
       });
@@ -104,7 +103,7 @@ describe('Signature', () => {
         method: 'notECDSA',
         privateKey: otherIdRaw.privateKey,
       };
-      expect(() => Signature.sign(Crypto.normalizeKeccak256Hash(data), params)).toThrowError(
+      expect(() => sign(normalizeKeccak256Hash(data), params)).toThrowError(
         'signatureParams.method not supported',
       );
     });
@@ -112,7 +111,7 @@ describe('Signature', () => {
 
   describe('recover', () => {
     it('can recover() ECDSA signature', () => {
-      const id = Signature.recover({
+      const id = recover({
         data,
         signature: {
           method: SignatureTypes.METHOD.ECDSA,
@@ -125,7 +124,7 @@ describe('Signature', () => {
     });
 
     it('can recover() ECDSA_ETHEREUM signature', () => {
-      const id = Signature.recover({
+      const id = recover({
         data,
         signature: {
           method: SignatureTypes.METHOD.ECDSA_ETHEREUM,
@@ -140,7 +139,7 @@ describe('Signature', () => {
     });
 
     it('can recover() with different case', () => {
-      const id = Signature.recover({
+      const id = recover({
         data: dataDiffCase,
         signature: {
           method: SignatureTypes.METHOD.ECDSA,
@@ -157,7 +156,7 @@ describe('Signature', () => {
         method: 'notECDSA',
         value: '0x00000000000000000000',
       };
-      expect(() => Signature.recover({ data, signature: params })).toThrowError(
+      expect(() => recover({ data, signature: params })).toThrowError(
         'signatureParams.method not supported',
       );
     });

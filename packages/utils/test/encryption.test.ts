@@ -1,5 +1,5 @@
 import { EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
-import Encryption from '../src/encryption';
+import { getIdentityFromEncryptionParams, encrypt, decrypt } from '../src';
 
 const otherIdRaw = {
   address: '0x818B6337657A23F58581715Fc610577292e521D0',
@@ -39,7 +39,7 @@ const data = {
 describe('Encryption', () => {
   describe('getIdentityFromEncryptionParams', () => {
     it('can getIdentityFromEncryptionParams()', () => {
-      const identity = Encryption.getIdentityFromEncryptionParams(otherIdRaw.encryptionParams);
+      const identity = getIdentityFromEncryptionParams(otherIdRaw.encryptionParams);
       // 'getIdentityFromEncryptionParams() error'
       expect(identity).toEqual(otherIdRaw.identity);
     });
@@ -49,7 +49,7 @@ describe('Encryption', () => {
         method: 'notECIES',
         publicKey: otherIdRaw.publicKey,
       };
-      expect(() => Encryption.getIdentityFromEncryptionParams(params)).toThrowError(
+      expect(() => getIdentityFromEncryptionParams(params)).toThrowError(
         'encryptionParams.method not supported',
       );
     });
@@ -57,7 +57,7 @@ describe('Encryption', () => {
 
   describe('encrypt', () => {
     it('can encrypt with ECIES', async () => {
-      const encryptedData = await Encryption.encrypt(
+      const encryptedData = await encrypt(
         JSON.stringify(data),
         otherIdRaw.encryptionParams,
       );
@@ -66,13 +66,13 @@ describe('Encryption', () => {
       // 'encrypt() error'
       expect(encryptedData.type).toBe(EncryptionTypes.METHOD.ECIES);
       // 'decrypt() error'
-      expect(await Encryption.decrypt(encryptedData, otherIdRaw.decryptionParams)).toEqual(
+      expect(await decrypt(encryptedData, otherIdRaw.decryptionParams)).toEqual(
         JSON.stringify(data),
       );
     });
 
     it('can encrypt with AES256-cbc', async () => {
-      const encryptedData = await Encryption.encrypt(
+      const encryptedData = await encrypt(
         JSON.stringify(data),
         arbitraryAES256cbcEncryptionParams,
       );
@@ -81,13 +81,13 @@ describe('Encryption', () => {
       // 'encrypt() error'
       expect(encryptedData.type).toBe(EncryptionTypes.METHOD.AES256_CBC);
       // 'decrypt() error'
-      expect(await Encryption.decrypt(encryptedData, arbitraryAES256cbcEncryptionParams)).toEqual(
+      expect(await decrypt(encryptedData, arbitraryAES256cbcEncryptionParams)).toEqual(
         JSON.stringify(data),
       );
     });
 
     it('can encrypt with AES256-gcm', async () => {
-      const encryptedData = await Encryption.encrypt(
+      const encryptedData = await encrypt(
         JSON.stringify(data),
         arbitraryAES256gcmEncryptionParams,
       );
@@ -96,7 +96,7 @@ describe('Encryption', () => {
       // 'encrypt() error'
       expect(encryptedData.type).toBe(EncryptionTypes.METHOD.AES256_GCM);
       // 'decrypt() error'
-      expect(await Encryption.decrypt(encryptedData, arbitraryAES256gcmEncryptionParams)).toEqual(
+      expect(await decrypt(encryptedData, arbitraryAES256gcmEncryptionParams)).toEqual(
         JSON.stringify(data),
       );
     });
@@ -107,7 +107,7 @@ describe('Encryption', () => {
         publicKey: otherIdRaw.publicKey,
       };
 
-      await expect(Encryption.encrypt(JSON.stringify(data), params)).rejects.toThrowError(
+      await expect(encrypt(JSON.stringify(data), params)).rejects.toThrowError(
         'encryptionParams.method not supported',
       );
     });
@@ -115,7 +115,7 @@ describe('Encryption', () => {
 
   describe('decrypt', () => {
     it('can decrypt encrypted data', async () => {
-      const dataDecrypted = await Encryption.decrypt(
+      const dataDecrypted = await decrypt(
         {
           type: EncryptionTypes.METHOD.ECIES,
           value:
@@ -129,7 +129,7 @@ describe('Encryption', () => {
 
     it('cannot decrypt with an encryption method not supported', async () => {
       await expect(
-        Encryption.decrypt(
+        decrypt(
           {
             type: 'not supported' as any,
             value:
@@ -142,7 +142,7 @@ describe('Encryption', () => {
 
     it('cannot decrypt with the wrong decryption method', async () => {
       await expect(
-        Encryption.decrypt(
+        decrypt(
           {
             type: EncryptionTypes.METHOD.ECIES,
             value: 'c9a9',
@@ -152,7 +152,7 @@ describe('Encryption', () => {
       ).rejects.toThrowError('decryptionParams.method should be ecies');
 
       await expect(
-        Encryption.decrypt(
+        decrypt(
           {
             type: EncryptionTypes.METHOD.AES256_CBC,
             value: 'c9a9',
@@ -162,7 +162,7 @@ describe('Encryption', () => {
       ).rejects.toThrowError('decryptionParams.method should be aes256-cbc');
 
       await expect(
-        Encryption.decrypt(
+        decrypt(
           {
             type: EncryptionTypes.METHOD.AES256_GCM,
             value: 'c9a9',

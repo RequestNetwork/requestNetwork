@@ -1,11 +1,11 @@
 import { IdentityTypes } from '@requestnetwork/types';
-import Identity from '../src/identity';
+import { areEqual, normalizeIdentityValue } from '../src';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Identity', () => {
   it('can normalizeIdentityValue()', () => {
     // 'normalizeIdentityValue("") error'
-    expect(Identity.normalizeIdentityValue('0xe241d3757DAd0Ef86D0FCc5fE90e20f955743eD5')).toBe(
+    expect(normalizeIdentityValue('0xe241d3757DAd0Ef86D0FCc5fE90e20f955743eD5')).toBe(
       '0xe241d3757dad0ef86d0fcc5fe90e20f955743ed5',
     );
   });
@@ -20,7 +20,7 @@ describe('Identity', () => {
       value: '0xe241d3757DAd0Ef86D0FCc5fE90e20f955743eD5',
     };
     // 'areEqual() error'
-    expect(Identity.areEqual(id1, id2)).toBe(true);
+    expect(areEqual(id1, id2)).toBe(true);
   });
 
   it('can areEqual() two identities with different cases', () => {
@@ -33,7 +33,7 @@ describe('Identity', () => {
       value: '0xe241d3757dad0ef86d0fcc5fe90e20f955743ed5',
     };
     // 'areEqual() error'
-    expect(Identity.areEqual(id1, id2)).toBe(true);
+    expect(areEqual(id1, id2)).toBe(true);
   });
 
   it('cannot areEqual() two identities with differents values', () => {
@@ -46,6 +46,6 @@ describe('Identity', () => {
       value: '0xFFFFFFFFFFFFFFf86D0FCc5fE90e20f955743eD5',
     };
     // 'areEqual() error'
-    expect(Identity.areEqual(id1, id2)).toBe(false);
+    expect(areEqual(id1, id2)).toBe(false);
   });
 });

@@ -146,7 +146,7 @@ const getCeloProvider = (): providers.Provider => {
   return provider;
 };
 
-export default {
+export {
   setProviderFactory,
   initPaymentDetectionApiKeys,
   getDefaultProvider,

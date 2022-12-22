@@ -1,5 +1,4 @@
-import CryptoWrapper from '../../src/crypto/crypto-wrapper';
-import utils from '../../src/utils';
+import { CryptoWrapper, unique } from '../../src';
 
 const anyData = 'this is any data!';
 const arbitraryKey = '12345678901234567890123456789012';
@@ -21,7 +20,7 @@ describe('Utils.cryptoWrapper', () => {
       const promises = new Array(1000).fill('').map(async () => CryptoWrapper.random32Bytes());
       const randomBytes1000 = await Promise.all(promises);
       // 'randomBytes gives duplicate'
-      expect(utils.unique(randomBytes1000).duplicates.length).toBe(0);
+      expect(unique(randomBytes1000).duplicates.length).toBe(0);
     });
   });
 

@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 /**
  * Function to manage Elliptic-curve cryptography
  */
-export default {
+export const EcUtils = {
   decrypt,
   encrypt,
   getAddressFromPrivateKey,

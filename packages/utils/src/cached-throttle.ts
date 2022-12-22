@@ -5,7 +5,7 @@
  * @param target The target function
  * @param minimumDelay The minimum delay between calls to the target function in milliseconds
  */
-export const cachedThrottle = <TParams extends unknown[], TReturn>(
+const cachedThrottle = <TParams extends unknown[], TReturn>(
   target: (...params: TParams) => Promise<TReturn>,
   minimumDelay: number,
 ): ((...params: TParams) => Promise<TReturn>) => {
@@ -29,4 +29,4 @@ export const cachedThrottle = <TParams extends unknown[], TReturn>(
   };
 };
 
-export default cachedThrottle;
+export { cachedThrottle };

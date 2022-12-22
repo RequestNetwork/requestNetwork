@@ -1,13 +1,13 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
-import CryptoWrapper from './crypto/crypto-wrapper';
-import EcUtils from './crypto/ec-utils';
-import Utils from './utils';
+import { CryptoWrapper } from './crypto/crypto-wrapper';
+import { EcUtils } from './crypto/ec-utils';
+import { deepSort } from './utils';
 
 /**
  * manages crypto functions
  */
-export default {
+export {
   CryptoWrapper,
   EcUtils,
   generate32BufferKey,
@@ -45,7 +45,7 @@ function normalize(data: unknown): string {
   }
 
   // deeply sort data keys
-  const sortedData = Utils.deepSort(data);
+  const sortedData = deepSort(data);
 
   // convert to string and lowerCase it, to be case insensitive (e.g: avoid ethereum address casing checksum)
   return JSON.stringify(sortedData).toLowerCase();

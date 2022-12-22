@@ -8,4 +8,4 @@ const min = (a: BigNumberish, b: BigNumberish): BigNumber =>
 const max = (a: BigNumberish, b: BigNumberish): BigNumber =>
   BigNumber.from(a).gt(b) ? BigNumber.from(a) : BigNumber.from(b);
 
-export default { min, max };
+export { min, max };

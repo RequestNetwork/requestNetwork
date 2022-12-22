@@ -8,7 +8,7 @@ const supportedIdentities: IdentityTypes.TYPE[] = [
 /**
  * Module to manage Request Logic Identity
  */
-export default {
+export {
   areEqual,
   hasError,
   normalizeIdentityValue,
