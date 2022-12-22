@@ -248,7 +248,13 @@ export const getSignerAndGasFees = async (
     provider = utils.getDefaultProvider(network);
   }
   const signer = new hre.ethers.Wallet(hre.config.xdeploy.signer).connect(provider);
-  const txOverrides = await utils.estimateGasFees({ provider });
+
+  let txOverrides;
+  try {
+    txOverrides = await utils.estimateGasFees({ provider });
+  } catch (err) {
+    txOverrides = {};
+  }
 
   return {
     signer,
