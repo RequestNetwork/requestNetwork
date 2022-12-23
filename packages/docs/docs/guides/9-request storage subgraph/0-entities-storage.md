@@ -10,9 +10,9 @@ Description: get specific details of the transaction
 
 | Field                | Type      | Description                                                                                  |
 | -------------------- | --------- | -------------------------------------------------------------------------------------------- |
-| id                   | ID!       | hash of the first transaction in the channel                                                 |
+| id                   | ID!       | a unique ID based on IPFS hash & position of the transaction in the document                 |
 | hash                 | String!   | IPFS hash                                                                                    |
-| channelId            | String!   | invoice ID for transaction                                                                   |
+| channelId            | String!   | hash of the first transaction in the channel                                                 |
 | data                 | String    | transaction data, used for clear channels                                                    |
 | encryptedData        | String    | transaction data, used for encrypted channels                                                |
 | encryptionMethod     | String    | Encryption methods for channel key and transactions, concatenated together                   |
