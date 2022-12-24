@@ -45,7 +45,14 @@ describe('api/eth/info-retriever', () => {
     await expect(infoRetreiver.getTransferEvents()).rejects.toThrowError();
   });
 
-  describe('Multichain', () => {
+  describe('Multichain', function (this: Mocha.Context) {
+    // Skip tests if build is from external fork or API tests are disabled
+    // External forks cannot access secrets API keys
+    if (process.env.CIRCLE_PR_NUMBER || process.env.DISABLE_API_TESTS) {
+      console.warn('Skipping API tests');
+      this.skip();
+    }
+
     // TODO temporary disable xDAI, CELO, Sokol, and Goerli
     // FIXME: API-based checks should run nightly and be mocked for CI
     [
