@@ -79,6 +79,18 @@ yarn run lint
 
 ### Test
 
+Disable API tests OR define all required etherscan API keys.
+
+```bash
+export DISABLE_API_TESTS=1
+# OR
+export EXPLORER_API_KEY_MAINNET=
+export EXPLORER_API_KEY_RINKEBY=
+export EXPLORER_API_KEY_FUSE=
+export EXPLORER_API_KEY_MATIC=
+export EXPLORER_API_KEY_FANTOM=
+```
+
 Test all the packages in the monorepo.
 
 ```bash

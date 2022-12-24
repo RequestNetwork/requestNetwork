@@ -64,3 +64,22 @@ The code generation is included in the pre-build script and can be run manually:
 ```
 yarn codegen
 ```
+
+# Test
+
+The `Multichain` `InfoRetriever` tests require etherscan API keys.
+
+Before running the payment-detection tests, disable API tests OR define all
+required etherscan API keys.
+
+```bash
+export DISABLE_API_TESTS=1
+# OR
+export EXPLORER_API_KEY_MAINNET=
+export EXPLORER_API_KEY_RINKEBY=
+export EXPLORER_API_KEY_FUSE=
+export EXPLORER_API_KEY_MATIC=
+export EXPLORER_API_KEY_FANTOM=
+
+yarn run test
+```
