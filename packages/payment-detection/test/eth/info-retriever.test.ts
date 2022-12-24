@@ -46,12 +46,14 @@ describe('api/eth/info-retriever', () => {
   });
 
   // Utility for conditionally skipping tests
-  const itIf = (
+  const describeIf = (
     condition: any,
-    ...args: [string, jest.ProvidesCallback | undefined, number | undefined]
-  ) => (condition ? it(...args) : it.skip(...args));
+    ...args: [string | number | Function | jest.FunctionLike, jest.EmptyFunction]
+  ) => (condition ? describe(...args) : describe.skip(...args));
 
-  describe('Multichain', () => {
+  // Skip tests if build is from external fork or API tests are disabled
+  // External forks cannot access secret API keys
+  describeIf(!process.env.CIRCLE_PR_NUMBER && !process.env.DISABLE_API_TESTS, 'Multichain', () => {
     // TODO temporary disable xDAI, CELO, Sokol, and Goerli
     // FIXME: API-based checks should run nightly and be mocked for CI
     [
@@ -65,29 +67,19 @@ describe('api/eth/info-retriever', () => {
       'matic',
       'fantom',
     ].forEach((network) => {
-      // Skip tests if build is from external fork or API tests are disabled
-      // External forks cannot access secrets API keys
-      itIf(
-        process.env.CIRCLE_PR_NUMBER || process.env.DISABLE_API_TESTS,
-        `Can get the balance on ${network}`,
-        async () => {
-          const retriever = new EthInputDataInfoRetriever(
-            '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
-            PaymentTypes.EVENTS_NAMES.PAYMENT,
-            network,
-            '9649a1a4dd5854ed',
-            process.env[`EXPLORER_API_KEY_${network.toUpperCase()}`],
-          );
-          await expect(retriever.getTransferEvents()).resolves.not.toThrow();
-        },
-        undefined,
-      );
+      it(`Can get the balance on ${network}`, async () => {
+        const retriever = new EthInputDataInfoRetriever(
+          '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          PaymentTypes.EVENTS_NAMES.PAYMENT,
+          network,
+          '9649a1a4dd5854ed',
+          process.env[`EXPLORER_API_KEY_${network.toUpperCase()}`],
+        );
+        await expect(retriever.getTransferEvents()).resolves.not.toThrow();
+      });
     });
 
-    // Skip test if build is from external fork or API tests are disabled
-    // External forks cannot access secrets API keys
-    itIf(
-      process.env.CIRCLE_PR_NUMBER || process.env.DISABLE_API_TESTS,
+    it(
       'can detect a MATIC payment to self',
       async () => {
         // NB: The from and to are the same
