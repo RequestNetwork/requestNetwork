@@ -67,7 +67,7 @@ yarn codegen
 
 # Test
 
-The `Multichain` `InfoRetriever` tests require etherscan API keys.
+The ETH `InfoRetriever` tests require etherscan API keys.
 
 Before running the payment-detection tests, disable API tests OR define all
 required etherscan API keys.
