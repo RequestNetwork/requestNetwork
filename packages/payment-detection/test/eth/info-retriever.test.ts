@@ -59,12 +59,7 @@ describe('api/eth/info-retriever', () => {
       'matic',
       'fantom',
     ].forEach((network) => {
-      it(`Can get the balance on ${network}`, async function (this: Mocha.Context) {
-        // Skip test if EXPLORER_API_KEY is not set
-        if (!process.env[`EXPLORER_API_KEY_${network.toUpperCase()}`]) {
-          console.warn(`No explorer API key for ${network}!`);
-          this.skip();
-        }
+      it(`Can get the balance on ${network}`, async () => {
         const retriever = new EthInputDataInfoRetriever(
           '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           PaymentTypes.EVENTS_NAMES.PAYMENT,
@@ -76,13 +71,7 @@ describe('api/eth/info-retriever', () => {
       });
     });
 
-    it('can detect a MATIC payment to self', async function (this: Mocha.Context) {
-      // Skip test if EXPLORER_API_KEY is not set
-      if (!process.env[`EXPLORER_API_KEY_MATIC`]) {
-        console.warn(`No explorer API key for MATIC!`);
-        this.skip();
-      }
-
+    it('can detect a MATIC payment to self', async () => {
       // NB: The from and to are the same
       const paymentAddress = '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93';
       const paymentReference = PaymentReferenceCalculator.calculate(
