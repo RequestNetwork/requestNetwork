@@ -79,7 +79,7 @@ yarn run lint
 
 ### Test
 
-Disable API tests OR define all required etherscan API keys.
+Disable API tests OR define all required explorer API keys.
 
 ```bash
 export DISABLE_API_TESTS=1

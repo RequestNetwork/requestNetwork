@@ -67,10 +67,9 @@ yarn codegen
 
 # Test
 
-The ETH `InfoRetriever` tests require etherscan API keys.
-
-Before running the payment-detection tests, disable API tests OR define all
-required etherscan API keys.
+The ETH `InfoRetriever` tests require explorer API keys. Before running the
+payment-detection tests, define `DISABLE_API_TESTS` or define all required
+explorer API keys.
 
 ```bash
 export DISABLE_API_TESTS=1
