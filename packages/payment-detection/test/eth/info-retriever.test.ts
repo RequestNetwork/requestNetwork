@@ -45,11 +45,13 @@ describe('api/eth/info-retriever', () => {
     await expect(infoRetreiver.getTransferEvents()).rejects.toThrowError();
   });
 
-  // Skip tests if build is from external fork or API tests are disabled
-  // External forks cannot access secrets API keys
-  const describeIf =
-    process.env.CIRCLE_PR_NUMBER || process.env.DISABLE_API_TESTS ? describe : describe.skip;
-  describeIf('Multichain', () => {
+  // Utility for conditionally skipping tests
+  const itIf = (
+    condition: any,
+    ...args: [string, jest.ProvidesCallback | undefined, number | undefined]
+  ) => (condition ? it(...args) : it.skip(...args));
+
+  describe('Multichain', () => {
     // TODO temporary disable xDAI, CELO, Sokol, and Goerli
     // FIXME: API-based checks should run nightly and be mocked for CI
     [
@@ -63,38 +65,52 @@ describe('api/eth/info-retriever', () => {
       'matic',
       'fantom',
     ].forEach((network) => {
-      it(`Can get the balance on ${network}`, async () => {
-        const retriever = new EthInputDataInfoRetriever(
-          '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
-          PaymentTypes.EVENTS_NAMES.PAYMENT,
-          network,
-          '9649a1a4dd5854ed',
-          process.env[`EXPLORER_API_KEY_${network.toUpperCase()}`],
+      // Skip tests if build is from external fork or API tests are disabled
+      // External forks cannot access secrets API keys
+      itIf(
+        process.env.CIRCLE_PR_NUMBER || process.env.DISABLE_API_TESTS,
+        `Can get the balance on ${network}`,
+        async () => {
+          const retriever = new EthInputDataInfoRetriever(
+            '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+            PaymentTypes.EVENTS_NAMES.PAYMENT,
+            network,
+            '9649a1a4dd5854ed',
+            process.env[`EXPLORER_API_KEY_${network.toUpperCase()}`],
+          );
+          await expect(retriever.getTransferEvents()).resolves.not.toThrow();
+        },
+        undefined,
+      );
+    });
+
+    // Skip test if build is from external fork or API tests are disabled
+    // External forks cannot access secrets API keys
+    itIf(
+      process.env.CIRCLE_PR_NUMBER || process.env.DISABLE_API_TESTS,
+      'can detect a MATIC payment to self',
+      async () => {
+        // NB: The from and to are the same
+        const paymentAddress = '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93';
+        const paymentReference = PaymentReferenceCalculator.calculate(
+          '01b809015dcda94dccfc626609b0a1d8f8e656ec787cf7f59d59d242dc9f1db0ca',
+          'a1a2a3a4a5a6a7a8',
+          paymentAddress,
         );
-        await expect(retriever.getTransferEvents()).resolves.not.toThrow();
-      });
-    });
 
-    it('can detect a MATIC payment to self', async () => {
-      // NB: The from and to are the same
-      const paymentAddress = '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93';
-      const paymentReference = PaymentReferenceCalculator.calculate(
-        '01b809015dcda94dccfc626609b0a1d8f8e656ec787cf7f59d59d242dc9f1db0ca',
-        'a1a2a3a4a5a6a7a8',
-        paymentAddress,
-      );
+        const infoRetriever = new EthInputDataInfoRetriever(
+          paymentAddress,
+          PaymentTypes.EVENTS_NAMES.PAYMENT,
+          'matic',
+          paymentReference,
+          process.env[`EXPLORER_API_KEY_MATIC`],
+        );
+        const events = await infoRetriever.getTransferEvents();
+        expect(events).toHaveLength(1);
 
-      const infoRetriever = new EthInputDataInfoRetriever(
-        paymentAddress,
-        PaymentTypes.EVENTS_NAMES.PAYMENT,
-        'matic',
-        paymentReference,
-        process.env[`EXPLORER_API_KEY_MATIC`],
-      );
-      const events = await infoRetriever.getTransferEvents();
-      expect(events).toHaveLength(1);
-
-      expect(events[0].amount).toBe('1000000000000000');
-    });
+        expect(events[0].amount).toBe('1000000000000000');
+      },
+      undefined,
+    );
   });
 });
