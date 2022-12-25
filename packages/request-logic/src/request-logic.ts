@@ -9,8 +9,8 @@ import {
   SignatureProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import RequestLogicCore from './requestLogicCore';
+import { normalizeKeccak256Hash, notNull, uniqueByProperty } from '@requestnetwork/utils';
 
 /**
  * Implementation of Request Logic
@@ -457,7 +457,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     updatedBetween?: RequestLogicTypes.ITimestampBoundaries,
   ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
     // hash all the topics
-    const hashedTopic = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(topic));
+    const hashedTopic = MultiFormat.serialize(normalizeKeccak256Hash(topic));
 
     const getChannelsResult = await this.transactionManager.getChannelsByTopic(
       hashedTopic,
@@ -477,7 +477,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
     // hash all the topics
     const hashedTopics = topics.map((topic) =>
-      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(topic)),
+      MultiFormat.serialize(normalizeKeccak256Hash(topic)),
     );
 
     const getChannelsResult = await this.transactionManager.getChannelsByMultipleTopics(
@@ -517,7 +517,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
 
     // hash all the topics
     const hashedTopics = topics.map((topic) =>
-      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(topic)),
+      MultiFormat.serialize(normalizeKeccak256Hash(topic)),
     );
 
     return {
@@ -542,16 +542,16 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const resultGetTx = await this.transactionManager.getTransactionsByChannelId(requestId);
     const actions = resultGetTx.result.transactions
       // filter the actions ignored by the previous layers
-      .filter(Utils.notNull)
+      .filter(notNull)
       .sort((a, b) => a.timestamp - b.timestamp);
 
     // eslint-disable-next-line prefer-const
     let { ignoredTransactions, keptTransactions } = this.removeOldPendingTransactions(actions);
 
     // array of transaction without duplicates to avoid replay attack
-    const timestampedActionsWithoutDuplicates = Utils.uniqueByProperty(
+    const timestampedActionsWithoutDuplicates = uniqueByProperty(
       keptTransactions
-        .filter(Utils.notNull)
+        .filter(notNull)
         .map((t) => {
           try {
             return {
@@ -568,7 +568,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
             return;
           }
         })
-        .filter(Utils.notNull),
+        .filter(notNull),
       'action',
     );
 
@@ -678,10 +678,10 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           transactionsByChannel[channelId],
         );
 
-        const timestampedActionsWithoutDuplicates = Utils.uniqueByProperty(
+        const timestampedActionsWithoutDuplicates = uniqueByProperty(
           keptTransactions
             // filter the actions ignored by the previous layers
-            .filter(Utils.notNull)
+            .filter(notNull)
             .map((t) => {
               try {
                 return {
@@ -698,7 +698,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
                 return;
               }
             })
-            .filter(Utils.notNull),
+            .filter(notNull),
           'action',
         );
 
@@ -820,8 +820,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         if (key in pendingRequestState) {
           // TODO: Should find a better way to do that
           if (
-            Utils.crypto.normalizeKeccak256Hash(pendingRequestState[key]).value !==
-            Utils.crypto.normalizeKeccak256Hash(confirmedRequestState[key]).value
+            normalizeKeccak256Hash(pendingRequestState[key]).value !==
+            normalizeKeccak256Hash(confirmedRequestState[key]).value
           ) {
             if (!pending) {
               pending = {};

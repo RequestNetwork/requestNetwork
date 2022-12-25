@@ -5,7 +5,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 import { Escrow } from '../../src/';
 import { getRequestPaymentValues, getSigner } from '../../src/payment/utils';
 
@@ -86,7 +86,7 @@ describe('erc20-escrow-payment tests:', () => {
       expect(values.paymentReference).toBe(paymentReference);
     });
     it('Should throw an error if the request is not erc20', async () => {
-      const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+      const request = deepCopy(validRequest) as ClientTypes.IRequestData;
       request.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
 
       await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError(
@@ -94,21 +94,21 @@ describe('erc20-escrow-payment tests:', () => {
       );
     });
     it('Should throw an error if the currencyInfo has no value', async () => {
-      const request = Utils.deepCopy(validRequest);
+      const request = deepCopy(validRequest);
       request.currencyInfo.value = '';
       await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
     });
     it('Should throw an error if currencyInfo has no network', async () => {
-      const request = Utils.deepCopy(validRequest);
+      const request = deepCopy(validRequest);
       request.currencyInfo.network = '';
       await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
     });
     it('Should throw an error if request has no extension', async () => {
-      const request = Utils.deepCopy(validRequest);
+      const request = deepCopy(validRequest);
       request.extensions = [] as any;
 
       await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError(
@@ -203,7 +203,7 @@ describe('erc20-escrow-payment tests:', () => {
 
     describe('Normal Flow:', () => {
       it('Should pay the amount and fee from payers account', async () => {
-        const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+        const request = deepCopy(validRequest) as ClientTypes.IRequestData;
 
         const payerBeforeBalance = await getErc20Balance(request, payerAddress);
         const escrowBeforeBalance = await getErc20Balance(request, escrowAddress);
@@ -228,7 +228,7 @@ describe('erc20-escrow-payment tests:', () => {
       });
       it('Should withdraw funds and pay funds from escrow to payee', async () => {
         // Set a new requestID to test independent unit-tests.
-        const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+        const request = deepCopy(validRequest) as ClientTypes.IRequestData;
         request.requestId = 'aabb';
 
         // Execute payEscrow
@@ -258,7 +258,7 @@ describe('erc20-escrow-payment tests:', () => {
     describe('Emergency Flow:', () => {
       it('Should initiate emergency claim', async () => {
         // Set a new requestID to test independent unit-tests.
-        const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+        const request = deepCopy(validRequest) as ClientTypes.IRequestData;
         request.requestId = 'aacc';
 
         // Assign the paymentAddress as the payee.
@@ -277,7 +277,7 @@ describe('erc20-escrow-payment tests:', () => {
       });
       it('Should revert emergency claim', async () => {
         // Set a new requestID to test independent unit-tests.
-        const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+        const request = deepCopy(validRequest) as ClientTypes.IRequestData;
         request.requestId = 'aadd';
 
         // Assign the paymentAddress as the payee.
@@ -304,7 +304,7 @@ describe('erc20-escrow-payment tests:', () => {
     describe('Freeze Request Flow:', () => {
       it('Should freeze funds:', async () => {
         // Set a new requestID to test independent unit-tests.
-        const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+        const request = deepCopy(validRequest) as ClientTypes.IRequestData;
         request.requestId = 'aaee';
 
         // Execute payEscrow function on smart contract.
@@ -320,7 +320,7 @@ describe('erc20-escrow-payment tests:', () => {
       });
       it('Should revert if tried to withdraw to early:', async () => {
         // Set a new requestID to test independent unit-tests.
-        const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+        const request = deepCopy(validRequest) as ClientTypes.IRequestData;
         request.requestId = 'aaff';
 
         // Execute payEscrow.

@@ -1,6 +1,6 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { getCurrentTimestampInSecond } from '@requestnetwork/utils';
 import { EventEmitter } from 'events';
 
 import { EthereumStorage } from '../src/ethereum-storage';
@@ -222,7 +222,7 @@ describe('EthereumStorage', () => {
     it('allows to append a file', async () => {
       jest.useFakeTimers('modern');
       jest.setSystemTime(0);
-      const timestamp = Utils.getCurrentTimestampInSecond();
+      const timestamp = getCurrentTimestampInSecond();
       const result = await ethereumStorage.append(content1);
 
       const resultExpected: StorageTypes.IAppendResult = Object.assign(new EventEmitter(), {

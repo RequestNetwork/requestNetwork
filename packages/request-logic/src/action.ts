@@ -1,9 +1,9 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import * as Semver from 'semver';
 import Role from './role';
 import Version from './version';
+import { normalizeKeccak256Hash, recover } from '@requestnetwork/utils';
 
 /**
  * Function to manage Request logic action (object that will be interpreted to create or modify a request)
@@ -45,7 +45,7 @@ function createAction(
  * @returns RequestEnum.ROLE the role of the signer (payee, payer or third party)
  */
 function getSignerIdentityFromAction(action: RequestLogicTypes.IAction): IdentityTypes.IIdentity {
-  return Utils.signature.recover(action);
+  return recover(action);
 }
 
 /**
@@ -125,7 +125,7 @@ function getVersionFromAction(action: RequestLogicTypes.IAction): string {
 function getActionHash(action: RequestLogicTypes.IAction): string {
   // Before the version 2.0.0, the hash was computed without the signature
   if (Semver.lte(action.data.version, '2.0.0')) {
-    return MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(action.data));
+    return MultiFormat.serialize(normalizeKeccak256Hash(action.data));
   }
-  return MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(action));
+  return MultiFormat.serialize(normalizeKeccak256Hash(action));
 }

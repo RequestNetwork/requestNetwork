@@ -6,7 +6,7 @@ import {
   SignatureTypes,
 } from '@requestnetwork/types';
 
-import Utils from '@requestnetwork/utils';
+import { sign } from '@requestnetwork/utils';
 import Version from '../../../src/version';
 const CURRENT_VERSION = Version.currentVersion;
 
@@ -280,9 +280,9 @@ export const fakeIdentity = {
 export const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
   sign: (data: any, identity: IdentityTypes.IIdentity): any =>
     ({
-      [payeeRaw.address as string]: Utils.signature.sign(data, payeeRaw.signatureParams),
-      [payerRaw.address as string]: Utils.signature.sign(data, payerRaw.signatureParams),
-      [otherIdRaw.address as string]: Utils.signature.sign(data, otherIdRaw.signatureParams),
+      [payeeRaw.address as string]: sign(data, payeeRaw.signatureParams),
+      [payerRaw.address as string]: sign(data, payerRaw.signatureParams),
+      [otherIdRaw.address as string]: sign(data, otherIdRaw.signatureParams),
     }[identity.value]),
   supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
   supportedMethods: [SignatureTypes.METHOD.ECDSA],

@@ -1,5 +1,5 @@
 import { ExtensionTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 import ContentData from '../../src/extensions/content-data';
 
@@ -11,7 +11,7 @@ const contentData = new ContentData();
 describe('content-data', () => {
   describe('applyActionToExtension', () => {
     it('can applyActionToExtensions', () => {
-      const requestCreatedNoExtensionBefore = Utils.deepCopy(TestData.requestCreatedNoExtension);
+      const requestCreatedNoExtensionBefore = deepCopy(TestData.requestCreatedNoExtension);
       const previousState = {};
       const newExtensionState = contentData.applyActionToExtension(
         previousState,

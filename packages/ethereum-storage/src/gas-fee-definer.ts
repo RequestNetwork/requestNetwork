@@ -1,6 +1,6 @@
 import { BigNumber, providers, constants } from 'ethers';
-import Utils from '@requestnetwork/utils';
 import { GasDefinerProps } from './ethereum-storage-ethers';
+import { estimateGasFees } from '@requestnetwork/utils';
 
 export class GasFeeDefiner {
   private readonly provider: providers.JsonRpcProvider;
@@ -18,6 +18,6 @@ export class GasFeeDefiner {
     maxFeePerGas?: BigNumber;
     maxPriorityFeePerGas?: BigNumber;
   }> {
-    return Utils.estimateGasFees({ provider: this.provider, gasPriceMin: this.gasPriceMin });
+    return estimateGasFees({ provider: this.provider, gasPriceMin: this.gasPriceMin });
   }
 }

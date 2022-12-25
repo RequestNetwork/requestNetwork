@@ -7,7 +7,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { getErc20Balance } from '../../src/payment/erc20';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 import { revokeErc20Approval } from '@requestnetwork/payment-processor/src/payment/utils';
 import { EnrichedRequest, IConversionPaymentSettings } from '../../src/index';
 import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts';
@@ -59,7 +59,7 @@ const paymentSettings: IConversionPaymentSettings = {
   currencyManager: currencyManager,
 };
 
-const conversionPaymentSettings = Utils.deepCopy(paymentSettings);
+const conversionPaymentSettings = deepCopy(paymentSettings);
 // conversionPaymentSettings.currencyManager = undefined;
 
 const options: IRequestPaymentOptions = {
@@ -165,7 +165,7 @@ const DAIValidRequest: ClientTypes.IRequestData = {
   version: '1.0',
 };
 
-const FAUValidRequest = Utils.deepCopy(DAIValidRequest) as ClientTypes.IRequestData;
+const FAUValidRequest = deepCopy(DAIValidRequest) as ClientTypes.IRequestData;
 FAUValidRequest.currencyInfo = {
   network: 'private',
   type: RequestLogicTypes.CURRENCY.ERC20 as any,
@@ -220,7 +220,7 @@ describe('erc20-batch-conversion-proxy', () => {
   describe(`Conversion:`, () => {
     beforeEach(() => {
       jest.restoreAllMocks();
-      EURRequest = Utils.deepCopy(EURValidRequest);
+      EURRequest = deepCopy(EURValidRequest);
       enrichedRequests = [
         {
           paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
@@ -263,7 +263,7 @@ describe('erc20-batch-conversion-proxy', () => {
         );
       });
       it('should throw an error if request has no currency within paymentSettings', async () => {
-        const wrongPaymentSettings = Utils.deepCopy(conversionPaymentSettings);
+        const wrongPaymentSettings = deepCopy(conversionPaymentSettings);
         wrongPaymentSettings.currency = undefined;
         await expect(
           payBatchConversionProxyRequest(
@@ -546,7 +546,7 @@ describe('erc20-batch-conversion-proxy', () => {
 
   describe('No conversion:', () => {
     beforeEach(() => {
-      FAURequest = Utils.deepCopy(FAUValidRequest);
+      FAURequest = deepCopy(FAUValidRequest);
       enrichedRequests = [
         {
           paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,

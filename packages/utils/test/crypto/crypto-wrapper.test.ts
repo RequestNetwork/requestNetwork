@@ -4,7 +4,7 @@ const anyData = 'this is any data!';
 const arbitraryKey = '12345678901234567890123456789012';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-describe('Utils.cryptoWrapper', () => {
+describe('Utils/cryptoWrapper', () => {
   describe('random32Bytes', () => {
     it('can create a 32 bytes buffer', async () => {
       const randomBytes = await CryptoWrapper.random32Bytes();

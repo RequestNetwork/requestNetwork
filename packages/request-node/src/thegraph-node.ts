@@ -6,9 +6,9 @@ import { LogTypes } from '@requestnetwork/types';
 import { RequestNodeBase } from './requestNodeBase';
 import * as config from './config';
 import { getIpfsStorage } from './storageUtils';
-import Utils from '@requestnetwork/utils';
 import { TheGraphDataAccess } from '@requestnetwork/thegraph-data-access';
 import { EthereumStorageEthers } from '@requestnetwork/ethereum-storage';
+import { SimpleLogger } from '@requestnetwork/utils';
 
 const getNetworkFromId = (networkId: number) => {
   const customNames: Record<number, string> = {
@@ -20,7 +20,7 @@ const getNetworkFromId = (networkId: number) => {
 export class TheGraphRequestNode extends RequestNodeBase {
   constructor(url: string, logger?: LogTypes.ILogger) {
     const initializationStoragePath = config.getInitializationStorageFilePath();
-    logger = logger || new Utils.SimpleLogger();
+    logger = logger || new SimpleLogger();
 
     const store = initializationStoragePath
       ? new KeyvFile({
