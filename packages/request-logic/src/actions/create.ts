@@ -1,8 +1,14 @@
 import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import * as Semver from 'semver';
 import Action from '../action';
 import Version from '../version';
+import {
+  deepCopy,
+  getCurrentTimestampInSecond,
+  hasError,
+  isString,
+  isValid,
+} from '@requestnetwork/utils';
 
 /**
  * Implementation of the request logic specification
@@ -32,20 +38,20 @@ function format(
     throw new Error('payee or PayerId must be given');
   }
 
-  if (!Utils.amount.isValid(requestParameters.expectedAmount)) {
+  if (!isValid(requestParameters.expectedAmount)) {
     throw new Error('expectedAmount must be a positive integer');
   }
 
-  if (requestParameters.payee && Utils.identity.hasError(requestParameters.payee)) {
-    throw new Error(`payee: ${Utils.identity.hasError(requestParameters.payee)}̀`);
+  if (requestParameters.payee && hasError(requestParameters.payee)) {
+    throw new Error(`payee: ${hasError(requestParameters.payee)}̀`);
   }
 
-  if (requestParameters.payer && Utils.identity.hasError(requestParameters.payer)) {
-    throw new Error(`payer: ${Utils.identity.hasError(requestParameters.payer)}̀`);
+  if (requestParameters.payer && hasError(requestParameters.payer)) {
+    throw new Error(`payer: ${hasError(requestParameters.payer)}̀`);
   }
 
   if (!requestParameters.timestamp) {
-    requestParameters.timestamp = Utils.getCurrentTimestampInSecond();
+    requestParameters.timestamp = getCurrentTimestampInSecond();
   }
 
   // convert expectedAmount to string to have a consistent numbering
@@ -85,17 +91,17 @@ function createRequest(
     throw new Error('action.parameters.payee or action.parameters.payer must be given');
   }
 
-  if (action.data.parameters.payee && Utils.identity.hasError(action.data.parameters.payee)) {
-    throw new Error(`payee: ${Utils.identity.hasError(action.data.parameters.payee)}̀`);
+  if (action.data.parameters.payee && hasError(action.data.parameters.payee)) {
+    throw new Error(`payee: ${hasError(action.data.parameters.payee)}̀`);
   }
 
-  if (action.data.parameters.payer && Utils.identity.hasError(action.data.parameters.payer)) {
-    throw new Error(`payer: ${Utils.identity.hasError(action.data.parameters.payer)}̀`);
+  if (action.data.parameters.payer && hasError(action.data.parameters.payer)) {
+    throw new Error(`payer: ${hasError(action.data.parameters.payer)}̀`);
   }
 
   if (
-    !Utils.isString(action.data.parameters.expectedAmount) ||
-    !Utils.amount.isValid(action.data.parameters.expectedAmount)
+    !isString(action.data.parameters.expectedAmount) ||
+    !isValid(action.data.parameters.expectedAmount)
   ) {
     throw new Error(
       'action.parameters.expectedAmount must be a string representing a positive integer',
@@ -105,7 +111,7 @@ function createRequest(
   const signer: IdentityTypes.IIdentity = Action.getSignerIdentityFromAction(action);
 
   // Copy to not modify the action itself
-  const request: RequestLogicTypes.IRequest = Utils.deepCopy(action.data.parameters);
+  const request: RequestLogicTypes.IRequest = deepCopy(action.data.parameters);
   request.extensions = {};
   request.requestId = Action.getRequestId(action);
   request.version = Action.getVersionFromAction(action);

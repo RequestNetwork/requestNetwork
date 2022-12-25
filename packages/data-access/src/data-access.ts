@@ -1,6 +1,6 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy, getCurrentTimestampInSecond, SimpleLogger, unique } from '@requestnetwork/utils';
 
 import * as Bluebird from 'bluebird';
 import { EventEmitter } from 'events';
@@ -96,7 +96,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   public constructor(storage: StorageTypes.IStorage, options?: Partial<IDataAccessOptions>) {
     const defaultOptions: IDataAccessOptions = {
       ignoredLocationIndex: new IgnoredLocationIndex(),
-      logger: new Utils.SimpleLogger(),
+      logger: new SimpleLogger(),
       synchronizationIntervalTime: DEFAULT_INTERVAL_TIME,
       transactionIndex: new TransactionIndex(),
       autoStartSynchronization: false,
@@ -140,7 +140,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // if transaction index already has data, then sync from the last available timestamp
     const lastSynced = await this.transactionIndex.getLastTransactionTimestamp();
-    const now = Utils.getCurrentTimestampInSecond();
+    const now = getCurrentTimestampInSecond();
 
     // initialize the dataId topic with the previous block
     const allDataWithMeta = await this.storage.getData(
@@ -368,7 +368,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         channelIdAndTransactions.transactionsWithMeta.result.transactions;
 
       return finalResult;
-    }, Utils.deepCopy(emptyChannelsWithTopics));
+    }, deepCopy(emptyChannelsWithTopics));
   }
 
   /**
@@ -420,7 +420,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         channelIdAndTransactions.transactionsWithMeta.result.transactions;
 
       return finalResult;
-    }, Utils.deepCopy(emptyChannelsWithTopics));
+    }, deepCopy(emptyChannelsWithTopics));
   }
 
   /**
@@ -428,7 +428,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    */
   public async synchronizeNewDataIds(): Promise<void> {
     this.checkInitialized();
-    const synchronizationTo = Utils.getCurrentTimestampInSecond();
+    const synchronizationTo = getCurrentTimestampInSecond();
 
     // We increment lastSyncStorageTimestamp because the data located at lastSyncStorageTimestamp
     // 0 means it's the first synchronization
@@ -592,7 +592,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     // Gets the transaction from the positions
     const transactions: DataAccessTypes.ITimestampedTransaction[] =
       // first remove de duplicates
-      Utils.unique(transactionPositions).uniqueItems.map(
+      unique(transactionPositions).uniqueItems.map(
         // Get the transaction from their position and add the timestamp
         (position: number) => ({
           state:

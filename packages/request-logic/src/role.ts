@@ -1,5 +1,5 @@
 import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { areEqual } from '@requestnetwork/utils';
 
 /**
  * Function to manage Request Logic Role
@@ -17,10 +17,10 @@ export default {
  * @returns Types.ROLE the role of identity in parameters
  */
 function getRole(identity: IdentityTypes.IIdentity, parameters: any): RequestLogicTypes.ROLE {
-  if (parameters.payee && Utils.identity.areEqual(parameters.payee, identity)) {
+  if (parameters.payee && areEqual(parameters.payee, identity)) {
     return RequestLogicTypes.ROLE.PAYEE;
   }
-  if (parameters.payer && Utils.identity.areEqual(parameters.payer, identity)) {
+  if (parameters.payer && areEqual(parameters.payer, identity)) {
     return RequestLogicTypes.ROLE.PAYER;
   }
 

@@ -1,8 +1,8 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import Axios from 'axios';
 
 import { BigNumber } from 'ethers';
+import { retry } from '@requestnetwork/utils';
 
 // Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
 const BLOCKCHAININFO_REQUEST_MAX_RETRY = 3;
@@ -34,7 +34,7 @@ export class BlockchainInfoProvider implements PaymentTypes.IBitcoinDetectionPro
 
     const queryUrl = `${blockchainInfoUrl}/rawaddr/${address}?cors=true`;
     try {
-      const res = await Utils.retry(async () => Axios.get(queryUrl), {
+      const res = await retry(async () => Axios.get(queryUrl), {
         maxRetries: BLOCKCHAININFO_REQUEST_MAX_RETRY,
         retryDelay: BLOCKCHAININFO_REQUEST_RETRY_DELAY,
       })();
@@ -50,7 +50,7 @@ export class BlockchainInfoProvider implements PaymentTypes.IBitcoinDetectionPro
 
       // get all the transactions from the whole pagination
       for (let i = 1; i <= numberOfExtraPages; i++) {
-        const resExtraPage = await Utils.retry(
+        const resExtraPage = await retry(
           async () =>
             fetch(`${blockchainInfoUrl}/rawaddr/${address}?cors=true&offset=${i * TXS_PER_PAGE}`),
           {

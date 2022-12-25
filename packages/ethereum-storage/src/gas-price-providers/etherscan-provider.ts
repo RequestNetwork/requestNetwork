@@ -1,11 +1,11 @@
 import EthereumUtils from '../ethereum-utils';
 
 import { StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 
 import Axios from 'axios';
 
 import { BigNumber } from 'ethers';
+import { retry } from '@requestnetwork/utils';
 
 // Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
 const ETHERSCAN_REQUEST_MAX_RETRY = 3;
@@ -32,7 +32,7 @@ export default class EtherscanProvider implements StorageTypes.IGasPriceProvider
    * @returns Requested gas price
    */
   public async getGasPrice(type: StorageTypes.GasPriceType): Promise<BigNumber | null> {
-    const res = await Utils.retry(async () => Axios.get(this.providerUrl), {
+    const res = await retry(async () => Axios.get(this.providerUrl), {
       maxRetries: ETHERSCAN_REQUEST_MAX_RETRY,
       retryDelay: ETHERSCAN_REQUEST_RETRY_DELAY,
     })();

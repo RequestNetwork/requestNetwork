@@ -4,16 +4,16 @@
 It is a collection of tools shared between the @requestnetwork packages.
 
 - Elliptic curve crypto and signature
-  - crypto.normalizeKeccak256Hash()
-  - crypto.ecUtils.getAddressFromPrivateKey()
-  - crypto.ecUtils.recover()
-  - crypto.ecUtils.sign()
-  - signature.getIdentityFromSignatureParams()
-  - signature.recover()
-  - signature.sign()
+  - normalizeKeccak256Hash()
+  - EcUtils.getAddressFromPrivateKey()
+  - EcUtils.recover()
+  - EcUtils.sign()
+  - getIdentityFromSignatureParams()
+  - recover()
+  - sign()
 - Identity
-  - identity.areEqual()
-  - identity.normalizeIdentityValue()
+  - areEqual()
+  - normalizeIdentityValue()
   - isString
 - Miscellaneous
   - deepCopy()
@@ -30,9 +30,9 @@ npm install @requestnetwork/utils
 ## Usage
 
 ```javascript
-import Utils from '@requestnetwork/utils';
+import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
-const hash = Utils.crypto.normalizeKeccak256Hash({ exampleData: true });
+const hash = normalizeKeccak256Hash({ exampleData: true });
 ```
 
 ## Contributing

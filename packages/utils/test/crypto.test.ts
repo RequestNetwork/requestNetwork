@@ -8,7 +8,7 @@ import {
 } from '../src';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-describe('Utils.crypto', () => {
+describe('Utils/crypto', () => {
   it('can normalizeKeccak256Hash', () => {
     const arbitraryObject = {
       param1: 'valC',

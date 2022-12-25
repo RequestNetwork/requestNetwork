@@ -1,5 +1,5 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { getCurrentTimestampInSecond } from '@requestnetwork/utils';
 /**
  * Collection of utils functions related to the library, meant to simplify its use.
  */
@@ -11,7 +11,7 @@ export default {
    *
    * @returns current timestamp in second
    */
-  getCurrentTimestampInSecond: Utils.getCurrentTimestampInSecond,
+  getCurrentTimestampInSecond,
 };
 
 /**

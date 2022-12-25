@@ -6,7 +6,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 import { batchPaymentsArtifact } from '@requestnetwork/smart-contracts';
 
 import { getErc20Balance } from '../../src/payment/erc20';
@@ -74,7 +74,7 @@ const validRequest: ClientTypes.IRequestData = {
   version: '1.0',
 };
 
-const fauValidRequest = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+const fauValidRequest = deepCopy(validRequest) as ClientTypes.IRequestData;
 fauValidRequest.currencyInfo = {
   network: 'private',
   type: RequestLogicTypes.CURRENCY.ERC20 as any,
@@ -115,8 +115,8 @@ const testSuite = (
 
     beforeEach(() => {
       jest.restoreAllMocks();
-      request1 = Utils.deepCopy(requestTemplate1) as ClientTypes.IRequestData;
-      request2 = Utils.deepCopy(requestTemplate2) as ClientTypes.IRequestData;
+      request1 = deepCopy(requestTemplate1) as ClientTypes.IRequestData;
+      request2 = deepCopy(requestTemplate2) as ClientTypes.IRequestData;
     });
 
     it('should throw an error if the request is not erc20', async () => {
@@ -206,7 +206,7 @@ const testSuite = (
 
       it('should pay an ERC20 request with fees', async () => {
         // first approve the contract
-        const tmpRequest = Utils.deepCopy(request1);
+        const tmpRequest = deepCopy(request1);
         let amount = 1000;
         const isMultiToken = !sameCurrencyValue(request1, request2);
 

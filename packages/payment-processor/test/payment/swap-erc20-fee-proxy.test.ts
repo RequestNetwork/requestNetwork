@@ -6,7 +6,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 import { getErc20Balance } from '../../src/payment/erc20';
 import { approveErc20ForSwapToPayIfNeeded } from '../../src/payment/swap-erc20';
@@ -96,7 +96,7 @@ describe('swap-erc20-fee-proxy', () => {
       );
     });
     it('should throw an error if the request is not erc20', async () => {
-      const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+      const request = deepCopy(validRequest) as ClientTypes.IRequestData;
       request.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
 
       await expect(
@@ -107,7 +107,7 @@ describe('swap-erc20-fee-proxy', () => {
     });
 
     it('should throw an error if the currencyInfo has no value', async () => {
-      const request = Utils.deepCopy(validRequest);
+      const request = deepCopy(validRequest);
       request.currencyInfo.value = '';
       await expect(
         swapErc20FeeProxyRequest(request, wallet, validSwapSettings),
@@ -117,7 +117,7 @@ describe('swap-erc20-fee-proxy', () => {
     });
 
     it('should throw an error if currencyInfo has no network', async () => {
-      const request = Utils.deepCopy(validRequest);
+      const request = deepCopy(validRequest);
       request.currencyInfo.network = '';
       await expect(
         swapErc20FeeProxyRequest(request, wallet, validSwapSettings),
@@ -127,7 +127,7 @@ describe('swap-erc20-fee-proxy', () => {
     });
 
     it('should throw an error if request has no extension', async () => {
-      const request = Utils.deepCopy(validRequest);
+      const request = deepCopy(validRequest);
       request.extensions = [] as any;
 
       await expect(

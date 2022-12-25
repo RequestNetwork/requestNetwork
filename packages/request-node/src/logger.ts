@@ -1,5 +1,5 @@
 import { LogTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { SimpleLogger } from '@requestnetwork/utils';
 import chalk from 'chalk';
 
 /** The different logging modes supported by this logger */
@@ -20,7 +20,7 @@ const levelColor = {
 /**
  * A logger for the Request Node that extends the `SimpleLogger`
  */
-export class Logger extends Utils.SimpleLogger {
+export class Logger extends SimpleLogger {
   // The class modeType
   private mode: modeType;
 
