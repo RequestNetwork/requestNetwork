@@ -10,7 +10,7 @@
 
 This repository contains all the Request Network developer tools written in TypeScript.
 
-Join the [Request Discord][requesthub-discord-url] to get in touch with us.
+Join the [Request Discord][request-discord-url] to get in touch with us.
 
 [website-url]: https://request.network
 [whitepaper-url]: https://request.network/assets/pdf/request_whitepaper.pdf
