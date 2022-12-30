@@ -4,7 +4,7 @@ We welcome contributions from anyone, and are grateful for even the smallest of 
 
 ## Got a Question or Problem?
 
-For quick help, join the [Request Discord]( https://request.network/discord/) and ask your question there.
+For quick help, join the [Request Discord](https://request.network/discord/) and ask your question there.
 You will get a reply much faster than by opening an issue.
 
 ## Found a Bug?
