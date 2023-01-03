@@ -32,7 +32,7 @@ describe('contract: ChainlinkConversionPath', () => {
 
   describe('admin tasks', async () => {
     // Reset all aggregators to 0x000...
-    afterAll(async () => {
+    before(async () => {
       await conversionPathInstance.updateAggregatorsList(
         [address1, address4],
         [address2, address5],
