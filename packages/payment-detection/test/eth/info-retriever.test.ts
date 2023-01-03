@@ -45,7 +45,15 @@ describe('api/eth/info-retriever', () => {
     await expect(infoRetreiver.getTransferEvents()).rejects.toThrowError();
   });
 
-  describe('Multichain', () => {
+  // Utility for conditionally skipping tests
+  const describeIf = (
+    condition: any,
+    ...args: [string | number | Function | jest.FunctionLike, jest.EmptyFunction]
+  ) => (condition ? describe(...args) : describe.skip(...args));
+
+  // Skip tests if build is from external fork or API tests are disabled
+  // External forks cannot access secret API keys
+  describeIf(!process.env.CIRCLE_PR_NUMBER && !process.env.DISABLE_API_TESTS, 'Multichain', () => {
     // TODO temporary disable xDAI, CELO, Sokol, and Goerli
     // FIXME: API-based checks should run nightly and be mocked for CI
     [
