@@ -64,7 +64,7 @@ Description: get specific details of the Escrow Event
 | --------------- | ---------- | ---------------------------------------------------- |
 | id              | ID!        | hash transaction of the escrow                       |
 | contractAddress | Bytes!     | escrow contract address                              |
-| reference       | Bytes!     | is the reference data used to track the escrow event |
+| reference       | Bytes!     | reference data used to track the escrow event |
 | escrow          | Escrow!    | the Escrow where this event occurred                 |
 | block           | Int!       | block in which event took place                      |
 | timestamp       | Int!       | timestamp of event                                   |
