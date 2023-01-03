@@ -32,14 +32,7 @@ export class EthereumTransactionSubmitter {
   }
 
   async initialize(): Promise<void> {
-    try {
-      await this.provider.send('eth_feeHistory', [1, 'latest', []]);
-    } catch (e) {
-      this.logger.warn(
-        'This RPC provider does not support the "eth_feeHistory" method: switching to legacy gas price',
-      );
-      this.enableEip1559 = false;
-    }
+    this.enableEip1559 = await Utils.isEip1559Supported(this.provider, this.logger);
   }
 
   /** Submits an IPFS hash, with fees according to `ipfsSize`  */
