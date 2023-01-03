@@ -18,7 +18,7 @@ Description: get specific details of the payment
 | ----------------- | ----------- | ------------------------------------------------ |
 | id                | ID!         | hash transaction of the payment                  |
 | contractAddress   | Bytes!      | payment proxy contract address                   |
-| tokenAddress      | Bytes       | contract of token used for payment               |
+| tokenAddress      | Bytes       | contract address of token used for payment               |
 | to                | Bytes!      | address payment was made to                      |
 | from              | Bytes!      | address payment was made from                    |
 | reference         | Bytes!      | is the reference data used to track the transfer |
