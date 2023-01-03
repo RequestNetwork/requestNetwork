@@ -97,6 +97,30 @@ Test all the packages in the monorepo.
 yarn run test
 ```
 
+## Signed Commits
+
+This repository requires signed commits.
+![image](https://user-images.githubusercontent.com/2530913/210270686-c426c602-8362-4100-842f-b2e7f14e71ea.png)
+
+To set up signed commits:
+
+1. [Configure git to use your SSH signing key](https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key#telling-git-about-your-ssh-key)
+   ```bash
+   $ git config --global gpg.format ssh
+   $ git config --global user.signingkey ~/.ssh/id_ed25519.pub
+   ```
+2. [Add your SSH signing key to Github](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account)
+   - You can reuse your SSH “Authentication” Key as a “Signing” Key but it must be added separately.
+   - Example: ![image](https://user-images.githubusercontent.com/2530913/210269857-a0766ec4-e982-4f99-892b-17f53f08152a.png)
+3. [Configure git to sign all commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits)
+   ```bash
+   git config --global commit.gpgsign true
+   ```
+4. [Fix un-signed commits using rebase](https://superuser.com/a/1123928)
+   ```bash
+   git rebase --exec 'git commit --amend --no-edit -n -S' -i master
+   ```
+
 ## License
 
 [MIT](https://github.com/RequestNetwork/requestNetwork/blob/master/LICENSE)
