@@ -6,6 +6,7 @@ import { chainlinkConversionPath as chainlinkConvArtifact } from '../../src/lib'
 import { ChainlinkConversionPath } from '../../src/types';
 import { localERC20AlphaArtifact, localUSDTArtifact } from './localArtifacts';
 
+const address0 = '0x0000000000000000000000000000000000000000';
 const address1 = '0x1111111111111111111111111111111111111111';
 const address2 = '0x2222222222222222222222222222222222222222';
 const address3 = '0x3333333333333333333333333333333333333333';
@@ -30,9 +31,18 @@ describe('contract: ChainlinkConversionPath', () => {
   });
 
   describe('admin tasks', async () => {
+    // Reset all aggregators to 0x000...
+    before(async () => {
+      await conversionPathInstance.updateAggregatorsList(
+        [address1, address4],
+        [address2, address5],
+        [address0, address0],
+      );
+    });
+
     it('can updateAggregator and updateAggregatorsList', async () => {
       let addressAggregator = await conversionPathInstance.allAggregators(address1, address2);
-      expect(addressAggregator).equal('0x0000000000000000000000000000000000000000');
+      expect(addressAggregator).equal(address0);
 
       await conversionPathInstance.updateAggregator(address1, address2, address3);
 
@@ -40,9 +50,7 @@ describe('contract: ChainlinkConversionPath', () => {
       expect(addressAggregator).equal(address3);
 
       addressAggregator = await conversionPathInstance.allAggregators(address4, address5);
-      expect(addressAggregator, 'addressAggregator must be 0x').equal(
-        '0x0000000000000000000000000000000000000000',
-      );
+      expect(addressAggregator, 'addressAggregator must be 0x').equal(address0);
 
       await conversionPathInstance.updateAggregatorsList(
         [address1, address4],
