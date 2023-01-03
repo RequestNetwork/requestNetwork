@@ -21,7 +21,7 @@ Description: get specific details of the payment
 | tokenAddress      | Bytes       | contract address of token used for payment               |
 | to                | Bytes!      | address payment was made to                      |
 | from              | Bytes!      | address payment was made from                    |
-| reference         | Bytes!      | is the reference data used to track the transfer |
+| reference         | Bytes!      | reference data used to track the transfer |
 | block             | Int!        | block payment took place                         |
 | timestamp         | Int!        | time stamp of payment                            |
 | txHash            | Bytes!      | transaction hash of payment                      |
