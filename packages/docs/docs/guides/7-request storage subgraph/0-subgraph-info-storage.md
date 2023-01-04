@@ -1,7 +1,7 @@
 ---
 title: Request Subgraph for Storage Subgraph
 keywords: [Subgraph, API, Indexing]
-description: General information and links about the subgraph.
+description: A Subgraph to index Request transactions.
 ---
 
 # Request Network Storage Subgraph
