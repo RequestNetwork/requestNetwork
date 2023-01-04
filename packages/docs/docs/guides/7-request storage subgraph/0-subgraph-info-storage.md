@@ -8,8 +8,6 @@ description: General information and links about the subgraph.
 
 Request has a GraphQL API Endpoint hosted by [The Graph](https://thegraph.com/docs/about/introduction#what-the-graph-is) called a subgraph for indexing and organizing data from the Request smart contracts.
 
-Request leverages the [Graph Protocol](https://thegraph.com) to simplify the process of making meaningful applications using the Request Smart Contracts and associated data.
-
 This subgraph not deployed on TheGraph network, but on a private node. Below is documentation on how to run.  
 
 
