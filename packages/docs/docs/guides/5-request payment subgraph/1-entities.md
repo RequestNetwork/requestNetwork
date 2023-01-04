@@ -16,7 +16,7 @@ Description: get specific details of the payment
 
 | Field             | Type        | Description                                      |
 | ----------------- | ----------- | ------------------------------------------------ |
-| id                | ID!         | hash transaction of the payment                  |
+| id                | ID!         |                  |
 | contractAddress   | Bytes!      | payment proxy contract address                   |
 | tokenAddress      | Bytes       | contract address of token used for payment               |
 | to                | Bytes!      | address payment was made to                      |
@@ -26,14 +26,14 @@ Description: get specific details of the payment
 | timestamp         | Int!        | time stamp of payment                            |
 | txHash            | Bytes!      | transaction hash of payment                      |
 | gasUsed           | BigInt!     | gas used for payment                             |
-| gasPrice          | BigInt!     | gas fee at time of payment                       |
+| gasPrice          | BigInt!     | total gas fee = gasUsed * gasPrice                      |
 | amount            | BigDecimal! | amount of payment                                |
 | feeAmount         | BigDecimal  | fee charged for payment                          |
 | feeAddress        | Bytes       | address where the fee is sent                    |
 | currency          | Bytes       | fiat currency payment is based on                |
 | amountInCrypto    | BigDecimal  | amount of payment in crypto                      |
 | feeAmountInCrypto | BigDecimal  | fee amount in crypto                             |
-| maxRateTimespan   | Int         | maximum time span payment will reoccur           |
+| maxRateTimespan   | Int         | is the time span maximum accepted between the payment and the rate timestamp           |
 
 ## Escrow
 
@@ -72,4 +72,4 @@ Description: get specific details of the Escrow Event
 | eventName       | EventName! | name of the escrow event                             |
 | from            | Bytes!     | address escrow is set up from                        |
 | gasUsed         | BigInt!    | gas used for event                                   |
-| gasPrice        | BigInt!    | price of gas at time of event                        |
+| gasPrice        | BigInt!    | total gas fee = gasUsed * gasPrice                        |
