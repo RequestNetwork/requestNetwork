@@ -31,6 +31,7 @@ describe('contract: BatchConversionPayments', async () => {
   const networkConfig = network.config as HttpNetworkConfig;
   const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
 
+  let adminAddress: string;
   let from: string;
   let to: string;
   let feeAddress: string;
@@ -120,7 +121,7 @@ describe('contract: BatchConversionPayments', async () => {
   };
 
   before(async () => {
-    [, from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
+    [adminAddress, from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
     [adminSigner, fromSigner, , , signer4] = await ethers.getSigners();
 
     chainlinkPath = chainlinkConversionPath.connect(network.name, fromSigner);
@@ -136,6 +137,7 @@ describe('contract: BatchConversionPayments', async () => {
       ethFeeProxy.address,
       chainlinkPath.address,
       ETH_hash,
+      adminAddress,
     );
 
     batchConversionProxy = await new BatchConversionPayments__factory(adminSigner).deploy(
