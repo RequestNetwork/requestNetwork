@@ -20,11 +20,14 @@ contract EthConversionProxy is ReentrancyGuard, WhitelistAdminRole {
   constructor(
     address _paymentProxyAddress,
     address _chainlinkConversionPathAddress,
-    address _nativeTokenHash
+    address _nativeTokenHash,
+    address _owner
   ) {
     paymentProxy = _paymentProxyAddress;
     chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
     nativeTokenHash = _nativeTokenHash;
+    renounceWhitelistAdmin();
+    _addWhitelistAdmin(_owner);
   }
 
   // Event to declare a conversion with a reference
@@ -140,5 +143,13 @@ contract EthConversionProxy is ReentrancyGuard, WhitelistAdminRole {
    */
   function updateConversionProxyAddress(address _paymentProxyAddress) external onlyWhitelistAdmin {
     paymentProxy = _paymentProxyAddress;
+  }
+
+  /**
+   * @notice Update the native token hash
+   * @param _nativeTokenHash hash of the native token represented as an eth address
+   */
+  function updateNativeTokenHash(address _nativeTokenHash) external onlyWhitelistAdmin {
+    nativeTokenHash = _nativeTokenHash;
   }
 }

@@ -29,8 +29,10 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   /**
    * @param _nativeTokenHash hash of the native token
    */
-  constructor(address _nativeTokenHash) {
+  constructor(address _nativeTokenHash, address _owner) {
     nativeTokenHash = _nativeTokenHash;
+    renounceWhitelistAdmin();
+    _addWhitelistAdmin(_owner);
   }
 
   // Mapping of Chainlink aggregators (input currency => output currency => contract address)
@@ -227,5 +229,13 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
       size := extcodesize(_addr)
     }
     return (size > 0);
+  }
+
+  /**
+   * @notice Update the native token hash
+   * @param _nativeTokenHash hash of the native token represented as an eth address
+   */
+  function updateNativeTokenHash(address _nativeTokenHash) external onlyWhitelistAdmin {
+    nativeTokenHash = _nativeTokenHash;
   }
 }

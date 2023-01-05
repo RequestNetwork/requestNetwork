@@ -24,21 +24,23 @@ contract ERC20SwapToPay is Ownable {
   using SafeERC20 for IERC20;
 
   IUniswapV2Router02 public swapRouter;
-  IERC20FeeProxy public paymentProxy;
 
-  constructor(address _swapRouterAddress, address _paymentProxyAddress) {
+  // Fees taken by request when a payment is made through swap. Range 0-1000. 10 => 1% fees.
+  uint256 public requestSwapFees;
+
+  constructor(address _swapRouterAddress, address _owner) {
     swapRouter = IUniswapV2Router02(_swapRouterAddress);
-    paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
+    _transferOwnership(_owner);
   }
 
   /**
    * @notice Authorizes the proxy to spend a new request currency (ERC20).
    * @param _erc20Address Address of an ERC20 used as a request currency
    */
-  function approvePaymentProxyToSpend(address _erc20Address) public {
+  function approvePaymentProxyToSpend(address _erc20Address, address _paymentProxy) public {
     IERC20 erc20 = IERC20(_erc20Address);
     uint256 max = 2**256 - 1;
-    erc20.safeApprove(address(paymentProxy), max);
+    erc20.safeApprove(_paymentProxy, max);
   }
 
   /**
@@ -54,6 +56,7 @@ contract ERC20SwapToPay is Ownable {
   /**
   * @notice Performs a token swap between a payment currency and a request currency, and then
   *         calls a payment proxy to pay the request, including fees.
+  * @param _paymentProxy Address of the ERC20FeeProxy which will perform the payment.
   * @param _to Transfer recipient = request issuer
   * @param _amount Amount to transfer in request currency
   * @param _amountInMax Maximum amount allowed to spend for currency swap, in payment currency.
@@ -67,6 +70,7 @@ contract ERC20SwapToPay is Ownable {
   * @param _deadline Deadline for the swap to be valid
   */
   function swapTransferWithReference(
+    address _paymentProxy,
     address _to,
     uint256 _amount, // requestedToken
     uint256 _amountInMax, // spentToken
@@ -81,8 +85,11 @@ contract ERC20SwapToPay is Ownable {
 
     uint256 requestedTotalAmount = _amount + _feeAmount;
 
+    // Compute the request swap fees
+    uint256 requestSwapFeesAmount = (requestedTotalAmount * requestSwapFees) / 1000;
+
     require(
-      spentToken.allowance(msg.sender, address(this)) > _amountInMax,
+      spentToken.allowance(msg.sender, address(this)) >= _amountInMax,
       'Not sufficient allowance for swap to pay.'
     );
     require(
@@ -95,18 +102,64 @@ contract ERC20SwapToPay is Ownable {
       approveRouterToSpend(address(spentToken));
     }
 
+    // Swap the spentToken against the requestedToken
     swapRouter.swapTokensForExactTokens(
-      requestedTotalAmount,
+      requestedTotalAmount + requestSwapFeesAmount,
       _amountInMax,
       _path,
       address(this),
       _deadline
     );
 
-    // Allow the payment network to spend all this contract's requestedToken
-    if (requestedToken.allowance(address(this), address(paymentProxy)) < requestedTotalAmount) {
-      approvePaymentProxyToSpend(address(requestedToken));
+    approveAndPay(
+      _paymentProxy,
+      _to,
+      _amount,
+      _paymentReference,
+      _feeAmount,
+      _feeAddress,
+      requestSwapFeesAmount,
+      requestedToken
+    );
+
+    // Give the change back to the payer, in both currencies (only spent token should remain)
+    if (spentToken.balanceOf(address(this)) > 0) {
+      spentToken.safeTransfer(msg.sender, spentToken.balanceOf(address(this)));
     }
+    if (requestedToken.balanceOf(address(this)) > 0) {
+      requestedToken.safeTransfer(msg.sender, requestedToken.balanceOf(address(this)));
+    }
+  }
+
+  /**
+   * @notice Internal function called during a payment after the swap has been performed.
+   *         Approve the proxy to spend this contract tokens, Calls the proxy to perform the actual payment,
+   *         Pays the request swap fees
+   * @param _paymentProxy Address of the ERC20FeeProxy which will perform the payment.
+   * @param _to Transfer recipient = request issuer
+   * @param _amount Amount to transfer in request currency
+   * @param _paymentReference Reference of the payment related
+   * @param _feeAmount Amount of the fee in request currency
+   * @param _feeAddress Where to pay the fee
+   * @param requestSwapFeesAmount Amount of the request swap fees
+   * @param requestedToken The request currency
+   */
+  function approveAndPay(
+    address _paymentProxy,
+    address _to,
+    uint256 _amount, // requestedToken
+    bytes calldata _paymentReference,
+    uint256 _feeAmount, // requestedToken
+    address _feeAddress,
+    uint256 requestSwapFeesAmount,
+    IERC20 requestedToken
+  ) internal {
+    // Allow the payment network to spend all this contract's requestedToken
+    if (requestedToken.allowance(address(this), _paymentProxy) < _amount + _feeAmount) {
+      approvePaymentProxyToSpend(address(requestedToken), _paymentProxy);
+    }
+
+    IERC20FeeProxy paymentProxy = IERC20FeeProxy(_paymentProxy);
 
     // Pay the request and fees
     paymentProxy.transferFromWithReferenceAndFee(
@@ -118,25 +171,23 @@ contract ERC20SwapToPay is Ownable {
       _feeAddress
     );
 
-    // Give the change back to the payer, in both currencies (only spent token should remain)
-
-    if (spentToken.balanceOf(address(this)) > 0) {
-      spentToken.safeTransfer(msg.sender, spentToken.balanceOf(address(this)));
-    }
-    if (requestedToken.balanceOf(address(this)) > 0) {
-      requestedToken.safeTransfer(msg.sender, requestedToken.balanceOf(address(this)));
-    }
+    // Pay the request swap fees
+    requestedToken.safeTransfer(_feeAddress, requestSwapFeesAmount);
   }
 
-  /*
-   * Admin functions to edit the admin, router address or proxy address
+  /**
+   * @notice Admin functions to edit the swap router address
+   * @param _newSwapRouterAddress new swap router address
    */
-
-  function setPaymentProxy(address _paymentProxyAddress) public onlyOwner {
-    paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
-  }
-
   function setRouter(address _newSwapRouterAddress) public onlyOwner {
     swapRouter = IUniswapV2Router02(_newSwapRouterAddress);
+  }
+
+  /**
+   * @notice Admin functions to edit the request swap fees
+   * @param _newRequestSwapFees new request swap fees
+   */
+  function updateRequestSwapFees(uint256 _newRequestSwapFees) public onlyOwner {
+    requestSwapFees = _newRequestSwapFees;
   }
 }
