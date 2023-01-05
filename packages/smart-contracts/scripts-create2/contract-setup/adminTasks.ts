@@ -224,6 +224,28 @@ export const updateNativeAndUSDAddress = async (
 };
 
 /**
+ * Update the native token hash used by a contract.
+ * @param contract contract to be updated.
+ * @param nativeTokenHash The address of native token, eg: ETH.
+ * @param txOverrides information related to gas fees. Increase their values if needed.
+ */
+export const updateNativeTokenHash = async (
+  contractType: string,
+  contract: any,
+  nativeTokenHash: string,
+  txOverrides: Overrides,
+): Promise<void> => {
+  const currentNativeTokenHash = (await contract.nativeTokenHash()).toLocaleLowerCase();
+  if (currentNativeTokenHash !== nativeTokenHash.toLocaleLowerCase()) {
+    const tx = await contract.updateNativeTokenHash(nativeTokenHash, txOverrides);
+    await tx.wait(1);
+    console.log(
+      `${contractType}: the current NativeTokenHash: ${currentNativeTokenHash}, have been replaced by: ${nativeTokenHash}`,
+    );
+  }
+};
+
+/**
  * Gets the signer and gas fees information.
  * @param network The network used.
  * @param hre Hardhat runtime environment.
