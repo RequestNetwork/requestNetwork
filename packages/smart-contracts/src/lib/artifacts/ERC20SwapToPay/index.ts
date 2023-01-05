@@ -1,6 +1,7 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
+import { abi as ABI_0_2_0 } from './0.2.0.json';
 // @ts-ignore Cannot find module
 import type { ERC20SwapToPay } from '../../../types/ERC20SwapToPay';
 
@@ -84,6 +85,15 @@ export const erc20SwapToPayArtifact = new ContractArtifact<ERC20SwapToPay>(
         },
       },
     },
+    '0.4.0': {
+      abi: ABI_0_2_0,
+      deployment: {
+        private: {
+          address: '0xA4392264a2d8c998901D10C154C91725b1BF0158',
+          creationBlockNumber: 0,
+        },
+      },
+    },
   },
   // Additional deployments of same versions, not worth upgrading the version number but worth using within next versions
   /*
@@ -97,5 +107,5 @@ export const erc20SwapToPayArtifact = new ContractArtifact<ERC20SwapToPay>(
     },
   },
   */
-  '0.3.0',
+  '0.4.0',
 );
