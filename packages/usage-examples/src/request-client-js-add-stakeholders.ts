@@ -119,7 +119,7 @@ payeeRequestNetwork
         console.log('encrypted confirmed request:');
         console.log(confirmedRequest);
         request
-          .addStakeholders([thirdPartyEncryptionParameters], thirdPartyIdentity)
+          .addStakeholders([thirdPartyEncryptionParameters], payeeIdentity)
           .then((requestWithThirdParty) => {
             console.log('encrypted request with third party:');
             console.log(requestWithThirdParty);
