@@ -93,16 +93,18 @@ const decryptionProvider: DecryptionProviderTypes.IDecryptionProvider =
 
   console.log('requestId:', resultCreation.requestId);
 
+  const ret = await requestLogic.addStakeholders({ requestId }, signerIdentity, [
+    thirdEncryptionParameters,
+  ]);
+
+  ret.on('confirmed', (resultConfirmed: any) => {
+    console.log(resultConfirmed);
+  });
+  ret.on('error', (error: any) => {
+    console.log(error);
+  });
+
   const { result } = await requestLogic.getRequestFromId(resultCreation.requestId);
-
-  const { result: resultAddStakeholder } = await requestLogic.addStakeholders(
-    { requestId },
-    signerIdentity,
-    [thirdEncryptionParameters],
-  );
-
-  console.log('resultAddStakeholder:', resultAddStakeholder);
-
   return result.request;
 })()
   .then((request) => {
