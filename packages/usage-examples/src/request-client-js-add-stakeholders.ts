@@ -35,10 +35,6 @@ const thirdPartySignatureInfo = {
   method: RequestNetwork.Types.Signature.METHOD.ECDSA,
   privateKey: '0x4025da5692759add08f98f4b056c41c71916a671cedc7584a80d73adc7fb43c0',
 };
-const thirdPartyIdentity = {
-  type: RequestNetwork.Types.Identity.TYPE.ETHEREUM_ADDRESS,
-  value: '0x818B6337657A23F58581715Fc610577292e521D0',
-};
 const thirdPartyEncryptionParameters: RequestNetwork.Types.Encryption.IEncryptionParameters = {
   key: 'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
   method: RequestNetwork.Types.Encryption.METHOD.ECIES,
