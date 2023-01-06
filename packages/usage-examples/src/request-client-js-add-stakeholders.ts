@@ -5,18 +5,18 @@ import * as RequestNetwork from '@requestnetwork/request-client.js';
 // payee information
 const payeeSignatureInfo = {
   method: RequestNetwork.Types.Signature.METHOD.ECDSA,
-  privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
+  privateKey: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
 };
 const payeeIdentity = {
   type: RequestNetwork.Types.Identity.TYPE.ETHEREUM_ADDRESS,
-  value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+  value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
 };
 const payeeEncryptionParameters: RequestNetwork.Types.Encryption.IEncryptionParameters = {
-  key: '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
+  key: '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
   method: RequestNetwork.Types.Encryption.METHOD.ECIES,
 };
 const payeeDecryptionParameters: RequestNetwork.Types.Encryption.IDecryptionParameters = {
-  key: '0x0906ff14227cead2b25811514302d57706e7d5013fcc40eca5985b216baeb998',
+  key: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
   method: RequestNetwork.Types.Encryption.METHOD.ECIES,
 };
 
@@ -26,26 +26,25 @@ const payerIdentity = {
   value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
 };
 const payerEncryptionParameters: RequestNetwork.Types.Encryption.IEncryptionParameters = {
-  key: 'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
+  key: '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
   method: RequestNetwork.Types.Encryption.METHOD.ECIES,
 };
 
 // third party information
-// TODO: make a different key, currently duplicate of payer
 const thirdPartySignatureInfo = {
   method: RequestNetwork.Types.Signature.METHOD.ECDSA,
-  privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
+  privateKey: '0x4025da5692759add08f98f4b056c41c71916a671cedc7584a80d73adc7fb43c0',
 };
 const thirdPartyIdentity = {
   type: RequestNetwork.Types.Identity.TYPE.ETHEREUM_ADDRESS,
-  value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+  value: '0x818B6337657A23F58581715Fc610577292e521D0',
 };
 const thirdPartyEncryptionParameters: RequestNetwork.Types.Encryption.IEncryptionParameters = {
   key: 'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
   method: RequestNetwork.Types.Encryption.METHOD.ECIES,
 };
 const thirdPartyDecryptionParameters: RequestNetwork.Types.Encryption.IDecryptionParameters = {
-  key: '0x0906ff14227cead2b25811514302d57706e7d5013fcc40eca5985b216baeb998',
+  key: '0x4025da5692759add08f98f4b056c41c71916a671cedc7584a80d73adc7fb43c0',
   method: RequestNetwork.Types.Encryption.METHOD.ECIES,
 };
 
