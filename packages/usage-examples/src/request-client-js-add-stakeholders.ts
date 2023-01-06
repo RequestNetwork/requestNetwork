@@ -30,12 +30,53 @@ const payerEncryptionParameters: RequestNetwork.Types.Encryption.IEncryptionPara
   method: RequestNetwork.Types.Encryption.METHOD.ECIES,
 };
 
-// Signature providers
-const signatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignatureInfo);
+// third party information
+// TODO: make a different key, currently duplicate of payer
+const thirdPartySignatureInfo = {
+  method: RequestNetwork.Types.Signature.METHOD.ECDSA,
+  privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
+};
+const thirdPartyIdentity = {
+  type: RequestNetwork.Types.Identity.TYPE.ETHEREUM_ADDRESS,
+  value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+};
+const thirdPartyEncryptionParameters: RequestNetwork.Types.Encryption.IEncryptionParameters = {
+  key: 'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
+  method: RequestNetwork.Types.Encryption.METHOD.ECIES,
+};
+const thirdPartyDecryptionParameters: RequestNetwork.Types.Encryption.IDecryptionParameters = {
+  key: '0x0906ff14227cead2b25811514302d57706e7d5013fcc40eca5985b216baeb998',
+  method: RequestNetwork.Types.Encryption.METHOD.ECIES,
+};
 
-// A decryption provider, for example @requestnetwork/epk-decryption
-const decryptionProvider: RequestNetwork.Types.DecryptionProvider.IDecryptionProvider =
+// Payee Signature provider, for example @requestnetwork/epk-signature
+const payeeSignatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignatureInfo);
+
+// Payee decryption provider, for example @requestnetwork/epk-decryption
+const payeeDecryptionProvider: RequestNetwork.Types.DecryptionProvider.IDecryptionProvider =
   new EthereumPrivateKeyDecryptionProvider(payeeDecryptionParameters);
+
+/* eslint-disable @typescript-eslint/no-floating-promises */
+const payeeRequestNetwork = new RequestNetwork.RequestNetwork({
+  decryptionProvider: payeeDecryptionProvider,
+  signatureProvider: payeeSignatureProvider,
+  useMockStorage: true,
+});
+
+// Third party signature provider
+const thirdPartySignatureProvider = new EthereumPrivateKeySignatureProvider(
+  thirdPartySignatureInfo,
+);
+
+// Third party decryption provider
+const thirdPartyDecryptionProvider: RequestNetwork.Types.DecryptionProvider.IDecryptionProvider =
+  new EthereumPrivateKeyDecryptionProvider(thirdPartyDecryptionParameters);
+
+const thirdPartyRequestNetwork = new RequestNetwork.RequestNetwork({
+  decryptionProvider: thirdPartyDecryptionProvider,
+  signatureProvider: thirdPartySignatureProvider,
+  useMockStorage: true,
+});
 
 const requestInfo: RequestNetwork.Types.IRequestInfo = {
   currency: 'BTC',
@@ -51,13 +92,6 @@ const paymentNetwork: RequestNetwork.Types.Payment.PaymentNetworkCreateParameter
   },
 };
 
-/* eslint-disable @typescript-eslint/no-floating-promises */
-const requestNetwork = new RequestNetwork.RequestNetwork({
-  decryptionProvider,
-  signatureProvider,
-  useMockStorage: true,
-});
-
 /* eslint-disable no-console */
 
 const createParams = {
@@ -69,7 +103,7 @@ const createParams = {
 // Optionally, compute the request ID before actually creating it.
 // Setting the timestamp is recommended, as it has an impact on the generated ID.
 createParams.requestInfo.timestamp = RequestNetwork.Utils.getCurrentTimestampInSecond();
-requestNetwork
+payeeRequestNetwork
   .computeRequestId(createParams)
   .then((requestId) => {
     console.log(`The request will be created with ID ${requestId}`);
@@ -79,28 +113,7 @@ requestNetwork
     process.exit(1);
   });
 
-requestNetwork
-  .createRequest(createParams)
-  .then((request) => {
-    console.log('clear request:');
-    console.log(request.requestId);
-    request
-      .waitForConfirmation()
-      .then((confirmedRequest) => {
-        console.log('clear confirmed request:');
-        console.log(confirmedRequest);
-      })
-      .catch((error) => {
-        console.error(error.message || error);
-        process.exit(1);
-      });
-  })
-  .catch((error) => {
-    console.error(error.message || error);
-    process.exit(1);
-  });
-
-requestNetwork
+payeeRequestNetwork
   ._createEncryptedRequest(createParams, [payeeEncryptionParameters, payerEncryptionParameters])
   .then((request) => {
     console.log('encrypted request:');
@@ -110,6 +123,26 @@ requestNetwork
       .then((confirmedRequest) => {
         console.log('encrypted confirmed request:');
         console.log(confirmedRequest);
+        request
+          .addStakeholders([thirdPartyEncryptionParameters], thirdPartyIdentity)
+          .then((requestWithThirdParty) => {
+            console.log('encrypted request with third party:');
+            console.log(requestWithThirdParty);
+            thirdPartyRequestNetwork
+              .fromRequestId(request.requestId)
+              .then((fetchedRequest) => {
+                console.log('fetched request:');
+                console.log(fetchedRequest);
+              })
+              .catch((error) => {
+                console.error(error.message || error);
+                process.exit(1);
+              });
+          })
+          .catch((error) => {
+            console.error(error.message || error);
+            process.exit(1);
+          });
       })
       .catch((error) => {
         console.error(error.message || error);
