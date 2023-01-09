@@ -71,7 +71,7 @@ const requestNetwork = new RequestNetwork({ useMockStorage: true });
 
 ## Guide
 
-We are currently writing the full API reference and more detailed guides. This section will be updated. If you need help in the meantime, [join the Request Hub Slack](https://request-slack.herokuapp.com/) and come chat with us.
+We are currently writing the full API reference and more detailed guides. This section will be updated. If you need help in the meantime, [join the Request Discord](https://request.network/discord/) and come chat with us.
 
 ### Create a request
 
