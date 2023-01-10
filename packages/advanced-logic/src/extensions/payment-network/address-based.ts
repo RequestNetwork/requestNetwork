@@ -1,6 +1,6 @@
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { areEqual, deepCopy } from '@requestnetwork/utils';
+import { areEqualIdentities, deepCopy } from '@requestnetwork/utils';
 import DeclarativePaymentNetwork from './declarative';
 
 /**
@@ -194,7 +194,7 @@ export default abstract class AddressBasedPaymentNetwork<
     if (!requestState.payee) {
       throw Error(`The request must have a payee`);
     }
-    if (!areEqual(actionSigner, requestState.payee)) {
+    if (!areEqualIdentities(actionSigner, requestState.payee)) {
       throw Error(`The signer must be the payee`);
     }
 
@@ -241,7 +241,7 @@ export default abstract class AddressBasedPaymentNetwork<
     if (!requestState.payer) {
       throw Error(`The request must have a payer`);
     }
-    if (!areEqual(actionSigner, requestState.payer)) {
+    if (!areEqualIdentities(actionSigner, requestState.payer)) {
       throw Error(`The signer must be the payer`);
     }
 

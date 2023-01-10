@@ -3,7 +3,7 @@ import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@reque
 import Action from '../action';
 import Request from '../request';
 import Version from '../version';
-import { add, deepCopy, isValid } from '@requestnetwork/utils';
+import { addAmount, deepCopy, isValidAmount } from '@requestnetwork/utils';
 
 /**
  * Implementation of the action increaseExpectedAmount from request logic specification
@@ -27,7 +27,7 @@ function format(
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
 ): Promise<RequestLogicTypes.IAction> {
-  if (!isValid(increaseAmountParameters.deltaAmount)) {
+  if (!isValidAmount(increaseAmountParameters.deltaAmount)) {
     throw new Error('deltaAmount must be a string representing a positive integer');
   }
 
@@ -61,7 +61,7 @@ function applyActionToRequest(
   if (!action.data.parameters.deltaAmount) {
     throw new Error('deltaAmount must be given');
   }
-  if (!isValid(action.data.parameters.deltaAmount)) {
+  if (!isValidAmount(action.data.parameters.deltaAmount)) {
     throw new Error('deltaAmount must be a string representing a positive integer');
   }
 
@@ -78,7 +78,10 @@ function applyActionToRequest(
       throw new Error('the request must not be canceled');
     }
     // increase the expected amount and store it as string
-    requestCopied.expectedAmount = add(request.expectedAmount, action.data.parameters.deltaAmount);
+    requestCopied.expectedAmount = addAmount(
+      request.expectedAmount,
+      action.data.parameters.deltaAmount,
+    );
 
     return requestCopied;
   }

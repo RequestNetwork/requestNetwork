@@ -6,7 +6,7 @@ import RequestNetwork from '../../src/api/request-network';
 import Request from '../../src/api/request';
 
 import * as TestData from '../data-test';
-import { normalizeKeccak256Hash, sign } from '@requestnetwork/utils';
+import { normalizeKeccak256Hash, signSignature } from '@requestnetwork/utils';
 
 const mockDataAccess: DataAccessTypes.IDataAccess = {
   _getStatus: jest.fn(),
@@ -59,7 +59,7 @@ describe('api/request-network', () => {
         timestamp: 1549953337,
         transaction: { data: 'broken transaction' },
       };
-      const actionWrongSigner = sign(TestData.data, {
+      const actionWrongSigner = signSignature(TestData.data, {
         method: SignatureTypes.METHOD.ECDSA,
         privateKey: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       });

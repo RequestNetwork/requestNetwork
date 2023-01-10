@@ -14,7 +14,7 @@ export {
   generate8randomBytes,
   keccak256Hash,
   last20bytesOfNormalizedKeccak256Hash,
-  normalize,
+  normalizeData,
   normalizeKeccak256Hash,
 };
 
@@ -29,7 +29,7 @@ export {
 function normalizeKeccak256Hash(data: unknown): MultiFormatTypes.HashTypes.IHash {
   return {
     type: MultiFormatTypes.HashTypes.TYPE.KECCAK256,
-    value: keccak256Hash(normalize(data)),
+    value: keccak256Hash(normalizeData(data)),
   };
 }
 
@@ -39,7 +39,7 @@ function normalizeKeccak256Hash(data: unknown): MultiFormatTypes.HashTypes.IHash
  * @param data The data to normalize
  * @returns The normalized data
  */
-function normalize(data: unknown): string {
+function normalizeData(data: unknown): string {
   if (data === undefined) {
     return 'undefined';
   }
@@ -70,7 +70,7 @@ function keccak256Hash(data: string): string {
  * @returns The hashed data multi-formatted
  */
 function last20bytesOfNormalizedKeccak256Hash(data: unknown): string {
-  const hash = keccak256Hash(normalize(data));
+  const hash = keccak256Hash(normalizeData(data));
   // eslint-disable-next-line no-magic-numbers
   return `0x${hash.slice(-40)}`;
 }

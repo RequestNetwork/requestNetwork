@@ -2,9 +2,9 @@
  * Collection of general purpose utility function
  */
 
-export { add, isValid, reduce } from './amount';
+export { addAmount, isValidAmount, reduceAmount } from './amount';
 
-export { min, max } from './bignumber';
+export { minBigNumber, maxBigNumber } from './bignumber';
 
 export { cachedThrottle } from './cached-throttle';
 
@@ -15,7 +15,7 @@ export {
   generate8randomBytes,
   keccak256Hash,
   last20bytesOfNormalizedKeccak256Hash,
-  normalize,
+  normalizeData,
   normalizeKeccak256Hash,
 } from './crypto';
 
@@ -23,7 +23,12 @@ export { decrypt, encrypt, getIdentityFromEncryptionParams } from './encryption'
 
 export { estimateGasFees } from './estimate-gas-fees';
 
-export { areEqual, hasError, normalizeIdentityValue, supportedIdentities } from './identity';
+export {
+  areEqualIdentities,
+  hasErrorIdentities,
+  normalizeIdentityValue,
+  supportedIdentities,
+} from './identity';
 
 export {
   setProviderFactory,
@@ -35,7 +40,7 @@ export {
 
 export { retry } from './retry';
 
-export { getIdentityFromSignatureParams, recover, sign } from './signature';
+export { getIdentityFromSignatureParams, recoverSignature, signSignature } from './signature';
 
 export { SimpleLogger } from './simple-logger';
 

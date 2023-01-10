@@ -8,7 +8,7 @@ import {
   SignatureTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
-import { normalizeKeccak256Hash, sign } from '@requestnetwork/utils';
+import { normalizeKeccak256Hash, signSignature } from '@requestnetwork/utils';
 import AxiosMockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { Types } from '../src';
@@ -155,12 +155,15 @@ const dataWithDeclarativeNoPaymentInfo = {
   version: '2.0.3',
 };
 
-export const action: RequestLogicTypes.IAction = sign(dataWithDeclarative, payee.signatureParams);
-const actionWithoutExtensionsData: RequestLogicTypes.IAction = sign(
+export const action: RequestLogicTypes.IAction = signSignature(
+  dataWithDeclarative,
+  payee.signatureParams,
+);
+const actionWithoutExtensionsData: RequestLogicTypes.IAction = signSignature(
   dataWithoutExtensionsData,
   payee.signatureParams,
 );
-const actionWithoutPaymentInfo: RequestLogicTypes.IAction = sign(
+const actionWithoutPaymentInfo: RequestLogicTypes.IAction = signSignature(
   dataWithDeclarativeNoPaymentInfo,
   payee.signatureParams,
 );
@@ -190,7 +193,10 @@ export const timestampedTransactionWithoutPaymentInfo: TransactionTypes.ITimesta
 
 export const actionRequestId = MultiFormat.serialize(normalizeKeccak256Hash(action));
 
-export const anotherCreationAction: RequestLogicTypes.IAction = sign(data, payer.signatureParams);
+export const anotherCreationAction: RequestLogicTypes.IAction = signSignature(
+  data,
+  payer.signatureParams,
+);
 
 export const anotherCreationTransactionConfirmed: TransactionTypes.ITimestampedTransaction = {
   state: TransactionTypes.TransactionState.PENDING,
@@ -214,7 +220,7 @@ const dataSecondRequest = {
   version: '2.0.3',
 };
 
-export const actionCreationSecondRequest: RequestLogicTypes.IAction = sign(
+export const actionCreationSecondRequest: RequestLogicTypes.IAction = signSignature(
   dataSecondRequest,
   payee.signatureParams,
 );
@@ -259,11 +265,11 @@ export const signatureParametersDelegate: SignatureTypes.ISignatureParameters = 
 export const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
   sign: (data: any, signer: IdentityTypes.IIdentity): any => {
     if (signer.value === payee.identity.value) {
-      return sign(data, signatureParametersPayee);
+      return signSignature(data, signatureParametersPayee);
     } else if (signer.value === payer.identity.value) {
-      return sign(data, signatureParametersPayer);
+      return signSignature(data, signatureParametersPayer);
     } else {
-      return sign(data, signatureParametersDelegate);
+      return signSignature(data, signatureParametersDelegate);
     }
   },
   supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],

@@ -5,9 +5,9 @@ import Version from '../version';
 import {
   deepCopy,
   getCurrentTimestampInSecond,
-  hasError,
+  hasErrorIdentities,
   isString,
-  isValid,
+  isValidAmount,
 } from '@requestnetwork/utils';
 
 /**
@@ -38,16 +38,16 @@ function format(
     throw new Error('payee or PayerId must be given');
   }
 
-  if (!isValid(requestParameters.expectedAmount)) {
+  if (!isValidAmount(requestParameters.expectedAmount)) {
     throw new Error('expectedAmount must be a positive integer');
   }
 
-  if (requestParameters.payee && hasError(requestParameters.payee)) {
-    throw new Error(`payee: ${hasError(requestParameters.payee)}̀`);
+  if (requestParameters.payee && hasErrorIdentities(requestParameters.payee)) {
+    throw new Error(`payee: ${hasErrorIdentities(requestParameters.payee)}̀`);
   }
 
-  if (requestParameters.payer && hasError(requestParameters.payer)) {
-    throw new Error(`payer: ${hasError(requestParameters.payer)}̀`);
+  if (requestParameters.payer && hasErrorIdentities(requestParameters.payer)) {
+    throw new Error(`payer: ${hasErrorIdentities(requestParameters.payer)}̀`);
   }
 
   if (!requestParameters.timestamp) {
@@ -91,17 +91,17 @@ function createRequest(
     throw new Error('action.parameters.payee or action.parameters.payer must be given');
   }
 
-  if (action.data.parameters.payee && hasError(action.data.parameters.payee)) {
-    throw new Error(`payee: ${hasError(action.data.parameters.payee)}̀`);
+  if (action.data.parameters.payee && hasErrorIdentities(action.data.parameters.payee)) {
+    throw new Error(`payee: ${hasErrorIdentities(action.data.parameters.payee)}̀`);
   }
 
-  if (action.data.parameters.payer && hasError(action.data.parameters.payer)) {
-    throw new Error(`payer: ${hasError(action.data.parameters.payer)}̀`);
+  if (action.data.parameters.payer && hasErrorIdentities(action.data.parameters.payer)) {
+    throw new Error(`payer: ${hasErrorIdentities(action.data.parameters.payer)}̀`);
   }
 
   if (
     !isString(action.data.parameters.expectedAmount) ||
-    !isValid(action.data.parameters.expectedAmount)
+    !isValidAmount(action.data.parameters.expectedAmount)
   ) {
     throw new Error(
       'action.parameters.expectedAmount must be a string representing a positive integer',

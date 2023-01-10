@@ -1,6 +1,6 @@
 import { BigNumber, constants, providers } from 'ethers';
 import { suggestFees } from 'eip1559-fee-suggestions-ethers';
-import { max } from './index';
+import { maxBigNumber } from './index';
 
 /**
  * The function estimates gas fee with EIP-1559.
@@ -25,9 +25,9 @@ async function estimateGasFees({
 }> {
   const suggestedFee = await suggestFees(provider as providers.JsonRpcProvider);
 
-  const baseFee = max(suggestedFee.baseFeeSuggestion, gasPriceMin || constants.Zero);
+  const baseFee = maxBigNumber(suggestedFee.baseFeeSuggestion, gasPriceMin || constants.Zero);
 
-  const maxPriorityFeePerGas = max(
+  const maxPriorityFeePerGas = maxBigNumber(
     suggestedFee.maxPriorityFeeSuggestions.urgent,
     gasPriceMin || constants.Zero,
   );

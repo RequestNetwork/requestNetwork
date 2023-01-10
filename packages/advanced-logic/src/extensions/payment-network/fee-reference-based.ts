@@ -1,6 +1,6 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import ReferenceBasedPaymentNetwork from './reference-based';
-import { areEqual, deepCopy, isValid } from '@requestnetwork/utils';
+import { areEqualIdentities, deepCopy, isValidAmount } from '@requestnetwork/utils';
 
 /**
  * Core of the reference based with fee payment networks
@@ -35,7 +35,7 @@ export abstract class FeeReferenceBasedPaymentNetwork<
       throw Error('feeAddress is not a valid address');
     }
 
-    if (creationParameters.feeAmount && !isValid(creationParameters.feeAmount)) {
+    if (creationParameters.feeAmount && !isValidAmount(creationParameters.feeAmount)) {
       throw Error('feeAmount is not a valid amount');
     }
 
@@ -65,7 +65,7 @@ export abstract class FeeReferenceBasedPaymentNetwork<
       throw Error('feeAddress is not a valid address');
     }
 
-    if (addFeeParameters.feeAmount && !isValid(addFeeParameters.feeAmount)) {
+    if (addFeeParameters.feeAmount && !isValidAmount(addFeeParameters.feeAmount)) {
       throw Error('feeAmount is not a valid amount');
     }
 
@@ -101,7 +101,10 @@ export abstract class FeeReferenceBasedPaymentNetwork<
     ) {
       throw Error('feeAddress is not a valid address');
     }
-    if (extensionAction.parameters.feeAmount && !isValid(extensionAction.parameters.feeAmount)) {
+    if (
+      extensionAction.parameters.feeAmount &&
+      !isValidAmount(extensionAction.parameters.feeAmount)
+    ) {
       throw Error('feeAmount is not a valid amount');
     }
 
@@ -157,7 +160,10 @@ export abstract class FeeReferenceBasedPaymentNetwork<
     if (extensionState.values.feeAddress) {
       throw Error(`Fee address already given`);
     }
-    if (extensionAction.parameters.feeAmount && !isValid(extensionAction.parameters.feeAmount)) {
+    if (
+      extensionAction.parameters.feeAmount &&
+      !isValidAmount(extensionAction.parameters.feeAmount)
+    ) {
       throw Error('feeAmount is not a valid amount');
     }
     if (extensionState.values.feeAmount) {
@@ -166,7 +172,7 @@ export abstract class FeeReferenceBasedPaymentNetwork<
     if (!requestState.payee) {
       throw Error(`The request must have a payee`);
     }
-    if (!areEqual(actionSigner, requestState.payee)) {
+    if (!areEqualIdentities(actionSigner, requestState.payee)) {
       throw Error(`The signer must be the payee`);
     }
 

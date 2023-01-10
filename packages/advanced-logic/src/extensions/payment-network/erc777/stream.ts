@@ -1,6 +1,6 @@
 import { ExtensionTypes, RequestLogicTypes, TypesUtils } from '@requestnetwork/types';
 import ReferenceBasedPaymentNetwork from '../reference-based';
-import { isValid } from '@requestnetwork/utils';
+import { isValidAmount } from '@requestnetwork/utils';
 const CURRENT_VERSION = '0.1.0';
 
 /**
@@ -92,7 +92,7 @@ export default class Erc777StreamPaymentNetwork<
       if (
         !extensionAction.parameters.expectedStartDate ||
         (extensionAction.parameters.expectedStartDate &&
-          !isValid(extensionAction.parameters.expectedStartDate))
+          !isValidAmount(extensionAction.parameters.expectedStartDate))
       ) {
         throw Error('expectedStartDate is empty or invalid');
       }
@@ -100,7 +100,7 @@ export default class Erc777StreamPaymentNetwork<
       if (
         !extensionAction.parameters.expectedFlowRate ||
         (extensionAction.parameters.expectedFlowRate &&
-          !isValid(extensionAction.parameters.expectedFlowRate))
+          !isValidAmount(extensionAction.parameters.expectedFlowRate))
       ) {
         throw Error('expectedFlowRate is empty or invalid');
       }

@@ -1,6 +1,6 @@
 import { IdentityTypes, SignatureProviderTypes, SignatureTypes } from '@requestnetwork/types';
 
-import { areEqual, normalize, recover } from '@requestnetwork/utils';
+import { areEqualIdentities, normalizeData, recoverSignature } from '@requestnetwork/utils';
 
 import { providers } from 'ethers';
 
@@ -41,7 +41,7 @@ export default class Web3SignatureProvider implements SignatureProviderTypes.ISi
       throw Error(`Identity type not supported ${signer.type}`);
     }
 
-    const normalizedData = normalize(data);
+    const normalizedData = normalizeData(data);
     const signerEthers = this.web3Provider.getSigner(signer.value);
 
     let signatureValue;
@@ -82,7 +82,7 @@ export default class Web3SignatureProvider implements SignatureProviderTypes.ISi
         value,
       },
     };
-    if (areEqual(recover(signedData), signer)) {
+    if (areEqualIdentities(recoverSignature(signedData), signer)) {
       return signedData;
     }
     return null;

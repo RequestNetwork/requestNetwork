@@ -3,7 +3,7 @@ import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@reque
 import Action from '../action';
 import Request from '../request';
 import Version from '../version';
-import { deepCopy, isValid, reduce } from '@requestnetwork/utils';
+import { deepCopy, isValidAmount, reduceAmount } from '@requestnetwork/utils';
 
 /**
  * Implementation of the action reduceExpectedAmount from request logic specification
@@ -27,7 +27,7 @@ function format(
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
 ): Promise<RequestLogicTypes.IAction> {
-  if (!isValid(reduceAmountParameters.deltaAmount)) {
+  if (!isValidAmount(reduceAmountParameters.deltaAmount)) {
     throw new Error('deltaAmount must be a string representing a positive integer');
   }
 
@@ -61,7 +61,7 @@ function applyActionToRequest(
   if (!action.data.parameters.deltaAmount) {
     throw new Error('deltaAmount must be given');
   }
-  if (!isValid(action.data.parameters.deltaAmount)) {
+  if (!isValidAmount(action.data.parameters.deltaAmount)) {
     throw new Error('deltaAmount must be a string representing a positive integer');
   }
 
@@ -78,7 +78,7 @@ function applyActionToRequest(
       throw new Error('the request must not be canceled');
     }
     // reduce the expected amount and store it as string or throw if the result is not valid
-    requestCopied.expectedAmount = reduce(
+    requestCopied.expectedAmount = reduceAmount(
       request.expectedAmount,
       action.data.parameters.deltaAmount,
     );

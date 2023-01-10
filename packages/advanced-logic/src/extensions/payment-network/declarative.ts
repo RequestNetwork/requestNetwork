@@ -1,5 +1,5 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { add, areEqual, deepCopy, isValid } from '@requestnetwork/utils';
+import { addAmount, areEqualIdentities, deepCopy, isValidAmount } from '@requestnetwork/utils';
 import { AbstractExtension } from '../abstract-extension';
 
 const CURRENT_VERSION = '0.1.0';
@@ -239,14 +239,14 @@ export default class DeclarativePaymentNetwork<
     timestamp: number,
   ): ExtensionTypes.IState {
     this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYER);
-    if (!isValid(extensionAction.parameters.amount)) {
+    if (!isValidAmount(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
     }
 
     const copiedExtensionState: ExtensionTypes.IState = deepCopy(extensionState);
 
     // increment sentPaymentAmount
-    copiedExtensionState.values.sentPaymentAmount = add(
+    copiedExtensionState.values.sentPaymentAmount = addAmount(
       copiedExtensionState.values.sentPaymentAmount,
       extensionAction.parameters.amount,
     );
@@ -285,14 +285,14 @@ export default class DeclarativePaymentNetwork<
     timestamp: number,
   ): ExtensionTypes.IState {
     this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYEE);
-    if (!isValid(extensionAction.parameters.amount)) {
+    if (!isValidAmount(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
     }
 
     const copiedExtensionState: ExtensionTypes.IState = deepCopy(extensionState);
 
     // increment sentRefundAmount
-    copiedExtensionState.values.sentRefundAmount = add(
+    copiedExtensionState.values.sentRefundAmount = addAmount(
       copiedExtensionState.values.sentRefundAmount,
       extensionAction.parameters.amount,
     );
@@ -331,14 +331,14 @@ export default class DeclarativePaymentNetwork<
     timestamp: number,
   ): ExtensionTypes.IState {
     this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYEE);
-    if (!isValid(extensionAction.parameters.amount)) {
+    if (!isValidAmount(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
     }
 
     const copiedExtensionState: ExtensionTypes.IState = deepCopy(extensionState);
 
     // increment receivedPaymentAmount
-    copiedExtensionState.values.receivedPaymentAmount = add(
+    copiedExtensionState.values.receivedPaymentAmount = addAmount(
       copiedExtensionState.values.receivedPaymentAmount,
       extensionAction.parameters.amount,
     );
@@ -377,14 +377,14 @@ export default class DeclarativePaymentNetwork<
     timestamp: number,
   ): ExtensionTypes.IState {
     this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYER);
-    if (!isValid(extensionAction.parameters.amount)) {
+    if (!isValidAmount(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
     }
 
     const copiedExtensionState: ExtensionTypes.IState = deepCopy(extensionState);
 
     // increment receivedRefundAmount
-    copiedExtensionState.values.receivedRefundAmount = add(
+    copiedExtensionState.values.receivedRefundAmount = addAmount(
       copiedExtensionState.values.receivedRefundAmount,
       extensionAction.parameters.amount,
     );
@@ -463,9 +463,9 @@ export default class DeclarativePaymentNetwork<
     timestamp: number,
   ): ExtensionTypes.IState {
     let delegateStr: string;
-    if (areEqual(actionSigner, requestState.payee)) {
+    if (areEqualIdentities(actionSigner, requestState.payee)) {
       delegateStr = 'payeeDelegate';
-    } else if (areEqual(actionSigner, requestState.payer)) {
+    } else if (areEqualIdentities(actionSigner, requestState.payer)) {
       delegateStr = 'payerDelegate';
     } else {
       throw Error(`The signer must be the payee or the payer`);
@@ -566,7 +566,10 @@ export default class DeclarativePaymentNetwork<
     if (!requestRole) {
       throw Error(`The request must have a ${requestRoleStr}`);
     }
-    if (!areEqual(actionSigner, requestRole) && !areEqual(actionSigner, requestRoleDelegate)) {
+    if (
+      !areEqualIdentities(actionSigner, requestRole) &&
+      !areEqualIdentities(actionSigner, requestRoleDelegate)
+    ) {
       throw Error(`The signer must be the ${requestRoleStr} or the ${requestRoleStr}Delegate`);
     }
   }

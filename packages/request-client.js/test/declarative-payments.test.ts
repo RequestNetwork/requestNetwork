@@ -20,7 +20,7 @@ import {
 } from '@requestnetwork/payment-detection';
 import { IRequestDataWithEvents } from '../src/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { sign } from '@requestnetwork/utils';
+import { signSignature } from '@requestnetwork/utils';
 
 const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = {
   getConfirmationDeferDelay: 0,
@@ -417,7 +417,7 @@ describe('request-client.js: declarative payments', () => {
                   timestamp: TestData.arbitraryTimestamp,
                   transaction: {
                     data: JSON.stringify(
-                      sign(
+                      signSignature(
                         {
                           name: RequestLogicTypes.ACTION_NAME.CREATE,
                           parameters: {

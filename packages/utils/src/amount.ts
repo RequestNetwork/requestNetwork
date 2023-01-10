@@ -6,7 +6,7 @@ import { BigNumber } from 'ethers';
 /**
  * Function to manage amounts
  */
-export { add, isValid, reduce };
+export { addAmount, isValidAmount, reduceAmount };
 
 const regexInteger = RegExp(/^[\d]+$/);
 
@@ -17,7 +17,7 @@ const regexInteger = RegExp(/^[\d]+$/);
  *
  * @returns boolean true if amount is a valid amount
  */
-function isValid(amount: RequestLogicTypes.Amount | BigNumber): boolean {
+function isValidAmount(amount: RequestLogicTypes.Amount | BigNumber): boolean {
   return (
     (isString(amount) && regexInteger.test(amount as string)) ||
     (typeof amount === 'number' && Number.isSafeInteger(Number(amount)) && Number(amount) >= 0)
@@ -32,11 +32,11 @@ function isValid(amount: RequestLogicTypes.Amount | BigNumber): boolean {
  *
  * @returns string the new amount in a string format
  */
-function add(amount: RequestLogicTypes.Amount, delta: RequestLogicTypes.Amount): string {
-  if (!isValid(amount)) {
+function addAmount(amount: RequestLogicTypes.Amount, delta: RequestLogicTypes.Amount): string {
+  if (!isValidAmount(amount)) {
     throw Error('amount must represent a positive integer');
   }
-  if (!isValid(delta)) {
+  if (!isValidAmount(delta)) {
     throw Error('delta must represent a positive integer');
   }
 
@@ -55,11 +55,11 @@ function add(amount: RequestLogicTypes.Amount, delta: RequestLogicTypes.Amount):
  *
  * @returns string the new amount in a string format
  */
-function reduce(amount: RequestLogicTypes.Amount, delta: RequestLogicTypes.Amount): string {
-  if (!isValid(amount)) {
+function reduceAmount(amount: RequestLogicTypes.Amount, delta: RequestLogicTypes.Amount): string {
+  if (!isValidAmount(amount)) {
     throw Error('amount must represent a positive integer');
   }
-  if (!isValid(delta)) {
+  if (!isValidAmount(delta)) {
     throw Error('delta must represent a positive integer');
   }
 
@@ -68,7 +68,7 @@ function reduce(amount: RequestLogicTypes.Amount, delta: RequestLogicTypes.Amoun
   const newAmount = amountBN.sub(deltaBN).toString();
 
   // Check if the new amount is valid (basically it is not negative)
-  if (!isValid(newAmount)) {
+  if (!isValidAmount(newAmount)) {
     throw Error('result of reduce is not valid');
   }
   return newAmount;

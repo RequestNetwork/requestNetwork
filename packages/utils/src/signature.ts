@@ -1,11 +1,11 @@
 import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
-import { EcUtils, normalize, normalizeKeccak256Hash } from './crypto';
+import { EcUtils, normalizeData, normalizeKeccak256Hash } from './crypto';
 
 /**
  * Function to manage Request Logic Signature
  */
-export { getIdentityFromSignatureParams, recover, sign };
+export { getIdentityFromSignatureParams, recoverSignature, signSignature };
 
 // Use to localize the parameter V in an ECDSA signature in hex format
 const V_POSITION_FROM_END_IN_ECDSA_HEX = -2;
@@ -39,7 +39,7 @@ function getIdentityFromSignatureParams(
  * @param signatureParams Signature parameters
  * @returns ISignature the signature
  */
-function sign(
+function signSignature(
   data: unknown,
   signatureParams: SignatureTypes.ISignatureParameters,
 ): SignatureTypes.ISignedData {
@@ -50,7 +50,7 @@ function sign(
   }
 
   if (signatureParams.method === SignatureTypes.METHOD.ECDSA_ETHEREUM) {
-    const normalizedData = normalize(data);
+    const normalizedData = normalizeData(data);
     value = EcUtils.sign(signatureParams.privateKey, ethers.utils.hashMessage(normalizedData));
 
     return { data, signature: { method: signatureParams.method, value } };
@@ -67,7 +67,7 @@ function sign(
  * @param signedData the data signed
  * @returns identity of the signer
  */
-function recover(signedData: SignatureTypes.ISignedData): IdentityTypes.IIdentity {
+function recoverSignature(signedData: SignatureTypes.ISignedData): IdentityTypes.IIdentity {
   let value: string;
   if (signedData.signature.method === SignatureTypes.METHOD.ECDSA) {
     value = EcUtils.recover(
@@ -91,7 +91,7 @@ function recover(signedData: SignatureTypes.ISignedData): IdentityTypes.IIdentit
     } else if (v.toLowerCase() === '01') {
       signature = `${signedData.signature.value.slice(0, V_POSITION_FROM_END_IN_ECDSA_HEX)}1b`;
     }
-    const normalizedData = ethers.utils.hashMessage(normalize(signedData.data));
+    const normalizedData = ethers.utils.hashMessage(normalizeData(signedData.data));
     value = EcUtils.recover(signature, normalizedData).toLowerCase();
 
     return {
