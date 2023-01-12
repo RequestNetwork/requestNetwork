@@ -117,30 +117,20 @@ payeeRequestNetwork
     console.log('request:');
     console.log(request);
     request
-      .waitForConfirmation()
-      .then((confirmedRequestData) => {
-        console.log('confirmed request data:');
-        console.log(confirmedRequestData);
+      .addStakeholders([thirdPartyEncryptionParameters], payeeIdentity)
+      .then((requestData) => {
+        console.log('request data after add stakeholders:');
+        console.log(requestData);
         request
-          .addStakeholders([thirdPartyEncryptionParameters], payeeIdentity)
-          .then((requestDataAfterAddStakeholders) => {
-            console.log('request data after add stakeholders:');
-            console.log(requestDataAfterAddStakeholders);
-            request
-              .refresh()
-              .then((refreshedRequestData) => {
-                console.log('refreshed request data:');
-                console.log(refreshedRequestData);
-                thirdPartyRequestNetwork
-                  .fromRequestId(refreshedRequestData.requestId)
-                  .then((fetchedRequest) => {
-                    console.log('fetched request:');
-                    console.log(fetchedRequest);
-                  })
-                  .catch((error) => {
-                    console.error(error.message || error);
-                    process.exit(1);
-                  });
+          .waitForConfirmation()
+          .then((confirmedRequestData) => {
+            console.log('confirmed request data:');
+            console.log(confirmedRequestData);
+            thirdPartyRequestNetwork
+              .fromRequestId(confirmedRequestData.requestId)
+              .then((fetchedRequest) => {
+                console.log('fetched request:');
+                console.log(fetchedRequest);
               })
               .catch((error) => {
                 console.error(error.message || error);
