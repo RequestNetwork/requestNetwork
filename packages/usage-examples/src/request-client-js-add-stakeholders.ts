@@ -131,16 +131,16 @@ payeeRequestNetwork
               .then((payeeFetchedRequest) => {
                 console.log('payee fetched request:');
                 console.log(payeeFetchedRequest);
-              })
-              .catch((error) => {
-                console.error(error.message || error);
-                process.exit(1);
-              });
-            thirdPartyRequestNetwork
-              .fromRequestId(confirmedRequestData.requestId)
-              .then((thirdPartyFetchedRequest) => {
-                console.log('third party fetched request:');
-                console.log(thirdPartyFetchedRequest);
+                thirdPartyRequestNetwork
+                  .fromRequestId(confirmedRequestData.requestId)
+                  .then((thirdPartyFetchedRequest) => {
+                    console.log('third party fetched request:');
+                    console.log(thirdPartyFetchedRequest);
+                  })
+                  .catch((error) => {
+                    console.error(error.message || error);
+                    process.exit(1);
+                  });
               })
               .catch((error) => {
                 console.error(error.message || error);
