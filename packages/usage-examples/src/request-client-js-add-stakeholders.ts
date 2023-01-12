@@ -123,16 +123,16 @@ payeeRequestNetwork
         console.log(confirmedRequest);
         request
           .addStakeholders([thirdPartyEncryptionParameters], payeeIdentity)
-          .then((requestData) => {
-            console.log('request data with events:');
-            console.log(requestData);
+          .then((requestDataAfterAddStakeholders) => {
+            console.log('request data:');
+            console.log(requestDataAfterAddStakeholders);
             request
               .refresh()
-              .then((confirmedRequestWithThirdParty) => {
-                console.log('confirmed request with third party:');
-                console.log(confirmedRequestWithThirdParty);
+              .then((refreshedRequestData) => {
+                console.log('refreshed request data:');
+                console.log(refreshedRequestData);
                 thirdPartyRequestNetwork
-                  .fromRequestId(confirmedRequestWithThirdParty.requestId)
+                  .fromRequestId(refreshedRequestData.requestId)
                   .then((fetchedRequest) => {
                     console.log('fetched request:');
                     console.log(fetchedRequest);
