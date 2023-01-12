@@ -124,7 +124,7 @@ payeeRequestNetwork
         request
           .addStakeholders([thirdPartyEncryptionParameters], payeeIdentity)
           .then((requestDataAfterAddStakeholders) => {
-            console.log('request data:');
+            console.log('request data after add stakeholders:');
             console.log(requestDataAfterAddStakeholders);
             request
               .refresh()
