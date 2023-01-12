@@ -5,6 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "request-client.js add-stakeholders",
+      "program": "${workspaceFolder}/packages/usage-examples/src/request-client-js-add-stakeholders.ts",
+      "request": "launch",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node"
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Start Request Node",
