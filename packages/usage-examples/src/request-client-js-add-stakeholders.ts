@@ -126,11 +126,21 @@ payeeRequestNetwork
           .then((confirmedRequestData) => {
             console.log('confirmed request data:');
             console.log(confirmedRequestData);
+            payeeRequestNetwork
+              .fromRequestId(confirmedRequestData.requestId)
+              .then((payeeFetchedRequest) => {
+                console.log('payee fetched request:');
+                console.log(payeeFetchedRequest);
+              })
+              .catch((error) => {
+                console.error(error.message || error);
+                process.exit(1);
+              });
             thirdPartyRequestNetwork
               .fromRequestId(confirmedRequestData.requestId)
-              .then((fetchedRequest) => {
-                console.log('fetched request:');
-                console.log(fetchedRequest);
+              .then((thirdPartyFetchedRequest) => {
+                console.log('third party fetched request:');
+                console.log(thirdPartyFetchedRequest);
               })
               .catch((error) => {
                 console.error(error.message || error);
