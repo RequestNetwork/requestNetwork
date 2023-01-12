@@ -127,7 +127,7 @@ payeeRequestNetwork
             console.log('request data with events:');
             console.log(requestData);
             request
-              .waitForConfirmation()
+              .refresh()
               .then((confirmedRequestWithThirdParty) => {
                 console.log('confirmed request with third party:');
                 console.log(confirmedRequestWithThirdParty);
