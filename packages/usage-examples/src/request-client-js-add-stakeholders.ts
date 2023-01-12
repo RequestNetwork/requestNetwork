@@ -123,9 +123,9 @@ payeeRequestNetwork
         console.log(confirmedRequest);
         request
           .addStakeholders([thirdPartyEncryptionParameters], payeeIdentity)
-          .then((requestDataWithEvents) => {
+          .then((requestData) => {
             console.log('request data with events:');
-            console.log(requestDataWithEvents);
+            console.log(requestData);
             request
               .waitForConfirmation()
               .then((confirmedRequestWithThirdParty) => {
