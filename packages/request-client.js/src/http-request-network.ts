@@ -10,7 +10,6 @@ import { PaymentNetworkOptions } from '@requestnetwork/payment-detection';
 import RequestNetwork from './api/request-network';
 import HttpDataAccess from './http-data-access';
 import MockDataAccess from './mock-data-access';
-import MockStorage from './mock-storage';
 
 /**
  * Exposes RequestNetwork module configured to use http-data-access.
@@ -32,7 +31,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       httpConfig,
       nodeConnectionConfig,
       signatureProvider,
-      mockStorage,
+      mockDataAccess,
       currencies,
       currencyManager,
       paymentOptions,
@@ -41,7 +40,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
       nodeConnectionConfig?: AxiosRequestConfig;
       signatureProvider?: SignatureProviderTypes.ISignatureProvider;
-      mockStorage?: MockStorage;
+      mockDataAccess?: MockDataAccess;
       currencies?: CurrencyInput[];
       currencyManager?: ICurrencyManager;
       paymentOptions?: Partial<PaymentNetworkOptions>;
@@ -51,8 +50,8 @@ export default class HttpRequestNetwork extends RequestNetwork {
     },
   ) {
     const dataAccess: DataAccessTypes.IDataAccess =
-      mockStorage !== undefined
-        ? new MockDataAccess(mockStorage)
+      mockDataAccess !== undefined
+        ? mockDataAccess
         : new HttpDataAccess({ httpConfig, nodeConnectionConfig });
 
     if (!currencyManager) {

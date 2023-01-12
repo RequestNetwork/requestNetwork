@@ -22,6 +22,7 @@ import { IRequestDataWithEvents } from '../src/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import Utils from '@requestnetwork/utils';
 import MockStorage from 'request-client.js/src/mock-storage';
+import MockDataAccess from 'request-client.js/src/mock-data-access';
 
 const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = {
   getConfirmationDeferDelay: 0,
@@ -46,6 +47,7 @@ describe('request-client.js: declarative payments', () => {
     signer: TestData.payee.identity,
   };
   const mockStorage = new MockStorage();
+  const mockDataAccess = new MockDataAccess(mockStorage);
   let mock: AxiosMockAdapter;
   afterEach(() => {
     jest.clearAllMocks();
@@ -108,7 +110,7 @@ describe('request-client.js: declarative payments', () => {
 
     it('allows to create a request with delegate', async () => {
       const requestNetwork = new RequestNetwork({
-        mockStorage,
+        mockDataAccess,
         signatureProvider: TestData.fakeSignatureProvider,
       });
 
@@ -162,7 +164,7 @@ describe('request-client.js: declarative payments', () => {
 
     it('allows to declare a received payment from delegate', async () => {
       const requestNetwork = new RequestNetwork({
-        mockStorage,
+        mockDataAccess,
         signatureProvider: TestData.fakeSignatureProvider,
       });
 
@@ -219,7 +221,7 @@ describe('request-client.js: declarative payments', () => {
 
     it('allows to declare a received refund from delegate', async () => {
       const requestNetwork = new RequestNetwork({
-        mockStorage,
+        mockDataAccess,
         signatureProvider: TestData.fakeSignatureProvider,
       });
 
@@ -273,7 +275,7 @@ describe('request-client.js: declarative payments', () => {
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        mockStorage,
+        mockDataAccess,
       });
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
         id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
@@ -326,7 +328,7 @@ describe('request-client.js: declarative payments', () => {
       const salt = 'ea3bc7caf64110ca';
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        mockStorage,
+        mockDataAccess,
         currencies: [
           ...CurrencyManager.getDefaultList(),
           {
@@ -449,7 +451,7 @@ describe('request-client.js: declarative payments', () => {
 
       const requestNetwork = new RequestNetwork({
         httpConfig,
-        mockStorage,
+        mockDataAccess,
         signatureProvider: TestData.fakeSignatureProvider,
       });
       const request = await requestNetwork.createRequest({
