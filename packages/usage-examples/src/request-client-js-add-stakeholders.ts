@@ -114,23 +114,33 @@ payeeRequestNetwork
 payeeRequestNetwork
   ._createEncryptedRequest(createParams, [payeeEncryptionParameters, payerEncryptionParameters])
   .then((request) => {
-    console.log('encrypted request:');
-    console.log(request.requestId);
+    console.log('request:');
+    console.log(request);
     request
       .waitForConfirmation()
       .then((confirmedRequest) => {
-        console.log('encrypted confirmed request:');
+        console.log('confirmed request:');
         console.log(confirmedRequest);
         request
           .addStakeholders([thirdPartyEncryptionParameters], payeeIdentity)
-          .then((requestWithThirdParty) => {
-            console.log('encrypted request with third party:');
-            console.log(requestWithThirdParty);
-            thirdPartyRequestNetwork
-              .fromRequestId(request.requestId)
-              .then((fetchedRequest) => {
-                console.log('fetched request:');
-                console.log(fetchedRequest);
+          .then((requestDataWithEvents) => {
+            console.log('request data with events:');
+            console.log(requestDataWithEvents);
+            request
+              .waitForConfirmation()
+              .then((confirmedRequestWithThirdParty) => {
+                console.log('confirmed request with third party:');
+                console.log(confirmedRequestWithThirdParty);
+                thirdPartyRequestNetwork
+                  .fromRequestId(confirmedRequestWithThirdParty.requestId)
+                  .then((fetchedRequest) => {
+                    console.log('fetched request:');
+                    console.log(fetchedRequest);
+                  })
+                  .catch((error) => {
+                    console.error(error.message || error);
+                    process.exit(1);
+                  });
               })
               .catch((error) => {
                 console.error(error.message || error);
