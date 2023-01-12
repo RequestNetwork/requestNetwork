@@ -75,6 +75,7 @@ const thirdPartyRequestNetwork = new RequestNetwork.RequestNetwork({
   signatureProvider: thirdPartySignatureProvider,
   mockStorage: mockStorage,
 });
+console.log(thirdPartyRequestNetwork);
 
 const requestInfo: RequestNetwork.Types.IRequestInfo = {
   currency: 'BTC',
@@ -131,7 +132,7 @@ payeeRequestNetwork
               .then((refreshedRequestData) => {
                 console.log('refreshed request data:');
                 console.log(refreshedRequestData);
-                thirdPartyRequestNetwork
+                payeeRequestNetwork
                   .fromRequestId(refreshedRequestData.requestId)
                   .then((fetchedRequest) => {
                     console.log('fetched request:');
