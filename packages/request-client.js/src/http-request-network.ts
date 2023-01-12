@@ -32,7 +32,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       httpConfig,
       nodeConnectionConfig,
       signatureProvider,
-      useMockStorage,
+      mockStorage,
       currencies,
       currencyManager,
       paymentOptions,
@@ -41,19 +41,19 @@ export default class HttpRequestNetwork extends RequestNetwork {
       httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
       nodeConnectionConfig?: AxiosRequestConfig;
       signatureProvider?: SignatureProviderTypes.ISignatureProvider;
-      useMockStorage?: boolean;
+      mockStorage?: MockStorage;
       currencies?: CurrencyInput[];
       currencyManager?: ICurrencyManager;
       paymentOptions?: Partial<PaymentNetworkOptions>;
     } = {
       httpConfig: {},
       nodeConnectionConfig: {},
-      useMockStorage: false,
     },
   ) {
-    const dataAccess: DataAccessTypes.IDataAccess = useMockStorage
-      ? new MockDataAccess(new MockStorage())
-      : new HttpDataAccess({ httpConfig, nodeConnectionConfig });
+    const dataAccess: DataAccessTypes.IDataAccess =
+      mockStorage !== undefined
+        ? new MockDataAccess(mockStorage)
+        : new HttpDataAccess({ httpConfig, nodeConnectionConfig });
 
     if (!currencyManager) {
       currencyManager = new CurrencyManager(currencies || CurrencyManager.getDefaultList());

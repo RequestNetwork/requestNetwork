@@ -2,7 +2,8 @@
   "extends": "./tsconfig",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "sourceMap": true
   },
   "exclude": ["test/", "**/*.test.ts", "**/*.spec.ts"],
   "references": [
