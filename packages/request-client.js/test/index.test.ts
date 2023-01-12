@@ -119,6 +119,8 @@ const mockBTCProvider = {
 
 const salt = 'ea3bc7caf64110ca';
 
+const mockStorage = new MockStorage();
+
 const waitForConfirmation = async (
   dataOrPromise: IRequestDataWithEvents | Promise<IRequestDataWithEvents>,
 ): Promise<ClientTypes.IRequestDataWithEvents> => {
@@ -434,7 +436,7 @@ describe('request-client.js', () => {
     it('allows to get a request from its ID with a payment network', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -588,7 +590,7 @@ describe('request-client.js', () => {
     it('creates a request with error event', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const request = await requestNetwork.createRequest({
@@ -612,7 +614,7 @@ describe('request-client.js', () => {
     it('works with mocked storage and mocked payment network', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
         paymentOptions: {
           bitcoinDetectionProvider: mockBTCProvider,
         },
@@ -649,7 +651,7 @@ describe('request-client.js', () => {
     it('works with mocked storage and content data', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const contentData = {
@@ -803,7 +805,7 @@ describe('request-client.js', () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const request = await requestNetwork._createEncryptedRequest(
@@ -827,7 +829,7 @@ describe('request-client.js', () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       await expect(
@@ -847,7 +849,7 @@ describe('request-client.js', () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const request = await requestNetwork._createEncryptedRequest(
@@ -872,7 +874,7 @@ describe('request-client.js', () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const request = await requestNetwork._createEncryptedRequest(
@@ -915,7 +917,7 @@ describe('request-client.js', () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const request = await requestNetwork._createEncryptedRequest(
@@ -940,7 +942,7 @@ describe('request-client.js', () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const request = await requestNetwork._createEncryptedRequest(
@@ -973,7 +975,7 @@ describe('request-client.js', () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const request = await requestNetwork._createEncryptedRequest(
@@ -1004,7 +1006,7 @@ describe('request-client.js', () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const request = await requestNetwork._createEncryptedRequest(
@@ -1047,7 +1049,7 @@ describe('request-client.js', () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const request = await requestNetwork._createEncryptedRequest(
@@ -1099,7 +1101,7 @@ describe('request-client.js', () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const request = await requestNetwork._createEncryptedRequest(
@@ -1138,7 +1140,7 @@ describe('request-client.js', () => {
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
         id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
@@ -1181,7 +1183,7 @@ describe('request-client.js', () => {
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -1219,7 +1221,7 @@ describe('request-client.js', () => {
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -1264,7 +1266,7 @@ describe('request-client.js', () => {
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -1329,7 +1331,7 @@ describe('request-client.js', () => {
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -1413,7 +1415,7 @@ describe('request-client.js', () => {
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -1486,7 +1488,7 @@ describe('request-client.js', () => {
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
       // generate address randomly to avoid collisions
       const paymentAddress =
@@ -1586,7 +1588,7 @@ describe('request-client.js', () => {
     const testErc20TokenAddress = 'usdc.near';
     const requestNetwork = new RequestNetwork({
       signatureProvider: TestData.fakeSignatureProvider,
-      useMockStorage: true,
+      mockStorage,
     });
 
     const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -1631,7 +1633,7 @@ describe('request-client.js', () => {
 
     const requestNetwork = new RequestNetwork({
       signatureProvider: TestData.fakeSignatureProvider,
-      useMockStorage: true,
+      mockStorage,
     });
 
     // generate address randomly to avoid collisions
@@ -1669,7 +1671,7 @@ describe('request-client.js', () => {
     it('can create ERC20 requests with given salt', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
         id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
@@ -1708,7 +1710,7 @@ describe('request-client.js', () => {
     it('can create ERC20 requests without given salt', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -1744,7 +1746,7 @@ describe('request-client.js', () => {
     it('creates any-to-erc20 requests', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -1780,7 +1782,7 @@ describe('request-client.js', () => {
     it('can create any-to-native requests', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -1815,7 +1817,7 @@ describe('request-client.js', () => {
     it('cannot create conversion requests on networks not supported', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -1870,7 +1872,7 @@ describe('request-client.js', () => {
     it('supports a default list when nothing is provided', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
       const request = await requestNetwork.createRequest({
         requestInfo: daiData,
@@ -1884,7 +1886,7 @@ describe('request-client.js', () => {
     it('shows unknown when the currency is not known', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
       });
       const request = await requestNetwork.createRequest({
         requestInfo: testErc20Data,
@@ -1898,7 +1900,7 @@ describe('request-client.js', () => {
     describe('allows overriding the default currencies', () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
-        useMockStorage: true,
+        mockStorage,
         currencies: [
           {
             network: 'private',
