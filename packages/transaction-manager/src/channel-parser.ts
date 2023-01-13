@@ -178,8 +178,18 @@ export default class ChannelParser {
           parsedData = await this.transactionParser.parsePersistedTransaction(
             timestampedTransaction.transaction,
             result.channelType,
+            result.channelKey,
+            result.encryptionMethod,
           );
         } catch (error) {
+          // If the transaction is encrypted but the channel key is not found, save channelType and encryptionMethod
+          if (
+            error.message.startsWith('Impossible to decrypt the channel key from this transaction')
+          ) {
+            result.channelType = TransactionTypes.ChannelType.ENCRYPTED;
+            result.encryptionMethod = timestampedTransaction.transaction.encryptionMethod;
+          }
+
           // Error during the parsing, we just ignore this transaction
           return result;
         }
