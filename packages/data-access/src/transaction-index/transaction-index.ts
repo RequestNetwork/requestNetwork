@@ -127,10 +127,6 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
       return exist && inTimeBoundaries;
     });
 
-    // Log channelId and storageLocationList
-    console.log('channelId', channelId);
-    console.log('storageLocationList', storageLocationList);
-
     return storageLocationList;
   }
 
