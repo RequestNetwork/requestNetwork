@@ -8,7 +8,7 @@ const supportedIdentities: IdentityTypes.TYPE[] = [
 /**
  * Module to manage Request Logic Identity
  */
-export { areEqualIdentities, hasErrorIdentities, normalizeIdentityValue, supportedIdentities };
+export { areEqualIdentities, identityHasError, normalizeIdentityValue, supportedIdentities };
 
 /**
  * Checks if two identities are equals
@@ -42,7 +42,7 @@ function normalizeIdentityValue(value: string): string {
  * @param id identity to check
  * @returns the error or null if valid
  */
-function hasErrorIdentities(id: IdentityTypes.IIdentity): string | null {
+function identityHasError(id: IdentityTypes.IIdentity): string | null {
   if (!supportedIdentities.includes(id.type)) {
     return 'identity type not supported';
   }

@@ -1,6 +1,6 @@
 import { IdentityTypes, SignatureProviderTypes, SignatureTypes } from '@requestnetwork/types';
 
-import { areEqualIdentities, normalizeData, recoverSignature } from '@requestnetwork/utils';
+import { areEqualIdentities, normalizeData, recoverSigner } from '@requestnetwork/utils';
 
 import { providers } from 'ethers';
 
@@ -82,7 +82,7 @@ export default class Web3SignatureProvider implements SignatureProviderTypes.ISi
         value,
       },
     };
-    if (areEqualIdentities(recoverSignature(signedData), signer)) {
+    if (areEqualIdentities(recoverSigner(signedData), signer)) {
       return signedData;
     }
     return null;

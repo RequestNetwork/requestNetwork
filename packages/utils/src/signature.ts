@@ -5,7 +5,7 @@ import { EcUtils, normalizeData, normalizeKeccak256Hash } from './crypto';
 /**
  * Function to manage Request Logic Signature
  */
-export { getIdentityFromSignatureParams, recoverSignature, signSignature };
+export { getIdentityFromSignatureParams, recoverSigner, sign };
 
 // Use to localize the parameter V in an ECDSA signature in hex format
 const V_POSITION_FROM_END_IN_ECDSA_HEX = -2;
@@ -39,7 +39,7 @@ function getIdentityFromSignatureParams(
  * @param signatureParams Signature parameters
  * @returns ISignature the signature
  */
-function signSignature(
+function sign(
   data: unknown,
   signatureParams: SignatureTypes.ISignatureParameters,
 ): SignatureTypes.ISignedData {
@@ -67,7 +67,7 @@ function signSignature(
  * @param signedData the data signed
  * @returns identity of the signer
  */
-function recoverSignature(signedData: SignatureTypes.ISignedData): IdentityTypes.IIdentity {
+function recoverSigner(signedData: SignatureTypes.ISignedData): IdentityTypes.IIdentity {
   let value: string;
   if (signedData.signature.method === SignatureTypes.METHOD.ECDSA) {
     value = EcUtils.recover(

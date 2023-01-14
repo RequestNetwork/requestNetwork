@@ -3,7 +3,7 @@ import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@reque
 import * as Semver from 'semver';
 import Role from './role';
 import Version from './version';
-import { normalizeKeccak256Hash, recoverSignature } from '@requestnetwork/utils';
+import { normalizeKeccak256Hash, recoverSigner } from '@requestnetwork/utils';
 
 /**
  * Function to manage Request logic action (object that will be interpreted to create or modify a request)
@@ -45,7 +45,7 @@ function createAction(
  * @returns RequestEnum.ROLE the role of the signer (payee, payer or third party)
  */
 function getSignerIdentityFromAction(action: RequestLogicTypes.IAction): IdentityTypes.IIdentity {
-  return recoverSignature(action);
+  return recoverSigner(action);
 }
 
 /**

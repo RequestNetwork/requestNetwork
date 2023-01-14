@@ -7,7 +7,7 @@ import { RequestLogic } from '../src/index';
 import * as TestData from './unit/utils/test-data-generator';
 
 import Version from '../src/version';
-import { normalizeKeccak256Hash, signSignature } from '@requestnetwork/utils';
+import { normalizeKeccak256Hash, sign } from '@requestnetwork/utils';
 
 const CURRENT_VERSION = Version.currentVersion;
 
@@ -26,7 +26,7 @@ const unsignedAction: RequestLogicTypes.IUnsignedAction = {
   parameters: createParams,
   version: CURRENT_VERSION,
 };
-const action = signSignature(unsignedAction, TestData.payeeRaw.signatureParams);
+const action = sign(unsignedAction, TestData.payeeRaw.signatureParams);
 const requestId = MultiFormat.serialize(normalizeKeccak256Hash(action));
 
 const fakeTxHash = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
@@ -496,7 +496,7 @@ describe('index', () => {
     });
 
     it('cannot accept as payee', async () => {
-      const actionCreate = signSignature(
+      const actionCreate = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
@@ -592,7 +592,7 @@ describe('index', () => {
     });
 
     it('cannot cancel if not payee or payer', async () => {
-      const actionCreate = signSignature(
+      const actionCreate = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
@@ -693,7 +693,7 @@ describe('index', () => {
       ).rejects.toThrowError('You must give a signature provider to create actions');
     });
     it('cannot increaseExpectedAmountRequest as payee', async () => {
-      const actionCreate = signSignature(
+      const actionCreate = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
@@ -799,7 +799,7 @@ describe('index', () => {
       ).rejects.toThrowError('You must give a signature provider to create actions');
     });
     it('cannot reduceExpectedAmountRequest as payer', async () => {
-      const actionCreate = signSignature(
+      const actionCreate = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
@@ -908,7 +908,7 @@ describe('index', () => {
         },
       };
 
-      const actionCreate = signSignature(
+      const actionCreate = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
@@ -962,7 +962,7 @@ describe('index', () => {
 
   describe('getRequestFromId', () => {
     it('can getRequestFromId', async () => {
-      const actionCreate: RequestLogicTypes.IAction = signSignature(
+      const actionCreate: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
@@ -980,7 +980,7 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const actionAccept: RequestLogicTypes.IAction = signSignature(
+      const actionAccept: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.ACCEPT,
           parameters: {
@@ -991,7 +991,7 @@ describe('index', () => {
         TestData.payerRaw.signatureParams,
       );
 
-      const rxReduce: RequestLogicTypes.IAction = signSignature(
+      const rxReduce: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
@@ -1098,7 +1098,7 @@ describe('index', () => {
     });
 
     it('can getRequestFromId ignore old pending transaction', async () => {
-      const actionCreate: RequestLogicTypes.IAction = signSignature(
+      const actionCreate: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
@@ -1116,7 +1116,7 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const actionAccept: RequestLogicTypes.IAction = signSignature(
+      const actionAccept: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.ACCEPT,
           parameters: {
@@ -1127,7 +1127,7 @@ describe('index', () => {
         TestData.payerRaw.signatureParams,
       );
 
-      const rxReduce: RequestLogicTypes.IAction = signSignature(
+      const rxReduce: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
@@ -1237,7 +1237,7 @@ describe('index', () => {
     });
 
     it('can getRequestFromId with pending transaction', async () => {
-      const actionCreate: RequestLogicTypes.IAction = signSignature(
+      const actionCreate: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
@@ -1255,7 +1255,7 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const actionAccept: RequestLogicTypes.IAction = signSignature(
+      const actionAccept: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.ACCEPT,
           parameters: {
@@ -1266,7 +1266,7 @@ describe('index', () => {
         TestData.payerRaw.signatureParams,
       );
 
-      const rxReduce: RequestLogicTypes.IAction = signSignature(
+      const rxReduce: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
@@ -1376,7 +1376,7 @@ describe('index', () => {
     });
 
     it('can getRequestFromId ignore the same transactions even with different case', async () => {
-      const actionCreate: RequestLogicTypes.IAction = signSignature(
+      const actionCreate: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
@@ -1394,7 +1394,7 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const actionAccept: RequestLogicTypes.IAction = signSignature(
+      const actionAccept: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.ACCEPT,
           parameters: {
@@ -1405,7 +1405,7 @@ describe('index', () => {
         TestData.payerRaw.signatureParams,
       );
 
-      const actionReduce: RequestLogicTypes.IAction = signSignature(
+      const actionReduce: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
@@ -1417,7 +1417,7 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const actionReduce2: RequestLogicTypes.IAction = signSignature(
+      const actionReduce2: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
@@ -1538,7 +1538,7 @@ describe('index', () => {
     });
 
     it('can getRequestFromId do not ignore the same transactions if different nonces', async () => {
-      const actionCreate: RequestLogicTypes.IAction = signSignature(
+      const actionCreate: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
@@ -1556,7 +1556,7 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const actionAccept: RequestLogicTypes.IAction = signSignature(
+      const actionAccept: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.ACCEPT,
           parameters: {
@@ -1567,7 +1567,7 @@ describe('index', () => {
         TestData.payerRaw.signatureParams,
       );
 
-      const actionReduce: RequestLogicTypes.IAction = signSignature(
+      const actionReduce: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
@@ -1579,7 +1579,7 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const actionReduce2: RequestLogicTypes.IAction = signSignature(
+      const actionReduce2: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
@@ -1736,7 +1736,7 @@ describe('index', () => {
     });
 
     it('should ignored the corrupted data (e.g: wrong properties)', async () => {
-      const actionCorrupted: RequestLogicTypes.IAction = signSignature(
+      const actionCorrupted: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
@@ -1811,13 +1811,13 @@ describe('index', () => {
         },
         version: CURRENT_VERSION,
       };
-      const actionCreate: RequestLogicTypes.IAction = signSignature(
+      const actionCreate: RequestLogicTypes.IAction = sign(
         unsignedActionCreation,
         TestData.payeeRaw.signatureParams,
       );
       const newRequestId = MultiFormat.serialize(normalizeKeccak256Hash(unsignedActionCreation));
 
-      const actionAccept: RequestLogicTypes.IAction = signSignature(
+      const actionAccept: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.ACCEPT,
           parameters: {
@@ -1828,7 +1828,7 @@ describe('index', () => {
         TestData.payerRaw.signatureParams,
       );
 
-      const rxReduce: RequestLogicTypes.IAction = signSignature(
+      const rxReduce: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
@@ -1854,13 +1854,13 @@ describe('index', () => {
         },
         version: CURRENT_VERSION,
       };
-      const actionCreate2: RequestLogicTypes.IAction = signSignature(
+      const actionCreate2: RequestLogicTypes.IAction = sign(
         unsignedActionCreation2,
         TestData.payeeRaw.signatureParams,
       );
       const newRequestId2 = MultiFormat.serialize(normalizeKeccak256Hash(unsignedActionCreation2));
 
-      const actionCancel2: RequestLogicTypes.IAction = signSignature(
+      const actionCancel2: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CANCEL,
           parameters: {
@@ -1885,7 +1885,7 @@ describe('index', () => {
         },
         version: CURRENT_VERSION,
       };
-      const actionCreate3: RequestLogicTypes.IAction = signSignature(
+      const actionCreate3: RequestLogicTypes.IAction = sign(
         unsignedActionCreation3,
         TestData.payeeRaw.signatureParams,
       );
@@ -1974,13 +1974,13 @@ describe('index', () => {
         },
         version: CURRENT_VERSION,
       };
-      const actionCreate: RequestLogicTypes.IAction = signSignature(
+      const actionCreate: RequestLogicTypes.IAction = sign(
         unsignedActionCreation,
         TestData.payeeRaw.signatureParams,
       );
       const newRequestId = MultiFormat.serialize(normalizeKeccak256Hash(unsignedActionCreation));
 
-      const actionAccept: RequestLogicTypes.IAction = signSignature(
+      const actionAccept: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.ACCEPT,
           parameters: {
@@ -1991,7 +1991,7 @@ describe('index', () => {
         TestData.payerRaw.signatureParams,
       );
 
-      const rxReduce: RequestLogicTypes.IAction = signSignature(
+      const rxReduce: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
@@ -2017,13 +2017,13 @@ describe('index', () => {
         },
         version: CURRENT_VERSION,
       };
-      const actionCreate2: RequestLogicTypes.IAction = signSignature(
+      const actionCreate2: RequestLogicTypes.IAction = sign(
         unsignedActionCreation2,
         TestData.payeeRaw.signatureParams,
       );
       const newRequestId2 = MultiFormat.serialize(normalizeKeccak256Hash(unsignedActionCreation2));
 
-      const actionCancel2: RequestLogicTypes.IAction = signSignature(
+      const actionCancel2: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CANCEL,
           parameters: {
@@ -2048,7 +2048,7 @@ describe('index', () => {
         },
         version: CURRENT_VERSION,
       };
-      const actionCreate3: RequestLogicTypes.IAction = signSignature(
+      const actionCreate3: RequestLogicTypes.IAction = sign(
         unsignedActionCreation3,
         TestData.payeeRaw.signatureParams,
       );
@@ -2143,7 +2143,7 @@ describe('index', () => {
     });
 
     it('should ignore the transaction none parsable and the rejected action', async () => {
-      const actionCreate: RequestLogicTypes.IAction = signSignature(
+      const actionCreate: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CREATE,
           parameters: {
@@ -2161,7 +2161,7 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
 
-      const acceptNotValid: RequestLogicTypes.IAction = signSignature(
+      const acceptNotValid: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.ACCEPT,
           parameters: {
@@ -2238,13 +2238,13 @@ describe('index', () => {
         },
         version: CURRENT_VERSION,
       };
-      const actionCreate: RequestLogicTypes.IAction = signSignature(
+      const actionCreate: RequestLogicTypes.IAction = sign(
         unsignedActionCreation,
         TestData.payeeRaw.signatureParams,
       );
       const newRequestId = MultiFormat.serialize(normalizeKeccak256Hash(unsignedActionCreation));
 
-      const actionAccept: RequestLogicTypes.IAction = signSignature(
+      const actionAccept: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.ACCEPT,
           parameters: {
@@ -2255,7 +2255,7 @@ describe('index', () => {
         TestData.payerRaw.signatureParams,
       );
 
-      const rxReduce: RequestLogicTypes.IAction = signSignature(
+      const rxReduce: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
           parameters: {
@@ -2281,13 +2281,13 @@ describe('index', () => {
         },
         version: CURRENT_VERSION,
       };
-      const actionCreate2: RequestLogicTypes.IAction = signSignature(
+      const actionCreate2: RequestLogicTypes.IAction = sign(
         unsignedActionCreation2,
         TestData.payeeRaw.signatureParams,
       );
       const newRequestId2 = MultiFormat.serialize(normalizeKeccak256Hash(unsignedActionCreation2));
 
-      const actionCancel2: RequestLogicTypes.IAction = signSignature(
+      const actionCancel2: RequestLogicTypes.IAction = sign(
         {
           name: RequestLogicTypes.ACTION_NAME.CANCEL,
           parameters: {
@@ -2312,7 +2312,7 @@ describe('index', () => {
         },
         version: CURRENT_VERSION,
       };
-      const actionCreate3: RequestLogicTypes.IAction = signSignature(
+      const actionCreate3: RequestLogicTypes.IAction = sign(
         unsignedActionCreation3,
         TestData.payeeRaw.signatureParams,
       );

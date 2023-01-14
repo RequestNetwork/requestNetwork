@@ -3,24 +3,6 @@
 `@requestnetwork/utils` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 It is a collection of tools shared between the @requestnetwork packages.
 
-- Elliptic curve crypto and signature
-  - normalizeKeccak256Hash()
-  - EcUtils.getAddressFromPrivateKey()
-  - EcUtils.recover()
-  - EcUtils.sign()
-  - getIdentityFromSignatureParams()
-  - recover()
-  - sign()
-- Identity
-  - areEqual()
-  - normalizeIdentityValue()
-  - isString
-- Miscellaneous
-  - deepCopy()
-  - deepSort()
-  - flatten2DimensionsArray()
-  - getCurrentTimestampInSecond()
-
 ## Installation
 
 ```bash

@@ -2,8 +2,8 @@ import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
 import {
   getIdentityFromSignatureParams,
   normalizeKeccak256Hash,
-  recoverSignature,
-  signSignature,
+  recoverSigner,
+  sign,
 } from '../src';
 
 const otherIdRaw = {
@@ -55,12 +55,12 @@ describe('Signature', () => {
   });
 
   describe('sign', () => {
-    it('can signSignature() with ECDSA', () => {
-      const signature = signSignature(data, {
+    it('can sign() with ECDSA', () => {
+      const signature = sign(data, {
         method: SignatureTypes.METHOD.ECDSA,
         privateKey: otherIdRaw.privateKey,
       });
-      // 'signSignature() error'
+      // 'sign() error'
       expect(signature).toEqual({
         data,
         signature: {
@@ -71,12 +71,12 @@ describe('Signature', () => {
       });
     });
 
-    it('can signSignature() with ECDSA_ETHEREUM', () => {
-      const signature = signSignature(data, {
+    it('can sign() with ECDSA_ETHEREUM', () => {
+      const signature = sign(data, {
         method: SignatureTypes.METHOD.ECDSA_ETHEREUM,
         privateKey: otherIdRaw.privateKey,
       });
-      // 'signSignature() error'
+      // 'sign() error'
       expect(signature).toEqual({
         data,
         signature: {
@@ -87,12 +87,12 @@ describe('Signature', () => {
       });
     });
 
-    it('can signSignature() with different case', () => {
-      const signature = signSignature(dataDiffCase, {
+    it('can sign() with different case', () => {
+      const signature = sign(dataDiffCase, {
         method: SignatureTypes.METHOD.ECDSA,
         privateKey: otherIdRaw.privateKey,
       });
-      // 'signSignature() error'
+      // 'sign() error'
       expect(signature).toEqual({
         data: dataDiffCase,
         signature: {
@@ -108,15 +108,15 @@ describe('Signature', () => {
         method: 'notECDSA',
         privateKey: otherIdRaw.privateKey,
       };
-      expect(() => signSignature(normalizeKeccak256Hash(data), params)).toThrowError(
+      expect(() => sign(normalizeKeccak256Hash(data), params)).toThrowError(
         'signatureParams.method not supported',
       );
     });
   });
 
   describe('recover', () => {
-    it('can recoverSignature()  ECDSA signature', () => {
-      const id = recoverSignature({
+    it('can recoverSigner()  ECDSA signature', () => {
+      const id = recoverSigner({
         data,
         signature: {
           method: SignatureTypes.METHOD.ECDSA,
@@ -124,12 +124,12 @@ describe('Signature', () => {
             '0x801f4240516509c28660f096830d52e8523e2136d557d65728e39f3ea37b72bb3f20accff461cabe3515431d0e6c468d4631540b7c6f9c29acfa7c9231781a3c1c',
         },
       });
-      // 'recoverSignature()  error'
+      // 'recoverSigner()  error'
       expect(id).toEqual(otherIdRaw.identity);
     });
 
-    it('can recoverSignature()  ECDSA_ETHEREUM signature', () => {
-      const id = recoverSignature({
+    it('can recoverSigner()  ECDSA_ETHEREUM signature', () => {
+      const id = recoverSigner({
         data,
         signature: {
           method: SignatureTypes.METHOD.ECDSA_ETHEREUM,
@@ -137,14 +137,14 @@ describe('Signature', () => {
             '0x3fbc7ed9dfa003067f646749d4223def2a69df70371d4f15ec001bc1491cdee40558de1f31fdc7cc5d805a5c4080b54cda3430b29ab14f04e17a5b23fcd39b391b',
         },
       });
-      // 'recoverSignature()  error'
+      // 'recoverSigner()  error'
       expect(id.value).toEqual(otherIdRaw.identity.value.toLowerCase());
-      // 'recoverSignature()  error'
+      // 'recoverSigner()  error'
       expect(id.type).toEqual(otherIdRaw.identity.type);
     });
 
-    it('can recoverSignature()  with different case', () => {
-      const id = recoverSignature({
+    it('can recoverSigner()  with different case', () => {
+      const id = recoverSigner({
         data: dataDiffCase,
         signature: {
           method: SignatureTypes.METHOD.ECDSA,
@@ -152,7 +152,7 @@ describe('Signature', () => {
             '0x801f4240516509c28660f096830d52e8523e2136d557d65728e39f3ea37b72bb3f20accff461cabe3515431d0e6c468d4631540b7c6f9c29acfa7c9231781a3c1c',
         },
       });
-      // 'recoverSignature()  error'
+      // 'recoverSigner()  error'
       expect(id).toEqual(otherIdRaw.identity);
     });
 
@@ -161,7 +161,7 @@ describe('Signature', () => {
         method: 'notECDSA',
         value: '0x00000000000000000000',
       };
-      expect(() => recoverSignature({ data, signature: params })).toThrowError(
+      expect(() => recoverSigner({ data, signature: params })).toThrowError(
         'signatureParams.method not supported',
       );
     });

@@ -4,7 +4,7 @@ import {
   SignatureTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
-import { signSignature } from '@requestnetwork/utils';
+import { sign } from '@requestnetwork/utils';
 
 const payee = {
   identity: {
@@ -50,7 +50,7 @@ export const data = {
   version: '2.0.3',
 };
 
-export const action: RequestLogicTypes.IAction = signSignature(data, payee.signatureParams);
+export const action: RequestLogicTypes.IAction = sign(data, payee.signatureParams);
 
 export const timestampedTransaction: TransactionTypes.ITimestampedTransaction = {
   state: TransactionTypes.TransactionState.PENDING,

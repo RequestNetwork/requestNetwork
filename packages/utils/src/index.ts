@@ -25,7 +25,7 @@ export { estimateGasFees } from './estimate-gas-fees';
 
 export {
   areEqualIdentities,
-  hasErrorIdentities,
+  identityHasError,
   normalizeIdentityValue,
   supportedIdentities,
 } from './identity';
@@ -40,7 +40,7 @@ export {
 
 export { retry } from './retry';
 
-export { getIdentityFromSignatureParams, recoverSignature, signSignature } from './signature';
+export { getIdentityFromSignatureParams, recoverSigner, sign } from './signature';
 
 export { SimpleLogger } from './simple-logger';
 

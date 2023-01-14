@@ -5,7 +5,7 @@ import Version from '../version';
 import {
   deepCopy,
   getCurrentTimestampInSecond,
-  hasErrorIdentities,
+  identityHasError,
   isString,
   isValidAmount,
 } from '@requestnetwork/utils';
@@ -42,12 +42,12 @@ function format(
     throw new Error('expectedAmount must be a positive integer');
   }
 
-  if (requestParameters.payee && hasErrorIdentities(requestParameters.payee)) {
-    throw new Error(`payee: ${hasErrorIdentities(requestParameters.payee)}̀`);
+  if (requestParameters.payee && identityHasError(requestParameters.payee)) {
+    throw new Error(`payee: ${identityHasError(requestParameters.payee)}̀`);
   }
 
-  if (requestParameters.payer && hasErrorIdentities(requestParameters.payer)) {
-    throw new Error(`payer: ${hasErrorIdentities(requestParameters.payer)}̀`);
+  if (requestParameters.payer && identityHasError(requestParameters.payer)) {
+    throw new Error(`payer: ${identityHasError(requestParameters.payer)}̀`);
   }
 
   if (!requestParameters.timestamp) {
@@ -91,12 +91,12 @@ function createRequest(
     throw new Error('action.parameters.payee or action.parameters.payer must be given');
   }
 
-  if (action.data.parameters.payee && hasErrorIdentities(action.data.parameters.payee)) {
-    throw new Error(`payee: ${hasErrorIdentities(action.data.parameters.payee)}̀`);
+  if (action.data.parameters.payee && identityHasError(action.data.parameters.payee)) {
+    throw new Error(`payee: ${identityHasError(action.data.parameters.payee)}̀`);
   }
 
-  if (action.data.parameters.payer && hasErrorIdentities(action.data.parameters.payer)) {
-    throw new Error(`payer: ${hasErrorIdentities(action.data.parameters.payer)}̀`);
+  if (action.data.parameters.payer && identityHasError(action.data.parameters.payer)) {
+    throw new Error(`payer: ${identityHasError(action.data.parameters.payer)}̀`);
   }
 
   if (
