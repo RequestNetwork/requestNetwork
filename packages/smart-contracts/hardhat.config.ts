@@ -15,8 +15,10 @@ import { VerifyCreate2FromList } from './scripts-create2/verify';
 import { deployWithCreate2FromList } from './scripts-create2/deploy';
 import utils from '@requestnetwork/utils';
 import { NUMBER_ERRORS } from './scripts/utils';
+import * as tenderly from '@tenderly/hardhat-tenderly';
 
 config();
+tenderly.setup({ automaticVerifications: false });
 
 const accounts = process.env.DEPLOYMENT_PRIVATE_KEY
   ? [process.env.DEPLOYMENT_PRIVATE_KEY]
@@ -180,6 +182,11 @@ export default {
         },
       },
     ],
+  },
+  tenderly: {
+    project: process.env.TENDERLY_PROJECT,
+    username: process.env.TENDERLY_USERNAME,
+    accessKey: process.env.TENDERLY_ACCESS_KEY,
   },
   typechain: {
     outDir: 'src/types',
