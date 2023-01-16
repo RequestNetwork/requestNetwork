@@ -3,7 +3,7 @@ import {
   generate32BufferKey,
   generate8randomBytes,
   last20bytesOfNormalizedKeccak256Hash,
-  normalizeData,
+  normalize,
   normalizeKeccak256Hash,
 } from '../src';
 
@@ -89,11 +89,11 @@ describe('Utils/crypto', () => {
   });
 
   it('can normalize integer, null, string, undefined', () => {
-    expect(normalizeData('TesT')).toBe('"test"');
+    expect(normalize('TesT')).toBe('"test"');
     // eslint-disable-next-line no-magic-numbers
-    expect(normalizeData(12345)).toBe('12345');
-    expect(normalizeData(null)).toBe('null');
-    expect(normalizeData(undefined)).toBe('undefined');
+    expect(normalize(12345)).toBe('12345');
+    expect(normalize(null)).toBe('null');
+    expect(normalize(undefined)).toBe('undefined');
   });
 
   it('can generate32BufferKey()', async () => {

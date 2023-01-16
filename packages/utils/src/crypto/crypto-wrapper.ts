@@ -3,7 +3,7 @@ import { createCipheriv, createDecipheriv, randomBytes as cryptoRandomBytes } fr
 /**
  * Functions to manage native crypto functions of nodeJs
  */
-export const CryptoWrapper = {
+export {
   decryptWithAes256cbc,
   decryptWithAes256gcm,
   encryptWithAes256cbc,

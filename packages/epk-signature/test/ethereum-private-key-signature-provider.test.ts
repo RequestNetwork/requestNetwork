@@ -1,7 +1,7 @@
 import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
 
 import EthereumPrivateKeySignatureProvider from '../src/ethereum-private-key-signature-provider';
-import { EcUtils, normalizeKeccak256Hash } from '@requestnetwork/utils';
+import { ecSign, normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 const id1Raw = {
   address: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
@@ -35,7 +35,7 @@ export const id2Raw = {
 
 const data = { What: 'ever', the: 'data', are: true };
 const hashData = normalizeKeccak256Hash(data).value;
-const signatureValueExpected = EcUtils.sign(id1Raw.privateKey, hashData);
+const signatureValueExpected = ecSign(id1Raw.privateKey, hashData);
 const signedDataExpected = {
   data,
   signature: {

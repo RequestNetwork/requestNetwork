@@ -9,13 +9,22 @@ export { minBigNumber, maxBigNumber } from './bignumber';
 export { cachedThrottle } from './cached-throttle';
 
 export {
-  CryptoWrapper,
-  EcUtils,
+  decryptWithAes256cbc,
+  decryptWithAes256gcm,
+  encryptWithAes256cbc,
+  encryptWithAes256gcm,
+  random32Bytes,
+  ecDecrypt,
+  ecEncrypt,
+  getAddressFromPrivateKey,
+  getAddressFromPublicKey,
+  ecRecover,
+  ecSign,
   generate32BufferKey,
   generate8randomBytes,
   keccak256Hash,
   last20bytesOfNormalizedKeccak256Hash,
-  normalizeData,
+  normalize,
   normalizeKeccak256Hash,
 } from './crypto';
 
