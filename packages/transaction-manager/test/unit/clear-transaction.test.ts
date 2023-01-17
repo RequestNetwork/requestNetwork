@@ -1,6 +1,6 @@
 import MultiFormat from '@requestnetwork/multi-format';
-import Utils from '@requestnetwork/utils';
 import ClearTransaction from '../../src/clear-transaction';
+import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 const data = '{ "what": "ever", "it": "is,", "this": "must", "work": true }';
 
@@ -21,7 +21,7 @@ describe('clear-transaction', () => {
 
       // 'hash not right'
       expect(await tx.getHash()).toEqual(
-        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(JSON.parse(data))),
+        MultiFormat.serialize(normalizeKeccak256Hash(JSON.parse(data))),
       );
     });
   });

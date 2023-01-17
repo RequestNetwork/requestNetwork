@@ -4,7 +4,7 @@ import * as DataBTCCreate from './utils/payment-network/bitcoin/generator-data-c
 import * as DataDeclarativeCreate from './utils/payment-network/any/generator-data-create';
 import * as DataTestnetBTCCreate from './utils/payment-network/bitcoin/testnet-generator-data-create';
 
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 import { AdvancedLogic } from '../src/index';
 
@@ -19,7 +19,7 @@ describe('advanced-logic.ts', () => {
   });
   describe('applyActionToExtensions', () => {
     it('can applyActionToExtensions', () => {
-      const requestCreatedNoExtensionBefore = Utils.deepCopy(TestData.requestCreatedNoExtension);
+      const requestCreatedNoExtensionBefore = deepCopy(TestData.requestCreatedNoExtension);
       const previousState = {};
 
       const newExtensionState = advancedLogic.applyActionToExtensions(
@@ -39,9 +39,7 @@ describe('advanced-logic.ts', () => {
     });
 
     it('can applyActionToExtensions with pn bitcoin address based', () => {
-      const requestCreatedNoExtensionBefore = Utils.deepCopy(
-        DataBTCCreate.requestStateNoExtensions,
-      );
+      const requestCreatedNoExtensionBefore = deepCopy(DataBTCCreate.requestStateNoExtensions);
 
       const newExtensionState = advancedLogic.applyActionToExtensions(
         requestCreatedNoExtensionBefore.extensions,
@@ -58,7 +56,7 @@ describe('advanced-logic.ts', () => {
     });
 
     it('can applyActionToExtensions with pn testnet bitcoin address based', () => {
-      const requestCreatedNoExtensionBefore = Utils.deepCopy(
+      const requestCreatedNoExtensionBefore = deepCopy(
         DataTestnetBTCCreate.requestStateNoExtensions,
       );
 
@@ -79,7 +77,7 @@ describe('advanced-logic.ts', () => {
     });
 
     it('can applyActionToExtensions with declarative payment network', () => {
-      const requestCreatedNoExtensionBefore = Utils.deepCopy(
+      const requestCreatedNoExtensionBefore = deepCopy(
         DataDeclarativeCreate.requestStateNoExtensions,
       );
 

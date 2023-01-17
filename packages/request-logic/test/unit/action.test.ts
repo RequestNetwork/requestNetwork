@@ -5,7 +5,7 @@ import {
   SignatureProviderTypes,
   SignatureTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy, normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 import Action from '../../src/action';
 import CreateAction from '../../src/actions/create';
@@ -46,7 +46,7 @@ const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
 describe('Action', () => {
   it('can getRequestId() of current version', () => {
     const reqId = Action.getRequestId(signedAction);
-    expect(reqId).toBe(MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(signedAction)));
+    expect(reqId).toBe(MultiFormat.serialize(normalizeKeccak256Hash(signedAction)));
   });
   it('can getRequestId() of version before or equal 2.0.0', () => {
     const randomUnsignedAction200 = {
@@ -72,9 +72,7 @@ describe('Action', () => {
     };
 
     const reqId = Action.getRequestId(signedAction200);
-    expect(reqId).toBe(
-      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(randomUnsignedAction200)),
-    );
+    expect(reqId).toBe(MultiFormat.serialize(normalizeKeccak256Hash(randomUnsignedAction200)));
   });
 
   it('can getRoleInAction()', () => {
@@ -110,7 +108,7 @@ describe('Action', () => {
   it('can isActionVersionSupported()', () => {
     expect(Action.isActionVersionSupported(signedAction)).toBeTruthy();
 
-    const wrongVersionAction = Utils.deepCopy(signedAction);
+    const wrongVersionAction = deepCopy(signedAction);
     wrongVersionAction.data.version = '10.0.0';
 
     expect(Action.isActionVersionSupported(wrongVersionAction)).toBeFalsy();

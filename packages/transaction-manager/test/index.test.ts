@@ -1,5 +1,5 @@
 import MultiFormat from '@requestnetwork/multi-format';
-import Utils from '@requestnetwork/utils';
+import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 import { EventEmitter } from 'events';
 
@@ -27,9 +27,9 @@ const tx2: DataAccessTypes.ITimestampedTransaction = {
   transaction: { data: data2 },
 };
 
-const dataHash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
+const dataHash = normalizeKeccak256Hash(JSON.parse(data));
 const channelId = MultiFormat.serialize(dataHash);
-const dataHash2 = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data2));
+const dataHash2 = normalizeKeccak256Hash(JSON.parse(data2));
 const channelId2 = MultiFormat.serialize(dataHash2);
 
 const fakeMetaDataAccessPersistReturn: DataAccessTypes.IReturnPersistTransaction = Object.assign(

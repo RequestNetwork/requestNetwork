@@ -37,7 +37,7 @@ Your signature provider would look like:
 
 ```typescript
 import { IdentityTypes, SignatureProviderTypes, SignatureTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 // Your package
 import mySignaturePackage from 'mySignaturePackage';
@@ -68,7 +68,7 @@ export default class MySignatureProvider implements SignatureProviderTypes.ISign
     }
 
     // Hash the normalized data (e.g. avoid case sensitivity)
-    const hashData = Utils.crypto.normalizeKeccak256Hash(data).value;
+    const hashData = normalizeKeccak256Hash(data).value;
 
     // use your signature package
     const signatureValue = mySignaturePackage.sign(hashData, signer.value);
@@ -118,7 +118,7 @@ Your signature provider would look like:
 
 ```typescript
 import { IdentityTypes, SignatureProviderTypes, SignatureTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 // Your package
 import mySignaturePackage from 'mySignaturePackage';
@@ -170,7 +170,7 @@ export default class MySignatureProvider implements SignatureProviderTypes.ISign
     }
 
     // Hash the normalized data (e.g. avoid case sensitivity)
-    const hashData = Utils.crypto.normalizeKeccak256Hash(data).value;
+    const hashData = normalizeKeccak256Hash(data).value;
 
     // convert the hash from a string '0x...' to a Buffer
     const hashDataBuffer = Buffer.from(hashData.slice(2), 'hex');

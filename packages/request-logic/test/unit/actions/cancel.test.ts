@@ -1,5 +1,5 @@
 import { IdentityTypes, RequestLogicTypes, SignatureTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 import CancelAction from '../../../src/actions/cancel';
 
 import Version from '../../../src/version';
@@ -60,7 +60,7 @@ describe('actions/cancel', () => {
       const request = CancelAction.applyActionToRequest(
         actionCancel,
         2,
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
+        deepCopy(TestData.requestCreatedNoExtension),
       );
 
       // 'requestId is wrong'
@@ -122,7 +122,7 @@ describe('actions/cancel', () => {
         CancelAction.applyActionToRequest(
           actionCancel,
           2,
-          Utils.deepCopy(TestData.requestAcceptedNoExtension),
+          deepCopy(TestData.requestAcceptedNoExtension),
         ),
       ).toThrowError('A payer cancel need to be done on a request with the state created');
     });
@@ -139,7 +139,7 @@ describe('actions/cancel', () => {
         CancelAction.applyActionToRequest(
           actionCancel,
           2,
-          Utils.deepCopy(TestData.requestCanceledNoExtension),
+          deepCopy(TestData.requestCanceledNoExtension),
         ),
       ).toThrowError('A payer cancel need to be done on a request with the state created');
     });
@@ -155,7 +155,7 @@ describe('actions/cancel', () => {
       const request = CancelAction.applyActionToRequest(
         actionCancel,
         2,
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
+        deepCopy(TestData.requestCreatedNoExtension),
       );
 
       // 'requestId is wrong'
@@ -215,7 +215,7 @@ describe('actions/cancel', () => {
       const request = CancelAction.applyActionToRequest(
         actionCancel,
         2,
-        Utils.deepCopy(TestData.requestAcceptedNoExtension),
+        deepCopy(TestData.requestAcceptedNoExtension),
       );
 
       // 'requestId is wrong'
@@ -276,7 +276,7 @@ describe('actions/cancel', () => {
         CancelAction.applyActionToRequest(
           actionCancel,
           2,
-          Utils.deepCopy(TestData.requestCanceledNoExtension),
+          deepCopy(TestData.requestCanceledNoExtension),
         ),
       ).toThrowError('Cannot cancel an already canceled request');
     });
@@ -294,7 +294,7 @@ describe('actions/cancel', () => {
         CancelAction.applyActionToRequest(
           actionCancel,
           2,
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
+          deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).toThrowError('Signer must be the payer or the payee');
     });
@@ -314,11 +314,7 @@ describe('actions/cancel', () => {
       };
 
       expect(() =>
-        CancelAction.applyActionToRequest(
-          action,
-          2,
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
-        ),
+        CancelAction.applyActionToRequest(action, 2, deepCopy(TestData.requestCreatedNoExtension)),
       ).toThrowError('requestId must be given');
     });
     it('cannot cancel by payer if no payer in state', () => {
@@ -447,7 +443,7 @@ describe('actions/cancel', () => {
       const request = CancelAction.applyActionToRequest(
         actionCancel,
         2,
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
+        deepCopy(TestData.requestCreatedNoExtension),
       );
 
       // 'requestId is wrong'
@@ -510,7 +506,7 @@ describe('actions/cancel', () => {
       const request = CancelAction.applyActionToRequest(
         actionCancel,
         2,
-        Utils.deepCopy(TestData.requestCreatedWithExtensions),
+        deepCopy(TestData.requestCreatedWithExtensions),
       );
 
       // 'requestId is wrong'
@@ -570,7 +566,7 @@ describe('actions/cancel', () => {
       const request = CancelAction.applyActionToRequest(
         actionCancel,
         2,
-        Utils.deepCopy(TestData.requestCreatedWithExtensions),
+        deepCopy(TestData.requestCreatedWithExtensions),
       );
 
       // 'requestId is wrong'

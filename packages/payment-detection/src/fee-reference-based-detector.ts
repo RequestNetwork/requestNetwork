@@ -1,8 +1,8 @@
 import { BigNumber } from 'ethers';
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import Utils from '@requestnetwork/utils';
 import { ReferenceBasedDetector } from './reference-based-detector';
+import { generate8randomBytes } from '@requestnetwork/utils';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
@@ -38,7 +38,7 @@ export abstract class FeeReferenceBasedDetector<
   ): Promise<ExtensionTypes.IAction> {
     // If no salt is given, generate one
     paymentNetworkCreationParameters.salt =
-      paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
+      paymentNetworkCreationParameters.salt || (await generate8randomBytes());
 
     return this.extension.createCreationAction({
       feeAddress: paymentNetworkCreationParameters.feeAddress,

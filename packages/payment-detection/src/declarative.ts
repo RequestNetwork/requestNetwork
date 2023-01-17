@@ -4,8 +4,8 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import { PaymentDetectorBase } from './payment-detector-base';
+import { notNull } from '@requestnetwork/utils';
 
 /**
  * Handles payment detection for a declarative request, or derived.
@@ -184,7 +184,7 @@ export abstract class DeclarativePaymentDetectorBase<
         }
         return null;
       })
-      .filter(Utils.notNull);
+      .filter(notNull);
   }
 }
 
