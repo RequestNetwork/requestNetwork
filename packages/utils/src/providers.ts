@@ -150,7 +150,7 @@ const getCeloProvider = (): providers.Provider => {
 };
 
 const isEip1559Supported = async (
-  provider: providers.Web3Provider,
+  provider: providers.JsonRpcProvider,
   logger?: LogTypes.ILogger,
 ): Promise<boolean> => {
   try {
