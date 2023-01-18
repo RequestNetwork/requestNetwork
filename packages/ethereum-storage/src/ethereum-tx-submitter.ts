@@ -4,7 +4,7 @@ import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
 import { SubmitterProps } from './ethereum-storage-ethers';
 import { GasFeeDefiner } from './gas-fee-definer';
-import { SimpleLogger } from '@requestnetwork/utils';
+import { SimpleLogger, isEip1559Supported } from '@requestnetwork/utils';
 
 /**
  * Handles the submission of a hash on the request HashSubmitter contract
@@ -32,7 +32,7 @@ export class EthereumTransactionSubmitter {
   }
 
   async initialize(): Promise<void> {
-    this.enableEip1559 = await Utils.isEip1559Supported(this.provider, this.logger);
+    this.enableEip1559 = await isEip1559Supported(this.provider, this.logger);
   }
 
   /** Submits an IPFS hash, with fees according to `ipfsSize`  */
