@@ -42,6 +42,7 @@ export {
 export {
   setProviderFactory,
   initPaymentDetectionApiKeys,
+  isEip1559Supported,
   getDefaultProvider,
   getCeloProvider,
   networkRpcs,

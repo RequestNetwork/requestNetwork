@@ -4,7 +4,12 @@ import * as artifacts from '../../src/lib';
 import { BigNumber, Overrides, Wallet } from 'ethers';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import { parseUnits } from 'ethers/lib/utils';
-import { estimateGasFees, getCeloProvider, getDefaultProvider } from '@requestnetwork/utils';
+import {
+  estimateGasFees,
+  isEip1559Supported,
+  getCeloProvider,
+  getDefaultProvider,
+} from '@requestnetwork/utils';
 
 // Fees: 0.5%
 export const REQUEST_SWAP_FEES = 5;
@@ -249,12 +254,9 @@ export const getSignerAndGasFees = async (
   }
   const signer = new hre.ethers.Wallet(hre.config.xdeploy.signer).connect(provider);
 
-  let txOverrides;
-  try {
-    txOverrides = await estimateGasFees({ provider });
-  } catch (err) {
-    txOverrides = {};
-  }
+  const txOverrides = (await isEip1559Supported(provider))
+    ? await estimateGasFees({ provider })
+    : {};
 
   return {
     signer,

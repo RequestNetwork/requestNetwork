@@ -1,7 +1,12 @@
 import { HardhatRuntimeEnvironmentExtended, IDeploymentParams, IDeploymentResult } from './types';
 import { requestDeployer } from '../src/lib';
 import { Overrides } from 'ethers';
-import { estimateGasFees, getCeloProvider, getDefaultProvider } from '@requestnetwork/utils';
+import {
+  estimateGasFees,
+  getCeloProvider,
+  getDefaultProvider,
+  isEip1559Supported,
+} from '@requestnetwork/utils';
 
 const ZERO_ETH_INPUT = 0;
 
@@ -71,17 +76,12 @@ export const xdeploy = async (
     let receipt = undefined;
     let deployed = false;
     let error = undefined;
-    let txOverrides: Overrides;
+    let txOverrides: Overrides = {};
 
-    try {
+    if (await isEip1559Supported(provider, console)) {
       txOverrides = await estimateGasFees({ provider });
-      const gasLimit = hre.config.xdeploy.gasLimit;
-      txOverrides.gasLimit = gasLimit;
-    } catch (e) {
-      // NOTE: On some networks utils.estimateGasFees do not work
-      txOverrides = {};
-      console.log('Cannot estimate gasLimit');
     }
+    txOverrides.gasLimit = hre.config.xdeploy.gasLimit;
 
     try {
       const createReceipt = await (
