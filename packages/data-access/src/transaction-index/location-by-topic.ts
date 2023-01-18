@@ -1,7 +1,7 @@
 import { DataAccessTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 
 import * as Keyv from 'keyv';
+import { flatten2DimensionsArray, unique } from '@requestnetwork/utils';
 
 // Serialize function used for keyv to serialize a Set data structure into a string
 // There is no way to directly stringify a Set, we need to convert it to an array before
@@ -105,7 +105,7 @@ export default class LocationByTopicTransactionIndex {
     const channelIds = await Promise.all(channelIdsPromises);
 
     // flatten the array of array and remove the duplicates
-    return Utils.unique(Utils.flatten2DimensionsArray(channelIds)).uniqueItems;
+    return unique(flatten2DimensionsArray(channelIds)).uniqueItems;
   }
   /**
    * Function to get storage locations from a channel id

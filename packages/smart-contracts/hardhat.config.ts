@@ -13,8 +13,8 @@ import { HardhatRuntimeEnvironmentExtended } from './scripts-create2/types';
 import { computeCreate2DeploymentAddressesFromList } from './scripts-create2/compute-one-address';
 import { VerifyCreate2FromList } from './scripts-create2/verify';
 import { deployWithCreate2FromList } from './scripts-create2/deploy';
-import utils from '@requestnetwork/utils';
 import { NUMBER_ERRORS } from './scripts/utils';
+import { networkRpcs } from '@requestnetwork/utils';
 
 config();
 
@@ -45,8 +45,7 @@ const requestDeployer = process.env.REQUEST_DEPLOYER_LIVE
   ? LIVE_DEPLOYER_ADDRESS
   : LOCAL_DEPLOYER_ADDRESS;
 
-const url = (network: string): string =>
-  process.env.WEB3_PROVIDER_URL || utils.networkRpcs[network];
+const url = (network: string): string => process.env.WEB3_PROVIDER_URL || networkRpcs[network];
 
 export default {
   solidity: '0.8.9',

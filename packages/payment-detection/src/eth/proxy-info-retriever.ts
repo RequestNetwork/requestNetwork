@@ -1,8 +1,8 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import { IPaymentRetriever } from '../types';
 import { BigNumber, ethers } from 'ethers';
 import { parseLogArgs } from '../utils';
+import { getDefaultProvider } from '@requestnetwork/utils';
 
 // The Ethereum proxy smart contract ABI fragment containing TransferWithReference event
 const ethProxyContractAbiFragment = [
@@ -49,7 +49,7 @@ export class EthProxyInfoRetriever
     private network: string,
   ) {
     // Creates a local or default provider
-    this.provider = Utils.getDefaultProvider(this.network);
+    this.provider = getDefaultProvider(this.network);
 
     // Set up the Ethereum proxy contract interface
     this.contractProxy = new ethers.Contract(

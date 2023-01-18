@@ -1,6 +1,6 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import { EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { decrypt, normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 /**
  * Class representing an encrypted transaction
@@ -40,7 +40,7 @@ export default class EncryptedTransaction implements TransactionTypes.ITransacti
     if (this.data === '') {
       try {
         const encryptedData = MultiFormat.deserialize(this.persistedData);
-        this.data = await Utils.encryption.decrypt(encryptedData, this.channelKey);
+        this.data = await decrypt(encryptedData, this.channelKey);
       } catch {
         throw new Error('Impossible to decrypt the transaction');
       }
@@ -57,7 +57,7 @@ export default class EncryptedTransaction implements TransactionTypes.ITransacti
     if (this.dataHashSerialized === '') {
       const data = await this.getData();
       try {
-        const dataHash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
+        const dataHash = normalizeKeccak256Hash(JSON.parse(data));
         this.dataHashSerialized = MultiFormat.serialize(dataHash);
       } catch (e) {
         throw new Error('Impossible to JSON parse the decrypted transaction data');

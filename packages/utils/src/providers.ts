@@ -149,7 +149,10 @@ const getCeloProvider = (): providers.Provider => {
   return provider;
 };
 
-const isEip1559Supported = async (provider: any, logger: LogTypes.ILogger): Promise<boolean> => {
+const isEip1559Supported = async (
+  provider: providers.Web3Provider,
+  logger: LogTypes.ILogger,
+): Promise<boolean> => {
   try {
     await provider.send('eth_feeHistory', [1, 'latest', []]);
     return true;
@@ -161,7 +164,7 @@ const isEip1559Supported = async (provider: any, logger: LogTypes.ILogger): Prom
   }
 };
 
-export default {
+export {
   setProviderFactory,
   initPaymentDetectionApiKeys,
   isEip1559Supported,

@@ -7,7 +7,7 @@ const DEFAULT_LOG_LEVEL = LogTypes.LogLevel.QUIET;
 /**
  * Simple logger that outputs content to the console.
  */
-export default class SimpleLogger implements LogTypes.ILogger {
+export class SimpleLogger implements LogTypes.ILogger {
   /**
    * maxLogLevel, the maximum log level to display
    */

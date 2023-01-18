@@ -1,11 +1,11 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 
 import Erc20FeeProxyContract from '../../../../src/extensions/payment-network/erc20/fee-proxy-contract';
 
 import * as DataERC20FeeAddData from '../../../utils/payment-network/erc20/fee-proxy-contract-add-data-generator';
 import * as DataERC20FeeCreate from '../../../utils/payment-network/erc20/fee-proxy-contract-create-data-generator';
 import * as TestData from '../../../utils/test-data-generator';
+import { deepCopy } from '@requestnetwork/utils';
 
 const erc20FeeProxyContract = new Erc20FeeProxyContract();
 
@@ -205,7 +205,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
   describe('applyActionToExtension', () => {
     describe('applyActionToExtension/unknown action', () => {
       it('cannot applyActionToExtensions of unknown action', () => {
-        const unknownAction = Utils.deepCopy(DataERC20FeeAddData.actionAddPaymentAddress);
+        const unknownAction = deepCopy(DataERC20FeeAddData.actionAddPaymentAddress);
         unknownAction.action = 'unknown action' as any;
         // 'must throw'
         expect(() => {
@@ -220,7 +220,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       });
 
       it('cannot applyActionToExtensions of unknown id', () => {
-        const unknownAction = Utils.deepCopy(DataERC20FeeAddData.actionAddPaymentAddress);
+        const unknownAction = deepCopy(DataERC20FeeAddData.actionAddPaymentAddress);
         unknownAction.id = 'unknown id' as any;
         // 'must throw'
         expect(() => {
@@ -263,7 +263,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       });
 
       it('cannot applyActionToExtensions of creation on a non ERC20 request', () => {
-        const requestCreatedNoExtension: RequestLogicTypes.IRequest = Utils.deepCopy(
+        const requestCreatedNoExtension: RequestLogicTypes.IRequest = deepCopy(
           TestData.requestCreatedNoExtension,
         );
         requestCreatedNoExtension.currency = {
@@ -283,7 +283,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       });
 
       it('cannot applyActionToExtensions of creation with payment address not valid', () => {
-        const testnetPaymentAddress = Utils.deepCopy(DataERC20FeeCreate.actionCreationFull);
+        const testnetPaymentAddress = deepCopy(DataERC20FeeCreate.actionCreationFull);
         testnetPaymentAddress.parameters.paymentAddress = DataERC20FeeAddData.invalidAddress;
         // 'must throw'
         expect(() => {
@@ -300,7 +300,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       });
 
       it('cannot applyActionToExtensions of creation with refund address not valid', () => {
-        const testnetRefundAddress = Utils.deepCopy(DataERC20FeeCreate.actionCreationFull);
+        const testnetRefundAddress = deepCopy(DataERC20FeeCreate.actionCreationFull);
         testnetRefundAddress.parameters.refundAddress = DataERC20FeeAddData.invalidAddress;
         // 'must throw'
         expect(() => {
@@ -368,7 +368,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       });
 
       it('cannot applyActionToExtensions of addPaymentAddress without a payee', () => {
-        const previousState = Utils.deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
+        const previousState = deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
         previousState.payee = undefined;
         // 'must throw'
         expect(() => {
@@ -383,7 +383,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       });
 
       it('cannot applyActionToExtensions of addPaymentAddress signed by someone else than the payee', () => {
-        const previousState = Utils.deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
+        const previousState = deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
         // 'must throw'
         expect(() => {
           erc20FeeProxyContract.applyActionToExtension(
@@ -410,7 +410,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       });
 
       it('cannot applyActionToExtensions of addPaymentAddress with payment address not valid', () => {
-        const testnetPaymentAddress = Utils.deepCopy(DataERC20FeeAddData.actionAddPaymentAddress);
+        const testnetPaymentAddress = deepCopy(DataERC20FeeAddData.actionAddPaymentAddress);
         testnetPaymentAddress.parameters.paymentAddress = DataERC20FeeAddData.invalidAddress;
         // 'must throw'
         expect(() => {
@@ -455,7 +455,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       });
 
       it('cannot applyActionToExtensions of addRefundAddress without a payer', () => {
-        const previousState = Utils.deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
+        const previousState = deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
         previousState.payer = undefined;
         // 'must throw'
         expect(() => {
@@ -470,7 +470,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       });
 
       it('cannot applyActionToExtensions of addRefundAddress signed by someone else than the payer', () => {
-        const previousState = Utils.deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
+        const previousState = deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
         // 'must throw'
         expect(() => {
           erc20FeeProxyContract.applyActionToExtension(
@@ -497,7 +497,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       });
 
       it('cannot applyActionToExtensions of addRefundAddress with refund address not valid', () => {
-        const testnetPaymentAddress = Utils.deepCopy(DataERC20FeeAddData.actionAddRefundAddress);
+        const testnetPaymentAddress = deepCopy(DataERC20FeeAddData.actionAddRefundAddress);
         testnetPaymentAddress.parameters.refundAddress = DataERC20FeeAddData.invalidAddress;
         // 'must throw'
         expect(() => {
@@ -540,7 +540,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       });
 
       it('cannot applyActionToExtensions of addFee without a payee', () => {
-        const previousState = Utils.deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
+        const previousState = deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
         previousState.payee = undefined;
         // 'must throw'
         expect(() => {
@@ -555,7 +555,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       });
 
       it('cannot applyActionToExtensions of addFee signed by someone else than the payee', () => {
-        const previousState = Utils.deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
+        const previousState = deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
         // 'must throw'
         expect(() => {
           erc20FeeProxyContract.applyActionToExtension(
@@ -582,7 +582,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       });
 
       it('cannot applyActionToExtensions of addFee with fee address not valid', () => {
-        const testnetPaymentAddress = Utils.deepCopy(DataERC20FeeAddData.actionAddFee);
+        const testnetPaymentAddress = deepCopy(DataERC20FeeAddData.actionAddFee);
         testnetPaymentAddress.parameters.feeAddress = DataERC20FeeAddData.invalidAddress;
         // 'must throw'
         expect(() => {
@@ -597,7 +597,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       });
 
       it('cannot applyActionToExtensions of addFee with fee amount not valid', () => {
-        const testnetPaymentAddress = Utils.deepCopy(DataERC20FeeAddData.actionAddFee);
+        const testnetPaymentAddress = deepCopy(DataERC20FeeAddData.actionAddFee);
         testnetPaymentAddress.parameters.feeAmount = DataERC20FeeAddData.invalidAddress;
         // 'must throw'
         expect(() => {

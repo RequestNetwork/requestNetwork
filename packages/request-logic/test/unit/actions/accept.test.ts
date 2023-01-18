@@ -1,5 +1,5 @@
 import { IdentityTypes, RequestLogicTypes, SignatureTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 import AcceptAction from '../../../src/actions/accept';
 
 import Version from '../../../src/version';
@@ -57,7 +57,7 @@ describe('actions/accept', () => {
       const request = AcceptAction.applyActionToRequest(
         actionAccept,
         2,
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
+        deepCopy(TestData.requestCreatedNoExtension),
       );
 
       // 'requestId is wrong'
@@ -118,7 +118,7 @@ describe('actions/accept', () => {
         AcceptAction.applyActionToRequest(
           actionAccept,
           1,
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
+          deepCopy(TestData.requestCreatedNoExtension),
         );
       }).toThrowError('Signer must be the payer');
     });
@@ -133,7 +133,7 @@ describe('actions/accept', () => {
         AcceptAction.applyActionToRequest(
           actionAccept,
           1,
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
+          deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).toThrowError('Signer must be the payer');
     });
@@ -152,11 +152,7 @@ describe('actions/accept', () => {
         },
       };
       expect(() =>
-        AcceptAction.applyActionToRequest(
-          action,
-          1,
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
-        ),
+        AcceptAction.applyActionToRequest(action, 1, deepCopy(TestData.requestCreatedNoExtension)),
       ).toThrowError('requestId must be given');
     });
 
@@ -234,11 +230,7 @@ describe('actions/accept', () => {
       };
 
       expect(() =>
-        AcceptAction.applyActionToRequest(
-          action,
-          1,
-          Utils.deepCopy(TestData.requestCanceledNoExtension),
-        ),
+        AcceptAction.applyActionToRequest(action, 1, deepCopy(TestData.requestCanceledNoExtension)),
       ).toThrowError('the request state must be created');
     });
 
@@ -259,11 +251,7 @@ describe('actions/accept', () => {
       };
 
       expect(() =>
-        AcceptAction.applyActionToRequest(
-          action,
-          2,
-          Utils.deepCopy(TestData.requestCanceledNoExtension),
-        ),
+        AcceptAction.applyActionToRequest(action, 2, deepCopy(TestData.requestCanceledNoExtension)),
       ).toThrowError('the request state must be created');
     });
 
@@ -281,7 +269,7 @@ describe('actions/accept', () => {
       const request = AcceptAction.applyActionToRequest(
         actionAccept,
         2,
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
+        deepCopy(TestData.requestCreatedNoExtension),
       );
 
       // 'requestId is wrong'
@@ -344,7 +332,7 @@ describe('actions/accept', () => {
       const request = AcceptAction.applyActionToRequest(
         actionAccept,
         2,
-        Utils.deepCopy(TestData.requestCreatedWithExtensions),
+        deepCopy(TestData.requestCreatedWithExtensions),
       );
 
       // 'requestId is wrong'
@@ -411,7 +399,7 @@ describe('actions/accept', () => {
       const request = AcceptAction.applyActionToRequest(
         actionAccept,
         2,
-        Utils.deepCopy(TestData.requestCreatedWithExtensions),
+        deepCopy(TestData.requestCreatedWithExtensions),
       );
 
       // 'requestId is wrong'

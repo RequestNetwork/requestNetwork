@@ -1,12 +1,12 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import { DataAccessTypes, SignatureTypes, TransactionTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 
 import RequestNetwork from '../../src/api/request-network';
 
 import Request from '../../src/api/request';
 
 import * as TestData from '../data-test';
+import { normalizeKeccak256Hash, sign } from '@requestnetwork/utils';
 
 const mockDataAccess: DataAccessTypes.IDataAccess = {
   _getStatus: jest.fn(),
@@ -59,7 +59,7 @@ describe('api/request-network', () => {
         timestamp: 1549953337,
         transaction: { data: 'broken transaction' },
       };
-      const actionWrongSigner = Utils.signature.sign(TestData.data, {
+      const actionWrongSigner = sign(TestData.data, {
         method: SignatureTypes.METHOD.ECDSA,
         privateKey: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       });
@@ -71,9 +71,7 @@ describe('api/request-network', () => {
           data: JSON.stringify(actionWrongSigner),
         },
       };
-      const requestId = MultiFormat.serialize(
-        Utils.crypto.normalizeKeccak256Hash(actionWrongSigner),
-      );
+      const requestId = MultiFormat.serialize(normalizeKeccak256Hash(actionWrongSigner));
 
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
         ...mockDataAccess,

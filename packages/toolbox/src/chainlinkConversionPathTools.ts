@@ -8,7 +8,7 @@ import {
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import Bluebird from 'bluebird';
 import chunk from 'lodash/chunk';
-import Utils from '@requestnetwork/utils';
+import { retry } from '@requestnetwork/utils';
 
 export interface IOptions {
   network?: string;
@@ -75,13 +75,10 @@ class ChainlinkConversionPathTools {
       chunks,
       (blocks) => {
         console.error(`Fetching logs from ${blocks[0]} to ${blocks[blocks.length - 1]}`);
-        return Utils.retry(
-          this.chainLinkConversionPath.queryFilter.bind(this.chainLinkConversionPath),
-          {
-            maxRetries: 3,
-            retryDelay: 2000,
-          },
-        )(
+        return retry(this.chainLinkConversionPath.queryFilter.bind(this.chainLinkConversionPath), {
+          maxRetries: 3,
+          retryDelay: 2000,
+        })(
           this.chainLinkConversionPath.filters.AggregatorUpdated(),
           blocks[0],
           blocks[blocks.length - 1],
