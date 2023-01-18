@@ -150,11 +150,11 @@ const getCeloProvider = (): providers.Provider => {
 };
 
 const isEip1559Supported = async (
-  provider: providers.JsonRpcProvider,
+  provider: providers.Provider | providers.JsonRpcProvider,
   logger?: LogTypes.ILogger,
 ): Promise<boolean> => {
   try {
-    await provider.send('eth_feeHistory', [1, 'latest', []]);
+    await (provider as providers.JsonRpcProvider).send('eth_feeHistory', [1, 'latest', []]);
     return true;
   } catch (e) {
     logger &&
