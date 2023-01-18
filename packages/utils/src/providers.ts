@@ -151,15 +151,16 @@ const getCeloProvider = (): providers.Provider => {
 
 const isEip1559Supported = async (
   provider: providers.Web3Provider,
-  logger: LogTypes.ILogger,
+  logger?: LogTypes.ILogger,
 ): Promise<boolean> => {
   try {
     await provider.send('eth_feeHistory', [1, 'latest', []]);
     return true;
   } catch (e) {
-    logger.warn(
-      'This RPC provider does not support the "eth_feeHistory" method: switching to legacy gas price',
-    );
+    logger &&
+      logger.warn(
+        'This RPC provider does not support the "eth_feeHistory" method: switching to legacy gas price',
+      );
     return false;
   }
 };
