@@ -1,6 +1,5 @@
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import * as RequestNetwork from '@requestnetwork/request-client.js';
-import MockStorage from '../../request-client.js/dist/mock-storage';
 
 // payee information
 const payeeSignatureInfo = {
@@ -40,12 +39,10 @@ const paymentNetwork: RequestNetwork.Types.Payment.PaymentNetworkCreateParameter
   },
 };
 
-const mockStorage = new MockStorage();
-
 /* eslint-disable @typescript-eslint/no-floating-promises */
 const requestNetwork = new RequestNetwork.RequestNetwork({
   signatureProvider,
-  mockStorage,
+  useMockStorage: true,
 });
 
 // Create a request from the payee
