@@ -58,10 +58,10 @@ const mockStorage = new MockStorage();
 const mockDataAccess = new MockDataAccess(mockStorage);
 
 /* eslint-disable @typescript-eslint/no-floating-promises */
-const payeeRequestNetwork = new RequestNetwork.RequestNetwork({
+const payeeRequestNetwork = new RequestNetwork.RequestNetworkBase({
   decryptionProvider: payeeDecryptionProvider,
   signatureProvider: payeeSignatureProvider,
-  mockDataAccess: mockDataAccess,
+  dataAccess: mockDataAccess,
 });
 
 // Third party signature provider
@@ -73,10 +73,10 @@ const thirdPartySignatureProvider = new EthereumPrivateKeySignatureProvider(
 const thirdPartyDecryptionProvider: RequestNetwork.Types.DecryptionProvider.IDecryptionProvider =
   new EthereumPrivateKeyDecryptionProvider(thirdPartyDecryptionParameters);
 
-const thirdPartyRequestNetwork = new RequestNetwork.RequestNetwork({
+const thirdPartyRequestNetwork = new RequestNetwork.RequestNetworkBase({
   decryptionProvider: thirdPartyDecryptionProvider,
   signatureProvider: thirdPartySignatureProvider,
-  mockDataAccess: mockDataAccess,
+  dataAccess: mockDataAccess,
 });
 
 const requestInfo: RequestNetwork.Types.IRequestInfo = {
