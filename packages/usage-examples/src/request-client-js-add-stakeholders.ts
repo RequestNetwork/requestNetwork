@@ -2,7 +2,6 @@ import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryp
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import * as RequestNetwork from '@requestnetwork/request-client.js';
 import MockStorage from '../../request-client.js/dist/mock-storage';
-import MockDataAccess from '../../request-client.js/dist/mock-data-access';
 
 // payee information
 const payeeSignatureInfo = {
@@ -55,13 +54,11 @@ const payeeDecryptionProvider: RequestNetwork.Types.DecryptionProvider.IDecrypti
 
 const mockStorage = new MockStorage();
 
-const mockDataAccess = new MockDataAccess(mockStorage);
-
 /* eslint-disable @typescript-eslint/no-floating-promises */
 const payeeRequestNetwork = new RequestNetwork.RequestNetwork({
   decryptionProvider: payeeDecryptionProvider,
   signatureProvider: payeeSignatureProvider,
-  mockDataAccess: mockDataAccess,
+  mockStorage: mockStorage,
 });
 
 // Third party signature provider
@@ -76,7 +73,7 @@ const thirdPartyDecryptionProvider: RequestNetwork.Types.DecryptionProvider.IDec
 const thirdPartyRequestNetwork = new RequestNetwork.RequestNetwork({
   decryptionProvider: thirdPartyDecryptionProvider,
   signatureProvider: thirdPartySignatureProvider,
-  mockDataAccess: mockDataAccess,
+  mockStorage: mockStorage,
 });
 
 const requestInfo: RequestNetwork.Types.IRequestInfo = {

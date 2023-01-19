@@ -25,7 +25,6 @@ import {
   signatureProvider,
 } from './scheduled/fixtures';
 import MockStorage from 'request-client.js/dist/mock-storage';
-import MockDataAccess from 'request-client.js/dist/mock-data-access';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
@@ -74,7 +73,6 @@ const wrongDecryptionProvider = new EthereumPrivateKeyDecryptionProvider({
 });
 
 const mockStorage = new MockStorage();
-const mockDataAccess = new MockDataAccess(mockStorage);
 
 describe('Request client using a request node', () => {
   it('can create a request, change the amount and get data', async () => {
@@ -558,7 +556,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     ];
     const requestNetwork = new RequestNetwork({
       signatureProvider,
-      mockDataAccess,
+      mockStorage,
       currencies,
     });
 
@@ -642,7 +640,7 @@ describe('ETH localhost request creation and detection test', () => {
     const currencies = [...CurrencyManager.getDefaultList()];
     const requestNetwork = new RequestNetwork({
       signatureProvider,
-      mockDataAccess,
+      mockStorage,
       currencies,
     });
 
@@ -693,7 +691,7 @@ describe('ETH localhost request creation and detection test', () => {
 
     const requestNetwork = new RequestNetwork({
       signatureProvider,
-      mockDataAccess,
+      mockStorage,
       currencies,
     });
 
