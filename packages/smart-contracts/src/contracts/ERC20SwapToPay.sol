@@ -28,6 +28,10 @@ contract ERC20SwapToPay is Ownable {
   // Fees taken by request when a payment is made through swap. Range 0-1000. 10 => 1% fees.
   uint256 public requestSwapFees;
 
+  /**
+   * @param _swapRouterAddress The address of the swap router.
+   * @param _owner Owner of the contract.
+   */
   constructor(address _swapRouterAddress, address _owner) {
     swapRouter = IUniswapV2Router02(_swapRouterAddress);
     _transferOwnership(_owner);
