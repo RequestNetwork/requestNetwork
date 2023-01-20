@@ -40,6 +40,7 @@ contract ERC20SwapToPay is Ownable {
   /**
    * @notice Authorizes the proxy to spend a new request currency (ERC20).
    * @param _erc20Address Address of an ERC20 used as a request currency
+   * @param _paymentProxy Address of the payment proxy used
    */
   function approvePaymentProxyToSpend(address _erc20Address, address _paymentProxy) public {
     IERC20 erc20 = IERC20(_erc20Address);
