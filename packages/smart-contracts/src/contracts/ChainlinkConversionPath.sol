@@ -28,6 +28,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
 
   /**
    * @param _nativeTokenHash hash of the native token
+   * @param _owner Owner of the contract.
    */
   constructor(address _nativeTokenHash, address _owner) {
     nativeTokenHash = _nativeTokenHash;
