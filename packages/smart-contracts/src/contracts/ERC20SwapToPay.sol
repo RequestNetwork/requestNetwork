@@ -193,6 +193,7 @@ contract ERC20SwapToPay is Ownable {
    * @param _newRequestSwapFees new request swap fees
    */
   function updateRequestSwapFees(uint256 _newRequestSwapFees) public onlyOwner {
+    require(_newRequestSwapFees <= 50, "Request swap fees should not exceed 5%");
     requestSwapFees = _newRequestSwapFees;
   }
 }
