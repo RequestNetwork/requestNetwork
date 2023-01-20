@@ -92,6 +92,54 @@ export const erc20SwapToPayArtifact = new ContractArtifact<ERC20SwapToPay>(
           address: '0xA4392264a2d8c998901D10C154C91725b1BF0158',
           creationBlockNumber: 0,
         },
+        goerli: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 8345195,
+        },
+        mainnet: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 16449207,
+        },
+        matic: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 38315947,
+        },
+        celo: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 17312915,
+        },
+        xdai: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 26061999,
+        },
+        avalanche: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 25191333,
+        },
+        optimism: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 69320020,
+        },
+        moonbeam: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 2771649,
+        },
+        fantom: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 54083939,
+        },
+        bsc: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 24955402,
+        },
+        'arbitrum-one': {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 54331555,
+        },
+        fuse: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 21337989,
+        },
       },
     },
   },

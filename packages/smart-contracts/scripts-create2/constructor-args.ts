@@ -27,7 +27,9 @@ export const getConstructorArgs = (contract: string, network?: string): string[]
         getAdminWalletAddress(contract),
       ];
     }
-    case 'ERC20SwapToPay':
+    case 'ERC20SwapToPay': {
+      return ['0x0000000000000000000000000000000000000000', getAdminWalletAddress(contract)];
+    }
     case 'ERC20SwapToConversion': {
       return [getAdminWalletAddress(contract)];
     }
