@@ -1,9 +1,9 @@
 import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 
 import Action from '../action';
 import Request from '../request';
 import Version from '../version';
+import { addAmount, deepCopy, isValidAmount } from '@requestnetwork/utils';
 
 /**
  * Implementation of the action increaseExpectedAmount from request logic specification
@@ -27,7 +27,7 @@ function format(
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
 ): Promise<RequestLogicTypes.IAction> {
-  if (!Utils.amount.isValid(increaseAmountParameters.deltaAmount)) {
+  if (!isValidAmount(increaseAmountParameters.deltaAmount)) {
     throw new Error('deltaAmount must be a string representing a positive integer');
   }
 
@@ -61,7 +61,7 @@ function applyActionToRequest(
   if (!action.data.parameters.deltaAmount) {
     throw new Error('deltaAmount must be given');
   }
-  if (!Utils.amount.isValid(action.data.parameters.deltaAmount)) {
+  if (!isValidAmount(action.data.parameters.deltaAmount)) {
     throw new Error('deltaAmount must be a string representing a positive integer');
   }
 
@@ -69,7 +69,7 @@ function applyActionToRequest(
   const signerRole = Request.getRoleInRequest(signer, request);
 
   // avoid to mutate the request
-  let requestCopied: RequestLogicTypes.IRequest = Utils.deepCopy(request);
+  let requestCopied: RequestLogicTypes.IRequest = deepCopy(request);
   requestCopied = Request.pushExtensionsData(requestCopied, action.data.parameters.extensionsData);
   requestCopied.events.push(generateEvent(action, timestamp, signer));
 
@@ -78,7 +78,7 @@ function applyActionToRequest(
       throw new Error('the request must not be canceled');
     }
     // increase the expected amount and store it as string
-    requestCopied.expectedAmount = Utils.amount.add(
+    requestCopied.expectedAmount = addAmount(
       request.expectedAmount,
       action.data.parameters.deltaAmount,
     );

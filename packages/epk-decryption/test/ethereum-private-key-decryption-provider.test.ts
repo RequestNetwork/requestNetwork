@@ -1,7 +1,7 @@
 import { EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 
 import EthereumPrivateKeyDecryptionProvider from '../src/ethereum-private-key-decryption-provider';
+import { encrypt } from '@requestnetwork/utils';
 
 export const id1Raw = {
   address: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
@@ -153,10 +153,7 @@ describe('ethereum-private-key-decryption-provider', () => {
 
   describe('decrypt', () => {
     it('can decrypt', async () => {
-      const encryptedData = await Utils.encryption.encrypt(
-        decryptedDataExpected,
-        id1Raw.encryptionParams,
-      );
+      const encryptedData = await encrypt(decryptedDataExpected, id1Raw.encryptionParams);
 
       const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
 
@@ -179,10 +176,7 @@ describe('ethereum-private-key-decryption-provider', () => {
     });
 
     it('cannot decrypt if identity not supported', async () => {
-      const encryptedData = await Utils.encryption.encrypt(
-        decryptedDataExpected,
-        id1Raw.encryptionParams,
-      );
+      const encryptedData = await encrypt(decryptedDataExpected, id1Raw.encryptionParams);
       const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
 
       const arbitraryIdentity: any = { type: 'unknown type', value: '0x000' };
@@ -192,10 +186,7 @@ describe('ethereum-private-key-decryption-provider', () => {
     });
 
     it('cannot decrypt if private key of the identity not given', async () => {
-      const encryptedData = await Utils.encryption.encrypt(
-        decryptedDataExpected,
-        id1Raw.encryptionParams,
-      );
+      const encryptedData = await encrypt(decryptedDataExpected, id1Raw.encryptionParams);
       const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
 
       const arbitraryIdentity: IdentityTypes.IIdentity = {

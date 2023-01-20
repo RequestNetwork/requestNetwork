@@ -1,17 +1,15 @@
 import { Wallet, providers } from 'ethers';
-
 import {
   ClientTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 import { payAnyToEthProxyRequest } from '../../src/payment/any-to-eth-proxy';
 import { currencyManager } from './shared';
-
 import { IConversionPaymentSettings } from '../../src/index';
+
 const paymentSettings: IConversionPaymentSettings = {
   maxToSpend: '2500000000000000',
   currencyManager,
@@ -70,7 +68,7 @@ const validEuroRequest: ClientTypes.IRequestData = {
 describe('any-to-eth-proxy', () => {
   describe('error checking', () => {
     it('should throw an error if request has no extension', async () => {
-      const request = Utils.deepCopy(validEuroRequest);
+      const request = deepCopy(validEuroRequest);
       request.extensions = [] as any;
 
       await expect(payAnyToEthProxyRequest(request, wallet, paymentSettings)).rejects.toThrowError(

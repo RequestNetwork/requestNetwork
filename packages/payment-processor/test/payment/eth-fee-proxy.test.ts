@@ -1,13 +1,11 @@
 import { Wallet, providers } from 'ethers';
-
 import {
   ClientTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
-
+import { deepCopy } from '@requestnetwork/utils';
 import {
   encodePayEthFeeProxyRequest,
   payEthFeeProxyRequest,
@@ -77,7 +75,7 @@ describe('getRequestPaymentValues', () => {
 
 describe('payEthFeeProxyRequest', () => {
   it('should throw an error if the request is not eth', async () => {
-    const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+    const request = deepCopy(validRequest) as ClientTypes.IRequestData;
     request.currencyInfo.type = RequestLogicTypes.CURRENCY.ERC20;
 
     await expect(payEthFeeProxyRequest(request, wallet)).rejects.toThrowError(
@@ -86,7 +84,7 @@ describe('payEthFeeProxyRequest', () => {
   });
 
   it('should throw an error if currencyInfo has no network', async () => {
-    const request = Utils.deepCopy(validRequest);
+    const request = deepCopy(validRequest);
     request.currencyInfo.network = '';
     await expect(payEthFeeProxyRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-fee-proxy-contract request',
@@ -94,7 +92,7 @@ describe('payEthFeeProxyRequest', () => {
   });
 
   it('should throw an error if request has no extension', async () => {
-    const request = Utils.deepCopy(validRequest);
+    const request = deepCopy(validRequest);
     request.extensions = [] as any;
 
     await expect(payEthFeeProxyRequest(request, wallet)).rejects.toThrowError(

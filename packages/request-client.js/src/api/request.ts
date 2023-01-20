@@ -1,16 +1,15 @@
 import { EventEmitter } from 'events';
-
 import {
   DeclarativePaymentDetector,
   EscrowERC20InfoRetriever,
 } from '@requestnetwork/payment-detection';
 import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import localUtils from './utils';
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
+import { deepCopy } from '@requestnetwork/utils';
 
 /**
  * Class representing a request.
@@ -631,9 +630,9 @@ export default class Request {
       throw Error('request confirmation failed');
     }
 
-    let requestData = Utils.deepCopy(this.requestData);
+    let requestData = deepCopy(this.requestData);
 
-    let pending = Utils.deepCopy(this.pendingData);
+    let pending = deepCopy(this.pendingData);
     if (!requestData) {
       requestData = pending as RequestLogicTypes.IRequest;
       requestData.state = RequestLogicTypes.STATE.PENDING;

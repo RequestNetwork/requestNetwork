@@ -1,4 +1,8 @@
-import Utils from '@requestnetwork/utils';
+import {
+  getDefaultProvider,
+  initPaymentDetectionApiKeys,
+  setProviderFactory,
+} from '@requestnetwork/utils';
 import { PaymentNetworkFactory } from './payment-network-factory';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 import * as BtcPaymentNetwork from './btc';
@@ -24,10 +28,6 @@ import { SuperFluidInfoRetriever } from './erc777/superfluid-retriever';
 import { PaymentNetworkOptions } from './types';
 
 export type { TheGraphClient } from './thegraph';
-
-const setProviderFactory = Utils.setProviderFactory;
-const initPaymentDetectionApiKeys = Utils.initPaymentDetectionApiKeys;
-const getDefaultProvider = Utils.getDefaultProvider;
 
 export {
   PaymentNetworkFactory,

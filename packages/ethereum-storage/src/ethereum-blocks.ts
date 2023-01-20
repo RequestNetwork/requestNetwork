@@ -1,5 +1,5 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { cachedThrottle, retry, SimpleLogger } from '@requestnetwork/utils';
 
 /**
  * Manages every info linked to the ethereum blocks (blockNumber, blockTimestamp, confirmations ... )
@@ -61,16 +61,16 @@ export default class EthereumBlocks {
 
     this.getLastBlockNumberMinDelay = getLastBlockNumberMinDelay;
 
-    this.logger = logger || new Utils.SimpleLogger();
+    this.logger = logger || new SimpleLogger();
 
     // Get retry parameter values from config
     this.retryDelay = retryDelay;
     this.maxRetries = maxRetries;
 
     // Setup the throttled and retriable getLastBlockNumber function
-    this.getLastBlockNumber = Utils.cachedThrottle(
+    this.getLastBlockNumber = cachedThrottle(
       () =>
-        Utils.retry(
+        retry(
           () => {
             this.logger.debug(`Getting last block number`, ['ethereum', 'ethereum-blocks']);
             return this.eth.getBlockNumber();
@@ -96,8 +96,8 @@ export default class EthereumBlocks {
     }
 
     // if we don't know the information, let's get it
-    // Use Utils.retry to rerun if getBlock fails
-    const block = await Utils.retry((bn: number) => this.eth.getBlock(bn), {
+    // Use retry to rerun if getBlock fails
+    const block = await retry((bn: number) => this.eth.getBlock(bn), {
       maxRetries: this.maxRetries,
       retryDelay: this.retryDelay,
     })(blockNumber);
@@ -194,7 +194,7 @@ export default class EthereumBlocks {
    * @returns An Ethereum block
    */
   public async getBlock(blockNumber: number | string): Promise<any> {
-    return Utils.retry(this.eth.getBlock, {
+    return retry(this.eth.getBlock, {
       context: this.eth,
       maxRetries: this.maxRetries,
       retryDelay: this.retryDelay,

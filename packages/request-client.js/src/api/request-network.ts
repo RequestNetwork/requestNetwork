@@ -13,7 +13,7 @@ import {
   SignatureProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy, supportedIdentities } from '@requestnetwork/utils';
 import {
   CurrencyManager,
   ICurrencyManager,
@@ -29,7 +29,7 @@ import localUtils from './utils';
  */
 export default class RequestNetwork {
   public paymentNetworkFactory: PaymentNetworkFactory;
-  public supportedIdentities: IdentityTypes.TYPE[] = Utils.identity.supportedIdentities;
+  public supportedIdentities: IdentityTypes.TYPE[] = supportedIdentities;
 
   private requestLogic: RequestLogicTypes.IRequestLogic;
   private transaction: TransactionTypes.ITransactionManager;
@@ -388,7 +388,7 @@ export default class RequestNetwork {
     }
 
     // avoid mutation of the parameters
-    const copiedRequestParameters = Utils.deepCopy(requestParameters);
+    const copiedRequestParameters = deepCopy(requestParameters);
     copiedRequestParameters.extensionsData = [];
 
     const detectionChain =

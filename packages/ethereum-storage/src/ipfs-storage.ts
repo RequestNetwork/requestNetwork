@@ -1,8 +1,8 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 
 import { getIpfsExpectedBootstrapNodes, getPinRequestConfig } from './config';
 import IpfsManager from './ipfs-manager';
+import { SimpleLogger } from '@requestnetwork/utils';
 
 export type IpfsStorageProps = {
   logger?: LogTypes.ILogger;
@@ -15,7 +15,7 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
 
   constructor({ ipfsGatewayConnection, logger }: IpfsStorageProps) {
     this.ipfsManager = new IpfsManager({ ipfsGatewayConnection, logger });
-    this.logger = logger || new Utils.SimpleLogger();
+    this.logger = logger || new SimpleLogger();
   }
 
   public async initialize(): Promise<void> {

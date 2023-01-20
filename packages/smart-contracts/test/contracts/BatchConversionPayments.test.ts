@@ -17,7 +17,7 @@ import { CurrencyManager } from '@requestnetwork/currency';
 import { chainlinkConversionPath } from '../../src/lib';
 import { FAU_USD_RATE } from '../../scripts/test-deploy-batch-conversion-deployment';
 import { localERC20AlphaArtifact, secondLocalERC20AlphaArtifact } from './localArtifacts';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 import { HttpNetworkConfig } from 'hardhat/types';
 import {
   DAI_USD_RATE,
@@ -756,28 +756,28 @@ describe('contract: BatchConversionPayments', async () => {
 
   describe('batchMultiERC20ConversionPayments errors', async () => {
     it('cannot transfer with invalid path', async () => {
-      const convRequest = Utils.deepCopy(fauConvRequest);
+      const convRequest = deepCopy(fauConvRequest);
       convRequest.path = [EUR_hash, ETH_hash, DAI_address];
       await expect(
         batchConversionProxy.batchMultiERC20ConversionPayments([convRequest], [], feeAddress),
       ).to.be.revertedWith('revert No aggregator found');
     });
     it('cannot transfer if max to spend too low', async () => {
-      const convRequest = Utils.deepCopy(fauConvRequest);
+      const convRequest = deepCopy(fauConvRequest);
       convRequest.maxToSpend = '1000000'; // not enough
       await expect(
         batchConversionProxy.batchMultiERC20ConversionPayments([convRequest], [], feeAddress),
       ).to.be.revertedWith('Amount to pay is over the user limit');
     });
     it('cannot transfer if rate is too old', async () => {
-      const convRequest = Utils.deepCopy(fauConvRequest);
+      const convRequest = deepCopy(fauConvRequest);
       convRequest.maxRateTimespan = '10';
       await expect(
         batchConversionProxy.batchMultiERC20ConversionPayments([convRequest], [], feeAddress),
       ).to.be.revertedWith('aggregator rate is outdated');
     });
     it('Not enough allowance', async () => {
-      const convRequest = Utils.deepCopy(fauConvRequest);
+      const convRequest = deepCopy(fauConvRequest);
       // reduce fromSigner± allowance
       await fauERC20.approve(
         batchConversionProxy.address,
@@ -791,7 +791,7 @@ describe('contract: BatchConversionPayments', async () => {
       ).to.be.revertedWith('Insufficient allowance for batch to pay');
     });
     it('Not enough funds even if partially enough funds', async () => {
-      const convRequest = Utils.deepCopy(fauConvRequest);
+      const convRequest = deepCopy(fauConvRequest);
       // fromSigner transfer enough token to pay just 1 invoice to signer4
       await fauERC20
         .connect(fromSigner)
@@ -848,7 +848,7 @@ describe('contract: BatchConversionPayments', async () => {
       const initialToETHBalance = await provider.getBalance(to);
       const initialFeeETHBalance = await provider.getBalance(feeAddress);
       const initialFromETHBalance = await provider.getBalance(await fromSigner.getAddress());
-      const EurEthConvRequest = Utils.deepCopy(ethConvRequest);
+      const EurEthConvRequest = deepCopy(ethConvRequest);
       EurEthConvRequest.path = [EUR_hash, USD_hash, ETH_hash];
 
       tx = await batchConversionProxy.batchNativeConversionPayments(
@@ -877,7 +877,7 @@ describe('contract: BatchConversionPayments', async () => {
 
   describe('batchNativeConversionPayments errors', () => {
     it('cannot transfer with invalid path', async () => {
-      const wrongConvRequest = Utils.deepCopy(ethConvRequest);
+      const wrongConvRequest = deepCopy(ethConvRequest);
       wrongConvRequest.path = [USD_hash, EUR_hash, ETH_hash];
       await expect(
         batchConversionProxy.batchNativeConversionPayments([wrongConvRequest], false, feeAddress, {
@@ -898,7 +898,7 @@ describe('contract: BatchConversionPayments', async () => {
       ).to.be.revertedWith('paymentProxy transferExactEthWithReferenceAndFee failed');
     });
     it('cannot transfer if rate is too old', async () => {
-      const wrongConvRequest = Utils.deepCopy(ethConvRequest);
+      const wrongConvRequest = deepCopy(ethConvRequest);
       wrongConvRequest.maxRateTimespan = '1';
       await expect(
         batchConversionProxy.batchNativeConversionPayments([wrongConvRequest], false, feeAddress, {

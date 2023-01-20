@@ -1,9 +1,9 @@
 import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 
 import Action from '../action';
 import Request from '../request';
 import Version from '../version';
+import { deepCopy } from '@requestnetwork/utils';
 
 /**
  * Implementation of the action cancel from request logic specification
@@ -56,7 +56,7 @@ function applyActionToRequest(
   const signerRole = Request.getRoleInRequest(signer, request);
 
   // avoid to mutate the request
-  let requestCopied: RequestLogicTypes.IRequest = Utils.deepCopy(request);
+  let requestCopied: RequestLogicTypes.IRequest = deepCopy(request);
   requestCopied = Request.pushExtensionsData(requestCopied, action.data.parameters.extensionsData);
   requestCopied.events.push(generateEvent(action, timestamp, signer));
 

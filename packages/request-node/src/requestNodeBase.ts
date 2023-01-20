@@ -1,5 +1,5 @@
 import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { SimpleLogger } from '@requestnetwork/utils';
 import cors from 'cors';
 import { Server } from 'http';
 import express, { NextFunction, Request, Response } from 'express';
@@ -61,7 +61,7 @@ export class RequestNodeBase {
   ) {
     this.initialized = false;
 
-    this.logger = logger || new Utils.SimpleLogger();
+    this.logger = logger || new SimpleLogger();
     this.dataAccess = dataAccess;
 
     this.confirmedTransactionStore = new ConfirmedTransactionStore(store);
