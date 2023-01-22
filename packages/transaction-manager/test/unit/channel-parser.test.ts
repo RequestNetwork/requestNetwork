@@ -1,9 +1,9 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import { TransactionTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import ChannelParser from '../../src/channel-parser';
 import TransactionsFactory from '../../src/transactions-factory';
 import * as TestData from './utils/test-data';
+import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 let channelParser: ChannelParser;
 
@@ -21,9 +21,9 @@ const tx2: TransactionTypes.ITimestampedTransaction = {
   transaction: { data: data2 },
 };
 
-const dataHash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
+const dataHash = normalizeKeccak256Hash(JSON.parse(data));
 const channelId = MultiFormat.serialize(dataHash);
-const dataHash2 = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data2));
+const dataHash2 = normalizeKeccak256Hash(JSON.parse(data2));
 const channelId2 = MultiFormat.serialize(dataHash2);
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */

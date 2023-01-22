@@ -1,4 +1,4 @@
-import retry from '../src/retry';
+import { retry } from '../src';
 
 class TestClass {
   private value = 'private';

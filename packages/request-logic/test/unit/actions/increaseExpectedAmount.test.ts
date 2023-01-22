@@ -1,5 +1,5 @@
 import { IdentityTypes, RequestLogicTypes, SignatureTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 import IncreaseExpectedAmountAction from '../../../src/actions/increaseExpectedAmount';
 
 import Version from '../../../src/version';
@@ -118,7 +118,7 @@ describe('actions/increaseExpectedAmount', () => {
       const request = IncreaseExpectedAmountAction.applyActionToRequest(
         actionIncreaseAmount,
         2,
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
+        deepCopy(TestData.requestCreatedNoExtension),
       );
 
       // 'requestId is wrong'
@@ -181,7 +181,7 @@ describe('actions/increaseExpectedAmount', () => {
         IncreaseExpectedAmountAction.applyActionToRequest(
           actionIncreaseAmount,
           2,
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
+          deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).toThrowError('signer must be the payer');
     });
@@ -199,7 +199,7 @@ describe('actions/increaseExpectedAmount', () => {
         IncreaseExpectedAmountAction.applyActionToRequest(
           actionIncreaseAmount,
           2,
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
+          deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).toThrowError('signer must be the payer');
     });
@@ -224,7 +224,7 @@ describe('actions/increaseExpectedAmount', () => {
         IncreaseExpectedAmountAction.applyActionToRequest(
           action,
           2,
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
+          deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).toThrowError('requestId must be given');
     });
@@ -249,7 +249,7 @@ describe('actions/increaseExpectedAmount', () => {
         IncreaseExpectedAmountAction.applyActionToRequest(
           action,
           2,
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
+          deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).toThrowError('deltaAmount must be given');
     });
@@ -325,7 +325,7 @@ describe('actions/increaseExpectedAmount', () => {
         IncreaseExpectedAmountAction.applyActionToRequest(
           actionIncreaseAmount,
           2,
-          Utils.deepCopy(TestData.requestCanceledNoExtension),
+          deepCopy(TestData.requestCanceledNoExtension),
         ),
       ).toThrowError('the request must not be canceled');
     });
@@ -343,7 +343,7 @@ describe('actions/increaseExpectedAmount', () => {
       const request = IncreaseExpectedAmountAction.applyActionToRequest(
         actionIncreaseAmount,
         2,
-        Utils.deepCopy(TestData.requestAcceptedNoExtension),
+        deepCopy(TestData.requestAcceptedNoExtension),
       );
 
       // 'requestId is wrong'
@@ -407,7 +407,7 @@ describe('actions/increaseExpectedAmount', () => {
       const request = IncreaseExpectedAmountAction.applyActionToRequest(
         actionIncreaseAmount,
         2,
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
+        deepCopy(TestData.requestCreatedNoExtension),
       );
 
       // 'requestId is wrong'
@@ -471,7 +471,7 @@ describe('actions/increaseExpectedAmount', () => {
       const request = IncreaseExpectedAmountAction.applyActionToRequest(
         actionIncreaseAmount,
         2,
-        Utils.deepCopy(TestData.requestCreatedWithExtensions),
+        deepCopy(TestData.requestCreatedWithExtensions),
       );
 
       // 'requestId is wrong'
@@ -532,7 +532,7 @@ describe('actions/increaseExpectedAmount', () => {
       const request = IncreaseExpectedAmountAction.applyActionToRequest(
         actionIncreaseAmount,
         2,
-        Utils.deepCopy(TestData.requestCreatedWithExtensions),
+        deepCopy(TestData.requestCreatedWithExtensions),
       );
 
       // 'requestId is wrong'
@@ -602,7 +602,7 @@ describe('actions/increaseExpectedAmount', () => {
         IncreaseExpectedAmountAction.applyActionToRequest(
           action,
           2,
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
+          deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).toThrowError('deltaAmount must be a string representing a positive integer');
     });
@@ -629,7 +629,7 @@ describe('actions/increaseExpectedAmount', () => {
         IncreaseExpectedAmountAction.applyActionToRequest(
           action,
           2,
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
+          deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).toThrowError('deltaAmount must be a string representing a positive integer');
     });
@@ -655,7 +655,7 @@ describe('actions/increaseExpectedAmount', () => {
         IncreaseExpectedAmountAction.applyActionToRequest(
           action,
           2,
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
+          deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).toThrowError('deltaAmount must be a string representing a positive integer');
     });

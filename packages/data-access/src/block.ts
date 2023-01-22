@@ -1,6 +1,6 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import { DataAccessTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 /**
  * Module to manage a block in the data access-layer
@@ -125,7 +125,7 @@ function pushTransaction(
     throw new Error('The transaction is missing the data property or encryptedData property');
   }
   // we don't want to modify the original block state
-  const copiedBlock: DataAccessTypes.IBlock = Utils.deepCopy(block);
+  const copiedBlock: DataAccessTypes.IBlock = deepCopy(block);
 
   const newTransactionPosition = copiedBlock.transactions.length;
   copiedBlock.transactions.push(transaction);

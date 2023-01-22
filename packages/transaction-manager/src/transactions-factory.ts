@@ -1,6 +1,10 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import { EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import {
+  encrypt,
+  generate32BufferKey,
+  getIdentityFromEncryptionParams,
+} from '@requestnetwork/utils';
 
 /**
  * Class to create transactions (clear and encrypted)
@@ -39,10 +43,10 @@ export default class TransactionsFactory {
     const encryptionMethod = `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`;
 
     // Generate a key for the AES encryption
-    const symmetricKey: string = await Utils.crypto.generate32BufferKey();
+    const symmetricKey: string = await generate32BufferKey();
 
     // Encrypt the data with the key and the AES256-GCM algorithm
-    const encryptedData: EncryptionTypes.IEncryptedData = await Utils.encryption.encrypt(data, {
+    const encryptedData: EncryptionTypes.IEncryptedData = await encrypt(data, {
       key: symmetricKey,
       method: EncryptionTypes.METHOD.AES256_GCM,
     });
@@ -71,12 +75,11 @@ export default class TransactionsFactory {
         encryptedKey: EncryptionTypes.IEncryptedData;
         multiFormattedIdentity: string;
       }> => {
-        const encryptedKey: EncryptionTypes.IEncryptedData = await Utils.encryption.encrypt(
+        const encryptedKey: EncryptionTypes.IEncryptedData = await encrypt(
           symmetricKey,
           encryptionParam,
         );
-        const identityEncryption =
-          Utils.encryption.getIdentityFromEncryptionParams(encryptionParam);
+        const identityEncryption = getIdentityFromEncryptionParams(encryptionParam);
         const multiFormattedIdentity: string = MultiFormat.serialize(identityEncryption);
 
         return { encryptedKey, multiFormattedIdentity };
@@ -123,10 +126,7 @@ export default class TransactionsFactory {
     }
 
     // Encrypt the data with the key and the AES256-GCM algorithm
-    const encryptedData: EncryptionTypes.IEncryptedData = await Utils.encryption.encrypt(
-      data,
-      channelKey,
-    );
+    const encryptedData: EncryptionTypes.IEncryptedData = await encrypt(data, channelKey);
 
     try {
       JSON.parse(data);

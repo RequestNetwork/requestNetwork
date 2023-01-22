@@ -1,5 +1,5 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 import Erc777StreamPaymentNetwork from '../../../../src/extensions/payment-network/erc777/stream';
 
@@ -88,7 +88,7 @@ describe('extensions/payment-network/erc777/stream', () => {
     describe('applyActionToExtension', () => {
       describe('applyActionToExtension/unknown action', () => {
         it('cannot applyActionToExtensions of unknown action', () => {
-          const unknownAction = Utils.deepCopy(DataERC777StreamAddData.actionAddPaymentAddress);
+          const unknownAction = deepCopy(DataERC777StreamAddData.actionAddPaymentAddress);
           unknownAction.action = 'unknown action' as any;
           // 'must throw'
           expect(() => {
@@ -103,7 +103,7 @@ describe('extensions/payment-network/erc777/stream', () => {
         });
 
         it('cannot applyActionToExtensions of unknown id', () => {
-          const unknownAction = Utils.deepCopy(DataERC777StreamAddData.actionAddPaymentAddress);
+          const unknownAction = deepCopy(DataERC777StreamAddData.actionAddPaymentAddress);
           unknownAction.id = 'unknown id' as any;
           // 'must throw'
           expect(() => {
@@ -146,7 +146,7 @@ describe('extensions/payment-network/erc777/stream', () => {
         });
 
         it('cannot applyActionToExtensions of creation on a non ERC777 request', () => {
-          const requestCreatedNoExtension: RequestLogicTypes.IRequest = Utils.deepCopy(
+          const requestCreatedNoExtension: RequestLogicTypes.IRequest = deepCopy(
             TestData.requestCreatedNoExtension,
           );
           requestCreatedNoExtension.currency = {
@@ -166,7 +166,7 @@ describe('extensions/payment-network/erc777/stream', () => {
         });
 
         it('cannot applyActionToExtensions of creation with payment address not valid', () => {
-          const testnetPaymentAddress = Utils.deepCopy(DataERC777StreamCreate.actionCreationFull);
+          const testnetPaymentAddress = deepCopy(DataERC777StreamCreate.actionCreationFull);
           testnetPaymentAddress.parameters.paymentAddress = DataERC777StreamAddData.invalidAddress;
           // 'must throw'
           expect(() => {
@@ -183,7 +183,7 @@ describe('extensions/payment-network/erc777/stream', () => {
         });
 
         it('cannot applyActionToExtensions of creation with refund address not valid', () => {
-          const testnetRefundAddress = Utils.deepCopy(DataERC777StreamCreate.actionCreationFull);
+          const testnetRefundAddress = deepCopy(DataERC777StreamCreate.actionCreationFull);
           testnetRefundAddress.parameters.refundAddress = DataERC777StreamAddData.invalidAddress;
           // 'must throw'
           expect(() => {
@@ -251,7 +251,7 @@ describe('extensions/payment-network/erc777/stream', () => {
         });
 
         it('cannot applyActionToExtensions of addPaymentAddress without a payee', () => {
-          const previousState = Utils.deepCopy(DataERC777StreamCreate.requestStateCreatedEmpty);
+          const previousState = deepCopy(DataERC777StreamCreate.requestStateCreatedEmpty);
           previousState.payee = undefined;
           // 'must throw'
           expect(() => {
@@ -266,7 +266,7 @@ describe('extensions/payment-network/erc777/stream', () => {
         });
 
         it('cannot applyActionToExtensions of addPaymentAddress signed by someone else than the payee', () => {
-          const previousState = Utils.deepCopy(DataERC777StreamCreate.requestStateCreatedEmpty);
+          const previousState = deepCopy(DataERC777StreamCreate.requestStateCreatedEmpty);
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
@@ -293,9 +293,7 @@ describe('extensions/payment-network/erc777/stream', () => {
         });
 
         it('cannot applyActionToExtensions of addPaymentAddress with payment address not valid', () => {
-          const testnetPaymentAddress = Utils.deepCopy(
-            DataERC777StreamAddData.actionAddPaymentAddress,
-          );
+          const testnetPaymentAddress = deepCopy(DataERC777StreamAddData.actionAddPaymentAddress);
           testnetPaymentAddress.parameters.paymentAddress = DataERC777StreamAddData.invalidAddress;
           // 'must throw'
           expect(() => {
@@ -340,7 +338,7 @@ describe('extensions/payment-network/erc777/stream', () => {
         });
 
         it('cannot applyActionToExtensions of addRefundAddress without a payer', () => {
-          const previousState = Utils.deepCopy(DataERC777StreamCreate.requestStateCreatedEmpty);
+          const previousState = deepCopy(DataERC777StreamCreate.requestStateCreatedEmpty);
           previousState.payer = undefined;
           // 'must throw'
           expect(() => {
@@ -355,7 +353,7 @@ describe('extensions/payment-network/erc777/stream', () => {
         });
 
         it('cannot applyActionToExtensions of addRefundAddress signed by someone else than the payer', () => {
-          const previousState = Utils.deepCopy(DataERC777StreamCreate.requestStateCreatedEmpty);
+          const previousState = deepCopy(DataERC777StreamCreate.requestStateCreatedEmpty);
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
@@ -382,9 +380,7 @@ describe('extensions/payment-network/erc777/stream', () => {
         });
 
         it('cannot applyActionToExtensions of addRefundAddress with refund address not valid', () => {
-          const testnetPaymentAddress = Utils.deepCopy(
-            DataERC777StreamAddData.actionAddRefundAddress,
-          );
+          const testnetPaymentAddress = deepCopy(DataERC777StreamAddData.actionAddRefundAddress);
           testnetPaymentAddress.parameters.refundAddress = DataERC777StreamAddData.invalidAddress;
           // 'must throw'
           expect(() => {

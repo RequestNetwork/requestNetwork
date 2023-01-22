@@ -1,10 +1,10 @@
 import { EventEmitter } from 'events';
 import { BigNumber, ContractReceipt, providers, Signer } from 'ethers';
 import TypedEmitter from 'typed-emitter';
-import Utils from '@requestnetwork/utils';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { EthereumTransactionSubmitter } from './ethereum-tx-submitter';
+import { getCurrentTimestampInSecond, SimpleLogger } from '@requestnetwork/utils';
 
 export type GasDefinerProps = {
   gasPriceMin?: BigNumber;
@@ -33,7 +33,7 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
   private readonly txSubmitter: EthereumTransactionSubmitter;
 
   constructor({ network, signer, ipfsStorage, logger, gasPriceMin }: StorageProps) {
-    this.logger = logger || new Utils.SimpleLogger();
+    this.logger = logger || new SimpleLogger();
     this.ipfsStorage = ipfsStorage;
     this.network = network;
     this.txSubmitter = new EthereumTransactionSubmitter({ network, signer, logger, gasPriceMin });
@@ -68,7 +68,7 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
         },
         state: StorageTypes.ContentState.PENDING,
         storageType: StorageTypes.StorageSystemType.LOCAL,
-        timestamp: Utils.getCurrentTimestampInSecond(),
+        timestamp: getCurrentTimestampInSecond(),
       },
     };
 

@@ -1,6 +1,6 @@
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { areEqualIdentities, deepCopy } from '@requestnetwork/utils';
 import DeclarativePaymentNetwork from './declarative';
 
 /**
@@ -194,11 +194,11 @@ export default abstract class AddressBasedPaymentNetwork<
     if (!requestState.payee) {
       throw Error(`The request must have a payee`);
     }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payee)) {
+    if (!areEqualIdentities(actionSigner, requestState.payee)) {
       throw Error(`The signer must be the payee`);
     }
 
-    const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
+    const copiedExtensionState: ExtensionTypes.IState = deepCopy(extensionState);
 
     // update payment address
     copiedExtensionState.values.paymentAddress = extensionAction.parameters.paymentAddress;
@@ -241,11 +241,11 @@ export default abstract class AddressBasedPaymentNetwork<
     if (!requestState.payer) {
       throw Error(`The request must have a payer`);
     }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payer)) {
+    if (!areEqualIdentities(actionSigner, requestState.payer)) {
       throw Error(`The signer must be the payer`);
     }
 
-    const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
+    const copiedExtensionState: ExtensionTypes.IState = deepCopy(extensionState);
 
     // update refund address
     copiedExtensionState.values.refundAddress = extensionAction.parameters.refundAddress;

@@ -1,7 +1,12 @@
 import { HardhatRuntimeEnvironmentExtended, IDeploymentParams, IDeploymentResult } from './types';
-import utils from '@requestnetwork/utils';
 import { requestDeployer } from '../src/lib';
 import { Overrides } from 'ethers';
+import {
+  estimateGasFees,
+  getCeloProvider,
+  getDefaultProvider,
+  isEip1559Supported,
+} from '@requestnetwork/utils';
 
 const ZERO_ETH_INPUT = 0;
 
@@ -44,9 +49,9 @@ export const xdeploy = async (
     console.log(`... on ${network}`);
     let provider;
     if (network === 'celo') {
-      provider = utils.getCeloProvider();
+      provider = getCeloProvider();
     } else {
-      provider = utils.getDefaultProvider(network);
+      provider = getDefaultProvider(network);
     }
     const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
     const signer = wallet.connect(provider);
@@ -71,17 +76,12 @@ export const xdeploy = async (
     let receipt = undefined;
     let deployed = false;
     let error = undefined;
-    let txOverrides: Overrides;
+    let txOverrides: Overrides = {};
 
-    try {
-      txOverrides = await utils.estimateGasFees({ provider });
-      const gasLimit = hre.config.xdeploy.gasLimit;
-      txOverrides.gasLimit = gasLimit;
-    } catch (e) {
-      // NOTE: On some networks utils.estimateGasFees do not work
-      txOverrides = {};
-      console.log('Cannot estimate gasLimit');
+    if (await isEip1559Supported(provider, console)) {
+      txOverrides = await estimateGasFees({ provider });
     }
+    txOverrides.gasLimit = hre.config.xdeploy.gasLimit;
 
     try {
       const createReceipt = await (

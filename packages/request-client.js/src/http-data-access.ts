@@ -1,9 +1,9 @@
 import { ClientTypes, DataAccessTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
 
 import { EventEmitter } from 'events';
 import httpConfigDefaults from './http-config-defaults';
+import { normalizeKeccak256Hash, retry } from '@requestnetwork/utils';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -100,7 +100,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
       this.axiosConfig,
     );
 
-    const transactionHash: string = Utils.crypto.normalizeKeccak256Hash(transactionData).value;
+    const transactionHash: string = normalizeKeccak256Hash(transactionData).value;
 
     // Create the return result with EventEmitter
     const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(
@@ -203,7 +203,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   ): Promise<any> {
     retryConfig.maxRetries = retryConfig.maxRetries ?? this.httpConfig.httpRequestMaxRetry;
     retryConfig.retryDelay = retryConfig.retryDelay ?? this.httpConfig.httpRequestRetryDelay;
-    const { data } = await Utils.retry(
+    const { data } = await retry(
       async () => axios.get(url, { ...this.axiosConfig, params }),
       retryConfig,
     )();

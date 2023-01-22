@@ -1,4 +1,4 @@
-import Utils from '@requestnetwork/utils';
+import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 import { RequestNode } from '../src/requestNode';
@@ -7,7 +7,7 @@ import { RequestNodeBase } from '../src/requestNodeBase';
 const channelId = '010aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 const transactionData = { data: 'this is sample data for a transaction' };
-const transactionHash = Utils.crypto.normalizeKeccak256Hash(transactionData).value;
+const transactionHash = normalizeKeccak256Hash(transactionData).value;
 
 let requestNodeInstance: RequestNodeBase;
 let server: any;
