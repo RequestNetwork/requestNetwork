@@ -8,8 +8,6 @@ description: General information and links about the subgraph.
 
 Request has a GraphQL API Endpoint hosted by [The Graph](https://thegraph.com/docs/about/introduction#what-the-graph-is), called a subgraph, for indexing and organizing data from the Request smart contracts.
 
-Request leverages the [Graph Protocol](https://thegraph.com) to simplify the process of making meaningful applications leveraging the Request Smart Contracts and associated data.
-
 The Graph Protocol provides an accessible GraphQL service providing useful aggregate Request data from the Ethereum blockchain. The links below provide a rudimentary tool to build and test your queries.
 
 # Ethereum Decentralized Mainnet
@@ -35,28 +33,4 @@ The hosted service versions can be found here:
 
 - [XDai](https://thegraph.com/hosted-service/subgraph/requestnetwork/request-payments-xdai)
 
-- [Matic](https://thegraph.com/hosted-service/subgraph/requestnetwork/request-payments-matic)
-
-- [Fantom](https://thegraph.com/hosted-service/subgraph/requestnetwork/request-payments-fantom)
-
-- [BSC](https://thegraph.com/hosted-service/subgraph/requestnetwork/request-payments-bsc)
-
-- [Avalanche](https://thegraph.com/hosted-service/subgraph/requestnetwork/request-payments-avalanche)
-
-- [Optimism](https://thegraph.com/hosted-service/subgraph/requestnetwork/request-payments-optimism)
-
-- [Arbitrum](https://thegraph.com/hosted-service/subgraph/requestnetwork/request-payments-arbitrum-one)
-
-- [Arbitrum Rinkeby](https://thegraph.com/hosted-service/subgraph/requestnetwork/request-payments-arbitrum-rinkeby)
-
-- [Celo](https://thegraph.com/hosted-service/subgraph/requestnetwork/request-payments-celo)
-
-- [Fuse](https://thegraph.com/hosted-service/subgraph/requestnetwork/request-payments-fuse)
-
-- [Moonbeam](https://thegraph.com/hosted-service/subgraph/requestnetwork/request-payments-moonbeam)
-
-- [Near](https://thegraph.com/hosted-service/subgraph/requestnetwork/request-payments-near)
-
-- [Near Testnet](https://thegraph.com/hosted-service/subgraph/requestnetwork/request-payments-near-testnet)
-
-- [Rinkeby](https://thegraph.com/hosted-service/subgraph/requestnetwork/request-payments-rinkeby)
+- also on many other chains if you search the hosted service by name
