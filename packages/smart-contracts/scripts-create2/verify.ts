@@ -36,10 +36,12 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
       try {
         await delay();
         switch (contract) {
+          case 'ChainlinkConversionPath':
           case 'EthereumProxy':
           case 'EthereumFeeProxy':
           case 'EthConversionProxy':
           case 'ERC20FeeProxy':
+          case 'ERC20SwapToPay':
           case 'ERC20SwapToConversion':
           case 'Erc20ConversionProxy': {
             const constructorArgs = getConstructorArgs(contract);

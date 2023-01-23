@@ -52,9 +52,11 @@ export const updateSwapRouter = async (
   txOverrides: Overrides,
 ): Promise<void> => {
   const currentSwapRouter = await contract.swapRouter();
-  if (currentSwapRouter !== uniswapV2RouterAddresses[network]) {
-    const tx = await contract.setRouter(uniswapV2RouterAddresses[network], txOverrides);
+  const expectedRouter = uniswapV2RouterAddresses[network];
+  if (expectedRouter && currentSwapRouter !== expectedRouter) {
+    const tx = await contract.setRouter(expectedRouter, txOverrides);
     await tx.wait(1);
+    console.log(`Swap router address set to ${expectedRouter}`);
   }
 };
 
@@ -66,7 +68,9 @@ export const updateRequestSwapFees = async (
   if (!currentFees.eq(REQUEST_SWAP_FEES)) {
     const tx = await contract.updateRequestSwapFees(REQUEST_SWAP_FEES, txOverrides);
     await tx.wait(1);
-    console.log(`currentFees: ${currentFees.toString()}, new fees: ${REQUEST_SWAP_FEES}`);
+    console.log(
+      `currentFees: ${currentFees.toNumber() / 10}%, new fees: ${REQUEST_SWAP_FEES / 10}%`,
+    );
   }
 };
 
@@ -224,6 +228,28 @@ export const updateNativeAndUSDAddress = async (
     );
     console.log(
       `Batch: the current USDAddress: ${currentUSDAddress}, have been replaced by: ${USDAddress}`,
+    );
+  }
+};
+
+/**
+ * Update the native token hash used by a contract.
+ * @param contract contract to be updated.
+ * @param nativeTokenHash The address of native token, eg: ETH.
+ * @param txOverrides information related to gas fees. Increase their values if needed.
+ */
+export const updateNativeTokenHash = async (
+  contractType: string,
+  contract: any,
+  nativeTokenHash: string,
+  txOverrides: Overrides,
+): Promise<void> => {
+  const currentNativeTokenHash = (await contract.nativeTokenHash()).toLocaleLowerCase();
+  if (currentNativeTokenHash !== nativeTokenHash.toLocaleLowerCase()) {
+    const tx = await contract.updateNativeTokenHash(nativeTokenHash, txOverrides);
+    await tx.wait(1);
+    console.log(
+      `${contractType}: the current NativeTokenHash: ${currentNativeTokenHash}, have been replaced by: ${nativeTokenHash}`,
     );
   }
 };

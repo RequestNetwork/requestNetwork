@@ -49,6 +49,7 @@ export async function deployEthConversionProxy(
   args: {
     chainlinkConversionPathAddress?: string;
     ethFeeProxyAddress?: string;
+    owner: string;
     nonceCondition?: number;
     version?: string;
   },
@@ -87,6 +88,7 @@ export async function deployEthConversionProxy(
       args.ethFeeProxyAddress,
       args.chainlinkConversionPathAddress,
       nativeTokenHash,
+      args.owner,
     ],
     artifact: ethConversionArtifact,
     nonceCondition: args.nonceCondition,
