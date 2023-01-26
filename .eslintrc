@@ -15,7 +15,6 @@
     "import/no-extraneous-dependencies": "error"
   },
   "ignorePatterns": [
-    "/packages/docs/",
     "/packages/*/dist/",
     "/packages/*/coverage/",
     // FIXME: tests should be linted
