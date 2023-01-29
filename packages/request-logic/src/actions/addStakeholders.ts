@@ -59,7 +59,6 @@ function applyActionToRequest(
   requestCopied = Request.pushExtensionsData(requestCopied, action.data.parameters.extensionsData);
   requestCopied.events.push(generateEvent(action, timestamp, signer));
 
-  // TODO: Anything else to do to apply addStakeholders Action?
   return requestCopied;
 }
 
