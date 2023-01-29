@@ -1,8 +1,7 @@
 import { ExtensionTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
-
 import { ICurrencyManager } from '@requestnetwork/currency';
+import { generate8randomBytes } from '@requestnetwork/utils';
 
 /**
  * Abstract class to extend to get the payment balance of conversion requests
@@ -34,7 +33,7 @@ export abstract class AnyToAnyDetector<
   ): Promise<ExtensionTypes.IAction> {
     // If no salt is given, generate one
     paymentNetworkCreationParameters.salt =
-      paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
+      paymentNetworkCreationParameters.salt || (await generate8randomBytes());
 
     return this.extension.createCreationAction(paymentNetworkCreationParameters);
   }

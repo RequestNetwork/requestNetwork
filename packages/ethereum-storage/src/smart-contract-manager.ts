@@ -1,6 +1,5 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import * as Bluebird from 'bluebird';
 import * as config from './config';
 import EthereumBlocks from './ethereum-blocks';
@@ -13,6 +12,12 @@ const web3Eth = require('web3-eth');
 const web3Utils = require('web3-utils');
 
 import { BigNumber } from 'ethers';
+import {
+  flatten2DimensionsArray,
+  retry,
+  SimpleLogger,
+  timeoutPromise,
+} from '@requestnetwork/utils';
 
 // Maximum number of attempt to create ethereum metadata when transaction to add hash and size to Ethereum is confirmed
 // 23 is the number of call of the transaction's confirmation event function
@@ -105,7 +110,7 @@ export default class SmartContractManager {
     },
   ) {
     this.maxConcurrency = maxConcurrency;
-    this.logger = logger || new Utils.SimpleLogger();
+    this.logger = logger || new SimpleLogger();
 
     this.maxRetries = maxRetries;
     this.retryDelay = retryDelay;
@@ -235,7 +240,7 @@ export default class SmartContractManager {
   public async getMainAccount(): Promise<string> {
     // Get the accounts on the provider
     // Throws an error if timeout is reached
-    const accounts = await Utils.timeoutPromise<string[]>(
+    const accounts = await timeoutPromise<string[]>(
       this.eth.getAccounts(),
       this.timeout,
       'Web3 getAccounts connection timeout',
@@ -265,7 +270,7 @@ export default class SmartContractManager {
 
     // Get the fee from the size of the content
     // Throws an error if timeout is reached
-    const fee = await Utils.timeoutPromise<string>(
+    const fee = await timeoutPromise<string>(
       this.requestHashSubmitter.methods.getFeesAmount(feesParameters.contentSize).call(),
       this.timeout,
       'Web3 getFeesAmount connection timeout',
@@ -532,9 +537,9 @@ export default class SmartContractManager {
     // If getPastEvents doesn't throw, we can return the returned events from the function
     let events: any;
     try {
-      events = await Utils.retry(
+      events = await retry(
         (args) =>
-          Utils.timeoutPromise(
+          timeoutPromise(
             this.requestHashStorage.getPastEvents(args),
             this.timeout,
             'Web3 getPastEvents connection timeout',
@@ -564,7 +569,7 @@ export default class SmartContractManager {
         );
 
         return Promise.all([eventsFirstHalfPromise, eventsSecondHalfPromise])
-          .then((halves) => Utils.flatten2DimensionsArray(halves))
+          .then((halves) => flatten2DimensionsArray(halves))
           .catch((err) => {
             throw err;
           });

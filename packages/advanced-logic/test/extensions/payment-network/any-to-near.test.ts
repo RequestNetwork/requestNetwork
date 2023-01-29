@@ -12,7 +12,7 @@ import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import AnyToNearPaymentNetwork from '../../../src/extensions/payment-network/near/any-to-near';
 import AnyToNativeTokenPaymentNetwork from '../../../src/extensions/payment-network/any-to-native';
 import { CurrencyManager } from '@requestnetwork/currency';
-import utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 import AnyToNearTestnetPaymentNetwork from '../../../src/extensions/payment-network/near/any-to-near-testnet';
 
 const salt = arbitrarySalt;
@@ -272,7 +272,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
         ...requestStateNoExtensions,
         currency: validCurrency,
       };
-      creationAction = utils.deepCopy(actionCreationWithAnyToNativeTokenPayment);
+      creationAction = deepCopy(actionCreationWithAnyToNativeTokenPayment);
     });
     describe('applyActionToExtension/create action', () => {
       it('works with valid parameters', () => {

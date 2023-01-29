@@ -13,7 +13,7 @@ const DEFAULT_RETRY_DELAY = 100;
  * @param [options.maxRetries=DEFAULT_MAX_RETRIES] The maximum amount of retries for the function
  * @param [options.retryDelay=DEFAULT_RETRY_DELAY] The delay between retries
  */
-export const retry = <TParams extends unknown[], TReturn>(
+const retry = <TParams extends unknown[], TReturn>(
   target: (...params: TParams) => TReturn | Promise<TReturn>,
   {
     context,
@@ -57,4 +57,4 @@ export const retry = <TParams extends unknown[], TReturn>(
   };
 };
 
-export default retry;
+export { retry };

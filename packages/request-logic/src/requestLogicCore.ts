@@ -1,5 +1,4 @@
 import { AdvancedLogicTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import Action from './action';
 import Request from './request';
 
@@ -10,6 +9,7 @@ import CreateAction from './actions/create';
 import IncreaseExpectedAmountAction from './actions/increaseExpectedAmount';
 import ReduceExpectedAmountAction from './actions/reduceExpectedAmount';
 import AddStakeholdersAction from './actions/addStakeholders';
+import { deepCopy } from '@requestnetwork/utils';
 
 /**
  * Implementation of Request Logic Core
@@ -47,7 +47,7 @@ function applyActionToRequest(
   }
 
   // we don't want to modify the original request state
-  const requestCopied: RequestLogicTypes.IRequest | null = request ? Utils.deepCopy(request) : null;
+  const requestCopied: RequestLogicTypes.IRequest | null = request ? deepCopy(request) : null;
 
   let requestAfterApply: RequestLogicTypes.IRequest | null = null;
 

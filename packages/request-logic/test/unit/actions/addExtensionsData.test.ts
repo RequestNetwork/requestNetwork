@@ -1,5 +1,5 @@
 import { IdentityTypes, RequestLogicTypes, SignatureTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 import AddExtensionsDataAction from '../../../src/actions/addExtensionsData';
 
 import Version from '../../../src/version';
@@ -75,7 +75,7 @@ describe('actions/addExtensionsData', () => {
       const request = AddExtensionsDataAction.applyActionToRequest(
         actionAddExtensionsData,
         2,
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
+        deepCopy(TestData.requestCreatedNoExtension),
       );
 
       // 'requestId is wrong'
@@ -141,7 +141,7 @@ describe('actions/addExtensionsData', () => {
         AddExtensionsDataAction.applyActionToRequest(
           action,
           2,
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
+          deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).toThrowError('requestId must be given');
     });
@@ -163,7 +163,7 @@ describe('actions/addExtensionsData', () => {
         AddExtensionsDataAction.applyActionToRequest(
           action,
           2,
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
+          deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).toThrowError('extensionsData must be given');
     });
@@ -185,7 +185,7 @@ describe('actions/addExtensionsData', () => {
         AddExtensionsDataAction.applyActionToRequest(
           action,
           2,
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
+          deepCopy(TestData.requestCreatedNoExtension),
         ),
       ).toThrowError('extensionsData must be given');
     });
@@ -204,7 +204,7 @@ describe('actions/addExtensionsData', () => {
       const request = AddExtensionsDataAction.applyActionToRequest(
         actionAddExtensionsData,
         2,
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
+        deepCopy(TestData.requestCreatedNoExtension),
       );
 
       // 'requestId is wrong'
@@ -267,7 +267,7 @@ describe('actions/addExtensionsData', () => {
       const request = AddExtensionsDataAction.applyActionToRequest(
         actionAddExtensionsData,
         2,
-        Utils.deepCopy(TestData.requestCreatedWithExtensions),
+        deepCopy(TestData.requestCreatedWithExtensions),
       );
 
       // 'requestId is wrong'

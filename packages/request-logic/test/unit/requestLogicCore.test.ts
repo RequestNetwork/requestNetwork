@@ -6,7 +6,7 @@ import {
   RequestLogicTypes,
   SignatureTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy, normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 import Version from '../../src/version';
 const CURRENT_VERSION = Version.currentVersion;
@@ -51,7 +51,7 @@ describe('requestLogicCore', () => {
 
       expect(() =>
         RequestLogicCore.applyActionToRequest(
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
+          deepCopy(TestData.requestCreatedNoExtension),
           action,
           2,
           fakeAdvancedLogic,
@@ -392,9 +392,7 @@ describe('requestLogicCore', () => {
       );
 
       // 'requestId is wrong'
-      expect(request.requestId).toBe(
-        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
-      );
+      expect(request.requestId).toBe(MultiFormat.serialize(normalizeKeccak256Hash(actionCreation)));
       // 'currency is wrong'
       expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
@@ -431,7 +429,7 @@ describe('requestLogicCore', () => {
       );
 
       const request = RequestLogicCore.applyActionToRequest(
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
+        deepCopy(TestData.requestCreatedNoExtension),
         actionAccept,
         2,
         fakeAdvancedLogic,
@@ -485,7 +483,7 @@ describe('requestLogicCore', () => {
         TestData.fakeSignatureProvider,
       );
       const request = RequestLogicCore.applyActionToRequest(
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
+        deepCopy(TestData.requestCreatedNoExtension),
         actionCancel,
         2,
         fakeAdvancedLogic,
@@ -543,7 +541,7 @@ describe('requestLogicCore', () => {
       );
 
       const request = RequestLogicCore.applyActionToRequest(
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
+        deepCopy(TestData.requestCreatedNoExtension),
         actionIncreaseAmount,
         2,
         fakeAdvancedLogic,
@@ -601,7 +599,7 @@ describe('requestLogicCore', () => {
       );
 
       const request = RequestLogicCore.applyActionToRequest(
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
+        deepCopy(TestData.requestCreatedNoExtension),
         actionReduceAmount,
         2,
         fakeAdvancedLogic,
@@ -654,7 +652,7 @@ describe('requestLogicCore', () => {
       );
 
       const request = RequestLogicCore.applyActionToRequest(
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
+        deepCopy(TestData.requestCreatedNoExtension),
         actionAddExtensionsData,
         2,
         fakeAdvancedLogic,

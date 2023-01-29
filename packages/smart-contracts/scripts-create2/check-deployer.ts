@@ -1,5 +1,5 @@
-import utils from '@requestnetwork/utils';
 import { HardhatRuntimeEnvironmentExtended } from './types';
+import { getCeloProvider, getDefaultProvider } from '@requestnetwork/utils';
 
 export const checkCreate2Deployer = async (
   hre: HardhatRuntimeEnvironmentExtended,
@@ -14,9 +14,9 @@ export const checkCreate2Deployer = async (
     hre.config.xdeploy.networks.map(async (network: string) => {
       let provider;
       if (network === 'celo') {
-        provider = utils.getCeloProvider();
+        provider = getCeloProvider();
       } else {
-        provider = utils.getDefaultProvider(network);
+        provider = getDefaultProvider(network);
       }
       const code = await provider.getCode(hre.config.xdeploy.deployerAddress);
 

@@ -54,6 +54,7 @@ describe('contract: EthConversionProxy', () => {
       ethFeeProxy.address,
       chainlinkPath.address,
       ETH_hash,
+      from,
     );
     etherPaymentFallback = await new EtherPaymentFallback__factory(signer).deploy();
     gnosisSafeProxy = await new GnosisSafeProxy__factory(signer).deploy(
@@ -301,11 +302,13 @@ describe('contract: EthConversionProxy', () => {
         const MATIC_HASH = currencyManager.fromSymbol('MATIC')!.hash;
         const maticChainlinkPath = await new ChainlinkConversionPath__factory(signer).deploy(
           MATIC_HASH,
+          from,
         );
         const maticEthConversionProxy = await new EthConversionProxy__factory(signer).deploy(
           ethFeeProxy.address,
           maticChainlinkPath.address,
           MATIC_HASH,
+          from,
         );
         await maticChainlinkPath.updateAggregator(ETH_hash, USD_hash, USD_ETH_aggregator.address);
         const path = [USD_hash, ETH_hash];

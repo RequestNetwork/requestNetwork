@@ -9,7 +9,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { decrypt, random32Bytes } from '@requestnetwork/utils';
 import { ethers } from 'ethers';
 
 import AxiosMockAdapter from 'axios-mock-adapter';
@@ -84,10 +84,10 @@ const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider = {
   ): Promise<string> => {
     switch (identity.value.toLowerCase()) {
       case idRaw1.identity.value:
-        return Utils.encryption.decrypt(data, idRaw1.decryptionParams);
+        return decrypt(data, idRaw1.decryptionParams);
 
       case idRaw2.identity.value:
-        return Utils.encryption.decrypt(data, idRaw2.decryptionParams);
+        return decrypt(data, idRaw2.decryptionParams);
 
       default:
         throw new Error('Identity not registered');
@@ -1544,10 +1544,8 @@ describe('request-client.js', () => {
         useMockStorage: true,
       });
       // generate address randomly to avoid collisions
-      const paymentAddress =
-        '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
-      const refundAddress =
-        '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
+      const paymentAddress = '0x' + (await random32Bytes()).slice(12).toString('hex');
+      const refundAddress = '0x' + (await random32Bytes()).slice(12).toString('hex');
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
         id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
@@ -1690,10 +1688,8 @@ describe('request-client.js', () => {
     });
 
     // generate address randomly to avoid collisions
-    const paymentAddress =
-      '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
-    const refundAddress =
-      '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
+    const paymentAddress = '0x' + (await random32Bytes()).slice(12).toString('hex');
+    const refundAddress = '0x' + (await random32Bytes()).slice(12).toString('hex');
 
     const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
       id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,

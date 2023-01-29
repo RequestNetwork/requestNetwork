@@ -1,9 +1,9 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes, TypesUtils } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import Utils from '@requestnetwork/utils';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { DeclarativePaymentDetectorBase } from './declarative';
+import { generate8randomBytes } from '@requestnetwork/utils';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
@@ -45,7 +45,7 @@ export abstract class ReferenceBasedDetector<
   ): Promise<ExtensionTypes.IAction> {
     // If no salt is given, generate one
     paymentNetworkCreationParameters.salt =
-      paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
+      paymentNetworkCreationParameters.salt || (await generate8randomBytes());
 
     return this.extension.createCreationAction({
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,

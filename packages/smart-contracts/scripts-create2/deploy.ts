@@ -3,10 +3,14 @@ import { IDeploymentParams } from './types';
 import { HardhatRuntimeEnvironmentExtended } from './types';
 import { xdeploy } from './xdeployer';
 import { getConstructorArgs } from './constructor-args';
-import { setupERC20SwapToConversion } from './contract-setup';
-import { setupBatchConversionPayments } from './contract-setup/setupBatchConversionPayments';
-import { setupETHConversionProxy } from './contract-setup/setupETHConversionProxy';
-import { setupErc20ConversionProxy } from './contract-setup/setupErc20ConversionProxy';
+import {
+  setupERC20SwapToConversion,
+  setupERC20SwapToPay,
+  setupBatchConversionPayments,
+  setupETHConversionProxy,
+  setupErc20ConversionProxy,
+  setupChainlinkConversionPath,
+} from './contract-setup';
 
 // Deploys, set up the contracts and returns the address
 export const deployOneWithCreate2 = async (
@@ -60,9 +64,13 @@ export const deployWithCreate2FromList = async (
         await deployOneWithCreate2({ contract, constructorArgs }, hre);
         break;
       }
+      case 'ChainlinkConversionPath': {
+        const constructorArgs = getConstructorArgs(contract);
+        const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
+        await setupChainlinkConversionPath(address, hre);
+        break;
+      }
       case 'EthConversionProxy': {
-        // FIXME: not deployable through xdeployer yet. Check FIXME in getConstrucotrArgs function
-        throw new Error('EthConversionProxy not deployable through xdeployer yet');
         const constructorArgs = getConstructorArgs(contract);
         const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
         await setupETHConversionProxy(address, hre);
@@ -72,6 +80,12 @@ export const deployWithCreate2FromList = async (
         const constructorArgs = getConstructorArgs(contract);
         const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
         await setupErc20ConversionProxy(address, hre);
+        break;
+      }
+      case 'ERC20SwapToPay': {
+        const constructorArgs = getConstructorArgs(contract);
+        const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
+        await setupERC20SwapToPay(address, hre);
         break;
       }
       case 'ERC20SwapToConversion': {

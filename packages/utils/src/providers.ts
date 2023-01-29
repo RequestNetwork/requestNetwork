@@ -1,3 +1,5 @@
+import { LogTypes } from '@requestnetwork/types';
+
 import { providers, constants } from 'ethers';
 
 type ProviderFactory = (network: string | undefined) => providers.Provider | string;
@@ -147,9 +149,26 @@ const getCeloProvider = (): providers.Provider => {
   return provider;
 };
 
-export default {
+const isEip1559Supported = async (
+  provider: providers.Provider | providers.JsonRpcProvider,
+  logger?: LogTypes.ILogger,
+): Promise<boolean> => {
+  try {
+    await (provider as providers.JsonRpcProvider).send('eth_feeHistory', [1, 'latest', []]);
+    return true;
+  } catch (e) {
+    logger &&
+      logger.warn(
+        'This RPC provider does not support the "eth_feeHistory" method: switching to legacy gas price',
+      );
+    return false;
+  }
+};
+
+export {
   setProviderFactory,
   initPaymentDetectionApiKeys,
+  isEip1559Supported,
   getDefaultProvider,
   getCeloProvider,
   networkRpcs,

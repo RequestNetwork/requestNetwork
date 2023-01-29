@@ -1,5 +1,5 @@
 import { DecryptionProviderTypes, EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { decrypt } from '@requestnetwork/utils';
 
 export const idRaw1 = {
   address: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
@@ -65,11 +65,11 @@ export const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider
   ): Promise<string> => {
     switch (identity.value.toLowerCase()) {
       case idRaw1.address:
-        return Utils.encryption.decrypt(data, idRaw1.decryptionParams);
+        return decrypt(data, idRaw1.decryptionParams);
       case idRaw2.address:
-        return Utils.encryption.decrypt(data, idRaw2.decryptionParams);
+        return decrypt(data, idRaw2.decryptionParams);
       case idRaw3.address:
-        return Utils.encryption.decrypt(data, idRaw3.decryptionParams);
+        return decrypt(data, idRaw3.decryptionParams);
       default:
         throw new Error('Identity not registered');
     }
