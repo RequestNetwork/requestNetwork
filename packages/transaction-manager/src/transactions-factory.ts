@@ -163,12 +163,11 @@ export default class TransactionsFactory {
           encryptedKey: EncryptionTypes.IEncryptedData;
           multiFormattedIdentity: string;
         }> => {
-          const encryptedKey: EncryptionTypes.IEncryptedData = await Utils.encryption.encrypt(
+          const encryptedKey: EncryptionTypes.IEncryptedData = await encrypt(
             channelKey.key,
             encryptionParam,
           );
-          const identityEncryption =
-            Utils.encryption.getIdentityFromEncryptionParams(encryptionParam);
+          const identityEncryption = getIdentityFromEncryptionParams(encryptionParam);
           const multiFormattedIdentity: string = MultiFormat.serialize(identityEncryption);
 
           return { encryptedKey, multiFormattedIdentity };

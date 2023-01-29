@@ -1,5 +1,5 @@
 import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 import Action from '../action';
 import Request from '../request';
@@ -55,7 +55,7 @@ function applyActionToRequest(
   const signer: IdentityTypes.IIdentity = Action.getSignerIdentityFromAction(action);
 
   // avoid to mutate the request
-  let requestCopied: RequestLogicTypes.IRequest = Utils.deepCopy(request);
+  let requestCopied: RequestLogicTypes.IRequest = deepCopy(request);
   requestCopied = Request.pushExtensionsData(requestCopied, action.data.parameters.extensionsData);
   requestCopied.events.push(generateEvent(action, timestamp, signer));
 

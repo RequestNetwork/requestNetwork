@@ -107,7 +107,7 @@ const thirdPartyDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider 
   ): Promise<string> => {
     switch (identity.value.toLowerCase()) {
       case idRaw3.identity.value:
-        return Utils.encryption.decrypt(data, idRaw3.decryptionParams);
+        return decrypt(data, idRaw3.decryptionParams);
 
       default:
         throw new Error('Identity not registered');
