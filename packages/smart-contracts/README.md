@@ -108,7 +108,7 @@ The deployer contract should be deployed at `0xE99Ab70a5FAE59551544FA326fA048f7B
 
 Be sure to run `yarn build:sol` before deploying the deployer or a contract.
 
-The contracts implemented are listed in the array `create2ContractDeploymentList` in [Utils](scripts-create2/utils/utils.ts).
+The contracts implemented are listed in the array `create2ContractDeploymentList` in [Utils](scripts-create2/utils/index.ts).
 
 ### Deploy the request deployer (once per chain)
 

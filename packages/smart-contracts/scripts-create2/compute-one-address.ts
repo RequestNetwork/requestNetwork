@@ -1,6 +1,6 @@
 import { IDeploymentParams, HardhatRuntimeEnvironmentExtended } from './types';
 import { requestDeployer } from '../src/lib';
-import { create2ContractDeploymentList } from './utils/utils';
+import { create2ContractDeploymentList } from './utils';
 import { getConstructorArgs } from './constructor-args';
 
 // Deploys, set up the contracts
