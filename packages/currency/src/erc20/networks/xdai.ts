@@ -1,4 +1,4 @@
-import { TokenMap } from './types';
+import { TokenMap } from '../../types';
 
 // List of the supported bsc network tokens
 export const supportedXDAIERC20: TokenMap = {

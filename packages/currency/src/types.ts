@@ -1,6 +1,17 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 
 /**
+ * Common types used in token configuration files
+ */
+type TokenAddress = string;
+type TokenDefinition = { name: string; symbol: string; decimals: number };
+export type TokenMap = Record<TokenAddress, TokenDefinition>;
+export type NetworkDefinition = {
+  chainId: number;
+  currencies?: TokenMap;
+};
+
+/**
  * A native blockchain token (ETH, MATIC, ETH-rinkeby...)
  */
 export type NativeCurrency = {

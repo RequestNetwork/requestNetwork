@@ -1,5 +1,5 @@
 import * as metamaskContractMap from '@metamask/contract-metadata';
-import { TokenMap } from './types';
+import { TokenMap } from '../../types';
 
 // These interfaces are declared here because they should be used only in this context
 // A Token description from the eth-contract-metadata list

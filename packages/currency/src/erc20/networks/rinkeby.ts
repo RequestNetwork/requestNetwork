@@ -1,4 +1,4 @@
-import { TokenMap } from './types';
+import { TokenMap } from '../../types';
 
 // List of the supported rinkeby ERC20 tokens
 export const supportedRinkebyERC20: TokenMap = {
