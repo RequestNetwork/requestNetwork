@@ -15,7 +15,7 @@ import { VerifyCreate2FromList } from './scripts-create2/verify';
 import { deployWithCreate2FromList } from './scripts-create2/deploy';
 import { NUMBER_ERRORS } from './scripts/utils';
 import { networkRpcs } from '@requestnetwork/utils';
-import { tenderlyPushAll } from './scripts-create2/tenderly';
+import { tenderlyImportAll } from './scripts-create2/tenderly';
 
 config();
 
@@ -273,9 +273,9 @@ task(
   await VerifyCreate2FromList(hre as HardhatRuntimeEnvironmentExtended);
 });
 
-task('tenderly-monitor-contracts', 'Adds all contracts to the Tenderly account').setAction(
+task('tenderly-monitor-contracts', 'Import all contracts to a Tenderly account').setAction(
   async (_args, hre) => {
-    await tenderlyPushAll(hre as HardhatRuntimeEnvironmentExtended);
+    await tenderlyImportAll(hre as HardhatRuntimeEnvironmentExtended);
   },
 );
 

@@ -17,7 +17,7 @@ const getTenderlyAxiosInstance = (hre: HardhatRuntimeEnvironmentExtended) => {
 
 const capitalizeFirstLetter = (string: string) => string.charAt(0).toUpperCase() + string.slice(1);
 
-export const tenderlyPushAll = async (hre: HardhatRuntimeEnvironmentExtended): Promise<void> => {
+export const tenderlyImportAll = async (hre: HardhatRuntimeEnvironmentExtended): Promise<void> => {
   const { username, project } = hre.config.tenderly;
   try {
     const contracts: Array<{ name: string; address: string; networkId: number }> = [];
