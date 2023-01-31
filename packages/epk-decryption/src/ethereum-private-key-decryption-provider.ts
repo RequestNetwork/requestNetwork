@@ -1,6 +1,6 @@
 import { DecryptionProviderTypes, EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
 
-import Utils from '@requestnetwork/utils';
+import { decrypt, getAddressFromPrivateKey } from '@requestnetwork/utils';
 
 /** Type of the dictionary of decryptionParameters (private keys) indexed by ethereum address */
 type IDecryptionParametersDictionary = Map<string, EncryptionTypes.IDecryptionParameters>;
@@ -55,7 +55,7 @@ export default class EthereumPrivateKeyDecryptionProvider
       throw Error(`private key unknown for the identity: ${identity.value}`);
     }
 
-    return Utils.encryption.decrypt(encryptedData, decryptionParameters);
+    return decrypt(encryptedData, decryptionParameters);
   }
 
   /**
@@ -87,9 +87,7 @@ export default class EthereumPrivateKeyDecryptionProvider
 
     // compute the address from private key
     // toLowerCase to avoid mismatch because of case
-    const address = Utils.crypto.EcUtils.getAddressFromPrivateKey(
-      decryptionParameters.key,
-    ).toLowerCase();
+    const address = getAddressFromPrivateKey(decryptionParameters.key).toLowerCase();
 
     this.decryptionParametersDictionary.set(address, decryptionParameters);
 

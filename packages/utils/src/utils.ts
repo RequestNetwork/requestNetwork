@@ -1,9 +1,9 @@
-import crypto from './crypto';
+import { normalizeKeccak256Hash } from './crypto';
 
 /**
  * Collection of general purpose utility function
  */
-export default {
+export {
   deepCopy,
   deepSort,
   flatten2DimensionsArray,
@@ -77,7 +77,7 @@ function unique<T>(array: T[]): { uniqueItems: T[]; duplicates: T[] } {
       accumulator: { uniqueItems: T[]; duplicates: T[]; uniqueItemsHashes: string[] },
       element: T,
     ) => {
-      const hash = crypto.normalizeKeccak256Hash(element);
+      const hash = normalizeKeccak256Hash(element);
 
       if (accumulator.uniqueItemsHashes.includes(hash.value)) {
         // if already included, adds it to the array of duplicates
@@ -109,7 +109,7 @@ function uniqueByProperty<T>(array: T[], property: keyof T): { uniqueItems: T[];
       accumulator: { uniqueItems: T[]; duplicates: T[]; uniqueItemsHashes: string[] },
       element: T,
     ) => {
-      const hash = crypto.normalizeKeccak256Hash(element[property]);
+      const hash = normalizeKeccak256Hash(element[property]);
 
       if (accumulator.uniqueItemsHashes.includes(hash.value)) {
         // if already included, adds it to the array of duplicates

@@ -6,7 +6,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 import { approveErc20, getErc20Balance } from '../../src/payment/erc20';
 import { _getErc20ProxyPaymentUrl, payErc20ProxyRequest } from '../../src/payment/erc20-proxy';
 import { getRequestPaymentValues } from '../../src/payment/utils';
@@ -73,7 +73,7 @@ describe('getRequestPaymentValues', () => {
 
 describe('payErc20ProxyRequest', () => {
   it('should throw an error if the request is not erc20', async () => {
-    const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+    const request = deepCopy(validRequest) as ClientTypes.IRequestData;
     request.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
 
     await expect(payErc20ProxyRequest(request, wallet)).rejects.toThrowError(
@@ -82,7 +82,7 @@ describe('payErc20ProxyRequest', () => {
   });
 
   it('should throw an error if the currencyInfo has no value', async () => {
-    const request = Utils.deepCopy(validRequest);
+    const request = deepCopy(validRequest);
     request.currencyInfo.value = '';
     await expect(payErc20ProxyRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-erc20-proxy-contract request',
@@ -90,7 +90,7 @@ describe('payErc20ProxyRequest', () => {
   });
 
   it('should throw an error if currencyInfo has no network', async () => {
-    const request = Utils.deepCopy(validRequest);
+    const request = deepCopy(validRequest);
     request.currencyInfo.network = '';
     await expect(payErc20ProxyRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-erc20-proxy-contract request',
@@ -98,7 +98,7 @@ describe('payErc20ProxyRequest', () => {
   });
 
   it('should throw an error if request has no extension', async () => {
-    const request = Utils.deepCopy(validRequest);
+    const request = deepCopy(validRequest);
     request.extensions = [] as any;
 
     await expect(payErc20ProxyRequest(request, wallet)).rejects.toThrowError(

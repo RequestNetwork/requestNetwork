@@ -1,14 +1,11 @@
 import { Wallet, providers, BigNumber } from 'ethers';
-
 import {
   ClientTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-
-import Utils from '@requestnetwork/utils';
-
+import { deepCopy } from '@requestnetwork/utils';
 import { approveErc20ForProxyConversionIfNeeded } from '../../src/payment/conversion-erc20';
 import { payAnyToErc20ProxyRequest } from '../../src/payment/any-to-erc20-proxy';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
@@ -116,7 +113,7 @@ describe('conversion-erc20-fee-proxy', () => {
     });
 
     it('should throw an error if request has no extension', async () => {
-      const request = Utils.deepCopy(validEuroRequest);
+      const request = deepCopy(validEuroRequest);
       request.extensions = [] as any;
 
       await expect(

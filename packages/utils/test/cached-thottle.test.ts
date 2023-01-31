@@ -1,6 +1,6 @@
-import cachedThrottle from '../src/cached-throttle';
-
 /* eslint-disable no-magic-numbers */
+import { cachedThrottle } from '../src';
+
 describe('Cached Throttle', () => {
   it('throttles a function', async () => {
     jest.useFakeTimers('modern');

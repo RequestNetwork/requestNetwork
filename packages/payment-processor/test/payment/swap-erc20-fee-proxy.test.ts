@@ -6,7 +6,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 import { getErc20Balance } from '../../src/payment/erc20';
 import { approveErc20ForSwapToPayIfNeeded } from '../../src/payment/swap-erc20';
@@ -57,7 +57,7 @@ const validRequest: ClientTypes.IRequestData = {
         paymentAddress,
         salt: 'salt',
       },
-      version: '1.0',
+      version: '0.1.0',
     },
   },
   extensionsData: [],
@@ -96,7 +96,7 @@ describe('swap-erc20-fee-proxy', () => {
       );
     });
     it('should throw an error if the request is not erc20', async () => {
-      const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+      const request = deepCopy(validRequest) as ClientTypes.IRequestData;
       request.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
 
       await expect(
@@ -107,7 +107,7 @@ describe('swap-erc20-fee-proxy', () => {
     });
 
     it('should throw an error if the currencyInfo has no value', async () => {
-      const request = Utils.deepCopy(validRequest);
+      const request = deepCopy(validRequest);
       request.currencyInfo.value = '';
       await expect(
         swapErc20FeeProxyRequest(request, wallet, validSwapSettings),
@@ -117,7 +117,7 @@ describe('swap-erc20-fee-proxy', () => {
     });
 
     it('should throw an error if currencyInfo has no network', async () => {
-      const request = Utils.deepCopy(validRequest);
+      const request = deepCopy(validRequest);
       request.currencyInfo.network = '';
       await expect(
         swapErc20FeeProxyRequest(request, wallet, validSwapSettings),
@@ -127,7 +127,7 @@ describe('swap-erc20-fee-proxy', () => {
     });
 
     it('should throw an error if request has no extension', async () => {
-      const request = Utils.deepCopy(validRequest);
+      const request = deepCopy(validRequest);
       request.extensions = [] as any;
 
       await expect(
@@ -146,7 +146,7 @@ describe('swap-erc20-fee-proxy', () => {
         wallet,
         {
           deadline: 2599732187000, // This test will fail in 2052
-          maxInputAmount: 204,
+          maxInputAmount: 206,
           path: [alphaErc20Address, erc20ContractAddress],
         },
         {
@@ -154,7 +154,7 @@ describe('swap-erc20-fee-proxy', () => {
         },
       );
       expect(spy).toHaveBeenCalledWith({
-        data: '0x8d09fe2b000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000cc000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001600000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef000000000000000000000000000000000000000000000000000000009af4c3db000000000000000000000000000000000000000000000000000000000000000200000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa350000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
+        data: '0x5f2993bf00000000000000000000000075c35c980c0d37ef46df04d31a140b65503c0eed000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000ce000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef000000000000000000000000000000000000000000000000000000009af4c3db000000000000000000000000000000000000000000000000000000000000000200000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa350000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
         gasPrice: '20000000000',
         to: '0xA4392264a2d8c998901D10C154C91725b1BF0158',
         value: 0,
@@ -191,8 +191,8 @@ describe('swap-erc20-fee-proxy', () => {
 
       // Swap and pay
       const tx = await swapErc20FeeProxyRequest(validRequest, wallet, {
-        deadline: Date.now() + 1000,
-        maxInputAmount: 204,
+        deadline: Date.now() + 10000,
+        maxInputAmount: 206,
         path: [alphaErc20Address, erc20ContractAddress],
       });
       const confirmedTx = await tx.wait(1);

@@ -1,5 +1,5 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 /**
  * Abstract class to create extension
@@ -53,8 +53,7 @@ export abstract class AbstractExtension<TCreationParameters> implements Extensio
   ): RequestLogicTypes.IExtensionStates {
     this.validate(requestState, extensionAction);
 
-    const copiedExtensionState: RequestLogicTypes.IExtensionStates =
-      Utils.deepCopy(extensionsState);
+    const copiedExtensionState: RequestLogicTypes.IExtensionStates = deepCopy(extensionsState);
 
     if (extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE) {
       if (requestState.extensions[extensionAction.id]) {

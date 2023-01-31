@@ -1,4 +1,3 @@
-import { utils } from 'ethers';
 import {
   CurrencyDefinition,
   CurrencyManager,
@@ -7,20 +6,18 @@ import {
 } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
-import Utils from '@requestnetwork/utils';
+import { isAddress } from 'ethers/lib/utils';
+import { getDefaultProvider } from '@requestnetwork/utils';
 
 export const loadCurrencyFromContract = async (
   currency: StorageCurrency,
 ): Promise<CurrencyDefinition | null> => {
-  if (!currency.network || !utils.isAddress(currency.value)) {
+  if (!currency.network || !isAddress(currency.value)) {
     return null;
   }
 
   try {
-    const contract = ERC20__factory.connect(
-      currency.value,
-      Utils.getDefaultProvider(currency.network),
-    );
+    const contract = ERC20__factory.connect(currency.value, getDefaultProvider(currency.network));
     const decimals = await contract.decimals();
 
     if (!decimals) {

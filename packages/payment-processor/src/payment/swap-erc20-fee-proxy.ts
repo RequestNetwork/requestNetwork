@@ -8,11 +8,13 @@ import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
   getProvider,
+  getProxyAddress,
   getRequestPaymentValues,
   getSigner,
   validateErc20FeeProxyRequest,
 } from './utils';
 import { IPreparedTransaction } from './prepared-transaction';
+import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 
 /**
  * Details required for a token swap:
@@ -131,10 +133,16 @@ export function encodeSwapToPayErc20FeeRequest(
     throw new Error('Request currency network is missing');
   }
 
+  const feeProxyAddress = getProxyAddress(
+    request,
+    Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector.getDeploymentInformation,
+  );
+
   const swapToPayAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network);
   const swapToPayContract = ERC20SwapToPay__factory.connect(swapToPayAddress, signer);
 
   return swapToPayContract.interface.encodeFunctionData('swapTransferWithReference', [
+    feeProxyAddress,
     paymentAddress,
     amountToPay,
     swapSettings.maxInputAmount,
