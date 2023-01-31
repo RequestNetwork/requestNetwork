@@ -15,6 +15,7 @@ import { VerifyCreate2FromList } from './scripts-create2/verify';
 import { deployWithCreate2FromList } from './scripts-create2/deploy';
 import { NUMBER_ERRORS } from './scripts/utils';
 import { networkRpcs } from '@requestnetwork/utils';
+import { tenderlyPushAll } from './scripts-create2/tenderly';
 
 config();
 
@@ -271,6 +272,12 @@ task(
 ).setAction(async (_args, hre) => {
   await VerifyCreate2FromList(hre as HardhatRuntimeEnvironmentExtended);
 });
+
+task('tenderly-monitor-contracts', 'Adds all contracts to the Tenderly account').setAction(
+  async (_args, hre) => {
+    await tenderlyPushAll(hre as HardhatRuntimeEnvironmentExtended);
+  },
+);
 
 subtask(DEPLOYER_KEY_GUARD, 'prevent usage of the deployer master key').setAction(async () => {
   if (accounts && accounts[0] === process.env.DEPLOYER_MASTER_KEY) {

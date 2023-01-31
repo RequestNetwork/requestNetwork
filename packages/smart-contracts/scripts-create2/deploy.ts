@@ -1,4 +1,4 @@
-import { create2ContractDeploymentList, isContractDeployed } from './utils';
+import { create2ContractDeploymentList, isContractDeployed } from './utils/utils';
 import { IDeploymentParams } from './types';
 import { HardhatRuntimeEnvironmentExtended } from './types';
 import { xdeploy } from './xdeployer';

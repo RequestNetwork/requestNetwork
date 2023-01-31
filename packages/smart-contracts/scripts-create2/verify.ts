@@ -2,7 +2,7 @@ import { computeCreate2DeploymentAddress } from './compute-one-address';
 import { getConstructorArgs } from './constructor-args';
 import { HardhatRuntimeEnvironmentExtended } from './types';
 import { IDeploymentParams } from './types';
-import { create2ContractDeploymentList } from './utils';
+import { create2ContractDeploymentList } from './utils/utils';
 
 export const verifyOne = async (
   contractAddress: string,

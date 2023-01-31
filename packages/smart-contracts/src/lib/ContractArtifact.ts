@@ -95,6 +95,24 @@ export class ContractArtifact<TContract extends Contract> {
   }
 
   /**
+   * Retrieve all addresses for all versions for all networks
+   * @returns the addresses of the deployed contract and the associated network and version.
+   */
+  getAllAddressesFromAllNetworks(): { version: string; address: string; networkName: string }[] {
+    const deployments = [];
+    for (const version in this.info) {
+      for (const networkName in this.info[version].deployment) {
+        deployments.push({
+          version,
+          address: this.info[version].deployment[networkName].address,
+          networkName,
+        });
+      }
+    }
+    return deployments;
+  }
+
+  /**
    * Retrieve the block creation number from the artifact of the used version
    * deployed into the specified network
    * @param networkName the name of the network where the contract is deployed

@@ -1,5 +1,5 @@
 import { Contract } from 'ethers';
-import * as artifacts from '../src/lib';
+import * as artifacts from '../../src/lib';
 
 /**
  * List of smart contract that we deploy using the CREATE2 scheme through the Request Deployer contract
