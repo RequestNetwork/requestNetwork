@@ -1,7 +1,6 @@
 /*
  * Payment Proxies & Swap
  */
-
 export * from './ChainlinkConversionPath';
 export * from './Erc20ConversionProxy';
 export * from './ERC20FeeProxy';
