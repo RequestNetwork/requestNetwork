@@ -1,29 +1,30 @@
-import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './types';
+import { HardhatRuntimeEnvironmentExtended } from './types';
 import axios from 'axios';
 
-
-const getTenderlyAxiosInstance = (hre: HardhatRuntimeEnvironmentExtended,) => {
+const getTenderlyAxiosInstance = (hre: HardhatRuntimeEnvironmentExtended) => {
   return axios.create({
     baseURL: 'https://api.tenderly.co',
     headers: {
-      'x-access-key': accessKey,
+      'x-access-key': hre.config.tenderly.accessKey,
     },
-  })
-}
+  });
+};
+
 export const pushToTenderly = async (
   hre: HardhatRuntimeEnvironmentExtended,
-  contracts: Array<{ name: string; address: string }>,
+  contracts: Array<{ name: string; address: string; networkId: number }>,
 ): Promise<void> => {
-  const { username, accessKey, project } = hre.config.tenderly;
-  const axiosInstance =
+  const { username, project } = hre.config.tenderly;
   try {
     const axiosInstance = getTenderlyAxiosInstance(hre);
-    for (const contract of contracts) {
-      await axiosInstance.post(`/api/v2/accounts/${username}/projects/${project}/contracts`,
-        da,
-      });
-    }
+    await axiosInstance.post(`/api/v2/accounts/${username}/projects/${project}/contracts`, {
+      contracts: contracts.map((contract) => ({
+        address: contract.address,
+        display_name: contract.name,
+        network_id: contract.networkId.toString(),
+      })),
+    });
   } catch (err) {
-    console.log(err);
+    console.error('Error while adding contract(s) to Tenderly', err);
   }
 };
