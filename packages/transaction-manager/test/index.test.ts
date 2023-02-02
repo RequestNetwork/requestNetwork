@@ -975,6 +975,121 @@ describe('index', () => {
         },
       });
     });
+
+    it('can get transactions from an encrypted channel with spam and added stakeholder', async () => {
+      // Create encrypted transation with ID1 and ID2 as stakeholders
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
+        TestData.idRaw1.encryptionParams,
+        TestData.idRaw2.encryptionParams,
+      ]);
+
+      console.log(encryptedTx);
+
+      // Get channel key from 1st encrypted transaction
+      const transactionsParser = new TransactionsParser(TestData.fakeDecryptionProvider);
+      let { channelKey } = await transactionsParser.parsePersistedTransaction(
+        encryptedTx,
+        TransactionTypes.ChannelType.ENCRYPTED,
+      );
+      channelKey = <EncryptionTypes.IEncryptionParameters>channelKey;
+
+      console.log(channelKey);
+
+      // Create spam transaction that pretends to add ID3 as a stakeholder
+      // but uses garbage as the encrypted channel key
+      const spamData = '{ "spammy": "spam" }';
+      const garbage =
+        '029f00713571588a32dc91c948c5cbb09a0293d20c3a0a32879581dfad210526ac5d6b978fe81b55a26344ff6eb5d231f331bd9d215d61c3d21a219a96a81ff713d6b67aa62d7e4c119ca16031c6d3d67d45d7b27ebc03f3961843cd3228c08b43224916370147182322c058fe1a25d1dd52b23ec0438180d229ebdeb41b39f6e95d';
+      let spamTx = await TransactionsFactory.createEncryptedTransaction(spamData, channelKey, [
+        TestData.idRaw3.encryptionParams,
+      ]);
+      spamTx!.keys!['20818b6337657a23f58581715fc610577292e521d0'] = garbage;
+
+      console.log(spamTx);
+
+      // Create real transaction that adds ID3 as a stakeholder
+      let encryptedTx2 = await TransactionsFactory.createEncryptedTransaction(data2, channelKey, [
+        TestData.idRaw3.encryptionParams,
+      ]);
+
+      console.log(encryptedTx2);
+
+      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
+        {
+          meta: {
+            transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2', 'fakeDataId3'],
+          },
+          result: {
+            transactions: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: spamTx,
+              },
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 3,
+                transaction: encryptedTx2,
+              },
+            ],
+          },
+        };
+
+      fakeDataAccess = {
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest.fn(),
+        getTransactionsByChannelId: jest
+          .fn()
+          .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
+        initialize: jest.fn(),
+        close: jest.fn(),
+        persistTransaction: jest.fn(),
+      };
+
+      const transactionManager = new TransactionManager(
+        fakeDataAccess,
+        TestData.id3DecryptionProvider,
+      );
+      const ret = await transactionManager.getTransactionsByChannelId(channelId);
+
+      console.log(ret.result.transactions);
+
+      // 'return is wrong'
+      expect(ret).toEqual({
+        meta: {
+          dataAccessMeta: {
+            transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2', 'fakeDataId3'],
+          },
+          encryptionMethod: 'ecies-aes256-gcm',
+          ignoredTransactions: [null, null, null],
+        },
+        result: {
+          transactions: [
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 1,
+              transaction: { data },
+            },
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 2,
+              transaction: { data: spamData },
+            },
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 3,
+              transaction: { data: data2 },
+            },
+          ],
+        },
+      });
+    });
   });
 
   describe('getChannelsByTopic', () => {
