@@ -580,9 +580,7 @@ describe('index', () => {
       channelKey = <EncryptionTypes.IEncryptionParameters>channelKey;
 
       // Create 2nd encrypted transaction using same channel key
-      let encryptedTx2 = await TransactionsFactory.createEncryptedTransaction(data2, channelKey, [
-        TestData.idRaw3.encryptionParams,
-      ]);
+      let encryptedTx2 = await TransactionsFactory.createEncryptedTransaction(data2, channelKey);
       encryptedTx2.encryptionMethod = 'diffferent-encryption-method';
 
       const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
@@ -659,7 +657,7 @@ describe('index', () => {
     it('can get two transactions with different encryptions from the same encrypted channel the first has the right hash but wrong data', async () => {
       const encryptedTxFakeHash = await TransactionsFactory.createEncryptedTransactionInNewChannel(
         data2,
-        [TestData.idRaw3.encryptionParams],
+        [TestData.idRaw1.encryptionParams, TestData.idRaw2.encryptionParams],
       );
 
       // Get channel key of 1st encrypted transaction
@@ -671,10 +669,7 @@ describe('index', () => {
       channelKey = <EncryptionTypes.IEncryptionParameters>channelKey;
 
       // Create 2nd encrypted transaction using same channel key
-      let encryptedTx2 = await TransactionsFactory.createEncryptedTransaction(data, channelKey, [
-        TestData.idRaw1.encryptionParams,
-        TestData.idRaw2.encryptionParams,
-      ]);
+      let encryptedTx2 = await TransactionsFactory.createEncryptedTransaction(data, channelKey);
       const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
         {
           meta: {
