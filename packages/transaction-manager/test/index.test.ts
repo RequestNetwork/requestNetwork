@@ -978,8 +978,6 @@ describe('index', () => {
         TestData.idRaw2.encryptionParams,
       ]);
 
-      console.log(encryptedTx);
-
       // Get channel key from 1st encrypted transaction
       const transactionsParser = new TransactionsParser(TestData.fakeDecryptionProvider);
       let { channelKey } = await transactionsParser.parsePersistedTransaction(
@@ -987,8 +985,6 @@ describe('index', () => {
         TransactionTypes.ChannelType.ENCRYPTED,
       );
       channelKey = <EncryptionTypes.IEncryptionParameters>channelKey;
-
-      console.log(channelKey);
 
       // Create spam transaction that pretends to add ID3 as a stakeholder
       // but uses garbage as the encrypted channel key
@@ -1000,19 +996,15 @@ describe('index', () => {
       ]);
       spamTx!.keys!['20818b6337657a23f58581715fc610577292e521d0'] = garbage;
 
-      console.log(spamTx);
-
       // Create real transaction that adds ID3 as a stakeholder
       let encryptedTx2 = await TransactionsFactory.createEncryptedTransaction(data2, channelKey, [
         TestData.idRaw3.encryptionParams,
       ]);
 
-      console.log(encryptedTx2);
-
       const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
         {
           meta: {
-            transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2', 'fakeDataId3'],
+            transactionsStorageLocation: ['fakeDataId1', 'fakeDataId3'],
           },
           result: {
             transactions: [
@@ -1021,11 +1013,7 @@ describe('index', () => {
                 timestamp: 1,
                 transaction: encryptedTx,
               },
-              {
-                state: TransactionTypes.TransactionState.PENDING,
-                timestamp: 2,
-                transaction: spamTx,
-              },
+              //  <== Spam transactions inserted here
               {
                 state: TransactionTypes.TransactionState.PENDING,
                 timestamp: 3,
@@ -1034,6 +1022,53 @@ describe('index', () => {
             ],
           },
         };
+
+      const expectedRet = {
+        meta: {
+          dataAccessMeta: {
+            transactionsStorageLocation: ['fakeDataId1', 'fakeDataId3'],
+          },
+          encryptionMethod: 'ecies-aes256-gcm',
+          ignoredTransactions: [null, null],
+        },
+        result: {
+          transactions: [
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 1,
+              transaction: { data },
+            },
+            //  <== Spam transactions inserted here
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 3,
+              transaction: { data: data2 },
+            },
+          ],
+        },
+      };
+
+      // Insert spam transactions
+      for (let i = 0; i < 10; i++) {
+        fakeMetaDataAccessGetReturnWithEncryptedTransaction.meta.transactionsStorageLocation.splice(
+          1,
+          0,
+          'fakeDataId2',
+        );
+        fakeMetaDataAccessGetReturnWithEncryptedTransaction.result.transactions.splice(1, 0, {
+          state: TransactionTypes.TransactionState.PENDING,
+          timestamp: 2,
+          transaction: spamTx,
+        });
+
+        expectedRet.meta.dataAccessMeta.transactionsStorageLocation.splice(1, 0, 'fakeDataId2');
+        expectedRet.meta.ignoredTransactions.splice(1, 0, null);
+        expectedRet.result.transactions.splice(1, 0, {
+          state: TransactionTypes.TransactionState.PENDING,
+          timestamp: 2,
+          transaction: { data: spamData },
+        });
+      }
 
       fakeDataAccess = {
         _getStatus: jest.fn(),
@@ -1053,37 +1088,8 @@ describe('index', () => {
       );
       const ret = await transactionManager.getTransactionsByChannelId(channelId);
 
-      console.log(ret.result.transactions);
-
       // 'return is wrong'
-      expect(ret).toEqual({
-        meta: {
-          dataAccessMeta: {
-            transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2', 'fakeDataId3'],
-          },
-          encryptionMethod: 'ecies-aes256-gcm',
-          ignoredTransactions: [null, null, null],
-        },
-        result: {
-          transactions: [
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 1,
-              transaction: { data },
-            },
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 2,
-              transaction: { data: spamData },
-            },
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 3,
-              transaction: { data: data2 },
-            },
-          ],
-        },
-      });
+      expect(ret).toEqual(expectedRet);
     });
   });
 
