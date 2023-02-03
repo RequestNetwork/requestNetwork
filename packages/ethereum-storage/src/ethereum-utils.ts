@@ -20,7 +20,7 @@ export const getEthereumStorageNetworkNameFromId = (
   const chainName = EVM.getChainName(networkId);
   if (!chainName) {
     // this should never happen
-    throw new Error('Storage chain is not a supported EVM chain');
+    throw new Error(`Unsupported storage chain: ${networkId}`);
   }
   return chainName;
 };

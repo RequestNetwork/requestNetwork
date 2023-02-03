@@ -135,11 +135,6 @@ export default class SmartContractManager {
         ? config.getDefaultEthereumNetwork()
         : getEthereumStorageNetworkNameFromId(web3Connection.networkId);
 
-    // If networkName is undefined, it means the network doesn't exist
-    if (typeof this.networkName === 'undefined') {
-      throw Error(`The network id ${web3Connection.networkId} doesn't exist`);
-    }
-
     this.hashStorageAddress = SmartContracts.requestHashStorageArtifact.getAddress(
       this.networkName,
     );

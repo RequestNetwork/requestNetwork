@@ -145,7 +145,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         anyToErc20Proxy.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
-          network: 'kovan',
+          network: 'goerli',
           acceptedTokens: ['0x0000000000000000000000000000000000000003'],
         });
       }).toThrowError(

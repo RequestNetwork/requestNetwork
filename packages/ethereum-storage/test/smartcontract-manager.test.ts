@@ -407,7 +407,7 @@ describe('SmartContractManager', () => {
 
   it('initializes smartcontract-manager with an invalid network should throw an error', () => {
     expect(() => new SmartContractManager(invalidNetworkWeb3Connection)).toThrowError(
-      `The network id ${invalidNetwork} doesn't exist`,
+      `Unsupported storage chain: ${invalidNetwork}`,
     );
   });
 
