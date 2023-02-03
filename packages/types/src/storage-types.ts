@@ -150,7 +150,7 @@ export enum EthereumNetwork {
 /** Information to connect to a web3 provider */
 export interface IWeb3Connection {
   web3Provider?: any;
-  networkId?: number;
+  networkId?: EthereumNetwork;
   timeout?: number;
 }
 
