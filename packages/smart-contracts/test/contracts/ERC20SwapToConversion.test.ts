@@ -2,16 +2,16 @@ import { ethers, network } from 'hardhat';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, EVM } from '@requestnetwork/currency';
 import {
-  TestERC20__factory,
-  TestERC20,
-  FakeSwapRouter__factory,
-  FakeSwapRouter,
   AggregatorMock__factory,
+  ChainlinkConversionPath,
   Erc20ConversionProxy,
   ERC20SwapToConversion,
-  ChainlinkConversionPath,
+  FakeSwapRouter,
+  FakeSwapRouter__factory,
+  TestERC20,
+  TestERC20__factory,
 } from '../../src/types';
 import {
   chainlinkConversionPath as chainlinkConvArtifact,
@@ -49,12 +49,12 @@ describe('contract: ERC20SwapToConversion', () => {
   const erc20Liquidity = erc20Decimal.mul(100);
 
   before(async () => {
+    EVM.assertChainSupported(network.name);
     [, from, to, builder] = (await ethers.getSigners()).map((s) => s.address);
     [adminSigner, signer] = await ethers.getSigners();
     chainlinkConversion = chainlinkConvArtifact.connect(network.name, adminSigner);
     erc20ConversionProxy = erc20ConversionProxyArtifact.connect(network.name, adminSigner);
     swapConversionProxy = erc20SwapConversionArtifact.connect(network.name, adminSigner);
-
     await swapConversionProxy.updateConversionPathAddress(chainlinkConversion.address);
     await swapConversionProxy.updateRequestSwapFees(requestSwapFees);
   });
