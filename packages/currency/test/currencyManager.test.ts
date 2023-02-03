@@ -1,5 +1,11 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { CurrencyInput, CurrencyDefinition, CurrencyManager, ERC20Currency } from '../src';
+import {
+  CurrencyInput,
+  CurrencyDefinition,
+  CurrencyManager,
+  ERC20Currency,
+  StorageCurrency,
+} from '../src';
 
 const testCasesPerNetwork: Record<string, Record<string, Partial<CurrencyDefinition>>> = {
   mainnet: {
@@ -111,7 +117,7 @@ describe('CurrencyManager', () => {
 
     it('can instantiate a currency manager based on a currency list', () => {
       const list: CurrencyInput[] = [
-        { type: RequestLogicTypes.CURRENCY.ETH, decimals: 18, network: 'anything', symbol: 'ANY' },
+        { type: RequestLogicTypes.CURRENCY.ETH, decimals: 18, network: 'mainnet', symbol: 'ANY' },
       ];
       currencyManager = new CurrencyManager(list);
       expect(currencyManager.from('ANY')).toBeDefined();
@@ -592,63 +598,64 @@ describe('CurrencyManager', () => {
   });
 
   describe('Validate currencies', () => {
+    const currencies: { currency: StorageCurrency; label: string }[] = [
+      {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ISO4217,
+          value: 'FIAT',
+        },
+        label: 'ISO4217 Currency',
+      },
+      {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+          network: 'matic',
+        },
+        label: 'native currency',
+      },
+      {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.BTC,
+          value: 'BTC',
+          network: 'mainnet',
+        },
+        label: 'Bitcoin currency',
+      },
+      {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x52908400098527886E0F7030069857D2E4169EE7',
+          network: 'optimism',
+        },
+        label: 'ERC20 Currency - evm',
+      },
+      {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: 'usdc.near',
+          network: 'aurora',
+        },
+        label: 'ERC20 currency - near',
+      },
+      {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ERC777,
+          value: '0x52908400098527886E0F7030069857D2E4169EE7',
+          network: 'avalanche',
+        },
+        label: 'ERC777 currency',
+      },
+    ];
     describe('Valid cases', () => {
-      it.each([
-        {
-          currency: {
-            type: RequestLogicTypes.CURRENCY.ISO4217,
-            value: 'FIAT',
-          },
-          label: 'ISO4217 Currency',
-        },
-        {
-          currency: {
-            type: RequestLogicTypes.CURRENCY.ETH,
-            value: 'ETH',
-            network: 'matic',
-          },
-          label: 'native currency',
-        },
-        {
-          currency: {
-            type: RequestLogicTypes.CURRENCY.BTC,
-            value: 'BTC',
-            network: 'mainnet',
-          },
-          label: 'Bitcoin currency',
-        },
-        {
-          currency: {
-            type: RequestLogicTypes.CURRENCY.ERC20,
-            value: '0x52908400098527886E0F7030069857D2E4169EE7',
-            network: 'optimism',
-          },
-          label: 'ERC20 Currency - evm',
-        },
-        {
-          currency: {
-            type: RequestLogicTypes.CURRENCY.ERC20,
-            value: 'usdc.near',
-            network: 'aurora',
-          },
-          label: 'ERC20 currency - near',
-        },
-        {
-          currency: {
-            type: RequestLogicTypes.CURRENCY.ERC777,
-            value: '0x52908400098527886E0F7030069857D2E4169EE7',
-            network: 'avalanche',
-          },
-          label: 'ERC777 currency',
-        },
-      ])('Should validate $label', ({ currency }) => {
+      it.each(currencies)('Should validate $label', ({ currency }) => {
         const result = CurrencyManager.validateCurrency(currency);
         expect(result).toBe(true);
       });
     });
 
     describe('Invalid cases', () => {
-      it.each([
+      const currencies: { currency: StorageCurrency; label: string }[] = [
         {
           currency: {
             type: RequestLogicTypes.CURRENCY.ERC20,
@@ -673,7 +680,8 @@ describe('CurrencyManager', () => {
           },
           label: 'ERC777 currency',
         },
-      ])('Should not validate an invalid $label', ({ currency }) => {
+      ];
+      it.each(currencies)('Should not validate an invalid $label', ({ currency }) => {
         const result = CurrencyManager.validateCurrency(currency);
         expect(result).toBe(false);
       });

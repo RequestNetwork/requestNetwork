@@ -15,17 +15,17 @@ import { supportedRinkebyERC20 } from './rinkeby';
 import { supportedXDAIERC20 } from './xdai';
 
 export const supportedNetworks: Partial<Record<CurrencyTypes.EvmChainName, TokenMap>> = {
-  avalanche: supportedAvalancheERC20,
-  bsc: supportedBSCERC20,
-  bsctest: supportedBSCTestERC20,
   celo: supportedCeloERC20,
-  fantom: supportedFantomTokens,
+  // FIXME: Rinkeby is deprecated
+  rinkeby: supportedRinkebyERC20,
   goerli: supportedGoerliERC20,
   mainnet: supportedMainnetERC20,
   matic: supportedMaticERC20,
-  moonbeam: supportedMoonbeamERC20,
-  optimism: supportedOptimismERC20,
-  // FIXME: Rinkeby is deprecated
-  rinkeby: supportedRinkebyERC20,
+  fantom: supportedFantomTokens,
+  bsctest: supportedBSCTestERC20,
+  bsc: supportedBSCERC20,
   xdai: supportedXDAIERC20,
+  avalanche: supportedAvalancheERC20,
+  optimism: supportedOptimismERC20,
+  moonbeam: supportedMoonbeamERC20,
 };
