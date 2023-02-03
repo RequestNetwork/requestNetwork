@@ -106,9 +106,7 @@ describe('erc20-escrow-payment tests:', () => {
     it('Should throw an error if currencyInfo has no network', async () => {
       const request = deepCopy(validRequest);
       request.currencyInfo.network = '' as CurrencyTypes.ChainName;
-      await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError(
-        'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
-      );
+      await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError('Unsupported chain ');
     });
     it('Should throw an error if request has no extension', async () => {
       const request = deepCopy(validRequest);

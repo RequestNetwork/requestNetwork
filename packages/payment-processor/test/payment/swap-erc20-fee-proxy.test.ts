@@ -1,4 +1,4 @@
-import { Wallet, providers, BigNumber } from 'ethers';
+import { BigNumber, providers, Wallet } from 'ethers';
 
 import {
   ClientTypes,
@@ -9,10 +9,13 @@ import {
 } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
 
-import { getErc20Balance } from '../../src/payment/erc20';
-import { approveErc20ForSwapToPayIfNeeded } from '../../src/payment/swap-erc20';
+import {
+  approveErc20ForSwapToPayIfNeeded,
+  getErc20Balance,
+  ISwapSettings,
+  swapErc20FeeProxyRequest,
+} from '../../src';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
-import { ISwapSettings, swapErc20FeeProxyRequest } from '../../src/payment/swap-erc20-fee-proxy';
 import { erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
 import { revokeErc20Approval } from '../../src/payment/utils';
 
@@ -126,9 +129,7 @@ describe('swap-erc20-fee-proxy', () => {
       request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
       await expect(
         swapErc20FeeProxyRequest(request, wallet, validSwapSettings),
-      ).rejects.toThrowError(
-        'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
-      );
+      ).rejects.toThrowError('Unsupported chain ');
     });
 
     it('should throw an error if request has no extension', async () => {
