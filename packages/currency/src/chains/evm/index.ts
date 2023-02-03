@@ -59,10 +59,14 @@ export const chainNames = Object.keys(chains) as CurrencyTypes.EvmChainName[];
 // add native currencies
 addNativeCurrenciesToChains(chains, RequestLogicTypes.CURRENCY.ETH);
 
+/**
+ * Asserts if a specific chain is supported across EVM-type supported chains
+ * @param chainName
+ */
 export function assertChainSupported(
-  chainKey: string,
-): asserts chainKey is CurrencyTypes.EvmChainName {
-  genericAssertChainSupported<CurrencyTypes.EvmChainName>(chainKey, chainNames);
+  chainName: string,
+): asserts chainName is CurrencyTypes.EvmChainName {
+  genericAssertChainSupported<CurrencyTypes.EvmChainName>(chainName, chainNames);
 }
 
 export const getChainId = (chainName: CurrencyTypes.EvmChainName): number =>

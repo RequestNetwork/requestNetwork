@@ -15,10 +15,14 @@ export const chainNames = Object.keys(chains) as CurrencyTypes.BtcChainName[];
 // add native currencies
 addNativeCurrenciesToChains(chains, RequestLogicTypes.CURRENCY.BTC);
 
+/**
+ * Asserts if a specific chain is supported across BTC-type supported chains
+ * @param chainName
+ */
 export function assertChainSupported(
-  chainKey: string,
-): asserts chainKey is CurrencyTypes.BtcChainName {
-  genericAssertChainSupported<CurrencyTypes.BtcChainName>(chainKey, chainNames);
+  chainName: string,
+): asserts chainName is CurrencyTypes.BtcChainName {
+  genericAssertChainSupported<CurrencyTypes.BtcChainName>(chainName, chainNames);
 }
 
 export const getChainId = (chainName: CurrencyTypes.BtcChainName): string =>

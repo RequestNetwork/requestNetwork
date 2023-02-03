@@ -24,7 +24,7 @@ export const payer = {
   },
 };
 
-export const testnetRequestData = {
+export const testnetRequestData: RequestLogicTypes.ICreateParameters = {
   currency: {
     network: 'testnet',
     type: RequestLogicTypes.CURRENCY.BTC,
@@ -36,7 +36,7 @@ export const testnetRequestData = {
   timestamp: arbitraryTimestamp,
 };
 
-export const requestData = {
+export const requestData: RequestLogicTypes.ICreateParameters = {
   currency: {
     type: RequestLogicTypes.CURRENCY.BTC,
     value: 'BTC',

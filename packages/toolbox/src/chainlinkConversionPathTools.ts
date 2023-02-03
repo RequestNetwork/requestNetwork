@@ -5,10 +5,11 @@ import {
   ChainlinkConversionPath__factory,
   ChainlinkConversionPath,
 } from '@requestnetwork/smart-contracts/types';
-import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError, EVM } from '@requestnetwork/currency';
 import Bluebird from 'bluebird';
 import chunk from 'lodash/chunk';
 import { retry } from '@requestnetwork/utils';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 export interface IOptions {
   network?: string;
@@ -37,7 +38,7 @@ class ChainlinkConversionPathTools {
    * @param network The Ethereum network to use
    */
   constructor(
-    private network: string,
+    private network: CurrencyTypes.EvmChainName,
     options?: { web3Url?: string; lastBlock?: number; maxRange?: number },
   ) {
     const web3Url =
@@ -142,7 +143,11 @@ const getCurrency = (symbol: string) => {
 };
 
 export const listAggregators = async (options?: IOptions): Promise<void> => {
-  const networks = options?.network ? [options.network] : ['private', 'rinkeby', 'mainnet'];
+  let networks: CurrencyTypes.EvmChainName[] = ['private', 'rinkeby', 'mainnet'];
+  if (options?.network) {
+    EVM.assertChainSupported(options.network);
+    networks = [options.network];
+  }
 
   // Create an Object to be used by a dijkstra algorithm to find the best path between two currencies
   const allAggregators: Record<string, Record<string, Record<string, string>>> = {};
