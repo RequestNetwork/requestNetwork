@@ -28,8 +28,10 @@ describe('Ethereum Utils', () => {
       expect(getEthereumStorageNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI)).toBe('xdai');
     });
 
-    it(`should return undefined if the network doesn't exist`, async () => {
-      expect(getEthereumStorageNetworkNameFromId(2000)).toBeUndefined();
+    it(`should throw if the storage network is not supported`, async () => {
+      expect(() => getEthereumStorageNetworkNameFromId(2000)).toThrowError(
+        'Unsupported storage chain: 2000',
+      );
     });
   });
 

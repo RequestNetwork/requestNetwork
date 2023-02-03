@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, EVM } from '@requestnetwork/currency';
 import { ethers, network } from 'hardhat';
 import '@nomiclabs/hardhat-ethers';
 import { chainlinkConversionPath as chainlinkConvArtifact } from '../../src/lib';
@@ -25,6 +25,7 @@ let conversionPathInstance: ChainlinkConversionPath;
 describe('contract: ChainlinkConversionPath', () => {
   before(async () => {
     const [signer] = await ethers.getSigners();
+    EVM.assertChainSupported(network.name);
     conversionPathInstance = chainlinkConvArtifact.connect(network.name, signer);
     USDT_address = localUSDTArtifact.getAddress(network.name);
     DAI_address = localERC20AlphaArtifact.getAddress(network.name);
