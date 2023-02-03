@@ -37,7 +37,7 @@ describe('extensions/payment-network/address-based', () => {
         super(extensionId, currentVersion, supportedCurrencyType);
       }
       public testIsValidAddress() {
-        this.isValidAddressForSymbolAndNetwork('test', 'test', 'test');
+        this.isValidAddressForSymbolAndNetwork('test', 'test', 'mainnet');
       }
     }
     expect(() => {
@@ -47,6 +47,6 @@ describe('extensions/payment-network/address-based', () => {
         RequestLogicTypes.CURRENCY.ERC20,
       );
       testAddressBasedPaymentNetwork.testIsValidAddress();
-    }).toThrowError(new UnsupportedCurrencyError({ value: 'test', network: 'test' }));
+    }).toThrowError(new UnsupportedCurrencyError({ value: 'test', network: 'mainnet' }));
   });
 });
