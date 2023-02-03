@@ -25,7 +25,7 @@ type NamedCurrency = { name: string };
 export type NativeCurrency = {
   symbol: string;
   decimals: number;
-  network: CurrencyTypes.EvmChainName | CurrencyTypes.BtcChainName;
+  network: CurrencyTypes.ChainName;
 };
 export type NamedNativeCurrency = NativeCurrency & NamedCurrency;
 

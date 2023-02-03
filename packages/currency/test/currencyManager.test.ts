@@ -598,56 +598,56 @@ describe('CurrencyManager', () => {
   });
 
   describe('Validate currencies', () => {
-    const currencies: { currency: StorageCurrency; label: string }[] = [
-      {
-        currency: {
-          type: RequestLogicTypes.CURRENCY.ISO4217,
-          value: 'FIAT',
-        },
-        label: 'ISO4217 Currency',
-      },
-      {
-        currency: {
-          type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
-          network: 'matic',
-        },
-        label: 'native currency',
-      },
-      {
-        currency: {
-          type: RequestLogicTypes.CURRENCY.BTC,
-          value: 'BTC',
-          network: 'mainnet',
-        },
-        label: 'Bitcoin currency',
-      },
-      {
-        currency: {
-          type: RequestLogicTypes.CURRENCY.ERC20,
-          value: '0x52908400098527886E0F7030069857D2E4169EE7',
-          network: 'optimism',
-        },
-        label: 'ERC20 Currency - evm',
-      },
-      {
-        currency: {
-          type: RequestLogicTypes.CURRENCY.ERC20,
-          value: 'usdc.near',
-          network: 'aurora',
-        },
-        label: 'ERC20 currency - near',
-      },
-      {
-        currency: {
-          type: RequestLogicTypes.CURRENCY.ERC777,
-          value: '0x52908400098527886E0F7030069857D2E4169EE7',
-          network: 'avalanche',
-        },
-        label: 'ERC777 currency',
-      },
-    ];
     describe('Valid cases', () => {
+      const currencies: { currency: StorageCurrency; label: string }[] = [
+        {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ISO4217,
+            value: 'FIAT',
+          },
+          label: 'ISO4217 Currency',
+        },
+        {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+            network: 'matic',
+          },
+          label: 'native currency',
+        },
+        {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.BTC,
+            value: 'BTC',
+            network: 'mainnet',
+          },
+          label: 'Bitcoin currency',
+        },
+        {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ERC20,
+            value: '0x52908400098527886E0F7030069857D2E4169EE7',
+            network: 'optimism',
+          },
+          label: 'ERC20 Currency - evm',
+        },
+        {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ERC20,
+            value: 'usdc.near',
+            network: 'aurora',
+          },
+          label: 'ERC20 currency - near',
+        },
+        {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ERC777,
+            value: '0x52908400098527886E0F7030069857D2E4169EE7',
+            network: 'avalanche',
+          },
+          label: 'ERC777 currency',
+        },
+      ];
       it.each(currencies)('Should validate $label', ({ currency }) => {
         const result = CurrencyManager.validateCurrency(currency);
         expect(result).toBe(true);
