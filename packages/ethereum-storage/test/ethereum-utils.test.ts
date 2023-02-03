@@ -37,11 +37,19 @@ describe('Ethereum Utils', () => {
 
   describe('getEthereumStorageNetworkIdFromName', () => {
     it('allows to get the correct network name', async () => {
-      expect(getEthereumStorageNetworkIdFromName('private')).toBe(0);
-      expect(getEthereumStorageNetworkIdFromName('mainnet')).toBe(1);
-      expect(getEthereumStorageNetworkIdFromName('rinkeby')).toBe(4);
-      expect(getEthereumStorageNetworkIdFromName('goerli')).toBe(5);
-      expect(getEthereumStorageNetworkIdFromName('xdai')).toBe(100);
+      expect(getEthereumStorageNetworkIdFromName('private')).toBe(
+        StorageTypes.EthereumNetwork.PRIVATE,
+      );
+      expect(getEthereumStorageNetworkIdFromName('mainnet')).toBe(
+        StorageTypes.EthereumNetwork.MAINNET,
+      );
+      expect(getEthereumStorageNetworkIdFromName('rinkeby')).toBe(
+        StorageTypes.EthereumNetwork.RINKEBY,
+      );
+      expect(getEthereumStorageNetworkIdFromName('goerli')).toBe(
+        StorageTypes.EthereumNetwork.GOERLI,
+      );
+      expect(getEthereumStorageNetworkIdFromName('xdai')).toBe(StorageTypes.EthereumNetwork.XDAI);
     });
 
     it(`should return undefined if the network is not supported for storage`, async () => {
