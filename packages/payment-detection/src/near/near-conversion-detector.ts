@@ -1,5 +1,10 @@
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { UnsupportedCurrencyError } from '@requestnetwork/currency';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
+import { EVM, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { NearConversionInfoRetriever } from './retrievers/near-conversion-info-retriever';
 import { AnyToNativeDetector } from '../any-to-native-detector';
 import { NetworkNotSupported } from '../balance-error';
@@ -58,7 +63,7 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
     address: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: string,
+    paymentChain: CurrencyTypes.EvmChainName,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToEth.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkRetrieverEvents<PaymentTypes.ETHPaymentNetworkEvent>> {
     if (!address) {
@@ -90,11 +95,12 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
     };
   }
 
-  protected getPaymentChain(request: RequestLogicTypes.IRequest): string {
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): CurrencyTypes.EvmChainName {
     const network = this.getPaymentExtension(request).values.network;
     if (!network) {
       throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
     }
+    EVM.assertChainSupported(network);
     return network;
   }
 

@@ -1,9 +1,12 @@
 /**
- * List of supported network names
+ * List of supported EVM chains
  */
-export type NetworkName =
+export type EvmChainName =
+  | 'alfajores'
   | 'arbitrum-one'
   | 'arbitrum-rinkeby'
+  | 'aurora'
+  | 'aurora-testnet'
   | 'avalanche'
   | 'bsc'
   | 'bsctest'
@@ -15,9 +18,18 @@ export type NetworkName =
   | 'matic'
   | 'moonbeam'
   | 'mumbai'
+  | 'near-testnet'
   | 'optimism'
   | 'private'
   | 'rinkeby'
   | 'ronin'
+  | 'sokol'
   | 'tombchain'
   | 'xdai';
+
+/**
+ * List of supported BTC chains
+ */
+export type BtcChainName = 'mainnet' | 'testnet';
+
+export type ChainName = EvmChainName | BtcChainName;

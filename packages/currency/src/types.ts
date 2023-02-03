@@ -1,4 +1,4 @@
-import { RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 /**
  * Common types used in token configuration files
@@ -6,10 +6,18 @@ import { RequestLogicTypes } from '@requestnetwork/types';
 type TokenAddress = string;
 type TokenDefinition = { name: string; symbol: string; decimals: number };
 export type TokenMap = Record<TokenAddress, TokenDefinition>;
-export type NetworkDefinition = {
-  chainId: number;
+export type ChainDefinition = {
+  chainId: number | string;
   currencies?: TokenMap;
 };
+export type EvmChainDefinition = ChainDefinition & {
+  chainId: number;
+};
+export type BtcChainDefinition = ChainDefinition & {
+  chainId: string;
+};
+
+type NamedCurrency = { name: string };
 
 /**
  * A native blockchain token (ETH, MATIC, ETH-rinkeby...)
@@ -17,8 +25,9 @@ export type NetworkDefinition = {
 export type NativeCurrency = {
   symbol: string;
   decimals: number;
-  network: string;
+  network: CurrencyTypes.EvmChainName | CurrencyTypes.BtcChainName;
 };
+export type NamedNativeCurrency = NativeCurrency & NamedCurrency;
 
 /** Native Currency types */
 export type NativeCurrencyType = RequestLogicTypes.CURRENCY.BTC | RequestLogicTypes.CURRENCY.ETH;
@@ -37,7 +46,7 @@ export type ISO4217Currency = {
 export type ERC20Currency = {
   symbol: string;
   decimals: number;
-  network: string;
+  network: CurrencyTypes.EvmChainName;
   address: string;
 };
 
@@ -47,7 +56,7 @@ export type ERC20Currency = {
 export type ERC777Currency = {
   symbol: string;
   decimals: number;
-  network: string;
+  network: CurrencyTypes.EvmChainName;
   address: string;
 };
 

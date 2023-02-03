@@ -5,13 +5,13 @@ import { deployOne } from './deploy-one';
 import {
   batchConversionPaymentsArtifact,
   chainlinkConversionPath,
+  chainlinkConversionPath as chainlinkConvArtifact,
   erc20ConversionProxy,
   erc20FeeProxyArtifact,
   ethConversionArtifact,
   ethereumFeeProxyArtifact,
 } from '../src/lib';
-import { chainlinkConversionPath as chainlinkConvArtifact } from '../src/lib';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, EVM } from '@requestnetwork/currency';
 import { deployAddressChecking } from './utils';
 import { BigNumber } from 'ethers';
 import { PRECISION_RATE } from './test-deploy_chainlink_contract';
@@ -25,6 +25,8 @@ export async function deployBatchConversionPayment(
 ): Promise<any> {
   try {
     console.log('Deploy BatchConversionPayments');
+    const chain = hre.network.name;
+    EVM.assertChainSupported(chain);
     const _ERC20FeeProxyAddress = erc20FeeProxyArtifact.getAddress('private');
     const _EthereumFeeProxyAddress = ethereumFeeProxyArtifact.getAddress('private');
     const _paymentErc20ConversionFeeProxy = erc20ConversionProxy.getAddress('private');
@@ -75,7 +77,7 @@ export async function deployBatchConversionPayment(
     );
 
     // Initialize batch conversion fee, useful to others packages.
-    const batchConversion = batchConversionPaymentsArtifact.connect(hre.network.name, owner);
+    const batchConversion = batchConversionPaymentsArtifact.connect(chain, owner);
     await batchConversion.connect(owner).setBatchFee(30);
     await batchConversion
       .connect(owner)

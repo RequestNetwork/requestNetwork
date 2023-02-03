@@ -1,4 +1,4 @@
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, EVM } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { ethConversionArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
@@ -26,6 +26,7 @@ export const setupETHConversionProxy = async (
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network) => {
       try {
+        EVM.assertChainSupported(network);
         const { signer, txOverrides } = await getSignerAndGasFees(network, hre);
         const nativeTokenHash = CurrencyManager.getDefault().getNativeCurrency(
           RequestLogicTypes.CURRENCY.ETH,

@@ -2,6 +2,7 @@ import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/curre
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { areEqualIdentities, deepCopy } from '@requestnetwork/utils';
 import DeclarativePaymentNetwork from './declarative';
+import { CurrencyTypes } from '@requestnetwork/types/src';
 
 /**
  * Core of the address based payment networks
@@ -155,7 +156,7 @@ export default abstract class AddressBasedPaymentNetwork<
   protected isValidAddressForSymbolAndNetwork(
     address: string,
     symbol: string,
-    network: string,
+    network: CurrencyTypes.ChainName,
   ): boolean {
     const currencyManager = CurrencyManager.getDefault();
     const currency = currencyManager.from(symbol, network);

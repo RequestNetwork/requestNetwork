@@ -1,4 +1,4 @@
-import { ContractTransaction, providers, Signer, BigNumberish, BigNumber } from 'ethers';
+import { BigNumber, BigNumberish, ContractTransaction, providers, Signer } from 'ethers';
 
 import { erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes } from '@requestnetwork/types';
@@ -7,6 +7,7 @@ import { ITransactionOverrides } from './transaction-overrides';
 import { getProvider, getSigner } from './utils';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 import { IPreparedTransaction } from './prepared-transaction';
+import { EVM } from '@requestnetwork/currency';
 
 /**
  * Processes the approval transaction of a given payment ERC20 to be spent by the swap router,
@@ -54,12 +55,14 @@ export async function hasApprovalErc20ForSwapToPay(
   signerOrProvider: providers.Provider | Signer = getProvider(),
   minAmount: BigNumberish,
 ): Promise<boolean> {
-  if (!request.currencyInfo.network) {
+  const { network } = request.currencyInfo;
+  if (!network) {
     throw new Error('Request currency network is missing');
   }
+  EVM.assertChainSupported(network);
   return checkErc20Allowance(
     ownerAddress,
-    erc20SwapToPayArtifact.getAddress(request.currencyInfo.network),
+    erc20SwapToPayArtifact.getAddress(network),
     signerOrProvider,
     paymentTokenAddress,
     minAmount,
@@ -104,9 +107,11 @@ export function prepareApprovalErc20ForSwapToPay(
   overrides?: ITransactionOverrides,
   amount?: BigNumber,
 ): IPreparedTransaction {
+  const { network } = request.currencyInfo;
+  EVM.assertChainSupported(network!);
   const encodedTx = encodeApproveAnyErc20(
     paymentTokenAddress,
-    erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!),
+    erc20SwapToPayArtifact.getAddress(network),
     signerOrProvider,
     amount,
   );

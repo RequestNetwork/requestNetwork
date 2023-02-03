@@ -1,4 +1,9 @@
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import { NearInfoRetriever } from './retrievers/near-info-retriever';
 import { NativeTokenPaymentDetector } from '../native-token-detector';
 import { NetworkNotSupported } from '../balance-error';
@@ -58,7 +63,7 @@ export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
     address: string | undefined,
     paymentReference: string,
     _requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: string,
+    paymentChain: CurrencyTypes.EvmChainName,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkRetrieverEvents<PaymentTypes.ETHPaymentNetworkEvent>> {
     if (!address) {

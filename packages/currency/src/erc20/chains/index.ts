@@ -14,7 +14,7 @@ import { supportedOptimismERC20 } from './optimism';
 import { supportedRinkebyERC20 } from './rinkeby';
 import { supportedXDAIERC20 } from './xdai';
 
-export const supportedNetworks: Partial<Record<CurrencyTypes.NetworkName, TokenMap>> = {
+export const supportedNetworks: Partial<Record<CurrencyTypes.EvmChainName, TokenMap>> = {
   avalanche: supportedAvalancheERC20,
   bsc: supportedBSCERC20,
   bsctest: supportedBSCTestERC20,

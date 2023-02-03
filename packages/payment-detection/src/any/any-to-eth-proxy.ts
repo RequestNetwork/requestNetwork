@@ -1,7 +1,12 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 
-import { UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { EVM, UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
 import { AnyToAnyDetector } from '../any-to-any-detector';
@@ -58,7 +63,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: string,
+    paymentChain: CurrencyTypes.EvmChainName,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToEth.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IETHPaymentEventParameters>> {
     if (!toAddress) {
@@ -117,11 +122,12 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
    * @param paymentNetwork the payment network
    * @returns The network of payment
    */
-  protected getPaymentChain(request: RequestLogicTypes.IRequest): string {
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): CurrencyTypes.EvmChainName {
     const network = this.getPaymentExtension(request).values.network;
     if (!network) {
       throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
     }
+    EVM.assertChainSupported(network);
     return network;
   }
 

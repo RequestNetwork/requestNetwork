@@ -1,16 +1,9 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
-import { LogTypes, StorageTypes } from '@requestnetwork/types';
+import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 import * as Bluebird from 'bluebird';
 import * as config from './config';
 import EthereumBlocks from './ethereum-blocks';
-import EthereumUtils from './ethereum-utils';
 import { GasPriceDefiner } from './gas-price-definer';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const web3Eth = require('web3-eth');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const web3Utils = require('web3-utils');
-
 import { BigNumber } from 'ethers';
 import {
   flatten2DimensionsArray,
@@ -18,6 +11,12 @@ import {
   SimpleLogger,
   timeoutPromise,
 } from '@requestnetwork/utils';
+import { getEthereumStorageNetworkNameFromId } from './ethereum-utils';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const web3Eth = require('web3-eth');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const web3Utils = require('web3-utils');
 
 // Maximum number of attempt to create ethereum metadata when transaction to add hash and size to Ethereum is confirmed
 // 23 is the number of call of the transaction's confirmation event function
@@ -51,7 +50,7 @@ export default class SmartContractManager {
    */
   public maxConcurrency: number;
 
-  protected networkName = '';
+  protected networkName: CurrencyTypes.EvmChainName = 'private';
   protected hashStorageAddress: string;
   protected hashSubmitterAddress: string;
 
@@ -134,7 +133,7 @@ export default class SmartContractManager {
     this.networkName =
       typeof web3Connection.networkId === 'undefined'
         ? config.getDefaultEthereumNetwork()
-        : EthereumUtils.getEthereumNetworkNameFromId(web3Connection.networkId);
+        : getEthereumStorageNetworkNameFromId(web3Connection.networkId);
 
     // If networkName is undefined, it means the network doesn't exist
     if (typeof this.networkName === 'undefined') {

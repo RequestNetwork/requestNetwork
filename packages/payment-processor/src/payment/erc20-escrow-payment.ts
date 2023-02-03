@@ -13,6 +13,17 @@ import {
 import { ITransactionOverrides } from './transaction-overrides';
 import { encodeApproveAnyErc20 } from './erc20';
 import { IPreparedTransaction } from './prepared-transaction';
+import { EVM } from '@requestnetwork/currency';
+
+/**
+ * Returns the EscrowToPay contract address corresponding to the request payment network
+ * @param request request to pay
+ */
+function getContractAddress(request: ClientTypes.IRequestData) {
+  const { network } = request.currencyInfo;
+  EVM.assertChainSupported(network!);
+  return erc20EscrowToPayArtifact.getAddress(network);
+}
 
 /**
  * Prepare the approval transaction of the payment ERC20 to be spent by the escrow contract
@@ -29,7 +40,7 @@ export function prepareErc20EscrowApproval(
   amount?: BigNumber,
   overrides?: ITransactionOverrides,
 ): IPreparedTransaction {
-  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
+  const contractAddress = getContractAddress(request);
   const encodedTx = encodeApproveAnyErc20(
     paymentTokenAddress,
     contractAddress,
@@ -101,8 +112,8 @@ export async function freezeRequest(
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
+  const contractAddress = getContractAddress(request);
   const encodedTx = encodeFreezeRequest(request);
-  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
 
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction({
@@ -125,8 +136,8 @@ export async function payRequestFromEscrow(
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
+  const contractAddress = getContractAddress(request);
   const encodedTx = encodePayRequestFromEscrow(request);
-  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
 
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction({
@@ -149,8 +160,8 @@ export async function initiateEmergencyClaim(
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
+  const contractAddress = getContractAddress(request);
   const encodedTx = encodeInitiateEmergencyClaim(request);
-  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
 
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction({
@@ -173,8 +184,8 @@ export async function completeEmergencyClaim(
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
+  const contractAddress = getContractAddress(request);
   const encodedTx = encodeCompleteEmergencyClaim(request);
-  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
 
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction({
@@ -197,8 +208,8 @@ export async function revertEmergencyClaim(
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
+  const contractAddress = getContractAddress(request);
   const encodedTx = encodeRevertEmergencyClaim(request);
-  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
 
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction({
@@ -221,8 +232,8 @@ export async function refundFrozenFunds(
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
+  const contractAddress = getContractAddress(request);
   const encodedTx = encodeRefundFrozenFunds(request);
-  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
 
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction({
@@ -281,8 +292,8 @@ export function preparePayEscrow(
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): IPreparedTransaction {
+  const contractAddress = getContractAddress(request);
   const encodedTx = encodePayEscrow(request, amount, feeAmount);
-  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
   return {
     data: encodedTx,
     to: contractAddress,

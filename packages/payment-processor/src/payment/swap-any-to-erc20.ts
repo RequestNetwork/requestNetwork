@@ -1,4 +1,4 @@
-import { constants, ContractTransaction, Signer, BigNumber, providers } from 'ethers';
+import { BigNumber, constants, ContractTransaction, providers, Signer } from 'ethers';
 
 import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { erc20SwapConversionArtifact } from '@requestnetwork/smart-contracts';
@@ -13,7 +13,7 @@ import {
   getSigner,
   validateConversionFeeProxyRequest,
 } from './utils';
-import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { CurrencyManager, EVM, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { IRequestPaymentOptions } from './settings';
 import { IPreparedTransaction } from './prepared-transaction';
 
@@ -91,6 +91,7 @@ export function encodeSwapToPayAnyToErc20Request(
   if (!network) {
     throw new Error(`Currency in conversion settings must have a network`);
   }
+  EVM.assertChainSupported(network);
 
   const requestCurrency = currencyManager.fromStorageCurrency(request.currencyInfo);
   if (!requestCurrency) {
