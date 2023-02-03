@@ -2,6 +2,7 @@ import { Wallet, providers, BigNumber } from 'ethers';
 
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
@@ -81,7 +82,9 @@ describe('swap-erc20-fee-proxy', () => {
   beforeAll(async () => {
     // revoke erc20SwapToPay approval
     await revokeErc20Approval(
-      erc20SwapToPayArtifact.getAddress(validRequest.currencyInfo.network!),
+      erc20SwapToPayArtifact.getAddress(
+        validRequest.currencyInfo.network! as CurrencyTypes.EvmChainName,
+      ),
       alphaErc20Address,
       wallet.provider,
     );
@@ -90,7 +93,9 @@ describe('swap-erc20-fee-proxy', () => {
     beforeAll(async () => {
       // revoke erc20SwapToPay approval
       await revokeErc20Approval(
-        erc20SwapToPayArtifact.getAddress(validRequest.currencyInfo.network!),
+        erc20SwapToPayArtifact.getAddress(
+          validRequest.currencyInfo.network! as CurrencyTypes.EvmChainName,
+        ),
         alphaErc20Address,
         wallet.provider,
       );
@@ -118,7 +123,7 @@ describe('swap-erc20-fee-proxy', () => {
 
     it('should throw an error if currencyInfo has no network', async () => {
       const request = deepCopy(validRequest);
-      request.currencyInfo.network = '';
+      request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
       await expect(
         swapErc20FeeProxyRequest(request, wallet, validSwapSettings),
       ).rejects.toThrowError(

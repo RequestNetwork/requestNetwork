@@ -1,4 +1,4 @@
-import { Wallet, providers } from 'ethers';
+import { providers, Wallet } from 'ethers';
 import {
   ClientTypes,
   ExtensionTypes,
@@ -6,9 +6,8 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
-import { payAnyToEthProxyRequest } from '../../src/payment/any-to-eth-proxy';
+import { IConversionPaymentSettings, payAnyToEthProxyRequest } from '../../src';
 import { currencyManager } from './shared';
-import { IConversionPaymentSettings } from '../../src/index';
 
 const paymentSettings: IConversionPaymentSettings = {
   maxToSpend: '2500000000000000',

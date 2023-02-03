@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import { TheGraphInfoRetriever, TheGraphClient } from '../../src/thegraph';
+import { TheGraphClient, TheGraphInfoRetriever } from '../../src/thegraph';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { utils } from 'ethers';
 import { PaymentTypes } from '@requestnetwork/types';
@@ -68,7 +68,7 @@ describe('api/erc20/thegraph-info-retriever', () => {
         block: 9606098,
         feeAddress: '0x5000EE9FB9c96A2A09D8efB695aC21D6C429fF11',
         feeAmount: '0',
-      };
+      } as const;
       const paymentReference = PaymentReferenceCalculator.calculate(
         paymentData.requestId,
         paymentData.salt,
@@ -107,7 +107,7 @@ describe('api/erc20/thegraph-info-retriever', () => {
         amount: '7000',
         block: 9610470,
         requestId: '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e1',
-      };
+      } as const;
 
       const shortReference = PaymentReferenceCalculator.calculate(
         paymentData.requestId,

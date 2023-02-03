@@ -1,4 +1,4 @@
-import { Wallet, providers, BigNumber } from 'ethers';
+import { BigNumber, providers, Wallet } from 'ethers';
 import {
   ClientTypes,
   ExtensionTypes,
@@ -6,11 +6,13 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
-import { approveErc20ForProxyConversionIfNeeded } from '../../src/payment/conversion-erc20';
-import { payAnyToErc20ProxyRequest } from '../../src/payment/any-to-erc20-proxy';
+import {
+  approveErc20ForProxyConversionIfNeeded,
+  IConversionPaymentSettings,
+  payAnyToErc20ProxyRequest,
+} from '../../src';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { currencyManager } from './shared';
-import { IConversionPaymentSettings } from '../../src/index';
 import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { getProxyAddress, MAX_ALLOWANCE, revokeErc20Approval } from '../../src/payment/utils';

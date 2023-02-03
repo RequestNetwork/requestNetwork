@@ -2,6 +2,7 @@ import { Wallet, providers, BigNumber } from 'ethers';
 
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
@@ -81,7 +82,7 @@ describe('payEthInputDataRequest', () => {
 
   it('should throw an error if currencyInfo has no network', async () => {
     const request = deepCopy(validRequest);
-    request.currencyInfo.network = '';
+    request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
     await expect(payEthInputDataRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );

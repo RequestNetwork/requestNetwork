@@ -1,5 +1,6 @@
 import {
   AdvancedLogicTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
@@ -35,7 +36,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 const baseRequestData = {
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
   currency: {
-    network: 'private',
+    network: 'private' as CurrencyTypes.EvmChainName,
     type: RequestLogicTypes.CURRENCY.ERC20,
     value: '0x9FBDa871d559710256a2502A2517b794B482Db40', // local ERC20 token
   },

@@ -25,9 +25,9 @@ const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 const fakeErc20: RequestLogicTypes.ICurrency = {
   type: RequestLogicTypes.CURRENCY.ERC20,
   value: 'any',
-  network: 'live',
+  network: 'mainnet',
 };
-const nearCurrency = {
+const nearCurrency: RequestLogicTypes.ICurrency = {
   type: RequestLogicTypes.CURRENCY.ETH,
   network: 'aurora',
   value: 'near',
