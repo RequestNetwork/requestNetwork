@@ -11,6 +11,7 @@ import { Transaction } from './queries';
 import { SubgraphClient } from './subgraph-client';
 import { CombinedDataAccess } from '@requestnetwork/data-access';
 import { PendingStore } from './pending-store';
+import { RequestInit } from 'graphql-request/dist/types.dom';
 
 type TheGraphDataAccessBaseOptions = {
   network: string;
