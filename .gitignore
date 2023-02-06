@@ -7,6 +7,11 @@
 .env
 .env.*
 
+# yarn
+/.yarn/*
+!/.yarn/releases/
+!/.yarn/plugins/
+
 # logs
 lerna-debug.log
 yarn-error.log
