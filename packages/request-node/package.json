@@ -53,7 +53,7 @@
     "cors": "2.8.5",
     "dotenv": "8.2.0",
     "ethers": "5.5.1",
-    "express": "4.17.1",
+    "express": "4.17.3",
     "graphql": "15.5.0",
     "graphql-request": "3.4.0",
     "http-shutdown": "1.2.2",
@@ -67,7 +67,7 @@
   },
   "devDependencies": {
     "@types/cors": "2.8.9",
-    "@types/express": "4.17.8",
+    "@types/express": "4.17.17",
     "@types/jest": "26.0.13",
     "@types/keyv": "3.1.1",
     "@types/node": "16.11.7",
