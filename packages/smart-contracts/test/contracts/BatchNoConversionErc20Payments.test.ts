@@ -12,7 +12,7 @@ import {
   TestERC20__factory,
 } from '../../src/types';
 import { chainlinkConversionPath } from '../../src/lib';
-import { CurrencyManager, EVM } from '@requestnetwork/currency';
+import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { RequestDetail } from 'types/dist/payment-types';
 
 const logGasInfos = false;
@@ -67,7 +67,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
 
     erc20FeeProxy = await new ERC20FeeProxy__factory(owner).deploy();
     const ethFeeProxy = await new EthereumFeeProxy__factory(owner).deploy();
-    EVM.assertChainSupported(network.name);
+    EvmChains.assertChainSupported(network.name);
     chainlinkPath = chainlinkConversionPath.connect(network.name, owner);
     batch = await new BatchNoConversionPayments__factory(owner).deploy(
       erc20FeeProxy.address,

@@ -15,7 +15,7 @@ import {
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
-import { CurrencyManager, EVM } from '@requestnetwork/currency';
+import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { chainlinkConversionPath } from '../../src/lib';
 import { HttpNetworkConfig } from 'hardhat/types';
 
@@ -45,7 +45,7 @@ describe('contract: EthConversionProxy', () => {
   const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
 
   before(async () => {
-    EVM.assertChainSupported(network.name);
+    EvmChains.assertChainSupported(network.name);
     [from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
     [signer] = await ethers.getSigners();
     chainlinkPath = chainlinkConversionPath.connect(network.name, signer);

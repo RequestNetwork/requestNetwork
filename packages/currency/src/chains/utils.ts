@@ -2,13 +2,9 @@ import { nativeCurrencies } from '../native';
 import { Chain, NamedNativeCurrency, TokenMap } from '../types';
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-export const genericAssertChainSupported = <T extends string>(chainNames: T[]) => {
-  return function (chainName: string): asserts chainName is T {
-    if (!(chainNames as string[]).includes(chainName))
-      throw new Error(`Unsupported chain ${chainName}`);
-  };
-};
-
+/**
+ * Adds the native currency to the list of currencies supported by each chain
+ */
 export const addNativeCurrenciesToChains = (
   chains: Record<string, Chain>,
   currencyType: RequestLogicTypes.CURRENCY.ETH | RequestLogicTypes.CURRENCY.BTC,
@@ -26,17 +22,34 @@ export const addNativeCurrenciesToChains = (
   });
 };
 
+export const genericAssertChainSupported = <CHAIN_NAME extends CurrencyTypes.ChainName>(
+  chainNames: CHAIN_NAME[],
+) => {
+  return function (chainName: string): asserts chainName is CHAIN_NAME {
+    if (!(chainNames as string[]).includes(chainName))
+      throw new Error(`Unsupported chain ${chainName}`);
+  };
+};
+
 export const genericGetChainId =
-  <T extends CurrencyTypes.ChainName, D extends Chain, S extends string | number>(
-    chains: Record<T, D>,
+  <
+    CHAIN_NAME extends CurrencyTypes.ChainName,
+    CHAIN extends Chain,
+    CHAIN_ID extends string | number,
+  >(
+    chains: Record<CHAIN_NAME, CHAIN>,
   ) =>
-  (chainName: T): S =>
-    chains[chainName].chainId as S;
+  (chainName: CHAIN_NAME): CHAIN_ID =>
+    chains[chainName].chainId as CHAIN_ID;
 
 export const genericGetChainName =
-  <T extends CurrencyTypes.ChainName, D extends Chain, S extends string | number>(
-    chains: Record<T, D>,
-    chainNames: T[],
+  <
+    CHAIN_NAME extends CurrencyTypes.ChainName,
+    CHAIN extends Chain,
+    CHAIN_ID extends string | number,
+  >(
+    chains: Record<CHAIN_NAME, CHAIN>,
+    chainNames: CHAIN_NAME[],
   ) =>
-  (chainId: S): T | undefined =>
+  (chainId: CHAIN_ID): CHAIN_NAME | undefined =>
     chainNames.find((chainName) => chains[chainName].chainId === chainId);

@@ -15,7 +15,7 @@ import {
 } from './utils';
 import { IPreparedTransaction } from './prepared-transaction';
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
-import { EVM } from '@requestnetwork/currency';
+import { EvmChains } from '@requestnetwork/currency';
 
 /**
  * Details required for a token swap:
@@ -85,7 +85,7 @@ export function prepareSwapToPayErc20FeeRequest(
   options?: ISwapTransactionOptions,
 ): IPreparedTransaction {
   const { network } = request.currencyInfo;
-  EVM.assertChainSupported(network!);
+  EvmChains.assertChainSupported(network!);
   const encodedTx = encodeSwapToPayErc20FeeRequest(
     request,
     signerOrProvider,
@@ -115,7 +115,7 @@ export function encodeSwapToPayErc20FeeRequest(
   options?: IRequestPaymentOptions,
 ): string {
   const { network } = request.currencyInfo;
-  EVM.assertChainSupported(network!);
+  EvmChains.assertChainSupported(network!);
 
   validateErc20FeeProxyRequest(request, options?.amount, options?.feeAmount);
 

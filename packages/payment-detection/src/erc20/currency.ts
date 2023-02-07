@@ -1,7 +1,7 @@
 import {
   CurrencyDefinition,
   CurrencyManager,
-  EVM,
+  EvmChains,
   getCurrencyHash,
   StorageCurrency,
 } from '@requestnetwork/currency';
@@ -20,7 +20,7 @@ export const loadCurrencyFromContract = async (
     if (!network || !isAddress(value)) {
       return null;
     }
-    EVM.assertChainSupported(network);
+    EvmChains.assertChainSupported(network);
 
     const contract = ERC20__factory.connect(value, getDefaultProvider(network));
     const decimals = await contract.decimals();

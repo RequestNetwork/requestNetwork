@@ -4,13 +4,13 @@ import { deployOne } from '../scripts/deploy-one';
 
 import { batchPaymentsArtifact } from '../src/lib';
 import { deployAddressChecking } from './utils';
-import { EVM } from '@requestnetwork/currency';
+import { EvmChains } from '@requestnetwork/currency';
 
 // Deploys, set up the contracts
 export async function deployBatchPayment(args: any, hre: HardhatRuntimeEnvironment): Promise<any> {
   try {
     const chain = hre.network.name;
-    EVM.assertChainSupported(chain);
+    EvmChains.assertChainSupported(chain);
     const ERC20FeeProxyAddress = '0x75c35C980C0d37ef46DF04d31A140b65503c0eEd';
     const EthereumFeeProxyAddress = '0x3d49d1eF2adE060a33c6E6Aa213513A7EE9a6241';
 

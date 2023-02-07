@@ -15,7 +15,7 @@ import {
 import { validateEthFeeProxyRequest } from './eth-fee-proxy';
 import { IPreparedTransaction } from './prepared-transaction';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
-import { EVM } from '@requestnetwork/currency';
+import { EvmChains } from '@requestnetwork/currency';
 
 /**
  * ERC20 Batch Proxy payment details:
@@ -224,7 +224,7 @@ export function getBatchProxyAddress(request: ClientTypes.IRequestData, version:
   if (!network) {
     throw new Error('No currency network');
   }
-  EVM.assertChainSupported(network);
+  EvmChains.assertChainSupported(network);
 
   const proxyAddress = batchPaymentsArtifact.getAddress(network, version);
 

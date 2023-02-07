@@ -11,7 +11,7 @@ import {
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
-import { CurrencyManager, EVM } from '@requestnetwork/currency';
+import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { chainlinkConversionPath } from '../../src/lib';
 import { localERC20AlphaArtifact } from './localArtifacts';
 
@@ -41,7 +41,7 @@ describe('contract: Erc20ConversionProxy', () => {
   let chainlinkPath: ChainlinkConversionPath;
 
   before(async () => {
-    EVM.assertChainSupported(network.name);
+    EvmChains.assertChainSupported(network.name);
     [from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
     [signer] = await ethers.getSigners();
     chainlinkPath = chainlinkConversionPath.connect(network.name, signer);

@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './types';
 import { requestDeployer } from '../src/lib';
 import { create2ContractDeploymentList } from './utils';
 import { getConstructorArgs } from './constructor-args';
-import { EVM } from '@requestnetwork/currency';
+import { EvmChains } from '@requestnetwork/currency';
 
 // Deploys, set up the contracts
 export async function computeCreate2DeploymentAddress(
@@ -48,7 +48,7 @@ export const computeCreate2DeploymentAddressesFromList = async (
   hre: HardhatRuntimeEnvironmentExtended,
 ): Promise<void> => {
   const chain = hre.network.name;
-  EVM.assertChainSupported(chain);
+  EvmChains.assertChainSupported(chain);
   await Promise.all(
     create2ContractDeploymentList.map(async (contract) => {
       let address: string;

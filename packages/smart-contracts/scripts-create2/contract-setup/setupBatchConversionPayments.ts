@@ -7,7 +7,7 @@ import {
   updateBatchPaymentFees,
   updateNativeAndUSDAddress,
 } from './adminTasks';
-import { CurrencyManager, EVM } from '@requestnetwork/currency';
+import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 /**
@@ -79,7 +79,7 @@ export const setupBatchConversionPayments = async (
   };
   for (const network of hre.config.xdeploy.networks) {
     try {
-      EVM.assertChainSupported(network);
+      EvmChains.assertChainSupported(network);
       await Promise.resolve(setUpActions(network));
     } catch (err) {
       console.warn(`An error occurred during the setup of BatchConversion on ${network}`);

@@ -7,7 +7,7 @@ import { ITransactionOverrides } from './transaction-overrides';
 import { getProvider, getSigner } from './utils';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 import { IPreparedTransaction } from './prepared-transaction';
-import { EVM } from '@requestnetwork/currency';
+import { EvmChains } from '@requestnetwork/currency';
 
 /**
  * Processes the approval transaction of a given payment ERC20 to be spent by the swap router,
@@ -59,7 +59,7 @@ export async function hasApprovalErc20ForSwapToPay(
   if (!network) {
     throw new Error('Request currency network is missing');
   }
-  EVM.assertChainSupported(network);
+  EvmChains.assertChainSupported(network);
   return checkErc20Allowance(
     ownerAddress,
     erc20SwapToPayArtifact.getAddress(network),
@@ -108,7 +108,7 @@ export function prepareApprovalErc20ForSwapToPay(
   amount?: BigNumber,
 ): IPreparedTransaction {
   const { network } = request.currencyInfo;
-  EVM.assertChainSupported(network!);
+  EvmChains.assertChainSupported(network!);
   const encodedTx = encodeApproveAnyErc20(
     paymentTokenAddress,
     erc20SwapToPayArtifact.getAddress(network),

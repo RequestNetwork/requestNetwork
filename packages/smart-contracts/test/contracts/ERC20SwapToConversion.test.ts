@@ -2,7 +2,7 @@ import { ethers, network } from 'hardhat';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
-import { CurrencyManager, EVM } from '@requestnetwork/currency';
+import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import {
   AggregatorMock__factory,
   ChainlinkConversionPath,
@@ -49,7 +49,7 @@ describe('contract: ERC20SwapToConversion', () => {
   const erc20Liquidity = erc20Decimal.mul(100);
 
   before(async () => {
-    EVM.assertChainSupported(network.name);
+    EvmChains.assertChainSupported(network.name);
     [, from, to, builder] = (await ethers.getSigners()).map((s) => s.address);
     [adminSigner, signer] = await ethers.getSigners();
     chainlinkConversion = chainlinkConvArtifact.connect(network.name, adminSigner);

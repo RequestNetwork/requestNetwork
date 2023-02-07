@@ -7,7 +7,7 @@ import {
   ExtensionTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { EVM, getCurrencyHash } from '@requestnetwork/currency';
+import { EvmChains, getCurrencyHash } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
@@ -165,7 +165,7 @@ export const getProxyAddress = (
   version?: string,
 ): string => {
   const { paymentNetwork, network } = getPnAndNetwork(request);
-  EVM.assertChainSupported(network);
+  EvmChains.assertChainSupported(network);
   const deploymentInfo = getDeploymentInformation(network, version || paymentNetwork.version);
   if (!deploymentInfo) {
     throw new Error(

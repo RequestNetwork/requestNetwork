@@ -2,10 +2,10 @@ import { ethers, providers } from 'ethers';
 import { chainlinkConversionPath } from '@requestnetwork/smart-contracts';
 import { getDefaultProvider, parseLogArgs } from '@requestnetwork/payment-detection';
 import {
-  ChainlinkConversionPath__factory,
   ChainlinkConversionPath,
+  ChainlinkConversionPath__factory,
 } from '@requestnetwork/smart-contracts/types';
-import { CurrencyManager, UnsupportedCurrencyError, EVM } from '@requestnetwork/currency';
+import { CurrencyManager, EvmChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import Bluebird from 'bluebird';
 import chunk from 'lodash/chunk';
 import { retry } from '@requestnetwork/utils';
@@ -145,7 +145,7 @@ const getCurrency = (symbol: string) => {
 export const listAggregators = async (options?: IOptions): Promise<void> => {
   let networks: CurrencyTypes.EvmChainName[] = ['private', 'rinkeby', 'mainnet'];
   if (options?.network) {
-    EVM.assertChainSupported(options.network);
+    EvmChains.assertChainSupported(options.network);
     networks = [options.network];
   }
 

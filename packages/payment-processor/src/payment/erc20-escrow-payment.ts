@@ -13,7 +13,7 @@ import {
 import { ITransactionOverrides } from './transaction-overrides';
 import { encodeApproveAnyErc20 } from './erc20';
 import { IPreparedTransaction } from './prepared-transaction';
-import { EVM } from '@requestnetwork/currency';
+import { EvmChains } from '@requestnetwork/currency';
 
 /**
  * Returns the EscrowToPay contract address corresponding to the request payment network
@@ -21,7 +21,7 @@ import { EVM } from '@requestnetwork/currency';
  */
 function getContractAddress(request: ClientTypes.IRequestData) {
   const { network } = request.currencyInfo;
-  EVM.assertChainSupported(network!);
+  EvmChains.assertChainSupported(network!);
   return erc20EscrowToPayArtifact.getAddress(network);
 }
 

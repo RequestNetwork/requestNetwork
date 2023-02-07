@@ -1,4 +1,4 @@
-export { assertChainSupported, EVM, BTC } from './chains';
+export * from './chains';
 export { getSupportedERC20Tokens } from './erc20';
 export { getSupportedERC777Tokens } from './erc777';
 export {

@@ -2,7 +2,7 @@ import { CurrencyTypes, StorageTypes } from '@requestnetwork/types';
 import * as config from './config';
 
 import { BigNumber } from 'ethers';
-import { EVM } from '@requestnetwork/currency';
+import { EvmChains } from '@requestnetwork/currency';
 
 /**
  * Collection of utils functions related to Ethereum Storage
@@ -17,7 +17,7 @@ import { EVM } from '@requestnetwork/currency';
 export const getEthereumStorageNetworkNameFromId = (
   networkId: StorageTypes.EthereumNetwork,
 ): CurrencyTypes.EvmChainName => {
-  const chainName = EVM.getChainName(networkId);
+  const chainName = EvmChains.getChainName(networkId);
   if (!chainName) {
     // this should never happen
     throw new Error(`Unsupported storage chain: ${networkId}`);
@@ -28,7 +28,7 @@ export const getEthereumStorageNetworkNameFromId = (
 export const getEthereumStorageNetworkIdFromName = (
   name: CurrencyTypes.EvmChainName,
 ): number | undefined => {
-  const networkId = EVM.getChainId(name);
+  const networkId = EvmChains.getChainId(name);
   return Object.values(StorageTypes.EthereumNetwork).includes(networkId) ? networkId : undefined;
 };
 

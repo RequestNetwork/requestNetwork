@@ -6,7 +6,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import { EVM, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { EvmChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
 import { AnyToAnyDetector } from '../any-to-any-detector';
@@ -127,7 +127,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     if (!network) {
       throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
     }
-    EVM.assertChainSupported(network);
+    EvmChains.assertChainSupported(network);
     return network;
   }
 

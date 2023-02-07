@@ -10,7 +10,7 @@ import {
   setupERC20SwapToPay,
   setupETHConversionProxy,
 } from './contract-setup';
-import { EVM } from '@requestnetwork/currency';
+import { EvmChains } from '@requestnetwork/currency';
 
 // Deploys, set up the contracts and returns the address
 export const deployOneWithCreate2 = async (
@@ -90,14 +90,14 @@ export const deployWithCreate2FromList = async (
       }
       case 'ERC20EscrowToPay': {
         const network = hre.config.xdeploy.networks[0];
-        EVM.assertChainSupported(network);
+        EvmChains.assertChainSupported(network);
         const constructorArgs = getConstructorArgs(contract, network);
         await deployOneWithCreate2({ contract, constructorArgs }, hre);
         break;
       }
       case 'BatchConversionPayments': {
         const network = hre.config.xdeploy.networks[0];
-        EVM.assertChainSupported(network);
+        EvmChains.assertChainSupported(network);
         const constructorArgs = getConstructorArgs(contract, network);
         const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
         await setupBatchConversionPayments(address, hre);

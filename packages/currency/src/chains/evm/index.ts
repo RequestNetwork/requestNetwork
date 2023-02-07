@@ -1,35 +1,29 @@
-import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes } from '@requestnetwork/types';
 import { Chain } from '../../types';
-import {
-  addNativeCurrenciesToChains,
-  genericAssertChainSupported,
-  genericGetChainId,
-  genericGetChainName,
-} from '../utils';
 
-import * as AlfajoresDefinition from './alfajores';
-import * as ArbitrumOneDefinition from './arbitrum-one';
-import * as ArbitrumRinkebyDefinition from './arbitrum-rinkeby';
-import * as AvalancheDefinition from './avalanche';
-import * as BscDefinition from './bsc';
-import * as BscTestDefinition from './bsctest';
-import * as CeloDefinition from './celo';
-import * as FantomDefinition from './fantom';
-import * as FuseDefinition from './fuse';
-import * as GoerliDefinition from './goerli';
-import * as MainnetDefinition from './mainnet';
-import * as MaticDefinition from './matic';
-import * as MoonbeamDefinition from './moonbeam';
-import * as MumbaiDefinition from './mumbai';
-import * as OptimismDefinition from './optimism';
-import * as PrivateDefinition from './private';
-import * as RinkebyDefinition from './rinkeby';
-import * as RoninDefinition from './ronin';
-import * as SokolDefinition from './sokol';
-import * as TombchainDefinition from './tombchain';
-import * as XDaiDefinition from './xdai';
+import * as AlfajoresDefinition from './data/alfajores';
+import * as ArbitrumOneDefinition from './data/arbitrum-one';
+import * as ArbitrumRinkebyDefinition from './data/arbitrum-rinkeby';
+import * as AvalancheDefinition from './data/avalanche';
+import * as BscDefinition from './data/bsc';
+import * as BscTestDefinition from './data/bsctest';
+import * as CeloDefinition from './data/celo';
+import * as FantomDefinition from './data/fantom';
+import * as FuseDefinition from './data/fuse';
+import * as GoerliDefinition from './data/goerli';
+import * as MainnetDefinition from './data/mainnet';
+import * as MaticDefinition from './data/matic';
+import * as MoonbeamDefinition from './data/moonbeam';
+import * as MumbaiDefinition from './data/mumbai';
+import * as OptimismDefinition from './data/optimism';
+import * as PrivateDefinition from './data/private';
+import * as RinkebyDefinition from './data/rinkeby';
+import * as RoninDefinition from './data/ronin';
+import * as SokolDefinition from './data/sokol';
+import * as TombchainDefinition from './data/tombchain';
+import * as XDaiDefinition from './data/xdai';
 
-type EvmChain = Chain & {
+export type EvmChain = Chain & {
   chainId: number;
 };
 
@@ -56,27 +50,3 @@ export const chains: Record<CurrencyTypes.EvmChainName, EvmChain> = {
   tombchain: TombchainDefinition,
   xdai: XDaiDefinition,
 };
-
-export const chainNames = Object.keys(chains) as CurrencyTypes.EvmChainName[];
-
-// add native currencies
-addNativeCurrenciesToChains(chains, RequestLogicTypes.CURRENCY.ETH);
-
-/**
- * Asserts if a specific chain is supported across EVM-type supported chains
- */
-export const assertChainSupported =
-  genericAssertChainSupported<CurrencyTypes.EvmChainName>(chainNames);
-
-/**
- * Get the EVM chain ID from the chain name
- */
-export const getChainId = genericGetChainId<CurrencyTypes.EvmChainName, EvmChain, number>(chains);
-
-/**
- * Get the EVM chain name from its ID
- */
-export const getChainName = genericGetChainName<CurrencyTypes.EvmChainName, EvmChain, number>(
-  chains,
-  chainNames,
-);
