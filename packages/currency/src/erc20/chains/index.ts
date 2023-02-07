@@ -5,7 +5,7 @@ import { supportedAvalancheERC20 } from './avalanche';
 import { supportedBSCERC20 } from './bsc';
 import { supportedBSCTestERC20 } from './bsctest';
 import { supportedCeloERC20 } from './celo';
-import { supportedFantomTokens } from './fantom';
+import { supportedFantomERC20 } from './fantom';
 import { supportedGoerliERC20 } from './goerli';
 import { supportedMainnetERC20 } from './mainnet';
 import { supportedMaticERC20 } from './matic';
@@ -21,7 +21,7 @@ export const supportedNetworks: Partial<Record<CurrencyTypes.EvmChainName, Token
   goerli: supportedGoerliERC20,
   mainnet: supportedMainnetERC20,
   matic: supportedMaticERC20,
-  fantom: supportedFantomTokens,
+  fantom: supportedFantomERC20,
   bsctest: supportedBSCTestERC20,
   bsc: supportedBSCERC20,
   xdai: supportedXDAIERC20,

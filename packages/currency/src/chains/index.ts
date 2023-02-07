@@ -1,15 +1,16 @@
 import { CurrencyTypes } from '@requestnetwork/types';
-import * as EVM from './evm';
 import * as BTC from './btc';
+import * as EVM from './evm';
+import * as NEAR from './near';
 
 /**
- * Asserts if a specific chain is supported across all supported chain types (EVM + BTC)
+ * Asserts if a specific chain is supported across all supported chain types (BTC + EVM + NEAR)
  * @param chainName
  */
 export function assertChainSupported(
   chainName: string,
 ): asserts chainName is CurrencyTypes.EvmChainName {
-  const chainSupported = [EVM, BTC].some((chainType) => {
+  const chainSupported = [BTC, EVM, NEAR].some((chainType) => {
     try {
       chainType.assertChainSupported(chainName);
       return true;
@@ -22,4 +23,4 @@ export function assertChainSupported(
   }
 }
 
-export { EVM, BTC };
+export { BTC, EVM, NEAR };
