@@ -6,19 +6,14 @@ import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 type TokenAddress = string;
 type TokenDefinition = { name: string; symbol: string; decimals: number };
 export type TokenMap = Record<TokenAddress, TokenDefinition>;
-export type ChainDefinition = {
+
+/**
+ * Common types used in chain configuration files
+ */
+export type Chain = {
   chainId: number | string;
   currencies?: TokenMap;
 };
-export type EvmChainDefinition = ChainDefinition & {
-  chainId: number;
-};
-export type BtcChainDefinition = ChainDefinition & {
-  chainId: string;
-};
-export type NearChainDefinition = ChainDefinition;
-
-type NamedCurrency = { name: string };
 
 /**
  * A native blockchain token (ETH, MATIC, ETH-rinkeby...)
@@ -28,6 +23,7 @@ export type NativeCurrency = {
   decimals: number;
   network: CurrencyTypes.ChainName;
 };
+type NamedCurrency = { name: string };
 export type NamedNativeCurrency = NativeCurrency & NamedCurrency;
 
 /** Native Currency types */

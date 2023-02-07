@@ -1,5 +1,5 @@
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { NearChainDefinition } from '../../types';
+import { Chain } from '../../types';
 import {
   addNativeCurrenciesToChains,
   genericAssertChainSupported,
@@ -10,7 +10,9 @@ import {
 import * as NearDefinition from './near';
 import * as NearTestnetDefinition from './near-testnet';
 
-export const chains: Record<CurrencyTypes.NearChainName, NearChainDefinition> = {
+type NearChain = Chain;
+
+export const chains: Record<CurrencyTypes.NearChainName, NearChain> = {
   aurora: NearDefinition, // FIXME: aurora should be removed from near chains (it is a mistake)
   'aurora-testnet': NearTestnetDefinition, // FIXME: aurora should be removed from near chains (it is a mistake)
   near: NearDefinition,
@@ -31,17 +33,12 @@ export const assertChainSupported =
 /**
  * Get the NEAR chain ID from the chain name
  */
-export const getChainId = genericGetChainId<
-  CurrencyTypes.NearChainName,
-  NearChainDefinition,
-  string
->(chains);
+export const getChainId = genericGetChainId<CurrencyTypes.NearChainName, NearChain, string>(chains);
 
 /**
  * Get the NEAR chain name from its ID
  */
-export const getChainName = genericGetChainName<
-  CurrencyTypes.NearChainName,
-  NearChainDefinition,
-  string
->(chains, chainNames);
+export const getChainName = genericGetChainName<CurrencyTypes.NearChainName, NearChain, string>(
+  chains,
+  chainNames,
+);

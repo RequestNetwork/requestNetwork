@@ -1,5 +1,5 @@
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { EvmChainDefinition } from '../../types';
+import { Chain } from '../../types';
 import {
   addNativeCurrenciesToChains,
   genericAssertChainSupported,
@@ -29,7 +29,11 @@ import * as SokolDefinition from './sokol';
 import * as TombchainDefinition from './tombchain';
 import * as XDaiDefinition from './xdai';
 
-export const chains: Record<CurrencyTypes.EvmChainName, EvmChainDefinition> = {
+type EvmChain = Chain & {
+  chainId: number;
+};
+
+export const chains: Record<CurrencyTypes.EvmChainName, EvmChain> = {
   alfajores: AlfajoresDefinition,
   'arbitrum-one': ArbitrumOneDefinition,
   'arbitrum-rinkeby': ArbitrumRinkebyDefinition,
@@ -67,15 +71,12 @@ export const assertChainSupported =
 /**
  * Get the EVM chain ID from the chain name
  */
-export const getChainId = genericGetChainId<CurrencyTypes.EvmChainName, EvmChainDefinition, number>(
-  chains,
-);
+export const getChainId = genericGetChainId<CurrencyTypes.EvmChainName, EvmChain, number>(chains);
 
 /**
  * Get the EVM chain name from its ID
  */
-export const getChainName = genericGetChainName<
-  CurrencyTypes.EvmChainName,
-  EvmChainDefinition,
-  number
->(chains, chainNames);
+export const getChainName = genericGetChainName<CurrencyTypes.EvmChainName, EvmChain, number>(
+  chains,
+  chainNames,
+);

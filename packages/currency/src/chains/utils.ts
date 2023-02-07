@@ -1,5 +1,5 @@
 import { nativeCurrencies } from '../native';
-import { ChainDefinition, NamedNativeCurrency, TokenMap } from '../types';
+import { Chain, NamedNativeCurrency, TokenMap } from '../types';
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 export const genericAssertChainSupported = <T extends string>(chainNames: T[]) => {
@@ -10,7 +10,7 @@ export const genericAssertChainSupported = <T extends string>(chainNames: T[]) =
 };
 
 export const addNativeCurrenciesToChains = (
-  chains: Record<string, ChainDefinition>,
+  chains: Record<string, Chain>,
   currencyType: RequestLogicTypes.CURRENCY.ETH | RequestLogicTypes.CURRENCY.BTC,
 ): void => {
   const chainNames = Object.keys(chains);
@@ -27,14 +27,14 @@ export const addNativeCurrenciesToChains = (
 };
 
 export const genericGetChainId =
-  <T extends CurrencyTypes.ChainName, D extends ChainDefinition, S extends string | number>(
+  <T extends CurrencyTypes.ChainName, D extends Chain, S extends string | number>(
     chains: Record<T, D>,
   ) =>
   (chainName: T): S =>
     chains[chainName].chainId as S;
 
 export const genericGetChainName =
-  <T extends CurrencyTypes.ChainName, D extends ChainDefinition, S extends string | number>(
+  <T extends CurrencyTypes.ChainName, D extends Chain, S extends string | number>(
     chains: Record<T, D>,
     chainNames: T[],
   ) =>
