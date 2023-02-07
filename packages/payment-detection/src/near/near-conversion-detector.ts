@@ -28,10 +28,13 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
     super(args);
   }
 
-  public static getContractName = (chainName: string, paymentNetworkVersion = '0.1.0'): string => {
+  public static getContractName = (
+    chainName: CurrencyTypes.NearChainName,
+    paymentNetworkVersion = '0.1.0',
+  ): string => {
     const version =
       NearConversionNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
-    const versionMap: Record<string, Record<string, string>> = {
+    const versionMap: Record<CurrencyTypes.NearChainName, Record<string, string>> = {
       aurora: { '0.1.0': 'native.conversion.reqnetwork.near' },
       near: { '0.1.0': 'native.conversion.reqnetwork.near' },
       'aurora-testnet': {
@@ -64,7 +67,7 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
     address: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: CurrencyTypes.EvmChainName,
+    paymentChain: CurrencyTypes.NearChainName,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToEth.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkRetrieverEvents<PaymentTypes.ETHPaymentNetworkEvent>> {
     if (!address) {

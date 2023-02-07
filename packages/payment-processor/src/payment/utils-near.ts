@@ -5,6 +5,7 @@ import {
   NearNativeTokenPaymentDetector,
 } from '@requestnetwork/payment-detection';
 import { NearChains } from '@requestnetwork/currency';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 /**
  * Callback arguments for the Near web wallet.
@@ -54,7 +55,7 @@ const GAS_LIMIT_CONVERSION_TO_NATIVE = GAS_LIMIT.mul(2).toString();
 
 export const processNearPayment = async (
   walletConnection: WalletConnection,
-  network: string,
+  network: CurrencyTypes.NearChainName,
   amount: BigNumberish,
   to: string,
   paymentReference: string,
@@ -106,7 +107,7 @@ export const processNearPayment = async (
  */
 export const processNearPaymentWithConversion = async (
   walletConnection: WalletConnection,
-  network: string,
+  network: CurrencyTypes.NearChainName,
   amount: BigNumberish,
   to: string,
   paymentReference: string,

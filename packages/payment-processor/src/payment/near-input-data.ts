@@ -10,6 +10,7 @@ import {
   getPaymentExtensionVersion,
 } from './utils';
 import { INearTransactionCallback, isNearNetwork, processNearPayment } from './utils-near';
+import { NearChains } from '@requestnetwork/currency';
 
 /**
  * processes the transaction to pay a Near request.
@@ -27,6 +28,7 @@ export async function payNearInputDataRequest(
     throw new Error('request.currencyInfo should be a Near network');
   }
 
+  NearChains.assertChainSupported(request.currencyInfo.network);
   validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN);
 
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);

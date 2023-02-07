@@ -28,9 +28,12 @@ export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
     super(args);
   }
 
-  public static getContractName = (chainName: string, paymentNetworkVersion = '0.2.0'): string => {
+  public static getContractName = (
+    chainName: CurrencyTypes.NearChainName,
+    paymentNetworkVersion = '0.2.0',
+  ): string => {
     const version = NearNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
-    const versionMap: Record<string, Record<string, string>> = {
+    const versionMap: Record<CurrencyTypes.NearChainName, Record<string, string>> = {
       aurora: { '0.1.0': 'requestnetwork.near', '0.2.0': 'requestnetwork.near' },
       near: { '0.1.0': 'requestnetwork.near', '0.2.0': 'requestnetwork.near' },
       'aurora-testnet': {
