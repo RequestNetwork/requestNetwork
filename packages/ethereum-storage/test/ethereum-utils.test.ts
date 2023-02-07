@@ -53,7 +53,7 @@ describe('Ethereum Utils', () => {
     });
 
     it(`should return undefined if the network is not supported for storage`, async () => {
-      expect(getEthereumStorageNetworkIdFromName('aurora')).toBeUndefined();
+      expect(getEthereumStorageNetworkIdFromName('avalanche')).toBeUndefined();
       expect(getEthereumStorageNetworkIdFromName('mumbai')).toBeUndefined();
     });
   });
