@@ -41,8 +41,8 @@ export abstract class ChainsAbstract<
    * Check if chainName lives amongst the list of supported chains by this chain type.
    * Throws in the case it's not supported.
    */
-  public assertChainSupported(chainName: string): asserts chainName is CHAIN_NAME {
-    if (!(this.chainNames as string[]).includes(chainName))
+  public assertChainSupported(chainName?: string): asserts chainName is CHAIN_NAME {
+    if (!chainName || !(this.chainNames as string[]).includes(chainName))
       throw new Error(`Unsupported chain ${chainName}`);
   }
 

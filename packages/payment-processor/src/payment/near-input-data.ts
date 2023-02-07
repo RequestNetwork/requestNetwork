@@ -4,10 +4,10 @@ import { WalletConnection } from 'near-api-js';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import {
-  getRequestPaymentValues,
-  validateRequest,
   getAmountToPay,
   getPaymentExtensionVersion,
+  getRequestPaymentValues,
+  validateRequest,
 } from './utils';
 import { INearTransactionCallback, isNearNetwork, processNearPayment } from './utils-near';
 import { NearChains } from '@requestnetwork/currency';

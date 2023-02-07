@@ -1,4 +1,4 @@
-import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
+import { PaymentTypes } from '@requestnetwork/types';
 import { getTheGraphNearClient, TheGraphClient } from '../../thegraph';
 import { NearChains } from '@requestnetwork/currency';
 
@@ -26,7 +26,9 @@ export class NearInfoRetriever {
     protected eventName: PaymentTypes.EVENTS_NAMES,
     network: string,
   ) {
-    if (!NearChains.chainNames.includes(network as CurrencyTypes.NearChainName)) {
+    try {
+      NearChains.assertChainSupported(network);
+    } catch {
       throw new Error('Near input data info-retriever only works with Near mainnet and testnet');
     }
 

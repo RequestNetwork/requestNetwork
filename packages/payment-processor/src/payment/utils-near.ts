@@ -10,7 +10,7 @@ import { CurrencyTypes } from '@requestnetwork/types';
 /**
  * Callback arguments for the Near web wallet.
  * @member callbackUrl called upon transaction approval
- * @member callbackMeta (according to Near docs: `meta` will be attached to the `callbackUrl` as a url search param)
+ * @member meta (according to Near docs: `meta` will be attached to the `callbackUrl` as a url search param)
  */
 export interface INearTransactionCallback {
   callbackUrl?: string;
@@ -28,7 +28,7 @@ export const isValidNearAddress = async (nearNetwork: Near, address: string): Pr
 
 export const isNearNetwork = (network?: string): boolean => {
   try {
-    network && NearChains.assertChainSupported(network);
+    NearChains.assertChainSupported(network);
     return true;
   } catch {
     return false;
