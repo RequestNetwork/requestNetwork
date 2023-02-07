@@ -1,5 +1,6 @@
 import {
   AdvancedLogicTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
@@ -142,7 +143,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
   }
 
   public getNativeTokenExtensionForNetwork(
-    network: string,
+    network: CurrencyTypes.ChainName,
   ): ExtensionTypes.IExtension<ExtensionTypes.PnReferenceBased.ICreationParameters> | undefined {
     return this.extensions.nativeToken.find((nativeTokenExtension) =>
       nativeTokenExtension.supportedNetworks.includes(network),

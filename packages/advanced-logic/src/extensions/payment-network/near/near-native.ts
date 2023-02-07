@@ -1,4 +1,4 @@
-import { ExtensionTypes } from '@requestnetwork/types';
+import { CurrencyTypes, ExtensionTypes } from '@requestnetwork/types';
 import NativeTokenPaymentNetwork from '../native-token';
 
 const CURRENT_VERSION = '0.2.0';
@@ -8,7 +8,7 @@ const CURRENT_VERSION = '0.2.0';
  */
 export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork {
   public constructor(
-    supportedNetworks: string[] = [
+    supportedNetworks: CurrencyTypes.NearChainName[] = [
       'aurora',
       // FIXME: enable near network support
       // 'near'
