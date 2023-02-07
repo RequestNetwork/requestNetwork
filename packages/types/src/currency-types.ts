@@ -33,9 +33,9 @@ export type BtcChainName = 'mainnet' | 'testnet';
  * List of supported NEAR chains
  */
 export type NearChainName =
-  | 'aurora' // FIXME: aurora should be removed from near chains (it is a mistake)
-  | 'aurora-testnet' // FIXME: aurora should be removed from near chains (it is a mistake)
-  | 'near'
+  | 'aurora'
+  | 'aurora-testnet'
+  // | 'near'  // TODO: add support for near
   | 'near-testnet';
 
 export type ChainName = EvmChainName | BtcChainName | NearChainName;

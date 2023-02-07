@@ -1,15 +1,16 @@
 import { BigNumber, BigNumberish, ethers } from 'ethers';
-import { Contract } from 'near-api-js';
-import { Near, WalletConnection } from 'near-api-js';
+import { Contract, Near, WalletConnection } from 'near-api-js';
 import {
-  NearNativeTokenPaymentDetector,
   NearConversionNativeTokenPaymentDetector,
+  NearNativeTokenPaymentDetector,
 } from '@requestnetwork/payment-detection';
+import { NearChains } from '@requestnetwork/currency';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 /**
  * Callback arguments for the Near web wallet.
  * @member callbackUrl called upon transaction approval
- * @member callbackMeta (according to Near docs: `meta` will be attached to the `callbackUrl` as a url search param)
+ * @member meta (according to Near docs: `meta` will be attached to the `callbackUrl` as a url search param)
  */
 export interface INearTransactionCallback {
   callbackUrl?: string;
@@ -26,10 +27,12 @@ export const isValidNearAddress = async (nearNetwork: Near, address: string): Pr
 };
 
 export const isNearNetwork = (network?: string): boolean => {
-  return (
-    !!network &&
-    (network === 'near-testnet' || network === 'aurora-testnet' || network === 'aurora')
-  );
+  try {
+    NearChains.assertChainSupported(network);
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 export const isNearAccountSolvent = (
@@ -52,7 +55,7 @@ const GAS_LIMIT_CONVERSION_TO_NATIVE = GAS_LIMIT.mul(2).toString();
 
 export const processNearPayment = async (
   walletConnection: WalletConnection,
-  network: string,
+  network: CurrencyTypes.NearChainName,
   amount: BigNumberish,
   to: string,
   paymentReference: string,
@@ -104,7 +107,7 @@ export const processNearPayment = async (
  */
 export const processNearPaymentWithConversion = async (
   walletConnection: WalletConnection,
-  network: string,
+  network: CurrencyTypes.NearChainName,
   amount: BigNumberish,
   to: string,
   paymentReference: string,
