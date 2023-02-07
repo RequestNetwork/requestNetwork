@@ -20,12 +20,12 @@ describe('extensions/payment-network/native-token', () => {
   const auroraCurrency = {
     type: RequestLogicTypes.CURRENCY.ETH,
     value: 'NEAR',
-    network: 'near',
+    network: 'aurora',
   } as const;
   const nearCurrency = {
     type: RequestLogicTypes.CURRENCY.ETH,
     value: 'NEAR',
-    network: 'aurora',
+    network: 'near',
   } as const;
   const auroraTestnetCurrency = {
     type: RequestLogicTypes.CURRENCY.ETH,
@@ -41,7 +41,7 @@ describe('extensions/payment-network/native-token', () => {
     {
       name: 'Aurora',
       paymentNetwork: new NearNativePaymentNetwork() as NativeTokenPaymentNetwork,
-      networkName: 'near',
+      networkName: 'aurora',
       suffix: 'near',
       wrongSuffix: 'testnet',
       currency: auroraCurrency,
@@ -50,7 +50,7 @@ describe('extensions/payment-network/native-token', () => {
     {
       name: 'Near',
       paymentNetwork: new NearNativePaymentNetwork() as NativeTokenPaymentNetwork,
-      networkName: 'aurora',
+      networkName: 'near',
       suffix: 'near',
       wrongSuffix: 'testnet',
       currency: nearCurrency,
