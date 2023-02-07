@@ -135,4 +135,6 @@ export interface ICurrencyManager<TMeta = unknown> {
  *
  * Format  { "chainName": {"TOKEN": ["NEW_TOKEN","NEW_CHAIN"]}}
  */
-export type LegacyTokenMap = Record<string, Record<string, [string, string]>>;
+export type LegacyTokenMap = Partial<
+  Record<CurrencyTypes.ChainName, Record<string, [string, CurrencyTypes.ChainName]>>
+>;

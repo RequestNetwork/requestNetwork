@@ -1,5 +1,5 @@
 import { CurrencyManager } from '../src';
-import { RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 const currencyManager = new CurrencyManager([
   ...CurrencyManager.getDefaultList(),
@@ -33,10 +33,12 @@ describe('supported currencies with oracles from chainlink', () => {
   });
 
   describe('native currencies', () => {
-    Object.entries({
-      mainnet: ['ETH'],
-      fantom: ['FTM'],
-    }).forEach(([network, symbols]) => {
+    (
+      Object.entries({
+        mainnet: ['ETH'],
+        fantom: ['FTM'],
+      }) as [CurrencyTypes.EvmChainName, string[]][]
+    ).forEach(([network, symbols]) => {
       describe(network, () => {
         symbols.forEach((symbol) => {
           it(symbol, () => {
