@@ -1,7 +1,7 @@
 # @requestnetwork/currency
 
 `@requestnetwork/currency` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
-It is a collection of tools for the currencies shared between the @requestnetwork packages.
+It is a collection of tools for the currencies and chains shared between the @requestnetwork packages.
 
 ## Installation
 
