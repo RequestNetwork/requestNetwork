@@ -1,10 +1,10 @@
 import { BigNumber, BigNumberish, ethers } from 'ethers';
-import { Contract } from 'near-api-js';
-import { Near, WalletConnection } from 'near-api-js';
+import { Contract, Near, WalletConnection } from 'near-api-js';
 import {
-  NearNativeTokenPaymentDetector,
   NearConversionNativeTokenPaymentDetector,
+  NearNativeTokenPaymentDetector,
 } from '@requestnetwork/payment-detection';
+import { NearChains } from '@requestnetwork/currency';
 
 /**
  * Callback arguments for the Near web wallet.
@@ -26,10 +26,12 @@ export const isValidNearAddress = async (nearNetwork: Near, address: string): Pr
 };
 
 export const isNearNetwork = (network?: string): boolean => {
-  return (
-    !!network &&
-    (network === 'near-testnet' || network === 'aurora-testnet' || network === 'aurora')
-  );
+  try {
+    network && NearChains.assertChainSupported(network);
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 export const isNearAccountSolvent = (

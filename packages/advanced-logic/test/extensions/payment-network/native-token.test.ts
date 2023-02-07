@@ -17,6 +17,11 @@ import NearTestnetNativeNativePaymentNetwork from '../../../src/extensions/payme
 const salt = arbitrarySalt;
 
 describe('extensions/payment-network/native-token', () => {
+  const auroraCurrency = {
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'NEAR',
+    network: 'near',
+  } as const;
   const nearCurrency = {
     type: RequestLogicTypes.CURRENCY.ETH,
     value: 'NEAR',
@@ -34,13 +39,22 @@ describe('extensions/payment-network/native-token', () => {
   } as const;
   const nativeTokenTestCases = [
     {
+      name: 'Aurora',
+      paymentNetwork: new NearNativePaymentNetwork() as NativeTokenPaymentNetwork,
+      networkName: 'near',
+      suffix: 'near',
+      wrongSuffix: 'testnet',
+      currency: auroraCurrency,
+      wrongCurrency: auroraTestnetCurrency,
+    },
+    {
       name: 'Near',
       paymentNetwork: new NearNativePaymentNetwork() as NativeTokenPaymentNetwork,
       networkName: 'aurora',
       suffix: 'near',
       wrongSuffix: 'testnet',
       currency: nearCurrency,
-      wrongCurrency: auroraTestnetCurrency,
+      wrongCurrency: nearTestnetCurrency,
     },
     {
       name: 'Aurora testnet',
@@ -49,7 +63,7 @@ describe('extensions/payment-network/native-token', () => {
       suffix: 'testnet',
       wrongSuffix: 'near',
       currency: auroraTestnetCurrency,
-      wrongCurrency: nearCurrency,
+      wrongCurrency: auroraCurrency,
     },
     {
       name: 'Near testnet',

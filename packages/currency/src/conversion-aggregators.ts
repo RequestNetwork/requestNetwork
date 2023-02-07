@@ -36,6 +36,7 @@ const chainlinkCurrencyPairs: AggregatorsMap = {
 // Pairs supported by Flux Protocol
 const fluxCurrencyPairs: AggregatorsMap = {
   aurora: nearAggregator,
+  near: nearAggregator,
   'aurora-testnet': auroraTestnetAggregator,
   'near-testnet': nearTestnetAggregator,
 };
