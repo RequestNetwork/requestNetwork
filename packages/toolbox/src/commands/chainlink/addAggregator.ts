@@ -2,6 +2,7 @@ import * as yargs from 'yargs';
 import { runUpdate } from './contractUtils';
 import { getAllAggregators, getCurrencyManager } from './aggregatorsUtils';
 import assert from 'assert';
+import { EvmChains } from '@requestnetwork/currency';
 
 type Options = {
   dryRun: boolean;
@@ -60,6 +61,8 @@ export const handler = async (args: Options): Promise<void> => {
   const { network, list } = args;
 
   const currencyManager = await getCurrencyManager(list);
+
+  EvmChains.assertChainSupported(network);
   const inputCcy = currencyManager.from(input, network) || currencyManager.from(input);
   const outputCcy = currencyManager.from(output, network) || currencyManager.from(output);
 
