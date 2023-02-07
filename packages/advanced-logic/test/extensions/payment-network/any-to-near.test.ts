@@ -187,7 +187,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
                 network: 'another-chain' as CurrencyTypes.NearChainName,
               });
             }).toThrowError(
-              `Payment network 'another-chain' is not supported by this extension (only aurora)`,
+              `Payment network 'another-chain' is not supported by this extension (only aurora, near)`,
             );
           });
           it('throws when payment network is missing', () => {
