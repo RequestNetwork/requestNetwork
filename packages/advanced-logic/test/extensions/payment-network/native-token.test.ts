@@ -148,7 +148,7 @@ describe('extensions/payment-network/native-token', () => {
       expect(() => {
         new NearNativePaymentNetwork().createCreationAction({
           ...partialCreationParams,
-          paymentNetworkName: 'another-chain',
+          paymentNetworkName: 'another-chain' as CurrencyTypes.NearChainName,
         });
       }).toThrowError(
         `Payment network 'another-chain' is not supported by this extension (only aurora)`,
