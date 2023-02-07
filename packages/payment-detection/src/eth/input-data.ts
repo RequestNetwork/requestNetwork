@@ -31,7 +31,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
   PaymentTypes.IETHPaymentEventParameters
 > {
-  private explorerApiKeys: Record<string, string>;
+  private explorerApiKeys: Partial<Record<CurrencyTypes.ChainName, string>>;
   private readonly getSubgraphClient: PaymentNetworkOptions['getSubgraphClient'];
 
   /**
