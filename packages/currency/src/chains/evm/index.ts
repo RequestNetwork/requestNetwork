@@ -1,12 +1,15 @@
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { EvmChainDefinition } from '../../types';
-import { addNativeCurrenciesToChains, genericAssertChainSupported } from '../utils';
+import {
+  addNativeCurrenciesToChains,
+  genericAssertChainSupported,
+  genericGetChainId,
+  genericGetChainName,
+} from '../utils';
 
 import * as AlfajoresDefinition from './alfajores';
 import * as ArbitrumOneDefinition from './arbitrum-one';
 import * as ArbitrumRinkebyDefinition from './arbitrum-rinkeby';
-import * as AuroraDefinition from './aurora';
-import * as AuroraTestnetDefinition from './aurora-testnet';
 import * as AvalancheDefinition from './avalanche';
 import * as BscDefinition from './bsc';
 import * as BscTestDefinition from './bsctest';
@@ -30,8 +33,6 @@ export const chains: Record<CurrencyTypes.EvmChainName, EvmChainDefinition> = {
   alfajores: AlfajoresDefinition,
   'arbitrum-one': ArbitrumOneDefinition,
   'arbitrum-rinkeby': ArbitrumRinkebyDefinition,
-  aurora: AuroraDefinition,
-  'aurora-testnet': AuroraTestnetDefinition,
   avalanche: AvalancheDefinition,
   bsc: BscDefinition,
   bsctest: BscTestDefinition,
@@ -43,11 +44,9 @@ export const chains: Record<CurrencyTypes.EvmChainName, EvmChainDefinition> = {
   matic: MaticDefinition,
   moonbeam: MoonbeamDefinition,
   mumbai: MumbaiDefinition,
-  'near-testnet': AuroraTestnetDefinition,
   optimism: OptimismDefinition,
   private: PrivateDefinition,
-  // FIXME: Rinkeby is deprecated
-  rinkeby: RinkebyDefinition,
+  rinkeby: RinkebyDefinition, // FIXME: Rinkeby is deprecated
   ronin: RoninDefinition,
   sokol: SokolDefinition,
   tombchain: TombchainDefinition,
@@ -61,16 +60,22 @@ addNativeCurrenciesToChains(chains, RequestLogicTypes.CURRENCY.ETH);
 
 /**
  * Asserts if a specific chain is supported across EVM-type supported chains
- * @param chainName
  */
-export function assertChainSupported(
-  chainName: string,
-): asserts chainName is CurrencyTypes.EvmChainName {
-  genericAssertChainSupported<CurrencyTypes.EvmChainName>(chainName, chainNames);
-}
+export const assertChainSupported =
+  genericAssertChainSupported<CurrencyTypes.EvmChainName>(chainNames);
 
-export const getChainId = (chainName: CurrencyTypes.EvmChainName): number =>
-  chains[chainName].chainId;
+/**
+ * Get the EVM chain ID from the chain name
+ */
+export const getChainId = genericGetChainId<CurrencyTypes.EvmChainName, EvmChainDefinition, number>(
+  chains,
+);
 
-export const getChainName = (chainId: number): CurrencyTypes.EvmChainName | undefined =>
-  chainNames.find((chainName) => chains[chainName].chainId === chainId);
+/**
+ * Get the EVM chain name from its ID
+ */
+export const getChainName = genericGetChainName<
+  CurrencyTypes.EvmChainName,
+  EvmChainDefinition,
+  number
+>(chains, chainNames);

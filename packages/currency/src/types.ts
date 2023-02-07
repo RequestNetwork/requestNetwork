@@ -16,6 +16,7 @@ export type EvmChainDefinition = ChainDefinition & {
 export type BtcChainDefinition = ChainDefinition & {
   chainId: string;
 };
+export type NearChainDefinition = ChainDefinition;
 
 type NamedCurrency = { name: string };
 

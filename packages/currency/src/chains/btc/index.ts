@@ -1,6 +1,11 @@
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { BtcChainDefinition } from '../../types';
-import { addNativeCurrenciesToChains, genericAssertChainSupported } from '../utils';
+import {
+  addNativeCurrenciesToChains,
+  genericAssertChainSupported,
+  genericGetChainId,
+  genericGetChainName,
+} from '../utils';
 
 import * as MainnetDefinition from './mainnet';
 import * as TestnetDefinition from './testnet';
@@ -17,16 +22,22 @@ addNativeCurrenciesToChains(chains, RequestLogicTypes.CURRENCY.BTC);
 
 /**
  * Asserts if a specific chain is supported across BTC-type supported chains
- * @param chainName
  */
-export function assertChainSupported(
-  chainName: string,
-): asserts chainName is CurrencyTypes.BtcChainName {
-  genericAssertChainSupported<CurrencyTypes.BtcChainName>(chainName, chainNames);
-}
+export const assertChainSupported =
+  genericAssertChainSupported<CurrencyTypes.BtcChainName>(chainNames);
 
-export const getChainId = (chainName: CurrencyTypes.BtcChainName): string =>
-  chains[chainName].chainId;
+/**
+ * Get the BTC chain ID from the chain name
+ */
+export const getChainId = genericGetChainId<CurrencyTypes.BtcChainName, BtcChainDefinition, string>(
+  chains,
+);
 
-export const getChainName = (chainId: string): CurrencyTypes.BtcChainName | undefined =>
-  chainNames.find((chainName) => chains[chainName].chainId === chainId);
+/**
+ * Get the BTC chain name from its ID
+ */
+export const getChainName = genericGetChainName<
+  CurrencyTypes.BtcChainName,
+  BtcChainDefinition,
+  string
+>(chains, chainNames);

@@ -1,14 +1,13 @@
 import { nativeCurrencies } from '../native';
 import { ChainDefinition, NamedNativeCurrency, TokenMap } from '../types';
-import { RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-export function genericAssertChainSupported<T extends string>(
-  chainKey: string,
-  supportedChains: T[],
-): asserts chainKey is T {
-  if (!(supportedChains as string[]).includes(chainKey))
-    throw new Error(`Unsupported chain ${chainKey}`);
-}
+export const genericAssertChainSupported = <T extends string>(chainNames: T[]) => {
+  return function (chainName: string): asserts chainName is T {
+    if (!(chainNames as string[]).includes(chainName))
+      throw new Error(`Unsupported chain ${chainName}`);
+  };
+};
 
 export const addNativeCurrenciesToChains = (
   chains: Record<string, ChainDefinition>,
@@ -26,3 +25,18 @@ export const addNativeCurrenciesToChains = (
     }
   });
 };
+
+export const genericGetChainId =
+  <T extends CurrencyTypes.ChainName, D extends ChainDefinition, S extends string | number>(
+    chains: Record<T, D>,
+  ) =>
+  (chainName: T): S =>
+    chains[chainName].chainId as S;
+
+export const genericGetChainName =
+  <T extends CurrencyTypes.ChainName, D extends ChainDefinition, S extends string | number>(
+    chains: Record<T, D>,
+    chainNames: T[],
+  ) =>
+  (chainId: S): T | undefined =>
+    chainNames.find((chainName) => chains[chainName].chainId === chainId);

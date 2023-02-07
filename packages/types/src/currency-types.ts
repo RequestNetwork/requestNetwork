@@ -5,8 +5,6 @@ export type EvmChainName =
   | 'alfajores'
   | 'arbitrum-one'
   | 'arbitrum-rinkeby'
-  | 'aurora'
-  | 'aurora-testnet'
   | 'avalanche'
   | 'bsc'
   | 'bsctest'
@@ -18,10 +16,9 @@ export type EvmChainName =
   | 'matic'
   | 'moonbeam'
   | 'mumbai'
-  | 'near-testnet'
   | 'optimism'
   | 'private'
-  | 'rinkeby'
+  | 'rinkeby' // FIXME: Rinkeby is deprecated
   | 'ronin'
   | 'sokol'
   | 'tombchain'
@@ -32,4 +29,13 @@ export type EvmChainName =
  */
 export type BtcChainName = 'mainnet' | 'testnet';
 
-export type ChainName = EvmChainName | BtcChainName;
+/**
+ * List of supported NEAR chains
+ */
+export type NearChainName =
+  | 'aurora' // FIXME: aurora should be removed from near chains (it is a mistake)
+  | 'aurora-testnet' // FIXME: aurora should be removed from near chains (it is a mistake)
+  | 'near'
+  | 'near-testnet';
+
+export type ChainName = EvmChainName | BtcChainName | NearChainName;
