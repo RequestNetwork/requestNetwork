@@ -174,7 +174,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   getConversionPath(
     from: Pick<CurrencyDefinition, 'hash'>,
     to: Pick<CurrencyDefinition, 'hash'>,
-    network: string,
+    network: CurrencyTypes.ChainName,
   ): string[] | null {
     try {
       return getPath(from, to, network, this.conversionPairs);
@@ -183,7 +183,10 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     }
   }
 
-  supportsConversion(currency: Pick<CurrencyDefinition, 'hash'>, network: string): boolean {
+  supportsConversion(
+    currency: Pick<CurrencyDefinition, 'hash'>,
+    network: CurrencyTypes.ChainName,
+  ): boolean {
     return !!this.conversionPairs[network]?.[currency.hash.toLowerCase()];
   }
 

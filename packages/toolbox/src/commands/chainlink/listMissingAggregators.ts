@@ -1,5 +1,6 @@
 import * as yargs from 'yargs';
 import { getAvailableAggregators, getCurrencyManager } from './aggregatorsUtils';
+import { EvmChains } from '@requestnetwork/currency';
 
 type Options = {
   network: string[];
@@ -30,6 +31,7 @@ export const handler = async (args: Options): Promise<void> => {
   const { list } = args;
   const currencyManager = await getCurrencyManager(list);
   for (const network of args.network) {
+    EvmChains.assertChainSupported(network);
     const available = await getAvailableAggregators(network, currencyManager);
     if (available.length > 0) {
       console.log(network);
