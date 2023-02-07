@@ -5,5 +5,3 @@ import { CurrencyTypes } from '@requestnetwork/types';
 export const supportedNetworks: Partial<Record<CurrencyTypes.EvmChainName, TokenMap>> = {
   rinkeby: supportedRinkebyERC777,
 };
-
-export type { TokenMap };
