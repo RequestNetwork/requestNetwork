@@ -73,6 +73,7 @@ export const handler = async (args: Options): Promise<void> => {
 
   const currencyManager = await getCurrencyManager(args.list);
 
+  EvmChains.assertChainSupported(network);
   if (!conversionSupportedNetworks.includes(network)) {
     console.warn(
       `WARNING: ${network} is missing in conversionSupportedNetworks from the Currency package.`,
