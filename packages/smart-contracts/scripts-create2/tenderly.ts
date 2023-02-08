@@ -72,9 +72,6 @@ export const tenderlyImportAll = async (hre: HardhatRuntimeEnvironmentExtended):
       }
     }
     console.log(`> Retrieved ${Object.keys(contracts).length} contracts from protocol artifacts`);
-    // console.log(mainnetContracts);
-    // console.log(testnetContracts);
-    // return;
 
     console.log(`> Syncing contracts with Tenderly...`);
     const axiosInstance = getTenderlyAxiosInstance(hre);
