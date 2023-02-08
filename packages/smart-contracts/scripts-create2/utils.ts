@@ -1,6 +1,6 @@
 import { Contract } from 'ethers';
-import { EvmChains } from '@requestnetwork/currency';
 import * as artifacts from '../src/lib';
+import { EvmChains } from '@requestnetwork/currency';
 
 /**
  * List of smart contract that we deploy using the CREATE2 scheme through the Request Deployer contract
