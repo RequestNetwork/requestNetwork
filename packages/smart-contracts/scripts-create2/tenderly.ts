@@ -1,10 +1,10 @@
 import { HardhatRuntimeEnvironmentExtended } from './types';
-import axios from 'axios';
 import * as artifacts from '../src/lib/artifacts';
-import { getChainConfig } from './utils/chains';
 import { ContractArtifact } from '../src/lib';
 import { Contract } from 'ethers';
 import * as console from 'console';
+import axios from 'axios';
+import { EvmChains } from '@requestnetwork/currency';
 
 const getTenderlyAxiosInstance = (hre: HardhatRuntimeEnvironmentExtended) => {
   return axios.create({
@@ -27,13 +27,11 @@ export const tenderlyImportAll = async (hre: HardhatRuntimeEnvironmentExtended):
       for (const deployment of deployments) {
         const { networkName } = deployment;
         if (['private', 'rinkeby', 'bsctest', 'alfajores'].includes(networkName)) continue;
-        const chainConfig = await getChainConfig(networkName);
-        if (!chainConfig) continue;
         const sanitizedArtifactName = artifactName.replace(/Artifact/i, '');
         contracts.push({
           name: `${capitalizeFirstLetter(sanitizedArtifactName)}-${deployment.version}`,
           address: deployment.address,
-          networkId: chainConfig.chainId,
+          networkId: EvmChains.getChainId(networkName),
         });
       }
     }

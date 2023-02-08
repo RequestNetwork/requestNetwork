@@ -1,6 +1,6 @@
 import { getDefaultProvider } from '@requestnetwork/payment-detection';
 import { providers, Wallet } from 'ethers';
-import { getChainConfig } from '@requestnetwork/smart-contracts/scripts-create2/utils/chains';
+import axios from 'axios';
 
 export const getWallet = async ({
   chainName,
@@ -30,4 +30,18 @@ export const getProvider = async (chainName: string) => {
     return new providers.StaticJsonRpcProvider(rpc);
   }
   return getDefaultProvider(chainName);
+};
+
+const getChainConfig = async (chainName: string) => {
+  try {
+    const { data } = await axios.get<{
+      name: string;
+      chainId: number;
+      rpcUrls: string[];
+    }>(`https://api.request.network/currency/chains/${chainName}`);
+    return data;
+  } catch (e) {
+    console.warn(e.message);
+    return null;
+  }
 };
