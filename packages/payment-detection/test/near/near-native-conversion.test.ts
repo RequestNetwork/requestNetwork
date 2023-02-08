@@ -190,9 +190,8 @@ describe('Near payments detection', () => {
       expect(await paymentDetector.getBalance(requestWithWrongNetwork)).toMatchObject({
         balance: null,
         error: {
-          code: 2,
-          message:
-            "Unconfigured near-conversion-detector chain 'unknown-network' and version '0.1.0'",
+          code: 0,
+          message: 'Unsupported chain unknown-network',
         },
         events: [],
       });

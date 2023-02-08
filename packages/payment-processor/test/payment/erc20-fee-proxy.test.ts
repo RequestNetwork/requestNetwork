@@ -1,7 +1,8 @@
-import { Wallet, BigNumber, providers } from 'ethers';
+import { BigNumber, providers, Wallet } from 'ethers';
 
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
@@ -9,12 +10,13 @@ import {
 import { deepCopy } from '@requestnetwork/utils';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 
-import { approveErc20, getErc20Balance } from '../../src/payment/erc20';
 import {
   _getErc20FeeProxyPaymentUrl,
+  approveErc20,
+  getErc20Balance,
   payErc20FeeProxyRequest,
   prepareErc20FeeProxyPaymentTransaction,
-} from '../../src/payment/erc20-fee-proxy';
+} from '../../src';
 import { getRequestPaymentValues } from '../../src/payment/utils';
 
 /* eslint-disable no-magic-numbers */
@@ -106,7 +108,7 @@ describe('erc20-fee-proxy', () => {
 
     it('should throw an error if currencyInfo has no network', async () => {
       const request = deepCopy(validRequest);
-      request.currencyInfo.network = '';
+      request.currencyInfo.network = '' as CurrencyTypes.ChainName;
       await expect(payErc20FeeProxyRequest(request, wallet)).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );

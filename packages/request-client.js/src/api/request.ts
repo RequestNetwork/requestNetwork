@@ -3,7 +3,12 @@ import {
   DeclarativePaymentDetector,
   EscrowERC20InfoRetriever,
 } from '@requestnetwork/payment-detection';
-import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  CurrencyTypes,
+  IdentityTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
@@ -653,7 +658,7 @@ export default class Request {
 
   public async getEscrowData(
     paymentReference: string,
-    network: string,
+    network: CurrencyTypes.EvmChainName,
   ): Promise<PaymentTypes.EscrowChainData> {
     const escrowContractAddress = erc20EscrowToPayArtifact.getAddress(network);
     const escrowInfoRetriever = new EscrowERC20InfoRetriever(

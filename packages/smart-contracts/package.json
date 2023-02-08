@@ -51,7 +51,7 @@
     "test:lib": "yarn jest test/lib"
   },
   "dependencies": {
-    "tslib": "2.3.1"
+    "tslib": "2.5.0"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "2.0.2",
@@ -69,7 +69,7 @@
     "@typechain/hardhat": "2.1.2",
     "@types/chai": "4.2.21",
     "@types/mocha": "8.2.3",
-    "@types/node": "14.14.16",
+    "@types/node": "16.11.7",
     "axios": "0.27.2",
     "chai": "4.3.4",
     "dotenv": "10.0.0",

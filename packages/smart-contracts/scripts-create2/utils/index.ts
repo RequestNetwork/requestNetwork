@@ -1,4 +1,5 @@
 import { Contract } from 'ethers';
+import { EvmChains } from '@requestnetwork/currency';
 import * as artifacts from '../../src/lib';
 
 /**
@@ -56,7 +57,7 @@ export const getArtifact = (contract: string): artifacts.ContractArtifact<Contra
 };
 
 /**
- * Check if a contract has already been dployed on a specific network at a specific address
+ * Check if a contract has already been deployed on a specific network at a specific address
  * @param contract name of the contract
  * @param network name of the network
  * @param computedAddress address to check
@@ -67,7 +68,12 @@ export const isContractDeployed = (
   network: string,
   computedAddress: string,
 ): boolean => {
-  const contractArtifact = getArtifact(contract);
-  const addresses = contractArtifact.getAllAddresses(network);
-  return addresses.some((x) => x.address === computedAddress);
+  try {
+    EvmChains.assertChainSupported(network);
+    const contractArtifact = getArtifact(contract);
+    const addresses = contractArtifact.getAllAddresses(network);
+    return addresses.some((x) => x.address === computedAddress);
+  } catch (e) {
+    return false;
+  }
 };

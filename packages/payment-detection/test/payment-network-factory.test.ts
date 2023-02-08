@@ -146,12 +146,12 @@ describe('api/payment-network/payment-network-factory', () => {
         },
       };
       const paymentNetworkFactory = new PaymentNetworkFactory(mockAdvancedLogic, currencyManager, {
-        explorerApiKeys: { homestead: 'abcd' },
+        explorerApiKeys: { mainnet: 'abcd' },
       });
       const pn = paymentNetworkFactory.getPaymentNetworkFromRequest(request);
       expect(pn).toBeInstanceOf(EthInputDataPaymentDetector);
       expect((pn as any).explorerApiKeys).toMatchObject({
-        homestead: 'abcd',
+        mainnet: 'abcd',
       });
     });
   });

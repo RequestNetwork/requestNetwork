@@ -144,8 +144,6 @@ export enum EthereumNetwork {
   MAINNET = 1,
   RINKEBY = 4,
   GOERLI = 5,
-  KOVAN = 42,
-  SOKOL = 77,
   XDAI = 100,
 }
 

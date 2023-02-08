@@ -1,4 +1,4 @@
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 
@@ -146,7 +146,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
       requestCreatedNoExtension.currency = {
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'invalid value',
-        network: 'invalid network',
+        network: 'invalid network' as CurrencyTypes.EvmChainName,
       };
 
       const action: ExtensionTypes.IAction = deepCopy(

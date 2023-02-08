@@ -1,8 +1,8 @@
 import { computeCreate2DeploymentAddress } from './compute-one-address';
 import { getConstructorArgs } from './constructor-args';
-import { HardhatRuntimeEnvironmentExtended } from './types';
-import { IDeploymentParams } from './types';
+import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './types';
 import { create2ContractDeploymentList } from './utils';
+import { EvmChains } from '@requestnetwork/currency';
 
 export const verifyOne = async (
   contractAddress: string,
@@ -43,21 +43,11 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
           case 'ERC20FeeProxy':
           case 'ERC20SwapToPay':
           case 'ERC20SwapToConversion':
-          case 'Erc20ConversionProxy': {
-            const constructorArgs = getConstructorArgs(contract);
-            address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
-            await verifyOne(address, { contract, constructorArgs }, hre);
-            break;
-          }
-          case 'ERC20EscrowToPay': {
-            const network = hre.config.xdeploy.networks[0];
-            const constructorArgs = getConstructorArgs(contract, network);
-            address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
-            await verifyOne(address, { contract, constructorArgs }, hre);
-            break;
-          }
+          case 'Erc20ConversionProxy':
+          case 'ERC20EscrowToPay':
           case 'BatchConversionPayments': {
             const network = hre.config.xdeploy.networks[0];
+            EvmChains.assertChainSupported(network);
             const constructorArgs = getConstructorArgs(contract, network);
             address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
             await verifyOne(address, { contract, constructorArgs }, hre);

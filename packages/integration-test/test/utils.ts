@@ -1,4 +1,9 @@
-import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 
 export const createMockErc20FeeRequest = ({
   network,
@@ -9,9 +14,9 @@ export const createMockErc20FeeRequest = ({
   feeAddress,
   feeAmount,
 }: Record<
-  'network' | 'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount',
+  'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount',
   string
->): RequestLogicTypes.IRequest => ({
+> & { network: CurrencyTypes.EvmChainName }): RequestLogicTypes.IRequest => ({
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
   currency: {
     network,

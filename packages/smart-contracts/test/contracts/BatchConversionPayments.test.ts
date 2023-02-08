@@ -13,7 +13,7 @@ import {
 import { PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, ContractTransaction, Signer } from 'ethers';
 import { expect } from 'chai';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { chainlinkConversionPath } from '../../src/lib';
 import { FAU_USD_RATE } from '../../scripts/test-deploy-batch-conversion-deployment';
 import { localERC20AlphaArtifact, secondLocalERC20AlphaArtifact } from './localArtifacts';
@@ -29,6 +29,7 @@ const BATCH_PAYMENT_NETWORK_ID = PaymentTypes.BATCH_PAYMENT_NETWORK_ID;
 
 describe('contract: BatchConversionPayments', async () => {
   const networkConfig = network.config as HttpNetworkConfig;
+  EvmChains.assertChainSupported(network.name);
   const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
 
   let adminAddress: string;
@@ -124,6 +125,7 @@ describe('contract: BatchConversionPayments', async () => {
     [adminAddress, from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
     [adminSigner, fromSigner, , , signer4] = await ethers.getSigners();
 
+    EvmChains.assertChainSupported(network.name);
     chainlinkPath = chainlinkConversionPath.connect(network.name, fromSigner);
 
     const erc20FeeProxy = await new ERC20FeeProxy__factory(adminSigner).deploy();

@@ -1,5 +1,6 @@
 import {
   AdvancedLogicTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
@@ -142,7 +143,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
   }
 
   public getNativeTokenExtensionForNetwork(
-    network: string,
+    network: CurrencyTypes.ChainName,
   ): ExtensionTypes.IExtension<ExtensionTypes.PnReferenceBased.ICreationParameters> | undefined {
     return this.extensions.nativeToken.find((nativeTokenExtension) =>
       nativeTokenExtension.supportedNetworks.includes(network),
@@ -167,7 +168,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
   }
 
   public getAnyToNativeTokenExtensionForNetwork(
-    network: string,
+    network: CurrencyTypes.ChainName,
   ): ExtensionTypes.IExtension<ExtensionTypes.PnAnyToEth.ICreationParameters> | undefined {
     return this.extensions.anyToNativeToken.find((anyToNativeTokenExtension) =>
       anyToNativeTokenExtension.supportedNetworks.includes(network),
@@ -185,7 +186,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
   protected getNetwork(
     extensionAction: ExtensionTypes.IAction,
     requestState: RequestLogicTypes.IRequest,
-  ): string | undefined {
+  ): CurrencyTypes.ChainName | undefined {
     const network =
       extensionAction.action === 'create'
         ? extensionAction.parameters.network
