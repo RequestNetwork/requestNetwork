@@ -81,7 +81,6 @@ export const handler = async (args: Options): Promise<void> => {
     );
   }
 
-  EvmChains.assertChainSupported(network);
   const availableAggregators = await getAvailableAggregators(
     network,
     currencyManager,

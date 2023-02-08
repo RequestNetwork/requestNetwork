@@ -119,6 +119,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     network?: CurrencyTypes.ChainName,
   ): CurrencyDefinition<TMeta> | undefined {
     symbol = symbol?.toUpperCase();
+    network = network?.toLowerCase() as CurrencyTypes.ChainName | undefined;
 
     const legacy = network ? this.legacyTokens[network]?.[symbol] : undefined;
     if (legacy) {
