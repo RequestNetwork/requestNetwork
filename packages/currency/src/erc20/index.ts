@@ -1,3 +1,4 @@
+import { RequestLogicTypes } from '@requestnetwork/types';
 import { ERC20Currency } from '../types';
 import { supportedNetworks } from './networks';
 
@@ -12,6 +13,7 @@ export function getSupportedERC20Tokens(): ERC20Currency[] {
       return [
         ...acc,
         ...Object.entries(supportedCurrencies).map(([address, token]) => ({
+          type: RequestLogicTypes.CURRENCY.ERC20 as RequestLogicTypes.CURRENCY.ERC20,
           address,
           network: networkName,
           decimals: token.decimals,
