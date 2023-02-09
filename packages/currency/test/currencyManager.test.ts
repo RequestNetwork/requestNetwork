@@ -450,7 +450,7 @@ describe('CurrencyManager', () => {
         const def = CurrencyManager.fromInput(currency);
         expect(def).toBeDefined();
         expect(def).toEqual(defaultManager.from(def.id));
-        if ('network' in def) {
+        if (def.network) {
           expect(def).toEqual(defaultManager.from(def.symbol, def.network));
           expect(def).toEqual(defaultManager.fromSymbol(def.symbol, def.network));
         }

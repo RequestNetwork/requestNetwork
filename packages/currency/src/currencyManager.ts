@@ -125,7 +125,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     return this.knownCurrencies.find(
       (x) =>
         x.symbol.toUpperCase() === symbol &&
-        ((x.type === ISO4217 && !network) || ('network' in x && x.network === network) || !network),
+        ((x.type === ISO4217 && !network) || (x.network && x.network === network) || !network),
     );
   }
 
@@ -133,7 +133,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     return this.knownCurrencies.find(
       (x) =>
         x.hash.toLowerCase() === hash.toLowerCase() &&
-        ((x.type === ISO4217 && !network) || ('network' in x && x.network === network) || !network),
+        ((x.type === ISO4217 && !network) || (x.network && x.network === network) || !network),
     );
   }
   /**
@@ -210,7 +210,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * Utility function to compute the unique identifier
    */
   static currencyId(currency: CurrencyInput): string {
-    return 'network' in currency ? `${currency.symbol}-${currency.network}` : currency.symbol;
+    return currency.network ? `${currency.symbol}-${currency.network}` : currency.symbol;
   }
 
   /**
