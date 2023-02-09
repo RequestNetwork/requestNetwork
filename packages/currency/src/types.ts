@@ -1,29 +1,33 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 
+/** Native Currency types */
+export type NativeCurrencyType = RequestLogicTypes.CURRENCY.BTC | RequestLogicTypes.CURRENCY.ETH;
+
 /**
  * A native blockchain token (ETH, MATIC, ETH-rinkeby...)
  */
 export type NativeCurrency = {
+  type: NativeCurrencyType;
   symbol: string;
   decimals: number;
   network: string;
 };
 
-/** Native Currency types */
-export type NativeCurrencyType = RequestLogicTypes.CURRENCY.BTC | RequestLogicTypes.CURRENCY.ETH;
-
 /**
  * A Fiat currency (EUR, USD...)
  */
 export type ISO4217Currency = {
+  type: RequestLogicTypes.CURRENCY.ISO4217;
   symbol: string;
   decimals: number;
+  network?: never;
 };
 
 /**
  * An ERC20 token (DAI, USDT...)
  */
 export type ERC20Currency = {
+  type: RequestLogicTypes.CURRENCY.ERC20;
   symbol: string;
   decimals: number;
   network: string;
@@ -34,6 +38,7 @@ export type ERC20Currency = {
  * An ERC777 SuperToken (DAIx, USDCx...)
  */
 export type ERC777Currency = {
+  type: RequestLogicTypes.CURRENCY.ERC777;
   symbol: string;
   decimals: number;
   network: string;
@@ -41,41 +46,9 @@ export type ERC777Currency = {
 };
 
 /**
- * The minimum properties of a native Currency
- */
-export type NativeCurrencyInput = {
-  type: RequestLogicTypes.CURRENCY.ETH | RequestLogicTypes.CURRENCY.BTC;
-} & NativeCurrency;
-
-/**
- * The minimum properties of an ISO4217 Currency
- */
-export type ISO4217CurrencyInput = {
-  type: RequestLogicTypes.CURRENCY.ISO4217;
-} & ISO4217Currency;
-
-/**
- * The minimum properties of an ERC20 Currency
- */
-export type ERC20CurrencyInput = {
-  type: RequestLogicTypes.CURRENCY.ERC20;
-} & ERC20Currency;
-
-/**
- * The minimum properties of an ERC777 Currency
- */
-export type ERC777CurrencyInput = {
-  type: RequestLogicTypes.CURRENCY.ERC777;
-} & ERC777Currency;
-
-/**
  * The minimum properties of a Currency
  */
-export type CurrencyInput =
-  | NativeCurrencyInput
-  | ISO4217CurrencyInput
-  | ERC20CurrencyInput
-  | ERC777CurrencyInput;
+export type CurrencyInput = NativeCurrency | ISO4217Currency | ERC20Currency | ERC777Currency;
 
 /**
  * The description of Currency, its core properties and some computed properties.

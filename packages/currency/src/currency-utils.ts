@@ -1,9 +1,9 @@
 import {
   CurrencyInput,
-  ERC20CurrencyInput,
-  ERC777CurrencyInput,
-  ISO4217CurrencyInput,
-  NativeCurrencyInput,
+  ERC20Currency,
+  ERC777Currency,
+  ISO4217Currency,
+  NativeCurrency,
 } from './types';
 import { RequestLogicTypes } from '@requestnetwork/types';
 
@@ -51,21 +51,21 @@ export const isValidNearAddress = (address: string, network?: string): boolean =
  * Enable filtering per currency type
  */
 
-export const isNativeCurrency = (currency: CurrencyInput): currency is NativeCurrencyInput => {
+export const isNativeCurrency = (currency: CurrencyInput): currency is NativeCurrency => {
   return (
     currency.type === RequestLogicTypes.CURRENCY.BTC ||
     currency.type === RequestLogicTypes.CURRENCY.ETH
   );
 };
 
-export const isISO4217Currency = (currency: CurrencyInput): currency is ISO4217CurrencyInput => {
+export const isISO4217Currency = (currency: CurrencyInput): currency is ISO4217Currency => {
   return currency.type === RequestLogicTypes.CURRENCY.ISO4217;
 };
 
-export const isERC20Currency = (currency: CurrencyInput): currency is ERC20CurrencyInput => {
+export const isERC20Currency = (currency: CurrencyInput): currency is ERC20Currency => {
   return currency.type === RequestLogicTypes.CURRENCY.ERC20;
 };
 
-export const isERC777Currency = (currency: CurrencyInput): currency is ERC777CurrencyInput => {
+export const isERC777Currency = (currency: CurrencyInput): currency is ERC777Currency => {
   return currency.type === RequestLogicTypes.CURRENCY.ERC777;
 };
