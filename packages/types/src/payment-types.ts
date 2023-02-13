@@ -50,7 +50,8 @@ export type PaymentNetworkCreateParameters =
       id:
         | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT
         | ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
-        | ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN;
+        | ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN
+        | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE;
       parameters: ExtensionTypes.PnReferenceBased.ICreationParameters;
     }
   | {

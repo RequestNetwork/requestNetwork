@@ -48,6 +48,25 @@ export class TheGraphInfoRetriever {
     };
   }
 
+  public async getReceivableEvents(
+    params: TransferEventsParams,
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
+    const { payments, escrowEvents } = await this.client.GetPaymentsAndEscrowStateForReceivables({
+      reference: utils.keccak256(`0x${params.paymentReference}`),
+    });
+
+    params.contractAddress = formatAddress(params.contractAddress, 'contractAddress');
+    params.acceptedTokens =
+      params.acceptedTokens?.map((tok) => formatAddress(tok, 'acceptedTokens')) || [];
+
+    return {
+      paymentEvents: payments
+        .filter((payment) => this.filterPaymentEvents(payment, params))
+        .map((payment) => this.mapPaymentEvents(payment, params)),
+      escrowEvents: escrowEvents.map((escrow) => this.mapEscrowEvents(escrow, params)),
+    };
+  }
+
   private filterPaymentEvents(payment: PaymentEventResultFragment, params: TransferEventsParams) {
     // Check contract address matches expected
     if (formatAddress(payment.contractAddress) !== formatAddress(params.contractAddress)) {
