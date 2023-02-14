@@ -314,7 +314,7 @@ export function validateConversionFeeProxyRequest(
 }
 
 /**
- * Validates the parameters for an ERC20 Transferable Receivable payment, esp. that token exists 
+ * Validates the parameters for an ERC20 Transferable Receivable payment, esp. that token exists
  * @param request to validate
  * @param amount optionally, the custom amount to pay
  * @param feeAmountOverride optionally, the custom fee amount
@@ -354,21 +354,10 @@ export function validateERC20TransferableReceivable(
     feeAmountOverride,
     ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE,
   );
+
   // Validate that there exists a payee
   if (request.payee == null) {
     throw new Error(`Expected a payee for this request`);
-  }
-
-  // Validate that there exists an assetAddress
-  const expectedCurrencyType =
-    currenciesMap[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE];
-  if (
-    !expectedCurrencyType ||
-    request.currencyInfo.type !== expectedCurrencyType ||
-    !request.currencyInfo.network ||
-    !request.currencyInfo.value
-  ) {
-    throw new Error(`Expected a valid currency ${expectedCurrencyType} on this request`);
   }
 }
 

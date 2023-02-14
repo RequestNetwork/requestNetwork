@@ -10,6 +10,7 @@ import { deepCopy } from '@requestnetwork/utils';
 
 import { approveErc20, getErc20Balance } from '../../src/payment/erc20';
 import {
+  getReceivableTokenIdForRequest,
   hasReceivableForRequest,
   mintErc20TransferableReceivable,
   payErc20TransferableReceivableRequest,
@@ -97,6 +98,9 @@ describe('erc20-transferable-receivable', () => {
 
         expect(confirmedTx.status).toBe(1);
         expect(tx.hash).not.toBeUndefined();
+      } else {
+        const tokenId = await getReceivableTokenIdForRequest(request, wallet);
+        expect(tokenId.isZero()).toBe(false);
       }
     });
   });
@@ -116,6 +120,14 @@ describe('erc20-transferable-receivable', () => {
       request.currencyInfo.value = '';
       await expect(payErc20TransferableReceivableRequest(request, wallet)).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-transferable-receivable request',
+      );
+    });
+
+    it('should throw an error if the currencyInfo has no value', async () => {
+      const request = deepCopy(validRequest);
+      request.payee = undefined;
+      await expect(payErc20TransferableReceivableRequest(request, wallet)).rejects.toThrowError(
+        'Expected a payee for this request',
       );
     });
 

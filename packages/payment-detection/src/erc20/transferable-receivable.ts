@@ -4,7 +4,7 @@ import { TheGraphInfoRetriever } from '../thegraph';
 import { erc20TransferableReceivableArtifact } from '@requestnetwork/smart-contracts';
 import { makeGetDeploymentInformation } from '../utils';
 import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
-import { ReferenceBasedDetector } from '../reference-based-detector';
+import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
 import ProxyERC20InfoRetriever from './proxy-info-retriever';
 
 const ERC20_TRANSFERABLE_RECEIVABLE_CONTRACT_ADDRESS_MAP = {
@@ -14,8 +14,8 @@ const ERC20_TRANSFERABLE_RECEIVABLE_CONTRACT_ADDRESS_MAP = {
 /**
  * Handle payment networks with ERC20 transferable receivable contract extension
  */
-export class ERC20TransferableReceivablePaymentDetector extends ReferenceBasedDetector<
-  ExtensionTypes.PnReferenceBased.IReferenceBased,
+export class ERC20TransferableReceivablePaymentDetector extends FeeReferenceBasedDetector<
+  ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
   PaymentTypes.IERC20PaymentEventParameters
 > {
   private readonly getSubgraphClient: PaymentNetworkOptions['getSubgraphClient'];

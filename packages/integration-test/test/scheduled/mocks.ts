@@ -78,6 +78,6 @@ export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       // inheritance from declarative
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
-    } as any as Extension.PnReferenceBased.IReferenceBased<Extension.PnReferenceBased.ICreationParameters>,
+    } as any as Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>,
   },
 };

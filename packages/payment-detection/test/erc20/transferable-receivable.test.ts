@@ -2,7 +2,13 @@ import { CurrencyManager } from '@requestnetwork/currency';
 import { TheGraphInfoRetriever } from '../../src/thegraph';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { ERC20TransferableReceivablePaymentDetector } from '../../src/erc20';
-import { AdvancedLogicTypes, PaymentTypes } from '@requestnetwork/types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  IdentityTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import { mockAdvancedLogicBase } from '../utils';
 import ProxyERC20InfoRetriever from '../../src/erc20/proxy-info-retriever';
 import { ethers, utils } from 'ethers';
@@ -46,6 +52,15 @@ describe('api/erc20/transferable-receivable-contract', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('does not support declarative payments', async () => {
+    expect(() => {
+      erc20TransferableReceivable.createExtensionsDataForDeclareSentPayment({
+        amount: 1,
+        note: '',
+      });
+    }).toThrowError('this.extension.createDeclareSentPaymentAction is not a function');
   });
 
   it('can createExtensionsDataForCreation', async () => {
@@ -123,7 +138,145 @@ describe('api/erc20/transferable-receivable-contract', () => {
     });
   });
 
-  it('can get payment events from proxy info retriever', async () => {
+  it('can get balance using thegraph info retriever with two payees', async () => {
+    const mockRequest: RequestLogicTypes.IRequest = {
+      creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
+      currency: {
+        network: 'private',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x967da4048cd07ab37855c090aaf366e4ce1b9f48',
+      },
+      events: [],
+      expectedAmount: '168040800000000000000000',
+      extensions: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE]: {
+          events: [
+            {
+              name: 'create',
+              parameters: {
+                feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',
+                feeAmount: '13386000000000000000',
+                paymentAddress: '0x6c9E04997000d6A8a353951231923d776d4Cdff2',
+                salt: 'c75c317e05c52f12',
+              },
+              timestamp: 1665989825,
+            },
+          ],
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            salt: 'c75c317e05c52f12',
+            paymentAddress: '0x6c9E04997000d6A8a353951231923d776d4Cdff2',
+            feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',
+            feeAmount: '13386000000000000000',
+          },
+          version: '0.1.0',
+        },
+      },
+      extensionsData: [],
+      requestId: '01169f05b855a57396552cc0052b161f70590bdf9c5371649cd89a70c65fb586db',
+      state: RequestLogicTypes.STATE.CREATED,
+      timestamp: 0,
+      version: '0.2',
+    };
+    erc20TransferableReceivable = new ERC20TransferableReceivablePaymentDetector({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager,
+      getSubgraphClient: () => ({
+        GetPaymentsAndEscrowState: jest.fn(),
+        GetPaymentsAndEscrowStateForReceivables: jest.fn().mockImplementation(({ reference }) => ({
+          payments: [
+            // These two payments are not to the same payees
+            {
+              contractAddress: '0xF426505ac145abE033fE77C666840063757Be9cd',
+              tokenAddress: '0x967da4048cd07ab37855c090aaf366e4ce1b9f48',
+              to: '0x6c9e04997000d6a8a353951231923d776d4cdff2',
+              from: '0x15339d48fbe31e349a507fd6d48eb01c45fdc79a',
+              amount: '100',
+              feeAmount: '13386000000000000000',
+              reference: '0x5ac7241d9e6f419409e439c8429eea2f8f089d76528fd1d5df7496a3e58b5ce1',
+              block: 15767215,
+              txHash: '0x456d67cba236778e91a901e97c71684e82317dc2679d1b5c6bfa6d420d636b7d',
+              gasUsed: '73152',
+              gasPrice: '12709127644',
+              timestamp: 1666002347,
+              amountInCrypto: null,
+              feeAddress: '0x35d0e078755cd84d3e0656caab417dee1d7939c7',
+              feeAmountInCrypto: null,
+              maxRateTimespan: null,
+            },
+            {
+              contractAddress: '0xF426505ac145abE033fE77C666840063757Be9cd',
+              tokenAddress: '0x967da4048cd07ab37855c090aaf366e4ce1b9f48',
+              to: '0x6C9E04997000D6a8A353951231923d776d4cdfF3',
+              from: '0x15339d48fbe31e349a507fd6d48eb01c45fdc79a',
+              amount: '100',
+              feeAmount: '13386000000000000000',
+              reference: '0x5ac7241d9e6f419409e439c8429eea2f8f089d76528fd1d5df7496a3e58b5ce1',
+              block: 15767215,
+              txHash: '0x456d67cba236778e91a901e97c71684e82317dc2679d1b5c6bfa6d420d636b7d',
+              gasUsed: '73152',
+              gasPrice: '12709127644',
+              timestamp: 1666002347,
+              amountInCrypto: null,
+              feeAddress: '0x35d0e078755cd84d3e0656caab417dee1d7939c7',
+              feeAmountInCrypto: null,
+              maxRateTimespan: null,
+            },
+          ].filter((x) => x.reference.toLowerCase() === reference.toLowerCase()),
+          escrowEvents: [],
+        })),
+        GetLastSyncedBlock: jest.fn(),
+        GetSyncedBlock: jest.fn(),
+      }),
+    });
+
+    const { balance, error, events } = await erc20TransferableReceivable.getBalance(mockRequest);
+    expect(error).toBeUndefined();
+    expect(balance).toBe('200');
+    expect(events).toMatchObject([
+      {
+        amount: '100',
+        name: 'payment',
+        parameters: {
+          amountInCrypto: undefined,
+          block: 15767215,
+          feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',
+          feeAmount: '13386000000000000000',
+          feeAmountInCrypto: undefined,
+          from: '0x15339d48Fbe31E349A507FD6d48Eb01c45Fdc79A',
+          gasPrice: '12709127644',
+          gasUsed: '73152',
+          maxRateTimespan: undefined,
+          to: '0x6c9E04997000d6A8a353951231923d776d4Cdff2',
+          tokenAddress: '0x967da4048cD07aB37855c090aAF366e4ce1b9F48',
+          txHash: '0x456d67cba236778e91a901e97c71684e82317dc2679d1b5c6bfa6d420d636b7d',
+        },
+        timestamp: 1666002347,
+      },
+      {
+        amount: '100',
+        name: 'payment',
+        parameters: {
+          amountInCrypto: undefined,
+          block: 15767215,
+          feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',
+          feeAmount: '13386000000000000000',
+          feeAmountInCrypto: undefined,
+          from: '0x15339d48Fbe31E349A507FD6d48Eb01c45Fdc79A',
+          gasPrice: '12709127644',
+          gasUsed: '73152',
+          maxRateTimespan: undefined,
+          to: '0x6C9E04997000D6a8A353951231923d776d4cdfF3',
+          tokenAddress: '0x967da4048cD07aB37855c090aAF366e4ce1b9F48',
+          txHash: '0x456d67cba236778e91a901e97c71684e82317dc2679d1b5c6bfa6d420d636b7d',
+        },
+        timestamp: 1666002347,
+      },
+    ]);
+  });
+
+  it('can get payment events from proxy info retriever with two payees', async () => {
     const infoRetriever = new ProxyERC20InfoRetriever(
       'b7182613b46c5e92',
       transferableReceivableContractAddress,
@@ -181,6 +334,12 @@ describe('api/erc20/transferable-receivable-contract', () => {
         timestamp: 10,
       };
     };
+
+    // On non-receivable based payment networks, the proxy info retriever filters
+    // transfer events to make sure the receiver of the payment is the same address as
+    // the payee on the request. Receivable payment networks can have multiple
+    // legitimate payees for the same request, so we need to check that getTransferEvents
+    // supports this as expected.
 
     // isReceivable = false should not grab any payments
     let events = await infoRetriever.getTransferEvents();
