@@ -314,7 +314,7 @@ export function validateConversionFeeProxyRequest(
 }
 
 /**
- * Validates the parameters for an ERC20 Fee Proxy payment before payment
+ * Validates the parameters for an ERC20 Transferable Receivable payment, esp. that token exists 
  * @param request to validate
  * @param amount optionally, the custom amount to pay
  * @param feeAmountOverride optionally, the custom fee amount
