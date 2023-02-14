@@ -15,7 +15,7 @@ export async function deployERC20TransferableReceivable(
       {
         constructorArguments: [
           'Request Network Transferable Receivable',
-          'RTR',
+          'tREC',
           mainPaymentAddresses.ERC20FeeProxyAddress,
         ],
       },

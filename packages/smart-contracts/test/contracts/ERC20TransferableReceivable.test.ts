@@ -34,7 +34,7 @@ describe('contract: ERC20TransferableReceivable', () => {
     erc20FeeProxy = await new ERC20FeeProxy__factory(deployer).deploy();
     receivable = await new ERC20TransferableReceivable__factory(deployer).deploy(
       'Request Network Transferable Receivable',
-      'RTR',
+      'tREC',
       erc20FeeProxy.address,
     );
 
