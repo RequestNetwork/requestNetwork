@@ -89,6 +89,19 @@ describe('contract: ERC20TransferableReceivable', () => {
       expect(info[2]).to.equals(0);
     });
 
+    it('mints with tokenURI set', async function () {
+      const receivableId = '0x0134cc5f0224acb0544a9d325f8f2160c53130ba4671849472f2a96a35c93a78d6';
+      const paymentRef = '0x01' as BytesLike;
+      await receivable
+        .connect(user1)
+        .mint(paymentRef, BASE_DECIMAL, testToken.address, receivableId);
+      const ids = await receivable.getTokenIds(user1Addr);
+      const tokenId = ids[0];
+
+      const tokenURI = await receivable.tokenURI(tokenId);
+      expect(tokenURI).to.equal(receivableId);
+    });
+
     it('list receivables', async function () {
       await receivable.connect(user1).mint('0x01', BASE_DECIMAL, testToken.address, '1');
       await receivable.connect(user1).mint('0x02', BASE_DECIMAL, testToken.address, '2');

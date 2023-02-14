@@ -312,7 +312,7 @@
         },
         {
           "internalType": "string",
-          "name": "receivableURI",
+          "name": "newTokenURI",
           "type": "string"
         }
       ],

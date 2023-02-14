@@ -102,7 +102,7 @@ contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStora
     bytes calldata paymentReference,
     uint256 amount,
     address erc20Addr,
-    string memory receivableURI
+    string memory newTokenURI
   ) external {
     require(paymentReference.length > 0, 'Zero paymentReference provided');
     require(amount > 0, 'Zero amount provided');
@@ -122,7 +122,7 @@ contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStora
     });
 
     _mint(msg.sender, currentReceivableTokenId);
-    _setTokenURI(currentReceivableTokenId, receivableURI);
+    _setTokenURI(currentReceivableTokenId, newTokenURI);
   }
 
   function getTokenIds(address _owner) public view returns (uint256[] memory) {
