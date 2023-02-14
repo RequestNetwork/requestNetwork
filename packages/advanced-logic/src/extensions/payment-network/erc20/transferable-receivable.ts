@@ -4,7 +4,7 @@ import ReferenceBasedPaymentNetwork from '../reference-based';
 const CURRENT_VERSION = '0.1.0';
 
 /**
- * Implementation of the payment network to pay in ERC20 based on a transferrable receivable contract.
+ * Implementation of the payment network to pay in ERC20 based on a transferable receivable contract.
  */
 export default class Erc20TransferableReceivablePaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnReferenceBased.ICreationParameters = ExtensionTypes.PnReferenceBased.ICreationParameters,

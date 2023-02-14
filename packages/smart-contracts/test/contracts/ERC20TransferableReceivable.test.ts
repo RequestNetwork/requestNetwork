@@ -33,8 +33,8 @@ describe('contract: ERC20TransferableReceivable', () => {
     testToken = await new TestERC20__factory(deployer).deploy(BN.from(1000000).mul(BASE_DECIMAL));
     erc20FeeProxy = await new ERC20FeeProxy__factory(deployer).deploy();
     receivable = await new ERC20TransferableReceivable__factory(deployer).deploy(
-      'Request Transferable Receivable',
-      'RReceivable',
+      'Request Network Transferable Receivable',
+      'RTR',
       erc20FeeProxy.address,
     );
 

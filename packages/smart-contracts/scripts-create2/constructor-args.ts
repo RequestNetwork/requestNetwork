@@ -66,7 +66,7 @@ export const getConstructorArgs = (contract: string, network?: string): string[]
       }
       const erc20FeeProxy = artifacts.erc20FeeProxyArtifact;
       const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
-      return ['Request Transferable Receivable', 'RReceivable', erc20FeeProxyAddress];
+      return ['Request Network Transferable Receivable', 'RTR', erc20FeeProxyAddress];
     }
     default:
       return [];

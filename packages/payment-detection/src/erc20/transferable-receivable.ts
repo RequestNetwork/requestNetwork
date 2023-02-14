@@ -5,14 +5,14 @@ import { erc20TransferableReceivableArtifact } from '@requestnetwork/smart-contr
 import { makeGetDeploymentInformation } from '../utils';
 import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
 import { ReferenceBasedDetector } from '../reference-based-detector';
-import ProxyInfoRetriever from './proxy-info-retriever';
+import ProxyERC20InfoRetriever from './proxy-info-retriever';
 
 const ERC20_TRANSFERABLE_RECEIVABLE_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
 };
 
 /**
- * Handle payment networks with ERC20 transferrable receivable contract extension
+ * Handle payment networks with ERC20 transferable receivable contract extension
  */
 export class ERC20TransferableReceivablePaymentDetector extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
@@ -75,14 +75,14 @@ export class ERC20TransferableReceivablePaymentDetector extends ReferenceBasedDe
       const graphInfoRetriever = new TheGraphInfoRetriever(subgraphClient, this.currencyManager);
       return graphInfoRetriever.getReceivableEvents({
         paymentReference,
-        toAddress: '', // Filtering by payee address does not apply for transferrable receivables
+        toAddress: '', // Filtering by payee address does not apply for transferable receivables
         contractAddress: receivableContractAddress,
         paymentChain,
         eventName,
         acceptedTokens: [requestCurrency.value],
       });
     } else {
-      const transferrableReceivableInfoRetriever = new ProxyInfoRetriever(
+      const transferableReceivableInfoRetriever = new ProxyERC20InfoRetriever(
         paymentReference,
         receivableContractAddress,
         receivableCreationBlockNumber,
@@ -91,7 +91,7 @@ export class ERC20TransferableReceivablePaymentDetector extends ReferenceBasedDe
         eventName,
         paymentChain,
       );
-      const paymentEvents = await transferrableReceivableInfoRetriever.getTransferEvents(
+      const paymentEvents = await transferableReceivableInfoRetriever.getTransferEvents(
         true /* isReceivable */,
       );
       return {

@@ -8,9 +8,12 @@ import {
   ethers,
 } from 'ethers';
 
-import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
+import {
+  Erc20PaymentNetwork,
+  ERC20TransferableReceivablePaymentDetector,
+} from '@requestnetwork/payment-detection';
 import { ERC20TransferableReceivable__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
+import { ClientTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
@@ -18,9 +21,9 @@ import {
   getProxyAddress,
   getProvider,
   getSigner,
-  validateRequest,
   getRequestPaymentValues,
-  validateMintERC20TransferableReceivable,
+  validateERC20TransferableReceivable,
+  validatePayERC20TransferableReceivable,
 } from './utils';
 import { IPreparedTransaction } from './prepared-transaction';
 
@@ -41,10 +44,7 @@ export async function getReceivableTokenIdForRequest(
 ): Promise<BigNumber> {
   // Setup the ERC20 proxy contract interface
   const contract = new ethers.Contract(
-    getProxyAddress(
-      request,
-      Erc20PaymentNetwork.ERC20TransferableReceivablePaymentDetector.getDeploymentInformation,
-    ),
+    getProxyAddress(request, ERC20TransferableReceivablePaymentDetector.getDeploymentInformation),
     erc20TransferableReceivableContractAbiFragment,
     signerOrProvider,
   );
@@ -93,7 +93,7 @@ export async function mintErc20TransferableReceivable(
 export function prepareMintErc20TransferableReceivableTransaction(
   request: ClientTypes.IRequestData,
 ): IPreparedTransaction {
-  validateMintERC20TransferableReceivable(request);
+  validateERC20TransferableReceivable(request);
 
   return {
     data: encodeMintErc20TransferableReceivableRequest(request),
@@ -112,7 +112,7 @@ export function prepareMintErc20TransferableReceivableTransaction(
 export function encodeMintErc20TransferableReceivableRequest(
   request: ClientTypes.IRequestData,
 ): string {
-  validateMintERC20TransferableReceivable(request);
+  validateERC20TransferableReceivable(request);
 
   const tokenAddress = request.currencyInfo.value;
   const metadata = Buffer.from(request.requestId).toString('base64'); // metadata is requestId
@@ -145,6 +145,8 @@ export async function payErc20TransferableReceivableRequest(
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
+  await validatePayERC20TransferableReceivable(request, signerOrProvider, amount, feeAmount);
+
   const { data, to, value } = await prepareErc20TransferableReceivablePaymentTransaction(
     request,
     signerOrProvider,
@@ -168,8 +170,6 @@ export async function prepareErc20TransferableReceivablePaymentTransaction(
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): Promise<IPreparedTransaction> {
-  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE);
-
   return {
     data: await encodePayErc20TransferableReceivableRequest(
       request,
@@ -198,8 +198,6 @@ export async function encodePayErc20TransferableReceivableRequest(
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): Promise<string> {
-  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE);
-
   const amountToPay = getAmountToPay(request, amount);
   const { paymentReference, feeAddress, feeAmount } = getRequestPaymentValues(request);
   const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
@@ -207,12 +205,6 @@ export async function encodePayErc20TransferableReceivableRequest(
   const receivableContract = ERC20TransferableReceivable__factory.createInterface();
 
   const receivableTokenId = await getReceivableTokenIdForRequest(request, signerOrProvider);
-
-  if (receivableTokenId.isZero()) {
-    throw new Error(
-      'The receivable for this request has not been minted yet. Please check with the payee.',
-    );
-  }
 
   return receivableContract.encodeFunctionData('payOwner', [
     receivableTokenId, // get tokenId from requestId

@@ -5,6 +5,7 @@ import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/
 import { getCurrencyHash } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
+import { getReceivableTokenIdForRequest } from './erc20-transferable-receivable';
 
 /** @constant MAX_ALLOWANCE set to the max uint256 value */
 export const MAX_ALLOWANCE = BigNumber.from(2).pow(256).sub(1);
@@ -313,10 +314,46 @@ export function validateConversionFeeProxyRequest(
 }
 
 /**
+ * Validates the parameters for an ERC20 Fee Proxy payment before payment
+ * @param request to validate
+ * @param amount optionally, the custom amount to pay
+ * @param feeAmountOverride optionally, the custom fee amount
+ * @param signerOrProvider
+ */
+export async function validatePayERC20TransferableReceivable(
+  request: ClientTypes.IRequestData,
+  signerOrProvider: providers.Provider | Signer,
+  amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish,
+): Promise<void> {
+  const receivableTokenId = await getReceivableTokenIdForRequest(request, signerOrProvider);
+
+  if (receivableTokenId.isZero()) {
+    throw new Error(
+      'The receivable for this request has not been minted yet. Please check with the payee.',
+    );
+  }
+
+  validateERC20TransferableReceivable(request, amount, feeAmountOverride);
+}
+
+/**
  * Validates the parameters for an ERC20 Fee Proxy payment.
  * @param request to validate
+ * @param amount optionally, the custom amount to pay
+ * @param feeAmountOverride optionally, the custom fee amount
  */
-export function validateMintERC20TransferableReceivable(request: ClientTypes.IRequestData): void {
+export function validateERC20TransferableReceivable(
+  request: ClientTypes.IRequestData,
+  amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish,
+): void {
+  validateErc20FeeProxyRequest(
+    request,
+    amount,
+    feeAmountOverride,
+    ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE,
+  );
   // Validate that there exists a payee
   if (request.payee == null) {
     throw new Error(`Expected a payee for this request`);
