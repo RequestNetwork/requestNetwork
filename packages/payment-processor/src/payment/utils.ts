@@ -338,7 +338,7 @@ export async function validatePayERC20TransferableReceivable(
 }
 
 /**
- * Validates the parameters for an ERC20 Fee Proxy payment.
+ * Validates the parameters for an ERC20 Transferable Receivable Payment or Mint.
  * @param request to validate
  * @param amount optionally, the custom amount to pay
  * @param feeAmountOverride optionally, the custom fee amount
