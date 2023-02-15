@@ -1,4 +1,4 @@
-import { Wallet, BigNumber, providers } from 'ethers';
+import { Wallet, BigNumber, providers, utils } from 'ethers';
 
 import {
   ClientTypes,
@@ -8,10 +8,11 @@ import {
 } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
 
+import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
+
 import { approveErc20, getErc20Balance } from '../../src/payment/erc20';
 import {
   getReceivableTokenIdForRequest,
-  hasReceivableForRequest,
   mintErc20TransferableReceivable,
   payErc20TransferableReceivableRequest,
 } from '../../src/payment/erc20-transferable-receivable';
@@ -24,7 +25,7 @@ const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
-const payeeWallet = Wallet.fromMnemonic(mnemonic, "m/44'/60'/0'/0/0").connect(provider);
+const payeeWallet = Wallet.createRandom().connect(provider);
 const wallet = Wallet.fromMnemonic(mnemonic, "m/44'/60'/0'/0/1").connect(provider);
 const paymentAddress = payeeWallet.address;
 
@@ -76,6 +77,18 @@ const validRequest: ClientTypes.IRequestData = {
 };
 
 describe('erc20-transferable-receivable', () => {
+  beforeAll(async () => {
+    // Send funds to payeeWallet
+    let tx = {
+      to: paymentAddress,
+      // Convert currency unit from ether to wei
+      value: utils.parseEther('1'),
+    };
+
+    const txResponse = await wallet.sendTransaction(tx);
+    await txResponse.wait(1);
+  });
+
   beforeEach(() => {
     jest.restoreAllMocks();
   });
@@ -84,24 +97,17 @@ describe('erc20-transferable-receivable', () => {
     it('rejects paying without minting', async () => {
       const request = deepCopy(validRequest) as ClientTypes.IRequestData;
 
-      const receivableExists = await hasReceivableForRequest(request, wallet);
+      await expect(payErc20TransferableReceivableRequest(request, wallet)).rejects.toThrowError(
+        'The receivable for this request has not been minted yet. Please check with the payee.',
+      );
 
-      if (!receivableExists) {
-        await expect(payErc20TransferableReceivableRequest(request, wallet)).rejects.toThrowError(
-          'The receivable for this request has not been minted yet. Please check with the payee.',
-        );
+      const tx = await mintErc20TransferableReceivable(request, payeeWallet, {
+        gasLimit: BigNumber.from('20000000'),
+      });
+      const confirmedTx = await tx.wait(1);
 
-        const tx = await mintErc20TransferableReceivable(request, payeeWallet, {
-          gasLimit: BigNumber.from('20000000'),
-        });
-        const confirmedTx = await tx.wait(1);
-
-        expect(confirmedTx.status).toBe(1);
-        expect(tx.hash).not.toBeUndefined();
-      } else {
-        const tokenId = await getReceivableTokenIdForRequest(request, wallet);
-        expect(tokenId.isZero()).toBe(false);
-      }
+      expect(confirmedTx.status).toBe(1);
+      expect(tx.hash).not.toBeUndefined();
     });
   });
 
@@ -123,7 +129,7 @@ describe('erc20-transferable-receivable', () => {
       );
     });
 
-    it('should throw an error if the currencyInfo has no value', async () => {
+    it('should throw an error if the payee is undefined', async () => {
       const request = deepCopy(validRequest);
       request.payee = undefined;
       await expect(payErc20TransferableReceivableRequest(request, wallet)).rejects.toThrowError(
@@ -155,8 +161,18 @@ describe('erc20-transferable-receivable', () => {
       await payErc20TransferableReceivableRequest(validRequest, wallet, undefined, undefined, {
         gasPrice: '20000000000',
       });
+      const shortReference = PaymentReferenceCalculator.calculate(
+        validRequest.requestId,
+        validRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE]
+          .values.salt,
+        paymentAddress,
+      );
+
+      const tokenId = await getReceivableTokenIdForRequest(validRequest, wallet);
+      expect(tokenId.isZero()).toBe(false);
+
       expect(spy).toHaveBeenCalledWith({
-        data: '0x314ee2d90000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000008d23709a91f6b135f000000000000000000000000000000000000000000000000',
+        data: `0x314ee2d9000000000000000000000000000000000000000000000000000000000000000${tokenId}000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000008${shortReference}000000000000000000000000000000000000000000000000`,
         gasPrice: '20000000000',
         to: '0xF426505ac145abE033fE77C666840063757Be9cd',
         value: 0,
