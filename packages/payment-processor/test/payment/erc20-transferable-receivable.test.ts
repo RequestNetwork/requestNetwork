@@ -87,6 +87,14 @@ describe('erc20-transferable-receivable', () => {
 
     const txResponse = await wallet.sendTransaction(tx);
     await txResponse.wait(1);
+
+    const mintTx = await mintErc20TransferableReceivable(validRequest, payeeWallet, {
+      gasLimit: BigNumber.from('20000000'),
+    });
+    const confirmedTx = await mintTx.wait(1);
+
+    expect(confirmedTx.status).toBe(1);
+    expect(mintTx.hash).not.toBeUndefined();
   });
 
   beforeEach(() => {
@@ -95,19 +103,13 @@ describe('erc20-transferable-receivable', () => {
 
   describe('mintErc20TransferableReceivable works', () => {
     it('rejects paying without minting', async () => {
+      // Different request without a minted receivable
       const request = deepCopy(validRequest) as ClientTypes.IRequestData;
+      request.requestId = '0x01';
 
       await expect(payErc20TransferableReceivableRequest(request, wallet)).rejects.toThrowError(
         'The receivable for this request has not been minted yet. Please check with the payee.',
       );
-
-      const tx = await mintErc20TransferableReceivable(request, payeeWallet, {
-        gasLimit: BigNumber.from('20000000'),
-      });
-      const confirmedTx = await tx.wait(1);
-
-      expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).not.toBeUndefined();
     });
   });
 
