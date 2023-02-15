@@ -27,6 +27,7 @@ export const noConversionNetworks = [
   ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
   ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
   ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
+  ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE,
   ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
   ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
 ];
@@ -73,6 +74,7 @@ export class UnsupportedPaymentChain extends Error {
  * - ERC20_FEE_PROXY_CONTRACT
  * - ANY_TO_ERC20_PROXY
  * - ERC777_STREAM
+ * - ERC20_TRANSFERABLE_RECEIVABLE
  *
  * @throws UnsupportedNetworkError if network isn't supported for swap or payment.
  * @throws UnsupportedPaymentChain if the currency network is not supported (eg Near)
@@ -94,6 +96,7 @@ export async function payRequest(
   switch (paymentNetwork) {
     case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT:
     case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT:
+    case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE:
       return payErc20Request(request, signer, amount, undefined, overrides);
     case ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM:
       return payErc777StreamRequest(request, signer);

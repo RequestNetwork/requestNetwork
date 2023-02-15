@@ -35,3 +35,13 @@ query GetPaymentsAndEscrowState($reference: Bytes!, $to: Bytes!) {
     ...EscrowEventResult
   }
 }
+
+# Receivables can be transferred to different owners, so searching by to could drop balance events.
+query GetPaymentsAndEscrowStateForReceivables($reference: Bytes!) {
+  payments(where: { reference: $reference }, orderBy: timestamp, orderDirection: asc) {
+    ...PaymentEventResult
+  }
+  escrowEvents(where: { reference: $reference }, orderBy: timestamp, orderDirection: asc) {
+    ...EscrowEventResult
+  }
+}
