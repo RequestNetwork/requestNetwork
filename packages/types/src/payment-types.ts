@@ -50,14 +50,14 @@ export type PaymentNetworkCreateParameters =
       id:
         | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT
         | ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
-        | ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN
-        | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE;
+        | ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN;
       parameters: ExtensionTypes.PnReferenceBased.ICreationParameters;
     }
   | {
       id:
         | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
-        | ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT;
+        | ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT
+        | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE;
       parameters: ExtensionTypes.PnFeeReferenceBased.ICreationParameters;
     }
   | {
