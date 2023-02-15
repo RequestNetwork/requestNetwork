@@ -1697,6 +1697,8 @@ describe('request-client.js', () => {
         id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          feeAddress: '0x0000000000000000000000000000000000000001',
+          feeAmount: '0',
         },
       };
 
