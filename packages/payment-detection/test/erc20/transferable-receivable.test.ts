@@ -352,6 +352,19 @@ describe('api/erc20/transferable-receivable-contract', () => {
 
     // if this assert fails it means this address received another transaction
     expect(events).toHaveLength(2);
+    expect(events[0].name).toBe(PaymentTypes.EVENTS_NAMES.PAYMENT);
+    expect(events[0].amount).toBe('10');
+    expect(typeof events[0].timestamp).toBe('number');
+    expect(events[0].parameters!.to).toBe('0x627306090abaB3A6e1400e9345bC60c78a8BEf57');
+    expect(typeof events[0].parameters!.block).toBe('number');
+    expect(typeof events[0].parameters!.txHash).toBe('string');
+
+    expect(events[1].name).toBe(PaymentTypes.EVENTS_NAMES.PAYMENT);
+    expect(events[1].amount).toBe('10');
+    expect(typeof events[1].timestamp).toBe('number');
+    expect(events[1].parameters!.to).toBe('0x627306090ABAb3A6E1400e9345bc60c78a8bef58');
+    expect(typeof events[1].parameters!.block).toBe('number');
+    expect(typeof events[1].parameters!.txHash).toBe('string');
   });
 
   it('can get payments from thegraph info-retriever', async () => {
