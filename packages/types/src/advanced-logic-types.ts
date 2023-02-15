@@ -19,6 +19,7 @@ export interface IAdvancedLogicExtensions {
   feeProxyContractEth: Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>;
   anyToEthProxy: Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>;
   anyToNativeToken: Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>[];
+  erc20TransferableReceivable: Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>;
 }
 
 /** Advanced Logic layer */

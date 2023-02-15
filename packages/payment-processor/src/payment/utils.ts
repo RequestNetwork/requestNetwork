@@ -5,6 +5,7 @@ import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/
 import { getCurrencyHash } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
+import { getReceivableTokenIdForRequest } from './erc20-transferable-receivable';
 
 /** @constant MAX_ALLOWANCE set to the max uint256 value */
 export const MAX_ALLOWANCE = BigNumber.from(2).pow(256).sub(1);
@@ -174,6 +175,7 @@ const {
   ERC20_FEE_PROXY_CONTRACT,
   ANY_TO_ERC20_PROXY,
   NATIVE_TOKEN,
+  ERC20_TRANSFERABLE_RECEIVABLE,
 } = ExtensionTypes.PAYMENT_NETWORK_ID;
 const currenciesMap: any = {
   [ERC777_STREAM]: RequestLogicTypes.CURRENCY.ERC777,
@@ -182,6 +184,7 @@ const currenciesMap: any = {
   [ETH_INPUT_DATA]: RequestLogicTypes.CURRENCY.ETH,
   [ETH_FEE_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ETH,
   [NATIVE_TOKEN]: RequestLogicTypes.CURRENCY.ETH,
+  [ERC20_TRANSFERABLE_RECEIVABLE]: RequestLogicTypes.CURRENCY.ERC20,
 };
 
 /**
@@ -215,8 +218,12 @@ export function validateRequest(
 
   // ERC20 based payment networks are only valid if the request currency has a value
   const validCurrencyValue =
-    ![ERC20_PROXY_CONTRACT, ERC20_FEE_PROXY_CONTRACT, ERC777_STREAM].includes(paymentNetworkId) ||
-    request.currencyInfo.value;
+    ![
+      ERC20_PROXY_CONTRACT,
+      ERC20_FEE_PROXY_CONTRACT,
+      ERC777_STREAM,
+      ERC20_TRANSFERABLE_RECEIVABLE,
+    ].includes(paymentNetworkId) || request.currencyInfo.value;
 
   // Payment network with fees should have both or none of fee address and fee amount
   const validFeeParams =
@@ -303,6 +310,54 @@ export function validateConversionFeeProxyRequest(
     !tokensAccepted?.map((t) => t.toLowerCase()).includes(tokenAddress.toLowerCase())
   ) {
     throw new Error(`The token ${tokenAddress} is not accepted to pay this request`);
+  }
+}
+
+/**
+ * Validates the parameters for an ERC20 Transferable Receivable payment, esp. that token exists
+ * @param request to validate
+ * @param amount optionally, the custom amount to pay
+ * @param feeAmountOverride optionally, the custom fee amount
+ * @param signerOrProvider
+ */
+export async function validatePayERC20TransferableReceivable(
+  request: ClientTypes.IRequestData,
+  signerOrProvider: providers.Provider | Signer,
+  amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish,
+): Promise<void> {
+  const receivableTokenId = await getReceivableTokenIdForRequest(request, signerOrProvider);
+
+  if (receivableTokenId.isZero()) {
+    throw new Error(
+      'The receivable for this request has not been minted yet. Please check with the payee.',
+    );
+  }
+
+  validateERC20TransferableReceivable(request, amount, feeAmountOverride);
+}
+
+/**
+ * Validates the parameters for an ERC20 Transferable Receivable Payment or Mint.
+ * @param request to validate
+ * @param amount optionally, the custom amount to pay
+ * @param feeAmountOverride optionally, the custom fee amount
+ */
+export function validateERC20TransferableReceivable(
+  request: ClientTypes.IRequestData,
+  amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish,
+): void {
+  validateErc20FeeProxyRequest(
+    request,
+    amount,
+    feeAmountOverride,
+    ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE,
+  );
+
+  // Validate that there exists a payee
+  if (request.payee == null) {
+    throw new Error(`Expected a payee for this request`);
   }
 }
 
