@@ -19,8 +19,8 @@ export const erc20TransferableReceivableArtifact =
             creationBlockNumber: 8502503,
           },
           matic: {
-            address: '0x6278949d3b4C10569BEB696Ff8864B5c772c740d',
-            creationBlockNumber: 39363369,
+            address: '0xA9930c8e4638D9a96a3B73e7ABe73a636F986323',
+            creationBlockNumber: 39364680,
           },
         },
       },
