@@ -7,6 +7,7 @@ import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { _getErc20FeeProxyPaymentUrl, payErc20FeeProxyRequest } from './erc20-fee-proxy';
 import { ISwapSettings, swapErc20FeeProxyRequest } from './swap-erc20-fee-proxy';
 import { _getErc20ProxyPaymentUrl, payErc20ProxyRequest } from './erc20-proxy';
+import { payErc20TransferableReceivableRequest } from './erc20-transferable-receivable';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
@@ -41,6 +42,15 @@ export async function payErc20Request(
   }
   if (id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT) {
     return payErc20ProxyRequest(request, signerOrProvider, amount, overrides);
+  }
+  if (id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE) {
+    return payErc20TransferableReceivableRequest(
+      request,
+      signerOrProvider,
+      amount,
+      feeAmount,
+      overrides,
+    );
   }
   if (id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT) {
     if (swapSettings) {
@@ -269,6 +279,12 @@ function getProxyAddress(request: ClientTypes.IRequestData): string {
     return genericGetProxyAddress(
       request,
       Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector.getDeploymentInformation,
+    );
+  }
+  if (id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE) {
+    return genericGetProxyAddress(
+      request,
+      Erc20PaymentNetwork.ERC20TransferableReceivablePaymentDetector.getDeploymentInformation,
     );
   }
 

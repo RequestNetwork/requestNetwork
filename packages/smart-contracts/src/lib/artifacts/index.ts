@@ -20,3 +20,7 @@ export * from './BatchConversionPayments';
 export * from './RequestHashStorage';
 export * from './RequestHashSubmitter';
 export * from './RequestDeployer';
+/**
+ * ERC20 Transferable Receivable
+ */
+export * from './ERC20TransferableReceivable';

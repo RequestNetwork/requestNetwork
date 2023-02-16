@@ -88,7 +88,8 @@ export const deployWithCreate2FromList = async (
         await setupERC20SwapToConversion(address, hre);
         break;
       }
-      case 'ERC20EscrowToPay': {
+      case 'ERC20EscrowToPay':
+      case 'ERC20TransferableReceivable': {
         const network = hre.config.xdeploy.networks[0];
         EvmChains.assertChainSupported(network);
         const constructorArgs = getConstructorArgs(contract, network);
