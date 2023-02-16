@@ -58,6 +58,16 @@ export const getConstructorArgs = (contract: string, network?: string): string[]
         getAdminWalletAddress(contract),
       ];
     }
+    case 'ERC20TransferableReceivable': {
+      if (!network) {
+        throw new Error(
+          'Receivable contract requires network parameter to get correct address of erc20FeeProxy',
+        );
+      }
+      const erc20FeeProxy = artifacts.erc20FeeProxyArtifact;
+      const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
+      return ['Request Network Transferable Receivable', 'tREC', erc20FeeProxyAddress];
+    }
     default:
       return [];
   }

@@ -17,6 +17,7 @@ import {
   ERC20AddressBasedPaymentDetector,
   ERC20FeeProxyPaymentDetector,
   ERC20ProxyPaymentDetector,
+  ERC20TransferableReceivablePaymentDetector,
 } from './erc20';
 import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
 import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
@@ -48,6 +49,7 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
       [PN_ID.ERC20_ADDRESS_BASED]: ERC20AddressBasedPaymentDetector,
       [PN_ID.ERC20_PROXY_CONTRACT]: ERC20ProxyPaymentDetector,
       [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector,
+      [PN_ID.ERC20_TRANSFERABLE_RECEIVABLE]: ERC20TransferableReceivablePaymentDetector,
     },
   },
   ETH: {
