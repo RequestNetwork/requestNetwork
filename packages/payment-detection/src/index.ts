@@ -26,6 +26,7 @@ import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
 import { EscrowERC20InfoRetriever } from './erc20/escrow-info-retriever';
 import { SuperFluidInfoRetriever } from './erc777/superfluid-retriever';
 import { PaymentNetworkOptions } from './types';
+import { ERC20TransferableReceivablePaymentDetector } from './erc20';
 
 export type { TheGraphClient } from './thegraph';
 
@@ -36,6 +37,7 @@ export {
   BtcPaymentNetwork,
   DeclarativePaymentDetector,
   Erc20PaymentNetwork,
+  ERC20TransferableReceivablePaymentDetector,
   EthInputDataPaymentDetector,
   EthFeeProxyPaymentDetector,
   AnyToERC20PaymentDetector,
