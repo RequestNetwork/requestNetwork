@@ -8,3 +8,6 @@ generates:
       - 'typescript-operations'
       - 'typescript-graphql-request'
       - 'typescript-document-nodes'
+    config:
+      namingConvention:
+        enumValues: change-case-all#upperCaseFirst
