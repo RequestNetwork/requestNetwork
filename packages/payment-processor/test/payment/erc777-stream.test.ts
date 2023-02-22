@@ -92,20 +92,24 @@ describe('erc777-stream', () => {
   });
 
   describe('Superfluid framework', () => {
-    it('Should initialize superfluid framework on supported networks', async () => {
-      const networks = ['arbitrum-one', 'matic', 'avalanche', 'optimism', 'xdai', 'goerli'];
-      for (const network of networks) {
-        const provider = getDefaultProvider(network);
-        const networkValidRequest = {
-          ...validRequest,
-          currencyInfo: {
-            ...validRequest.currencyInfo,
-            network,
-          },
-        };
-        const sf = await getSuperFluidFramework(networkValidRequest, provider);
-        expect(sf).toBeDefined();
-      }
+    it.each([
+      { network: 'goerli' },
+      { network: 'matic' },
+      { network: 'xdai' },
+      { network: 'optimism' },
+      { network: 'avalanche' },
+      { network: 'arbitrum-one' },
+    ])('Should initialize superfluid framework on $network', async ({ network }) => {
+      const provider = getDefaultProvider(network);
+      const networkValidRequest = {
+        ...validRequest,
+        currencyInfo: {
+          ...validRequest.currencyInfo,
+          network,
+        },
+      };
+      const sf = await getSuperFluidFramework(networkValidRequest, provider);
+      expect(sf).toBeDefined();
     });
   });
 
@@ -201,10 +205,8 @@ describe('erc777-stream', () => {
       expect(BigNumber.from(daixBalAfter).sub(daixBalBefore).toString()).toBe(
         '1000000000000000000000',
       );
-      console.log(tx);
       // Paying fDAIX stream request
       tx = await payErc777StreamRequest(validRequest, wallet);
-      console.log(tx);
       confirmedTx = await tx.wait(1);
       expect(confirmedTx.status).toBe(1);
       expect(tx.hash).not.toBeUndefined();
