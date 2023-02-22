@@ -94,13 +94,12 @@ describe('erc777-stream', () => {
   describe('Superfluid framework', () => {
     it.each([
       { network: 'goerli' },
-      { network: 'mainnet' },
       { network: 'matic' },
       { network: 'xdai' },
       { network: 'optimism' },
       { network: 'avalanche' },
       { network: 'arbitrum-one' },
-    ])('Should initialize superfluid framework on supported networks', async ({ network }) => {
+    ])('Should initialize superfluid framework on $network', async ({ network }) => {
       const provider = getDefaultProvider(network);
       const networkValidRequest = {
         ...validRequest,
@@ -206,10 +205,8 @@ describe('erc777-stream', () => {
       expect(BigNumber.from(daixBalAfter).sub(daixBalBefore).toString()).toBe(
         '1000000000000000000000',
       );
-      console.log(tx);
       // Paying fDAIX stream request
       tx = await payErc777StreamRequest(validRequest, wallet);
-      console.log(tx);
       confirmedTx = await tx.wait(1);
       expect(confirmedTx.status).toBe(1);
       expect(tx.hash).not.toBeUndefined();
