@@ -92,20 +92,25 @@ describe('erc777-stream', () => {
   });
 
   describe('Superfluid framework', () => {
-    it('Should initialize superfluid framework on supported networks', async () => {
-      const networks = ['arbitrum-one', 'matic', 'avalanche', 'optimism', 'xdai', 'goerli'];
-      for (const network of networks) {
-        const provider = getDefaultProvider(network);
-        const networkValidRequest = {
-          ...validRequest,
-          currencyInfo: {
-            ...validRequest.currencyInfo,
-            network,
-          },
-        };
-        const sf = await getSuperFluidFramework(networkValidRequest, provider);
-        expect(sf).toBeDefined();
-      }
+    it.each([
+      { network: 'goerli' },
+      { network: 'mainnet' },
+      { network: 'matic' },
+      { network: 'xdai' },
+      { network: 'optimism' },
+      { network: 'avalanche' },
+      { network: 'arbitrum-one' },
+    ])('Should initialize superfluid framework on supported networks', async ({ network }) => {
+      const provider = getDefaultProvider(network);
+      const networkValidRequest = {
+        ...validRequest,
+        currencyInfo: {
+          ...validRequest.currencyInfo,
+          network,
+        },
+      };
+      const sf = await getSuperFluidFramework(networkValidRequest, provider);
+      expect(sf).toBeDefined();
     });
   });
 
