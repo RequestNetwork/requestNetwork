@@ -10,11 +10,10 @@ import {
   MAX_ALLOWANCE,
   getRequestPaymentValues,
 } from './utils';
-import Token from '@superfluid-finance/sdk-core/dist/module/Token';
 import { getSuperFluidFramework } from './erc777-stream';
-import Operation from '@superfluid-finance/sdk-core/dist/module/Operation';
 import { checkErc20Allowance, encodeApproveAnyErc20, getAnyErc20Balance } from './erc20';
 import { IPreparedTransaction } from './prepared-transaction';
+import { ERC20Token } from '@superfluid-finance/sdk-core';
 
 /**
  * Gets the underlying token address of an ERC777 currency based request
@@ -24,7 +23,7 @@ import { IPreparedTransaction } from './prepared-transaction';
 export async function getRequestUnderlyingToken(
   request: ClientTypes.IRequestData,
   provider: providers.Provider = getNetworkProvider(request),
-): Promise<Token> {
+): Promise<ERC20Token> {
   const id = getPaymentNetworkExtension(request)?.id;
   if (id !== ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM) {
     throw new Error('Not a supported ERC777 payment network request');
@@ -32,6 +31,11 @@ export async function getRequestUnderlyingToken(
   validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
   const sf = await getSuperFluidFramework(request, provider);
   const superToken = await sf.loadSuperToken(request.currencyInfo.value);
+
+  if (!superToken.underlyingToken) {
+    throw new Error('No underlying token');
+  }
+
   return superToken.underlyingToken;
 }
 
@@ -114,25 +118,6 @@ export async function prepareApproveUnderlyingToken(
 }
 
 /**
- * Get the SF operation to Wrap the underlying asset into supertoken
- * @param request the request that contains currency information
- * @param address the user address
- * @param provider the web3 provider
- * @param amount to allow, defalts to max allowance
- */
-export async function getWrapUnderlyingTokenOp(
-  request: ClientTypes.IRequestData,
-  provider: providers.Provider = getNetworkProvider(request),
-  amount: BigNumber,
-): Promise<Operation> {
-  const sf = await getSuperFluidFramework(request, provider);
-  const superToken = await sf.loadSuperToken(request.currencyInfo.value);
-  return superToken.upgrade({
-    amount: amount.toString(),
-  });
-}
-
-/**
  * Approve the supertoken to spend the speicified amount of underlying token
  * @param request the request that contains currency information
  * @param signer the web3 signer
@@ -174,8 +159,13 @@ export async function prepareWrapUnderlyingToken(
   provider: providers.Provider = getNetworkProvider(request),
   amount: BigNumber = MAX_ALLOWANCE,
 ): Promise<IPreparedTransaction> {
-  const wrapOp = await getWrapUnderlyingTokenOp(request, provider, amount);
-  return (await wrapOp.populateTransactionPromise) as IPreparedTransaction;
+  const sf = await getSuperFluidFramework(request, provider);
+  const superToken = await sf.loadSuperToken(request.currencyInfo.value);
+  return {
+    value: 0,
+    data: superToken.contract.interface.encodeFunctionData('upgrade', [amount]),
+    to: superToken.address,
+  };
 }
 
 /**
@@ -225,10 +215,11 @@ export async function prepareUnwrapSuperToken(
     throw new Error('This is a native super token');
   }
 
-  const downgradeOp = superToken.downgrade({
-    amount: amount.toString(),
-  });
-  return (await downgradeOp.populateTransactionPromise) as IPreparedTransaction;
+  return {
+    value: 0,
+    data: superToken.contract.interface.encodeFunctionData('downgrade', [amount]),
+    to: superToken.address,
+  };
 }
 
 /**
