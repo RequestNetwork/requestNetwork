@@ -1,6 +1,6 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import ReferenceBasedPaymentNetwork from './reference-based';
-import Utils from '@requestnetwork/utils';
+import { areEqualIdentities, deepCopy, isValidAmount } from '@requestnetwork/utils';
 
 /**
  * Core of the reference based with fee payment networks
@@ -35,7 +35,7 @@ export abstract class FeeReferenceBasedPaymentNetwork<
       throw Error('feeAddress is not a valid address');
     }
 
-    if (creationParameters.feeAmount && !Utils.amount.isValid(creationParameters.feeAmount)) {
+    if (creationParameters.feeAmount && !isValidAmount(creationParameters.feeAmount)) {
       throw Error('feeAmount is not a valid amount');
     }
 
@@ -65,7 +65,7 @@ export abstract class FeeReferenceBasedPaymentNetwork<
       throw Error('feeAddress is not a valid address');
     }
 
-    if (addFeeParameters.feeAmount && !Utils.amount.isValid(addFeeParameters.feeAmount)) {
+    if (addFeeParameters.feeAmount && !isValidAmount(addFeeParameters.feeAmount)) {
       throw Error('feeAmount is not a valid amount');
     }
 
@@ -103,7 +103,7 @@ export abstract class FeeReferenceBasedPaymentNetwork<
     }
     if (
       extensionAction.parameters.feeAmount &&
-      !Utils.amount.isValid(extensionAction.parameters.feeAmount)
+      !isValidAmount(extensionAction.parameters.feeAmount)
     ) {
       throw Error('feeAmount is not a valid amount');
     }
@@ -162,7 +162,7 @@ export abstract class FeeReferenceBasedPaymentNetwork<
     }
     if (
       extensionAction.parameters.feeAmount &&
-      !Utils.amount.isValid(extensionAction.parameters.feeAmount)
+      !isValidAmount(extensionAction.parameters.feeAmount)
     ) {
       throw Error('feeAmount is not a valid amount');
     }
@@ -172,11 +172,11 @@ export abstract class FeeReferenceBasedPaymentNetwork<
     if (!requestState.payee) {
       throw Error(`The request must have a payee`);
     }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payee)) {
+    if (!areEqualIdentities(actionSigner, requestState.payee)) {
       throw Error(`The signer must be the payee`);
     }
 
-    const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
+    const copiedExtensionState: ExtensionTypes.IState = deepCopy(extensionState);
 
     // update fee address and amount
     copiedExtensionState.values.feeAddress = extensionAction.parameters.feeAddress;

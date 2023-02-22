@@ -5,11 +5,11 @@ import EtherscanProvider from './gas-price-providers/etherscan-provider';
 import EthGasStationProvider from './gas-price-providers/ethgasstation-provider';
 
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 
 import { BigNumber } from 'ethers';
 import XDaiFixedProvider from './gas-price-providers/xdai-fixed-provider';
 import { GasDefinerProps } from './ethereum-storage-ethers';
+import { SimpleLogger } from '@requestnetwork/utils';
 
 /**
  * Determines the gas price to use depending on the used network
@@ -48,7 +48,7 @@ export class GasPriceDefiner {
     logger,
     gasPriceMin,
   }: GasDefinerProps & { logger?: LogTypes.ILogger } = {}) {
-    this.logger = logger || new Utils.SimpleLogger();
+    this.logger = logger || new SimpleLogger();
     this.gasPriceMin = gasPriceMin;
   }
 

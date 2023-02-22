@@ -1,6 +1,6 @@
 import { IdentityTypes, SignatureProviderTypes, SignatureTypes } from '@requestnetwork/types';
 
-import Utils from '@requestnetwork/utils';
+import { ecSign, getAddressFromPrivateKey, normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 /** Type of the dictionary of signatureParameters (private keys) indexed by ethereum address */
 type ISignatureParametersDictionary = Map<string, SignatureTypes.ISignatureParameters>;
@@ -55,8 +55,8 @@ export default class EthereumPrivateKeySignatureProvider
     }
 
     // the hash format in request start by 01 but the ec-utils need a hash starting by 0x
-    const hashData = Utils.crypto.normalizeKeccak256Hash(data).value;
-    const signatureValue = Utils.crypto.EcUtils.sign(signatureParameter.privateKey, hashData);
+    const hashData = normalizeKeccak256Hash(data).value;
+    const signatureValue = ecSign(signatureParameter.privateKey, hashData);
 
     return {
       data,
@@ -83,9 +83,7 @@ export default class EthereumPrivateKeySignatureProvider
 
     // compute the address from private key
     // toLowerCase to avoid mismatch because of case
-    const address = Utils.crypto.EcUtils.getAddressFromPrivateKey(
-      signatureParams.privateKey,
-    ).toLowerCase();
+    const address = getAddressFromPrivateKey(signatureParams.privateKey).toLowerCase();
 
     this.signatureParametersDictionary.set(address, signatureParams);
 

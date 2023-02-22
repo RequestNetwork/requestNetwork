@@ -1,11 +1,11 @@
 import { UnixFS } from 'ipfs-unixfs';
 import * as qs from 'qs';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
-import Utils from '@requestnetwork/utils';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 
 import { getDefaultIpfs, getIpfsErrorHandlingConfig } from './config';
 import * as FormData from 'form-data';
+import { retry, SimpleLogger } from '@requestnetwork/utils';
 
 /** A mapping between IPFS Paths and the response type */
 type IpfsPaths = {
@@ -43,7 +43,7 @@ export default class IpfsManager {
   }) {
     this.ipfsGatewayConnection = options?.ipfsGatewayConnection || getDefaultIpfs();
     this.ipfsErrorHandling = options?.ipfsErrorHandling || getIpfsErrorHandlingConfig();
-    this.logger = options?.logger || new Utils.SimpleLogger();
+    this.logger = options?.logger || new SimpleLogger();
 
     this.axiosInstance = axios.create({
       baseURL: `${this.ipfsGatewayConnection.protocol}://${this.ipfsGatewayConnection.host}:${this.ipfsGatewayConnection.port}/${this.BASE_PATH}/`,
@@ -55,7 +55,7 @@ export default class IpfsManager {
   }
 
   private async ipfs<T extends keyof IpfsPaths>(path: T, config?: AxiosRequestConfig) {
-    const _post = Utils.retry(this.axiosInstance.post, {
+    const _post = retry(this.axiosInstance.post, {
       context: this.axiosInstance,
       maxRetries: this.ipfsErrorHandling.maxRetries,
       retryDelay: this.ipfsErrorHandling.delayBetweenRetries,

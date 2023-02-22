@@ -4,7 +4,6 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import {
   ContractBasedDetector,
@@ -18,6 +17,7 @@ import {
   ERC20AddressBasedPaymentDetector,
   ERC20FeeProxyPaymentDetector,
   ERC20ProxyPaymentDetector,
+  ERC20TransferableReceivablePaymentDetector,
 } from './erc20';
 import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
 import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
@@ -25,6 +25,7 @@ import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './an
 import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetector } from './near';
 import { getPaymentNetworkExtension } from './utils';
 import { getTheGraphClient } from './thegraph';
+import { getDefaultProvider } from 'ethers';
 
 const PN_ID = ExtensionTypes.PAYMENT_NETWORK_ID;
 
@@ -48,6 +49,7 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
       [PN_ID.ERC20_ADDRESS_BASED]: ERC20AddressBasedPaymentDetector,
       [PN_ID.ERC20_PROXY_CONTRACT]: ERC20ProxyPaymentDetector,
       [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector,
+      [PN_ID.ERC20_TRANSFERABLE_RECEIVABLE]: ERC20TransferableReceivablePaymentDetector,
     },
   },
   ETH: {
@@ -99,7 +101,7 @@ export class PaymentNetworkFactory {
             );
       },
       explorerApiKeys: {},
-      getRpcProvider: Utils.getDefaultProvider,
+      getRpcProvider: getDefaultProvider,
     };
     return { ...defaultOptions, ...options };
   }

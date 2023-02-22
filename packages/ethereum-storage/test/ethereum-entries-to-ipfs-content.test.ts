@@ -1,5 +1,5 @@
 import { StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { SimpleLogger } from '@requestnetwork/utils';
 
 import ethereumEntriesToIpfsContent from '../src/ethereum-entries-to-ipfs-content';
 import IgnoredDataIndex from '../src/ignored-dataIds';
@@ -60,7 +60,7 @@ describe('ethereum-entries-to-ipfs-content', () => {
       ethereumEntriesToProcess,
       ipfsManager,
       ignoredDataIndex,
-      new Utils.SimpleLogger(),
+      new SimpleLogger(),
       5,
     );
 
@@ -175,7 +175,7 @@ describe('ethereum-entries-to-ipfs-content', () => {
       ethereumEntriesToProcess,
       ipfsManager,
       ignoredDataIndex,
-      new Utils.SimpleLogger(),
+      new SimpleLogger(),
       5,
     );
 
@@ -246,7 +246,7 @@ describe('ethereum-entries-to-ipfs-content', () => {
       ethereumEntriesToProcess,
       ipfsManager,
       ignoredDataIndex,
-      new Utils.SimpleLogger(),
+      new SimpleLogger(),
       5,
     );
 
@@ -287,7 +287,7 @@ describe('ethereum-entries-to-ipfs-content', () => {
       ethereumEntriesToProcess,
       ipfsManager,
       ignoredDataIndex,
-      new Utils.SimpleLogger(),
+      new SimpleLogger(),
       5,
     );
     expect(result.length).toBe(1);
@@ -316,7 +316,7 @@ describe('ethereum-entries-to-ipfs-content', () => {
       ethereumEntriesToProcess,
       ipfsManager,
       ignoredDataIndex,
-      new Utils.SimpleLogger(),
+      new SimpleLogger(),
       5,
     );
     expect(result.length).toBe(0);
@@ -349,7 +349,7 @@ describe('ethereum-entries-to-ipfs-content', () => {
       ethereumEntriesToProcess,
       ipfsManager,
       ignoredDataIndex,
-      new Utils.SimpleLogger(),
+      new SimpleLogger(),
       5,
     );
     expect(result.length).toBe(0);

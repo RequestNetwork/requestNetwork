@@ -47,7 +47,7 @@ export default async function deploy(
 
   const conversionPathInstance = await (
     await hre.ethers.getContractFactory('ChainlinkConversionPath', deployer)
-  ).deploy(ETH_hash);
+  ).deploy(ETH_hash, deployer.address);
 
   // all these aggregators are for test purposes
   await conversionPathInstance.updateAggregatorsList(
@@ -105,7 +105,7 @@ export default async function deploy(
           ...args,
           chainlinkConversionPathAddress: conversionPathInstance.address,
           ethFeeProxyAddress: mainPaymentAddresses.ETHFeeProxyAddress,
-          nativeTokenHash: ETH_hash,
+          owner: deployer.address,
         },
         hre,
       )

@@ -1,4 +1,8 @@
-import Utils from '@requestnetwork/utils';
+import {
+  getDefaultProvider,
+  initPaymentDetectionApiKeys,
+  setProviderFactory,
+} from '@requestnetwork/utils';
 import { PaymentNetworkFactory } from './payment-network-factory';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 import * as BtcPaymentNetwork from './btc';
@@ -22,12 +26,9 @@ import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
 import { EscrowERC20InfoRetriever } from './erc20/escrow-info-retriever';
 import { SuperFluidInfoRetriever } from './erc777/superfluid-retriever';
 import { PaymentNetworkOptions } from './types';
+import { ERC20TransferableReceivablePaymentDetector } from './erc20';
 
 export type { TheGraphClient } from './thegraph';
-
-const setProviderFactory = Utils.setProviderFactory;
-const initPaymentDetectionApiKeys = Utils.initPaymentDetectionApiKeys;
-const getDefaultProvider = Utils.getDefaultProvider;
 
 export {
   PaymentNetworkFactory,
@@ -36,6 +37,7 @@ export {
   BtcPaymentNetwork,
   DeclarativePaymentDetector,
   Erc20PaymentNetwork,
+  ERC20TransferableReceivablePaymentDetector,
   EthInputDataPaymentDetector,
   EthFeeProxyPaymentDetector,
   AnyToERC20PaymentDetector,

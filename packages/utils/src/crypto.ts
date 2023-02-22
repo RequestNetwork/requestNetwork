@@ -1,15 +1,37 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
-import CryptoWrapper from './crypto/crypto-wrapper';
-import EcUtils from './crypto/ec-utils';
-import Utils from './utils';
+import {
+  decryptWithAes256cbc,
+  decryptWithAes256gcm,
+  encryptWithAes256cbc,
+  encryptWithAes256gcm,
+  random32Bytes,
+} from './crypto/crypto-wrapper';
+import {
+  ecDecrypt,
+  ecEncrypt,
+  getAddressFromPrivateKey,
+  getAddressFromPublicKey,
+  ecRecover,
+  ecSign,
+} from './crypto/ec-utils';
+import { deepSort } from './utils';
 
 /**
  * manages crypto functions
  */
-export default {
-  CryptoWrapper,
-  EcUtils,
+export {
+  decryptWithAes256cbc,
+  decryptWithAes256gcm,
+  encryptWithAes256cbc,
+  encryptWithAes256gcm,
+  random32Bytes,
+  ecDecrypt,
+  ecEncrypt,
+  getAddressFromPrivateKey,
+  getAddressFromPublicKey,
+  ecRecover,
+  ecSign,
   generate32BufferKey,
   generate8randomBytes,
   keccak256Hash,
@@ -45,7 +67,7 @@ function normalize(data: unknown): string {
   }
 
   // deeply sort data keys
-  const sortedData = Utils.deepSort(data);
+  const sortedData = deepSort(data);
 
   // convert to string and lowerCase it, to be case insensitive (e.g: avoid ethereum address casing checksum)
   return JSON.stringify(sortedData).toLowerCase();
@@ -81,7 +103,7 @@ function last20bytesOfNormalizedKeccak256Hash(data: unknown): string {
  * @returns a random buffer of 32 bytes in a base64 string
  */
 async function generate32BufferKey(): Promise<string> {
-  return (await CryptoWrapper.random32Bytes()).toString('base64');
+  return (await random32Bytes()).toString('base64');
 }
 
 /**
@@ -92,6 +114,6 @@ async function generate32BufferKey(): Promise<string> {
  * @returns a string of 8 random bytes
  */
 async function generate8randomBytes(): Promise<string> {
-  const random32Bytes = await CryptoWrapper.random32Bytes();
-  return random32Bytes.slice(0, 8).toString('hex');
+  const random32BytesHex = await random32Bytes();
+  return random32BytesHex.slice(0, 8).toString('hex');
 }

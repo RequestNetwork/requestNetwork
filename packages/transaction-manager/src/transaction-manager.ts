@@ -5,7 +5,7 @@ import {
   EncryptionTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 import { EventEmitter } from 'events';
 
@@ -47,9 +47,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     let channelEncryptionMethod: string | undefined;
 
     // compute hash to add it to the topics
-    const hash = MultiFormat.serialize(
-      Utils.crypto.normalizeKeccak256Hash(JSON.parse(transactionData)),
-    );
+    const hash = MultiFormat.serialize(normalizeKeccak256Hash(JSON.parse(transactionData)));
 
     // Need to create a new channel (only the first transaction can have the hash equals to the channel id)
     if (channelId === hash) {

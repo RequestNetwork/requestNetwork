@@ -2,7 +2,7 @@ import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
 
 import Web3SignatureProvider from '../src/web3-signature-provider';
 
-import Utils from '@requestnetwork/utils';
+import { ecSign, normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 const id1Raw = {
   identity: {
@@ -16,11 +16,8 @@ const id1Raw = {
 };
 
 const data = { What: 'ever', the: 'data', are: true };
-const hashData = Utils.crypto.normalizeKeccak256Hash(data).value;
-const signatureValueExpected = Utils.crypto.EcUtils.sign(
-  id1Raw.signatureParams.privateKey,
-  hashData,
-);
+const hashData = normalizeKeccak256Hash(data).value;
+const signatureValueExpected = ecSign(id1Raw.signatureParams.privateKey, hashData);
 
 const mockWeb3: any = {
   getSigner: jest.fn().mockImplementation(() => ({

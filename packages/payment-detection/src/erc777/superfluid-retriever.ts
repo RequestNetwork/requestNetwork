@@ -1,11 +1,11 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import { FlowUpdatedEvent, SentEvent } from '../thegraph/generated/graphql-superfluid';
 import {
   getTheGraphSuperfluidClient,
   TheGraphSuperfluidClient,
   TheGraphClientOptions,
 } from '../thegraph/superfluid';
+import { getCurrentTimestampInSecond } from '@requestnetwork/utils';
 
 /** Parameters for getting payment events from theGraph */
 type GraphPaymentQueryParams = {
@@ -96,7 +96,7 @@ export class SuperFluidInfoRetriever {
         streamEvents.push({
           oldFlowRate: streamEvents[streamEvents.length - 1].flowRate,
           flowRate: 0,
-          timestamp: Utils.getCurrentTimestampInSecond(),
+          timestamp: getCurrentTimestampInSecond(),
           blockNumber: parseInt(streamEvents[streamEvents.length - 1].blockNumber.toString()),
           transactionHash: streamEvents[streamEvents.length - 1].transactionHash,
         } as FlowUpdatedEvent);

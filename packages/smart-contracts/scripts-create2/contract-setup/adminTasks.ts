@@ -2,9 +2,14 @@ import { chainlinkConversionPath } from '../../src/lib';
 import { uniswapV2RouterAddresses } from '../../scripts/utils';
 import * as artifacts from '../../src/lib';
 import { BigNumber, Overrides, Wallet } from 'ethers';
-import utils from '@requestnetwork/utils';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import { parseUnits } from 'ethers/lib/utils';
+import {
+  estimateGasFees,
+  isEip1559Supported,
+  getCeloProvider,
+  getDefaultProvider,
+} from '@requestnetwork/utils';
 
 // Fees: 0.5%
 export const REQUEST_SWAP_FEES = 5;
@@ -47,9 +52,11 @@ export const updateSwapRouter = async (
   txOverrides: Overrides,
 ): Promise<void> => {
   const currentSwapRouter = await contract.swapRouter();
-  if (currentSwapRouter !== uniswapV2RouterAddresses[network]) {
-    const tx = await contract.setRouter(uniswapV2RouterAddresses[network], txOverrides);
+  const expectedRouter = uniswapV2RouterAddresses[network];
+  if (expectedRouter && currentSwapRouter !== expectedRouter) {
+    const tx = await contract.setRouter(expectedRouter, txOverrides);
     await tx.wait(1);
+    console.log(`Swap router address set to ${expectedRouter}`);
   }
 };
 
@@ -61,7 +68,9 @@ export const updateRequestSwapFees = async (
   if (!currentFees.eq(REQUEST_SWAP_FEES)) {
     const tx = await contract.updateRequestSwapFees(REQUEST_SWAP_FEES, txOverrides);
     await tx.wait(1);
-    console.log(`currentFees: ${currentFees.toString()}, new fees: ${REQUEST_SWAP_FEES}`);
+    console.log(
+      `currentFees: ${currentFees.toNumber() / 10}%, new fees: ${REQUEST_SWAP_FEES / 10}%`,
+    );
   }
 };
 
@@ -224,6 +233,28 @@ export const updateNativeAndUSDAddress = async (
 };
 
 /**
+ * Update the native token hash used by a contract.
+ * @param contract contract to be updated.
+ * @param nativeTokenHash The address of native token, eg: ETH.
+ * @param txOverrides information related to gas fees. Increase their values if needed.
+ */
+export const updateNativeTokenHash = async (
+  contractType: string,
+  contract: any,
+  nativeTokenHash: string,
+  txOverrides: Overrides,
+): Promise<void> => {
+  const currentNativeTokenHash = (await contract.nativeTokenHash()).toLocaleLowerCase();
+  if (currentNativeTokenHash !== nativeTokenHash.toLocaleLowerCase()) {
+    const tx = await contract.updateNativeTokenHash(nativeTokenHash, txOverrides);
+    await tx.wait(1);
+    console.log(
+      `${contractType}: the current NativeTokenHash: ${currentNativeTokenHash}, have been replaced by: ${nativeTokenHash}`,
+    );
+  }
+};
+
+/**
  * Gets the signer and gas fees information.
  * @param network The network used.
  * @param hre Hardhat runtime environment.
@@ -243,18 +274,15 @@ export const getSignerAndGasFees = async (
 }> => {
   let provider;
   if (network === 'celo') {
-    provider = utils.getCeloProvider();
+    provider = getCeloProvider();
   } else {
-    provider = utils.getDefaultProvider(network);
+    provider = getDefaultProvider(network);
   }
   const signer = new hre.ethers.Wallet(hre.config.xdeploy.signer).connect(provider);
 
-  let txOverrides;
-  try {
-    txOverrides = await utils.estimateGasFees({ provider });
-  } catch (err) {
-    txOverrides = {};
-  }
+  const txOverrides = (await isEip1559Supported(provider))
+    ? await estimateGasFees({ provider })
+    : {};
 
   return {
     signer,

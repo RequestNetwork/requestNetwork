@@ -36,25 +36,17 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
       try {
         await delay();
         switch (contract) {
+          case 'ChainlinkConversionPath':
           case 'EthereumProxy':
           case 'EthereumFeeProxy':
           case 'EthConversionProxy':
           case 'ERC20FeeProxy':
+          case 'ERC20SwapToPay':
           case 'ERC20SwapToConversion':
-          case 'Erc20ConversionProxy': {
-            const constructorArgs = getConstructorArgs(contract);
-            address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
-            await verifyOne(address, { contract, constructorArgs }, hre);
-            break;
-          }
-          case 'ERC20EscrowToPay': {
-            const network = hre.config.xdeploy.networks[0];
-            const constructorArgs = getConstructorArgs(contract, network);
-            address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
-            await verifyOne(address, { contract, constructorArgs }, hre);
-            break;
-          }
-          case 'BatchConversionPayments': {
+          case 'Erc20ConversionProxy':
+          case 'ERC20EscrowToPay':
+          case 'BatchConversionPayments':
+          case 'ERC20TransferableReceivable': {
             const network = hre.config.xdeploy.networks[0];
             const constructorArgs = getConstructorArgs(contract, network);
             address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);

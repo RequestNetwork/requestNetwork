@@ -1,7 +1,7 @@
 import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 
 import Role from './role';
+import { isValidAmount } from '@requestnetwork/utils';
 
 /**
  * Module to manage a request
@@ -63,7 +63,7 @@ function checkRequest(request: RequestLogicTypes.IRequest): boolean {
   if (request.payer && request.payer.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
     throw Error('request.payer.type not supported');
   }
-  if (!Utils.amount.isValid(request.expectedAmount)) {
+  if (!isValidAmount(request.expectedAmount)) {
     throw Error('expectedAmount must be a positive integer');
   }
   return true;

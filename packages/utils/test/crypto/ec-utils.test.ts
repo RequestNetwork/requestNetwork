@@ -1,4 +1,11 @@
-import ecUtils from '../../src/crypto/ec-utils';
+import {
+  ecDecrypt,
+  ecEncrypt,
+  ecRecover,
+  ecSign,
+  getAddressFromPrivateKey,
+  getAddressFromPublicKey,
+} from '../../src';
 
 const rawId = {
   address: '0x818B6337657A23F58581715Fc610577292e521D0',
@@ -14,22 +21,22 @@ const rawId = {
 const anyData = 'this is any data!';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-describe('Utils.ecUtils', () => {
+describe('Utils/EcUtils', () => {
   describe('getAddressFromPrivateKey', () => {
     it('can get Address From PrivateKey', () => {
-      const identity = ecUtils.getAddressFromPrivateKey(rawId.privateKey);
+      const identity = getAddressFromPrivateKey(rawId.privateKey);
       // 'getAddressFromPrivateKey() error'
       expect(identity).toBe(rawId.address);
     });
     it('cannot get Address From PrivateKey if the private key is wrong', () => {
       // 'getAddressFromPrivateKey() error'
-      expect(() => ecUtils.getAddressFromPrivateKey('aa')).toThrowError(
+      expect(() => getAddressFromPrivateKey('aa')).toThrowError(
         'The private key must be a string representing 32 bytes',
       );
     });
     it('can get an address from a private key without 0x', () => {
       expect(
-        ecUtils.getAddressFromPrivateKey(
+        getAddressFromPrivateKey(
           'af16c10a33bd8c2a0d55551080c3eb248ab727e5ff17d052c95f9d92b7e6528e',
         ),
       ).toBe('0xe011e28aBAa005223a2d4AEfFD5c2fF8D7B5291c');
@@ -38,13 +45,13 @@ describe('Utils.ecUtils', () => {
 
   describe('getAddressFromPublicKey', () => {
     it('can get Address From Public Key', () => {
-      const identity = ecUtils.getAddressFromPublicKey(rawId.publicKey);
+      const identity = getAddressFromPublicKey(rawId.publicKey);
       // 'getAddressFromPublicKey() error'
       expect(identity).toBe(rawId.address);
     });
     it('cannot get Address From Public Key if the Public key is wrong', () => {
       // 'getAddressFromPrivateKey() error'
-      expect(() => ecUtils.getAddressFromPublicKey('aa')).toThrowError(
+      expect(() => getAddressFromPublicKey('aa')).toThrowError(
         'The public key must be a string representing 64 bytes',
       );
     });
@@ -52,7 +59,7 @@ describe('Utils.ecUtils', () => {
 
   describe('sign', () => {
     it('can sign', () => {
-      const signature = ecUtils.sign(
+      const signature = ecSign(
         rawId.privateKey,
         '0xfd6201dabdd4d7177f7c3baba47c5533b12f0a8127ab5d8c71d831fa4df2b19f',
       );
@@ -64,14 +71,14 @@ describe('Utils.ecUtils', () => {
     it('cannot signs if the private key is wrong', () => {
       // 'sign() error'
       expect(() =>
-        ecUtils.sign('aa', '0xfd6201dabdd4d7177f7c3baba47c5533b12f0a8127ab5d8c71d831fa4df2b19f'),
+        ecSign('aa', '0xfd6201dabdd4d7177f7c3baba47c5533b12f0a8127ab5d8c71d831fa4df2b19f'),
       ).toThrowError('The private key must be a string representing 32 bytes');
     });
   });
 
-  describe('recover', () => {
+  describe('ecRecover', () => {
     it('can recover address from a signature', () => {
-      const id = ecUtils.recover(
+      const id = ecRecover(
         '0xdf4d49c7c01e00a970378e5a400dd4168aed6c43a1c510b124026467c78a3566048549c6ab5e0f618e2939c518e9fbe52e07836d4cb07fa44186fa3ffe3b3b981b',
         '0xfd6201dabdd4d7177f7c3baba47c5533b12f0a8127ab5d8c71d831fa4df2b19f',
       );
@@ -81,25 +88,22 @@ describe('Utils.ecUtils', () => {
     it('cannot recover address from signature if signature is not well formatted', () => {
       // 'sign() error'
       expect(() =>
-        ecUtils.recover(
-          '0xaa',
-          '0xfd6201dabdd4d7177f7c3baba47c5533b12f0a8127ab5d8c71d831fa4df2b19f',
-        ),
+        ecRecover('0xaa', '0xfd6201dabdd4d7177f7c3baba47c5533b12f0a8127ab5d8c71d831fa4df2b19f'),
       ).toThrowError('The signature must be a string representing 66 bytes');
     });
   });
 
   describe('encrypt', () => {
     it('can encrypt', async () => {
-      const encryptedData = await ecUtils.encrypt(rawId.publicKey, anyData);
+      const encryptedData = await ecEncrypt(rawId.publicKey, anyData);
       // 'encrypt() error'
       expect(encryptedData.length).toBe(226);
       // 'decrypt() error'
-      expect(await ecUtils.decrypt(rawId.privateKey, encryptedData)).toBe(anyData);
+      expect(await ecDecrypt(rawId.privateKey, encryptedData)).toBe(anyData);
     });
 
     it('can encrypt with other public key formats', async () => {
-      const encryptedData = await ecUtils.encrypt(
+      const encryptedData = await ecEncrypt(
         '0396212fc129c2f78771218b2e93da7a5aac63490a42bb41b97848c39c14fe65cd',
         anyData,
       );
@@ -107,7 +111,7 @@ describe('Utils.ecUtils', () => {
     });
 
     it('cannot encrypt data with a wrong public key', async () => {
-      await expect(ecUtils.encrypt('cf4a', anyData)).rejects.toThrowError(
+      await expect(ecEncrypt('cf4a', anyData)).rejects.toThrowError(
         'The public key must be a string representing 64 bytes',
       );
     });
@@ -115,7 +119,7 @@ describe('Utils.ecUtils', () => {
 
   describe('decrypt', () => {
     it('can decrypt', async () => {
-      const data = await ecUtils.decrypt(
+      const data = await ecDecrypt(
         rawId.privateKey,
         '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc70a',
       );
@@ -125,7 +129,7 @@ describe('Utils.ecUtils', () => {
 
     it('cannot decrypt data with a wrong private key', async () => {
       await expect(
-        ecUtils.decrypt(
+        ecDecrypt(
           '0xaa',
           '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc70a',
         ),
@@ -133,14 +137,14 @@ describe('Utils.ecUtils', () => {
     });
 
     it('cannot decrypt data with a wrong encrypted data: public key too short', async () => {
-      await expect(ecUtils.decrypt(rawId.privateKey, 'aa')).rejects.toThrowError(
+      await expect(ecDecrypt(rawId.privateKey, 'aa')).rejects.toThrowError(
         'The encrypted data is not well formatted',
       );
     });
 
     it('cannot decrypt data with a wrong encrypted data: public key not parsable', async () => {
       await expect(
-        ecUtils.decrypt(
+        ecDecrypt(
           rawId.privateKey,
           'e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc7',
         ),
@@ -149,7 +153,7 @@ describe('Utils.ecUtils', () => {
 
     it('cannot decrypt data with a wrong encrypted data: bad MAC', async () => {
       await expect(
-        ecUtils.decrypt(
+        ecDecrypt(
           rawId.privateKey,
           '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc7',
         ),
@@ -158,15 +162,15 @@ describe('Utils.ecUtils', () => {
   });
 
   it('can encrypt()', async () => {
-    const encryptedData = await ecUtils.encrypt(rawId.publicKey, anyData);
+    const encryptedData = await ecEncrypt(rawId.publicKey, anyData);
     // 'encrypt() error'
     expect(encryptedData.length).toBe(226);
     // 'decrypt() error'
-    expect(await ecUtils.decrypt(rawId.privateKey, encryptedData)).toBe(anyData);
+    expect(await ecDecrypt(rawId.privateKey, encryptedData)).toBe(anyData);
   });
 
   it('can decrypt()', async () => {
-    const data = await ecUtils.decrypt(
+    const data = await ecDecrypt(
       rawId.privateKey,
       '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc70a',
     );

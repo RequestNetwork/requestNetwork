@@ -1,10 +1,10 @@
 import { LogTypes, MultiFormatTypes, DataAccessTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { getPersistTransactionTimeout } from '../config';
 
 import ConfirmedTransactionStore from './confirmedTransactionStore';
+import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 /**
  * Class to persist transactions though the data-access layer
@@ -52,7 +52,7 @@ export default class PersistTransactionHandler {
       return;
     }
     try {
-      const transactionHash: MultiFormatTypes.HashTypes.IHash = Utils.crypto.normalizeKeccak256Hash(
+      const transactionHash: MultiFormatTypes.HashTypes.IHash = normalizeKeccak256Hash(
         clientRequest.body.transactionData,
       );
 

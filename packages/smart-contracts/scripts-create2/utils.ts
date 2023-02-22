@@ -7,15 +7,16 @@ import * as artifacts from '../src/lib';
  * If you want to skip deploying one or more, then comment them out in the list bellow.
  */
 export const create2ContractDeploymentList = [
+  /*  'ChainlinkConversionPath',
   'EthereumProxy',
   'EthereumFeeProxy',
-  'ERC20FeeProxy',
-  'ERC20SwapToConversion',
+  'EthConversionProxy',
+  'ERC20FeeProxy', */
+  'ERC20SwapToPay',
+  /*  'ERC20SwapToConversion',
   'ERC20EscrowToPay',
-  'BatchConversionPayments',
-  // FIXME: EthConversionProxy cannot be deployed using xDeployer yet
-  //        We need to be able to administrate the nativeTokenHash first.
-  // 'EthConversionProxy',
+  'BatchConversionPayments', */
+  'ERC20TransferableReceivable',
 ];
 
 /**
@@ -50,6 +51,8 @@ export const getArtifact = (contract: string): artifacts.ContractArtifact<Contra
       return artifacts.erc20EscrowToPayArtifact;
     case 'BatchConversionPayments':
       return artifacts.batchConversionPaymentsArtifact;
+    case 'ERC20TransferableReceivable':
+      return artifacts.erc20TransferableReceivableArtifact;
     default:
       throw new Error('Contract unknown');
   }
