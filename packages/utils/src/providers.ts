@@ -38,7 +38,7 @@ const networkRpcs: Record<string, string> = {
   fuse: 'https://rpc.fuse.io',
   bsctest: 'https://data-seed-prebsc-1-s1.binance.org:8545',
   bsc: 'https://bsc-dataseed1.binance.org/',
-  xdai: 'https://gnosischain-rpc.gateway.pokt.network/',
+  xdai: 'https://rpc.ankr.com/gnosis',
   celo: 'https://forno.celo.org',
   'arbitrum-rinkeby': 'https://rinkeby.arbitrum.io/rpc',
   'arbitrum-one': 'https://arb1.arbitrum.io/rpc',
