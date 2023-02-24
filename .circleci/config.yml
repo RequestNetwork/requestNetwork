@@ -9,12 +9,14 @@ references:
   ipfs_image: &ipfs_image
     image: requestnetwork/request-ipfs:v0.13.0
   ganache_image: &ganache_image
-    image: trufflesuite/ganache-cli:v6.8.2
+    image: trufflesuite/ganache:7.6.0
     command:
       - '-l'
       - '90000000'
       - '-m'
       - 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat'
+      - '-k'
+      - 'london'
   graph_image: &graph_image
     image: graphprotocol/graph-node:v0.25.0
     # wait for ganache, then start
@@ -288,6 +290,7 @@ jobs:
   test-utils:
     docker:
       - *node_image
+      - *ganache_image
     working_directory: *working_directory
     steps:
       - attach_workspace:

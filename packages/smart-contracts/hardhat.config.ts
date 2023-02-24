@@ -1,6 +1,5 @@
 import '@typechain/hardhat';
 import '@nomiclabs/hardhat-waffle';
-import '@nomicfoundation/hardhat-network-helpers';
 import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-ethers';
 import { subtask, task } from 'hardhat/config';
