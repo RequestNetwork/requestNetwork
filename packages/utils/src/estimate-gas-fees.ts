@@ -1,5 +1,5 @@
 import { BigNumber, constants, providers } from 'ethers';
-import { suggestFees } from 'eip1559-fee-suggestions-ethers';
+import { suggestFees } from '@rainbow-me/fee-suggestions';
 import { maxBigNumber } from './index';
 
 /**
