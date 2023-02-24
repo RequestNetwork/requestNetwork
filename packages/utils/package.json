@@ -48,7 +48,6 @@
     "tslib": "2.5.0"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-network-helpers": "1.0.8",
     "@types/eccrypto": "1.1.2",
     "@types/jest": "26.0.13",
     "jest": "26.4.2",
