@@ -75,7 +75,7 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
     this.logger.debug(`TX ${tx.hash} submitted, waiting for confirmation...`);
 
     void tx
-      .wait()
+      .wait(1)
       .then((receipt: providers.TransactionReceipt) => {
         this.logger.debug(
           `TX ${receipt.transactionHash} confirmed at block ${receipt.blockNumber}`,
