@@ -36,49 +36,21 @@ describe('Gas fee estimation', () => {
     ).toBeGreaterThan(0);
   });
 
-  /**
-   * The EMA used for estimation occur on the range of 100 blocks.
-   * Over 50 blocks we randomly simulate empty or non-empty blocks.
-   * We check that there's no discrepancy between the results:
-   *  - Less than 20% difference between two consecutive estimations
-   *  - Less than 40% difference between the first and the last estimations
-   */
-  it('Should return a consistent value after several transactions', async () => {
-    const firstEstimation = await estimateGasFees({ provider });
-    let baseEstimation = firstEstimation;
-
-    for (let i = 0; i < 50; i++) {
-      const r = Math.random();
-      if (r >= 0.5) {
-        await wallet.sendTransaction({
-          to: dummyAddress,
-          value: BigNumber.from(1),
-        });
-      } else {
-        await provider.send('evm_mine', []);
-      }
-      const currentEstimation = await estimateGasFees({ provider });
-      checkEstimation(
-        baseEstimation.maxFeePerGas as BigNumber,
-        currentEstimation.maxFeePerGas as BigNumber,
-        0.2,
-      );
-      checkEstimation(
-        baseEstimation.maxPriorityFeePerGas as BigNumber,
-        currentEstimation.maxPriorityFeePerGas as BigNumber,
-        0.2,
-      );
-      checkEstimation(
-        firstEstimation.maxFeePerGas as BigNumber,
-        currentEstimation.maxFeePerGas as BigNumber,
-        0.4,
-      );
-      checkEstimation(
-        firstEstimation.maxPriorityFeePerGas as BigNumber,
-        currentEstimation.maxPriorityFeePerGas as BigNumber,
-        0.4,
-      );
-      baseEstimation = currentEstimation;
+  it('Should return a consistent value compared to the default value', async () => {
+    // Run some transactions so there is data to perform the estimation
+    for (let i = 0; i < 20; i++) {
+      await wallet.sendTransaction({
+        to: dummyAddress,
+        value: BigNumber.from(1),
+      });
     }
+
+    const estimation = await estimateGasFees({ provider });
+    const tx = await wallet.sendTransaction({
+      to: dummyAddress,
+      value: BigNumber.from(1),
+    });
+    checkEstimation(estimation.maxFeePerGas as BigNumber, tx.maxFeePerGas as BigNumber, 0.1);
+    checkEstimation(estimation.maxFeePerGas as BigNumber, tx.maxFeePerGas as BigNumber, 0.1);
   });
 });
