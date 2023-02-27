@@ -119,6 +119,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
           {
             maxRetries: this.httpConfig.getConfirmationMaxRetry,
             retryDelay: this.httpConfig.getConfirmationRetryDelay,
+            exponentialBackoff: true,
           },
         );
         // when found, emit the event 'confirmed'
@@ -199,6 +200,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     retryConfig: {
       maxRetries?: number;
       retryDelay?: number;
+      exponentialBackoff?: boolean;
     } = {},
   ): Promise<any> {
     retryConfig.maxRetries = retryConfig.maxRetries ?? this.httpConfig.httpRequestMaxRetry;
