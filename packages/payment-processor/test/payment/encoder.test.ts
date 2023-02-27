@@ -272,7 +272,7 @@ beforeAll(async () => {
   await alphaContract.transfer(mainAddress, BigNumber.from('500000000000000000000'));
   const erc20Contract = ERC20__factory.connect(erc20ContractAddress, wallet);
   await erc20Contract.transfer(mainAddress, BigNumber.from('500000000000000000000'));
-  wallet.sendTransaction({
+  await wallet.sendTransaction({
     to: mainAddress,
     value: BigNumber.from('10000000000000000000'),
   });
@@ -314,7 +314,6 @@ describe.each([
           provider,
           options,
         );
-
         let tx = await wallet.sendTransaction(encodedTransactions[0]);
         let confirmedTx = await tx.wait(1);
         expect(confirmedTx.status).toBe(1);
