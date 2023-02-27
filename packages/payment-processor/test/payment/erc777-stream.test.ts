@@ -239,8 +239,10 @@ describe('erc777-stream', () => {
       // use the framework to get the SuperToken
       const daix = await sf.loadSuperToken('fDAIx');
 
-      // wait 2 seconds of streaming to avoid failing
-      await new Promise((r) => setTimeout(r, 2000));
+      // wait 5 seconds of streaming to avoid failing
+      await new Promise((r) => setTimeout(r, 3000));
+      await provider.send('evm_mine', []);
+      await provider.send('evm_mine', []);
 
       // Stopping fDAIX stream request
       tx = await closeErc777StreamRequest(validRequest, wallet);
@@ -260,7 +262,7 @@ describe('erc777-stream', () => {
         providerOrSigner: provider,
       });
       expect(paymentFlowRate).toBe('0');
-    });
+    }, 16000);
   });
 
   describe('makeErc777OneOffPayment', () => {
