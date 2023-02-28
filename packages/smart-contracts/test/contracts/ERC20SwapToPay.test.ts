@@ -109,7 +109,7 @@ describe('contract: SwapToPay', () => {
         referenceExample,
         100,
         builder,
-        exchangeRateOrigin + 1000, // _uniswapDeadline. 100 -> 1000: Too low value may lead to error (network dependent)
+        exchangeRateOrigin + 10000, // _uniswapDeadline. 100 -> 1000: Too low value may lead to error (network dependent)
       ),
     )
       .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
@@ -147,7 +147,7 @@ describe('contract: SwapToPay', () => {
         referenceExample,
         0,
         builder,
-        exchangeRateOrigin + 1000, // -> 1000 Or it can reverts to UniswapV2Router: EXPIRED (network dependent)
+        exchangeRateOrigin + 10000, // -> 1000 Or it can reverts to UniswapV2Router: EXPIRED (network dependent)
       ),
     )
       .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')

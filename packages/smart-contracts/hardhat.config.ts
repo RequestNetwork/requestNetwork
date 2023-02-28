@@ -1,6 +1,5 @@
 import '@typechain/hardhat';
 import '@nomiclabs/hardhat-waffle';
-import '@nomiclabs/hardhat-ganache';
 import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-ethers';
 import { subtask, task } from 'hardhat/config';
@@ -55,6 +54,12 @@ export default {
     artifacts: 'build',
   },
   networks: {
+    hardhat: {
+      accounts: {
+        mnemonic: 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat',
+      },
+      hardfork: 'london',
+    },
     private: {
       url: 'http://127.0.0.1:8545',
       accounts: undefined,
