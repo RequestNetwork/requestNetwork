@@ -35,12 +35,14 @@ export class TheGraphRequestNode extends RequestNodeBase {
     const signer = new NonceManager(wallet);
     const ipfsStorage = getIpfsStorage(logger);
     const gasPriceMin = config.getGasPriceMin();
+    const blockConfirmations = config.getBlockConfirmations();
     const storage = new EthereumStorageEthers({
       ipfsStorage,
       signer,
       network,
       logger,
       gasPriceMin,
+      blockConfirmations,
     });
     const dataAccess = new TheGraphDataAccess({
       graphql: { url },

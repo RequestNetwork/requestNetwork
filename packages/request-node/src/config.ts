@@ -120,6 +120,18 @@ export function getGasPriceMin(): BigNumber | undefined {
 }
 
 /**
+ * Get the number of block confirmations to wait before considering a transaction successful
+ * @returns the number of block confirmations
+ */
+export function getBlockConfirmations(): number {
+  return (
+    (argv.blockConfirmations && Number(argv.blockConfirmations)) ||
+    (process.env.BLOCK_CONFIRMATIONS && Number(process.env.BLOCK_CONFIRMATIONS)) ||
+    defaultValues.ethereumStorage.ethereum.blockConfirmations
+  );
+}
+
+/**
  * Get host from command line argument, environment variables or default values to connect to IPFS gateway
  * @returns the host of the IPFS gateway
  */
