@@ -17,7 +17,7 @@ const config = {
     retryDelay: 0,
     safeGasPriceLimit: '500000000000',
     transactionPollingTimeout: 300,
-    blockConfirmations: 1,
+    blockConfirmations: 2,
   },
   ipfs: {
     defaultNode: {
