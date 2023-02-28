@@ -241,6 +241,8 @@ describe('erc777-stream', () => {
 
       // wait 2 seconds of streaming to avoid failing
       await new Promise((r) => setTimeout(r, 2000));
+      await provider.send('evm_mine', []);
+      await provider.send('evm_mine', []);
 
       // Stopping fDAIX stream request
       tx = await closeErc777StreamRequest(validRequest, wallet);
@@ -260,7 +262,7 @@ describe('erc777-stream', () => {
         providerOrSigner: provider,
       });
       expect(paymentFlowRate).toBe('0');
-    });
+    }, 10000);
   });
 
   describe('makeErc777OneOffPayment', () => {
