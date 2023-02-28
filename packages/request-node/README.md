@@ -148,10 +148,6 @@ A Node can be deployed by anyone. Users interested by running their own node can
 
 ### Installation
 
-#### Install IPFS Kubo (go-ipfs)
-
-https://docs.ipfs.tech/install/command-line/#install-ipfs-kubo
-
 #### Through the npm executable
 
 ```bash
@@ -310,6 +306,9 @@ cd requestNetwork
 ```
 
 #### 2. Install and build all the dependencies.
+
+Install IPFS Kubo (go-ipfs)
+https://docs.ipfs.tech/install/command-line/#install-ipfs-kubo
 
 ```bash
 yarn install
