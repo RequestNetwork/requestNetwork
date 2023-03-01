@@ -14,7 +14,7 @@ Therefore, the Node receives request transactions from users, batches them into 
 
 Once received by the Node, other request actors connecting to this Node can directly read the request transaction before it is persisted into the storage layer.
 
-To use Infura to connect to an Ethereum node, get an infura token on [infura.io](infura.io) and
+To use Infura to connect to an Ethereum node, get an Infura token on [infura.io](infura.io) and
 use as provider `"NETWORK_YOU_WANT.infura.io/v3/YOUR_INFURA_TOKEN"`.
 
 ## Usage
