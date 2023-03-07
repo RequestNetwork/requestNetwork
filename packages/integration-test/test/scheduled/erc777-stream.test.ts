@@ -1,5 +1,6 @@
 import { SuperFluidPaymentDetector } from '@requestnetwork/payment-detection';
 import {
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   PaymentTypes,
@@ -15,10 +16,9 @@ const createMockRequest = ({
   paymentAddress,
   salt,
   requestId,
-}: Record<
-  'network' | 'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId',
-  string
->): RequestLogicTypes.IRequest => ({
+}: Record<'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId', string> & {
+  network: CurrencyTypes.EvmChainName;
+}): RequestLogicTypes.IRequest => ({
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
   currency: {
     network,

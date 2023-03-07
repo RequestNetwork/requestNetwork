@@ -1,11 +1,10 @@
-import EthereumUtils from '../ethereum-utils';
-
 import { StorageTypes } from '@requestnetwork/types';
 
 import Axios from 'axios';
 
 import { BigNumber } from 'ethers';
 import { retry } from '@requestnetwork/utils';
+import { isGasPriceSafe } from '../ethereum-utils';
 
 // Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
 const ETHERSCAN_REQUEST_MAX_RETRY = 3;
@@ -76,7 +75,7 @@ export default class EtherscanProvider implements StorageTypes.IGasPriceProvider
       ) * API_MULTIPLIER,
     );
 
-    if (!EthereumUtils.isGasPriceSafe(apiGasPrice)) {
+    if (!isGasPriceSafe(apiGasPrice)) {
       throw Error(`Etherscan provided gas price not safe to use: ${apiGasPrice}`);
     }
 

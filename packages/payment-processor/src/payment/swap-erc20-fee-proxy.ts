@@ -15,6 +15,7 @@ import {
 } from './utils';
 import { IPreparedTransaction } from './prepared-transaction';
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
+import { EvmChains } from '@requestnetwork/currency';
 
 /**
  * Details required for a token swap:
@@ -83,13 +84,15 @@ export function prepareSwapToPayErc20FeeRequest(
   swapSettings: ISwapSettings,
   options?: ISwapTransactionOptions,
 ): IPreparedTransaction {
+  const { network } = request.currencyInfo;
+  EvmChains.assertChainSupported(network!);
   const encodedTx = encodeSwapToPayErc20FeeRequest(
     request,
     signerOrProvider,
     swapSettings,
     options,
   );
-  const proxyAddress = erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!);
+  const proxyAddress = erc20SwapToPayArtifact.getAddress(network);
   return {
     data: encodedTx,
     to: proxyAddress,
@@ -111,6 +114,9 @@ export function encodeSwapToPayErc20FeeRequest(
   swapSettings: ISwapSettings,
   options?: IRequestPaymentOptions,
 ): string {
+  const { network } = request.currencyInfo;
+  EvmChains.assertChainSupported(network!);
+
   validateErc20FeeProxyRequest(request, options?.amount, options?.feeAmount);
 
   const signer = getSigner(signerOrProvider);
@@ -138,7 +144,7 @@ export function encodeSwapToPayErc20FeeRequest(
     Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector.getDeploymentInformation,
   );
 
-  const swapToPayAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network);
+  const swapToPayAddress = erc20FeeProxyArtifact.getAddress(network);
   const swapToPayContract = ERC20SwapToPay__factory.connect(swapToPayAddress, signer);
 
   return swapToPayContract.interface.encodeFunctionData('swapTransferWithReference', [

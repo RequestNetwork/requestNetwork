@@ -3,6 +3,7 @@ import { Framework } from '@superfluid-finance/sdk-core';
 
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
@@ -99,18 +100,21 @@ describe('erc777-stream', () => {
       { network: 'optimism' },
       { network: 'avalanche' },
       { network: 'arbitrum-one' },
-    ])('Should initialize superfluid framework on $network', async ({ network }) => {
-      const provider = getDefaultProvider(network);
-      const networkValidRequest = {
-        ...validRequest,
-        currencyInfo: {
-          ...validRequest.currencyInfo,
-          network,
-        },
-      };
-      const sf = await getSuperFluidFramework(networkValidRequest, provider);
-      expect(sf).toBeDefined();
-    });
+    ] as Array<{ network: CurrencyTypes.EvmChainName }>)(
+      'Should initialize superfluid framework on $network',
+      async ({ network }) => {
+        const provider = getDefaultProvider(network);
+        const networkValidRequest = {
+          ...validRequest,
+          currencyInfo: {
+            ...validRequest.currencyInfo,
+            network,
+          },
+        };
+        const sf = await getSuperFluidFramework(networkValidRequest, provider);
+        expect(sf).toBeDefined();
+      },
+    );
   });
 
   describe('encodePayErc20FeeRequest (used to pay and swap to pay)', () => {
@@ -133,7 +137,7 @@ describe('erc777-stream', () => {
 
     it('should throw an error if currencyInfo has no network', async () => {
       const request = deepCopy(validRequest);
-      request.currencyInfo.network = '';
+      request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
       await expect(payErc777StreamRequest(request, wallet)).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc777-stream request',
       );

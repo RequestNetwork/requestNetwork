@@ -14,6 +14,7 @@ import { VerifyCreate2FromList } from './scripts-create2/verify';
 import { deployWithCreate2FromList } from './scripts-create2/deploy';
 import { NUMBER_ERRORS } from './scripts/utils';
 import { networkRpcs } from '@requestnetwork/utils';
+import { tenderlyImportAll } from './scripts-create2/tenderly';
 
 config();
 
@@ -185,6 +186,11 @@ export default {
       },
     ],
   },
+  tenderly: {
+    project: process.env.TENDERLY_PROJECT,
+    username: process.env.TENDERLY_USERNAME,
+    accessKey: process.env.TENDERLY_ACCESS_KEY,
+  },
   typechain: {
     outDir: 'src/types',
     target: 'ethers-v5',
@@ -271,6 +277,12 @@ task(
 ).setAction(async (_args, hre) => {
   await VerifyCreate2FromList(hre as HardhatRuntimeEnvironmentExtended);
 });
+
+task('tenderly-monitor-contracts', 'Import all contracts to a Tenderly account').setAction(
+  async (_args, hre) => {
+    await tenderlyImportAll(hre as HardhatRuntimeEnvironmentExtended);
+  },
+);
 
 subtask(DEPLOYER_KEY_GUARD, 'prevent usage of the deployer master key').setAction(async () => {
   if (accounts && accounts[0] === process.env.DEPLOYER_MASTER_KEY) {

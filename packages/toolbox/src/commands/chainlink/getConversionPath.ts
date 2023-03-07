@@ -1,5 +1,5 @@
 import * as yargs from 'yargs';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 
 type Options = { to: string; from: string; network: string };
 
@@ -27,5 +27,6 @@ export const handler = (args: yargs.Arguments<Options>): void => {
   const currencyManager = CurrencyManager.getDefault();
   const from = currencyManager.from(args.from)!;
   const to = currencyManager.from(args.to)!;
+  EvmChains.assertChainSupported(args.network);
   console.log(currencyManager.getConversionPath(from, to, args.network));
 };

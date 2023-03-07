@@ -1,8 +1,13 @@
 import { ethers, Signer, providers, BigNumber, BigNumberish, ContractTransaction } from 'ethers';
 
 import { getDefaultProvider, getPaymentReference } from '@requestnetwork/payment-detection';
-import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { getCurrencyHash } from '@requestnetwork/currency';
+import {
+  ClientTypes,
+  CurrencyTypes,
+  ExtensionTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
+import { EvmChains, getCurrencyHash } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 import { getReceivableTokenIdForRequest } from './erc20-transferable-receivable';
@@ -75,7 +80,7 @@ export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   expectedStartDate?: string;
   tokensAccepted?: string[];
   maxRateTimespan?: string;
-  network?: string;
+  network?: CurrencyTypes.ChainName;
   version: string;
 } {
   const extension = getPaymentNetworkExtension(request);
@@ -154,10 +159,14 @@ export function getPnAndNetwork(request: ClientTypes.IRequestData): {
  */
 export const getProxyAddress = (
   request: ClientTypes.IRequestData,
-  getDeploymentInformation: (network: string, version: string) => { address: string } | null,
+  getDeploymentInformation: (
+    network: CurrencyTypes.EvmChainName,
+    version: string,
+  ) => { address: string } | null,
   version?: string,
 ): string => {
   const { paymentNetwork, network } = getPnAndNetwork(request);
+  EvmChains.assertChainSupported(network);
   const deploymentInfo = getDeploymentInformation(network, version || paymentNetwork.version);
   if (!deploymentInfo) {
     throw new Error(

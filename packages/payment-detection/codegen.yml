@@ -1,5 +1,5 @@
 overwrite: true
-schema: 'https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-rinkeby'
+schema: 'https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-goerli'
 documents: src/thegraph/queries/*.graphql
 generates:
   src/thegraph/generated/graphql.ts:

@@ -160,7 +160,7 @@ const baseRequestState = {
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
   version,
-};
+} as const;
 
 const baseRequestEvent = {
   actionSigner: {
@@ -174,7 +174,7 @@ const baseRequestEvent = {
     isSignedRequest: false,
   },
   timestamp: arbitraryTimestamp,
-};
+} as const;
 
 export const requestStateNoExtensions: RequestLogicTypes.IRequest = {
   ...baseRequestState,

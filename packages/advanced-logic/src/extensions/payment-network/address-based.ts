@@ -1,5 +1,10 @@
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
-import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import { areEqualIdentities, deepCopy } from '@requestnetwork/utils';
 import DeclarativePaymentNetwork from './declarative';
 
@@ -155,7 +160,7 @@ export default abstract class AddressBasedPaymentNetwork<
   protected isValidAddressForSymbolAndNetwork(
     address: string,
     symbol: string,
-    network: string,
+    network: CurrencyTypes.ChainName,
   ): boolean {
     const currencyManager = CurrencyManager.getDefault();
     const currency = currencyManager.from(symbol, network);

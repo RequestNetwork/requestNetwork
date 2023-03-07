@@ -2,17 +2,17 @@ import { ethers, network } from 'hardhat';
 import { BigNumber, Signer } from 'ethers';
 import { expect } from 'chai';
 import {
-  TestERC20__factory,
-  TestERC20,
-  ERC20FeeProxy,
-  EthereumFeeProxy__factory,
   BatchNoConversionPayments,
-  ERC20FeeProxy__factory,
   BatchNoConversionPayments__factory,
   ChainlinkConversionPath,
+  ERC20FeeProxy,
+  ERC20FeeProxy__factory,
+  EthereumFeeProxy__factory,
+  TestERC20,
+  TestERC20__factory,
 } from '../../src/types';
 import { chainlinkConversionPath } from '../../src/lib';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { RequestDetail } from 'types/dist/payment-types';
 
 const logGasInfos = false;
@@ -67,6 +67,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
 
     erc20FeeProxy = await new ERC20FeeProxy__factory(owner).deploy();
     const ethFeeProxy = await new EthereumFeeProxy__factory(owner).deploy();
+    EvmChains.assertChainSupported(network.name);
     chainlinkPath = chainlinkConversionPath.connect(network.name, owner);
     batch = await new BatchNoConversionPayments__factory(owner).deploy(
       erc20FeeProxy.address,
