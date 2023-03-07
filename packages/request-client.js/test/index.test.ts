@@ -10,7 +10,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { decrypt, random32Bytes } from '@requestnetwork/utils';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import AxiosMockAdapter from 'axios-mock-adapter';
 import { Request, RequestNetwork, RequestNetworkBase } from '../src/index';
@@ -18,13 +18,13 @@ import * as TestData from './data-test';
 import * as TestDataRealBTC from './data-test-real-btc';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
-import { BigNumber } from 'ethers';
 import EtherscanProviderMock from './etherscan-mock';
 import httpConfigDefaults from '../src/http-config-defaults';
 import { IRequestDataWithEvents } from '../src/types';
 import HttpMetaMaskDataAccess from '../src/http-metamask-data-access';
 import MockDataAccess from '../src/mock-data-access';
 import MockStorage from '../src/mock-storage';
+import * as RequestLogic from '@requestnetwork/types/src/request-logic-types';
 
 const packageJson = require('../package.json');
 
@@ -1826,7 +1826,7 @@ describe('request-client.js', () => {
   });
 
   describe('Token lists', () => {
-    const testErc20Data = {
+    const testErc20Data: RequestLogic.ICreateParameters = {
       ...TestData.parametersWithoutExtensionsData,
       currency: {
         network: 'private',
@@ -1834,7 +1834,7 @@ describe('request-client.js', () => {
         value: '0x9FBDa871d559710256a2502A2517b794B482Db40', // Test Erc20
       },
     };
-    const daiData = {
+    const daiData: RequestLogic.ICreateParameters = {
       ...TestData.parametersWithoutExtensionsData,
       currency: {
         network: 'mainnet',

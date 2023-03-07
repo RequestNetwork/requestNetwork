@@ -1,19 +1,20 @@
-import { Wallet, providers, BigNumber, utils } from 'ethers';
+import { BigNumber, providers, utils, Wallet } from 'ethers';
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { encodeRequestErc20ApprovalIfNeeded } from '../../src';
+import { encodeRequestErc20ApprovalIfNeeded, IPreparedTransaction } from '../../src';
 import { getProxyAddress, MAX_ALLOWANCE, revokeErc20Approval } from '../../src/payment/utils';
 import { AnyToERC20PaymentDetector, Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { currencyManager } from './shared';
-import { IPreparedTransaction } from '../../src/payment/prepared-transaction';
 import {
-  erc20SwapToPayArtifact,
   erc20SwapConversionArtifact,
+  erc20SwapToPayArtifact,
 } from '@requestnetwork/smart-contracts';
+import { IConversionSettings } from '../../src/payment/settings';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */
@@ -23,7 +24,7 @@ const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
 
 // Cf. ERC20Alpha in TestERC20.sol
 const alphaContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
-const alphaConversionSettings = {
+const alphaConversionSettings: IConversionSettings = {
   currency: {
     type: RequestLogicTypes.CURRENCY.ERC20,
     value: alphaContractAddress,
@@ -254,12 +255,12 @@ beforeAll(async () => {
   await revokeErc20Approval(proxyERC20Conv, alphaContractAddress, wallet);
 
   proxyERC20Swap = erc20SwapToPayArtifact.getAddress(
-    validRequestERC20FeeProxy.currencyInfo.network!,
+    validRequestERC20FeeProxy.currencyInfo.network! as CurrencyTypes.EvmChainName,
   );
   await revokeErc20Approval(proxyERC20Swap, alphaContractAddress, wallet);
 
   proxyERC20SwapConv = erc20SwapConversionArtifact.getAddress(
-    validRequestERC20FeeProxy.currencyInfo.network!,
+    validRequestERC20FeeProxy.currencyInfo.network! as CurrencyTypes.EvmChainName,
   );
   await revokeErc20Approval(proxyERC20SwapConv, alphaContractAddress, wallet);
 });

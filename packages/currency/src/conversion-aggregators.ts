@@ -10,6 +10,7 @@ import fantomAggregator from './aggregators/fantom.json';
 import nearAggregator from './aggregators/near.json';
 import nearTestnetAggregator from './aggregators/near-testnet.json';
 import auroraTestnetAggregator from './aggregators/aurora-testnet.json';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 /**
  * currencyFrom => currencyTo => cost
@@ -21,10 +22,12 @@ export type CurrencyPairs = Record<string, Record<string, number>>;
  *
  * Network => currencyFrom => currencyTo => cost
  */
-export type AggregatorsMap = Record<string, CurrencyPairs>;
+export type AggregatorsMap<T extends CurrencyTypes.ChainName = CurrencyTypes.ChainName> = Partial<
+  Record<T, CurrencyPairs>
+>;
 
 // Pairs supported by Chainlink (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
-const chainlinkCurrencyPairs: AggregatorsMap = {
+const chainlinkCurrencyPairs: AggregatorsMap<CurrencyTypes.EvmChainName> = {
   private: privateAggregator,
   goerli: goerliAggregator,
   rinkeby: rinkebyAggregator,
@@ -34,7 +37,7 @@ const chainlinkCurrencyPairs: AggregatorsMap = {
 };
 
 // Pairs supported by Flux Protocol
-const fluxCurrencyPairs: AggregatorsMap = {
+const fluxCurrencyPairs: AggregatorsMap<CurrencyTypes.NearChainName> = {
   aurora: nearAggregator,
   'aurora-testnet': auroraTestnetAggregator,
   'near-testnet': nearTestnetAggregator,
@@ -62,7 +65,9 @@ export const defaultConversionPairs: AggregatorsMap = {
   ...noConversionNetworks,
 };
 
-export const conversionSupportedNetworks = Object.keys(defaultConversionPairs);
+export const conversionSupportedNetworks = Object.keys(
+  defaultConversionPairs,
+) as CurrencyTypes.ChainName[];
 
 /**
  * Gets the on-chain conversion path between two currencies.
@@ -77,7 +82,7 @@ export const conversionSupportedNetworks = Object.keys(defaultConversionPairs);
 export function getPath(
   currencyFrom: Pick<CurrencyDefinition, 'hash'>,
   currencyTo: Pick<CurrencyDefinition, 'hash'>,
-  network = 'mainnet',
+  network: CurrencyTypes.ChainName = 'mainnet',
   pairs = defaultConversionPairs,
 ): string[] | null {
   if (!pairs[network]) {

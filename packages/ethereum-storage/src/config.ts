@@ -1,4 +1,4 @@
-import { StorageTypes } from '@requestnetwork/types';
+import { CurrencyTypes, StorageTypes } from '@requestnetwork/types';
 import { BigNumber } from 'ethers';
 
 // This contains default values used to use Ethereum Network and IPFS
@@ -73,7 +73,7 @@ export function getDefaultEthereumProviderTimeout(): number {
  * Retrieve from config the default name of the network for Ethereum
  * @returns the name of the network
  */
-export function getDefaultEthereumNetwork(): string {
+export function getDefaultEthereumNetwork(): CurrencyTypes.EvmChainName {
   return config.ethereum.default;
 }
 

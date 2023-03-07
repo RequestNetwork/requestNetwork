@@ -2,6 +2,7 @@ import { Wallet, providers, BigNumber } from 'ethers';
 
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
@@ -105,7 +106,7 @@ describe('payBatchProxyRequest', () => {
 
   it('should throw an error if in one request, currencyInfo has no network', async () => {
     const request = deepCopy(validRequest);
-    request.currencyInfo.network = '';
+    request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
     await expect(
       payBatchProxyRequest([validRequest, request], batchVersion, wallet, batchFee),
     ).rejects.toThrowError(

@@ -3,16 +3,17 @@ import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
 import {
-  TestERC20__factory,
-  TestERC20,
-  FakeSwapRouter__factory,
-  FakeSwapRouter,
-  BadERC20__factory,
   BadERC20,
-  ERC20SwapToPay,
+  BadERC20__factory,
   ERC20FeeProxy,
+  ERC20SwapToPay,
+  FakeSwapRouter,
+  FakeSwapRouter__factory,
+  TestERC20,
+  TestERC20__factory,
 } from '../../src/types';
 import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '../../src/lib';
+import { EvmChains } from '@requestnetwork/currency';
 
 use(solidity);
 
@@ -38,9 +39,9 @@ describe('contract: SwapToPay', () => {
   const erc20Liquidity = erc20Decimal.mul(100);
 
   before(async () => {
+    EvmChains.assertChainSupported(network.name);
     [, from, to, builder] = (await ethers.getSigners()).map((s) => s.address);
     [adminSigner, signer] = await ethers.getSigners();
-
     erc20FeeProxy = erc20FeeProxyArtifact.connect(network.name, adminSigner);
     testSwapToPay = erc20SwapToPayArtifact.connect(network.name, adminSigner);
   });

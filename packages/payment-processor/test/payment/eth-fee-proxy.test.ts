@@ -1,6 +1,7 @@
-import { Wallet, providers } from 'ethers';
+import { providers, Wallet } from 'ethers';
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
@@ -85,7 +86,7 @@ describe('payEthFeeProxyRequest', () => {
 
   it('should throw an error if currencyInfo has no network', async () => {
     const request = deepCopy(validRequest);
-    request.currencyInfo.network = '';
+    request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
     await expect(payEthFeeProxyRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-fee-proxy-contract request',
     );

@@ -1,15 +1,15 @@
 import * as config from './config';
-import EthereumUtils from './ethereum-utils';
 import EtherchainProvider from './gas-price-providers/etherchain-provider';
 import EtherscanProvider from './gas-price-providers/etherscan-provider';
 import EthGasStationProvider from './gas-price-providers/ethgasstation-provider';
 
-import { LogTypes, StorageTypes } from '@requestnetwork/types';
+import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 
 import { BigNumber } from 'ethers';
 import XDaiFixedProvider from './gas-price-providers/xdai-fixed-provider';
 import { GasDefinerProps } from './ethereum-storage-ethers';
 import { SimpleLogger } from '@requestnetwork/utils';
+import { getEthereumStorageNetworkIdFromName } from './ethereum-utils';
 
 /**
  * Determines the gas price to use depending on the used network
@@ -61,9 +61,9 @@ export class GasPriceDefiner {
    */
   public async getGasPrice(
     type: StorageTypes.GasPriceType,
-    networkName: string,
+    networkName: CurrencyTypes.EvmChainName,
   ): Promise<BigNumber> {
-    const network = EthereumUtils.getEthereumIdFromNetworkName(networkName);
+    const network = getEthereumStorageNetworkIdFromName(networkName);
     if (network) {
       const gasPriceArray = await this.pollProviders(type, network);
       if (gasPriceArray.length > 0) {

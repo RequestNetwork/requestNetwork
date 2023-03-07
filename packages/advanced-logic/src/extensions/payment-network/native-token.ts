@@ -1,4 +1,4 @@
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { InvalidPaymentAddressError, UnsupportedNetworkError } from './address-based';
 
 import ReferenceBasedPaymentNetwork from './reference-based';
@@ -10,7 +10,7 @@ export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPa
   public constructor(
     extensionId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currentVersion: string,
-    public readonly supportedNetworks: string[],
+    public readonly supportedNetworks: CurrencyTypes.ChainName[],
   ) {
     super(extensionId, currentVersion, RequestLogicTypes.CURRENCY.ETH);
   }
@@ -50,7 +50,9 @@ export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPa
     );
   }
 
-  protected throwIfInvalidNetwork(network?: string): asserts network is string {
+  protected throwIfInvalidNetwork(
+    network?: CurrencyTypes.ChainName,
+  ): asserts network is CurrencyTypes.ChainName {
     super.throwIfInvalidNetwork(network);
     if (this.supportedNetworks && !this.supportedNetworks.includes(network)) {
       throw new UnsupportedNetworkError(network, this.supportedNetworks);

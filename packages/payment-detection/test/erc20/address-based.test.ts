@@ -118,7 +118,7 @@ describe('api/erc20/address-based', () => {
     await expect(
       erc20AddressedBased.getBalance({
         currency: { network: 'wrong' },
-      } as RequestLogicTypes.IRequest),
+      } as unknown as RequestLogicTypes.IRequest),
     ).resolves.not.toThrowError();
   });
 });
