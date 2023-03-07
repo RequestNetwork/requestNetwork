@@ -19,6 +19,7 @@ const defaultValues: any = {
       networkId: 0,
       web3ProviderUrl: 'http://localhost:8545',
       gasPriceMin: '1000000000', // one gwei
+      blockConfirmations: 2,
     },
     ipfs: {
       host: 'localhost',

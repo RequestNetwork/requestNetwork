@@ -5,6 +5,7 @@ import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { EthereumTransactionSubmitter } from './ethereum-tx-submitter';
 import { getCurrentTimestampInSecond, SimpleLogger } from '@requestnetwork/utils';
+import { getDefaultEthereumBlockConfirmations } from './config';
 
 export type GasDefinerProps = {
   gasPriceMin?: BigNumber;
@@ -85,7 +86,7 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
     this.logger.debug(`TX ${tx.hash} submitted, waiting for confirmation...`);
 
     void tx
-      .wait(this.blockConfirmations)
+      .wait(this.blockConfirmations || getDefaultEthereumBlockConfirmations())
       .then((receipt: providers.TransactionReceipt) => {
         this.logger.debug(
           `TX ${receipt.transactionHash} confirmed at block ${receipt.blockNumber}`,
