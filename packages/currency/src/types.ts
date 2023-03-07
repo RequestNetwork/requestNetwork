@@ -43,7 +43,7 @@ export type ISO4217Currency = {
 export type ERC20Currency = {
   symbol: string;
   decimals: number;
-  network: CurrencyTypes.EvmChainName;
+  network: CurrencyTypes.EvmChainName | CurrencyTypes.NearChainName;
   address: string;
 };
 

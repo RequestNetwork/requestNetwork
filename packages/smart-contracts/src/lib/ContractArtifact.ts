@@ -13,7 +13,9 @@ export type ArtifactNetworkInfo = {
 };
 
 /** Deployment information and ABI per network */
-export type ArtifactDeploymentInfo<TNetwork extends string = string> = {
+export type ArtifactDeploymentInfo<
+  TNetwork extends CurrencyTypes.EvmChainName = CurrencyTypes.EvmChainName,
+> = {
   abi: JsonFragment[];
   deployment: Partial<Record<TNetwork, ArtifactNetworkInfo>>;
 };
@@ -21,7 +23,7 @@ export type ArtifactDeploymentInfo<TNetwork extends string = string> = {
 /** Deployment information and ABI per version and network */
 export type ArtifactInfo<
   TVersion extends string = string,
-  TNetwork extends string = CurrencyTypes.EvmChainName,
+  TNetwork extends CurrencyTypes.EvmChainName = CurrencyTypes.EvmChainName,
 > = Record<TVersion, ArtifactDeploymentInfo<TNetwork>>;
 
 export type DeploymentInformation = {

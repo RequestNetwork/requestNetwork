@@ -19,7 +19,7 @@ type TransferEventsParams = {
   eventName: PaymentTypes.EVENTS_NAMES;
   /** The list of ERC20 tokens addresses accepted for payments and refunds */
   acceptedTokens?: string[];
-  /** The the maximum span between the time the rate was fetched and the payment */
+  /** The maximum span between the time the rate was fetched and the payment */
   maxRateTimespan?: number;
 };
 
@@ -40,6 +40,25 @@ export class TheGraphInfoRetriever {
     params.contractAddress = formatAddress(params.contractAddress, 'contractAddress');
     params.acceptedTokens =
       params.acceptedTokens?.map((tok) => formatAddress(tok, 'acceptedTokens')) || [];
+    return {
+      paymentEvents: payments
+        .filter((payment) => this.filterPaymentEvents(payment, params))
+        .map((payment) => this.mapPaymentEvents(payment, params)),
+      escrowEvents: escrowEvents.map((escrow) => this.mapEscrowEvents(escrow, params)),
+    };
+  }
+
+  public async getReceivableEvents(
+    params: TransferEventsParams,
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
+    const { payments, escrowEvents } = await this.client.GetPaymentsAndEscrowStateForReceivables({
+      reference: utils.keccak256(`0x${params.paymentReference}`),
+    });
+
+    params.contractAddress = formatAddress(params.contractAddress, 'contractAddress');
+    params.acceptedTokens =
+      params.acceptedTokens?.map((tok) => formatAddress(tok, 'acceptedTokens')) || [];
+
     return {
       paymentEvents: payments
         .filter((payment) => this.filterPaymentEvents(payment, params))

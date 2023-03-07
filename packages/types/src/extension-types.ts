@@ -96,6 +96,7 @@ export enum PAYMENT_NETWORK_ID {
   ANY_DECLARATIVE = 'pn-any-declarative',
   ANY_TO_ERC20_PROXY = 'pn-any-to-erc20-proxy',
   ANY_TO_ETH_PROXY = 'pn-any-to-eth-proxy',
+  ERC20_TRANSFERABLE_RECEIVABLE = 'pn-erc20-transferable-receivable',
 }
 
 export const ID = {

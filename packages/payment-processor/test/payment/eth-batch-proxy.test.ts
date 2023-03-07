@@ -151,7 +151,7 @@ describe('payBatchProxyRequest', () => {
       balanceEthAfter
         .add(BigNumber.from(validRequest.expectedAmount).mul(2).toString())
         .add('24')
-        .add(confirmedTx.gasUsed?.mul(tx?.gasPrice ?? 1))
+        .add(confirmedTx.cumulativeGasUsed.mul(confirmedTx.effectiveGasPrice))
         .toString(),
     );
     expect(balanceFeeEthAfter.toString()).toBe(balanceFeeEthBefore.add('24').toString());
