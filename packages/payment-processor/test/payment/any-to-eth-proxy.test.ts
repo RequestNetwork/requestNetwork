@@ -95,11 +95,14 @@ describe('any-to-eth-proxy', () => {
       const fromNewBalance = await provider.getBalance(wallet.address);
       const toNewBalance = await provider.getBalance(paymentAddress);
       const feeNewBalance = await provider.getBalance(feeAddress);
-      const gasPrice = (await provider.getFeeData()).gasPrice || 0;
+      const gasPrice = confirmedTx.effectiveGasPrice;
 
       // Check each balance
       expect(
-        fromOldBalance.sub(fromNewBalance).sub(confirmedTx.gasUsed.mul(gasPrice)).toString(),
+        fromOldBalance
+          .sub(fromNewBalance)
+          .sub(confirmedTx.cumulativeGasUsed.mul(gasPrice))
+          .toString(),
         //   expectedAmount:        1.00
         //   feeAmount:          +   .02
         //                       =  1.02

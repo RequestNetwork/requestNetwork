@@ -1,5 +1,5 @@
 overwrite: true
-schema: 'https://api.thegraph.com/subgraphs/name/superfluid-finance/protocol-v1-rinkeby'
+schema: 'https://api.thegraph.com/subgraphs/name/superfluid-finance/protocol-v1-goerli'
 documents: src/thegraph/queries/superfluid/*.graphql
 generates:
   src/thegraph/generated/graphql-superfluid.ts:
@@ -8,3 +8,6 @@ generates:
       - 'typescript-operations'
       - 'typescript-graphql-request'
       - 'typescript-document-nodes'
+    config:
+      namingConvention:
+        enumValues: change-case-all#upperCaseFirst

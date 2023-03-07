@@ -84,9 +84,7 @@ export async function encodeCloseStreamRequest(
   // - stop fee streaming
   const batchCall = sf.batchCall([closeStreamOp]);
   const operationStructArray = await Promise.all(batchCall.getOperationStructArrayPromises);
-  return batchCall.host.hostContract.interface.encodeFunctionData('batchCall', [
-    operationStructArray,
-  ]);
+  return batchCall.host.contract.interface.encodeFunctionData('batchCall', [operationStructArray]);
 }
 
 /**
@@ -110,7 +108,7 @@ export async function prepareCloseStreamTransaction(
 
   return {
     data: encodedTx,
-    to: sf.host.hostContract.address,
+    to: sf.host.contract.address,
     value: 0,
   };
 }
@@ -144,11 +142,10 @@ export async function getSuperFluidFramework(
   provider: providers.Provider,
 ): Promise<Framework> {
   const isNetworkPrivate = request.currencyInfo.network === 'private';
-  const networkName = isNetworkPrivate ? 'custom' : request.currencyInfo.network;
+  const chainId = (await provider.getNetwork()).chainId;
   return await Framework.create({
-    networkName,
+    chainId,
     provider: provider,
-    dataMode: isNetworkPrivate ? 'WEB3_ONLY' : undefined,
     resolverAddress: isNetworkPrivate ? RESOLVER_ADDRESS : undefined,
     protocolReleaseVersion: isNetworkPrivate ? 'test' : undefined,
   });
@@ -188,9 +185,7 @@ export async function encodePayErc777StreamRequest(
   const batchCall = sf.batchCall([streamPayOp]);
 
   const operationStructArray = await Promise.all(batchCall.getOperationStructArrayPromises);
-  return batchCall.host.hostContract.interface.encodeFunctionData('batchCall', [
-    operationStructArray,
-  ]);
+  return batchCall.host.contract.interface.encodeFunctionData('batchCall', [operationStructArray]);
 }
 /**
  * Prepare the transaction to pay a request through the ERC777 SuperFluid stream contract.
@@ -208,7 +203,7 @@ export async function prepareErc777StreamPaymentTransaction(
 
   return {
     data: encodedTx,
-    to: sf.host.hostContract.address,
+    to: sf.host.contract.address,
     value: 0,
   };
 }

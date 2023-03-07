@@ -45,7 +45,7 @@
     "lint:sol:check": "solhint \"src/contracts/**/*.sol\"",
     "lint": "yarn run lint:lib && yarn run lint:sol",
     "lint:check": "yarn run lint:lib:check && yarn run lint:sol:check",
-    "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
+    "ganache": "yarn hardhat node",
     "deploy": "yarn hardhat deploy-local-env --network private",
     "test": "yarn hardhat test --network private",
     "test:lib": "yarn jest test/lib"
@@ -56,7 +56,6 @@
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "2.0.2",
     "@nomiclabs/hardhat-etherscan": "3.1.2",
-    "@nomiclabs/hardhat-ganache": "2.0.0",
     "@nomiclabs/hardhat-waffle": "2.0.1",
     "@nomiclabs/hardhat-web3": "2.0.0",
     "@openzeppelin/contracts": "4.4.2",
@@ -76,7 +75,7 @@
     "ethereum-waffle": "3.4.0",
     "ethers": "5.5.1",
     "ganache-cli": "6.12.0",
-    "hardhat": "2.4.1",
+    "hardhat": "2.12.0",
     "shx": "0.3.2",
     "solhint": "3.3.6",
     "typechain": "5.1.1",

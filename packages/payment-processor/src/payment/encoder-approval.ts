@@ -104,7 +104,7 @@ export function encodeRequestErc20ApprovalWithoutSwap(
   options?: IRequestPaymentOptions,
 ): IPreparedTransaction | void {
   const paymentNetwork = getPaymentNetworkExtension(request)?.id;
-  const overrides = options?.overrides ? options.overrides : undefined;
+  const overrides = options?.overrides;
 
   switch (paymentNetwork) {
     case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT:

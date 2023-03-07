@@ -26,7 +26,9 @@ export const getWallet = async ({
 export const getProvider = async (chainName: string) => {
   const chain = await getChainConfig(chainName);
   if (chain) {
-    const rpc = chain.rpcUrls[0].replace('{INFURA_API_KEY}', process.env.INFURA_API_KEY || '');
+    const rpc = chain.rpcUrls[0]
+      .replace('{ALCHEMY_API_KEY}', process.env.ALCHEMY_API_KEY || '')
+      .replace('{INFURA_API_KEY}', process.env.INFURA_API_KEY || '');
     return new providers.StaticJsonRpcProvider(rpc);
   }
   return getDefaultProvider(chainName);

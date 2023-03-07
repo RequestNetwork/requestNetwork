@@ -61,6 +61,7 @@
     "@graphql-codegen/typescript-graphql-request": "3.2.1",
     "@graphql-codegen/typescript-operations": "1.18.0",
     "@graphql-codegen/typescript-resolvers": "1.19.2",
+    "@jridgewell/gen-mapping": "0.3.2",
     "@requestnetwork/advanced-logic": "0.35.0",
     "@types/jest": "26.0.13",
     "@types/lodash": "4.14.161",

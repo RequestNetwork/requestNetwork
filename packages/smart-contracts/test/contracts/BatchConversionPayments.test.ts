@@ -48,7 +48,6 @@ describe('contract: BatchConversionPayments', async () => {
   const fiatDecimals = '00000000'; // 8 decimals
   const thousandWith18Decimal = '1000000000000000000000'; // 21 decimals
   const referenceExample = '0xaaaa';
-  const gasPrice = 2 * 10 ** 10; // await provider.getGasPrice()
 
   // constants related to chainlink and conversion rate
   const currencyManager = CurrencyManager.getDefault();
@@ -277,7 +276,7 @@ describe('contract: BatchConversionPayments', async () => {
     forceExpectedFeeETHBalanceDiff?: BigNumber,
   ) => {
     const receipt = await tx.wait();
-    const gasAmount = receipt.gasUsed.mul(gasPrice);
+    const gasAmount = receipt.gasUsed.mul(receipt.effectiveGasPrice);
 
     const fromETHBalance = await provider.getBalance(await fromSigner.getAddress());
     const toETHBalance = await provider.getBalance(to);
@@ -615,7 +614,7 @@ describe('contract: BatchConversionPayments', async () => {
 
           // Check ETH balances //
           const receipt = await tx.wait();
-          const gasAmount = receipt.gasUsed.mul(gasPrice);
+          const gasAmount = receipt.gasUsed.mul(receipt.effectiveGasPrice);
 
           const fromETHBalance = await provider.getBalance(await fromSigner.getAddress());
           const toETHBalance = await provider.getBalance(to);
@@ -762,7 +761,7 @@ describe('contract: BatchConversionPayments', async () => {
       convRequest.path = [EUR_hash, ETH_hash, DAI_address];
       await expect(
         batchConversionProxy.batchMultiERC20ConversionPayments([convRequest], [], feeAddress),
-      ).to.be.revertedWith('revert No aggregator found');
+      ).to.be.revertedWith('No aggregator found');
     });
     it('cannot transfer if max to spend too low', async () => {
       const convRequest = deepCopy(fauConvRequest);

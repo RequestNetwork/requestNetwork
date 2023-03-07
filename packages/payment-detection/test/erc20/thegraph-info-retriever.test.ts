@@ -49,6 +49,10 @@ describe('api/erc20/thegraph-info-retriever', () => {
           payments: paymentsMockData[reference] || [],
           escrowEvents: [],
         })),
+        GetPaymentsAndEscrowStateForReceivables: jest.fn().mockImplementation(({ reference }) => ({
+          payments: paymentsMockData[reference] || [],
+          escrowEvents: [],
+        })),
         GetLastSyncedBlock: jest.fn(),
         GetSyncedBlock: jest.fn(),
       };
