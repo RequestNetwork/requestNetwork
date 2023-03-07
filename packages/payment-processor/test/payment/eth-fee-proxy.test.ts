@@ -123,7 +123,7 @@ describe('payEthFeeProxyRequest', () => {
       balanceEthAfter
         .add(validRequest.expectedAmount)
         .add('2')
-        .add(confirmedTx.gasUsed?.mul(tx?.gasPrice ?? 1))
+        .add(confirmedTx.cumulativeGasUsed.mul(confirmedTx.effectiveGasPrice))
         .toString(),
     );
     expect(balanceFeeEthAfter.toString()).toBe(balanceFeeEthBefore.add('2').toString());

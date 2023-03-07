@@ -24,7 +24,6 @@ import {
   erc20SwapConversionArtifact,
   erc20SwapToPayArtifact,
 } from '@requestnetwork/smart-contracts';
-import { DAIX_ADDRESS } from './erc777-stream.test';
 import { IConversionSettings } from '../../src/payment/settings';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -32,6 +31,7 @@ import { IConversionSettings } from '../../src/payment/settings';
 
 const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
+const DAIX_ADDRESS = '0x7D782D2cc2755CA324De57D42e28Cc63278dFE12';
 
 // Cf. ERC20Alpha in TestERC20.sol
 const alphaContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';

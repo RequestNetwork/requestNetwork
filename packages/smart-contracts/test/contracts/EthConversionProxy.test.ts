@@ -270,7 +270,7 @@ describe('contract: EthConversionProxy', () => {
               value: mainEthAmount.result.add(ethFee.result).sub(1),
             },
           ),
-        ).to.be.revertedWith('revert paymentProxy transferExactEthWithReferenceAndFee failed');
+        ).to.be.revertedWith('paymentProxy transferExactEthWithReferenceAndFee failed');
       });
       it('cannot transfer if rate is too old', async function () {
         const path = [USD_hash, ETH_hash];
@@ -328,7 +328,7 @@ describe('contract: EthConversionProxy', () => {
               value: ethFee.result.add(mainEthAmount.result),
             },
           ),
-        ).to.be.revertedWith('revert payment currency must be the native token');
+        ).to.be.revertedWith('payment currency must be the native token');
       });
     });
   });
