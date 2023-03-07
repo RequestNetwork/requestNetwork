@@ -100,6 +100,31 @@ export class ContractArtifact<TContract extends Contract> {
   }
 
   /**
+   * Retrieve all addresses for all versions for all networks
+   * @returns the addresses of the deployed contract and the associated network and version.
+   */
+  getAllAddressesFromAllNetworks(): {
+    version: string;
+    address: string;
+    networkName: CurrencyTypes.EvmChainName;
+  }[] {
+    const deployments = [];
+    for (const version in this.info) {
+      let networkName: CurrencyTypes.EvmChainName;
+      for (networkName in this.info[version].deployment) {
+        const address = this.info[version].deployment[networkName]?.address;
+        if (!address) continue;
+        deployments.push({
+          version,
+          address,
+          networkName,
+        });
+      }
+    }
+    return deployments;
+  }
+
+  /**
    * Retrieve the block creation number from the artifact of the used version
    * deployed into the specified network
    * @param networkName the name of the network where the contract is deployed

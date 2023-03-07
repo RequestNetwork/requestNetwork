@@ -59,4 +59,11 @@ export abstract class ChainsAbstract<
   public getChainName(chainId: CHAIN_ID): CHAIN_NAME | undefined {
     return this.chainNames.find((chainName) => this.chains[chainName].chainId === chainId);
   }
+
+  /**
+   * Returns true is the chain is a testnet chain
+   */
+  public isTestnet(chainName: CHAIN_NAME): boolean {
+    return Boolean(this.chains[chainName].testnet);
+  }
 }

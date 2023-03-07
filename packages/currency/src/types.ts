@@ -12,6 +12,7 @@ export type TokenMap = Record<TokenAddress, TokenDefinition>;
  */
 export type Chain = {
   chainId: number | string;
+  testnet?: boolean;
   currencies?: TokenMap;
 };
 
