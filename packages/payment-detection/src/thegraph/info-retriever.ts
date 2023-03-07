@@ -19,7 +19,7 @@ type TransferEventsParams = {
   eventName: PaymentTypes.EVENTS_NAMES;
   /** The list of ERC20 tokens addresses accepted for payments and refunds */
   acceptedTokens?: string[];
-  /** The the maximum span between the time the rate was fetched and the payment */
+  /** The maximum span between the time the rate was fetched and the payment */
   maxRateTimespan?: number;
 };
 
