@@ -100,18 +100,21 @@ describe('erc777-stream', () => {
       { network: 'optimism' },
       { network: 'avalanche' },
       { network: 'arbitrum-one' },
-    ])('Should initialize superfluid framework on $network', async ({ network }) => {
-      const provider = getDefaultProvider(network);
-      const networkValidRequest = {
-        ...validRequest,
-        currencyInfo: {
-          ...validRequest.currencyInfo,
-          network,
-        },
-      };
-      const sf = await getSuperFluidFramework(networkValidRequest, provider);
-      expect(sf).toBeDefined();
-    });
+    ] as Array<{ network: CurrencyTypes.EvmChainName }>)(
+      'Should initialize superfluid framework on $network',
+      async ({ network }) => {
+        const provider = getDefaultProvider(network);
+        const networkValidRequest = {
+          ...validRequest,
+          currencyInfo: {
+            ...validRequest.currencyInfo,
+            network,
+          },
+        };
+        const sf = await getSuperFluidFramework(networkValidRequest, provider);
+        expect(sf).toBeDefined();
+      },
+    );
   });
 
   describe('encodePayErc20FeeRequest (used to pay and swap to pay)', () => {
