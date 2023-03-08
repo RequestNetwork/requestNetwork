@@ -3,6 +3,7 @@ import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts
 import { BatchConversionPayments__factory } from '@requestnetwork/smart-contracts/types';
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   PaymentTypes,
   RequestLogicTypes,
@@ -16,6 +17,7 @@ import {
   getProxyAddress,
   getRequestPaymentValues,
   getSigner,
+  MAX_ALLOWANCE,
   validateErc20FeeProxyRequest,
 } from './utils';
 import {
@@ -272,7 +274,7 @@ function getUSDPathsForFeeLimit(
  * @returns
  */
 function getBatchDeploymentInformation(
-  network: string,
+  network: CurrencyTypes.EvmChainName,
   version?: string,
 ): { address: string } | null {
   return { address: batchConversionPaymentsArtifact.getAddress(network, version) };
@@ -307,6 +309,7 @@ export async function approveErc20BatchConversionIfNeeded(
   request: ClientTypes.IRequestData,
   account: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),
+  amount: BigNumber = MAX_ALLOWANCE,
   paymentSettings?: IConversionPaymentSettings,
   version?: string,
   overrides?: ITransactionOverrides,
@@ -323,6 +326,7 @@ export async function approveErc20BatchConversionIfNeeded(
     return approveErc20BatchConversion(
       request,
       getSigner(signerOrProvider),
+      amount,
       paymentSettings,
       version,
       overrides,
@@ -367,6 +371,7 @@ export async function hasErc20BatchConversionApproval(
 export async function approveErc20BatchConversion(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Provider | Signer = getProvider(),
+  amount: BigNumber = MAX_ALLOWANCE,
   paymentSettings?: IConversionPaymentSettings,
   version?: string,
   overrides?: ITransactionOverrides,
@@ -374,6 +379,7 @@ export async function approveErc20BatchConversion(
   const preparedTx = prepareApproveErc20BatchConversion(
     request,
     signerOrProvider,
+    amount,
     paymentSettings,
     version,
     overrides,
@@ -395,6 +401,7 @@ export async function approveErc20BatchConversion(
 export function prepareApproveErc20BatchConversion(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Provider | Signer = getProvider(),
+  amount: BigNumber = MAX_ALLOWANCE,
   paymentSettings?: IConversionPaymentSettings,
   version?: string,
   overrides?: ITransactionOverrides,
@@ -402,6 +409,7 @@ export function prepareApproveErc20BatchConversion(
   const encodedTx = encodeApproveErc20BatchConversion(
     request,
     signerOrProvider,
+    amount,
     paymentSettings,
     version,
   );
@@ -424,6 +432,7 @@ export function prepareApproveErc20BatchConversion(
 export function encodeApproveErc20BatchConversion(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Provider | Signer = getProvider(),
+  amount: BigNumber = MAX_ALLOWANCE,
   paymentSettings?: IConversionPaymentSettings,
   version?: string,
 ): string {
@@ -432,6 +441,7 @@ export function encodeApproveErc20BatchConversion(
     getTokenAddress(request, paymentSettings),
     proxyAddress,
     getSigner(signerOrProvider),
+    amount,
   );
 }
 

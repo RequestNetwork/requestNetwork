@@ -2,13 +2,14 @@ import { ethers, providers } from 'ethers';
 import { chainlinkConversionPath } from '@requestnetwork/smart-contracts';
 import { getDefaultProvider, parseLogArgs } from '@requestnetwork/payment-detection';
 import {
-  ChainlinkConversionPath__factory,
   ChainlinkConversionPath,
+  ChainlinkConversionPath__factory,
 } from '@requestnetwork/smart-contracts/types';
-import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { CurrencyManager, EvmChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import Bluebird from 'bluebird';
 import chunk from 'lodash/chunk';
-import Utils from '@requestnetwork/utils';
+import { retry } from '@requestnetwork/utils';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 export interface IOptions {
   network?: string;
@@ -37,7 +38,7 @@ class ChainlinkConversionPathTools {
    * @param network The Ethereum network to use
    */
   constructor(
-    private network: string,
+    private network: CurrencyTypes.EvmChainName,
     options?: { web3Url?: string; lastBlock?: number; maxRange?: number },
   ) {
     const web3Url =
@@ -75,13 +76,10 @@ class ChainlinkConversionPathTools {
       chunks,
       (blocks) => {
         console.error(`Fetching logs from ${blocks[0]} to ${blocks[blocks.length - 1]}`);
-        return Utils.retry(
-          this.chainLinkConversionPath.queryFilter.bind(this.chainLinkConversionPath),
-          {
-            maxRetries: 3,
-            retryDelay: 2000,
-          },
-        )(
+        return retry(this.chainLinkConversionPath.queryFilter.bind(this.chainLinkConversionPath), {
+          maxRetries: 3,
+          retryDelay: 2000,
+        })(
           this.chainLinkConversionPath.filters.AggregatorUpdated(),
           blocks[0],
           blocks[blocks.length - 1],
@@ -145,7 +143,11 @@ const getCurrency = (symbol: string) => {
 };
 
 export const listAggregators = async (options?: IOptions): Promise<void> => {
-  const networks = options?.network ? [options.network] : ['private', 'rinkeby', 'mainnet'];
+  let networks: CurrencyTypes.EvmChainName[] = ['private', 'rinkeby', 'mainnet'];
+  if (options?.network) {
+    EvmChains.assertChainSupported(options.network);
+    networks = [options.network];
+  }
 
   // Create an Object to be used by a dijkstra algorithm to find the best path between two currencies
   const allAggregators: Record<string, Record<string, Record<string, string>>> = {};

@@ -1,17 +1,14 @@
-import { Wallet, providers } from 'ethers';
-
+import { providers, Wallet } from 'ethers';
 import {
   ClientTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-
-import Utils from '@requestnetwork/utils';
-import { payAnyToEthProxyRequest } from '../../src/payment/any-to-eth-proxy';
+import { deepCopy } from '@requestnetwork/utils';
+import { IConversionPaymentSettings, payAnyToEthProxyRequest } from '../../src';
 import { currencyManager } from './shared';
 
-import { IConversionPaymentSettings } from '../../src/index';
 const paymentSettings: IConversionPaymentSettings = {
   maxToSpend: '2500000000000000',
   currencyManager,
@@ -70,7 +67,7 @@ const validEuroRequest: ClientTypes.IRequestData = {
 describe('any-to-eth-proxy', () => {
   describe('error checking', () => {
     it('should throw an error if request has no extension', async () => {
-      const request = Utils.deepCopy(validEuroRequest);
+      const request = deepCopy(validEuroRequest);
       request.extensions = [] as any;
 
       await expect(payAnyToEthProxyRequest(request, wallet, paymentSettings)).rejects.toThrowError(
@@ -98,11 +95,14 @@ describe('any-to-eth-proxy', () => {
       const fromNewBalance = await provider.getBalance(wallet.address);
       const toNewBalance = await provider.getBalance(paymentAddress);
       const feeNewBalance = await provider.getBalance(feeAddress);
-      const gasPrice = (await provider.getFeeData()).gasPrice || 0;
+      const gasPrice = confirmedTx.effectiveGasPrice;
 
       // Check each balance
       expect(
-        fromOldBalance.sub(fromNewBalance).sub(confirmedTx.gasUsed.mul(gasPrice)).toString(),
+        fromOldBalance
+          .sub(fromNewBalance)
+          .sub(confirmedTx.cumulativeGasUsed.mul(gasPrice))
+          .toString(),
         //   expectedAmount:        1.00
         //   feeAmount:          +   .02
         //                       =  1.02

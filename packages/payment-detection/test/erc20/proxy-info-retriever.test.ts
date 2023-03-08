@@ -12,7 +12,7 @@ const paymentReferenceMock = '01111111111111111111111111111111111111111111111111
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/proxy-info-retriever', () => {
   describe('on localhost', () => {
-    const paymentAddress = '0xf17f52151ebef6c7334fad080c5704d77216b732';
+    const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 
     it('can get the localhost balance of an address', async () => {
       const infoRetriever = new ProxyERC20InfoRetriever(
@@ -128,7 +128,7 @@ describe('api/erc20/proxy-info-retriever', () => {
 
       const parameters: PaymentTypes.IERC20FeePaymentEventParameters = event.parameters!;
 
-      expect(parameters.to).toBe('0x627306090abab3a6e1400e9345bc60c78a8bef57');
+      expect(parameters.to).toBe('0x627306090abaB3A6e1400e9345bC60c78a8BEf57');
       expect(typeof parameters.block).toBe('number');
       expect(typeof parameters.txHash).toBe('string');
       expect(parameters.feeAddress).toBe('0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef');

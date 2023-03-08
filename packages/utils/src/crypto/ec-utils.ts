@@ -4,13 +4,13 @@ import { ethers } from 'ethers';
 /**
  * Function to manage Elliptic-curve cryptography
  */
-export default {
-  decrypt,
-  encrypt,
+export {
+  ecDecrypt,
+  ecEncrypt,
   getAddressFromPrivateKey,
   getAddressFromPublicKey,
-  recover,
-  sign,
+  ecRecover,
+  ecSign,
 };
 
 /**
@@ -61,13 +61,13 @@ function getAddressFromPublicKey(publicKey: string): string {
 }
 
 /**
- * Function sign data with ECDSA
+ * Function ecSigndata with ECDSA
  *
  * @param data the data to sign
  *
  * @returns the signature
  */
-function sign(privateKey: string, data: string): string {
+function ecSign(privateKey: string, data: string): string {
   try {
     const signingKey = new ethers.utils.SigningKey(privateKey);
     return ethers.utils.joinSignature(signingKey.signDigest(data));
@@ -91,7 +91,7 @@ function sign(privateKey: string, data: string): string {
  *
  * @returns the address
  */
-function recover(signature: string, data: string): string {
+function ecRecover(signature: string, data: string): string {
   try {
     signature = signature.replace(/^0x/, '');
     data = data.replace(/^0x/, '');
@@ -131,9 +131,9 @@ function recover(signature: string, data: string): string {
  *
  * @returns the encrypted data
  */
-async function encrypt(publicKey: string, data: string): Promise<string> {
+async function ecEncrypt(publicKey: string, data: string): Promise<string> {
   try {
-    // Encrypts the data with the publicKey, returns the encrypted data with encryption parameters (such as IV..)
+    // encrypts the data with the publicKey, returns the encrypted data with encryption parameters (such as IV..)
     const compressed = compressPublicKey(publicKey);
     const encrypted = await EcCrypto.encrypt(Buffer.from(compressed), Buffer.from(data));
 
@@ -163,11 +163,11 @@ async function encrypt(publicKey: string, data: string): Promise<string> {
  *
  * @returns the decrypted data
  */
-async function decrypt(privateKey: string, encrypted: string): Promise<string> {
+async function ecDecrypt(privateKey: string, data: string): Promise<string> {
   try {
     const buf = await EcCrypto.decrypt(
       Buffer.from(privateKey.replace(/^0x/, ''), 'hex'),
-      eciesSplit(encrypted),
+      eciesSplit(data),
     );
     return buf.toString();
   } catch (e) {
@@ -204,7 +204,7 @@ function compressPublicKey(publicKey: string): Uint8Array {
 
 /**
  * Split an encrypted string to ECIES params
- * inspired from https://github.com/pubkey/eth-crypto/blob/master/src/decrypt-with-private-key.js
+ * inspired from https://github.com/pubkey/eth-crypto/blob/master/src/ecDecrypt-with-private-key.js
  */
 const eciesSplit = (str: string): EcCrypto.Ecies => {
   const buf = Buffer.from(str, 'hex');

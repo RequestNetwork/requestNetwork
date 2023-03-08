@@ -1,7 +1,7 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import Axios from 'axios';
 import { BigNumber } from 'ethers';
+import { retry } from '@requestnetwork/utils';
 
 // Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
 const BLOCKSTREAMINFO_REQUEST_MAX_RETRY = 3;
@@ -32,7 +32,7 @@ export class BlockStreamInfoProvider implements PaymentTypes.IBitcoinDetectionPr
     const baseUrl = this.getBaseUrl(bitcoinNetworkId);
     const queryUrl = `${baseUrl}/address/${address}/txs`;
     try {
-      const res = await Utils.retry(async () => Axios.get(queryUrl), {
+      const res = await retry(async () => Axios.get(queryUrl), {
         maxRetries: BLOCKSTREAMINFO_REQUEST_MAX_RETRY,
         retryDelay: BLOCKSTREAMINFO_REQUEST_RETRY_DELAY,
       })();
@@ -48,7 +48,7 @@ export class BlockStreamInfoProvider implements PaymentTypes.IBitcoinDetectionPr
       while (checkForMoreTransactions) {
         const lastTxHash = txs[txs.length - 1].txid;
 
-        const resExtraPage = await Utils.retry(
+        const resExtraPage = await retry(
           async () => fetch(`${baseUrl}/address/${address}/txs/chain/${lastTxHash}`),
           {
             maxRetries: BLOCKSTREAMINFO_REQUEST_MAX_RETRY,

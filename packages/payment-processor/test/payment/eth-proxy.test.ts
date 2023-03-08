@@ -2,11 +2,12 @@ import { Wallet, BigNumber, providers } from 'ethers';
 
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 import {
   encodePayEthProxyRequest,
@@ -76,7 +77,7 @@ describe('getRequestPaymentValues', () => {
 
 describe('payEthProxyRequest', () => {
   it('should throw an error if the request is not erc20', async () => {
-    const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+    const request = deepCopy(validRequest) as ClientTypes.IRequestData;
     request.currencyInfo.type = RequestLogicTypes.CURRENCY.ERC20;
 
     await expect(payEthProxyRequest(request, wallet)).rejects.toThrowError(
@@ -85,15 +86,15 @@ describe('payEthProxyRequest', () => {
   });
 
   it('should throw an error if currencyInfo has no network', async () => {
-    const request = Utils.deepCopy(validRequest);
-    request.currencyInfo.network = '';
+    const request = deepCopy(validRequest);
+    request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
     await expect(payEthProxyRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );
   });
 
   it('should throw an error if request has no extension', async () => {
-    const request = Utils.deepCopy(validRequest);
+    const request = deepCopy(validRequest);
     request.extensions = [] as any;
 
     await expect(payEthProxyRequest(request, wallet)).rejects.toThrowError(
@@ -134,7 +135,7 @@ describe('payEthProxyRequest', () => {
     expect(balanceEthBefore.toString()).toBe(
       balanceEthAfter
         .add(validRequest.expectedAmount)
-        .add(confirmedTx.gasUsed?.mul(tx?.gasPrice ?? 1))
+        .add(confirmedTx.cumulativeGasUsed.mul(confirmedTx.effectiveGasPrice))
         .toString(),
     );
   });

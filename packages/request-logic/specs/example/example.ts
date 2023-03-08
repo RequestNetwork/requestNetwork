@@ -6,9 +6,9 @@ import {
   SignatureProviderTypes,
   SignatureTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 
 import RequestLogic from '../../src/requestLogicCore';
+import { sign } from '@requestnetwork/utils';
 
 async function foo(): Promise<void> {
   // Bob (the payee)
@@ -38,8 +38,8 @@ async function foo(): Promise<void> {
   const signatureProvider: SignatureProviderTypes.ISignatureProvider = {
     sign: (data: any, identity: IdentityTypes.IIdentity): any =>
       ({
-        [aliceRaw.identity.value as string]: Utils.signature.sign(data, aliceRaw.signatureParams),
-        [bobRaw.identity.value as string]: Utils.signature.sign(data, bobRaw.signatureParams),
+        [aliceRaw.identity.value as string]: sign(data, aliceRaw.signatureParams),
+        [bobRaw.identity.value as string]: sign(data, bobRaw.signatureParams),
       }[identity.value]),
     supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
     supportedMethods: [SignatureTypes.METHOD.ECDSA],

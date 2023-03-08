@@ -1,5 +1,4 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import * as Bluebird from 'bluebird';
 import { EventEmitter } from 'events';
 import { getMaxConcurrency } from './config';
@@ -10,6 +9,8 @@ import IgnoredDataIds from './ignored-dataIds';
 import SmartContractManager from './smart-contract-manager';
 
 import * as Keyv from 'keyv';
+import { BigNumber } from 'ethers';
+import { getCurrentTimestampInSecond, SimpleLogger } from '@requestnetwork/utils';
 
 // time to wait before considering the web3 provider is not reachable
 const WEB3_PROVIDER_TIMEOUT = 10000;
@@ -77,17 +78,19 @@ export class EthereumStorage implements StorageTypes.IStorage {
       maxConcurrency,
       maxRetries,
       retryDelay,
+      gasPriceMin,
     }: {
       getLastBlockNumberDelay?: number;
       logger?: LogTypes.ILogger;
       maxConcurrency?: number;
       maxRetries?: number;
       retryDelay?: number;
+      gasPriceMin?: BigNumber;
     } = {},
     metadataStore?: Keyv.Store<any>,
   ) {
     this.maxConcurrency = maxConcurrency || getMaxConcurrency();
-    this.logger = logger || new Utils.SimpleLogger();
+    this.logger = logger || new SimpleLogger();
     this.ipfsStorage = ipfsStorage;
     this.smartContractManager = new SmartContractManager(web3Connection, {
       getLastBlockNumberDelay,
@@ -95,6 +98,7 @@ export class EthereumStorage implements StorageTypes.IStorage {
       maxConcurrency: this.maxConcurrency,
       maxRetries,
       retryDelay,
+      gasPriceMin,
     });
     this.ethereumMetadataCache = new EthereumMetadataCache(metadataStore);
     this.ignoredDataIds = new IgnoredDataIds(metadataStore);
@@ -163,7 +167,7 @@ export class EthereumStorage implements StorageTypes.IStorage {
 
     const { ipfsHash, ipfsSize } = await this.ipfsStorage.ipfsAdd(content);
 
-    const timestamp = Utils.getCurrentTimestampInSecond();
+    const timestamp = getCurrentTimestampInSecond();
     const result: StorageTypes.IAppendResult = Object.assign(new EventEmitter(), {
       content,
       id: ipfsHash,

@@ -6,7 +6,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 import { approveErc20ForSwapWithConversionIfNeeded } from '../../src/payment/swap-conversion-erc20';
 import { ERC20, ERC20__factory } from '@requestnetwork/smart-contracts/types';
@@ -111,7 +111,7 @@ describe('swap-any-to-erc20', () => {
     });
 
     it('should throw an error if the payment network is wrong', async () => {
-      const request = Utils.deepCopy(validRequest);
+      const request = deepCopy(validRequest);
       delete request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY];
 
       await expect(
@@ -123,7 +123,7 @@ describe('swap-any-to-erc20', () => {
     });
 
     it('should throw an error if the conversion path is impossible', async () => {
-      const request = Utils.deepCopy(validRequest);
+      const request = deepCopy(validRequest);
       (request.currencyInfo = {
         type: RequestLogicTypes.CURRENCY.ISO4217,
         value: 'XXX',
@@ -139,7 +139,7 @@ describe('swap-any-to-erc20', () => {
     });
 
     it('should throw an error if the conversion currency is not an acceptedTokens', async () => {
-      const wrongCurrency = {
+      const wrongCurrency: RequestLogicTypes.ICurrency = {
         type: 'ERC20' as any,
         value: '0x17b4158805772ced11225e77339f90beb5aae968',
         network: 'private',

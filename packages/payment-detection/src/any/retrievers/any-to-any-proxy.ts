@@ -1,9 +1,9 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
 import { PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, ethers } from 'ethers';
-import { getDefaultProvider } from '../../provider';
 import { parseLogArgs, unpadAmountFromChainlink } from '../../utils';
 import type { JsonFragment } from '@ethersproject/abi';
+import { getDefaultProvider } from '@requestnetwork/utils';
 
 /** TransferWithConversionAndReference event */
 type TransferWithConversionAndReferenceArgs = {

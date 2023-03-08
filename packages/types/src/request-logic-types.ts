@@ -5,6 +5,7 @@ import * as Extension from './extension-types';
 import * as Identity from './identity-types';
 import * as Signature from './signature-types';
 import * as Transaction from './transaction-types';
+import { CurrencyTypes } from './index';
 
 /** Request Logic layer */
 export interface IRequestLogic {
@@ -254,7 +255,7 @@ export interface ICurrency {
   /** The currency value (e.g.: '0x123...789', 'EUR', 'ETH') */
   value: string;
   /** The currency network (e.g.: 'mainnet', 'rinkeby', 'bank_sandbox') */
-  network?: string;
+  network?: CurrencyTypes.ChainName;
 }
 
 /** Enum of name possible in a action */
@@ -270,10 +271,15 @@ export enum ACTION_NAME {
 
 /** Supported currencies */
 export enum CURRENCY {
+  /** ETH Currency type refers to any kind of blockchain native currency - excepted bitcoin */
   ETH = 'ETH',
+  /** BTC Currency type refers to the Bitcoin native currency */
   BTC = 'BTC',
+  /** ISO4217 Currency type refers to fiat currencies (e.g. EUR, USD, ...) */
   ISO4217 = 'ISO4217',
+  /** ERC20 Currency type refers to any kind of fungible token (USDC, DAI, ...) */
   ERC20 = 'ERC20',
+  /** ERC777 Currency type refers to any kind of streamable fungible token (USDCx, DAIx, ...) */
   ERC777 = 'ERC777',
 }
 

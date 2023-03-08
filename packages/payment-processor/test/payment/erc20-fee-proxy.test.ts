@@ -1,20 +1,22 @@
-import { Wallet, BigNumber, providers } from 'ethers';
+import { BigNumber, providers, Wallet } from 'ethers';
 
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 
-import { approveErc20, getErc20Balance } from '../../src/payment/erc20';
 import {
   _getErc20FeeProxyPaymentUrl,
+  approveErc20,
+  getErc20Balance,
   payErc20FeeProxyRequest,
   prepareErc20FeeProxyPaymentTransaction,
-} from '../../src/payment/erc20-fee-proxy';
+} from '../../src';
 import { getRequestPaymentValues } from '../../src/payment/utils';
 
 /* eslint-disable no-magic-numbers */
@@ -88,7 +90,7 @@ describe('erc20-fee-proxy', () => {
 
   describe('encodePayErc20FeeRequest (used to pay and swap to pay)', () => {
     it('should throw an error if the request is not erc20', async () => {
-      const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+      const request = deepCopy(validRequest) as ClientTypes.IRequestData;
       request.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
 
       await expect(payErc20FeeProxyRequest(request, wallet)).rejects.toThrowError(
@@ -97,7 +99,7 @@ describe('erc20-fee-proxy', () => {
     });
 
     it('should throw an error if the currencyInfo has no value', async () => {
-      const request = Utils.deepCopy(validRequest);
+      const request = deepCopy(validRequest);
       request.currencyInfo.value = '';
       await expect(payErc20FeeProxyRequest(request, wallet)).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
@@ -105,15 +107,15 @@ describe('erc20-fee-proxy', () => {
     });
 
     it('should throw an error if currencyInfo has no network', async () => {
-      const request = Utils.deepCopy(validRequest);
-      request.currencyInfo.network = '';
+      const request = deepCopy(validRequest);
+      request.currencyInfo.network = '' as CurrencyTypes.ChainName;
       await expect(payErc20FeeProxyRequest(request, wallet)).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
     });
 
     it('should throw an error if request has no extension', async () => {
-      const request = Utils.deepCopy(validRequest);
+      const request = deepCopy(validRequest);
       request.extensions = [] as any;
 
       await expect(payErc20FeeProxyRequest(request, wallet)).rejects.toThrowError(

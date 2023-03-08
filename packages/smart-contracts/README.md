@@ -108,7 +108,7 @@ The deployer contract should be deployed at `0xE99Ab70a5FAE59551544FA326fA048f7B
 
 Be sure to run `yarn build:sol` before deploying the deployer or a contract.
 
-The contracts implemented are listed in the array `create2ContractDeploymentList` in [Utils](./scripts-create2/utils.ts).
+The contracts implemented are listed in the array `create2ContractDeploymentList` in [Utils](scripts-create2/utils.ts).
 
 ### Deploy the request deployer (once per chain)
 
@@ -157,10 +157,23 @@ This command will output details about each contract deployment on each chain:
 
 ### Verify the contracts
 
-Verify and publish the contract code automatically to blockchain explorers, right after smart contracts compilation. You should first set the `ETHERSCAN_API_KEY` environment variable.
+Verify and publish the contract code automatically to blockchain explorers, right after smart contracts compilation.
+Environment variables needed: `ADMIN_...` key and wallet, `ETHERSCAN_API_KEY`, and `REQUEST_DEPLOYER_LIVE`.
+Depending on the contracts you're verifying you will need to set up `WEB3_PROVIDER_URL`.
+See `hardhat.config.ts`.
 
 ```bash
 yarn hardhat verify-contract-from-deployer --network <NETWORK>
+```
+
+### Add the contracts to Tenderly
+
+Once the contract has been added to the artifacts (`./src/lib/artifacts`), run the following command to synchronize
+contracts with the Tenderly account.
+Environment variables needed: `TENDERLY_...` (see `hardhat.config.ts`).
+
+```bash
+yarn hardhat tenderly-monitor-contracts
 ```
 
 #### Verify the contracts manually With Hardhat (legacy)

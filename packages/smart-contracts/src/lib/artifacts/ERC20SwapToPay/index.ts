@@ -1,6 +1,7 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
+import { abi as ABI_0_2_0 } from './0.2.0.json';
 // @ts-ignore Cannot find module
 import type { ERC20SwapToPay } from '../../../types/ERC20SwapToPay';
 
@@ -78,20 +79,69 @@ export const erc20SwapToPayArtifact = new ContractArtifact<ERC20SwapToPay>(
           address: '0x75740D9b5cA3BCCb356CA7f0D0dB71aBE427a835',
           creationBlockNumber: 35479213,
         },
+        moonbeam: {
+          address: '0x75740D9b5cA3BCCb356CA7f0D0dB71aBE427a835',
+          creationBlockNumber: 2415419,
+        },
+      },
+    },
+    '0.4.0': {
+      abi: ABI_0_2_0,
+      deployment: {
+        private: {
+          address: '0xA4392264a2d8c998901D10C154C91725b1BF0158',
+          creationBlockNumber: 0,
+        },
+        goerli: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 8345195,
+        },
+        mainnet: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 16449207,
+        },
+        matic: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 38315947,
+        },
+        celo: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 17312915,
+        },
+        xdai: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 26061999,
+        },
+        avalanche: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 25191333,
+        },
+        optimism: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 69320020,
+        },
+        moonbeam: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 2771649,
+        },
+        fantom: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 54083939,
+        },
+        bsc: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 24955402,
+        },
+        'arbitrum-one': {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 54331555,
+        },
+        fuse: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 21337989,
+        },
       },
     },
   },
-  // Additional deployments of same versions, not worth upgrading the version number but worth using within next versions
-  /*
-  '0.3.0-next': {
-    abi: ABI_0_1_0,
-    deployment: {
-      mainnet: {
-        address: '0x75740D9b5cA3BCCb356CA7f0D0dB71aBE427a835',
-        creationBlockNumber: 13764133,
-      },
-    },
-  },
-  */
-  '0.3.0',
+  '0.4.0',
 );

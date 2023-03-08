@@ -1,7 +1,13 @@
-import { RequestLogicTypes } from '@requestnetwork/types';
-import { NativeCurrency, NativeCurrencyType } from './types';
+import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { NamedNativeCurrency } from './types';
 
-export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { name: string })[]> = {
+type NativeEthCurrency = NamedNativeCurrency & {
+  network: CurrencyTypes.EvmChainName | CurrencyTypes.NearChainName;
+};
+type NativeBtcCurrency = NamedNativeCurrency & { network: CurrencyTypes.BtcChainName };
+
+export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthCurrency[]> &
+  Record<RequestLogicTypes.CURRENCY.BTC, NativeBtcCurrency[]> = {
   [RequestLogicTypes.CURRENCY.ETH]: [
     {
       symbol: 'ETH',
@@ -104,6 +110,18 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       decimals: 18,
       name: 'Optimism Ether',
       network: 'optimism',
+    },
+    {
+      symbol: 'GLMR',
+      decimals: 18,
+      name: 'Glimmer',
+      network: 'moonbeam',
+    },
+    {
+      symbol: 'TOMB',
+      decimals: 18,
+      name: 'Tomb',
+      network: 'tombchain',
     },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [

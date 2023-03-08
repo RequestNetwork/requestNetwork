@@ -3,7 +3,7 @@ import TypedEmitter from 'typed-emitter';
 
 import { BigNumber } from 'ethers';
 
-import Utils from '@requestnetwork/utils';
+import { getCurrentTimestampInSecond, retry, SimpleLogger } from '@requestnetwork/utils';
 import { Block } from '@requestnetwork/data-access';
 import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 
@@ -11,6 +11,7 @@ import { Transaction } from './queries';
 import { SubgraphClient } from './subgraph-client';
 import { CombinedDataAccess } from '@requestnetwork/data-access';
 import { PendingStore } from './pending-store';
+import { RequestInit } from 'graphql-request/dist/types.dom';
 
 type TheGraphDataAccessBaseOptions = {
   network: string;
@@ -179,7 +180,7 @@ export class TheGraphDataRead implements DataAccessTypes.IDataRead {
         transactions: [
           {
             state: DataAccessTypes.TransactionState.PENDING,
-            timestamp: Utils.getCurrentTimestampInSecond(),
+            timestamp: getCurrentTimestampInSecond(),
             transaction,
           },
         ],
@@ -219,7 +220,7 @@ export class TheGraphDataWrite implements DataAccessTypes.IDataWrite {
     private readonly graphql: SubgraphClient,
     { network, logger, pendingStore }: TheGraphDataAccessBaseOptions,
   ) {
-    this.logger = logger || new Utils.SimpleLogger();
+    this.logger = logger || new SimpleLogger();
     this.network = network;
     this.pendingStore = pendingStore;
   }
@@ -269,7 +270,7 @@ export class TheGraphDataWrite implements DataAccessTypes.IDataWrite {
     };
 
     storageResult.on('confirmed', () => {
-      Utils.retry(
+      retry(
         async () => {
           const response = await this.graphql.getTransactionsByHash(storageResult.id);
           if (response.transactions.length === 0) {

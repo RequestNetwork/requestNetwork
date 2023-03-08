@@ -2,11 +2,12 @@ import { Wallet, providers, BigNumber } from 'ethers';
 
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 import { payBatchProxyRequest, encodePayBatchRequest } from '../../src/payment/batch-proxy';
 import { getRequestPaymentValues } from '../../src/payment/utils';
@@ -67,7 +68,7 @@ const validRequest: ClientTypes.IRequestData = {
   version: '2.0.3',
 };
 
-const validRequest2 = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+const validRequest2 = deepCopy(validRequest) as ClientTypes.IRequestData;
 validRequest2.extensions = {
   [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
     events: [],
@@ -93,7 +94,7 @@ describe('getRequestPaymentValues', () => {
 
 describe('payBatchProxyRequest', () => {
   it('should throw an error if one request is not eth', async () => {
-    const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+    const request = deepCopy(validRequest) as ClientTypes.IRequestData;
     request.currencyInfo.type = RequestLogicTypes.CURRENCY.ERC20;
 
     await expect(
@@ -104,8 +105,8 @@ describe('payBatchProxyRequest', () => {
   });
 
   it('should throw an error if in one request, currencyInfo has no network', async () => {
-    const request = Utils.deepCopy(validRequest);
-    request.currencyInfo.network = '';
+    const request = deepCopy(validRequest);
+    request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
     await expect(
       payBatchProxyRequest([validRequest, request], batchVersion, wallet, batchFee),
     ).rejects.toThrowError(
@@ -114,7 +115,7 @@ describe('payBatchProxyRequest', () => {
   });
 
   it('should throw an error if one request has no extension', async () => {
-    const request = Utils.deepCopy(validRequest);
+    const request = deepCopy(validRequest);
     request.extensions = [] as any;
 
     await expect(
@@ -150,7 +151,7 @@ describe('payBatchProxyRequest', () => {
       balanceEthAfter
         .add(BigNumber.from(validRequest.expectedAmount).mul(2).toString())
         .add('24')
-        .add(confirmedTx.gasUsed?.mul(tx?.gasPrice ?? 1))
+        .add(confirmedTx.cumulativeGasUsed.mul(confirmedTx.effectiveGasPrice))
         .toString(),
     );
     expect(balanceFeeEthAfter.toString()).toBe(balanceFeeEthBefore.add('24').toString());

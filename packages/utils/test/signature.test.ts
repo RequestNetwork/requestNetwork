@@ -1,6 +1,10 @@
 import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
-import Crypto from '../src/crypto';
-import Signature from '../src/signature';
+import {
+  getIdentityFromSignatureParams,
+  normalizeKeccak256Hash,
+  recoverSigner,
+  sign,
+} from '../src';
 
 const otherIdRaw = {
   address: '0x818B6337657A23F58581715Fc610577292e521D0',
@@ -31,7 +35,7 @@ const dataDiffCase = {
 describe('Signature', () => {
   describe('getIdentityFromSignatureParams', () => {
     it('can getIdentityFromSignatureParams()', () => {
-      const identity = Signature.getIdentityFromSignatureParams({
+      const identity = getIdentityFromSignatureParams({
         method: SignatureTypes.METHOD.ECDSA,
         privateKey: otherIdRaw.privateKey,
       });
@@ -44,7 +48,7 @@ describe('Signature', () => {
         method: 'notECDSA',
         privateKey: otherIdRaw.privateKey,
       };
-      expect(() => Signature.getIdentityFromSignatureParams(params)).toThrowError(
+      expect(() => getIdentityFromSignatureParams(params)).toThrowError(
         'signatureParams.method not supported',
       );
     });
@@ -52,7 +56,7 @@ describe('Signature', () => {
 
   describe('sign', () => {
     it('can sign() with ECDSA', () => {
-      const signature = Signature.sign(data, {
+      const signature = sign(data, {
         method: SignatureTypes.METHOD.ECDSA,
         privateKey: otherIdRaw.privateKey,
       });
@@ -68,7 +72,7 @@ describe('Signature', () => {
     });
 
     it('can sign() with ECDSA_ETHEREUM', () => {
-      const signature = Signature.sign(data, {
+      const signature = sign(data, {
         method: SignatureTypes.METHOD.ECDSA_ETHEREUM,
         privateKey: otherIdRaw.privateKey,
       });
@@ -84,7 +88,7 @@ describe('Signature', () => {
     });
 
     it('can sign() with different case', () => {
-      const signature = Signature.sign(dataDiffCase, {
+      const signature = sign(dataDiffCase, {
         method: SignatureTypes.METHOD.ECDSA,
         privateKey: otherIdRaw.privateKey,
       });
@@ -104,15 +108,15 @@ describe('Signature', () => {
         method: 'notECDSA',
         privateKey: otherIdRaw.privateKey,
       };
-      expect(() => Signature.sign(Crypto.normalizeKeccak256Hash(data), params)).toThrowError(
+      expect(() => sign(normalizeKeccak256Hash(data), params)).toThrowError(
         'signatureParams.method not supported',
       );
     });
   });
 
   describe('recover', () => {
-    it('can recover() ECDSA signature', () => {
-      const id = Signature.recover({
+    it('can recoverSigner()  ECDSA signature', () => {
+      const id = recoverSigner({
         data,
         signature: {
           method: SignatureTypes.METHOD.ECDSA,
@@ -120,12 +124,12 @@ describe('Signature', () => {
             '0x801f4240516509c28660f096830d52e8523e2136d557d65728e39f3ea37b72bb3f20accff461cabe3515431d0e6c468d4631540b7c6f9c29acfa7c9231781a3c1c',
         },
       });
-      // 'recover() error'
+      // 'recoverSigner()  error'
       expect(id).toEqual(otherIdRaw.identity);
     });
 
-    it('can recover() ECDSA_ETHEREUM signature', () => {
-      const id = Signature.recover({
+    it('can recoverSigner()  ECDSA_ETHEREUM signature', () => {
+      const id = recoverSigner({
         data,
         signature: {
           method: SignatureTypes.METHOD.ECDSA_ETHEREUM,
@@ -133,14 +137,14 @@ describe('Signature', () => {
             '0x3fbc7ed9dfa003067f646749d4223def2a69df70371d4f15ec001bc1491cdee40558de1f31fdc7cc5d805a5c4080b54cda3430b29ab14f04e17a5b23fcd39b391b',
         },
       });
-      // 'recover() error'
+      // 'recoverSigner()  error'
       expect(id.value).toEqual(otherIdRaw.identity.value.toLowerCase());
-      // 'recover() error'
+      // 'recoverSigner()  error'
       expect(id.type).toEqual(otherIdRaw.identity.type);
     });
 
-    it('can recover() with different case', () => {
-      const id = Signature.recover({
+    it('can recoverSigner()  with different case', () => {
+      const id = recoverSigner({
         data: dataDiffCase,
         signature: {
           method: SignatureTypes.METHOD.ECDSA,
@@ -148,7 +152,7 @@ describe('Signature', () => {
             '0x801f4240516509c28660f096830d52e8523e2136d557d65728e39f3ea37b72bb3f20accff461cabe3515431d0e6c468d4631540b7c6f9c29acfa7c9231781a3c1c',
         },
       });
-      // 'recover() error'
+      // 'recoverSigner()  error'
       expect(id).toEqual(otherIdRaw.identity);
     });
 
@@ -157,7 +161,7 @@ describe('Signature', () => {
         method: 'notECDSA',
         value: '0x00000000000000000000',
       };
-      expect(() => Signature.recover({ data, signature: params })).toThrowError(
+      expect(() => recoverSigner({ data, signature: params })).toThrowError(
         'signatureParams.method not supported',
       );
     });

@@ -15,7 +15,7 @@ import {
   processNearPaymentWithConversion,
 } from './utils-near';
 import { IConversionPaymentSettings } from '.';
-import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { CurrencyManager, NearChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 /**
  * Processes the transaction to pay a request in NEAR with on-chain conversion.
@@ -48,6 +48,7 @@ export async function payNearConversionRequest(
   if (!network || !isNearNetwork(network)) {
     throw new Error('Should be a Near network');
   }
+  NearChains.assertChainSupported(network);
 
   const amountToPay = getAmountToPay(request, amount).toString();
   const version = getPaymentExtensionVersion(request);

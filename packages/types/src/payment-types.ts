@@ -3,6 +3,7 @@ import * as RequestLogic from './request-logic-types';
 import * as ExtensionTypes from './extension-types';
 import { ICreationParameters } from './extensions/pn-any-declarative-types';
 import { ICreationParameters as ICreationParametersAnyToAny } from './extensions/pn-any-to-any-conversion-types';
+import { EvmChainName } from './currency-types';
 
 /** Interface for payment network extensions state and interpretation */
 export interface IPaymentNetwork<TEventParameters = any> {
@@ -34,6 +35,7 @@ export interface IFeeReferenceBasedCreationParameters extends IReferenceBasedCre
 /** Parameters to create a request with "any to erc20" payment network */
 export interface IAnyToErc20CreationParameters extends ICreationParametersAnyToAny {
   acceptedTokens?: string[];
+  network?: EvmChainName;
 }
 
 /**
@@ -56,7 +58,8 @@ export type PaymentNetworkCreateParameters =
   | {
       id:
         | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
-        | ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT;
+        | ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT
+        | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE;
       parameters: ExtensionTypes.PnFeeReferenceBased.ICreationParameters;
     }
   | {

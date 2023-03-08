@@ -42,34 +42,98 @@ export async function payErc777StreamRequest(
 }
 
 /**
- * Processes a transaction to complete an ERC777 stream paying a Request.
+ * Get from SuperFluid framework the operation to stop paying a request.
+ * @param sender the address who created the stream
+ * @param sf the SuperFluid framework to use
  * @param request the request to pay
- * @param signer the Web3 signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
  */
-export async function completeErc777StreamRequest(
+async function getStopStreamOp(
+  sender: string,
+  sf: Framework,
   request: ClientTypes.IRequestData,
-  signer: Signer,
   overrides?: Overrides,
-): Promise<ContractTransaction> {
-  const id = getPaymentNetworkExtension(request)?.id;
-  if (id !== ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM) {
-    throw new Error('Not a supported ERC777 payment network request');
-  }
-  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
-  const sf = await getSuperFluidFramework(request, signer.provider ?? getProvider());
+) {
+  const superToken = await sf.loadSuperToken(request.currencyInfo.value);
+  const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
+  return sf.cfaV1.deleteFlow({
+    superToken: superToken.address,
+    sender,
+    receiver: paymentAddress,
+    userData: `${USERDATA_PREFIX}${paymentReference}`,
+    overrides: overrides,
+  });
+}
+
+/**
+ * Encodes the call to close a SuperFluid stream.
+ * @param request the request to pay
+ * @param sf the SuperFluid framework to use
+ */
+export async function encodeCloseStreamRequest(
+  sender: string,
+  request: ClientTypes.IRequestData,
+  sf: Framework,
+): Promise<string> {
+  const closeStreamOp = await getStopStreamOp(sender, sf, request);
+
   // FIXME: according to specs PR https://github.com/RequestNetwork/requestNetwork/pull/688
   // in file packages/advanced-logic/specs/payment-network-erc777-stream-0.1.0.md
   // Below are the SF actions to add in the BatchCall :
   // - use expectedEndDate to compute offset between stop of invoicing and stop of streaming
   // - stop fee streaming
-  const streamPayOp = await getStopStreamOp(sf, signer, request, overrides);
-  const batchCall = sf.batchCall([streamPayOp]);
-  return batchCall.exec(signer);
+  const batchCall = sf.batchCall([closeStreamOp]);
+  const operationStructArray = await Promise.all(batchCall.getOperationStructArrayPromises);
+  return batchCall.host.contract.interface.encodeFunctionData('batchCall', [operationStructArray]);
 }
 
 /**
- * Encodes the call to pay a request through the ERC20 fee proxy contract, can be used with a Multisig contract.
+ * Prepare the transaction to close a SuperFluid stream.
+ * @param request the request to pay
+ * @param provider the Web3 provider. Defaults to window.ethereum.
+ */
+export async function prepareCloseStreamTransaction(
+  sender: string,
+  request: ClientTypes.IRequestData,
+  provider: providers.Provider,
+): Promise<IPreparedTransaction> {
+  const id = getPaymentNetworkExtension(request)?.id;
+  if (id !== ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM) {
+    throw new Error('Not a supported ERC777 payment network request');
+  }
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
+
+  const sf = await getSuperFluidFramework(request, provider);
+  const encodedTx = await encodeCloseStreamRequest(sender, request, sf);
+
+  return {
+    data: encodedTx,
+    to: sf.host.contract.address,
+    value: 0,
+  };
+}
+
+/**
+ * Processes a transaction to close an ERC777 stream paying a Request.
+ * @param request the request to pay
+ * @param signer the Web3 signer. Defaults to window.ethereum.
+ * @param overrides optionally, override default transaction values, like gas.
+ */
+export async function closeErc777StreamRequest(
+  request: ClientTypes.IRequestData,
+  signer: Signer,
+  overrides?: Overrides,
+): Promise<ContractTransaction> {
+  const { data, to, value } = await prepareCloseStreamTransaction(
+    await signer.getAddress(),
+    request,
+    signer.provider ?? getProvider(),
+  );
+  return signer.sendTransaction({ data, to, value, ...overrides });
+}
+
+/**
+ * Get the superfluid framework based on a request
  * @param request the request to pay
  * @param provider the Web3 provider. Defaults to window.ethereum.
  */
@@ -78,11 +142,10 @@ export async function getSuperFluidFramework(
   provider: providers.Provider,
 ): Promise<Framework> {
   const isNetworkPrivate = request.currencyInfo.network === 'private';
-  const networkName = isNetworkPrivate ? 'custom' : request.currencyInfo.network;
+  const chainId = (await provider.getNetwork()).chainId;
   return await Framework.create({
-    networkName,
+    chainId,
     provider: provider,
-    dataMode: isNetworkPrivate ? 'WEB3_ONLY' : undefined,
     resolverAddress: isNetworkPrivate ? RESOLVER_ADDRESS : undefined,
     protocolReleaseVersion: isNetworkPrivate ? 'test' : undefined,
   });
@@ -105,30 +168,6 @@ async function getStartStreamOp(sf: Framework, request: ClientTypes.IRequestData
 }
 
 /**
- * Get from SuperFluid framework the operation to stop paying a request.
- * @param sf the SuperFluid framework to use
- * @param signer the Web3 signer. Defaults to window.ethereum.
- * @param request the request to pay
- * @param overrides optionally, override default transaction values, like gas.
- */
-async function getStopStreamOp(
-  sf: Framework,
-  signer: Signer,
-  request: ClientTypes.IRequestData,
-  overrides?: Overrides,
-) {
-  const superToken = await sf.loadSuperToken(request.currencyInfo.value);
-  const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
-  return sf.cfaV1.deleteFlow({
-    superToken: superToken.address,
-    sender: await signer.getAddress(),
-    receiver: paymentAddress,
-    userData: `${USERDATA_PREFIX}${paymentReference}`,
-    overrides: overrides,
-  });
-}
-
-/**
  * Encodes the call to pay a request through the ERC777 SuperFluid stream contract.
  * @param request the request to pay
  * @param sf the SuperFluid framework to use
@@ -146,9 +185,7 @@ export async function encodePayErc777StreamRequest(
   const batchCall = sf.batchCall([streamPayOp]);
 
   const operationStructArray = await Promise.all(batchCall.getOperationStructArrayPromises);
-  return batchCall.host.hostContract.interface.encodeFunctionData('batchCall', [
-    operationStructArray,
-  ]);
+  return batchCall.host.contract.interface.encodeFunctionData('batchCall', [operationStructArray]);
 }
 /**
  * Prepare the transaction to pay a request through the ERC777 SuperFluid stream contract.
@@ -166,7 +203,7 @@ export async function prepareErc777StreamPaymentTransaction(
 
   return {
     data: encodedTx,
-    to: sf.host.hostContract.address,
+    to: sf.host.contract.address,
     value: 0,
   };
 }
@@ -216,7 +253,11 @@ export const encodeErc777OneOffPayment = (
   validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
   const erc777 = ethers.ContractFactory.getInterface(erc777Artefact.abi);
-  return erc777.encodeFunctionData('send', [paymentAddress, amount, `0x${paymentReference}`]);
+  return erc777.encodeFunctionData('send', [
+    paymentAddress,
+    amount,
+    `${USERDATA_PREFIX}${paymentReference}`,
+  ]);
 };
 
 /**

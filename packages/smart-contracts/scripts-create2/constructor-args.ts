@@ -1,4 +1,5 @@
 import * as artifacts from '../src/lib';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 const getAdminWalletAddress = (contract: string): string => {
   if (!process.env.ADMIN_WALLET_ADDRESS) {
@@ -7,8 +8,14 @@ const getAdminWalletAddress = (contract: string): string => {
   return process.env.ADMIN_WALLET_ADDRESS;
 };
 
-export const getConstructorArgs = (contract: string, network?: string): string[] => {
+export const getConstructorArgs = (
+  contract: string,
+  network?: CurrencyTypes.EvmChainName,
+): string[] => {
   switch (contract) {
+    case 'ChainlinkConversionPath': {
+      return ['0x0000000000000000000000000000000000000000', getAdminWalletAddress(contract)];
+    }
     case 'Erc20ConversionProxy': {
       return [
         '0x0000000000000000000000000000000000000000',
@@ -20,11 +27,12 @@ export const getConstructorArgs = (contract: string, network?: string): string[]
       return [
         '0x0000000000000000000000000000000000000000',
         '0x0000000000000000000000000000000000000000',
-        // FIXME: This is not right the NativeTokenHash is not the same accross all networks
-        //        It should be set to 0x0, and then updated through setup functions
-        //        These functions needs to be implemented in the contract before it can deployed using xdeployer
-        '0x39e19aa5b69466dfdc313c7cda37cb2a599015cd',
+        '0x0000000000000000000000000000000000000000',
+        getAdminWalletAddress(contract),
       ];
+    }
+    case 'ERC20SwapToPay': {
+      return ['0x0000000000000000000000000000000000000000', getAdminWalletAddress(contract)];
     }
     case 'ERC20SwapToConversion': {
       return [getAdminWalletAddress(contract)];
@@ -39,17 +47,30 @@ export const getConstructorArgs = (contract: string, network?: string): string[]
       const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
       return [erc20FeeProxyAddress, getAdminWalletAddress(contract)];
     }
-    case 'BatchPayments': {
+    case 'BatchConversionPayments': {
       if (!network) {
         throw new Error(
-          'Batch contract requires network parameter to get correct address of erc20FeeProxy and ethereumFeeProxy',
+          'Batch conversion contract requires network parameter to get correct address of erc20FeeProxy, erc20ConversionFeeProxy, ethereumFeeProxy, ethereumConversionFeeProxy, and chainlinkConversionPath',
         );
       }
       return [
         '0x0000000000000000000000000000000000000000',
         '0x0000000000000000000000000000000000000000',
+        '0x0000000000000000000000000000000000000000',
+        '0x0000000000000000000000000000000000000000',
+        '0x0000000000000000000000000000000000000000',
         getAdminWalletAddress(contract),
       ];
+    }
+    case 'ERC20TransferableReceivable': {
+      if (!network) {
+        throw new Error(
+          'Receivable contract requires network parameter to get correct address of erc20FeeProxy',
+        );
+      }
+      const erc20FeeProxy = artifacts.erc20FeeProxyArtifact;
+      const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
+      return ['Request Network Transferable Receivable', 'tREC', erc20FeeProxyAddress];
     }
     default:
       return [];

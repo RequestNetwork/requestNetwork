@@ -1,6 +1,6 @@
-import { CurrencyManager, CurrencyInput, AggregatorsMap } from '@requestnetwork/currency';
+import { AggregatorsMap, CurrencyInput, CurrencyManager } from '@requestnetwork/currency';
 import axios from 'axios';
-import { RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 type Proxy = {
   pair: string;
@@ -26,7 +26,9 @@ export type Aggregator = {
   aggregator: string;
 };
 
-const feedMap: Record<string, [chainKey: string, networkName: string]> = {
+const feedMap: Partial<
+  Record<CurrencyTypes.EvmChainName, [chainKey: string, networkName: string]>
+> = {
   mainnet: ['ethereum', 'Ethereum Mainnet'],
   goerli: ['ethereum', 'Goerli Testnet'],
   rinkeby: ['ethereum', 'Rinkeby Testnet'],
@@ -36,9 +38,11 @@ const feedMap: Record<string, [chainKey: string, networkName: string]> = {
   bsc: ['bnb-chain', 'BNB Chain Mainnet'],
   avalanche: ['avalanche', 'Avalanche Mainnet'],
   optimism: ['optimism', 'Optimism Mainnet'],
+  'arbitrum-one': ['arbitrum', 'Arbitrum Mainnet'],
+  moonbeam: ['moonbeam', 'Moonbeam Mainnet'],
 };
 
-export const getAllAggregators = async (network: string): Promise<Proxy[]> => {
+export const getAllAggregators = async (network: CurrencyTypes.EvmChainName): Promise<Proxy[]> => {
   const [feedName, networkName] = feedMap[network] || [];
   if (!feedName || !networkName) {
     throw new Error(
@@ -57,7 +61,7 @@ export const getAllAggregators = async (network: string): Promise<Proxy[]> => {
 };
 
 export const getAvailableAggregators = async (
-  network: string,
+  network: CurrencyTypes.EvmChainName,
   cm: CurrencyManager,
   pairs?: string[],
   listAll?: boolean,

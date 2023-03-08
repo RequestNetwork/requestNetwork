@@ -1,10 +1,9 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
-import * as Utils from '@requestnetwork/utils';
 
-import { IConversionPaymentSettings, _getPaymentUrl } from '../../src/payment';
+import { IConversionPaymentSettings, payNearConversionRequest } from '../../src';
 import * as nearUtils from '../../src/payment/utils-near';
-import { payNearConversionRequest } from '../../src/payment/near-conversion';
+import { deepCopy } from '@requestnetwork/utils';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */
@@ -101,7 +100,7 @@ describe('payNearWithConversionRequest', () => {
         state: () => Promise.resolve({ amount: 100 }),
       }),
     } as any;
-    let invalidRequest = Utils.default.deepCopy(request);
+    let invalidRequest = deepCopy(request);
     invalidRequest = {
       ...invalidRequest,
       extensions: {
@@ -129,7 +128,7 @@ describe('payNearWithConversionRequest', () => {
         state: () => Promise.resolve({ amount: 100 }),
       }),
     } as any;
-    let invalidRequest = Utils.default.deepCopy(request);
+    let invalidRequest = deepCopy(request);
     invalidRequest = {
       ...invalidRequest,
       currencyInfo: {
@@ -154,7 +153,7 @@ describe('payNearWithConversionRequest', () => {
         state: () => Promise.resolve({ amount: 100 }),
       }),
     } as any;
-    let invalidRequest = Utils.default.deepCopy(request);
+    let invalidRequest = deepCopy(request);
     invalidRequest = {
       ...invalidRequest,
       extensions: {

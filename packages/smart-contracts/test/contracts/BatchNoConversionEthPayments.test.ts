@@ -1,7 +1,7 @@
 import { ethers, network } from 'hardhat';
 import { BigNumber, Signer } from 'ethers';
 import { expect } from 'chai';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 import {
   EthereumFeeProxy__factory,
   BatchNoConversionPayments__factory,
@@ -12,7 +12,7 @@ import { EthereumFeeProxy, BatchNoConversionPayments } from '../../src/types';
 import { chainlinkConversionPath } from '../../src/lib';
 import { HttpNetworkConfig } from 'hardhat/types';
 import { PaymentTypes } from 'types/dist';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 
 const logGasInfos = false;
 
@@ -65,6 +65,7 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
 
     const erc20FeeProxy = await new ERC20FeeProxy__factory(owner).deploy();
     ethFeeProxy = await new EthereumFeeProxy__factory(owner).deploy();
+    EvmChains.assertChainSupported(network.name);
     chainlinkPath = chainlinkConversionPath.connect(network.name, owner);
     batch = await new BatchNoConversionPayments__factory(owner).deploy(
       erc20FeeProxy.address,
@@ -89,11 +90,11 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
       beforeEthBalance1 = await provider.getBalance(payee1);
       beforeEthBalance2 = await provider.getBalance(payee2);
 
-      const copyEthRequestDetail1 = Utils.deepCopy(ethRequestDetail1);
+      const copyEthRequestDetail1 = deepCopy(ethRequestDetail1);
       copyEthRequestDetail1.requestAmount = '2000';
       copyEthRequestDetail1.feeAmount = '100';
 
-      const copyEthRequestDetail2 = Utils.deepCopy(ethRequestDetail2);
+      const copyEthRequestDetail2 = deepCopy(ethRequestDetail2);
       copyEthRequestDetail2.requestAmount = '3000';
       copyEthRequestDetail2.feeAmount = '200';
       await expect(
@@ -149,7 +150,7 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
       const feeAmount = 1;
       const nbTxs = 10; // to compare gas optim, go to 100.
 
-      const copyEthRequestDetail = Utils.deepCopy(ethRequestDetail2);
+      const copyEthRequestDetail = deepCopy(ethRequestDetail2);
       copyEthRequestDetail.requestAmount = amount.toString();
       copyEthRequestDetail.feeAmount = feeAmount.toString();
       const totalAmount = BigNumber.from(((amount + feeAmount) * nbTxs).toString());

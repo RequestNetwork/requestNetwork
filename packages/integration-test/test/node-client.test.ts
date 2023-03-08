@@ -8,7 +8,6 @@ import {
   RequestLogicTypes,
   ExtensionTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import {
   payRequest,
   approveErc20ForProxyConversionIfNeeded,
@@ -24,6 +23,7 @@ import {
   requestNetwork,
   signatureProvider,
 } from './scheduled/fixtures';
+import { getCurrentTimestampInSecond, normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
@@ -175,11 +175,11 @@ describe('Request client using a request node', () => {
       expectedAmount: '100000000',
       payee: payeeIdentity,
       payer: payerIdentity,
-      timestamp: Utils.getCurrentTimestampInSecond(),
+      timestamp: getCurrentTimestampInSecond(),
     };
 
     const topicsRequest1and2: string[] = [
-      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(requestCreationHash1)),
+      MultiFormat.serialize(normalizeKeccak256Hash(requestCreationHash1)),
     ];
 
     const request1: Request = await requestNetwork.createRequest({
@@ -188,7 +188,7 @@ describe('Request client using a request node', () => {
       topics: topicsRequest1and2,
     });
     await request1.waitForConfirmation();
-    const timestampBeforeReduce = Utils.getCurrentTimestampInSecond();
+    const timestampBeforeReduce = getCurrentTimestampInSecond();
 
     // make sure that request 2 timestamp is greater than request 1 timestamp
     const waitNextSecond = (timestampBeforeReduce + 1) * 1000 - Date.now();
@@ -200,7 +200,7 @@ describe('Request client using a request node', () => {
       expectedAmount: '1000',
       payee: payeeIdentity,
       payer: payerIdentity,
-      timestamp: Utils.getCurrentTimestampInSecond(),
+      timestamp: getCurrentTimestampInSecond(),
     };
 
     const request2: Request = await requestNetwork.createRequest({
@@ -251,11 +251,11 @@ describe('Request client using a request node', () => {
       value: '0xf17f52151ebef6c7334fad080c5704d77216b732',
     };
 
-    const timestampCreation = Utils.getCurrentTimestampInSecond();
+    const timestampCreation = getCurrentTimestampInSecond();
 
     // create request 1
     const topicsRequest1and2: string[] = [
-      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(timestampCreation)),
+      MultiFormat.serialize(normalizeKeccak256Hash(timestampCreation)),
     ];
     const request1: Request = await requestNetwork.createRequest({
       requestInfo: {
@@ -263,7 +263,7 @@ describe('Request client using a request node', () => {
         expectedAmount: '100000000',
         payee: payeeIdentity,
         payer: payerSmartContract,
-        timestamp: Utils.getCurrentTimestampInSecond(),
+        timestamp: getCurrentTimestampInSecond(),
       },
       signer: payeeIdentity,
       topics: topicsRequest1and2,
@@ -276,7 +276,7 @@ describe('Request client using a request node', () => {
         expectedAmount: '1000',
         payee: payeeIdentity,
         payer: payerIdentity,
-        timestamp: Utils.getCurrentTimestampInSecond(),
+        timestamp: getCurrentTimestampInSecond(),
       },
       signer: payeeIdentity,
       topics: topicsRequest1and2,
@@ -473,7 +473,7 @@ describe('Request client using a request node', () => {
 
   it('cannot decrypt a request with the wrong decryption provider', async () => {
     const timestamp = Date.now();
-    const myRandomTopic = `topic ${Utils.getCurrentTimestampInSecond()}`;
+    const myRandomTopic = `topic ${getCurrentTimestampInSecond()}`;
     const requestNetwork = new RequestNetwork({
       httpConfig,
       decryptionProvider,
@@ -541,7 +541,7 @@ describe('ERC20 localhost request creation and detection test', () => {
   it.only('can create ERC20 requests with any to erc20 proxy', async () => {
     const tokenContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 
-    const currencies = [
+    const currencies: CurrencyInput[] = [
       ...CurrencyManager.getDefaultList(),
       {
         address: tokenContractAddress,

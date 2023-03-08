@@ -1,5 +1,6 @@
 import {
   AdvancedLogicTypes,
+  CurrencyTypes,
   ExtensionTypes,
   PaymentTypes,
   RequestLogicTypes,
@@ -17,6 +18,7 @@ import {
   ERC20AddressBasedPaymentDetector,
   ERC20FeeProxyPaymentDetector,
   ERC20ProxyPaymentDetector,
+  ERC20TransferableReceivablePaymentDetector,
 } from './erc20';
 import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
 import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
@@ -24,7 +26,7 @@ import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './an
 import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetector } from './near';
 import { getPaymentNetworkExtension } from './utils';
 import { getTheGraphClient } from './thegraph';
-import { getDefaultProvider } from './provider';
+import { getDefaultProvider } from 'ethers';
 
 const PN_ID = ExtensionTypes.PAYMENT_NETWORK_ID;
 
@@ -48,6 +50,7 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
       [PN_ID.ERC20_ADDRESS_BASED]: ERC20AddressBasedPaymentDetector,
       [PN_ID.ERC20_PROXY_CONTRACT]: ERC20ProxyPaymentDetector,
       [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector,
+      [PN_ID.ERC20_TRANSFERABLE_RECEIVABLE]: ERC20TransferableReceivablePaymentDetector,
     },
   },
   ETH: {
@@ -116,7 +119,7 @@ export class PaymentNetworkFactory {
   public createPaymentNetwork(
     paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currencyType: RequestLogicTypes.CURRENCY,
-    paymentChain?: string,
+    paymentChain?: CurrencyTypes.ChainName,
     paymentNetworkVersion?: string,
   ): PaymentTypes.IPaymentNetwork {
     const network = paymentChain ?? 'mainnet';
@@ -147,7 +150,7 @@ export class PaymentNetworkFactory {
     if (detector.extension && 'getDeploymentInformation' in detectorClass) {
       // this throws when the contract isn't deployed and was mandatory for payment detection
       (detectorClass as ContractBasedDetector).getDeploymentInformation(
-        network,
+        network as CurrencyTypes.EvmChainName,
         paymentNetworkVersion || detector.extension.currentVersion,
       );
     }

@@ -1,4 +1,4 @@
-import { RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
 import addressValidator from 'multicoin-address-validator';
 import { getSupportedERC20Tokens } from './erc20';
@@ -17,6 +17,7 @@ import {
 } from './types';
 import { defaultConversionPairs, AggregatorsMap, getPath } from './conversion-aggregators';
 import { isValidNearAddress } from './currency-utils';
+import { NearChains } from './chains';
 
 const { BTC, ERC20, ERC777, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 
@@ -59,7 +60,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    */
   from(
     currencyIdentifier: string | undefined,
-    network?: string,
+    network?: CurrencyTypes.ChainName,
   ): CurrencyDefinition<TMeta> | undefined {
     if (!currencyIdentifier) {
       return;
@@ -70,7 +71,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
 
     const parts = currencyIdentifier.split('-');
     const currencyFromSymbol =
-      this.fromSymbol(parts[0], network || parts[1]) ||
+      this.fromSymbol(parts[0], network || (parts[1] as CurrencyTypes.ChainName)) ||
       // try without splitting the symbol to support currencies like ETH-rinkeby
       this.fromSymbol(currencyIdentifier, network);
 
@@ -90,7 +91,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
 
   /**
    * Gets a supported currency from its address and network.
-   * If more than 1 currencies are found, undefined is returned
+   * If more than one currency are found, undefined is returned
    */
   fromAddress(address: string, network?: string): CurrencyDefinition<TMeta> | undefined {
     address = utils.getAddress(address);
@@ -113,9 +114,12 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   /**
    * Gets a supported currency from its symbol and network.
    */
-  fromSymbol(symbol: string, network?: string): CurrencyDefinition<TMeta> | undefined {
+  fromSymbol(
+    symbol: string,
+    network?: CurrencyTypes.ChainName,
+  ): CurrencyDefinition<TMeta> | undefined {
     symbol = symbol?.toUpperCase();
-    network = network?.toLowerCase();
+    network = network?.toLowerCase() as CurrencyTypes.ChainName | undefined;
 
     const legacy = network ? this.legacyTokens[network]?.[symbol] : undefined;
     if (legacy) {
@@ -171,7 +175,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   getConversionPath(
     from: Pick<CurrencyDefinition, 'hash'>,
     to: Pick<CurrencyDefinition, 'hash'>,
-    network: string,
+    network: CurrencyTypes.ChainName,
   ): string[] | null {
     try {
       return getPath(from, to, network, this.conversionPairs);
@@ -180,7 +184,10 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     }
   }
 
-  supportsConversion(currency: Pick<CurrencyDefinition, 'hash'>, network: string): boolean {
+  supportsConversion(
+    currency: Pick<CurrencyDefinition, 'hash'>,
+    network: CurrencyTypes.ChainName,
+  ): boolean {
     return !!this.conversionPairs[network]?.[currency.hash.toLowerCase()];
   }
 
@@ -194,7 +201,9 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     ...input
   }: CurrencyInput & { id?: string; hash?: string; meta?: TMeta }): CurrencyDefinition<TMeta> {
     if ('address' in input) {
-      input.address = utils.getAddress(input.address);
+      if (input.address.startsWith('0x') && input.address.length === 42) {
+        input.address = utils.getAddress(input.address);
+      }
     }
     return {
       id: id || CurrencyManager.currencyId(input),
@@ -227,24 +236,21 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * Validates an address for a given currency.
    * Throws if the currency is an ISO4217 currency.
    */
-  static validateAddress(address: string, currency: CurrencyInput): boolean {
+  static validateAddress(address: string, currency: CurrencyInput | StorageCurrency): boolean {
+    if (currency.type === RequestLogicTypes.CURRENCY.ISO4217) {
+      throw new Error(`Could not validate an address for an ISO4217 currency`);
+    }
     switch (currency.type) {
-      case RequestLogicTypes.CURRENCY.ISO4217:
-        throw new Error(`Could not validate an address for an ISO4217 currency`);
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
       case RequestLogicTypes.CURRENCY.ERC777:
-        switch (currency.symbol) {
-          case 'NEAR':
-          case 'NEAR-testnet':
-            return isValidNearAddress(address, currency.network);
-          default:
-            // we don't pass a third argument to the validate method here
-            // because there is no difference between testnet and prod
-            // for the ethereum validator, see:
-            // https://github.com/christsim/multicoin-address-validator/blob/f8f3626f441c0d53fdc3b89678629dc1d33c0546/src/ethereum_validator.js
-            return addressValidator.validate(address, 'ETH');
+        if (
+          currency.network &&
+          (NearChains.chainNames as CurrencyTypes.ChainName[]).includes(currency.network)
+        ) {
+          return isValidNearAddress(address, currency.network);
         }
+        return addressValidator.validate(address, 'ETH');
       case RequestLogicTypes.CURRENCY.BTC:
         return addressValidator.validate(
           address,
@@ -254,6 +260,19 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       default:
         throw new Error(`Could not validate an address for an unknown currency type`);
     }
+  }
+
+  /**
+   * Validate the correctness of a Storage Currency
+   */
+  static validateCurrency(currency: StorageCurrency): boolean {
+    if (
+      currency.type === RequestLogicTypes.CURRENCY.ISO4217 ||
+      currency.type === RequestLogicTypes.CURRENCY.ETH ||
+      currency.type === RequestLogicTypes.CURRENCY.BTC
+    )
+      return true;
+    return this.validateAddress(currency.value, currency);
   }
 
   /**

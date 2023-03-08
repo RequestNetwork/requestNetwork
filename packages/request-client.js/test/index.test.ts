@@ -9,8 +9,8 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
-import { ethers } from 'ethers';
+import { decrypt, random32Bytes } from '@requestnetwork/utils';
+import { BigNumber, ethers } from 'ethers';
 
 import AxiosMockAdapter from 'axios-mock-adapter';
 import { Request, RequestNetwork, RequestNetworkBase } from '../src/index';
@@ -18,13 +18,13 @@ import * as TestData from './data-test';
 import * as TestDataRealBTC from './data-test-real-btc';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
-import { BigNumber } from 'ethers';
 import EtherscanProviderMock from './etherscan-mock';
 import httpConfigDefaults from '../src/http-config-defaults';
 import { IRequestDataWithEvents } from '../src/types';
 import HttpMetaMaskDataAccess from '../src/http-metamask-data-access';
 import MockDataAccess from '../src/mock-data-access';
 import MockStorage from '../src/mock-storage';
+import * as RequestLogic from '@requestnetwork/types/src/request-logic-types';
 
 const packageJson = require('../package.json');
 
@@ -54,7 +54,7 @@ const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider = {
   ): Promise<string> => {
     switch (identity.value.toLowerCase()) {
       case encryptionData.identity.value:
-        return Utils.encryption.decrypt(data, encryptionData.decryptionParams);
+        return decrypt(data, encryptionData.decryptionParams);
 
       default:
         throw new Error('Identity not registered');
@@ -1439,10 +1439,8 @@ describe('request-client.js', () => {
         useMockStorage: true,
       });
       // generate address randomly to avoid collisions
-      const paymentAddress =
-        '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
-      const refundAddress =
-        '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
+      const paymentAddress = '0x' + (await random32Bytes()).slice(12).toString('hex');
+      const refundAddress = '0x' + (await random32Bytes()).slice(12).toString('hex');
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
         id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
@@ -1489,7 +1487,7 @@ describe('request-client.js', () => {
         'function transfer(address _to, uint _value) returns (bool transfer)',
       ];
 
-      // Setup the ERC20 contract interface
+      // Set up the ERC20 contract interface
       const contract = new ethers.Contract(
         testErc20TokenAddress,
         erc20abiFragment,
@@ -1530,6 +1528,87 @@ describe('request-client.js', () => {
       expect(data.balance?.events[1].parameters.to.toLowerCase()).toBe(refundAddress);
       expect(data.balance?.events[1].parameters.txHash.length).toBe(66);
     });
+  });
+
+  it('Can create ERC20 declarative requests with non-evm currency', async () => {
+    const testErc20TokenAddress = 'usdc.near';
+    const requestNetwork = new RequestNetwork({
+      signatureProvider: TestData.fakeSignatureProvider,
+      useMockStorage: true,
+    });
+
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
+      parameters: {},
+    };
+
+    const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+      currency: {
+        network: 'aurora',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: testErc20TokenAddress,
+      },
+    });
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo,
+      signer: TestData.payee.identity,
+    });
+
+    await new Promise((resolve): any => setTimeout(resolve, 150));
+    let data = await request.refresh();
+
+    expect(data).toBeDefined();
+    expect(data.balance?.balance).toBe('0');
+    expect(data.balance?.events.length).toBe(0);
+    expect(data.meta).toBeDefined();
+    expect(data.currency).toBe('unknown');
+
+    expect(data.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE].values).toEqual({
+      receivedPaymentAmount: '0',
+      receivedRefundAmount: '0',
+      sentPaymentAmount: '0',
+      sentRefundAmount: '0',
+    });
+    expect(data.expectedAmount).toBe(requestParameters.expectedAmount);
+  });
+
+  it('cannot create ERC20 address based requests with invalid currency', async () => {
+    const testErc20TokenAddress = 'invalidErc20Address';
+
+    const requestNetwork = new RequestNetwork({
+      signatureProvider: TestData.fakeSignatureProvider,
+      useMockStorage: true,
+    });
+
+    // generate address randomly to avoid collisions
+    const paymentAddress = '0x' + (await random32Bytes()).slice(12).toString('hex');
+    const refundAddress = '0x' + (await random32Bytes()).slice(12).toString('hex');
+
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
+      parameters: {
+        paymentAddress,
+        refundAddress,
+      },
+    };
+
+    const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+      currency: {
+        network: 'aurora',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: testErc20TokenAddress,
+      },
+    });
+
+    await expect(
+      requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo,
+        signer: TestData.payee.identity,
+      }),
+    ).rejects.toThrowError('The currency is not valid');
   });
 
   describe('ERC20 proxy contract requests', () => {
@@ -1583,6 +1662,43 @@ describe('request-client.js', () => {
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+        },
+      };
+
+      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+        currency: {
+          network: 'private',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x9FBDa871d559710256a2502A2517b794B482Db40',
+        },
+      });
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo,
+        signer: TestData.payee.identity,
+      });
+
+      await new Promise((resolve): any => setTimeout(resolve, 150));
+      const data = await request.refresh();
+
+      expect(data.extensionsData[0].parameters.salt.length).toBe(16);
+    });
+  });
+
+  describe('ERC20 transferable receivable contract requests', () => {
+    it('can create ERC20 transferable receivable requests', async () => {
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: TestData.fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE,
+        parameters: {
+          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          feeAddress: '0x0000000000000000000000000000000000000001',
+          feeAmount: '0',
         },
       };
 
@@ -1710,7 +1826,7 @@ describe('request-client.js', () => {
   });
 
   describe('Token lists', () => {
-    const testErc20Data = {
+    const testErc20Data: RequestLogic.ICreateParameters = {
       ...TestData.parametersWithoutExtensionsData,
       currency: {
         network: 'private',
@@ -1718,7 +1834,7 @@ describe('request-client.js', () => {
         value: '0x9FBDa871d559710256a2502A2517b794B482Db40', // Test Erc20
       },
     };
-    const daiData = {
+    const daiData: RequestLogic.ICreateParameters = {
       ...TestData.parametersWithoutExtensionsData,
       currency: {
         network: 'mainnet',

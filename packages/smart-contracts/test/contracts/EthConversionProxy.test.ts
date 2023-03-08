@@ -15,7 +15,7 @@ import {
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { chainlinkConversionPath } from '../../src/lib';
 import { HttpNetworkConfig } from 'hardhat/types';
 
@@ -45,15 +45,16 @@ describe('contract: EthConversionProxy', () => {
   const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
 
   before(async () => {
+    EvmChains.assertChainSupported(network.name);
     [from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
     [signer] = await ethers.getSigners();
-
     chainlinkPath = chainlinkConversionPath.connect(network.name, signer);
     ethFeeProxy = await new EthereumFeeProxy__factory(signer).deploy();
     testEthConversionProxy = await new EthConversionProxy__factory(signer).deploy(
       ethFeeProxy.address,
       chainlinkPath.address,
       ETH_hash,
+      from,
     );
     etherPaymentFallback = await new EtherPaymentFallback__factory(signer).deploy();
     gnosisSafeProxy = await new GnosisSafeProxy__factory(signer).deploy(
@@ -269,7 +270,7 @@ describe('contract: EthConversionProxy', () => {
               value: mainEthAmount.result.add(ethFee.result).sub(1),
             },
           ),
-        ).to.be.revertedWith('revert paymentProxy transferExactEthWithReferenceAndFee failed');
+        ).to.be.revertedWith('paymentProxy transferExactEthWithReferenceAndFee failed');
       });
       it('cannot transfer if rate is too old', async function () {
         const path = [USD_hash, ETH_hash];
@@ -301,11 +302,13 @@ describe('contract: EthConversionProxy', () => {
         const MATIC_HASH = currencyManager.fromSymbol('MATIC')!.hash;
         const maticChainlinkPath = await new ChainlinkConversionPath__factory(signer).deploy(
           MATIC_HASH,
+          from,
         );
         const maticEthConversionProxy = await new EthConversionProxy__factory(signer).deploy(
           ethFeeProxy.address,
           maticChainlinkPath.address,
           MATIC_HASH,
+          from,
         );
         await maticChainlinkPath.updateAggregator(ETH_hash, USD_hash, USD_ETH_aggregator.address);
         const path = [USD_hash, ETH_hash];
@@ -325,7 +328,7 @@ describe('contract: EthConversionProxy', () => {
               value: ethFee.result.add(mainEthAmount.result),
             },
           ),
-        ).to.be.revertedWith('revert payment currency must be the native token');
+        ).to.be.revertedWith('payment currency must be the native token');
       });
     });
   });

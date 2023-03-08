@@ -14,7 +14,7 @@ Therefore, the Node receives request transactions from users, batches them into 
 
 Once received by the Node, other request actors connecting to this Node can directly read the request transaction before it is persisted into the storage layer.
 
-To use Infura to connect to an Ethereum node, get an infura token on [infura.io](infura.io) and
+To use Infura to connect to an Ethereum node, get an Infura token on [infura.io](infura.io) and
 use as provider `"NETWORK_YOU_WANT.infura.io/v3/YOUR_INFURA_TOKEN"`.
 
 ## Usage
@@ -243,6 +243,9 @@ Default values correspond to the basic configuration used to run a server in a t
 - `--headers` Custom headers to send with the API responses (as a stringified JSON object)
   - Default value: `'{}'`
   - Environment variable name: `$HEADERS`
+    `--blockConfirmations` The number of block confirmations to consider a transaction successful
+  - Default value: `2`
+  - Environment variable name: `$BLOCK_CONFIRMATIONS`
 - `--lastBlockNumberDelay` The minimum delay between getLastBlockNumber calls to ethereum network
   - Default value: `'10000'`
   - Environment variable name: `$LAST_BLOCK_NUMBER_DELAY`
@@ -306,6 +309,9 @@ cd requestNetwork
 ```
 
 #### 2. Install and build all the dependencies.
+
+Install IPFS Kubo (go-ipfs)
+https://docs.ipfs.tech/install/command-line/#install-ipfs-kubo
 
 ```bash
 yarn install

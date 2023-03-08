@@ -10,11 +10,11 @@
 
 This repository contains all the Request Network developer tools written in TypeScript.
 
-Join the [Request Hub][requesthub-slack-url] to get in touch with us.
+Join the [Request Discord][request-discord-url] to get in touch with us.
 
 [website-url]: https://request.network
 [whitepaper-url]: https://request.network/assets/pdf/request_whitepaper.pdf
-[requesthub-slack-url]: https://request-slack.herokuapp.com/
+[request-discord-url]: https://request.network/discord/
 
 ### Published Packages
 
@@ -78,6 +78,18 @@ yarn run lint
 ```
 
 ### Test
+
+Disable API tests OR define all required explorer API keys.
+
+```bash
+export DISABLE_API_TESTS=1
+# OR
+export EXPLORER_API_KEY_MAINNET=
+export EXPLORER_API_KEY_RINKEBY=
+export EXPLORER_API_KEY_FUSE=
+export EXPLORER_API_KEY_MATIC=
+export EXPLORER_API_KEY_FANTOM=
+```
 
 Test all the packages in the monorepo.
 

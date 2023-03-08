@@ -1,7 +1,7 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import Utils from '@requestnetwork/utils';
+import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 import CreateAction from '../../../src/actions/create';
 
@@ -647,9 +647,7 @@ describe('CreateAction', () => {
       const request = CreateAction.createRequest(actionCreation, 2);
 
       // 'requestId is wrong'
-      expect(request.requestId).toBe(
-        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
-      );
+      expect(request.requestId).toBe(MultiFormat.serialize(normalizeKeccak256Hash(actionCreation)));
       // 'currency is wrong'
       expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
@@ -719,9 +717,7 @@ describe('CreateAction', () => {
       const request = CreateAction.createRequest(actionCreation, 2);
 
       // 'requestId is wrong'
-      expect(request.requestId).toBe(
-        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
-      );
+      expect(request.requestId).toBe(MultiFormat.serialize(normalizeKeccak256Hash(actionCreation)));
       // 'currency is wrong'
       expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
@@ -791,9 +787,7 @@ describe('CreateAction', () => {
       const request = CreateAction.createRequest(actionCreation, 2);
 
       // 'requestId is wrong'
-      expect(request.requestId).toBe(
-        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
-      );
+      expect(request.requestId).toBe(MultiFormat.serialize(normalizeKeccak256Hash(actionCreation)));
       // 'currency is wrong'
       expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
@@ -862,9 +856,7 @@ describe('CreateAction', () => {
       const request = CreateAction.createRequest(actionCreation, 2);
 
       // 'requestId is wrong'
-      expect(request.requestId).toBe(
-        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
-      );
+      expect(request.requestId).toBe(MultiFormat.serialize(normalizeKeccak256Hash(actionCreation)));
       // 'currency is wrong'
       expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
@@ -1027,9 +1019,7 @@ describe('CreateAction', () => {
       const request = CreateAction.createRequest(actionCreation, 2);
 
       // 'requestId is wrong'
-      expect(request.requestId).toBe(
-        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
-      );
+      expect(request.requestId).toBe(MultiFormat.serialize(normalizeKeccak256Hash(actionCreation)));
       // 'currency is wrong'
       expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,

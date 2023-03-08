@@ -1,6 +1,5 @@
 import '@typechain/hardhat';
 import '@nomiclabs/hardhat-waffle';
-import '@nomiclabs/hardhat-ganache';
 import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-ethers';
 import { subtask, task } from 'hardhat/config';
@@ -13,8 +12,9 @@ import { HardhatRuntimeEnvironmentExtended } from './scripts-create2/types';
 import { computeCreate2DeploymentAddressesFromList } from './scripts-create2/compute-one-address';
 import { VerifyCreate2FromList } from './scripts-create2/verify';
 import { deployWithCreate2FromList } from './scripts-create2/deploy';
-import utils from '@requestnetwork/utils';
 import { NUMBER_ERRORS } from './scripts/utils';
+import { networkRpcs } from '@requestnetwork/utils';
+import { tenderlyImportAll } from './scripts-create2/tenderly';
 
 config();
 
@@ -45,8 +45,7 @@ const requestDeployer = process.env.REQUEST_DEPLOYER_LIVE
   ? LIVE_DEPLOYER_ADDRESS
   : LOCAL_DEPLOYER_ADDRESS;
 
-const url = (network: string): string =>
-  process.env.WEB3_PROVIDER_URL || utils.networkRpcs[network];
+const url = (network: string): string => process.env.WEB3_PROVIDER_URL || networkRpcs[network];
 
 export default {
   solidity: '0.8.9',
@@ -56,6 +55,12 @@ export default {
     artifacts: 'build',
   },
   networks: {
+    hardhat: {
+      accounts: {
+        mnemonic: 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat',
+      },
+      hardfork: 'london',
+    },
     private: {
       url: 'http://127.0.0.1:8545',
       accounts: undefined,
@@ -130,6 +135,16 @@ export default {
       chainId: 10,
       accounts,
     },
+    moonbeam: {
+      url: url('moonbeam'),
+      chainId: 1284,
+      accounts,
+    },
+    tombchain: {
+      url: url('tombchain'),
+      chainId: 6969,
+      accounts,
+    },
   },
   etherscan: {
     apiKey: {
@@ -152,6 +167,8 @@ export default {
       xdai: process.env.GNOSISSCAN_API_KEY,
       // optimism
       optimism: process.env.OPTIMISM_API_KEY,
+      // moonbeam
+      moonbeam: process.env.MOONBEAM_API_KEY,
       // other networks don't need an API key, but you still need
       // to specify one; any string placeholder will work
       sokol: 'api-key',
@@ -169,6 +186,11 @@ export default {
       },
     ],
   },
+  tenderly: {
+    project: process.env.TENDERLY_PROJECT,
+    username: process.env.TENDERLY_USERNAME,
+    accessKey: process.env.TENDERLY_ACCESS_KEY,
+  },
   typechain: {
     outDir: 'src/types',
     target: 'ethers-v5',
@@ -182,7 +204,19 @@ export default {
     signer: process.env.ADMIN_PRIVATE_KEY,
     networks: process.env.NETWORK
       ? [process.env.NETWORK]
-      : ['mainnet', 'matic', 'bsc', 'celo', 'xdai', 'fuse', 'arbitrum-one', 'fantom', 'avalanche'],
+      : [
+          'mainnet',
+          'matic',
+          'bsc',
+          'celo',
+          'xdai',
+          'fuse',
+          'arbitrum-one',
+          'fantom',
+          'avalanche',
+          'optimism',
+          'moonbeam',
+        ],
     gasLimit: undefined,
     deployerAddress: requestDeployer,
   },
@@ -243,6 +277,12 @@ task(
 ).setAction(async (_args, hre) => {
   await VerifyCreate2FromList(hre as HardhatRuntimeEnvironmentExtended);
 });
+
+task('tenderly-monitor-contracts', 'Import all contracts to a Tenderly account').setAction(
+  async (_args, hre) => {
+    await tenderlyImportAll(hre as HardhatRuntimeEnvironmentExtended);
+  },
+);
 
 subtask(DEPLOYER_KEY_GUARD, 'prevent usage of the deployer master key').setAction(async () => {
   if (accounts && accounts[0] === process.env.DEPLOYER_MASTER_KEY) {

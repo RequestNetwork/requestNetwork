@@ -8,11 +8,11 @@ import {
 } from '../../utils/payment-network/any/generator-data-create';
 import { AdvancedLogic } from '../../../src';
 import { arbitraryTimestamp, payeeRaw, payerRaw } from '../../utils/test-data-generator';
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import AnyToNearPaymentNetwork from '../../../src/extensions/payment-network/near/any-to-near';
 import AnyToNativeTokenPaymentNetwork from '../../../src/extensions/payment-network/any-to-native';
 import { CurrencyManager } from '@requestnetwork/currency';
-import utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 import AnyToNearTestnetPaymentNetwork from '../../../src/extensions/payment-network/near/any-to-near-testnet';
 
 const salt = arbitrarySalt;
@@ -52,7 +52,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
       maxRateTimespan: 100000,
       feeAmount: '100',
     },
-  ];
+  ] as const;
 
   anyToNativeTokenTestCases.forEach((testCase) => {
     describe(`action creations for ${testCase.name}`, () => {
@@ -184,7 +184,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
             expect(() => {
               new AnyToNearPaymentNetwork(currencyManager).createCreationAction({
                 ...partialCreationParams,
-                network: 'another-chain',
+                network: 'another-chain' as CurrencyTypes.NearChainName,
               });
             }).toThrowError(
               `Payment network 'another-chain' is not supported by this extension (only aurora)`,
@@ -272,7 +272,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
         ...requestStateNoExtensions,
         currency: validCurrency,
       };
-      creationAction = utils.deepCopy(actionCreationWithAnyToNativeTokenPayment);
+      creationAction = deepCopy(actionCreationWithAnyToNativeTokenPayment);
     });
     describe('applyActionToExtension/create action', () => {
       it('works with valid parameters', () => {

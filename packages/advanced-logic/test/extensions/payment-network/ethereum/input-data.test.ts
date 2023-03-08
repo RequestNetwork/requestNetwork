@@ -1,5 +1,5 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 import EthereumInputDataPaymentNetwork from '../../../../src/extensions/payment-network/ethereum/input-data';
 
@@ -125,7 +125,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
   describe('applyActionToExtension', () => {
     describe('applyActionToExtension/unknown action', () => {
       it('cannot applyActionToExtensions of unknown action', () => {
-        const unknownAction = Utils.deepCopy(DataEthAddPaymentAddress.actionAddPaymentAddress);
+        const unknownAction = deepCopy(DataEthAddPaymentAddress.actionAddPaymentAddress);
         unknownAction.action = 'unknown action' as any;
         // 'must throw'
         expect(() => {
@@ -140,7 +140,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       });
 
       it('cannot applyActionToExtensions of unknown id', () => {
-        const unknownAction = Utils.deepCopy(DataEthAddPaymentAddress.actionAddPaymentAddress);
+        const unknownAction = deepCopy(DataEthAddPaymentAddress.actionAddPaymentAddress);
         unknownAction.id = 'unknown id' as any;
         // 'must throw'
         expect(() => {
@@ -183,7 +183,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       });
 
       it('cannot applyActionToExtensions of creation on a not Eth request', () => {
-        const requestCreatedNoExtension: RequestLogicTypes.IRequest = Utils.deepCopy(
+        const requestCreatedNoExtension: RequestLogicTypes.IRequest = deepCopy(
           TestData.requestCreatedNoExtension,
         );
         requestCreatedNoExtension.currency = {
@@ -203,9 +203,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       });
 
       it('cannot applyActionToExtensions of creation with payment address not valid', () => {
-        const testnetPaymentAddress = Utils.deepCopy(
-          DataEthCreate.actionCreationWithPaymentAndRefund,
-        );
+        const testnetPaymentAddress = deepCopy(DataEthCreate.actionCreationWithPaymentAndRefund);
         testnetPaymentAddress.parameters.paymentAddress = DataEthAddPaymentAddress.invalidAddress;
         // 'must throw'
         expect(() => {
@@ -222,9 +220,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       });
 
       it('cannot applyActionToExtensions of creation with refund address not valid', () => {
-        const testnetRefundAddress = Utils.deepCopy(
-          DataEthCreate.actionCreationWithPaymentAndRefund,
-        );
+        const testnetRefundAddress = deepCopy(DataEthCreate.actionCreationWithPaymentAndRefund);
         testnetRefundAddress.parameters.refundAddress = DataEthAddPaymentAddress.invalidAddress;
         // 'must throw'
         expect(() => {
@@ -290,7 +286,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         }).toThrowError(`The extension should be created before receiving any other action`);
       });
       it('cannot applyActionToExtensions of addPaymentAddress without a payee', () => {
-        const previousState = Utils.deepCopy(DataEthCreate.requestStateCreatedEmpty);
+        const previousState = deepCopy(DataEthCreate.requestStateCreatedEmpty);
         previousState.payee = undefined;
         // 'must throw'
         expect(() => {
@@ -304,7 +300,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         }).toThrowError(`The request must have a payee`);
       });
       it('cannot applyActionToExtensions of addPaymentAddress signed by someone else than the payee', () => {
-        const previousState = Utils.deepCopy(DataEthCreate.requestStateCreatedEmpty);
+        const previousState = deepCopy(DataEthCreate.requestStateCreatedEmpty);
         // 'must throw'
         expect(() => {
           ethereumInputDataPaymentNetwork.applyActionToExtension(
@@ -329,9 +325,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         }).toThrowError(`Payment address already given`);
       });
       it('cannot applyActionToExtensions of addPaymentAddress with payment address not valid', () => {
-        const testnetPaymentAddress = Utils.deepCopy(
-          DataEthAddPaymentAddress.actionAddPaymentAddress,
-        );
+        const testnetPaymentAddress = deepCopy(DataEthAddPaymentAddress.actionAddPaymentAddress);
         testnetPaymentAddress.parameters.paymentAddress = DataEthAddPaymentAddress.invalidAddress;
         // 'must throw'
         expect(() => {
@@ -374,7 +368,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         }).toThrowError(`The extension should be created before receiving any other action`);
       });
       it('cannot applyActionToExtensions of addRefundAddress without a payer', () => {
-        const previousState = Utils.deepCopy(DataEthCreate.requestStateCreatedEmpty);
+        const previousState = deepCopy(DataEthCreate.requestStateCreatedEmpty);
         previousState.payer = undefined;
         // 'must throw'
         expect(() => {
@@ -388,7 +382,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         }).toThrowError(`The request must have a payer`);
       });
       it('cannot applyActionToExtensions of addRefundAddress signed by someone else than the payer', () => {
-        const previousState = Utils.deepCopy(DataEthCreate.requestStateCreatedEmpty);
+        const previousState = deepCopy(DataEthCreate.requestStateCreatedEmpty);
         // 'must throw'
         expect(() => {
           ethereumInputDataPaymentNetwork.applyActionToExtension(
@@ -413,9 +407,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         }).toThrowError(`Refund address already given`);
       });
       it('cannot applyActionToExtensions of addRefundAddress with refund address not valid', () => {
-        const testnetPaymentAddress = Utils.deepCopy(
-          DataEthAddPaymentAddress.actionAddRefundAddress,
-        );
+        const testnetPaymentAddress = deepCopy(DataEthAddPaymentAddress.actionAddRefundAddress);
         testnetPaymentAddress.parameters.refundAddress = DataEthAddPaymentAddress.invalidAddress;
         // 'must throw'
         expect(() => {

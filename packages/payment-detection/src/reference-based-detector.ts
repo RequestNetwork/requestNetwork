@@ -1,9 +1,15 @@
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes, TypesUtils } from '@requestnetwork/types';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+  TypesUtils,
+} from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import Utils from '@requestnetwork/utils';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { DeclarativePaymentDetectorBase } from './declarative';
+import { generate8randomBytes } from '@requestnetwork/utils';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
@@ -45,7 +51,7 @@ export abstract class ReferenceBasedDetector<
   ): Promise<ExtensionTypes.IAction> {
     // If no salt is given, generate one
     paymentNetworkCreationParameters.salt =
-      paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
+      paymentNetworkCreationParameters.salt || (await generate8randomBytes());
 
     return this.extension.createCreationAction({
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
@@ -141,7 +147,7 @@ export abstract class ReferenceBasedDetector<
     address: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: string,
+    paymentChain: CurrencyTypes.ChainName,
     paymentNetwork: TExtension extends ExtensionTypes.IExtension<infer X>
       ? ExtensionTypes.IState<X>
       : never,
@@ -151,7 +157,7 @@ export abstract class ReferenceBasedDetector<
    * Get the network of the payment
    * @returns The network of payment
    */
-  protected getPaymentChain(request: RequestLogicTypes.IRequest): string {
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): CurrencyTypes.ChainName {
     const network = request.currency.network;
     if (!network) {
       throw Error(`request.currency.network must be defined for ${this.paymentNetworkId}`);

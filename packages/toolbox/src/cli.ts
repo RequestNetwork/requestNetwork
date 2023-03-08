@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import * as yargs from 'yargs';
 
-yargs
+void yargs
   .env('RN')
   .scriptName('request-toolbox')
   .commandDir('./commands', {
@@ -10,4 +10,5 @@ yargs
   })
   .demandCommand()
   .help()
-  .version(false).argv;
+  .version(false)
+  .parseAsync();

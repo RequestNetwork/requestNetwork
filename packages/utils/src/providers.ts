@@ -1,4 +1,6 @@
-import { providers, constants } from 'ethers';
+import { LogTypes } from '@requestnetwork/types';
+
+import { providers, constants, utils } from 'ethers';
 
 type ProviderFactory = (network: string | undefined) => providers.Provider | string;
 
@@ -13,11 +15,11 @@ type CurrentProviderFactory = (
 ) => providers.Provider | string;
 
 /**
- * Default API_KEYS configuration, can be overriden using initPaymentDetectionApiKeys
+ * Default API_KEYS configuration, can be overridden using initPaymentDetectionApiKeys
  */
 let providersApiKeys: Record<string, string | (() => string)> = {
-  // fallback to Ethers v4 default projectId
-  infura: () => process.env.RN_INFURA_KEY || '7d0d81d0919f4f05b9ab6634be01ee73',
+  // fallback to Ethers v5 default projectId
+  infura: () => process.env.RN_INFURA_KEY || '84842078b09946638c03157f83405213',
 };
 
 /**
@@ -36,12 +38,14 @@ const networkRpcs: Record<string, string> = {
   fuse: 'https://rpc.fuse.io',
   bsctest: 'https://data-seed-prebsc-1-s1.binance.org:8545',
   bsc: 'https://bsc-dataseed1.binance.org/',
-  xdai: 'https://gnosischain-rpc.gateway.pokt.network/',
+  xdai: 'https://rpc.ankr.com/gnosis',
   celo: 'https://forno.celo.org',
   'arbitrum-rinkeby': 'https://rinkeby.arbitrum.io/rpc',
   'arbitrum-one': 'https://arb1.arbitrum.io/rpc',
   avalanche: 'https://api.avax.network/ext/bc/C/rpc',
   optimism: 'https://mainnet.optimism.io',
+  moonbeam: 'https://moonbeam.public.blastapi.io',
+  tombchain: 'https://rpc.tombchain.com/',
 };
 
 /**
@@ -63,7 +67,7 @@ const defaultProviderFactory: ProviderFactory = (network: string | undefined) =>
     return networkRpcs[network];
   }
 
-  // use infura, if supported
+  // use Infura, if supported
   try {
     // try getting the URL for the given network. Will throw if not supported.
     providers.InfuraProvider.getUrl(providers.getNetwork(network), {});
@@ -99,7 +103,7 @@ const defaultProviderFactory: ProviderFactory = (network: string | undefined) =>
 
 /**
  * Defines the behaviour to obtain a Provider for a given Network.
- * May be overriden using setProviderFactory
+ * May be overridden using setProviderFactory
  */
 let currentProviderFactory: CurrentProviderFactory = defaultProviderFactory;
 
@@ -145,9 +149,30 @@ const getCeloProvider = (): providers.Provider => {
   return provider;
 };
 
-export default {
+const isEip1559Supported = async (
+  provider: providers.Provider | providers.JsonRpcProvider,
+  logger?: LogTypes.ILogger,
+): Promise<boolean> => {
+  try {
+    await (provider as providers.JsonRpcProvider).send('eth_feeHistory', [
+      utils.hexStripZeros(utils.hexlify(1)),
+      'latest',
+      [],
+    ]);
+    return true;
+  } catch (e) {
+    logger &&
+      logger.warn(
+        'This RPC provider does not support the "eth_feeHistory" method: switching to legacy gas price',
+      );
+    return false;
+  }
+};
+
+export {
   setProviderFactory,
   initPaymentDetectionApiKeys,
+  isEip1559Supported,
   getDefaultProvider,
   getCeloProvider,
   networkRpcs,

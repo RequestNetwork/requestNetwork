@@ -1,7 +1,7 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import { IPaymentRetriever } from '../types';
 import { ethers } from 'ethers';
-import { getDefaultProvider } from '../provider';
+import { getDefaultProvider } from '@requestnetwork/utils';
 
 // The ERC20 smart contract ABI fragment containing decimals property and Transfer event
 const erc20BalanceOfAbiFragment = [

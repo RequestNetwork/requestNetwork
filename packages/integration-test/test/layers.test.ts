@@ -1,3 +1,5 @@
+import { getCurrentTimestampInSecond } from '@requestnetwork/utils';
+
 const web3Eth = require('web3-eth');
 
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
@@ -17,7 +19,6 @@ import {
   SignatureTypes,
   StorageTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 
 let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 let requestLogic: RequestLogicTypes.IRequestLogic;
@@ -367,7 +368,7 @@ describe('Request system', () => {
         type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
       },
-      timestamp: Utils.getCurrentTimestampInSecond(),
+      timestamp: getCurrentTimestampInSecond(),
     };
     // create a unique topic just to not have collisions in tests
     const topics1 = [request1CreationHash];
@@ -390,7 +391,7 @@ describe('Request system', () => {
         type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
       },
-      timestamp: Utils.getCurrentTimestampInSecond(),
+      timestamp: getCurrentTimestampInSecond(),
     };
     const resultCreation2 = await requestLogic.createRequest(
       request2CreationHash,

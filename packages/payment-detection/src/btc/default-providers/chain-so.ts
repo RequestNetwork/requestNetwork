@@ -1,8 +1,8 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import Axios from 'axios';
 import * as converterBTC from 'satoshi-bitcoin';
 import { BigNumber } from 'ethers';
+import { retry } from '@requestnetwork/utils';
 
 // Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
 const CHAINSO_REQUEST_MAX_RETRY = 3;
@@ -31,7 +31,7 @@ export class ChainSoProvider implements PaymentTypes.IBitcoinDetectionProvider {
     const queryUrl = `${baseUrl}${address}`;
 
     try {
-      const res = await Utils.retry(async () => Axios.get(queryUrl), {
+      const res = await retry(async () => Axios.get(queryUrl), {
         maxRetries: CHAINSO_REQUEST_MAX_RETRY,
         retryDelay: CHAINSO_REQUEST_RETRY_DELAY,
       })();

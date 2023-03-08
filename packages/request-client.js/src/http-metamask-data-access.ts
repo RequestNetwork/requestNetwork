@@ -1,11 +1,11 @@
 import { Block } from '@requestnetwork/data-access';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
-import { ClientTypes, DataAccessTypes, StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { ClientTypes, CurrencyTypes, DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 import axios, { AxiosRequestConfig } from 'axios';
 import { ethers } from 'ethers';
 import { EventEmitter } from 'events';
 import HttpDataAccess from './http-data-access';
+import { retry } from '@requestnetwork/utils';
 
 /**
  * Exposes a Data-Access module over HTTP
@@ -23,7 +23,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
 
   private submitterContract: ethers.Contract | undefined;
   private provider: ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider;
-  private networkName = '';
+  private networkName: CurrencyTypes.EvmChainName = 'private';
 
   /**
    * Creates an instance of HttpDataAccess.
@@ -187,7 +187,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     channelId: string,
     timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetTransactions> {
-    const { data } = await Utils.retry(
+    const { data } = await retry(
       async () =>
         axios.get(
           '/getTransactionsByChannelId',

@@ -1,9 +1,12 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
-import { argv } from 'yargs';
+import * as yargs from 'yargs';
 import { modeType } from './logger';
+import { config } from 'dotenv';
+import { BigNumber } from 'ethers';
+
+const argv = yargs.parseSync();
 
 // Load environment variables from .env file (without overriding variables already set)
-import { config } from 'dotenv';
 config();
 
 /**
@@ -15,6 +18,8 @@ const defaultValues: any = {
     ethereum: {
       networkId: 0,
       web3ProviderUrl: 'http://localhost:8545',
+      gasPriceMin: '1000000000', // one gwei
+      blockConfirmations: 2,
     },
     ipfs: {
       host: 'localhost',
@@ -104,6 +109,26 @@ export function getGraphNodeUrl(): string | undefined {
     argv.graphNodeUrl ||
     process.env.GRAPH_NODE_URL ||
     defaultValues.ethereumStorage.ethereum.graphNodeUrl
+  );
+}
+
+export function getGasPriceMin(): BigNumber | undefined {
+  const gasPriceMin =
+    argv.gasPriceMin ||
+    process.env.GAS_PRICE_MIN ||
+    defaultValues.ethereumStorage.ethereum.gasPriceMin;
+  return gasPriceMin && BigNumber.from(gasPriceMin);
+}
+
+/**
+ * Get the number of block confirmations to wait before considering a transaction successful
+ * @returns the number of block confirmations
+ */
+export function getBlockConfirmations(): number {
+  return (
+    (argv.blockConfirmations && Number(argv.blockConfirmations)) ||
+    (process.env.BLOCK_CONFIRMATIONS && Number(process.env.BLOCK_CONFIRMATIONS)) ||
+    defaultValues.ethereumStorage.ethereum.blockConfirmations
   );
 }
 

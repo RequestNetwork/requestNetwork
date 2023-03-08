@@ -127,6 +127,14 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           address: '0x399F5EE127ce7432E4921a61b8CF52b0af52cbfE',
           creationBlockNumber: 34638633,
         },
+        moonbeam: {
+          address: '0x399F5EE127ce7432E4921a61b8CF52b0af52cbfE',
+          creationBlockNumber: 2415492,
+        },
+        tombchain: {
+          address: '0x399F5EE127ce7432E4921a61b8CF52b0af52cbfE',
+          creationBlockNumber: 2951048,
+        },
       },
     },
     // Additional deployments of same versions, not worth upgrading the version number but worth using within next versions

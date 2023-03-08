@@ -2,11 +2,12 @@ import { Wallet, providers, BigNumber } from 'ethers';
 
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 import { _getEthPaymentUrl, payEthInputDataRequest } from '../../src/payment/eth-input-data';
 import { getRequestPaymentValues } from '../../src/payment/utils';
@@ -18,7 +19,6 @@ const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
-const gasPrice = 2 * 10 ** 10; // await provider.getGasPrice()
 
 const validRequest: ClientTypes.IRequestData = {
   balance: {
@@ -72,7 +72,7 @@ describe('getRequestPaymentValues', () => {
 
 describe('payEthInputDataRequest', () => {
   it('should throw an error if the request is not eth', async () => {
-    const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+    const request = deepCopy(validRequest) as ClientTypes.IRequestData;
     request.currencyInfo.type = RequestLogicTypes.CURRENCY.ERC20;
     await expect(payEthInputDataRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-input-data request',
@@ -80,15 +80,15 @@ describe('payEthInputDataRequest', () => {
   });
 
   it('should throw an error if currencyInfo has no network', async () => {
-    const request = Utils.deepCopy(validRequest);
-    request.currencyInfo.network = '';
+    const request = deepCopy(validRequest);
+    request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
     await expect(payEthInputDataRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );
   });
 
   it('should throw an error if request has no extension', async () => {
-    const request = Utils.deepCopy(validRequest);
+    const request = deepCopy(validRequest);
     request.extensions = [] as any;
 
     await expect(payEthInputDataRequest(request, wallet)).rejects.toThrowError(
@@ -124,10 +124,9 @@ describe('payEthInputDataRequest', () => {
     expect(confirmedTx.status).toBe(1);
     // new_balance = old_balance + amount + fees
     expect(balanceAfter).toEqual(
-      balanceBefore.sub(validRequest.expectedAmount).sub(confirmedTx.gasUsed.mul(gasPrice) || 0),
-    );
-    expect(
-      balanceAfter.eq(balanceBefore.sub(validRequest.expectedAmount).sub(confirmedTx.gasUsed || 0)),
+      balanceBefore
+        .sub(validRequest.expectedAmount)
+        .sub(confirmedTx.cumulativeGasUsed.mul(confirmedTx.effectiveGasPrice) || 0),
     );
   });
 });
