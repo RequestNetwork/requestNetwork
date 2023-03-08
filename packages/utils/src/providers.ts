@@ -1,6 +1,6 @@
 import { LogTypes } from '@requestnetwork/types';
 
-import { providers, constants } from 'ethers';
+import { providers, constants, utils } from 'ethers';
 
 type ProviderFactory = (network: string | undefined) => providers.Provider | string;
 
@@ -154,7 +154,11 @@ const isEip1559Supported = async (
   logger?: LogTypes.ILogger,
 ): Promise<boolean> => {
   try {
-    await (provider as providers.JsonRpcProvider).send('eth_feeHistory', [1, 'latest', []]);
+    await (provider as providers.JsonRpcProvider).send('eth_feeHistory', [
+      utils.hexStripZeros(utils.hexlify(1)),
+      'latest',
+      [],
+    ]);
     return true;
   } catch (e) {
     logger &&
