@@ -79,7 +79,7 @@ export class TheGraphDataRead implements DataAccessTypes.IDataRead {
   ): Promise<DataAccessTypes.IReturnGetTransactions> {
     const pending = await this.getPending(channelId);
 
-    const result = await this.graphql.getTransactionsByChannelId(channelId, updatedBetween);
+    const result = await retry(this.graphql.getTransactionsByChannelId)(channelId, updatedBetween);
 
     return {
       meta: {
