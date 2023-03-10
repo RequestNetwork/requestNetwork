@@ -15,6 +15,13 @@ import { Variables } from 'graphql-request/dist/types';
 // Max Int value (as supported by grapqhl types)
 const MAX_INT_VALUE = 0x7fffffff;
 
+export type SubgraphClientOptions = RequestInit & {
+  /** @see `retry` from @requestnetwork/utils */
+  maxRetries?: number;
+  /** @see `retry` from @requestnetwork/utils */
+  retryDelay?: number;
+};
+
 export class SubgraphClient {
   private graphql: GraphQLClient;
   public readonly endpoint: string;
@@ -45,7 +52,7 @@ export class SubgraphClient {
   }
 
   public getChannelsByTopics(topics: string[]): Promise<TransactionsBody> {
-    return this.graphql.request<TransactionsBody>(GetChannelsByTopicsQuery, {
+    return this.request<TransactionsBody>(GetChannelsByTopicsQuery, {
       topics,
     });
   }

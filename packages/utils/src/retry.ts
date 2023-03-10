@@ -4,6 +4,15 @@ const DEFAULT_MAX_RETRIES = 5;
 // Default delay between retries
 const DEFAULT_RETRY_DELAY = 100;
 
+export type RetryOptions = {
+  maxRetries?: number;
+  retryDelay?: number;
+};
+
+export type RetryOptionsWithContext<TParams extends unknown[], TReturn> = RetryOptions & {
+  context?: ThisParameterType<(...params: TParams) => Promise<TReturn>>;
+};
+
 /**
  * A method that retries a function a defined amount of times if it fails.
  *
@@ -19,11 +28,7 @@ const retry = <TParams extends unknown[], TReturn>(
     context,
     maxRetries = DEFAULT_MAX_RETRIES,
     retryDelay = DEFAULT_RETRY_DELAY,
-  }: {
-    context?: ThisParameterType<(...params: TParams) => Promise<TReturn>>;
-    maxRetries?: number;
-    retryDelay?: number;
-  } = {},
+  }: RetryOptionsWithContext<TParams, TReturn> = {},
 ): ((...params: TParams) => Promise<TReturn>) => {
   // If a context was passed in, bind it to to the target function
   if (context) {

@@ -3,7 +3,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 
 import { EventEmitter } from 'events';
 import httpConfigDefaults from './http-config-defaults';
-import { normalizeKeccak256Hash, retry } from '@requestnetwork/utils';
+import { normalizeKeccak256Hash, retry, RetryOptions } from '@requestnetwork/utils';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -196,10 +196,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   protected async fetchAndRetry(
     url: string,
     params: any,
-    retryConfig: {
-      maxRetries?: number;
-      retryDelay?: number;
-    } = {},
+    retryConfig: RetryOptions = {},
   ): Promise<any> {
     retryConfig.maxRetries = retryConfig.maxRetries ?? this.httpConfig.httpRequestMaxRetry;
     retryConfig.retryDelay = retryConfig.retryDelay ?? this.httpConfig.httpRequestRetryDelay;

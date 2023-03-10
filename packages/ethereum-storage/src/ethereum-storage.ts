@@ -10,7 +10,7 @@ import SmartContractManager from './smart-contract-manager';
 
 import * as Keyv from 'keyv';
 import { BigNumber } from 'ethers';
-import { getCurrentTimestampInSecond, SimpleLogger } from '@requestnetwork/utils';
+import { getCurrentTimestampInSecond, RetryOptions, SimpleLogger } from '@requestnetwork/utils';
 
 // time to wait before considering the web3 provider is not reachable
 const WEB3_PROVIDER_TIMEOUT = 10000;
@@ -83,10 +83,8 @@ export class EthereumStorage implements StorageTypes.IStorage {
       getLastBlockNumberDelay?: number;
       logger?: LogTypes.ILogger;
       maxConcurrency?: number;
-      maxRetries?: number;
-      retryDelay?: number;
       gasPriceMin?: BigNumber;
-    } = {},
+    } & RetryOptions = {},
     metadataStore?: Keyv.Store<any>,
   ) {
     this.maxConcurrency = maxConcurrency || getMaxConcurrency();
