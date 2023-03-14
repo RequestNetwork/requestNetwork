@@ -58,7 +58,7 @@ describe('api/eth/info-retriever', () => {
     // FIXME: API-based checks should run nightly and be mocked for CI
     [
       'mainnet',
-      'rinkeby',
+      // 'rinkeby',
       // 'goerli',
       // 'xdai',
       // 'sokol',

@@ -10,6 +10,7 @@ import {
   getCeloProvider,
   getDefaultProvider,
 } from '@requestnetwork/utils';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 // Fees: 0.5%
 export const REQUEST_SWAP_FEES = 5;
@@ -28,7 +29,7 @@ const BATCH_FEE_AMOUNT_USD_LIMIT = parseUnits('150', 8);
  */
 export const updateChainlinkConversionPath = async (
   contract: any,
-  network: string,
+  network: CurrencyTypes.EvmChainName,
   txOverrides: Overrides,
   version?: string,
 ): Promise<void> => {
@@ -120,7 +121,7 @@ export const updateBatchPaymentFeeAmountUSDLimit = async (
  */
 export const updatePaymentFeeProxyAddress = async (
   contract: any,
-  network: string,
+  network: CurrencyTypes.EvmChainName,
   txOverrides: Overrides,
   proxyType: 'native' | 'erc20',
   version?: string,
@@ -153,7 +154,7 @@ export const updatePaymentFeeProxyAddress = async (
  */
 export const updateBatchConversionProxy = async (
   contract: any,
-  network: string,
+  network: CurrencyTypes.EvmChainName,
   txOverrides: Overrides,
   proxyName:
     | 'native'

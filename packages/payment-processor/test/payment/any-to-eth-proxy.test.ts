@@ -1,4 +1,4 @@
-import { Wallet, providers } from 'ethers';
+import { providers, Wallet } from 'ethers';
 import {
   ClientTypes,
   ExtensionTypes,
@@ -6,9 +6,8 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
-import { payAnyToEthProxyRequest } from '../../src/payment/any-to-eth-proxy';
+import { IConversionPaymentSettings, payAnyToEthProxyRequest } from '../../src';
 import { currencyManager } from './shared';
-import { IConversionPaymentSettings } from '../../src/index';
 
 const paymentSettings: IConversionPaymentSettings = {
   maxToSpend: '2500000000000000',
@@ -96,11 +95,14 @@ describe('any-to-eth-proxy', () => {
       const fromNewBalance = await provider.getBalance(wallet.address);
       const toNewBalance = await provider.getBalance(paymentAddress);
       const feeNewBalance = await provider.getBalance(feeAddress);
-      const gasPrice = (await provider.getFeeData()).gasPrice || 0;
+      const gasPrice = confirmedTx.effectiveGasPrice;
 
       // Check each balance
       expect(
-        fromOldBalance.sub(fromNewBalance).sub(confirmedTx.gasUsed.mul(gasPrice)).toString(),
+        fromOldBalance
+          .sub(fromNewBalance)
+          .sub(confirmedTx.cumulativeGasUsed.mul(gasPrice))
+          .toString(),
         //   expectedAmount:        1.00
         //   feeAmount:          +   .02
         //                       =  1.02

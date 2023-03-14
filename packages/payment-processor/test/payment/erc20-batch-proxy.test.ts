@@ -1,4 +1,4 @@
-import { Wallet, BigNumber, providers } from 'ethers';
+import { BigNumber, providers, Wallet } from 'ethers';
 
 import {
   ClientTypes,
@@ -9,14 +9,15 @@ import {
 import { deepCopy } from '@requestnetwork/utils';
 import { batchPaymentsArtifact } from '@requestnetwork/smart-contracts';
 
-import { getErc20Balance } from '../../src/payment/erc20';
-import { getRequestPaymentValues } from '../../src/payment/utils';
 import {
-  payBatchProxyRequest,
   approveErc20BatchIfNeeded,
-  prepareBatchPaymentTransaction,
   getBatchProxyAddress,
-} from '../../src/payment/batch-proxy';
+  getErc20Balance,
+  payBatchProxyRequest,
+  prepareBatchPaymentTransaction,
+} from '../../src';
+import { getRequestPaymentValues } from '../../src/payment/utils';
+import { CurrencyTypes } from '@requestnetwork/types/src';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -138,7 +139,7 @@ const testSuite = (
     });
 
     it("should throw an error if one request's currencyInfo has no network", async () => {
-      request2.currencyInfo.network = '';
+      request2.currencyInfo.network = '' as CurrencyTypes.ChainName;
       await expect(
         payBatchProxyRequest([request1, request2], batchVersion, wallet, batchFee),
       ).rejects.toThrowError(

@@ -38,6 +38,14 @@ export interface ICreateRequestParameters {
   disableEvents?: boolean;
 }
 
+export interface ICreateRequestOptions {
+  /**
+   * Disable the request refresh after creation
+   * Warning: the `balance` will be null.
+   */
+  skipRefresh?: boolean;
+}
+
 /** Parameters to create a request. ICreateParameters with a more flexible currency */
 export interface IRequestInfo {
   currency: string | RequestLogic.ICurrency;

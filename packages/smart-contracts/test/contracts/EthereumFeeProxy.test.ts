@@ -11,6 +11,7 @@ import {
 } from '../../src/types';
 import { ethereumFeeProxyArtifact } from '../../src/lib/';
 import { HttpNetworkConfig } from 'hardhat/types';
+import { EvmChains } from '@requestnetwork/currency';
 
 use(solidity);
 
@@ -28,6 +29,7 @@ describe('contract: EthereumFeeProxy', () => {
   const feeAddress = '0xF4255c5e53a08f72b0573D1b8905C5a50aA9c2De';
 
   before(async () => {
+    EvmChains.assertChainSupported(network.name);
     [, to] = (await ethers.getSigners()).map((s) => s.address);
     [signer] = await ethers.getSigners();
     ethFeeProxy = ethereumFeeProxyArtifact.connect(network.name, signer);

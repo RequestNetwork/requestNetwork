@@ -1,4 +1,9 @@
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+  CurrencyTypes,
+} from '@requestnetwork/types';
 
 import { TheGraphInfoRetriever } from '../thegraph';
 import { erc20TransferableReceivableArtifact } from '@requestnetwork/smart-contracts';
@@ -51,7 +56,7 @@ export class ERC20TransferableReceivablePaymentDetector extends FeeReferenceBase
     toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: string,
+    paymentChain: CurrencyTypes.EvmChainName,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20PaymentEventParameters>> {
     // To satisfy typescript

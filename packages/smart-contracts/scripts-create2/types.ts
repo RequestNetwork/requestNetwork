@@ -14,6 +14,11 @@ export type HardhatRuntimeEnvironmentExtended = HardhatRuntimeEnvironment & {
       deployerAddress: string;
       gasLimit?: number;
     };
+    tenderly: {
+      project: string;
+      username: string;
+      accessKey: string;
+    };
   };
 };
 

@@ -174,7 +174,8 @@ describe('api/eth/input-data', () => {
     });
   });
 
-  it('can get balance from rinkeby subgraph', async () => {
+  // FIXME: this test should be migrated to Goerli and the subgraph API call should be mocked
+  it.skip('can get balance from rinkeby subgraph', async () => {
     const rinkebyRequest = {
       currency: {
         network: 'rinkeby',

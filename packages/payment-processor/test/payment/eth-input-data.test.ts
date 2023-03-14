@@ -2,6 +2,7 @@ import { Wallet, providers, BigNumber } from 'ethers';
 
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
@@ -18,7 +19,6 @@ const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
-const gasPrice = 2 * 10 ** 10; // await provider.getGasPrice()
 
 const validRequest: ClientTypes.IRequestData = {
   balance: {
@@ -81,7 +81,7 @@ describe('payEthInputDataRequest', () => {
 
   it('should throw an error if currencyInfo has no network', async () => {
     const request = deepCopy(validRequest);
-    request.currencyInfo.network = '';
+    request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
     await expect(payEthInputDataRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );
@@ -124,10 +124,9 @@ describe('payEthInputDataRequest', () => {
     expect(confirmedTx.status).toBe(1);
     // new_balance = old_balance + amount + fees
     expect(balanceAfter).toEqual(
-      balanceBefore.sub(validRequest.expectedAmount).sub(confirmedTx.gasUsed.mul(gasPrice) || 0),
-    );
-    expect(
-      balanceAfter.eq(balanceBefore.sub(validRequest.expectedAmount).sub(confirmedTx.gasUsed || 0)),
+      balanceBefore
+        .sub(validRequest.expectedAmount)
+        .sub(confirmedTx.cumulativeGasUsed.mul(confirmedTx.effectiveGasPrice) || 0),
     );
   });
 });

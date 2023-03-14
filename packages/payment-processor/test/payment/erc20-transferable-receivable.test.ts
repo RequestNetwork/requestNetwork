@@ -141,6 +141,7 @@ describe('erc20-transferable-receivable', () => {
 
     it('should throw an error if currencyInfo has no network', async () => {
       const request = deepCopy(validRequest);
+      // @ts-expect-error Type '""' is not assignable to type 'ChainName | undefined'
       request.currencyInfo.network = '';
       await expect(payErc20TransferableReceivableRequest(request, wallet)).rejects.toThrowError(
         'Payment currency must have a network',
