@@ -4,7 +4,7 @@ import {
   EscrowERC20InfoRetriever,
 } from '@requestnetwork/payment-detection';
 import {
-  CurrencyTypes,
+  EncryptionTypes,
   IdentityTypes,
   PaymentTypes,
   RequestLogicTypes,
