@@ -24,7 +24,7 @@
     "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
-    "start": "ts-node src/request-client-js-add-stakeholders.ts",
+    "start": "ts-node src/request-client-js-declarative-request.ts && ts-node src/request-client-js-erc20-request.ts && ts-node src/request-logic-clear-request.ts && ts-node src/request-logic-encrypted-request.ts" && "ts-node src/request-client-js-add-stakeholders.ts",
     "prepare": "yarn run build"
   },
   "dependencies": {
