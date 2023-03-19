@@ -72,4 +72,20 @@ export abstract class ChainsAbstract<
   public isTestnet(chainName: CHAIN_NAME): boolean {
     return Boolean(this.chains[chainName].testnet);
   }
+
+  /**
+   * @returns true if both network have the same ID or same name
+   */
+  public isNetworkAlias = (network1: string, network2: string): boolean => {
+    this.assertChainSupported(network1);
+    this.assertChainSupported(network2);
+    return this.isSameChain(network1, network2);
+  };
+
+  /**
+   * @returns true if both chains have the same ID or same name
+   */
+  public isSameChain = (chain1: CHAIN_NAME, chain2: CHAIN_NAME): boolean => {
+    return chain1 === chain2 || this.getChainId(chain1) === this.getChainId(chain2);
+  };
 }

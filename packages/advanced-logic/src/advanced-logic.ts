@@ -182,7 +182,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
   }
 
   public getFeeProxyContractErc20ForNetwork(network?: string): FeeProxyContractErc20 {
-    return NearChains.assertChainSupported(network)
+    return NearChains.isChainSupported(network)
       ? new FeeProxyContractErc20(undefined, undefined, network)
       : this.extensions.feeProxyContractErc20;
   }

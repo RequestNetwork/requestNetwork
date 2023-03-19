@@ -16,8 +16,7 @@ import { payAnyToErc20ProxyRequest } from './any-to-erc20-proxy';
 import { payAnyToEthProxyRequest } from './any-to-eth-proxy';
 import { WalletConnection } from 'near-api-js';
 import { isNearAccountSolvent } from './utils-near';
-import { isNearNetwork } from '@requestnetwork/utils';
-import { ICurrencyManager } from '@requestnetwork/currency';
+import { ICurrencyManager, NearChains } from '@requestnetwork/currency';
 import { encodeRequestErc20Approval } from './encoder-approval';
 import { encodeRequestPayment } from './encoder-payment';
 import { IPreparedTransaction } from './prepared-transaction';
@@ -243,7 +242,7 @@ export async function isSolvent(
   },
 ): Promise<boolean> {
   // Near case
-  if (isNearNetwork(currency.network) && providerOptions?.nearWalletConnection) {
+  if (NearChains.isChainSupported(currency.network) && providerOptions?.nearWalletConnection) {
     return isNearAccountSolvent(amount, providerOptions.nearWalletConnection);
   }
   // Main case (web3)
@@ -331,7 +330,7 @@ export function _getPaymentUrl(request: ClientTypes.IRequestData, amount?: BigNu
 // FIXME: should also compare the signer.chainId with the request.currencyInfo.network...
 const throwIfNotWeb3 = (request: ClientTypes.IRequestData) => {
   // FIXME: there is a near web3Provider equivalent: https://github.com/aurora-is-near/near-web3-provider
-  if (request.currencyInfo?.network && isNearNetwork(request.currencyInfo.network)) {
+  if (request.currencyInfo?.network && NearChains.isChainSupported(request.currencyInfo.network)) {
     throw new UnsupportedPaymentChain(request.currencyInfo.network);
   }
 };
