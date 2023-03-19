@@ -12,6 +12,7 @@ import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
   ['0.2.0']: '0.2.0',
+  ['NEAR-0.1.0']: 'near',
 };
 
 /**

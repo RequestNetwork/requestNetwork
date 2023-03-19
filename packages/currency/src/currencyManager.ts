@@ -17,6 +17,7 @@ import {
 } from './types';
 import { defaultConversionPairs, AggregatorsMap, getPath } from './conversion-aggregators';
 import { isValidNearAddress } from './currency-utils';
+import { isNearNetwork } from 'utils/dist';
 
 const { BTC, ERC20, ERC777, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 
@@ -237,12 +238,10 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
       case RequestLogicTypes.CURRENCY.ERC777:
-        switch (currency.network) {
-          case 'aurora':
-          case 'aurora-testnet':
-            return isValidNearAddress(address, currency.network);
-          default:
-            return addressValidator.validate(address, 'ETH');
+        if (isNearNetwork(currency.network)) {
+          return isValidNearAddress(address, currency.network);
+        } else {
+          return addressValidator.validate(address, 'ETH');
         }
       case RequestLogicTypes.CURRENCY.BTC:
         return addressValidator.validate(

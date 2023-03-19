@@ -2,14 +2,18 @@
 
 ## Description
 
-This extension allows payments and refunds to be made in ERC20 tokens on Ethereum and EVM-compatible blockchains.
+This extension allows payments and refunds to be made in fungible tokens, including:
+
+- ERC20 tokens on Ethereum and EVM-compatible blockchains.
+- Fungible tokens on Near and Near testnet (as defined by NEP-141 and NEP-148)
+
 This Payment Network is similar to the [ERC20 Proxy Contract](./payment-network-erc20-proxy-contract-0.1.0.md) extension, with the added feature of allowing a fee to be taken from the payment.
 
 The payment is mainly expected through a proxy payment contract, but the request issuer can also declare payments manually. Fees shall not be paid for declarative payments.
 
-The proxy contract does the ERC20 token transfer on behalf of the user. The contract ensures a link between an ERC20 transfer and a request through a `paymentReference`. This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
+The proxy contract does the fungible token transfer on behalf of the user. The contract ensures a link between a token transfer and a request through a `paymentReference`. This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
 
-The contract also ensures that the `feeAmount` amount of the ERC20 transfer will be forwarded to the `feeAddress`.
+The contract also ensures that the `feeAmount` amount of the token transfer will be forwarded to the `feeAddress`.
 
 - `requestId` is the id of the request
 - `salt` is a random number with at least 8 bytes of randomness. It must be unique to each request
@@ -24,7 +28,7 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 
 ## Payment Proxy Contract
 
-The contract contains one function called `transferFromWithReferenceAndFee` which takes 6 arguments:
+On EVMs, the contract contains one function called `transferFromWithReferenceAndFee` which takes 6 arguments:
 
 - `tokenAddress` is the address of the ERC20 contract
 - `to` is the destination address for the tokens
@@ -33,9 +37,14 @@ The contract contains one function called `transferFromWithReferenceAndFee` whic
 - `feeAmount` is the amount of tokens to transfer to the fee destination address
 - `feeAddress` is the destination address for the fee
 
-The `TransferWithReferenceAndFee` event is emitted when the tokens are transfered. This event contains the same 6 arguments as the `transferFromWithReferenceAndFee` function.
+On Near, users send fungible tokens to the contract with the `ft_transfer_call` method, if the `msg` value given is a valid JSON object with 4 of the 6 arguments listed above: `to`, `paymentReference`, `feeAmount` and `feeAddress`. The `tokenAdress` is taken from the calling fungible token contract. The `amount` is equal to the transfer (total) `amount` less `feeAmount`.
 
-[See smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ERC20FeeProxy.sol)
+On EVM-compatible chains, the `TransferWithReferenceAndFee` event is emitted when the tokens are transfered. This event contains the same 6 arguments as the `transferFromWithReferenceAndFee` function.
+
+On Near and Near testnet, a JSON message is logged by the method `on_transfer_with_reference`, containing the same 6 arguments.
+
+[See EVM smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ERC20FeeProxy.sol)
+[See Near smart contract source](https://github.com/RequestNetwork/near-contracts)
 
 | Network                    | Contract Address                           |
 | -------------------------- | ------------------------------------------ |
@@ -45,6 +54,9 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 | Ethereum Testnet - Rinkeby | 0xda46309973bffddd5a10ce12c44d2ee266f45a44 |
 | Matic Testnet - Mumbai     | 0x131eb294E3803F23dc2882AB795631A12D1d8929 |
 | Private                    | 0x75c35C980C0d37ef46DF04d31A140b65503c0eEd |
+| Near Testnet               | pay.reqnetwork.testnet                     |
+
+The updated list of deployment address can be found [in the smart-contracts package](../../smart-contracts/src/lib/artifacts/ERC20FeeProxy/index.ts);
 
 ## Manual payment declaration
 

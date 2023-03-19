@@ -463,4 +463,21 @@ describe('api/erc20/fee-proxy-contract', () => {
       },
     ]);
   });
+
+  describe('on Near', () => {
+    it('can createExtensionsDataForCreation', async () => {
+      await erc20FeeProxyContract.createExtensionsDataForCreation({
+        paymentAddress: 'issuer.reqnetwork.testnet',
+        salt: 'ea3bc7caf64110ca',
+      });
+
+      expect(createCreationAction).toHaveBeenCalledWith({
+        feeAddress: undefined,
+        feeAmount: undefined,
+        paymentAddress: 'issuer.reqnetwork.testnet',
+        refundAddress: undefined,
+        salt: 'ea3bc7caf64110ca',
+      });
+    });
+  });
 });

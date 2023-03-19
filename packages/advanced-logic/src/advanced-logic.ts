@@ -5,6 +5,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyManager, ICurrencyManager } from '@requestnetwork/currency';
+import { isNearNetwork } from '@requestnetwork/utils';
 
 import ContentData from './extensions/content-data';
 import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
@@ -102,8 +103,9 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
   protected getExtensionForActionAndState(
     extensionAction: ExtensionTypes.IAction,
     requestState: RequestLogicTypes.IRequest,
-  ): ExtensionTypes.IExtension<any> {
+  ): ExtensionTypes.IExtension {
     const id: ExtensionTypes.ID = extensionAction.id;
+    const network = this.getNetwork(extensionAction, requestState) || requestState.currency.network;
     const extension: ExtensionTypes.IExtension | undefined = {
       [ExtensionTypes.ID.CONTENT_DATA]: this.extensions.contentData,
       [ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED]: this.extensions.addressBasedBtc,
@@ -113,7 +115,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED]: this.extensions.addressBasedErc20,
       [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: this.extensions.proxyContractErc20,
       [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]:
-        this.extensions.feeProxyContractErc20,
+        this.getFeeProxyContractErc20ForNetwork(network),
       [ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: this.extensions.erc777Stream,
       [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: this.extensions.ethereumInputData,
       [ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN]:
@@ -123,7 +125,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
         this.extensions.feeProxyContractEth,
       [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: this.extensions.anyToEthProxy,
       [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN]:
-        this.getAnyToNativeTokenExtensionForActionAndState(extensionAction, requestState),
+        this.getAnyToNativeTokenExtensionForNetwork(network),
     }[id];
 
     if (!extension) {
@@ -131,8 +133,6 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
         id === ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN ||
         id === ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN
       ) {
-        const network =
-          this.getNetwork(extensionAction, requestState) || requestState.currency.network;
         throw Error(`extension with id: ${id} not found for network: ${network}`);
       }
 
@@ -166,20 +166,18 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     return network ? this.getNativeTokenExtensionForNetwork(network) : undefined;
   }
 
-  public getAnyToNativeTokenExtensionForNetwork(
-    network: string,
-  ): ExtensionTypes.IExtension<ExtensionTypes.PnAnyToEth.ICreationParameters> | undefined {
-    return this.extensions.anyToNativeToken.find((anyToNativeTokenExtension) =>
-      anyToNativeTokenExtension.supportedNetworks.includes(network),
-    );
+  public getAnyToNativeTokenExtensionForNetwork(network?: string): AnyToNative | undefined {
+    return network
+      ? this.extensions.anyToNativeToken.find((anyToNativeTokenExtension) =>
+          anyToNativeTokenExtension.supportedNetworks.includes(network),
+        )
+      : undefined;
   }
 
-  protected getAnyToNativeTokenExtensionForActionAndState(
-    extensionAction: ExtensionTypes.IAction,
-    requestState: RequestLogicTypes.IRequest,
-  ): ExtensionTypes.IExtension<ExtensionTypes.PnAnyToEth.ICreationParameters> | undefined {
-    const network = this.getNetwork(extensionAction, requestState);
-    return network ? this.getAnyToNativeTokenExtensionForNetwork(network) : undefined;
+  public getFeeProxyContractErc20ForNetwork(network?: string): FeeProxyContractErc20 {
+    return isNearNetwork(network)
+      ? new FeeProxyContractErc20(undefined, undefined, network)
+      : this.extensions.feeProxyContractErc20;
   }
 
   protected getNetwork(

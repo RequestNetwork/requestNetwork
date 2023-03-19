@@ -23,13 +23,13 @@ export {
 };
 
 /** Extension interface is extended by the extensions implementation */
-export interface IExtension<T = any> {
+export interface IExtension<TCreationParameters = any> {
   extensionType: TYPE;
   extensionId: ID;
   currentVersion: string;
   applyActionToExtension: (
     extensionsState: RequestLogic.IExtensionStates,
-    extensionAction: IAction<T>,
+    extensionAction: IAction<TCreationParameters>,
     requestState: RequestLogic.IRequest,
     actionSigner: Identity.IIdentity,
     timestamp: number,
