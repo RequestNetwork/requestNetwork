@@ -8,3 +8,7 @@ generates:
       - 'typescript-operations'
       - 'typescript-graphql-request'
       - 'typescript-document-nodes'
+    config:
+      namingConvention:
+        # This is a workaround for `index__id` conflicting with `indexId`
+        enumValues: keep
