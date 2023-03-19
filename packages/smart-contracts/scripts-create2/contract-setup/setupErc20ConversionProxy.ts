@@ -5,6 +5,7 @@ import {
   updateChainlinkConversionPath,
   updatePaymentFeeProxyAddress,
 } from './adminTasks';
+import { EvmChains } from '@requestnetwork/currency';
 
 const ERC20ConversionVersion = '0.1.2';
 
@@ -25,6 +26,7 @@ export const setupErc20ConversionProxy = async (
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network) => {
       try {
+        EvmChains.assertChainSupported(network);
         const { signer, txOverrides } = await getSignerAndGasFees(network, hre);
         const Erc20ConversionProxyConnected = Erc20ConversionProxyContract.connect(signer);
         await updatePaymentFeeProxyAddress(

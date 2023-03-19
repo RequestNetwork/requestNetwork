@@ -1,5 +1,4 @@
-import { RequestLogicTypes } from '@requestnetwork/types';
-import { isNearNetwork } from '@requestnetwork/utils';
+import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
 import addressValidator from 'multicoin-address-validator';
 import { getSupportedERC20Tokens } from './erc20';
@@ -18,6 +17,7 @@ import {
 } from './types';
 import { defaultConversionPairs, AggregatorsMap, getPath } from './conversion-aggregators';
 import { isValidNearAddress } from './currency-utils';
+import { NearChains } from './chains';
 
 const { BTC, ERC20, ERC777, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 
@@ -60,7 +60,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    */
   from(
     currencyIdentifier: string | undefined,
-    network?: string,
+    network?: CurrencyTypes.ChainName,
   ): CurrencyDefinition<TMeta> | undefined {
     if (!currencyIdentifier) {
       return;
@@ -71,7 +71,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
 
     const parts = currencyIdentifier.split('-');
     const currencyFromSymbol =
-      this.fromSymbol(parts[0], network || parts[1]) ||
+      this.fromSymbol(parts[0], network || (parts[1] as CurrencyTypes.ChainName)) ||
       // try without splitting the symbol to support currencies like ETH-rinkeby
       this.fromSymbol(currencyIdentifier, network);
 
@@ -91,7 +91,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
 
   /**
    * Gets a supported currency from its address and network.
-   * If more than 1 currencies are found, undefined is returned
+   * If more than one currency are found, undefined is returned
    */
   fromAddress(address: string, network?: string): CurrencyDefinition<TMeta> | undefined {
     address = utils.getAddress(address);
@@ -114,9 +114,12 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   /**
    * Gets a supported currency from its symbol and network.
    */
-  fromSymbol(symbol: string, network?: string): CurrencyDefinition<TMeta> | undefined {
+  fromSymbol(
+    symbol: string,
+    network?: CurrencyTypes.ChainName,
+  ): CurrencyDefinition<TMeta> | undefined {
     symbol = symbol?.toUpperCase();
-    network = network?.toLowerCase();
+    network = network?.toLowerCase() as CurrencyTypes.ChainName | undefined;
 
     const legacy = network ? this.legacyTokens[network]?.[symbol] : undefined;
     if (legacy) {
@@ -172,7 +175,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   getConversionPath(
     from: Pick<CurrencyDefinition, 'hash'>,
     to: Pick<CurrencyDefinition, 'hash'>,
-    network: string,
+    network: CurrencyTypes.ChainName,
   ): string[] | null {
     try {
       return getPath(from, to, network, this.conversionPairs);
@@ -181,7 +184,10 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     }
   }
 
-  supportsConversion(currency: Pick<CurrencyDefinition, 'hash'>, network: string): boolean {
+  supportsConversion(
+    currency: Pick<CurrencyDefinition, 'hash'>,
+    network: CurrencyTypes.ChainName,
+  ): boolean {
     return !!this.conversionPairs[network]?.[currency.hash.toLowerCase()];
   }
 
@@ -238,11 +244,10 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
       case RequestLogicTypes.CURRENCY.ERC777:
-        if (isNearNetwork(currency.network)) {
+        if (NearChains.isChainSupported(currency.network)) {
           return isValidNearAddress(address, currency.network);
-        } else {
-          return addressValidator.validate(address, 'ETH');
         }
+        return addressValidator.validate(address, 'ETH');
       case RequestLogicTypes.CURRENCY.BTC:
         return addressValidator.validate(
           address,

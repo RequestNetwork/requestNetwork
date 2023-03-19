@@ -8,6 +8,7 @@ import {
   Meta,
   TransactionsBody,
 } from './queries';
+import { RequestInit } from 'graphql-request/dist/types.dom';
 
 // Max Int value (as supported by grapqhl types)
 const MAX_INT_VALUE = 0x7fffffff;
@@ -15,7 +16,7 @@ const MAX_INT_VALUE = 0x7fffffff;
 export class SubgraphClient {
   private graphql: GraphQLClient;
   public readonly endpoint: string;
-  constructor(endpoint: string, options?: Omit<RequestInit, 'body'>) {
+  constructor(endpoint: string, options?: RequestInit) {
     this.endpoint = endpoint;
     this.graphql = new GraphQLClient(endpoint, options);
   }

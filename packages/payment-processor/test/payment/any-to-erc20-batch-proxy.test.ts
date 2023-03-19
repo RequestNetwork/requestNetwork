@@ -1,4 +1,4 @@
-import { Wallet, providers, BigNumber } from 'ethers';
+import { BigNumber, providers, Wallet } from 'ethers';
 
 import {
   ClientTypes,
@@ -6,19 +6,21 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { getErc20Balance } from '../../src/payment/erc20';
-import { deepCopy } from '@requestnetwork/utils';
-import { revokeErc20Approval } from '@requestnetwork/payment-processor/src/payment/utils';
-import { EnrichedRequest, IConversionPaymentSettings } from '../../src/index';
-import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts';
-import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import {
   approveErc20BatchConversionIfNeeded,
+  EnrichedRequest,
   getBatchConversionProxyAddress,
+  getErc20Balance,
+  IConversionPaymentSettings,
   payBatchConversionProxyRequest,
   prepareBatchConversionPaymentTransaction,
-} from '../../src/payment/batch-conversion-proxy';
+} from '../../src';
+import { deepCopy } from '@requestnetwork/utils';
+import { revokeErc20Approval } from '@requestnetwork/payment-processor/src/payment/utils';
+import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { IRequestPaymentOptions } from 'payment-processor/src/payment/settings';
+import { CurrencyTypes } from '@requestnetwork/types/src';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -579,7 +581,7 @@ describe('erc20-batch-conversion-proxy', () => {
       });
 
       it("should throw an error if one request's currencyInfo has no network", async () => {
-        FAURequest.currencyInfo.network = '';
+        FAURequest.currencyInfo.network = '' as CurrencyTypes.ChainName;
         await expect(
           payBatchConversionProxyRequest(enrichedRequests, wallet, options),
         ).rejects.toThrowError(

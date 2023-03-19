@@ -1,7 +1,8 @@
-import { IDeploymentParams, HardhatRuntimeEnvironmentExtended } from './types';
+import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './types';
 import { requestDeployer } from '../src/lib';
 import { create2ContractDeploymentList } from './utils';
 import { getConstructorArgs } from './constructor-args';
+import { EvmChains } from '@requestnetwork/currency';
 
 // Deploys, set up the contracts
 export async function computeCreate2DeploymentAddress(
@@ -46,6 +47,8 @@ export async function computeCreate2DeploymentAddress(
 export const computeCreate2DeploymentAddressesFromList = async (
   hre: HardhatRuntimeEnvironmentExtended,
 ): Promise<void> => {
+  const chain = hre.network.name;
+  EvmChains.assertChainSupported(chain);
   await Promise.all(
     create2ContractDeploymentList.map(async (contract) => {
       let address: string;
@@ -57,9 +60,10 @@ export const computeCreate2DeploymentAddressesFromList = async (
         case 'Erc20ConversionProxy':
         case 'ERC20EscrowToPay':
         case 'BatchConversionPayments':
-        case 'ERC20SwapToConversion': {
+        case 'ERC20SwapToConversion':
+        case 'ERC20TransferableReceivable': {
           try {
-            const constructorArgs = getConstructorArgs(contract, hre.network.name);
+            const constructorArgs = getConstructorArgs(contract, chain);
             address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
             console.log(`${contract.padEnd(36, ' ')}${address}`);
           } catch (e) {

@@ -1,5 +1,5 @@
 overwrite: true
-schema: 'https://api.thegraph.com/subgraphs/name/superfluid-finance/protocol-v1-matic'
+schema: 'https://api.thegraph.com/subgraphs/name/superfluid-finance/protocol-v1-goerli'
 documents: src/thegraph/queries/superfluid/*.graphql
 generates:
   src/thegraph/generated/graphql-superfluid.ts:
@@ -10,5 +10,4 @@ generates:
       - 'typescript-document-nodes'
     config:
       namingConvention:
-        # This is a workaround for `index__id` conflicting with `indexId`
-        enumValues: keep
+        enumValues: change-case-all#upperCaseFirst

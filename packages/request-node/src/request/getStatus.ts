@@ -59,6 +59,7 @@ export default class GetStatusHandler {
             networkId: config.getStorageNetworkId(),
             providerUrl,
             retryDelay: config.getEthereumRetryDelay(),
+            blockConfirmations: config.getBlockConfirmations(),
           },
           ipfs: {
             host: config.getIpfsHost(),

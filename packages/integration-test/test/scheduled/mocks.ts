@@ -71,5 +71,13 @@ export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       {} as Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>,
     anyToNativeToken:
       {} as Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>[],
+    erc20TransferableReceivable: {
+      createAddPaymentAddressAction,
+      createAddRefundAddressAction,
+      createCreationAction,
+      // inheritance from declarative
+      createAddPaymentInstructionAction,
+      createAddRefundInstructionAction,
+    } as any as Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>,
   },
 };

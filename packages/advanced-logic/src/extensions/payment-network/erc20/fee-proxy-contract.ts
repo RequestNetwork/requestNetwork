@@ -1,10 +1,6 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import {
-  isNearMainNetwork,
-  isNearNetwork,
-  isNearTestNetwork,
-  isSameNetwork,
-} from '@requestnetwork/utils';
+import { NearChains } from '@requestnetwork/currency';
+import { isNearMainNetwork, isNearTestNetwork, isSameNetwork } from '@requestnetwork/utils';
 import { UnsupportedNetworkError } from '../address-based';
 import { FeeReferenceBasedPaymentNetwork } from '../fee-reference-based';
 
@@ -34,7 +30,7 @@ export default class Erc20FeeProxyPaymentNetwork<
   }
 
   protected static getDefaultCurrencyVersion(network?: string): string {
-    return isNearNetwork(network) ? NEAR_CURRENT_VERSION : EVM_CURRENT_VERSION;
+    return NearChains.isChainSupported(network) ? NEAR_CURRENT_VERSION : EVM_CURRENT_VERSION;
   }
 
   // Override `validate` to account for network-specific instanciation (non-EVM only)

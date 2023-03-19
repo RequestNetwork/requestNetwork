@@ -1,11 +1,11 @@
 import {
   AdvancedLogicTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { CurrencyManager, ICurrencyManager } from '@requestnetwork/currency';
-import { isNearNetwork } from '@requestnetwork/utils';
+import { CurrencyManager, ICurrencyManager, NearChains } from '@requestnetwork/currency';
 
 import ContentData from './extensions/content-data';
 import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
@@ -25,6 +25,7 @@ import AnyToNear from './extensions/payment-network/near/any-to-near';
 import AnyToNearTestnet from './extensions/payment-network/near/any-to-near-testnet';
 import NativeToken from './extensions/payment-network/native-token';
 import AnyToNative from './extensions/payment-network/any-to-native';
+import Erc20TransferableReceivablePaymentNetwork from './extensions/payment-network/erc20/transferable-receivable';
 
 /**
  * Module to manage Advanced logic extensions
@@ -47,6 +48,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     feeProxyContractEth: FeeProxyContractEth;
     anyToEthProxy: AnyToEthProxy;
     anyToNativeToken: AnyToNative[];
+    erc20TransferableReceivable: Erc20TransferableReceivablePaymentNetwork;
   };
 
   constructor(currencyManager?: ICurrencyManager) {
@@ -68,6 +70,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       anyToEthProxy: new AnyToEthProxy(currencyManager),
       nativeToken: [new NearNative(), new NearTestnetNative()],
       anyToNativeToken: [new AnyToNear(currencyManager), new AnyToNearTestnet(currencyManager)],
+      erc20TransferableReceivable: new Erc20TransferableReceivablePaymentNetwork(),
     };
   }
 
@@ -126,6 +129,8 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: this.extensions.anyToEthProxy,
       [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN]:
         this.getAnyToNativeTokenExtensionForNetwork(network),
+      [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE]:
+        this.extensions.erc20TransferableReceivable,
     }[id];
 
     if (!extension) {
@@ -142,7 +147,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
   }
 
   public getNativeTokenExtensionForNetwork(
-    network: string,
+    network: CurrencyTypes.ChainName,
   ): ExtensionTypes.IExtension<ExtensionTypes.PnReferenceBased.ICreationParameters> | undefined {
     return this.extensions.nativeToken.find((nativeTokenExtension) =>
       nativeTokenExtension.supportedNetworks.includes(network),
@@ -166,7 +171,9 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     return network ? this.getNativeTokenExtensionForNetwork(network) : undefined;
   }
 
-  public getAnyToNativeTokenExtensionForNetwork(network?: string): AnyToNative | undefined {
+  public getAnyToNativeTokenExtensionForNetwork(
+    network?: CurrencyTypes.ChainName,
+  ): AnyToNative | undefined {
     return network
       ? this.extensions.anyToNativeToken.find((anyToNativeTokenExtension) =>
           anyToNativeTokenExtension.supportedNetworks.includes(network),
@@ -175,7 +182,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
   }
 
   public getFeeProxyContractErc20ForNetwork(network?: string): FeeProxyContractErc20 {
-    return isNearNetwork(network)
+    return NearChains.assertChainSupported(network)
       ? new FeeProxyContractErc20(undefined, undefined, network)
       : this.extensions.feeProxyContractErc20;
   }
@@ -183,7 +190,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
   protected getNetwork(
     extensionAction: ExtensionTypes.IAction,
     requestState: RequestLogicTypes.IRequest,
-  ): string | undefined {
+  ): CurrencyTypes.ChainName | undefined {
     const network =
       extensionAction.action === 'create'
         ? extensionAction.parameters.network

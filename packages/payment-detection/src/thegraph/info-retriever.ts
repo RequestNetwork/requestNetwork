@@ -1,4 +1,4 @@
-import { PaymentTypes } from '@requestnetwork/types';
+import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { utils } from 'ethers';
 import { pick, mapValues } from 'lodash';
@@ -14,12 +14,12 @@ type TransferEventsParams = {
   /** The address of the payment proxy */
   contractAddress: string;
   /** The chain to check for payment */
-  paymentChain: string;
+  paymentChain: CurrencyTypes.EvmChainName;
   /** Indicates if it is an address for payment or refund */
   eventName: PaymentTypes.EVENTS_NAMES;
   /** The list of ERC20 tokens addresses accepted for payments and refunds */
   acceptedTokens?: string[];
-  /** The the maximum span between the time the rate was fetched and the payment */
+  /** The maximum span between the time the rate was fetched and the payment */
   maxRateTimespan?: number;
 };
 
@@ -40,6 +40,25 @@ export class TheGraphInfoRetriever {
     params.contractAddress = formatAddress(params.contractAddress, 'contractAddress');
     params.acceptedTokens =
       params.acceptedTokens?.map((tok) => formatAddress(tok, 'acceptedTokens')) || [];
+    return {
+      paymentEvents: payments
+        .filter((payment) => this.filterPaymentEvents(payment, params))
+        .map((payment) => this.mapPaymentEvents(payment, params)),
+      escrowEvents: escrowEvents.map((escrow) => this.mapEscrowEvents(escrow, params)),
+    };
+  }
+
+  public async getReceivableEvents(
+    params: TransferEventsParams,
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
+    const { payments, escrowEvents } = await this.client.GetPaymentsAndEscrowStateForReceivables({
+      reference: utils.keccak256(`0x${params.paymentReference}`),
+    });
+
+    params.contractAddress = formatAddress(params.contractAddress, 'contractAddress');
+    params.acceptedTokens =
+      params.acceptedTokens?.map((tok) => formatAddress(tok, 'acceptedTokens')) || [];
+
     return {
       paymentEvents: payments
         .filter((payment) => this.filterPaymentEvents(payment, params))

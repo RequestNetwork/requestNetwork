@@ -1,5 +1,10 @@
 import { CurrencyDefinition, isValidNearAddress } from '@requestnetwork/currency';
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import { BigNumber, BigNumberish, Contract, errors, logger } from 'ethers';
 import { getAddress, keccak256, LogDescription } from 'ethers/lib/utils';
 import { ContractArtifact, DeploymentInformation } from '@requestnetwork/smart-contracts';
@@ -57,7 +62,7 @@ const getChainlinkPaddingSize = ({
 
 export type DeploymentInformationWithVersion = DeploymentInformation & { contractVersion: string };
 export type GetDeploymentInformation<TAllowUndefined extends boolean> = (
-  network: string,
+  network: CurrencyTypes.EvmChainName,
   paymentNetworkVersion: string,
 ) => TAllowUndefined extends false
   ? DeploymentInformationWithVersion

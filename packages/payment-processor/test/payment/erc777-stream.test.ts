@@ -3,19 +3,22 @@ import { Framework } from '@superfluid-finance/sdk-core';
 
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { deepCopy } from '@requestnetwork/utils';
+import { deepCopy, getDefaultProvider } from '@requestnetwork/utils';
 
 import {
   closeErc777StreamRequest,
+  getSuperFluidFramework,
   makeErc777OneOffPayment,
   payErc777StreamRequest,
   RESOLVER_ADDRESS,
 } from '../../src/payment/erc777-stream';
 import { getRequestPaymentValues } from '../../src/payment/utils';
+import { wrapUnderlyingToken } from '../../src/payment/erc777-utils';
 const daiABI = require('../abis/fDAIABI');
 
 /* eslint-disable no-magic-numbers */
@@ -89,6 +92,31 @@ describe('erc777-stream', () => {
     });
   });
 
+  describe('Superfluid framework', () => {
+    it.each([
+      { network: 'goerli' },
+      { network: 'matic' },
+      { network: 'xdai' },
+      { network: 'optimism' },
+      { network: 'avalanche' },
+      { network: 'arbitrum-one' },
+    ] as Array<{ network: CurrencyTypes.EvmChainName }>)(
+      'Should initialize superfluid framework on $network',
+      async ({ network }) => {
+        const provider = getDefaultProvider(network);
+        const networkValidRequest = {
+          ...validRequest,
+          currencyInfo: {
+            ...validRequest.currencyInfo,
+            network,
+          },
+        };
+        const sf = await getSuperFluidFramework(networkValidRequest, provider);
+        expect(sf).toBeDefined();
+      },
+    );
+  });
+
   describe('encodePayErc20FeeRequest (used to pay and swap to pay)', () => {
     it('should throw an error if the request is not erc777', async () => {
       const request = deepCopy(validRequest) as ClientTypes.IRequestData;
@@ -109,7 +137,7 @@ describe('erc777-stream', () => {
 
     it('should throw an error if currencyInfo has no network', async () => {
       const request = deepCopy(validRequest);
-      request.currencyInfo.network = '';
+      request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
       await expect(payErc777StreamRequest(request, wallet)).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc777-stream request',
       );
@@ -131,9 +159,8 @@ describe('erc777-stream', () => {
       let confirmedTx;
       // initialize the superfluid framework...put custom and web3 only bc we are using ganache locally
       const sf = await Framework.create({
-        networkName: 'custom',
+        chainId: provider.network.chainId,
         provider,
-        dataMode: 'WEB3_ONLY',
         resolverAddress: RESOLVER_ADDRESS,
         protocolReleaseVersion: 'test',
       });
@@ -142,7 +169,7 @@ describe('erc777-stream', () => {
       const daix = await sf.loadSuperToken('fDAIx');
 
       // get the contract object for the erc20 token
-      const daiAddress = daix.underlyingToken.address;
+      const daiAddress = daix.underlyingToken?.address as string;
       const dai = new Contract(daiAddress, daiABI, wallet);
 
       // minting fDAI
@@ -167,11 +194,12 @@ describe('erc777-stream', () => {
         account: wallet.address,
         providerOrSigner: wallet,
       });
-      const daixUpgradeOperation = daix.upgrade({
-        amount: ethersUtils.parseEther('1000').toString(),
-      });
-      tx = await daixUpgradeOperation.exec(wallet);
-      confirmedTx = await tx.wait(1);
+      const upgradeTx = await wrapUnderlyingToken(
+        validRequest,
+        wallet,
+        ethersUtils.parseEther('1000'),
+      );
+      confirmedTx = await upgradeTx.wait(1);
       expect(confirmedTx.status).toBe(1);
       expect(tx.hash).not.toBeUndefined();
       const daixBalAfter = await daix.balanceOf({
@@ -181,7 +209,6 @@ describe('erc777-stream', () => {
       expect(BigNumber.from(daixBalAfter).sub(daixBalBefore).toString()).toBe(
         '1000000000000000000000',
       );
-
       // Paying fDAIX stream request
       tx = await payErc777StreamRequest(validRequest, wallet);
       confirmedTx = await tx.wait(1);
@@ -207,9 +234,8 @@ describe('erc777-stream', () => {
       let confirmedTx;
       // initialize the superfluid framework...put custom and web3 only bc we are using ganache locally
       const sf = await Framework.create({
-        networkName: 'custom',
+        chainId: provider.network.chainId,
         provider,
-        dataMode: 'WEB3_ONLY',
         resolverAddress: RESOLVER_ADDRESS,
         protocolReleaseVersion: 'test',
       });
@@ -219,6 +245,8 @@ describe('erc777-stream', () => {
 
       // wait 2 seconds of streaming to avoid failing
       await new Promise((r) => setTimeout(r, 2000));
+      await provider.send('evm_mine', []);
+      await provider.send('evm_mine', []);
 
       // Stopping fDAIX stream request
       tx = await closeErc777StreamRequest(validRequest, wallet);
@@ -238,16 +266,15 @@ describe('erc777-stream', () => {
         providerOrSigner: provider,
       });
       expect(paymentFlowRate).toBe('0');
-    });
+    }, 10000);
   });
 
   describe('makeErc777OneOffPayment', () => {
     it('Should perform a payment', async () => {
       // initialize the superfluid framework...put custom and web3 only bc we are using ganache locally
       const sf = await Framework.create({
-        networkName: 'custom',
+        chainId: provider.network.chainId,
         provider,
-        dataMode: 'WEB3_ONLY',
         resolverAddress: RESOLVER_ADDRESS,
         protocolReleaseVersion: 'test',
       });

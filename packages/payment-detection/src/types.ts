@@ -1,4 +1,9 @@
-import { AdvancedLogicTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import {
+  AdvancedLogicTypes,
+  CurrencyTypes,
+  ExtensionTypes,
+  PaymentTypes,
+} from '@requestnetwork/types';
 import { PaymentDetectorBase } from './payment-detector-base';
 import { GetDeploymentInformation } from './utils';
 import type { ICurrencyManager } from '@requestnetwork/currency';
@@ -54,11 +59,11 @@ export type PaymentNetworkOptions = {
   /** override default bitcoin detection provider */
   bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
   /** the explorer API (e.g. Etherscan) api keys, for PNs that rely on it. Record by network name  */
-  explorerApiKeys: Record<string, string>;
+  explorerApiKeys: Partial<Record<CurrencyTypes.ChainName, string>>;
   /** override the default Subgraph for payment detection (EVM, Near) */
-  getSubgraphClient: (network: string) => TheGraphClient | undefined;
+  getSubgraphClient: (network: CurrencyTypes.ChainName) => TheGraphClient | undefined;
   /** override the default RPC provider (EVM) */
-  getRpcProvider: (network: string) => providers.Provider;
+  getRpcProvider: (network: CurrencyTypes.ChainName) => providers.Provider;
 };
 
 export type ReferenceBasedDetectorOptions = {
@@ -67,5 +72,5 @@ export type ReferenceBasedDetectorOptions = {
 };
 
 export type NativeDetectorOptions = ReferenceBasedDetectorOptions & {
-  network: string;
+  network: CurrencyTypes.ChainName;
 };

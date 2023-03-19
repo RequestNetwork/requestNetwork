@@ -10,7 +10,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { decrypt, random32Bytes } from '@requestnetwork/utils';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 
 import AxiosMockAdapter from 'axios-mock-adapter';
 import { Request, RequestNetwork, RequestNetworkBase } from '../src/index';
@@ -18,13 +18,13 @@ import * as TestData from './data-test';
 import * as TestDataRealBTC from './data-test-real-btc';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
-import { BigNumber } from 'ethers';
 import EtherscanProviderMock from './etherscan-mock';
 import httpConfigDefaults from '../src/http-config-defaults';
 import { IRequestDataWithEvents } from '../src/types';
 import HttpMetaMaskDataAccess from '../src/http-metamask-data-access';
 import MockDataAccess from '../src/mock-data-access';
 import MockStorage from '../src/mock-storage';
+import * as RequestLogic from '@requestnetwork/types/src/request-logic-types';
 
 const packageJson = require('../package.json');
 
@@ -1686,6 +1686,43 @@ describe('request-client.js', () => {
     });
   });
 
+  describe('ERC20 transferable receivable contract requests', () => {
+    it('can create ERC20 transferable receivable requests', async () => {
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: TestData.fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE,
+        parameters: {
+          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          feeAddress: '0x0000000000000000000000000000000000000001',
+          feeAmount: '0',
+        },
+      };
+
+      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+        currency: {
+          network: 'private',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x9FBDa871d559710256a2502A2517b794B482Db40',
+        },
+      });
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo,
+        signer: TestData.payee.identity,
+      });
+
+      await new Promise((resolve): any => setTimeout(resolve, 150));
+      const data = await request.refresh();
+
+      expect(data.extensionsData[0].parameters.salt.length).toBe(16);
+    });
+  });
+
   describe('Conversion requests: payment chain should be deduced from the payment network parameters', () => {
     it('creates any-to-erc20 requests', async () => {
       const requestNetwork = new RequestNetwork({
@@ -1789,7 +1826,7 @@ describe('request-client.js', () => {
   });
 
   describe('Token lists', () => {
-    const testErc20Data = {
+    const testErc20Data: RequestLogic.ICreateParameters = {
       ...TestData.parametersWithoutExtensionsData,
       currency: {
         network: 'private',
@@ -1797,7 +1834,7 @@ describe('request-client.js', () => {
         value: '0x9FBDa871d559710256a2502A2517b794B482Db40', // Test Erc20
       },
     };
-    const daiData = {
+    const daiData: RequestLogic.ICreateParameters = {
       ...TestData.parametersWithoutExtensionsData,
       currency: {
         network: 'mainnet',

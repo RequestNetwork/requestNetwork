@@ -1,6 +1,7 @@
-import { Wallet, providers, BigNumber } from 'ethers';
+import { BigNumber, providers, Wallet } from 'ethers';
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
@@ -10,7 +11,7 @@ import { Escrow } from '../../src/';
 import { getRequestPaymentValues, getSigner } from '../../src/payment/utils';
 
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
-import { getErc20Balance } from '../../src/payment/erc20';
+import { getErc20Balance } from '../../src';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -66,7 +67,9 @@ const validRequest: ClientTypes.IRequestData = {
   version: '1.0',
 };
 
-const escrowAddress = erc20EscrowToPayArtifact.getAddress(validRequest.currencyInfo.network!);
+const escrowAddress = erc20EscrowToPayArtifact.getAddress(
+  validRequest.currencyInfo.network! as CurrencyTypes.EvmChainName,
+);
 const payerAddress = wallet.address;
 
 describe('erc20-escrow-payment tests:', () => {
@@ -102,10 +105,8 @@ describe('erc20-escrow-payment tests:', () => {
     });
     it('Should throw an error if currencyInfo has no network', async () => {
       const request = deepCopy(validRequest);
-      request.currencyInfo.network = '';
-      await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError(
-        'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
-      );
+      request.currencyInfo.network = '' as CurrencyTypes.ChainName;
+      await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError('Unsupported chain ');
     });
     it('Should throw an error if request has no extension', async () => {
       const request = deepCopy(validRequest);

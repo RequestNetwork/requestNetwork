@@ -1,5 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import { getTheGraphNearClient, TheGraphClient } from '../../thegraph';
+import { NearChains } from '@requestnetwork/currency';
 
 // FIXME#1: when Near subgraphes can retrieve a txHash, replace the custom IPaymentNetworkEvent with PaymentTypes.ETHPaymentNetworkEvent
 interface NearSubGraphPaymentEvent extends PaymentTypes.IETHPaymentEventParameters {
@@ -25,7 +26,9 @@ export class NearInfoRetriever {
     protected eventName: PaymentTypes.EVENTS_NAMES,
     network: string,
   ) {
-    if (network !== 'aurora' && network !== 'aurora-testnet' && network !== 'near-testnet') {
+    try {
+      NearChains.assertChainSupported(network);
+    } catch {
       throw new Error('Near input data info-retriever only works with Near mainnet and testnet');
     }
 

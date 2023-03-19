@@ -1,4 +1,5 @@
 import * as artifacts from '../src/lib';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 const getAdminWalletAddress = (contract: string): string => {
   if (!process.env.ADMIN_WALLET_ADDRESS) {
@@ -7,7 +8,10 @@ const getAdminWalletAddress = (contract: string): string => {
   return process.env.ADMIN_WALLET_ADDRESS;
 };
 
-export const getConstructorArgs = (contract: string, network?: string): string[] => {
+export const getConstructorArgs = (
+  contract: string,
+  network?: CurrencyTypes.EvmChainName,
+): string[] => {
   switch (contract) {
     case 'ChainlinkConversionPath': {
       return ['0x0000000000000000000000000000000000000000', getAdminWalletAddress(contract)];
@@ -57,6 +61,16 @@ export const getConstructorArgs = (contract: string, network?: string): string[]
         '0x0000000000000000000000000000000000000000',
         getAdminWalletAddress(contract),
       ];
+    }
+    case 'ERC20TransferableReceivable': {
+      if (!network) {
+        throw new Error(
+          'Receivable contract requires network parameter to get correct address of erc20FeeProxy',
+        );
+      }
+      const erc20FeeProxy = artifacts.erc20FeeProxyArtifact;
+      const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
+      return ['Request Network Transferable Receivable', 'tREC', erc20FeeProxyAddress];
     }
     default:
       return [];

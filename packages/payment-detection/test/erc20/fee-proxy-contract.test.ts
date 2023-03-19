@@ -433,6 +433,7 @@ describe('api/erc20/fee-proxy-contract', () => {
           ].filter((x) => x.reference.toLowerCase() === reference.toLowerCase()),
           escrowEvents: [],
         })),
+        GetPaymentsAndEscrowStateForReceivables: jest.fn(),
         GetLastSyncedBlock: jest.fn(),
         GetSyncedBlock: jest.fn(),
       }),

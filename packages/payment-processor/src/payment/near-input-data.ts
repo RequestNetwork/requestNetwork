@@ -4,12 +4,13 @@ import { WalletConnection } from 'near-api-js';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import {
-  getRequestPaymentValues,
-  validateRequest,
   getAmountToPay,
   getPaymentExtensionVersion,
+  getRequestPaymentValues,
+  validateRequest,
 } from './utils';
-import { INearTransactionCallback, isNearNetwork, processNearPayment } from './utils-near';
+import { INearTransactionCallback, processNearPayment } from './utils-near';
+import { NearChains } from '@requestnetwork/currency';
 
 /**
  * processes the transaction to pay a Near request.
@@ -23,10 +24,11 @@ export async function payNearInputDataRequest(
   amount?: BigNumberish,
   callback?: INearTransactionCallback,
 ): Promise<void> {
-  if (!request.currencyInfo.network || !isNearNetwork(request.currencyInfo.network)) {
+  if (!request.currencyInfo.network || !NearChains.isChainSupported(request.currencyInfo.network)) {
     throw new Error('request.currencyInfo should be a Near network');
   }
 
+  NearChains.assertChainSupported(request.currencyInfo.network);
   validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN);
 
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
