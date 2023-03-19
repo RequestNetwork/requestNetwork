@@ -479,5 +479,104 @@ describe('api/erc20/fee-proxy-contract', () => {
         salt: 'ea3bc7caf64110ca',
       });
     });
+
+    it('can retrieve payment using thegraph info retriever', async () => {
+      const mockRequest: RequestLogicTypes.IRequest = {
+        creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
+        currency: {
+          network: 'aurora-testnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: 'fau.reqnetwork.testnet',
+        },
+        events: [],
+        expectedAmount: '168040800000000000000000',
+        extensions: {
+          [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+            events: [
+              {
+                name: 'create',
+                parameters: {
+                  feeAddress: 'builder.reqnetwork.testnet',
+                  feeAmount: '13386000000000000000',
+                  paymentAddress: 'issuer.reqnetwork.testnet',
+                  salt: 'c75c317e05c52f12',
+                },
+                timestamp: 1665989825,
+              },
+            ],
+            id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
+            type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+            values: {
+              salt: 'c75c317e05c52f12',
+              paymentAddress: 'issuer.reqnetwork.testnet',
+              feeAddress: 'builder.reqnetwork.testnet',
+              feeAmount: '13386000000000000000',
+            },
+            version: 'NEAR-0.1.0',
+          },
+        },
+        extensionsData: [],
+        requestId: '01169f05b855a57396552cc0052b161f70590bdf9c5371649cd89a70c65fb586db',
+        state: RequestLogicTypes.STATE.CREATED,
+        timestamp: 0,
+        version: '0.2',
+      };
+      erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector({
+        advancedLogic: mockAdvancedLogic,
+        currencyManager,
+        getSubgraphClient: () => ({
+          GetPaymentsAndEscrowState: jest.fn().mockImplementation(({ reference }) => ({
+            payments: [
+              {
+                contractAddress: 'pay.reqnetwork.testnet',
+                tokenAddress: 'fau.reqnetwork.testnet',
+                to: 'issuer.reqnetwork.testnet',
+                from: 'payer.reqnetwork.testnet',
+                amount: '168040800000000000000000',
+                feeAmount: '13386000000000000000',
+                reference: '0xdb2589013fd853317943698cb14b8eaca5c12dfecd3a2e09259b109d8124e533',
+                block: 15767215,
+                txHash: '0x456d67cba236778e91a901e97c71684e82317dc2679d1b5c6bfa6d420d636b7d',
+                gasUsed: '73152',
+                gasPrice: '12709127644',
+                timestamp: 1666002347,
+                amountInCrypto: null,
+                feeAddress: 'builder.reqnetwork.testnet',
+                feeAmountInCrypto: null,
+                maxRateTimespan: null,
+              },
+            ].filter((x) => x.reference.toLowerCase() === reference.toLowerCase()),
+            escrowEvents: [],
+          })),
+          GetLastSyncedBlock: jest.fn(),
+          GetSyncedBlock: jest.fn(),
+        }),
+      });
+
+      const { balance, error, events } = await erc20FeeProxyContract.getBalance(mockRequest);
+      expect(error).toBeUndefined();
+      expect(balance).toBe('168040800000000000000000');
+      expect(events).toMatchObject([
+        {
+          amount: '168040800000000000000000',
+          name: 'payment',
+          parameters: {
+            amountInCrypto: undefined,
+            block: 15767215,
+            feeAddress: 'builder.reqnetwork.testnet',
+            feeAmount: '13386000000000000000',
+            feeAmountInCrypto: undefined,
+            from: 'payer.reqnetwork.testnet',
+            gasPrice: '12709127644',
+            gasUsed: '73152',
+            maxRateTimespan: undefined,
+            to: 'issuer.reqnetwork.testnet',
+            tokenAddress: 'fau.reqnetwork.testnet',
+            txHash: '0x456d67cba236778e91a901e97c71684e82317dc2679d1b5c6bfa6d420d636b7d',
+          },
+          timestamp: 1666002347,
+        },
+      ]);
+    });
   });
 });
