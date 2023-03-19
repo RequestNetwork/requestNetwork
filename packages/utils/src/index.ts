@@ -65,5 +65,3 @@ export {
   uniqueByProperty,
   notNull,
 } from './utils';
-
-export * from './multichain';
