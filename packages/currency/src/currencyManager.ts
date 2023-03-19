@@ -1,4 +1,5 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
+import { isNearNetwork } from '@requestnetwork/utils';
 import { utils } from 'ethers';
 import addressValidator from 'multicoin-address-validator';
 import { getSupportedERC20Tokens } from './erc20';
@@ -17,7 +18,6 @@ import {
 } from './types';
 import { defaultConversionPairs, AggregatorsMap, getPath } from './conversion-aggregators';
 import { isValidNearAddress } from './currency-utils';
-import { isNearNetwork } from 'utils/dist';
 
 const { BTC, ERC20, ERC777, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 
