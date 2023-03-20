@@ -122,7 +122,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       [ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: this.extensions.erc777Stream,
       [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: this.extensions.ethereumInputData,
       [ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN]:
-        this.getNativeTokenExtensionForActionAndState(extensionAction, requestState),
+        this.getNativeTokenExtensionForNetwork(network),
       [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: this.extensions.anyToErc20Proxy,
       [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]:
         this.extensions.feeProxyContractEth,
@@ -147,28 +147,13 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
   }
 
   public getNativeTokenExtensionForNetwork(
-    network: CurrencyTypes.ChainName,
+    network?: CurrencyTypes.ChainName,
   ): ExtensionTypes.IExtension<ExtensionTypes.PnReferenceBased.ICreationParameters> | undefined {
-    return this.extensions.nativeToken.find((nativeTokenExtension) =>
-      nativeTokenExtension.supportedNetworks.includes(network),
-    );
-  }
-
-  protected getNativeTokenExtensionForActionAndState(
-    extensionAction: ExtensionTypes.IAction,
-    requestState: RequestLogicTypes.IRequest,
-  ): ExtensionTypes.IExtension<ExtensionTypes.PnReferenceBased.ICreationParameters> | undefined {
-    if (
-      requestState.currency.network &&
-      extensionAction.parameters.paymentNetworkName &&
-      requestState.currency.network !== extensionAction.parameters.paymentNetworkName
-    ) {
-      throw new Error(
-        `Cannot apply action for network ${extensionAction.parameters.paymentNetworkName} on state with payment network: ${requestState.currency.network}`,
-      );
-    }
-    const network = requestState.currency.network ?? extensionAction.parameters.paymentNetworkName;
-    return network ? this.getNativeTokenExtensionForNetwork(network) : undefined;
+    return network
+      ? this.extensions.nativeToken.find((nativeTokenExtension) =>
+          nativeTokenExtension.supportedNetworks.includes(network),
+        )
+      : undefined;
   }
 
   public getAnyToNativeTokenExtensionForNetwork(
@@ -191,6 +176,15 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     extensionAction: ExtensionTypes.IAction,
     requestState: RequestLogicTypes.IRequest,
   ): CurrencyTypes.ChainName | undefined {
+    if (
+      requestState.currency.network &&
+      extensionAction.parameters.paymentNetworkName &&
+      requestState.currency.network !== extensionAction.parameters.paymentNetworkName
+    ) {
+      throw new Error(
+        `Cannot apply action for network ${extensionAction.parameters.paymentNetworkName} on state with payment network: ${requestState.currency.network}`,
+      );
+    }
     const network =
       extensionAction.action === 'create'
         ? extensionAction.parameters.network
