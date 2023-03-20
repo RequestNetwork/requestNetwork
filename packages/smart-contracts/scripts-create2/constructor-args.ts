@@ -23,7 +23,7 @@ export const getConstructorArgs = (
         getAdminWalletAddress(contract),
       ];
     }
-    case 'ETHConversionProxy': {
+    case 'EthConversionProxy': {
       return [
         '0x0000000000000000000000000000000000000000',
         '0x0000000000000000000000000000000000000000',
