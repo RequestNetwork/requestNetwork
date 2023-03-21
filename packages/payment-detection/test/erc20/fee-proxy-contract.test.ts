@@ -6,7 +6,11 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { ERC20FeeProxyPaymentDetector } from '../../src/erc20/fee-proxy-contract';
+import { AdvancedLogic } from '@requestnetwork/advanced-logic';
+import {
+  ERC20FeeProxyPaymentDetector,
+  ERC20NearFeeProxyPaymentDetector,
+} from '../../src/erc20/fee-proxy-contract';
 import { mockAdvancedLogicBase } from '../utils';
 import { mocked } from 'ts-jest/utils';
 import { GraphQLClient } from 'graphql-request';
@@ -39,6 +43,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 };
 
 const currencyManager = CurrencyManager.getDefault();
+const advancedLogic = new AdvancedLogic(currencyManager);
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/fee-proxy-contract', () => {
@@ -515,32 +520,29 @@ describe('api/erc20/fee-proxy-contract', () => {
       advancedLogic: mockAdvancedLogic,
       currencyManager,
       getSubgraphClient: () => ({
-        GetPaymentsAndEscrowState: jest.fn().mockImplementation(({ reference }) => {
-          console.debug(`looking for ref ${reference}`);
-          return {
-            payments: [
-              {
-                contractAddress: '0x370de27fdb7d1ff1e1baa7d11c5820a324cf623c',
-                tokenAddress: '0xfFEE087852cb4898e6c3532E776e68BC68b1143B', // Wrong token address
-                to: '0x6c9e04997000d6a8a353951231923d776d4cdff2',
-                from: '0x15339d48fbe31e349a507fd6d48eb01c45fdc79a',
-                amount: '168040800000000000000000',
-                feeAmount: '13386000000000000000',
-                reference: '0x5ac7241d9e6f419409e439c8429eea2f8f089d76528fd1d5df7496a3e58b5ce1',
-                block: 15767215,
-                txHash: '0x456d67cba236778e91a901e97c71684e82317dc2679d1b5c6bfa6d420d636b7d',
-                gasUsed: '73152',
-                gasPrice: '12709127644',
-                timestamp: 1666002347,
-                amountInCrypto: null,
-                feeAddress: '0x35d0e078755cd84d3e0656caab417dee1d7939c7',
-                feeAmountInCrypto: null,
-                maxRateTimespan: null,
-              },
-            ].filter((x) => x.reference.toLowerCase() === reference.toLowerCase()),
-            escrowEvents: [],
-          };
-        }),
+        GetPaymentsAndEscrowState: jest.fn().mockImplementation(({ reference }) => ({
+          payments: [
+            {
+              contractAddress: '0x370de27fdb7d1ff1e1baa7d11c5820a324cf623c',
+              tokenAddress: '0xfFEE087852cb4898e6c3532E776e68BC68b1143B', // Wrong token address
+              to: '0x6c9e04997000d6a8a353951231923d776d4cdff2',
+              from: '0x15339d48fbe31e349a507fd6d48eb01c45fdc79a',
+              amount: '168040800000000000000000',
+              feeAmount: '13386000000000000000',
+              reference: '0x5ac7241d9e6f419409e439c8429eea2f8f089d76528fd1d5df7496a3e58b5ce1',
+              block: 15767215,
+              txHash: '0x456d67cba236778e91a901e97c71684e82317dc2679d1b5c6bfa6d420d636b7d',
+              gasUsed: '73152',
+              gasPrice: '12709127644',
+              timestamp: 1666002347,
+              amountInCrypto: null,
+              feeAddress: '0x35d0e078755cd84d3e0656caab417dee1d7939c7',
+              feeAmountInCrypto: null,
+              maxRateTimespan: null,
+            },
+          ].filter((x) => x.reference.toLowerCase() === reference.toLowerCase()),
+          escrowEvents: [],
+        })),
         GetPaymentsAndEscrowStateForReceivables: jest.fn(),
         GetLastSyncedBlock: jest.fn(),
         GetSyncedBlock: jest.fn(),
@@ -631,16 +633,17 @@ describe('api/erc20/fee-proxy-contract', () => {
         timestamp: 0,
         version: '0.2',
       };
-      const nearErc20FeeProxyContract = new ERC20FeeProxyPaymentDetector<'near'>({
-        advancedLogic: mockAdvancedLogic,
+      const nearErc20FeeProxyContract = new ERC20NearFeeProxyPaymentDetector({
+        advancedLogic,
         currencyManager,
-        getSubgraphClient: () => ({
-          GetFungibleTokenPayments: jest.fn(),
-          GetNearConversionPayments: jest.fn(),
-          GetNearPayments: jest.fn(),
-          GetLastSyncedBlock: jest.fn(),
-          GetSyncedBlock: jest.fn(),
-        }),
+        network: 'aurora-testnet',
+        // getSubgraphClient: () => ({
+        //   GetFungibleTokenPayments: jest.fn(),
+        //   GetNearConversionPayments: jest.fn(),
+        //   GetNearPayments: jest.fn(),
+        //   GetLastSyncedBlock: jest.fn(),
+        //   GetSyncedBlock: jest.fn(),
+        // }),
       });
 
       const { balance, error, events } = await nearErc20FeeProxyContract.getBalance(mockRequest);

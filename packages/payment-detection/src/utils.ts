@@ -88,7 +88,6 @@ export const makeGetDeploymentInformation = <
       );
     }
     const info = artifact.getOptionalDeploymentInformation(network, contractVersion);
-    console.debug(`makeGetDeploymentInfo ${network} ${contractVersion} ${info}`);
     if (!info) {
       if (!allowUndefined) {
         if (artifact.getOptionalDeploymentInformation(network)) {

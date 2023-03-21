@@ -167,7 +167,6 @@ export class ContractArtifact<TContract extends Contract> {
     networkName: CurrencyTypes.VMChainName,
     version = this.lastVersion,
   ): DeploymentInformation | null {
-    console.debug(this.info, version, networkName);
     return this.info[version]?.deployment[networkName] || null;
   }
 }

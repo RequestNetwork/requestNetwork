@@ -1,0 +1,40 @@
+fragment NearPaymentEventResult on Payment {
+  amount
+  block
+  receiptId
+  txHash
+  feeAmount
+  feeAddress
+  from
+  gasUsed
+  gasPrice
+  timestamp
+  contractAddress
+  to
+  tokenAddress
+  currency
+  amountInCrypto
+  feeAmountInCrypto
+  maxRateTimespan
+}
+
+query GetFungibleTokenPayments(
+  $reference: String!
+  $to: String!
+  $contractAddress: String!
+  $tokenAddress: String!
+) {
+  payments(
+    where: {
+      reference: $reference
+      to: $to
+      tokenAddress: $tokenAddress
+      contractAddress: $contractAddress
+      currency: $tokenAddress
+    }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    ...NearPaymentEventResult
+  }
+}

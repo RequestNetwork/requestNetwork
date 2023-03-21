@@ -27,6 +27,7 @@ import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetecto
 import { getPaymentNetworkExtension } from './utils';
 import { getTheGraphClient } from './thegraph';
 import { getDefaultProvider } from 'ethers';
+import { ERC20NearFeeProxyPaymentDetector } from './erc20/fee-proxy-contract';
 
 const PN_ID = ExtensionTypes.PAYMENT_NETWORK_ID;
 
@@ -46,12 +47,12 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
     },
   },
   ERC20: {
-    aurora: { [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<'near'> },
+    aurora: { [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20NearFeeProxyPaymentDetector },
     'aurora-testnet': {
-      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<'near'>,
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20NearFeeProxyPaymentDetector,
     },
     'near-testnet': {
-      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<'near'>,
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20NearFeeProxyPaymentDetector,
     },
     '*': {
       [PN_ID.ERC20_ADDRESS_BASED]: ERC20AddressBasedPaymentDetector,
@@ -147,8 +148,6 @@ export class PaymentNetworkFactory {
       );
     }
 
-    console.debug(detectorClass);
-
     const detector = new detectorClass({
       network,
       advancedLogic: this.advancedLogic,
@@ -156,15 +155,12 @@ export class PaymentNetworkFactory {
       ...this.options,
     });
 
-    console.debug(paymentNetworkVersion, detector.extension.currentVersion);
-
     if (detector.extension && 'getDeploymentInformation' in detectorClass) {
       // this throws when the contract isn't deployed and was mandatory for payment detection
-      const uselessResult = (detectorClass as ContractBasedDetector).getDeploymentInformation(
+      (detectorClass as ContractBasedDetector).getDeploymentInformation(
         network as CurrencyTypes.VMChainName,
         paymentNetworkVersion || detector.extension.currentVersion,
       );
-      console.debug(`uselessResult`, uselessResult);
     }
 
     return detector;

@@ -46,18 +46,6 @@ export class NearInfoRetriever
   }
 
   public async getTransferEvents(): Promise<PaymentTypes.AllNetworkEvents<NearPaymentEvent>> {
-    console.debug(
-      `NEAR IR getTransferEvents with tokenAddress ${this.tokenAddress} and ref ${this.paymentReference} 
-      contractAddress: ${this.proxyContractName},
-      to: ${this.toAddress},`,
-    );
-    const fakeResult = await this.client.GetFungibleTokenPayments({
-      reference: this.paymentReference,
-      to: this.toAddress,
-      contractAddress: this.proxyContractName,
-      tokenAddress: this.tokenAddress ?? 'oops',
-    });
-    console.debug(fakeResult);
     const payments = this.tokenAddress
       ? await this.client.GetFungibleTokenPayments({
           reference: this.paymentReference,
@@ -70,7 +58,6 @@ export class NearInfoRetriever
           to: this.toAddress,
           contractAddress: this.proxyContractName,
         });
-    console.debug(`payments:`, payments);
     return {
       paymentEvents: payments.payments.map((p) => this.mapPaymentEvent(p)),
     };

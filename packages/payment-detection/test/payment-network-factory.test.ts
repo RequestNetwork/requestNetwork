@@ -1,4 +1,4 @@
-import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { BtcMainnetAddressBasedDetector } from '../src/btc';
 import {
@@ -6,9 +6,8 @@ import {
   EthInputDataPaymentDetector,
   PaymentNetworkFactory,
 } from '../src';
-import { mockAdvancedLogicBase } from './utils';
-import { ERC20FeeProxyPaymentDetector } from '../src/erc20';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
+import { ERC20NearFeeProxyPaymentDetector } from '../src/erc20/fee-proxy-contract';
 
 const currencyManager = CurrencyManager.getDefault();
 const advancedLogic = new AdvancedLogic(currencyManager);
@@ -39,17 +38,14 @@ describe('api/payment-network/payment-network-factory', () => {
       ).toBeInstanceOf(DeclarativePaymentDetector);
     });
 
-    it.only('can createPaymentNetwork with a NEAR network for en extension supporting both EVM and NEAR', async () => {
+    it('can createPaymentNetwork with a NEAR network for en extension supporting both EVM and NEAR', async () => {
       const pnInterpretor = paymentNetworkFactory.createPaymentNetwork(
         ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
         RequestLogicTypes.CURRENCY.ERC20,
         'aurora-testnet',
-        'NEAR-0.1.0'
+        'NEAR-0.1.0',
       );
-      expect(pnInterpretor).toBeInstanceOf(ERC20FeeProxyPaymentDetector<'near'>);
-      console.debug(pnInterpretor);
-      expect(pnInterpretor.extension.extensionId).toEqual('pn-erc20-fee-proxy-contract');
-      expect(pnInterpretor.extension.currentVersion).toEqual('near-0.1.0');
+      expect(pnInterpretor).toBeInstanceOf(ERC20NearFeeProxyPaymentDetector);
     });
 
     it('cannot createPaymentNetwork with extension id not handled', async () => {
