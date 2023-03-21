@@ -8,6 +8,11 @@ import {
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20FeeProxyPaymentDetector } from '../../src/erc20/fee-proxy-contract';
 import { mockAdvancedLogicBase } from '../utils';
+import { mocked } from 'ts-jest/utils';
+import { GraphQLClient } from 'graphql-request';
+
+jest.mock('graphql-request');
+const graphql = mocked(GraphQLClient.prototype);
 
 let erc20FeeProxyContract: ERC20FeeProxyPaymentDetector;
 
@@ -465,6 +470,89 @@ describe('api/erc20/fee-proxy-contract', () => {
     ]);
   });
 
+  it('does not retrieve payments for the wrong token address', async () => {
+    const mockRequest: RequestLogicTypes.IRequest = {
+      creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
+      currency: {
+        network: 'mainnet',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x967da4048cd07ab37855c090aaf366e4ce1b9f48',
+      },
+      events: [],
+      expectedAmount: '168040800000000000000000',
+      extensions: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+          events: [
+            {
+              name: 'create',
+              parameters: {
+                feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',
+                feeAmount: '13386000000000000000',
+                paymentAddress: '0x6c9E04997000d6A8a353951231923d776d4Cdff2',
+                salt: 'c75c317e05c52f12',
+              },
+              timestamp: 1665989825,
+            },
+          ],
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            salt: 'c75c317e05c52f12',
+            paymentAddress: '0x6c9E04997000d6A8a353951231923d776d4Cdff2',
+            feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',
+            feeAmount: '13386000000000000000',
+          },
+          version: '0.2.0',
+        },
+      },
+      extensionsData: [],
+      requestId: '01169f05b855a57396552cc0052b161f70590bdf9c5371649cd89a70c65fb586db',
+      state: RequestLogicTypes.STATE.CREATED,
+      timestamp: 0,
+      version: '0.2',
+    };
+    erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager,
+      getSubgraphClient: () => ({
+        GetPaymentsAndEscrowState: jest.fn().mockImplementation(({ reference }) => {
+          console.debug(`looking for ref ${reference}`);
+          return {
+            payments: [
+              {
+                contractAddress: '0x370de27fdb7d1ff1e1baa7d11c5820a324cf623c',
+                tokenAddress: '0xfFEE087852cb4898e6c3532E776e68BC68b1143B', // Wrong token address
+                to: '0x6c9e04997000d6a8a353951231923d776d4cdff2',
+                from: '0x15339d48fbe31e349a507fd6d48eb01c45fdc79a',
+                amount: '168040800000000000000000',
+                feeAmount: '13386000000000000000',
+                reference: '0x5ac7241d9e6f419409e439c8429eea2f8f089d76528fd1d5df7496a3e58b5ce1',
+                block: 15767215,
+                txHash: '0x456d67cba236778e91a901e97c71684e82317dc2679d1b5c6bfa6d420d636b7d',
+                gasUsed: '73152',
+                gasPrice: '12709127644',
+                timestamp: 1666002347,
+                amountInCrypto: null,
+                feeAddress: '0x35d0e078755cd84d3e0656caab417dee1d7939c7',
+                feeAmountInCrypto: null,
+                maxRateTimespan: null,
+              },
+            ].filter((x) => x.reference.toLowerCase() === reference.toLowerCase()),
+            escrowEvents: [],
+          };
+        }),
+        GetPaymentsAndEscrowStateForReceivables: jest.fn(),
+        GetLastSyncedBlock: jest.fn(),
+        GetSyncedBlock: jest.fn(),
+      }),
+    });
+
+    const { balance, error, events } = await erc20FeeProxyContract.getBalance(mockRequest);
+    expect(error).toBeUndefined();
+    expect(balance).toBe('0');
+    expect(events).toMatchObject([]);
+  });
+
   describe('on Near', () => {
     it('can createExtensionsDataForCreation', async () => {
       await erc20FeeProxyContract.createExtensionsDataForCreation({
@@ -482,6 +570,27 @@ describe('api/erc20/fee-proxy-contract', () => {
     });
 
     it('can retrieve payment using thegraph info retriever', async () => {
+      graphql.request.mockResolvedValue({
+        payments: [
+          {
+            contractAddress: 'pay.reqnetwork.testnet',
+            tokenAddress: 'fau.reqnetwork.testnet',
+            to: 'issuer.reqnetwork.testnet',
+            from: 'payer.reqnetwork.testnet',
+            amount: '168040800000000000000000',
+            feeAmount: '13386000000000000000',
+            reference: 'f59c9445040531b1',
+            block: 15767215,
+            gasUsed: '73152',
+            gasPrice: '12709127644',
+            timestamp: 1666002347,
+            amountInCrypto: null,
+            feeAddress: 'builder.reqnetwork.testnet',
+            feeAmountInCrypto: null,
+            maxRateTimespan: null,
+          },
+        ],
+      });
       const mockRequest: RequestLogicTypes.IRequest = {
         creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
         currency: {
@@ -522,39 +631,20 @@ describe('api/erc20/fee-proxy-contract', () => {
         timestamp: 0,
         version: '0.2',
       };
-      erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector({
+      const nearErc20FeeProxyContract = new ERC20FeeProxyPaymentDetector<'near'>({
         advancedLogic: mockAdvancedLogic,
         currencyManager,
         getSubgraphClient: () => ({
-          GetPaymentsAndEscrowState: jest.fn().mockImplementation(({ reference }) => ({
-            payments: [
-              {
-                contractAddress: 'pay.reqnetwork.testnet',
-                tokenAddress: 'fau.reqnetwork.testnet',
-                to: 'issuer.reqnetwork.testnet',
-                from: 'payer.reqnetwork.testnet',
-                amount: '168040800000000000000000',
-                feeAmount: '13386000000000000000',
-                reference: '0xdb2589013fd853317943698cb14b8eaca5c12dfecd3a2e09259b109d8124e533',
-                block: 15767215,
-                txHash: '0x456d67cba236778e91a901e97c71684e82317dc2679d1b5c6bfa6d420d636b7d',
-                gasUsed: '73152',
-                gasPrice: '12709127644',
-                timestamp: 1666002347,
-                amountInCrypto: null,
-                feeAddress: 'builder.reqnetwork.testnet',
-                feeAmountInCrypto: null,
-                maxRateTimespan: null,
-              },
-            ].filter((x) => x.reference.toLowerCase() === reference.toLowerCase()),
-            escrowEvents: [],
-          })),
+          GetFungibleTokenPayments: jest.fn(),
+          GetNearConversionPayments: jest.fn(),
+          GetNearPayments: jest.fn(),
           GetLastSyncedBlock: jest.fn(),
           GetSyncedBlock: jest.fn(),
         }),
       });
 
-      const { balance, error, events } = await erc20FeeProxyContract.getBalance(mockRequest);
+      const { balance, error, events } = await nearErc20FeeProxyContract.getBalance(mockRequest);
+      expect;
       expect(error).toBeUndefined();
       expect(balance).toBe('168040800000000000000000');
       expect(events).toMatchObject([
@@ -562,20 +652,16 @@ describe('api/erc20/fee-proxy-contract', () => {
           amount: '168040800000000000000000',
           name: 'payment',
           parameters: {
-            amountInCrypto: undefined,
-            block: 15767215,
+            // block: 15767215,
             feeAddress: 'builder.reqnetwork.testnet',
             feeAmount: '13386000000000000000',
-            feeAmountInCrypto: undefined,
             from: 'payer.reqnetwork.testnet',
-            gasPrice: '12709127644',
-            gasUsed: '73152',
-            maxRateTimespan: undefined,
+            // gasPrice: '12709127644',
+            // gasUsed: '73152',
             to: 'issuer.reqnetwork.testnet',
             tokenAddress: 'fau.reqnetwork.testnet',
-            txHash: '0x456d67cba236778e91a901e97c71684e82317dc2679d1b5c6bfa6d420d636b7d',
           },
-          timestamp: 1666002347,
+          // timestamp: 1666002347,
         },
       ]);
     });

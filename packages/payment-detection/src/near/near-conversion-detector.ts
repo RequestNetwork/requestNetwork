@@ -93,10 +93,8 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
       paymentChain,
       paymentNetwork.values.maxRateTimespan,
     );
-    const paymentEvents = await infoRetriever.getTransferEvents();
-    return {
-      paymentEvents,
-    };
+    const transferEvents = await infoRetriever.getTransferEvents();
+    return transferEvents;
   }
 
   protected getPaymentChain(request: RequestLogicTypes.IRequest): CurrencyTypes.NearChainName {

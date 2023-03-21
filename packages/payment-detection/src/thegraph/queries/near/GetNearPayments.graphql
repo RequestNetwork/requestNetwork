@@ -1,15 +1,19 @@
+# Getting payments in NEAR denominated in NEAR
 query GetNearPayments($reference: String!, $to: String!, $contractAddress: String!) {
   payments(
-    where: { reference: $reference, to: $to, contractAddress: $contractAddress }
+    where: { reference: $reference, to: $to, contractAddress: $contractAddress, tokenAddress: null }
     orderBy: timestamp
     orderDirection: asc
   ) {
     amount
+    currency
     block
     receiptId
     feeAmount
     feeAddress
     from
     timestamp
+    gasPrice
+    gasUsed
   }
 }

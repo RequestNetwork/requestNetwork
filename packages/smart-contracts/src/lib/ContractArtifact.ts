@@ -88,7 +88,7 @@ export class ContractArtifact<TContract extends Contract> {
    * @returns the addresses of the deployed contract and the associated version.
    */
   getAllAddresses(
-    networkName: CurrencyTypes.EvmChainName,
+    networkName: CurrencyTypes.VMChainName,
   ): { version: string; address: string | undefined }[] {
     const entries = Object.entries(this.info);
     return entries.map(([version, { deployment }]) => ({
@@ -129,7 +129,7 @@ export class ContractArtifact<TContract extends Contract> {
    * @returns the number of the block where the contract was deployed
    */
   getCreationBlockNumber(
-    networkName: CurrencyTypes.EvmChainName,
+    networkName: CurrencyTypes.VMChainName,
     version = this.lastVersion,
   ): number {
     return this.getDeploymentInformation(networkName, version).creationBlockNumber;
@@ -164,9 +164,10 @@ export class ContractArtifact<TContract extends Contract> {
    * @returns The address and the number of the creation block, or null if not found
    */
   getOptionalDeploymentInformation(
-    networkName: CurrencyTypes.EvmChainName,
+    networkName: CurrencyTypes.VMChainName,
     version = this.lastVersion,
   ): DeploymentInformation | null {
+    console.debug(this.info, version, networkName);
     return this.info[version]?.deployment[networkName] || null;
   }
 }

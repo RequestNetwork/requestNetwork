@@ -1,0 +1,50 @@
+fragment PaymentEventResult on Payment {
+  amount
+  block
+  receiptId
+  txHash
+  feeAmount
+  feeAddress
+  from
+  gasUsed
+  gasPrice
+  timestamp
+  contractAddress
+  to
+  tokenAddress
+  currency
+  amountInCrypto
+  feeAmountInCrypto
+  maxRateTimespan
+}
+
+fragment EscrowEventResult on EscrowEvent {
+  txHash
+  eventName
+  from
+  timestamp
+  block
+  gasUsed
+  gasPrice
+}
+
+query GetPaymentsAndEscrowState($reference: String!, $to: String!, $contractAddress: String!, $tokenAddress: String!) {
+  payments(where: { reference: $reference, to: $to, tokenAddress: $tokenAddress, contractAddress: $contractAddress }, orderBy: timestamp, orderDirection: asc) {
+    ...PaymentEventResult
+  }
+  # No escrow on Near
+  escrowEvents(orderBy: timestamp, orderDirection: asc) {
+    ...EscrowEventResult
+  }
+}
+
+# No receivable on Near
+query GetPaymentsAndEscrowStateForReceivables($reference: String!, $tokenAddress: String!) {
+  payments(where: { reference: $reference, tokenAddress: $tokenAddress }, orderBy: timestamp, orderDirection: asc) {
+    ...PaymentEventResult
+  }
+  # No escrow on Near
+  escrowEvents(orderBy: timestamp, orderDirection: asc) {
+    ...EscrowEventResult
+  }
+}

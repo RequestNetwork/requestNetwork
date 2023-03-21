@@ -62,7 +62,7 @@ const getChainlinkPaddingSize = ({
 
 export type DeploymentInformationWithVersion = DeploymentInformation & { contractVersion: string };
 export type GetDeploymentInformation<TAllowUndefined extends boolean> = (
-  network: CurrencyTypes.EvmChainName,
+  network: CurrencyTypes.VMChainName,
   paymentNetworkVersion: string,
 ) => TAllowUndefined extends false
   ? DeploymentInformationWithVersion
@@ -88,6 +88,7 @@ export const makeGetDeploymentInformation = <
       );
     }
     const info = artifact.getOptionalDeploymentInformation(network, contractVersion);
+    console.debug(`makeGetDeploymentInfo ${network} ${contractVersion} ${info}`);
     if (!info) {
       if (!allowUndefined) {
         if (artifact.getOptionalDeploymentInformation(network)) {

@@ -82,7 +82,7 @@ export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
       eventName,
       paymentChain,
     );
-    const paymentEvents = await infoRetriever.getTransferEvents();
+    const { paymentEvents } = await infoRetriever.getTransferEvents();
     return {
       paymentEvents,
     };

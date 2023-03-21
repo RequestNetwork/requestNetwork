@@ -6,7 +6,7 @@ import type { TheGraphClient } from '.';
 import type { EscrowEventResultFragment, PaymentEventResultFragment } from './generated/graphql';
 import { formatAddress, unpadAmountFromChainlink } from '../utils';
 
-type TransferEventsParams = {
+export type TransferEventsParams = {
   /** The reference to identify the payment*/
   paymentReference: string;
   /** The recipient of the transfer */
@@ -14,7 +14,7 @@ type TransferEventsParams = {
   /** The address of the payment proxy */
   contractAddress: string;
   /** The chain to check for payment */
-  paymentChain: CurrencyTypes.EvmChainName;
+  paymentChain: CurrencyTypes.VMChainName;
   /** Indicates if it is an address for payment or refund */
   eventName: PaymentTypes.EVENTS_NAMES;
   /** The list of ERC20 tokens addresses accepted for payments and refunds */
@@ -23,10 +23,24 @@ type TransferEventsParams = {
   maxRateTimespan?: number;
 };
 
-export class TheGraphInfoRetriever {
+export interface ITheGraphBaseInfoRetriever<
+  TPaymentEvent extends PaymentTypes.IETHPaymentEventParameters,
+> {
+  getTransferEvents(
+    params: TransferEventsParams,
+  ): Promise<PaymentTypes.AllNetworkEvents<TPaymentEvent>>;
+}
+
+/**
+ * TheGraph info retriever for EVMs
+ */
+export class TheGraphInfoRetriever
+  implements ITheGraphBaseInfoRetriever<PaymentTypes.IERC20FeePaymentEventParameters>
+{
+  // {
   constructor(
-    private readonly client: TheGraphClient,
-    private readonly currencyManager: ICurrencyManager,
+    protected readonly client: TheGraphClient,
+    protected readonly currencyManager: ICurrencyManager,
   ) {}
 
   public async getTransferEvents(

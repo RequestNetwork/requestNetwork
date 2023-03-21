@@ -7,15 +7,14 @@ import {
   PaymentNetworkFactory,
 } from '../src';
 import { mockAdvancedLogicBase } from './utils';
-
-const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  ...mockAdvancedLogicBase,
-  extensions: {} as AdvancedLogicTypes.IAdvancedLogicExtensions,
-};
+import { ERC20FeeProxyPaymentDetector } from '../src/erc20';
+import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 
 const currencyManager = CurrencyManager.getDefault();
+const advancedLogic = new AdvancedLogic(currencyManager);
+
 const paymentNetworkFactory = new PaymentNetworkFactory(
-  mockAdvancedLogic,
+  advancedLogic,
   CurrencyManager.getDefault(),
 );
 // Most of the tests are done as integration tests in ../index.test.ts
@@ -38,6 +37,19 @@ describe('api/payment-network/payment-network-factory', () => {
           RequestLogicTypes.CURRENCY.BTC,
         ),
       ).toBeInstanceOf(DeclarativePaymentDetector);
+    });
+
+    it.only('can createPaymentNetwork with a NEAR network for en extension supporting both EVM and NEAR', async () => {
+      const pnInterpretor = paymentNetworkFactory.createPaymentNetwork(
+        ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
+        RequestLogicTypes.CURRENCY.ERC20,
+        'aurora-testnet',
+        'NEAR-0.1.0'
+      );
+      expect(pnInterpretor).toBeInstanceOf(ERC20FeeProxyPaymentDetector<'near'>);
+      console.debug(pnInterpretor);
+      expect(pnInterpretor.extension.extensionId).toEqual('pn-erc20-fee-proxy-contract');
+      expect(pnInterpretor.extension.currentVersion).toEqual('near-0.1.0');
     });
 
     it('cannot createPaymentNetwork with extension id not handled', async () => {
@@ -145,7 +157,7 @@ describe('api/payment-network/payment-network-factory', () => {
           },
         },
       };
-      const paymentNetworkFactory = new PaymentNetworkFactory(mockAdvancedLogic, currencyManager, {
+      const paymentNetworkFactory = new PaymentNetworkFactory(advancedLogic, currencyManager, {
         explorerApiKeys: { mainnet: 'abcd' },
       });
       const pn = paymentNetworkFactory.getPaymentNetworkFromRequest(request);

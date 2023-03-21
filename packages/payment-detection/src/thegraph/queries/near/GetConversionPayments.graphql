@@ -12,6 +12,7 @@ query GetNearConversionPayments(
       currency: $currency
       maxRateTimespan_gte: $maxRateTimespan
       contractAddress: $contractAddress
+      tokenAddress: null
     }
     orderBy: timestamp
     orderDirection: asc
@@ -24,6 +25,8 @@ query GetNearConversionPayments(
     from
     timestamp
     currency
+    gasPrice
+    gasUsed
     maxRateTimespan
     amountInCrypto
     feeAmountInCrypto

@@ -46,6 +46,13 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
     },
   },
   ERC20: {
+    aurora: { [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<'near'> },
+    'aurora-testnet': {
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<'near'>,
+    },
+    'near-testnet': {
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<'near'>,
+    },
     '*': {
       [PN_ID.ERC20_ADDRESS_BASED]: ERC20AddressBasedPaymentDetector,
       [PN_ID.ERC20_PROXY_CONTRACT]: ERC20ProxyPaymentDetector,
@@ -108,7 +115,7 @@ export class PaymentNetworkFactory {
   }
 
   /**
-   * Creates a payment network according to payment network creation parameters
+   * Creates a payment network interpretor according to payment network creation parameters
    * It throws if the payment network given is not supported by this library
    *
    * @param paymentNetworkId the ID of the payment network to instantiate
@@ -140,6 +147,8 @@ export class PaymentNetworkFactory {
       );
     }
 
+    console.debug(detectorClass);
+
     const detector = new detectorClass({
       network,
       advancedLogic: this.advancedLogic,
@@ -147,12 +156,15 @@ export class PaymentNetworkFactory {
       ...this.options,
     });
 
+    console.debug(paymentNetworkVersion, detector.extension.currentVersion);
+
     if (detector.extension && 'getDeploymentInformation' in detectorClass) {
       // this throws when the contract isn't deployed and was mandatory for payment detection
-      (detectorClass as ContractBasedDetector).getDeploymentInformation(
-        network as CurrencyTypes.EvmChainName,
+      const uselessResult = (detectorClass as ContractBasedDetector).getDeploymentInformation(
+        network as CurrencyTypes.VMChainName,
         paymentNetworkVersion || detector.extension.currentVersion,
       );
+      console.debug(`uselessResult`, uselessResult);
     }
 
     return detector;

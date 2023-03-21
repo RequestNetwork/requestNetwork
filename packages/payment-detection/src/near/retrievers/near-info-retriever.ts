@@ -1,16 +1,22 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { getTheGraphNearClient, TheGraphClient } from '../../thegraph';
+import { getTheGraphNearClient, ITheGraphBaseInfoRetriever, TheGraphClient } from '../../thegraph';
 import { NearChains } from '@requestnetwork/currency';
+import { GetNearPaymentsQuery } from 'payment-detection/src/thegraph/generated/graphql-near';
 
 // FIXME#1: when Near subgraphes can retrieve a txHash, replace the custom IPaymentNetworkEvent with PaymentTypes.ETHPaymentNetworkEvent
-interface NearSubGraphPaymentEvent extends PaymentTypes.IETHPaymentEventParameters {
+export interface NearPaymentEvent extends PaymentTypes.IERC20FeePaymentEventParameters {
   receiptId: string;
 }
 
 /**
  * Gets a list of transfer events for a set of Near payment details
  */
-export class NearInfoRetriever {
+export class NearInfoRetriever
+  //<
+  // TPaymentEvent extends NearSubGraphPaymentEvent = NearSubGraphPaymentEvent,
+  //>
+  implements ITheGraphBaseInfoRetriever<NearPaymentEvent>
+{
   protected client: TheGraphClient<'near'>;
   /**
    * @param paymentReference The reference to identify the payment
@@ -25,6 +31,7 @@ export class NearInfoRetriever {
     protected proxyContractName: string,
     protected eventName: PaymentTypes.EVENTS_NAMES,
     network: string,
+    protected tokenAddress?: string, // protected currency?: string,
   ) {
     try {
       NearChains.assertChainSupported(network);
@@ -38,25 +45,61 @@ export class NearInfoRetriever {
     );
   }
 
-  public async getTransferEvents(): Promise<
-    PaymentTypes.IPaymentNetworkEvent<NearSubGraphPaymentEvent>[]
-  > {
-    const payments = await this.client.GetNearPayments({
+  public async getTransferEvents(): Promise<PaymentTypes.AllNetworkEvents<NearPaymentEvent>> {
+    console.debug(
+      `NEAR IR getTransferEvents with tokenAddress ${this.tokenAddress} and ref ${this.paymentReference} 
+      contractAddress: ${this.proxyContractName},
+      to: ${this.toAddress},`,
+    );
+    const fakeResult = await this.client.GetFungibleTokenPayments({
       reference: this.paymentReference,
       to: this.toAddress,
       contractAddress: this.proxyContractName,
+      tokenAddress: this.tokenAddress ?? 'oops',
     });
-    return payments.payments.map((p) => ({
-      amount: p.amount,
+    console.debug(fakeResult);
+    const payments = this.tokenAddress
+      ? await this.client.GetFungibleTokenPayments({
+          reference: this.paymentReference,
+          to: this.toAddress,
+          contractAddress: this.proxyContractName,
+          tokenAddress: this.tokenAddress,
+        })
+      : await this.client.GetNearPayments({
+          reference: this.paymentReference,
+          to: this.toAddress,
+          contractAddress: this.proxyContractName,
+        });
+    console.debug(`payments:`, payments);
+    return {
+      paymentEvents: payments.payments.map((p) => this.mapPaymentEvent(p)),
+    };
+  }
+
+  private mapPaymentEvent(
+    payment: GetNearPaymentsQuery['payments'][0],
+  ): PaymentTypes.IPaymentNetworkEvent<NearPaymentEvent> {
+    // const block: number = payment.block;
+    return {
+      amount: payment.amount,
       name: this.eventName,
       parameters: {
-        block: p.block,
-        confirmations: p.block,
-        // Cf. FIXME#1 above
-        // txHash: transaction.txHash,
-        receiptId: p.receiptId,
+        // amount: payment.amount,
+        // timestamp: payment.timestamp,
+        feeAmount: payment.feeAmount,
+        // currency: payment.currency,
+        receiptId: payment.receiptId,
+        // block: Number(payment.block) as number,
+        // gasUsed: payment.gasUsed,
+        // gasPrice: payment.gasPrice,
+        // amountInCrypto: payment.amountInCrypto,
+        // feeAmountInCrypto: payment.feeAmountInCrypto,
+        to: this.toAddress,
+        from: payment.from,
+        feeAddress: payment.feeAddress ?? undefined,
+        tokenAddress: this.tokenAddress,
+        // contractAddress: this.proxyContractName,
       },
-      timestamp: Number(p.timestamp),
-    }));
+    };
   }
 }

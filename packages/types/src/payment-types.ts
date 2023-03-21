@@ -6,7 +6,9 @@ import { ICreationParameters as ICreationParametersAnyToAny } from './extensions
 import { EvmChainName } from './currency-types';
 
 /** Interface for payment network extensions state and interpretation */
-export interface IPaymentNetwork<TEventParameters = any> {
+export interface IPaymentNetwork<
+  TEventParameters extends GenericEventParameters = GenericEventParameters,
+> {
   paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID;
   extension: ExtensionTypes.IExtension;
   createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
@@ -274,18 +276,13 @@ export interface IBitcoinDetectionProvider {
     bitcoinNetworkId: number,
     address: string,
     eventName: EVENTS_NAMES,
-  ) => Promise<IBalanceWithEvents<IBTCPaymentEventParameters>>;
+  ) => Promise<IBalanceWithEvents<GenericEventParameters>>;
 }
 
-/** Parameters for events of BTC payments */
-export interface IBTCPaymentEventParameters {
-  block?: number;
-  txHash?: string;
-}
 /** BTC Payment Network Event */
-export type BTCPaymentNetworkEvent = IPaymentNetworkEvent<IBTCPaymentEventParameters>;
+export type BTCPaymentNetworkEvent = IPaymentNetworkEvent<GenericEventParameters>;
 /** BTC BalanceWithEvents */
-export type BTCBalanceWithEvents = IBalanceWithEvents<IBTCPaymentEventParameters>;
+export type BTCBalanceWithEvents = IBalanceWithEvents<GenericEventParameters>;
 
 /** Parameters for escrow events from EscrowERC20 contract state changes */
 export interface IEscrowEventParameters extends Required<GenericEventParameters> {

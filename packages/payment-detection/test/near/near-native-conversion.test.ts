@@ -87,7 +87,7 @@ describe('Near payments detection', () => {
     );
     const events = await infoRetriever.getTransferEvents();
     expect(events).toHaveLength(1);
-    expect(events[0]).toEqual({
+    expect(events.paymentEvents[0]).toEqual({
       amount: graphPaymentEvent.amount,
       name: 'payment',
       parameters: {
