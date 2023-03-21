@@ -84,4 +84,6 @@ export type ReferenceBasedDetectorOptions = {
 
 export type NativeDetectorOptions = ReferenceBasedDetectorOptions & {
   network: CurrencyTypes.ChainName;
+  /** override the default Subgraph for payment detection (EVM, Near) */
+  getSubgraphClient: (network: CurrencyTypes.ChainName) => TheGraphClient<'near'> | undefined;
 };

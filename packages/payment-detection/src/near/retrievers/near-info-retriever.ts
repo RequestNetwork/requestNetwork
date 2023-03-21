@@ -1,6 +1,5 @@
-import { PaymentTypes } from '@requestnetwork/types';
-import { getTheGraphNearClient, ITheGraphBaseInfoRetriever, TheGraphClient } from '../../thegraph';
-import { NearChains } from '@requestnetwork/currency';
+import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
+import { ITheGraphBaseInfoRetriever, TheGraphClient } from '../../thegraph';
 import { GetNearPaymentsQuery } from 'payment-detection/src/thegraph/generated/graphql-near';
 
 // FIXME#1: when Near subgraphes can retrieve a txHash, replace the custom IPaymentNetworkEvent with PaymentTypes.ETHPaymentNetworkEvent
@@ -8,68 +7,65 @@ export interface NearPaymentEvent extends PaymentTypes.IERC20FeePaymentEventPara
   receiptId: string;
 }
 
+export type TransferEventsParams = {
+  /** The reference to identify the payment*/
+  paymentReference: string;
+  /** The recipient of the transfer */
+  toAddress: string;
+  /** The address of the payment proxy */
+  contractAddress: string;
+  /** The chain to check for payment */
+  paymentChain: CurrencyTypes.VMChainName;
+  /** Indicates if it is an address for payment or refund */
+  eventName: PaymentTypes.EVENTS_NAMES;
+  /** The list of ERC20 tokens addresses accepted for payments and refunds. Set to `undefined` for payments in NEAR token. */
+  acceptedTokens?: string[];
+};
 /**
  * Gets a list of transfer events for a set of Near payment details
+ * Retriever for ERC20 Fee Proxy and Native token payments.
  */
-export class NearInfoRetriever
-  //<
-  // TPaymentEvent extends NearSubGraphPaymentEvent = NearSubGraphPaymentEvent,
-  //>
-  implements ITheGraphBaseInfoRetriever<NearPaymentEvent>
-{
-  protected client: TheGraphClient<'near'>;
+export class NearInfoRetriever implements ITheGraphBaseInfoRetriever<NearPaymentEvent> {
   /**
    * @param paymentReference The reference to identify the payment
    * @param toAddress Address to check
    * @param eventName Indicate if it is an address for payment or refund
-   * @param network The id of network we want to check
    *
    */
-  constructor(
-    protected paymentReference: string,
-    protected toAddress: string,
-    protected proxyContractName: string,
-    protected eventName: PaymentTypes.EVENTS_NAMES,
-    network: string,
-    protected tokenAddress?: string, // protected currency?: string,
-  ) {
-    try {
-      NearChains.assertChainSupported(network);
-    } catch {
-      throw new Error('Near input data info-retriever only works with Near mainnet and testnet');
-    }
+  constructor(protected readonly client: TheGraphClient<'near'>) {}
 
-    network = network.replace('aurora', 'near');
-    this.client = getTheGraphNearClient(
-      `https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-${network}`,
-    );
-  }
-
-  public async getTransferEvents(): Promise<PaymentTypes.AllNetworkEvents<NearPaymentEvent>> {
-    const payments = this.tokenAddress
-      ? await this.client.GetFungibleTokenPayments({
-          reference: this.paymentReference,
-          to: this.toAddress,
-          contractAddress: this.proxyContractName,
-          tokenAddress: this.tokenAddress,
-        })
-      : await this.client.GetNearPayments({
-          reference: this.paymentReference,
-          to: this.toAddress,
-          contractAddress: this.proxyContractName,
-        });
+  public async getTransferEvents(
+    params: TransferEventsParams,
+  ): Promise<PaymentTypes.AllNetworkEvents<NearPaymentEvent>> {
+    const { paymentReference, toAddress, contractAddress, acceptedTokens } = params;
+    if (acceptedTokens && acceptedTokens.length > 1)
+      throw new Error(`NearInfoRetriever does not support multiple accepted tokens.`);
+    const payments =
+      acceptedTokens?.length === 1
+        ? await this.client.GetFungibleTokenPayments({
+            reference: paymentReference,
+            to: toAddress,
+            contractAddress,
+            tokenAddress: acceptedTokens[0],
+          })
+        : await this.client.GetNearPayments({
+            reference: paymentReference,
+            to: toAddress,
+            contractAddress,
+          });
     return {
-      paymentEvents: payments.payments.map((p) => this.mapPaymentEvent(p)),
+      paymentEvents: payments.payments.map((p) => this.mapPaymentEvent(p, params)),
     };
   }
 
   private mapPaymentEvent(
     payment: GetNearPaymentsQuery['payments'][0],
+    params: TransferEventsParams,
   ): PaymentTypes.IPaymentNetworkEvent<NearPaymentEvent> {
     // const block: number = payment.block;
     return {
       amount: payment.amount,
-      name: this.eventName,
+      name: params.eventName,
       parameters: {
         // amount: payment.amount,
         // timestamp: payment.timestamp,
@@ -81,10 +77,10 @@ export class NearInfoRetriever
         // gasPrice: payment.gasPrice,
         // amountInCrypto: payment.amountInCrypto,
         // feeAmountInCrypto: payment.feeAmountInCrypto,
-        to: this.toAddress,
+        to: params.toAddress,
         from: payment.from,
         feeAddress: payment.feeAddress ?? undefined,
-        tokenAddress: this.tokenAddress,
+        tokenAddress: params.acceptedTokens ? params.acceptedTokens[0] : undefined,
         // contractAddress: this.proxyContractName,
       },
     };

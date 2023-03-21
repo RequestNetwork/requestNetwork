@@ -24,8 +24,10 @@ const CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
  * Handle payment detection for NEAR native token payment with conversion
  */
 export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetector {
+  private readonly getSubgraphClient: NativeDetectorOptions['getSubgraphClient'];
   constructor(args: NativeDetectorOptions) {
     super(args);
+    this.getSubgraphClient = args.getSubgraphClient;
   }
 
   public static getContractName = (
@@ -55,7 +57,7 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
   /**
    * Extracts the events for an address and a payment reference
    *
-   * @param address Address to check
+   * @param toAddress Address to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param requestCurrency The request currency
    * @param paymentReference The reference to identify the payment
@@ -64,13 +66,13 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
    */
   protected async extractEvents(
     eventName: PaymentTypes.EVENTS_NAMES,
-    address: string | undefined,
+    toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
     paymentChain: CurrencyTypes.NearChainName,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToEth.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkRetrieverEvents<PaymentTypes.ETHPaymentNetworkEvent>> {
-    if (!address) {
+    if (!toAddress) {
       return {
         paymentEvents: [],
       };
@@ -81,19 +83,24 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
       throw new UnsupportedCurrencyError(requestCurrency.value);
     }
 
-    const infoRetriever = new NearConversionInfoRetriever(
-      currency,
+    const subgraphClient = this.getSubgraphClient(paymentChain);
+
+    if (!subgraphClient) {
+      throw new Error(`Error getting subgraph client for ${paymentChain}`);
+    }
+    const infoRetriever = new NearConversionInfoRetriever(subgraphClient);
+    const transferEvents = await infoRetriever.getTransferEvents({
+      requestCurrency: currency,
       paymentReference,
-      address,
-      NearConversionNativeTokenPaymentDetector.getContractName(
+      toAddress,
+      contractAddress: NearConversionNativeTokenPaymentDetector.getContractName(
         paymentChain,
         paymentNetwork.version,
       ),
       eventName,
       paymentChain,
-      paymentNetwork.values.maxRateTimespan,
-    );
-    const transferEvents = await infoRetriever.getTransferEvents();
+      maxRateTimespan: paymentNetwork.values.maxRateTimespan,
+    });
     return transferEvents;
   }
 

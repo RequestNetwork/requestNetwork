@@ -1,6 +1,24 @@
-import { PaymentTypes } from '@requestnetwork/types';
+import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
 import { CurrencyDefinition } from '@requestnetwork/currency';
 import { NearInfoRetriever, NearPaymentEvent } from './near-info-retriever';
+import { TheGraphClient } from '../../thegraph';
+
+export type TransferEventsParams = {
+  /** The reference to identify the payment*/
+  paymentReference: string;
+  /** Request denomination (usually fiat) */
+  requestCurrency: CurrencyDefinition;
+  /** The recipient of the transfer */
+  toAddress: string;
+  /** The address of the payment proxy */
+  contractAddress: string;
+  /** The chain to check for payment */
+  paymentChain: CurrencyTypes.VMChainName;
+  /** Indicates if it is an address for payment or refund */
+  eventName: PaymentTypes.EVENTS_NAMES;
+  /** The maximum span between the time the rate was fetched and the payment */
+  maxRateTimespan?: number;
+};
 
 /**
  * Gets a list of transfer events for a set of Near payment details
@@ -12,37 +30,38 @@ export class NearConversionInfoRetriever extends NearInfoRetriever {
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The id of network we want to check
    */
-  constructor(
-    protected requestCurrency: CurrencyDefinition,
-    protected paymentReference: string,
-    protected toAddress: string,
-    protected proxyContractName: string,
-    protected eventName: PaymentTypes.EVENTS_NAMES,
-    protected network: string,
-    protected maxRateTimespan: number = 0,
-  ) {
-    super(paymentReference, toAddress, proxyContractName, eventName, network);
+  constructor(protected readonly client: TheGraphClient<'near'>) {
+    super(client);
   }
-
-  public async getTransferEvents(): Promise<PaymentTypes.AllNetworkEvents<NearPaymentEvent>> {
+  public async getTransferEvents(
+    params: TransferEventsParams,
+  ): Promise<PaymentTypes.AllNetworkEvents<NearPaymentEvent>> {
+    const {
+      requestCurrency,
+      paymentReference,
+      toAddress,
+      contractAddress,
+      eventName,
+      maxRateTimespan,
+    } = params;
     const payments = await this.client.GetNearConversionPayments({
-      reference: this.paymentReference,
-      to: this.toAddress,
-      currency: this.requestCurrency.symbol,
-      maxRateTimespan: this.maxRateTimespan,
-      contractAddress: this.proxyContractName,
+      reference: paymentReference,
+      to: toAddress,
+      currency: requestCurrency.symbol,
+      maxRateTimespan: maxRateTimespan ?? 0,
+      contractAddress: contractAddress,
     });
     return {
       paymentEvents: payments.payments.map((p: any) => ({
         amount: p.amount,
-        name: this.eventName,
+        name: eventName,
         parameters: {
           block: p.block,
           feeAddress: p.feeAddress || undefined,
           feeAmount: p.feeAmount,
           feeAmountInCrypto: p.feeAmountInCrypto || undefined,
           amountInCrypto: p.amountInCrypto,
-          to: this.toAddress,
+          to: toAddress,
           maxRateTimespan: p.maxRateTimespan?.toString(),
           from: p.from,
           gasUsed: p.gasUsed,

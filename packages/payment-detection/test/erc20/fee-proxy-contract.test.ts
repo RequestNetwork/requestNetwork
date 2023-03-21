@@ -12,11 +12,6 @@ import {
   ERC20NearFeeProxyPaymentDetector,
 } from '../../src/erc20/fee-proxy-contract';
 import { mockAdvancedLogicBase } from '../utils';
-import { mocked } from 'ts-jest/utils';
-import { GraphQLClient } from 'graphql-request';
-
-jest.mock('graphql-request');
-const graphql = mocked(GraphQLClient.prototype);
 
 let erc20FeeProxyContract: ERC20FeeProxyPaymentDetector;
 
@@ -572,27 +567,7 @@ describe('api/erc20/fee-proxy-contract', () => {
     });
 
     it('can retrieve payment using thegraph info retriever', async () => {
-      graphql.request.mockResolvedValue({
-        payments: [
-          {
-            contractAddress: 'pay.reqnetwork.testnet',
-            tokenAddress: 'fau.reqnetwork.testnet',
-            to: 'issuer.reqnetwork.testnet',
-            from: 'payer.reqnetwork.testnet',
-            amount: '168040800000000000000000',
-            feeAmount: '13386000000000000000',
-            reference: 'f59c9445040531b1',
-            block: 15767215,
-            gasUsed: '73152',
-            gasPrice: '12709127644',
-            timestamp: 1666002347,
-            amountInCrypto: null,
-            feeAddress: 'builder.reqnetwork.testnet',
-            feeAmountInCrypto: null,
-            maxRateTimespan: null,
-          },
-        ],
-      });
+      // graphql.request.mockResolvedValue();
       const mockRequest: RequestLogicTypes.IRequest = {
         creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
         currency: {
@@ -637,13 +612,33 @@ describe('api/erc20/fee-proxy-contract', () => {
         advancedLogic,
         currencyManager,
         network: 'aurora-testnet',
-        // getSubgraphClient: () => ({
-        //   GetFungibleTokenPayments: jest.fn(),
-        //   GetNearConversionPayments: jest.fn(),
-        //   GetNearPayments: jest.fn(),
-        //   GetLastSyncedBlock: jest.fn(),
-        //   GetSyncedBlock: jest.fn(),
-        // }),
+        getSubgraphClient: () => ({
+          GetFungibleTokenPayments: jest.fn().mockImplementation(() => ({
+            payments: [
+              {
+                contractAddress: 'pay.reqnetwork.testnet',
+                tokenAddress: 'fau.reqnetwork.testnet',
+                to: 'issuer.reqnetwork.testnet',
+                from: 'payer.reqnetwork.testnet',
+                amount: '168040800000000000000000',
+                feeAmount: '13386000000000000000',
+                reference: 'f59c9445040531b1',
+                block: 15767215,
+                gasUsed: '73152',
+                gasPrice: '12709127644',
+                timestamp: 1666002347,
+                amountInCrypto: null,
+                feeAddress: 'builder.reqnetwork.testnet',
+                feeAmountInCrypto: null,
+                maxRateTimespan: null,
+              },
+            ],
+          })),
+          GetNearConversionPayments: jest.fn(),
+          GetNearPayments: jest.fn(),
+          GetLastSyncedBlock: jest.fn(),
+          GetSyncedBlock: jest.fn(),
+        }),
       });
 
       const { balance, error, events } = await nearErc20FeeProxyContract.getBalance(mockRequest);
