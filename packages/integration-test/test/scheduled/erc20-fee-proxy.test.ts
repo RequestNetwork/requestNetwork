@@ -1,4 +1,5 @@
-import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
+import { Erc20PaymentNetwork, PaymentNetworkFactory } from '@requestnetwork/payment-detection';
+import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 
@@ -143,4 +144,32 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     expect(balance.balance).toBe('0');
     expect(balance.events).toHaveLength(0);
   }, 15000);
+
+  it('can getBalance on a Near request', async () => {
+    const paymentNetworkFactory = new PaymentNetworkFactory(
+      new AdvancedLogic(),
+      CurrencyManager.getDefault(),
+    );
+    const mockRequest = createMockErc20FeeRequest({
+      network: 'mainnet',
+      requestId: '016d4cf8006982f7d91a437f8c72700aa62767de00a605133ee5f84ad8d224ba04',
+      paymentAddress: '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93',
+      salt: '8097784e131ee627',
+      tokenAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F', // DAI
+      feeAddress: '0x35d0e078755cd84d3e0656caab417dee1d7939c7',
+      feeAmount: '10',
+    });
+    const nearErc20FeeProxy = paymentNetworkFactory.getPaymentNetworkFromRequest(mockRequest);
+    expect(nearErc20FeeProxy).toBeDefined();
+
+    const balance = await nearErc20FeeProxy!.getBalance(mockRequest);
+
+    expect(balance.balance).toBe('1000000000000000000');
+    expect(balance.events).toHaveLength(1);
+    expect(balance.events[0].name).toBe('payment');
+    const params = balance.events[0].parameters as PaymentTypes.IERC20FeePaymentEventParameters;
+    expect(params?.to).toBe('0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93');
+    expect(balance.events[0].amount).toBe('1000000000000000000');
+    expect(balance.events[0].timestamp).toBe(1599070058);
+  }, 10000);
 });
