@@ -27,7 +27,6 @@ import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetecto
 import { getPaymentNetworkExtension } from './utils';
 import { getTheGraphClient } from './thegraph';
 import { getDefaultProvider } from 'ethers';
-import { ERC20NearFeeProxyPaymentDetector } from './erc20/fee-proxy-contract';
 
 const PN_ID = ExtensionTypes.PAYMENT_NETWORK_ID;
 
@@ -47,12 +46,12 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
     },
   },
   ERC20: {
-    aurora: { [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20NearFeeProxyPaymentDetector },
+    aurora: { [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName> },
     'aurora-testnet': {
-      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20NearFeeProxyPaymentDetector,
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>,
     },
     'near-testnet': {
-      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20NearFeeProxyPaymentDetector,
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>,
     },
     '*': {
       [PN_ID.ERC20_ADDRESS_BASED]: ERC20AddressBasedPaymentDetector,

@@ -7,7 +7,7 @@ import {
   PaymentNetworkFactory,
 } from '../src';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
-import { ERC20NearFeeProxyPaymentDetector } from '../src/erc20/fee-proxy-contract';
+import { ERC20FeeProxyPaymentDetector } from '../src/erc20/fee-proxy-contract';
 
 const currencyManager = CurrencyManager.getDefault();
 const advancedLogic = new AdvancedLogic(currencyManager);
@@ -45,7 +45,7 @@ describe('api/payment-network/payment-network-factory', () => {
         'aurora-testnet',
         'NEAR-0.1.0',
       );
-      expect(pnInterpretor).toBeInstanceOf(ERC20NearFeeProxyPaymentDetector);
+      expect(pnInterpretor).toBeInstanceOf(ERC20FeeProxyPaymentDetector);
     });
 
     it('cannot createPaymentNetwork with extension id not handled', async () => {

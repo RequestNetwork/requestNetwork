@@ -81,19 +81,26 @@ export type GetSubGraphClient = (
 ) => TheGraphClient | TheGraphClient<'near'>;
 
 /**
- * Handle payment networks with ERC20 fee proxy contract extension
+ * Handle payment networks with ERC20 fee proxy contract extension on EVM (default) or Near chains
  */
-export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBase {
-  protected readonly network: CurrencyTypes.VMChainName | undefined;
-  private readonly getSubgraphClient: GetSubGraphClient;
+export class ERC20FeeProxyPaymentDetector<
+  TChain extends CurrencyTypes.VMChainName = CurrencyTypes.EvmChainName,
+> extends ERC20FeeProxyPaymentDetectorBase {
+  protected readonly network: TChain | undefined;
+  private readonly getSubgraphClient: TChain extends CurrencyTypes.EvmChainName
+    ? PaymentNetworkOptions['getSubgraphClient']
+    : PaymentNetworkOptions<'near'>['getSubgraphClient'];
+  // private readonly getSubgraphClient: PaymentNetworkOptions['getSubgraphClient'];
   constructor({
     advancedLogic,
     currencyManager,
     getSubgraphClient,
     network,
   }: ReferenceBasedDetectorOptions & {
-    network?: CurrencyTypes.VMChainName;
-    getSubgraphClient: GetSubGraphClient;
+    network?: TChain;
+    getSubgraphClient: TChain extends CurrencyTypes.EvmChainName
+      ? PaymentNetworkOptions['getSubgraphClient']
+      : PaymentNetworkOptions<'near'>['getSubgraphClient'];
   }) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
@@ -113,7 +120,7 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
     toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: CurrencyTypes.VMChainName,
+    paymentChain: TChain,
     paymentNetwork: ExtensionTypes.IState,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
     if (this.network && paymentChain !== this.network) {
@@ -166,75 +173,5 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
         paymentEvents,
       };
     }
-  }
-}
-
-/**
- * Handle payment networks with ERC20 fee proxy contract extension
- */
-export class ERC20NearFeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBase {
-  protected readonly getSubgraphClient: PaymentNetworkOptions<'near'>['getSubgraphClient'];
-  protected readonly network: CurrencyTypes.NearChainName;
-  constructor({
-    advancedLogic,
-    currencyManager,
-    getSubgraphClient,
-    network,
-  }: ReferenceBasedDetectorOptions &
-    Pick<PaymentNetworkOptions<'near'>, 'getSubgraphClient'> & {
-      network: CurrencyTypes.NearChainName;
-    }) {
-    const extension = advancedLogic.getFeeProxyContractErc20ForNetwork(network);
-    if (!extension) {
-      throw new NetworkNotSupported(
-        `Unconfigured ERC20NearFeeProxyPaymentDetector for chain '${network}'`,
-      );
-    }
-    super(ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT, extension, currencyManager);
-    this.network = network;
-    this.getSubgraphClient = getSubgraphClient;
-  }
-
-  /**
-   * Extracts the payment events of a request
-   */
-  protected async extractEvents(
-    eventName: PaymentTypes.EVENTS_NAMES,
-    toAddress: string | undefined,
-    paymentReference: string,
-    requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: CurrencyTypes.VMChainName,
-    paymentNetwork: ExtensionTypes.IState,
-  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
-    if (paymentChain !== this.network) {
-      throw new NetworkNotSupported(
-        `Unsupported network '${paymentChain}' for payment detector instanciated with '${this.network}'`,
-      );
-    }
-    if (!toAddress) {
-      return Promise.resolve({
-        paymentEvents: [],
-      });
-    }
-
-    const { address: proxyContractAddress } =
-      ERC20NearFeeProxyPaymentDetector.getDeploymentInformation(
-        this.network,
-        paymentNetwork.version,
-      );
-
-    const subgraphClient = this.getSubgraphClient(paymentChain);
-    if (!subgraphClient) {
-      throw new Error(`Error getting subgraph client for ${paymentChain}`);
-    }
-    const graphInfoRetriever = new NearInfoRetriever(subgraphClient);
-    return graphInfoRetriever.getTransferEvents({
-      paymentReference,
-      toAddress,
-      contractAddress: proxyContractAddress,
-      eventName,
-      paymentChain,
-      acceptedTokens: [requestCurrency.value],
-    });
   }
 }
