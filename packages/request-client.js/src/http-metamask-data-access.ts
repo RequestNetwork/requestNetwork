@@ -1,6 +1,6 @@
 import { Block } from '@requestnetwork/data-access';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
-import { ClientTypes, DataAccessTypes, StorageTypes } from '@requestnetwork/types';
+import { ClientTypes, CurrencyTypes, DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 import axios, { AxiosRequestConfig } from 'axios';
 import { ethers } from 'ethers';
 import { EventEmitter } from 'events';
@@ -23,7 +23,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
 
   private submitterContract: ethers.Contract | undefined;
   private provider: ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider;
-  private networkName = '';
+  private networkName: CurrencyTypes.EvmChainName = 'private';
 
   /**
    * Creates an instance of HttpDataAccess.

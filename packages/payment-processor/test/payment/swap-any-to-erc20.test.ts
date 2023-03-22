@@ -139,7 +139,7 @@ describe('swap-any-to-erc20', () => {
     });
 
     it('should throw an error if the conversion currency is not an acceptedTokens', async () => {
-      const wrongCurrency = {
+      const wrongCurrency: RequestLogicTypes.ICurrency = {
         type: 'ERC20' as any,
         value: '0x17b4158805772ced11225e77339f90beb5aae968',
         network: 'private',

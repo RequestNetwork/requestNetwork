@@ -11,7 +11,7 @@ import {
 } from '../../utils/payment-network/mocked_native_data';
 import { AdvancedLogic } from '../../../src';
 import { arbitraryTimestamp, payeeRaw } from '../../utils/test-data-generator';
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import NearTestnetNativeNativePaymentNetwork from '../../../src/extensions/payment-network/near/near-testnet-native';
 
 const salt = arbitrarySalt;
@@ -21,17 +21,17 @@ describe('extensions/payment-network/native-token', () => {
     type: RequestLogicTypes.CURRENCY.ETH,
     value: 'NEAR',
     network: 'aurora',
-  };
+  } as const;
   const auroraTestnetCurrency = {
     type: RequestLogicTypes.CURRENCY.ETH,
     value: 'NEAR-testnet',
     network: 'aurora-testnet',
-  };
+  } as const;
   const nearTestnetCurrency = {
     type: RequestLogicTypes.CURRENCY.ETH,
     value: 'NEAR-testnet',
     network: 'near-testnet',
-  };
+  } as const;
   const nativeTokenTestCases = [
     {
       name: 'Near',
@@ -60,7 +60,7 @@ describe('extensions/payment-network/native-token', () => {
       currency: nearTestnetCurrency,
       wrongCurrency: nearCurrency,
     },
-  ];
+  ] as const;
 
   nativeTokenTestCases.forEach((testCase) => {
     describe(`action creations for ${testCase.name}`, () => {
@@ -148,7 +148,7 @@ describe('extensions/payment-network/native-token', () => {
       expect(() => {
         new NearNativePaymentNetwork().createCreationAction({
           ...partialCreationParams,
-          paymentNetworkName: 'another-chain',
+          paymentNetworkName: 'another-chain' as CurrencyTypes.NearChainName,
         });
       }).toThrowError(
         `Payment network 'another-chain' is not supported by this extension (only aurora)`,
@@ -325,7 +325,7 @@ describe('extensions/payment-network/native-token', () => {
     });
     it('throws on a wrong payment network', () => {
       const advancedLogic = new AdvancedLogic();
-      const wrongNetwork = `wrong network`;
+      const wrongNetwork = `wrong network` as CurrencyTypes.EvmChainName;
 
       const wrongNativeTokenRequestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,

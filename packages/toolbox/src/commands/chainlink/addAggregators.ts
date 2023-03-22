@@ -2,7 +2,7 @@ import * as yargs from 'yargs';
 import inquirer from 'inquirer';
 import { runUpdate } from './contractUtils';
 import { Aggregator, getAvailableAggregators, getCurrencyManager } from './aggregatorsUtils';
-import { conversionSupportedNetworks } from '@requestnetwork/currency';
+import { conversionSupportedNetworks, EvmChains } from '@requestnetwork/currency';
 
 type Options = {
   dryRun: boolean;
@@ -73,6 +73,7 @@ export const handler = async (args: Options): Promise<void> => {
 
   const currencyManager = await getCurrencyManager(args.list);
 
+  EvmChains.assertChainSupported(network);
   if (!conversionSupportedNetworks.includes(network)) {
     console.warn(
       `WARNING: ${network} is missing in conversionSupportedNetworks from the Currency package.`,

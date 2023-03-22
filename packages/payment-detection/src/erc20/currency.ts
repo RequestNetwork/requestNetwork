@@ -1,6 +1,7 @@
 import {
   CurrencyDefinition,
   CurrencyManager,
+  EvmChains,
   getCurrencyHash,
   StorageCurrency,
 } from '@requestnetwork/currency';
@@ -8,32 +9,39 @@ import { RequestLogicTypes } from '@requestnetwork/types';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { isAddress } from 'ethers/lib/utils';
 import { getDefaultProvider } from '@requestnetwork/utils';
+import { ERC20CurrencyInput } from '@requestnetwork/currency/src';
 
 export const loadCurrencyFromContract = async (
   currency: StorageCurrency,
 ): Promise<CurrencyDefinition | null> => {
-  if (!currency.network || !isAddress(currency.value)) {
-    return null;
-  }
-
   try {
-    const contract = ERC20__factory.connect(currency.value, getDefaultProvider(currency.network));
+    const { network, value } = currency;
+
+    if (!network || !isAddress(value)) {
+      return null;
+    }
+    EvmChains.assertChainSupported(network);
+
+    const contract = ERC20__factory.connect(value, getDefaultProvider(network));
     const decimals = await contract.decimals();
 
     if (!decimals) {
       return null;
     }
+
     const symbol = await contract.symbol();
     if (!symbol) {
       return null;
     }
-    const definition = {
-      address: currency.value,
+
+    const definition: ERC20CurrencyInput = {
+      address: value,
       decimals,
       symbol,
-      network: currency.network,
+      network: network,
       type: RequestLogicTypes.CURRENCY.ERC20,
     };
+
     return {
       ...definition,
       id: CurrencyManager.currencyId(definition),

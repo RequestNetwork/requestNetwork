@@ -1,4 +1,4 @@
-import { PaymentTypes } from '@requestnetwork/types';
+import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { utils } from 'ethers';
 import { pick, mapValues } from 'lodash';
@@ -14,12 +14,12 @@ type TransferEventsParams = {
   /** The address of the payment proxy */
   contractAddress: string;
   /** The chain to check for payment */
-  paymentChain: string;
+  paymentChain: CurrencyTypes.EvmChainName;
   /** Indicates if it is an address for payment or refund */
   eventName: PaymentTypes.EVENTS_NAMES;
   /** The list of ERC20 tokens addresses accepted for payments and refunds */
   acceptedTokens?: string[];
-  /** The the maximum span between the time the rate was fetched and the payment */
+  /** The maximum span between the time the rate was fetched and the payment */
   maxRateTimespan?: number;
 };
 

@@ -4,6 +4,7 @@ import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { ERC20TransferableReceivablePaymentDetector } from '../../src/erc20';
 import {
   AdvancedLogicTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   PaymentTypes,
@@ -376,7 +377,7 @@ describe('api/erc20/transferable-receivable-contract', () => {
       txHash: '0x3e2d6cc2534b1d340ba2954f34e6cc819d6da64ff76863ea89c6d34b15d13c97',
       from: '0x186e7fe6c34ea0eca7f9c2fd29651fc0443e3f29',
       to: paymentAddress,
-      network: 'rinkeby',
+      network: 'rinkeby' as CurrencyTypes.EvmChainName,
       salt: '0ee84db293a752c6',
       amount: '30000000000000',
       requestId: '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e1',

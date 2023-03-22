@@ -1,4 +1,4 @@
-import { StorageTypes } from '@requestnetwork/types';
+import { CurrencyTypes, StorageTypes } from '@requestnetwork/types';
 import { BigNumber } from 'ethers';
 
 // This contains default values used to use Ethereum Network and IPFS
@@ -17,6 +17,7 @@ const config = {
     retryDelay: 0,
     safeGasPriceLimit: '500000000000',
     transactionPollingTimeout: 300,
+    blockConfirmations: 2,
   },
   ipfs: {
     defaultNode: {
@@ -73,7 +74,7 @@ export function getDefaultEthereumProviderTimeout(): number {
  * Retrieve from config the default name of the network for Ethereum
  * @returns the name of the network
  */
-export function getDefaultEthereumNetwork(): string {
+export function getDefaultEthereumNetwork(): CurrencyTypes.EvmChainName {
   return config.ethereum.default;
 }
 
@@ -83,6 +84,14 @@ export function getDefaultEthereumNetwork(): string {
  */
 export function getDefaultEthereumGasPrice(): BigNumber {
   return BigNumber.from(process?.env?.GAS_PRICE_DEFAULT || config.ethereum.gasPriceDefault);
+}
+
+/**
+ * Retrieve from config the default number of block confirmations to wait before considering a transaction successful
+ * @returns the number of block confirmations
+ */
+export function getDefaultEthereumBlockConfirmations(): number {
+  return config.ethereum.blockConfirmations;
 }
 
 /**

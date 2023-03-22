@@ -68,7 +68,7 @@ const testSuiteWithDaix = (network: string, fDAIxToken: string) => {
           to: '0x52e5bcfa46393894afcfe6cd98a6761fa692c594',
           network: network,
           salt: '0ee84db293a752c6',
-          amount: '320833333333331260',
+          amount: '320833333333331280',
           // = (1642693617 - 1642692777 = 840 sec) x (385802469135800 - 3858024691358 = 381944444444442 Wei DAIx / sec)
           requestId: '0288792633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f273c7a4e3ce7e2',
           token: fDAIxToken,

@@ -15,6 +15,7 @@ import {
 import { validateEthFeeProxyRequest } from './eth-fee-proxy';
 import { IPreparedTransaction } from './prepared-transaction';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
+import { EvmChains } from '@requestnetwork/currency';
 
 /**
  * ERC20 Batch Proxy payment details:
@@ -211,7 +212,7 @@ export function getBatchArgs(
 /**
  * Get Batch contract Address
  * @param request The request to pay
- * @param version The version version of the batch proxy, which can be different from request pn version
+ * @param version The version of the batch proxy, which can be different from request pn version
  */
 export function getBatchProxyAddress(request: ClientTypes.IRequestData, version: string): string {
   const pn = getPaymentNetworkExtension(request);
@@ -219,11 +220,13 @@ export function getBatchProxyAddress(request: ClientTypes.IRequestData, version:
   if (!pnId) {
     throw new Error('No payment network Id');
   }
-  if (!request.currencyInfo.network) {
+  const { network } = request.currencyInfo;
+  if (!network) {
     throw new Error('No currency network');
   }
+  EvmChains.assertChainSupported(network);
 
-  const proxyAddress = batchPaymentsArtifact.getAddress(request.currencyInfo.network, version);
+  const proxyAddress = batchPaymentsArtifact.getAddress(network, version);
 
   if (!proxyAddress) {
     throw new Error(`No deployment found for network ${pn}, version ${pn?.version}`);

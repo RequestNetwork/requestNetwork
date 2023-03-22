@@ -1,4 +1,9 @@
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import ProxyInfoRetriever from './proxy-info-retriever';
 import { TheGraphInfoRetriever } from '../thegraph';
@@ -50,7 +55,7 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
     toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: string,
+    paymentChain: CurrencyTypes.EvmChainName,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20PaymentEventParameters>> {
     if (!toAddress) {

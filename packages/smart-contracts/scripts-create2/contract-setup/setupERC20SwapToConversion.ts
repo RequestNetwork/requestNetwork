@@ -6,6 +6,7 @@ import {
   updateRequestSwapFees,
   updateSwapRouter,
 } from './adminTasks';
+import { EvmChains } from '@requestnetwork/currency';
 
 /**
  * Updates the values of the chainlinkConversionPath and swap router of the ERC20SwapToConversion contract, if needed
@@ -24,6 +25,7 @@ export const setupERC20SwapToConversion = async (
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network) => {
       try {
+        EvmChains.assertChainSupported(network);
         const { signer, txOverrides } = await getSignerAndGasFees(network, hre);
         const ERC20SwapToConversionConnected = await ERC20SwapToConversionContract.connect(signer);
 

@@ -1,5 +1,6 @@
 import {
   AdvancedLogicTypes,
+  CurrencyTypes,
   ExtensionTypes,
   PaymentTypes,
   RequestLogicTypes,
@@ -118,7 +119,7 @@ export class PaymentNetworkFactory {
   public createPaymentNetwork(
     paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currencyType: RequestLogicTypes.CURRENCY,
-    paymentChain?: string,
+    paymentChain?: CurrencyTypes.ChainName,
     paymentNetworkVersion?: string,
   ): PaymentTypes.IPaymentNetwork {
     const network = paymentChain ?? 'mainnet';
@@ -149,7 +150,7 @@ export class PaymentNetworkFactory {
     if (detector.extension && 'getDeploymentInformation' in detectorClass) {
       // this throws when the contract isn't deployed and was mandatory for payment detection
       (detectorClass as ContractBasedDetector).getDeploymentInformation(
-        network,
+        network as CurrencyTypes.EvmChainName,
         paymentNetworkVersion || detector.extension.currentVersion,
       );
     }

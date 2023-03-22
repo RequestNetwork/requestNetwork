@@ -6,7 +6,11 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { encodeRequestApprovalAndPayment } from '../../src';
-import { IRequestPaymentOptions } from '../../src/payment/settings';
+import {
+  IApprovalSettings,
+  IConversionSettings,
+  IRequestPaymentOptions,
+} from '../../src/payment/settings';
 import { currencyManager } from './shared';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { MAX_ALLOWANCE } from '../../src/payment/utils';
@@ -19,7 +23,7 @@ const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
 
 // Cf. ERC20Alpha in TestERC20.sol
 const alphaContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
-const alphaConversionSettings = {
+const alphaConversionSettings: IConversionSettings = {
   currency: {
     type: RequestLogicTypes.CURRENCY.ERC20,
     value: alphaContractAddress,
@@ -235,9 +239,9 @@ const getOption = (withApproval: boolean, type: Option): IRequestPaymentOptions 
       return {
         conversion: alphaConversionSettings,
         approval: withApproval
-          ? {
+          ? ({
               amount: alphaConversionSettings.maxToSpend,
-            }
+            } as IApprovalSettings)
           : undefined,
       };
     }
@@ -272,7 +276,7 @@ beforeAll(async () => {
   await alphaContract.transfer(mainAddress, BigNumber.from('500000000000000000000'));
   const erc20Contract = ERC20__factory.connect(erc20ContractAddress, wallet);
   await erc20Contract.transfer(mainAddress, BigNumber.from('500000000000000000000'));
-  wallet.sendTransaction({
+  await wallet.sendTransaction({
     to: mainAddress,
     value: BigNumber.from('10000000000000000000'),
   });
@@ -314,7 +318,6 @@ describe.each([
           provider,
           options,
         );
-
         let tx = await wallet.sendTransaction(encodedTransactions[0]);
         let confirmedTx = await tx.wait(1);
         expect(confirmedTx.status).toBe(1);
