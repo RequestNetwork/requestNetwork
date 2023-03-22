@@ -75,14 +75,23 @@ export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
         paymentEvents: [],
       };
     }
-    const infoRetriever = new NearInfoRetriever(
+    const subgraphClient = this.getSubgraphClient(paymentChain);
+    if (!subgraphClient) {
+      throw new Error(
+        `Could not find graphInfoRetriever for chain ${paymentChain} in payment detector`,
+      );
+    }
+    const infoRetriever = new NearInfoRetriever(subgraphClient);
+    const { paymentEvents } = await infoRetriever.getTransferEvents({
       paymentReference,
-      address,
-      NearNativeTokenPaymentDetector.getContractName(paymentChain, paymentNetwork.version),
+      toAddress: address,
+      contractAddress: NearNativeTokenPaymentDetector.getContractName(
+        paymentChain,
+        paymentNetwork.version,
+      ),
       eventName,
       paymentChain,
-    );
-    const { paymentEvents } = await infoRetriever.getTransferEvents();
+    });
     return {
       paymentEvents,
     };

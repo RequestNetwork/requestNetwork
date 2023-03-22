@@ -7,12 +7,10 @@ import {
   NearConversionNativeTokenPaymentDetector,
 } from '../../src/near';
 import { deepCopy } from 'ethers/lib/utils';
-import { GraphQLClient } from 'graphql-request';
-import { mocked } from 'ts-jest/utils';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
+import { TheGraphClient } from '../../src';
 
 jest.mock('graphql-request');
-const graphql = mocked(GraphQLClient.prototype);
 const currencyManager = CurrencyManager.getDefault();
 const advancedLogic = new AdvancedLogic(currencyManager);
 const salt = 'a6475e4c3d45feb6';
@@ -62,14 +60,20 @@ const graphPaymentEvent = {
   gasPrice: '2425000017',
 };
 
+const client = {
+  GetNearConversionPayments: jest.fn().mockImplementation(() => ({
+    payments: [graphPaymentEvent],
+  })),
+} as any as TheGraphClient<'near'>;
+
+const infoRetriever = new NearConversionInfoRetriever(client);
+const mockedGetSubgraphClient = jest.fn().mockImplementation(() => client);
+
 const paymentNetworkFactory = new PaymentNetworkFactory(advancedLogic, currencyManager);
 describe('Near payments detection', () => {
-  beforeAll(() => {
-    graphql.request.mockResolvedValue({
-      payments: [graphPaymentEvent],
-    });
+  afterEach(() => {
+    jest.clearAllMocks();
   });
-
   it('NearConversionInfoRetriever can retrieve a NEAR payment', async () => {
     const paymentReference = PaymentReferenceCalculator.calculate(
       request.requestId,
@@ -77,16 +81,15 @@ describe('Near payments detection', () => {
       paymentAddress,
     );
 
-    const infoRetriever = new NearConversionInfoRetriever(
+    const events = await infoRetriever.getTransferEvents({
       requestCurrency,
       paymentReference,
-      paymentAddress,
-      'native.conversion.mock',
-      PaymentTypes.EVENTS_NAMES.PAYMENT,
-      'aurora',
-    );
-    const events = await infoRetriever.getTransferEvents();
-    expect(events).toHaveLength(1);
+      toAddress: paymentAddress,
+      contractAddress: 'native.conversion.mock',
+      eventName: PaymentTypes.EVENTS_NAMES.PAYMENT,
+      paymentChain: 'aurora',
+    });
+    expect(events.paymentEvents).toHaveLength(1);
     expect(events.paymentEvents[0]).toEqual({
       amount: graphPaymentEvent.amount,
       name: 'payment',
@@ -131,9 +134,11 @@ describe('Near payments detection', () => {
       network: 'aurora',
       advancedLogic: advancedLogic,
       currencyManager,
+      getSubgraphClient: mockedGetSubgraphClient,
     });
     const balance = await paymentDetector.getBalance(request);
 
+    expect(mockedGetSubgraphClient).toHaveBeenCalled();
     expect(balance.events).toHaveLength(1);
     expect(balance.balance).toBe(graphPaymentEvent.amount);
   });
@@ -156,7 +161,9 @@ describe('Near payments detection', () => {
         network: 'aurora',
         advancedLogic: advancedLogic,
         currencyManager,
+        getSubgraphClient: mockedGetSubgraphClient,
       });
+      expect(mockedGetSubgraphClient).not.toHaveBeenCalled();
       expect(await paymentDetector.getBalance(requestWithWrongVersion)).toMatchObject({
         balance: null,
         error: { code: 0, message: 'Near payment detection not implemented for version 3.14' },
@@ -186,7 +193,9 @@ describe('Near payments detection', () => {
         network: 'aurora',
         advancedLogic: advancedLogic,
         currencyManager,
+        getSubgraphClient: mockedGetSubgraphClient,
       });
+      expect(mockedGetSubgraphClient).not.toHaveBeenCalled();
       expect(await paymentDetector.getBalance(requestWithWrongNetwork)).toMatchObject({
         balance: null,
         error: {

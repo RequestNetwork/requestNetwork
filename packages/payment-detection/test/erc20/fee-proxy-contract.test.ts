@@ -6,11 +6,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { AdvancedLogic } from '@requestnetwork/advanced-logic';
-import {
-  ERC20FeeProxyPaymentDetector,
-  ERC20NearFeeProxyPaymentDetector,
-} from '../../src/erc20/fee-proxy-contract';
+import { ERC20FeeProxyPaymentDetector } from '../../src/erc20/fee-proxy-contract';
 import { mockAdvancedLogicBase } from '../utils';
 
 let erc20FeeProxyContract: ERC20FeeProxyPaymentDetector;
@@ -22,24 +18,25 @@ const createAddFeeAction = jest.fn();
 const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
 
+const feeProxyContractErc20 = {
+  createAddPaymentAddressAction,
+  createAddRefundAddressAction,
+  createCreationAction,
+  createAddFeeAction,
+  // inherited from declarative
+  createAddPaymentInstructionAction,
+  createAddRefundInstructionAction,
+} as any as ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased;
+
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   ...mockAdvancedLogicBase,
   extensions: {
-    feeProxyContractErc20: {
-      createAddPaymentAddressAction,
-      createAddRefundAddressAction,
-      createCreationAction,
-      createAddFeeAction,
-      // inherited from declarative
-      createAddPaymentInstructionAction,
-      createAddRefundInstructionAction,
-    },
+    feeProxyContractErc20,
   } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
+  getFeeProxyContractErc20ForNetwork: (_network) => feeProxyContractErc20,
 };
 
 const currencyManager = CurrencyManager.getDefault();
-const advancedLogic = new AdvancedLogic(currencyManager);
-
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/fee-proxy-contract', () => {
   beforeEach(() => {
@@ -551,12 +548,47 @@ describe('api/erc20/fee-proxy-contract', () => {
   });
 
   describe('on Near', () => {
+    beforeEach(() => {
+      // Same Detector, but instanciated with a Near network and a mocked Near graph client
+      erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector({
+        advancedLogic: mockAdvancedLogic,
+        currencyManager,
+        network: 'aurora-testnet',
+        getSubgraphClient: (_network) => ({
+          GetFungibleTokenPayments: jest.fn().mockImplementation(() => ({
+            payments: [
+              {
+                contractAddress: 'pay.reqnetwork.testnet',
+                tokenAddress: 'fau.reqnetwork.testnet',
+                to: 'issuer.reqnetwork.testnet',
+                from: 'payer.reqnetwork.testnet',
+                amount: '168040800000000000000000',
+                feeAmount: '13386000000000000000',
+                reference: 'f59c9445040531b1',
+                block: 15767215,
+                gasUsed: '73152',
+                gasPrice: '12709127644',
+                timestamp: 1666002347,
+                amountInCrypto: null,
+                feeAddress: 'builder.reqnetwork.testnet',
+                feeAmountInCrypto: null,
+                maxRateTimespan: null,
+              },
+            ],
+          })),
+          GetPaymentsAndEscrowState: jest.fn(),
+          GetNearConversionPayments: jest.fn(),
+          GetNearPayments: jest.fn(),
+          GetLastSyncedBlock: jest.fn(),
+          GetSyncedBlock: jest.fn(),
+        }),
+      });
+    });
     it('can createExtensionsDataForCreation', async () => {
       await erc20FeeProxyContract.createExtensionsDataForCreation({
         paymentAddress: 'issuer.reqnetwork.testnet',
         salt: 'ea3bc7caf64110ca',
       });
-
       expect(createCreationAction).toHaveBeenCalledWith({
         feeAddress: undefined,
         feeAmount: undefined,
@@ -567,7 +599,6 @@ describe('api/erc20/fee-proxy-contract', () => {
     });
 
     it('can retrieve payment using thegraph info retriever', async () => {
-      // graphql.request.mockResolvedValue();
       const mockRequest: RequestLogicTypes.IRequest = {
         creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
         currency: {
@@ -608,40 +639,8 @@ describe('api/erc20/fee-proxy-contract', () => {
         timestamp: 0,
         version: '0.2',
       };
-      const nearErc20FeeProxyContract = new ERC20NearFeeProxyPaymentDetector({
-        advancedLogic,
-        currencyManager,
-        network: 'aurora-testnet',
-        getSubgraphClient: () => ({
-          GetFungibleTokenPayments: jest.fn().mockImplementation(() => ({
-            payments: [
-              {
-                contractAddress: 'pay.reqnetwork.testnet',
-                tokenAddress: 'fau.reqnetwork.testnet',
-                to: 'issuer.reqnetwork.testnet',
-                from: 'payer.reqnetwork.testnet',
-                amount: '168040800000000000000000',
-                feeAmount: '13386000000000000000',
-                reference: 'f59c9445040531b1',
-                block: 15767215,
-                gasUsed: '73152',
-                gasPrice: '12709127644',
-                timestamp: 1666002347,
-                amountInCrypto: null,
-                feeAddress: 'builder.reqnetwork.testnet',
-                feeAmountInCrypto: null,
-                maxRateTimespan: null,
-              },
-            ],
-          })),
-          GetNearConversionPayments: jest.fn(),
-          GetNearPayments: jest.fn(),
-          GetLastSyncedBlock: jest.fn(),
-          GetSyncedBlock: jest.fn(),
-        }),
-      });
 
-      const { balance, error, events } = await nearErc20FeeProxyContract.getBalance(mockRequest);
+      const { balance, error, events } = await erc20FeeProxyContract.getBalance(mockRequest);
       expect;
       expect(error).toBeUndefined();
       expect(balance).toBe('168040800000000000000000');

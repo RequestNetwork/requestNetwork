@@ -62,26 +62,18 @@ export class NearInfoRetriever implements ITheGraphBaseInfoRetriever<NearPayment
     payment: GetNearPaymentsQuery['payments'][0],
     params: TransferEventsParams,
   ): PaymentTypes.IPaymentNetworkEvent<NearPaymentEvent> {
-    // const block: number = payment.block;
     return {
       amount: payment.amount,
       name: params.eventName,
+      timestamp: Number(payment.timestamp),
       parameters: {
-        // amount: payment.amount,
-        // timestamp: payment.timestamp,
         feeAmount: payment.feeAmount,
-        // currency: payment.currency,
         receiptId: payment.receiptId,
-        // block: Number(payment.block) as number,
-        // gasUsed: payment.gasUsed,
-        // gasPrice: payment.gasPrice,
-        // amountInCrypto: payment.amountInCrypto,
-        // feeAmountInCrypto: payment.feeAmountInCrypto,
+        block: payment.block,
         to: params.toAddress,
         from: payment.from,
         feeAddress: payment.feeAddress ?? undefined,
         tokenAddress: params.acceptedTokens ? params.acceptedTokens[0] : undefined,
-        // contractAddress: this.proxyContractName,
       },
     };
   }
