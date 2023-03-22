@@ -31,7 +31,6 @@ import { getDefaultProvider } from 'ethers';
 const PN_ID = ExtensionTypes.PAYMENT_NETWORK_ID;
 
 /** Register the payment network by currency and type */
-// prettier-ignore
 const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
   BTC: {
     mainnet: {
@@ -46,21 +45,17 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
       [PN_ID.ERC777_STREAM]: SuperFluidPaymentDetector,
     },
   },
-  // prettier-ignore
   ERC20: {
-    //prettier-ignore-start
-    // prettier-ignore
-    aurora: { [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName> },
+    aurora: {
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>,
+    },
     'aurora-testnet': {
-      // prettier-ignore
       [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>,
     },
     'near-testnet': {
-      // prettier-ignore
       [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>,
     },
-    
-  //prettier-ignore-end
+
     '*': {
       [PN_ID.ERC20_ADDRESS_BASED]: ERC20AddressBasedPaymentDetector,
       [PN_ID.ERC20_PROXY_CONTRACT]: ERC20ProxyPaymentDetector,
