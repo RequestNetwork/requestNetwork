@@ -18,6 +18,7 @@ import RequestLogicCore from '../../src/requestLogicCore';
 const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   getAnyToNativeTokenExtensionForNetwork: jest.fn(),
   getNativeTokenExtensionForNetwork: jest.fn(),
+  getFeeProxyContractErc20ForNetwork: jest.fn(),
   applyActionToExtensions: (
     extensionStates: RequestLogicTypes.IExtensionStates,
   ): RequestLogicTypes.IExtensionStates => extensionStates,

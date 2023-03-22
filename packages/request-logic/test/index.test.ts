@@ -41,6 +41,7 @@ const fakeAdvancedLogicBase: AdvancedLogicTypes.IAdvancedLogic = {
   getAnyToNativeTokenExtensionForNetwork: jest.fn(),
   getNativeTokenExtensionForNetwork: jest.fn(),
   applyActionToExtensions: jest.fn(),
+  getFeeProxyContractErc20ForNetwork: jest.fn(),
   extensions: {} as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
@@ -86,12 +87,10 @@ describe('index', () => {
 
     it('cannot createRequest if apply fails in the advanced request logic', async () => {
       const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-        getAnyToNativeTokenExtensionForNetwork: jest.fn(),
-        getNativeTokenExtensionForNetwork: jest.fn(),
+        ...fakeAdvancedLogicBase,
         applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
           throw new Error('Expected throw');
         },
-        extensions: {} as AdvancedLogicTypes.IAdvancedLogicExtensions,
       };
 
       const requestLogic = new RequestLogic(

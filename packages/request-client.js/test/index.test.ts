@@ -81,7 +81,7 @@ const requestParameters: RequestLogicTypes.ICreateParameters = {
 
 const mockBTCProvider = {
   getAddressBalanceWithEvents: (): Promise<
-    PaymentTypes.IBalanceWithEvents<PaymentTypes.IBTCPaymentEventParameters>
+    PaymentTypes.IBalanceWithEvents<PaymentTypes.GenericEventParameters>
   > => {
     return Promise.resolve({
       balance: '666743',
