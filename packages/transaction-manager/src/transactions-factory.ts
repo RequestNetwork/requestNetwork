@@ -153,8 +153,6 @@ export default class TransactionsFactory {
         throw new Error(`encryptionParams method must be all: ${EncryptionTypes.METHOD.ECIES}`);
       }
 
-      // TODO: Check if channel already includes new encryptionParams
-
       // Compute key encryption and identity hash for every encryption parameters given
       const encryptedKeyAndIdentityHashesPromises = encryptionParams.map(
         async (
