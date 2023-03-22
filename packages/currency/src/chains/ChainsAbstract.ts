@@ -42,8 +42,14 @@ export abstract class ChainsAbstract<
    * Throws in the case it's not supported.
    */
   public assertChainSupported(chainName?: string): asserts chainName is CHAIN_NAME {
-    if (!chainName || !(this.chainNames as string[]).includes(chainName))
-      throw new Error(`Unsupported chain ${chainName}`);
+    if (!this.isChainSupported(chainName)) throw new Error(`Unsupported chain ${chainName}`);
+  }
+
+  /**
+   * Check if chainName lives amongst the list of supported chains by this chain type.
+   */
+  public isChainSupported(chainName?: string): boolean {
+    return !!chainName && (this.chainNames as string[]).includes(chainName);
   }
 
   /**
@@ -66,4 +72,20 @@ export abstract class ChainsAbstract<
   public isTestnet(chainName: CHAIN_NAME): boolean {
     return Boolean(this.chains[chainName].testnet);
   }
+
+  /**
+   * @returns true if both network have the same ID or same name
+   */
+  public isNetworkAlias = (network1: string, network2: string): boolean => {
+    this.assertChainSupported(network1);
+    this.assertChainSupported(network2);
+    return this.isSameChain(network1, network2);
+  };
+
+  /**
+   * @returns true if both chains have the same ID or same name
+   */
+  public isSameChain = (chain1: CHAIN_NAME, chain2: CHAIN_NAME): boolean => {
+    return chain1 === chain2 || this.getChainId(chain1) === this.getChainId(chain2);
+  };
 }
