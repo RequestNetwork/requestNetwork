@@ -142,7 +142,7 @@ export default class TransactionsFactory {
     if (encryptionParams.length === 0) {
       return { encryptedData: encryptedDataSerialized };
     } else {
-      // TODO: Refactor, duplicate with createEncryptedTransactionInNewChannel
+      // FIXME: Refactor, duplicated from createEncryptedTransactionInNewChannel
       // Check that all the encryption parameters given are ECIES (the only encryption method supported for now)
       if (
         !encryptionParams.every(
