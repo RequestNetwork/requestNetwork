@@ -119,7 +119,6 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
           {
             maxRetries: this.httpConfig.getConfirmationMaxRetry,
             retryDelay: this.httpConfig.getConfirmationRetryDelay,
-            exponentialBackoff: true,
           },
         );
         // when found, emit the event 'confirmed'
