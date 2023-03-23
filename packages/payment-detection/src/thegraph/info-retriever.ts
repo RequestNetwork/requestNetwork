@@ -1,63 +1,45 @@
-import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
+import { PaymentTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { utils } from 'ethers';
 import { pick, mapValues } from 'lodash';
 import type { TheGraphClient } from '.';
 import type { EscrowEventResultFragment, PaymentEventResultFragment } from './generated/graphql';
 import { formatAddress, unpadAmountFromChainlink } from '../utils';
+import { TransferEventsParams, ITheGraphBaseInfoRetriever } from '../types';
 
-type TransferEventsParams = {
-  /** The reference to identify the payment*/
-  paymentReference: string;
-  /** The recipient of the transfer */
-  toAddress: string;
-  /** The address of the payment proxy */
-  contractAddress: string;
-  /** The chain to check for payment */
-  paymentChain: CurrencyTypes.EvmChainName;
-  /** Indicates if it is an address for payment or refund */
-  eventName: PaymentTypes.EVENTS_NAMES;
-  /** The list of ERC20 tokens addresses accepted for payments and refunds */
-  acceptedTokens?: string[];
-  /** The maximum span between the time the rate was fetched and the payment */
-  maxRateTimespan?: number;
-};
-
-export class TheGraphInfoRetriever {
+/**
+ * TheGraph info retriever for payments without conversion on EVMs
+ */
+export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = TransferEventsParams>
+  implements ITheGraphBaseInfoRetriever<PaymentTypes.IERC20FeePaymentEventParameters>
+{
   constructor(
-    private readonly client: TheGraphClient,
-    private readonly currencyManager: ICurrencyManager,
+    protected readonly client: TheGraphClient,
+    protected readonly currencyManager: ICurrencyManager,
   ) {}
 
   public async getTransferEvents(
-    params: TransferEventsParams,
+    params: TGraphQuery,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
     const { payments, escrowEvents } = await this.client.GetPaymentsAndEscrowState({
       reference: utils.keccak256(`0x${params.paymentReference}`),
       to: params.toAddress,
+      tokenAddress: params.acceptedTokens ? params.acceptedTokens[0] : null,
+      contractAddress: params.contractAddress,
     });
 
-    params.contractAddress = formatAddress(params.contractAddress, 'contractAddress');
-    params.acceptedTokens =
-      params.acceptedTokens?.map((tok) => formatAddress(tok, 'acceptedTokens')) || [];
     return {
-      paymentEvents: payments
-        .filter((payment) => this.filterPaymentEvents(payment, params))
-        .map((payment) => this.mapPaymentEvents(payment, params)),
+      paymentEvents: payments.map((payment) => this.mapPaymentEvents(payment, params)),
       escrowEvents: escrowEvents.map((escrow) => this.mapEscrowEvents(escrow, params)),
     };
   }
 
   public async getReceivableEvents(
-    params: TransferEventsParams,
+    params: TGraphQuery,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
     const { payments, escrowEvents } = await this.client.GetPaymentsAndEscrowStateForReceivables({
       reference: utils.keccak256(`0x${params.paymentReference}`),
     });
-
-    params.contractAddress = formatAddress(params.contractAddress, 'contractAddress');
-    params.acceptedTokens =
-      params.acceptedTokens?.map((tok) => formatAddress(tok, 'acceptedTokens')) || [];
 
     return {
       paymentEvents: payments
@@ -67,7 +49,10 @@ export class TheGraphInfoRetriever {
     };
   }
 
-  private filterPaymentEvents(payment: PaymentEventResultFragment, params: TransferEventsParams) {
+  protected filterPaymentEvents(
+    payment: PaymentEventResultFragment,
+    params: TransferEventsParams,
+  ): boolean {
     // Check contract address matches expected
     if (formatAddress(payment.contractAddress) !== formatAddress(params.contractAddress)) {
       return false;
@@ -81,19 +66,13 @@ export class TheGraphInfoRetriever {
     ) {
       return false;
     }
-    // Check payment was done within expected delays (conversion only)
-    if (
-      payment.maxRateTimespan !== undefined &&
-      payment.maxRateTimespan !== null &&
-      params.maxRateTimespan !== undefined &&
-      payment.maxRateTimespan < params.maxRateTimespan
-    ) {
-      return false;
-    }
     return true;
   }
 
-  private mapPaymentEvents(payment: PaymentEventResultFragment, params: TransferEventsParams) {
+  protected mapPaymentEvents(
+    payment: PaymentEventResultFragment,
+    params: TGraphQuery,
+  ): PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters> {
     let amount: string = payment.amount;
     let feeAmount: string = payment.feeAmount;
 
@@ -137,7 +116,7 @@ export class TheGraphInfoRetriever {
     };
   }
 
-  private mapEscrowEvents(escrow: EscrowEventResultFragment, params: TransferEventsParams) {
+  private mapEscrowEvents(escrow: EscrowEventResultFragment, params: TGraphQuery) {
     return {
       name: PaymentTypes.EVENTS_NAMES.ESCROW,
       timestamp: escrow.timestamp,

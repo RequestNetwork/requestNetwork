@@ -25,7 +25,7 @@ export type TransferEventsParams = {
   /** The address of the payment proxy */
   contractAddress: string;
   /** The chain to check for payment */
-  paymentChain: CurrencyTypes.VMChainName;
+  paymentChain: CurrencyTypes.EvmChainName;
   /** Indicates if it is an address for payment or refund */
   eventName: PaymentTypes.EVENTS_NAMES;
   /** The list of ERC20 tokens addresses accepted for payments and refunds OR undefined for native tokens (e.g. ETH) */
@@ -46,11 +46,15 @@ export interface IPaymentRetriever<
   getTransferEvents(): Promise<TPaymentNetworkEvent[]>;
 }
 
-export interface IGraphEventsRetriever<
-  TPaymentNetworkEvent extends PaymentTypes.IPaymentNetworkEvent<unknown, TEventNames>,
-  TEventNames = PaymentTypes.EVENTS_NAMES,
+export interface ITheGraphBaseInfoRetriever<
+  // Type of retrieved objects
+  TPaymentEvent extends PaymentTypes.IETHPaymentEventParameters,
+  // Type of queries
+  TTransferEventsParams extends TransferEventsParams = TransferEventsParams,
 > {
-  getTransferEvents(): Promise<PaymentTypes.AllNetworkRetrieverEvents<TPaymentNetworkEvent>>;
+  getTransferEvents(
+    params: TTransferEventsParams,
+  ): Promise<PaymentTypes.AllNetworkEvents<TPaymentEvent>>;
 }
 
 /** Generic info retriever interface without transfers */
