@@ -7,6 +7,7 @@ import { DataAccessTypes, EncryptionTypes, TransactionTypes } from '@requestnetw
 
 import { TransactionManager } from '../src/index';
 import TransactionsFactory from '../src/transactions-factory';
+import TransactionsParser from '../src/transactions-parser';
 
 import * as TestData from './unit/utils/test-data';
 
@@ -237,7 +238,7 @@ describe('index', () => {
           encryptionMethod: 'ecies-aes256-gcm',
         });
 
-        // TODO challenge this
+        expect(fakeDataAccess.persistTransaction).toHaveBeenCalledTimes(1);
         expect(fakeDataAccess.persistTransaction).toHaveBeenCalledWith(
           {
             encryptedData: expect.stringMatching(/^04.{76}/),
@@ -276,7 +277,7 @@ describe('index', () => {
         ).rejects.toThrowError(`Impossible to retrieve the channel: ${channelId}`);
       });
 
-      it('cannot persist a encrypted transaction in an existing channel with encryption parameters given', async () => {
+      it('can persist a encrypted transaction in an existing channel with encryption parameters given', async () => {
         const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
           TestData.idRaw1.encryptionParams,
         ]);
@@ -313,11 +314,30 @@ describe('index', () => {
           fakeDataAccess,
           TestData.fakeDecryptionProvider,
         );
-        await expect(
-          transactionManager.persistTransaction(data2, channelId, extraTopics, [
-            TestData.idRaw1.encryptionParams,
-          ]),
-        ).rejects.toThrowError('Impossible to add new stakeholder to an existing channel');
+
+        const ret = await transactionManager.persistTransaction(data2, channelId, extraTopics, [
+          TestData.idRaw2.encryptionParams,
+        ]);
+
+        // 'ret.result is wrong'
+        expect(ret.result).toEqual({});
+        // 'ret.meta is wrong'
+        expect(ret.meta).toEqual({
+          dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
+          encryptionMethod: 'ecies-aes256-gcm',
+        });
+
+        expect(fakeDataAccess.persistTransaction).toHaveBeenCalledTimes(1);
+        expect(fakeDataAccess.persistTransaction).toHaveBeenCalledWith(
+          {
+            encryptedData: expect.stringMatching(/^04.{76}/),
+            keys: {
+              '20740fc87bd3f41d07d23a01dec90623ebc5fed9d6': expect.stringMatching(/^02.{258}/),
+            },
+          },
+          channelId,
+          extraTopics.concat([channelId2]),
+        );
       });
     });
   });
@@ -545,14 +565,24 @@ describe('index', () => {
       });
     });
 
-    it('can get two transactions with different encryptions from the same encrypted channel', async () => {
+    it('can get two transactions from the same encrypted channel both have encryption method', async () => {
       const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
       ]);
-      const encryptedTx2 = await TransactionsFactory.createEncryptedTransactionInNewChannel(data2, [
-        TestData.idRaw3.encryptionParams,
-      ]);
+
+      // Get channel key of 1st encrypted transaction
+      const transactionsParser = new TransactionsParser(TestData.fakeDecryptionProvider);
+      let { channelKey } = await transactionsParser.parsePersistedTransaction(
+        encryptedTx,
+        TransactionTypes.ChannelType.ENCRYPTED,
+      );
+      channelKey = <EncryptionTypes.IEncryptionParameters>channelKey;
+
+      // Create 2nd encrypted transaction using same channel key
+      let encryptedTx2 = await TransactionsFactory.createEncryptedTransaction(data2, channelKey);
+      encryptedTx2.encryptionMethod = 'diffferent-encryption-method';
+
       const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
         {
           meta: {
@@ -602,8 +632,7 @@ describe('index', () => {
           ignoredTransactions: [
             null,
             {
-              reason:
-                'the properties "encryptionMethod" and "keys" have been already given for this channel',
+              reason: 'the "encryptionMethod" property has been already given for this channel',
               transaction: {
                 state: TransactionTypes.TransactionState.PENDING,
                 timestamp: 2,
@@ -628,13 +657,19 @@ describe('index', () => {
     it('can get two transactions with different encryptions from the same encrypted channel the first has the right hash but wrong data', async () => {
       const encryptedTxFakeHash = await TransactionsFactory.createEncryptedTransactionInNewChannel(
         data2,
-        [TestData.idRaw3.encryptionParams],
+        [TestData.idRaw1.encryptionParams, TestData.idRaw2.encryptionParams],
       );
 
-      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
-        TestData.idRaw1.encryptionParams,
-        TestData.idRaw2.encryptionParams,
-      ]);
+      // Get channel key of 1st encrypted transaction
+      const transactionsParser = new TransactionsParser(TestData.fakeDecryptionProvider);
+      let { channelKey } = await transactionsParser.parsePersistedTransaction(
+        encryptedTxFakeHash,
+        TransactionTypes.ChannelType.ENCRYPTED,
+      );
+      channelKey = <EncryptionTypes.IEncryptionParameters>channelKey;
+
+      // Create 2nd encrypted transaction using same channel key
+      let encryptedTx2 = await TransactionsFactory.createEncryptedTransaction(data, channelKey);
       const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
         {
           meta: {
@@ -650,7 +685,7 @@ describe('index', () => {
               {
                 state: TransactionTypes.TransactionState.PENDING,
                 timestamp: 2,
-                transaction: encryptedTx,
+                transaction: encryptedTx2,
               },
             ],
           },
@@ -680,7 +715,6 @@ describe('index', () => {
           dataAccessMeta: {
             transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
           },
-          encryptionMethod: 'ecies-aes256-gcm',
           ignoredTransactions: [
             {
               reason:
@@ -691,18 +725,18 @@ describe('index', () => {
                 transaction: encryptedTxFakeHash,
               },
             },
-            null,
+            {
+              reason: 'the "encryptionMethod" property is needed to use the channel key',
+              transaction: {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: encryptedTx2,
+              },
+            },
           ],
         },
         result: {
-          transactions: [
-            null,
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 2,
-              transaction: { data },
-            },
-          ],
+          transactions: [null, null],
         },
       });
     });
@@ -935,6 +969,127 @@ describe('index', () => {
           ],
         },
       });
+    });
+
+    it('can get transactions from an encrypted channel with spam and added stakeholder', async () => {
+      // Create encrypted transation with ID1 and ID2 as stakeholders
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
+        TestData.idRaw1.encryptionParams,
+        TestData.idRaw2.encryptionParams,
+      ]);
+
+      // Get channel key from 1st encrypted transaction
+      const transactionsParser = new TransactionsParser(TestData.fakeDecryptionProvider);
+      let { channelKey } = await transactionsParser.parsePersistedTransaction(
+        encryptedTx,
+        TransactionTypes.ChannelType.ENCRYPTED,
+      );
+      channelKey = <EncryptionTypes.IEncryptionParameters>channelKey;
+
+      // Create spam transaction that pretends to add ID3 as a stakeholder
+      // but uses garbage as the encrypted channel key
+      const spamData = '{ "spammy": "spam" }';
+      const garbage =
+        '029f00713571588a32dc91c948c5cbb09a0293d20c3a0a32879581dfad210526ac5d6b978fe81b55a26344ff6eb5d231f331bd9d215d61c3d21a219a96a81ff713d6b67aa62d7e4c119ca16031c6d3d67d45d7b27ebc03f3961843cd3228c08b43224916370147182322c058fe1a25d1dd52b23ec0438180d229ebdeb41b39f6e95d';
+      let spamTx = await TransactionsFactory.createEncryptedTransaction(spamData, channelKey, [
+        TestData.idRaw3.encryptionParams,
+      ]);
+      spamTx!.keys!['20818b6337657a23f58581715fc610577292e521d0'] = garbage;
+
+      // Create real transaction that adds ID3 as a stakeholder
+      let encryptedTx2 = await TransactionsFactory.createEncryptedTransaction(data2, channelKey, [
+        TestData.idRaw3.encryptionParams,
+      ]);
+
+      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
+        {
+          meta: {
+            transactionsStorageLocation: ['fakeDataId1', 'fakeDataId3'],
+          },
+          result: {
+            transactions: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
+              //  <== Spam transactions inserted here
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 3,
+                transaction: encryptedTx2,
+              },
+            ],
+          },
+        };
+
+      const expectedRet = {
+        meta: {
+          dataAccessMeta: {
+            transactionsStorageLocation: ['fakeDataId1', 'fakeDataId3'],
+          },
+          encryptionMethod: 'ecies-aes256-gcm',
+          ignoredTransactions: [null, null],
+        },
+        result: {
+          transactions: [
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 1,
+              transaction: { data },
+            },
+            //  <== Spam transactions inserted here
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 3,
+              transaction: { data: data2 },
+            },
+          ],
+        },
+      };
+
+      // Insert spam transactions
+      for (let i = 0; i < 10; i++) {
+        fakeMetaDataAccessGetReturnWithEncryptedTransaction.meta.transactionsStorageLocation.splice(
+          1,
+          0,
+          'fakeDataId2',
+        );
+        fakeMetaDataAccessGetReturnWithEncryptedTransaction.result.transactions.splice(1, 0, {
+          state: TransactionTypes.TransactionState.PENDING,
+          timestamp: 2,
+          transaction: spamTx,
+        });
+
+        expectedRet.meta.dataAccessMeta.transactionsStorageLocation.splice(1, 0, 'fakeDataId2');
+        expectedRet.meta.ignoredTransactions.splice(1, 0, null);
+        expectedRet.result.transactions.splice(1, 0, {
+          state: TransactionTypes.TransactionState.PENDING,
+          timestamp: 2,
+          transaction: { data: spamData },
+        });
+      }
+
+      fakeDataAccess = {
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest.fn(),
+        getTransactionsByChannelId: jest
+          .fn()
+          .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
+        initialize: jest.fn(),
+        close: jest.fn(),
+        persistTransaction: jest.fn(),
+      };
+
+      const transactionManager = new TransactionManager(
+        fakeDataAccess,
+        TestData.id3DecryptionProvider,
+      );
+      const ret = await transactionManager.getTransactionsByChannelId(channelId);
+
+      // 'return is wrong'
+      expect(ret).toEqual(expectedRet);
     });
   });
 
