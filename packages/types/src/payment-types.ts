@@ -192,7 +192,7 @@ export type ERC777BalanceWithEvents = IBalanceWithEvents<IERC777PaymentEventPara
  * ERC20 networks and events
  */
 
-/** Parameters for events of ERC20 payments */
+/** Parameters detectable payment events */
 export interface GenericEventParameters {
   block?: number;
   txHash?: string;
@@ -274,18 +274,13 @@ export interface IBitcoinDetectionProvider {
     bitcoinNetworkId: number,
     address: string,
     eventName: EVENTS_NAMES,
-  ) => Promise<IBalanceWithEvents<IBTCPaymentEventParameters>>;
+  ) => Promise<IBalanceWithEvents<GenericEventParameters>>;
 }
 
-/** Parameters for events of BTC payments */
-export interface IBTCPaymentEventParameters {
-  block?: number;
-  txHash?: string;
-}
 /** BTC Payment Network Event */
-export type BTCPaymentNetworkEvent = IPaymentNetworkEvent<IBTCPaymentEventParameters>;
+export type BTCPaymentNetworkEvent = IPaymentNetworkEvent<GenericEventParameters>;
 /** BTC BalanceWithEvents */
-export type BTCBalanceWithEvents = IBalanceWithEvents<IBTCPaymentEventParameters>;
+export type BTCBalanceWithEvents = IBalanceWithEvents<GenericEventParameters>;
 
 /** Parameters for escrow events from EscrowERC20 contract state changes */
 export interface IEscrowEventParameters extends Required<GenericEventParameters> {

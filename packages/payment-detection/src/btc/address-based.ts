@@ -7,7 +7,7 @@ import { PaymentDetectorBase } from '../payment-detector-base';
  */
 export abstract class BtcAddressBasedDetector extends PaymentDetectorBase<
   ExtensionTypes.PnAddressBased.IAddressBased<ExtensionTypes.PnAddressBased.ICreationParameters>,
-  PaymentTypes.IBTCPaymentEventParameters
+  PaymentTypes.GenericEventParameters
 > {
   /**
    * @param extension The advanced logic payment network extensions
@@ -74,7 +74,7 @@ export abstract class BtcAddressBasedDetector extends PaymentDetectorBase<
    */
   protected async getEvents(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IBTCPaymentEventParameters>> {
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.GenericEventParameters>> {
     const { paymentAddress, refundAddress } = this.getPaymentExtension(request).values;
 
     this.checkRequiredParameter(paymentAddress, 'paymentAddress');
