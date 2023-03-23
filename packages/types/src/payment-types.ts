@@ -6,9 +6,7 @@ import { ICreationParameters as ICreationParametersAnyToAny } from './extensions
 import { EvmChainName } from './currency-types';
 
 /** Interface for payment network extensions state and interpretation */
-export interface IPaymentNetwork<
-  TEventParameters extends GenericEventParameters = GenericEventParameters,
-> {
+export interface IPaymentNetwork<TEventParameters = any> {
   paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID;
   extension: ExtensionTypes.IExtension;
   createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
@@ -194,7 +192,7 @@ export type ERC777BalanceWithEvents = IBalanceWithEvents<IERC777PaymentEventPara
  * ERC20 networks and events
  */
 
-/** Parameters for events of ERC20 payments */
+/** Parameters detectable payment events */
 export interface GenericEventParameters {
   block?: number;
   txHash?: string;
