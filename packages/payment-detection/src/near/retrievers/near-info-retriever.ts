@@ -23,7 +23,7 @@ export type TransferEventsParams = {
 };
 /**
  * Gets a list of transfer events for a set of Near payment details
- * Retriever for ERC20 Fee Proxy and Native token payments.
+ * TheGraph-based etriever for ERC20 Fee Proxy and Native token payments.
  */
 export class NearInfoRetriever implements ITheGraphBaseInfoRetriever<NearPaymentEvent> {
   /**

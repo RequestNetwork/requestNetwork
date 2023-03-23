@@ -76,9 +76,9 @@ export abstract class ERC20FeeProxyPaymentDetectorBase<
   );
 }
 
-export type GetSubGraphClient = (
-  network: CurrencyTypes.ChainName,
-) => TheGraphClient | TheGraphClient<'near'>;
+export type TGetSubGraphClient<TChain> = TChain extends CurrencyTypes.EvmChainName
+  ? PaymentNetworkOptions['getSubgraphClient']
+  : PaymentNetworkOptions<'near'>['getSubgraphClient'];
 
 /**
  * Handle payment networks with ERC20 fee proxy contract extension on EVM (default) or Near chains
@@ -86,11 +86,8 @@ export type GetSubGraphClient = (
 export class ERC20FeeProxyPaymentDetector<
   TChain extends CurrencyTypes.VMChainName = CurrencyTypes.EvmChainName,
 > extends ERC20FeeProxyPaymentDetectorBase {
+  private readonly getSubgraphClient: TGetSubGraphClient<TChain>;
   protected readonly network: TChain | undefined;
-  private readonly getSubgraphClient: TChain extends CurrencyTypes.EvmChainName
-    ? PaymentNetworkOptions['getSubgraphClient']
-    : PaymentNetworkOptions<'near'>['getSubgraphClient'];
-  // private readonly getSubgraphClient: PaymentNetworkOptions['getSubgraphClient'];
   constructor({
     advancedLogic,
     currencyManager,
@@ -98,9 +95,7 @@ export class ERC20FeeProxyPaymentDetector<
     network,
   }: ReferenceBasedDetectorOptions & {
     network?: TChain;
-    getSubgraphClient: TChain extends CurrencyTypes.EvmChainName
-      ? PaymentNetworkOptions['getSubgraphClient']
-      : PaymentNetworkOptions<'near'>['getSubgraphClient'];
+    getSubgraphClient: TGetSubGraphClient<TChain>;
   }) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
@@ -139,16 +134,7 @@ export class ERC20FeeProxyPaymentDetector<
 
     const subgraphClient = this.getSubgraphClient(paymentChain);
     if (subgraphClient) {
-      const graphInfoRetriever = EvmChains.isChainSupported(paymentChain)
-        ? new TheGraphInfoRetriever(subgraphClient as TheGraphClient, this.currencyManager)
-        : NearChains.isChainSupported(paymentChain) && this.network
-        ? new NearInfoRetriever(subgraphClient as TheGraphClient<'near'>)
-        : undefined;
-      if (!graphInfoRetriever) {
-        throw new Error(
-          `Could not find graphInfoRetriever for chain ${paymentChain} in payment detector`,
-        );
-      }
+      const graphInfoRetriever = this.getInfoRetriever(paymentChain, subgraphClient);
       return graphInfoRetriever.getTransferEvents({
         eventName,
         paymentReference,
@@ -158,7 +144,11 @@ export class ERC20FeeProxyPaymentDetector<
         acceptedTokens: [requestCurrency.value],
       });
     } else {
-      EvmChains.assertChainSupported(paymentChain);
+      if (!EvmChains.isChainSupported(paymentChain)) {
+        throw new Error(
+          `Could not get a TheGraph-based info retriever for chain ${paymentChain} and RPC-based info retrievers are only compatible with EVM chains.`,
+        );
+      }
       const proxyInfoRetriever = new ProxyInfoRetriever(
         paymentReference,
         proxyContractAddress,
@@ -173,5 +163,22 @@ export class ERC20FeeProxyPaymentDetector<
         paymentEvents,
       };
     }
+  }
+
+  protected getInfoRetriever(
+    paymentChain: TChain,
+    subgraphClient: TheGraphClient | TheGraphClient<'near'>,
+  ): TheGraphInfoRetriever | NearInfoRetriever {
+    const graphInfoRetriever = EvmChains.isChainSupported(paymentChain)
+      ? new TheGraphInfoRetriever(subgraphClient as TheGraphClient, this.currencyManager)
+      : NearChains.isChainSupported(paymentChain) && this.network
+      ? new NearInfoRetriever(subgraphClient as TheGraphClient<'near'>)
+      : undefined;
+    if (!graphInfoRetriever) {
+      throw new Error(
+        `Could not find graphInfoRetriever for chain ${paymentChain} in payment detector`,
+      );
+    }
+    return graphInfoRetriever;
   }
 }
