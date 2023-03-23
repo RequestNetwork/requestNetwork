@@ -5,29 +5,60 @@ import '@openzeppelin/contracts/utils/Counters.sol';
 import '@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol';
 import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
 
+/**
+ * @title ERC20TransferableReceivable
+ * @author Request Network
+ * @dev ERC721 contract for creating and managing unique NFTs representing receivables
+ *      that can be paid with any ERC20 token
+ */
 contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStorage {
   using Counters for Counters.Counter;
 
-  // Counter for uniquely identifying payments
+  /**
+   * @dev Counter for uniquely identifying payments
+   */
   Counters.Counter private _paymentId;
 
-  // Counter for uniquely identifying receivable tokens
+  /**
+   * @dev Counter for uniquely identifying receivables
+   */
   Counters.Counter private _receivableTokenId;
 
+  /**
+   * @dev Struct for storing receivable information
+   */
   struct ReceivableInfo {
     address tokenAddress;
     uint256 amount;
     uint256 balance;
   }
-  mapping(uint256 => ReceivableInfo) public receivableInfoMapping;
 
-  // Mapping for looking up receivable token given a paymentReference
-  // and minter address
+  /**
+   * @notice Mapping for looking up a receivable given a paymentReference and minter address
+   */
   mapping(bytes32 => uint256) public receivableTokenIdMapping;
 
+  /**
+   * @notice Mapping for storing receivable information
+   */
+  mapping(uint256 => ReceivableInfo) public receivableInfoMapping;
+
+  /**
+   * @notice Address of the payment proxy contract that handles the transfer of ERC20 tokens
+   */
   address public paymentProxy;
 
-  // Event to declare payments to a receivableTokenId
+  /**
+   * @notice Event to declare payments to a receivableTokenId
+   * @param sender The address of the sender
+   * @param recipient The address of the recipient of the payment
+   * @param amount The amount of the payment
+   * @param paymentProxy The address of the payment proxy contract
+   * @param receivableTokenId The ID of the receivable being paid
+   * @param tokenAddress The address of the ERC20 token used to pay the receivable
+   * @param paymentId The ID of the payment
+   * @param paymentReference The reference for the payment
+   */
   event TransferableReceivablePayment(
     address sender,
     address recipient,
@@ -39,8 +70,16 @@ contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStora
     bytes indexed paymentReference
   );
 
-  // Event to declare a transfer with a reference
-  // This event is emitted from a delegatecall to an ERC20FeeProxy contract
+  /**
+   * @notice Event to declare ERC20 token transfers
+   * @param tokenAddress The address of the ERC20 token being transferred
+   * @param to The address of the recipient of the transfer
+   * @param amount The amount of the transfer
+   * @param paymentReference The reference for the transfer
+   * @param feeAmount The amount of the transfer fee
+   * @param feeAddress The address of the fee recipient
+   * @dev This event is emitted from a delegatecall to an ERC20FeeProxy contract
+   */
   event TransferWithReferenceAndFee(
     address tokenAddress,
     address to,
@@ -50,6 +89,11 @@ contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStora
     address feeAddress
   );
 
+  /**
+   * @param name The name of the ERC721 token
+   * @param symbol The symbol of the ERC721 token
+   * @param _paymentProxyAddress The address of the payment proxy contract
+   */
   constructor(
     string memory name,
     string memory symbol,
@@ -58,6 +102,16 @@ contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStora
     paymentProxy = _paymentProxyAddress;
   }
 
+  /**
+   * @notice Pay the owner of the specified receivable with the provided amount of ERC20 tokens.
+   * @param receivableTokenId The ID of the receivable token to pay.
+   * @param amount The amount of ERC20 tokens to pay the owner.
+   * @param paymentReference A reference for the payment.
+   * @param feeAmount The amount of ERC20 tokens to be paid as a fee for the transaction.
+   * @param feeAddress The address to which the fee should be paid.
+   * @dev This function uses delegatecall to call on a contract which emits
+          a TransferWithReferenceAndFee event.
+   */
   function payOwner(
     uint256 receivableTokenId,
     uint256 amount,
@@ -98,7 +152,17 @@ contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStora
     );
   }
 
+  /**
+   * @notice Mint a new transferable receivable.
+   * @param owner The address of the owner of the receivable token to be minted.
+   * @param paymentReference A reference for the payment.
+   * @param amount The amount of ERC20 tokens to be paid.
+   * @param erc20Addr The address of the ERC20 token to be used as payment.
+   * @param newTokenURI The URI of the token.
+   * @dev Anyone can pay for the mint of a receivable on behalf of a user
+   */
   function mint(
+    address owner,
     bytes calldata paymentReference,
     uint256 amount,
     address erc20Addr,
@@ -107,7 +171,7 @@ contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStora
     require(paymentReference.length > 0, 'Zero paymentReference provided');
     require(amount > 0, 'Zero amount provided');
     require(erc20Addr != address(0), 'Zero address provided');
-    bytes32 idKey = keccak256(abi.encodePacked(msg.sender, paymentReference));
+    bytes32 idKey = keccak256(abi.encodePacked(owner, paymentReference));
     require(
       receivableTokenIdMapping[idKey] == 0,
       'Receivable has already been minted for this user and request'
@@ -121,10 +185,15 @@ contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStora
       balance: 0
     });
 
-    _mint(msg.sender, currentReceivableTokenId);
+    _mint(owner, currentReceivableTokenId);
     _setTokenURI(currentReceivableTokenId, newTokenURI);
   }
 
+  /**
+   * @notice Get an array of all receivable token IDs owned by a specific address.
+   * @param _owner The address of the owner to retrieve the receivable tokens for.
+   * @return An array of all receivable token IDs owned by the specified address.
+   */
   function getTokenIds(address _owner) public view returns (uint256[] memory) {
     uint256[] memory _tokensOfOwner = new uint256[](ERC721.balanceOf(_owner));
     uint256 i;
@@ -136,6 +205,7 @@ contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStora
   }
 
   // The following functions are overrides required by Solidity.
+  /// @dev Overrides ERC721's _beforeTokenTransfer method to include functionality from ERC721Enumerable.
   function _beforeTokenTransfer(
     address from,
     address to,
@@ -144,10 +214,12 @@ contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStora
     super._beforeTokenTransfer(from, to, tokenId);
   }
 
+  /// @dev Overrides ERC721's _burn method to include functionality from ERC721URIStorage.
   function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
     super._burn(tokenId);
   }
 
+  /// @dev Overrides ERC721's tokenURI method to include functionality from ERC721URIStorage.
   function tokenURI(uint256 tokenId)
     public
     view
@@ -157,6 +229,7 @@ contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStora
     return super.tokenURI(tokenId);
   }
 
+  /// @dev Overrides ERC721's supportsInterface method to include functionality from ERC721Enumerable.
   function supportsInterface(bytes4 interfaceId)
     public
     view

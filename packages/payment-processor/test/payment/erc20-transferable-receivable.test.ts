@@ -8,7 +8,8 @@ import {
 } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
 
-import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
+import { Erc20PaymentNetwork, PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
+import { ERC20TransferableReceivable__factory } from '@requestnetwork/smart-contracts/types';
 
 import { approveErc20, getErc20Balance } from '../../src/payment/erc20';
 import {
@@ -16,6 +17,7 @@ import {
   mintErc20TransferableReceivable,
   payErc20TransferableReceivableRequest,
 } from '../../src/payment/erc20-transferable-receivable';
+import { getProxyAddress } from '../../src/payment/utils';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -26,6 +28,7 @@ const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble
 const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const payeeWallet = Wallet.createRandom().connect(provider);
+const thirdPartyWallet = Wallet.createRandom().connect(provider);
 const wallet = Wallet.fromMnemonic(mnemonic, "m/44'/60'/0'/0/1").connect(provider);
 const paymentAddress = payeeWallet.address;
 
@@ -85,7 +88,17 @@ describe('erc20-transferable-receivable', () => {
       value: utils.parseEther('1'),
     };
 
-    const txResponse = await wallet.sendTransaction(tx);
+    let txResponse = await wallet.sendTransaction(tx);
+    await txResponse.wait(1);
+
+    // Send funds to thirdPartyWallet
+    tx = {
+      to: thirdPartyWallet.address,
+      // Convert currency unit from ether to wei
+      value: utils.parseEther('1'),
+    };
+
+    txResponse = await wallet.sendTransaction(tx);
     await txResponse.wait(1);
 
     const mintTx = await mintErc20TransferableReceivable(validRequest, payeeWallet, {
@@ -211,6 +224,125 @@ describe('erc20-transferable-receivable', () => {
       expect(tx.hash).not.toBeUndefined();
 
       expect(balanceEthAfter.lte(balanceEthBefore)).toBeTruthy(); // 'ETH balance should be lower'
+
+      // ERC20 balance should be lower
+      expect(
+        BigNumber.from(balanceErc20After).eq(BigNumber.from(balanceErc20Before).add(1)),
+      ).toBeTruthy();
+    });
+
+    it('other wallets can mint receivable for owner', async () => {
+      // Request without a receivable minted yet
+      const request = deepCopy(validRequest) as ClientTypes.IRequestData;
+      request.requestId = '0x01';
+
+      const mintTx = await mintErc20TransferableReceivable(request, thirdPartyWallet, {
+        gasLimit: BigNumber.from('20000000'),
+      });
+      let confirmedTx = await mintTx.wait(1);
+
+      expect(confirmedTx.status).toBe(1);
+      expect(mintTx.hash).not.toBeUndefined();
+
+      // get the balance to compare after payment
+      const balanceErc20Before = await getErc20Balance(request, payeeWallet.address, provider);
+
+      const tx = await payErc20TransferableReceivableRequest(request, wallet, 1, 0, {
+        gasLimit: BigNumber.from('20000000'),
+      });
+
+      confirmedTx = await tx.wait(1);
+
+      const balanceErc20After = await getErc20Balance(request, payeeWallet.address, provider);
+
+      expect(confirmedTx.status).toBe(1);
+      expect(tx.hash).not.toBeUndefined();
+
+      // ERC20 balance should be lower
+      expect(
+        BigNumber.from(balanceErc20After).eq(BigNumber.from(balanceErc20Before).add(1)),
+      ).toBeTruthy();
+    });
+
+    it('rejects paying unless minted to correct owner', async () => {
+      // Request without a receivable minted yet
+      const request = deepCopy(validRequest) as ClientTypes.IRequestData;
+      request.requestId = '0x02';
+
+      let shortReference = PaymentReferenceCalculator.calculate(
+        request.requestId,
+        request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE].values
+          .salt,
+        paymentAddress,
+      );
+      let metadata = Buffer.from(request.requestId).toString('base64');
+      let receivableContract = ERC20TransferableReceivable__factory.createInterface();
+      let data = receivableContract.encodeFunctionData('mint', [
+        thirdPartyWallet.address,
+        `0x${shortReference}`,
+        '100',
+        erc20ContractAddress,
+        metadata,
+      ]);
+      let tx = await thirdPartyWallet.sendTransaction({
+        data,
+        to: getProxyAddress(
+          request,
+          Erc20PaymentNetwork.ERC20TransferableReceivablePaymentDetector.getDeploymentInformation,
+        ),
+        value: 0,
+      });
+      let confirmedTx = await tx.wait(1);
+
+      expect(confirmedTx.status).toBe(1);
+      expect(tx.hash).not.toBeUndefined();
+
+      await expect(payErc20TransferableReceivableRequest(request, wallet)).rejects.toThrowError(
+        'The receivable for this request has not been minted yet. Please check with the payee.',
+      );
+
+      // Mint the receivable for the correct paymentAddress
+      shortReference = PaymentReferenceCalculator.calculate(
+        request.requestId,
+        request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE].values
+          .salt,
+        paymentAddress,
+      );
+      metadata = Buffer.from(request.requestId).toString('base64');
+      receivableContract = ERC20TransferableReceivable__factory.createInterface();
+      data = receivableContract.encodeFunctionData('mint', [
+        paymentAddress,
+        `0x${shortReference}`,
+        '100',
+        erc20ContractAddress,
+        metadata,
+      ]);
+      tx = await thirdPartyWallet.sendTransaction({
+        data,
+        to: getProxyAddress(
+          request,
+          Erc20PaymentNetwork.ERC20TransferableReceivablePaymentDetector.getDeploymentInformation,
+        ),
+        value: 0,
+      });
+      confirmedTx = await tx.wait(1);
+
+      expect(confirmedTx.status).toBe(1);
+      expect(tx.hash).not.toBeUndefined();
+
+      // get the balance to compare after payment
+      const balanceErc20Before = await getErc20Balance(request, payeeWallet.address, provider);
+
+      tx = await payErc20TransferableReceivableRequest(request, wallet, 1, 0, {
+        gasLimit: BigNumber.from('20000000'),
+      });
+
+      confirmedTx = await tx.wait(1);
+
+      const balanceErc20After = await getErc20Balance(request, payeeWallet.address, provider);
+
+      expect(confirmedTx.status).toBe(1);
+      expect(tx.hash).not.toBeUndefined();
 
       // ERC20 balance should be lower
       expect(
