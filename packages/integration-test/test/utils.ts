@@ -59,7 +59,7 @@ export const createMockConversionErc20Request = ({
   'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount',
   string
 > & {
-  network: CurrencyTypes.VMChainName;
+  network: CurrencyTypes.EvmChainName;
   currency: RequestLogicTypes.ICurrency;
 }): RequestLogicTypes.IRequest => ({
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
