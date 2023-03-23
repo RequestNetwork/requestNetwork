@@ -25,14 +25,12 @@ const retry = <TParams extends unknown[], TReturn>(
     context,
     maxRetries = DEFAULT_MAX_RETRIES,
     retryDelay = DEFAULT_RETRY_DELAY,
-    exponentialBackoff = false,
     exponentialBackoffDelay = DEFAULT_EXPONENTIAL_BACKOFF_DELAY,
     maxExponentialBackoffDelay = DEFAULT_MAX_EXPONENTIAL_BACKOFF_DELAY,
   }: {
     context?: ThisParameterType<(...params: TParams) => Promise<TReturn>>;
     maxRetries?: number;
     retryDelay?: number;
-    exponentialBackoff?: boolean;
     exponentialBackoffDelay?: number;
     maxExponentialBackoffDelay?: number;
   } = {},
@@ -61,9 +59,7 @@ const retry = <TParams extends unknown[], TReturn>(
             setTimeout(
               resolve,
               retryDelay +
-                (exponentialBackoff
-                  ? Math.min(maxExponentialBackoffDelay, exponentialBackoffDelay * 2 ** retry)
-                  : 0),
+                Math.min(maxExponentialBackoffDelay, exponentialBackoffDelay * 2 ** retry),
             ),
           );
 

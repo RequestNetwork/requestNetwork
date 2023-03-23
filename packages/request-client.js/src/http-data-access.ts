@@ -200,7 +200,6 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     retryConfig: {
       maxRetries?: number;
       retryDelay?: number;
-      exponentialBackoff?: boolean;
     } = {},
   ): Promise<any> {
     retryConfig.maxRetries = retryConfig.maxRetries ?? this.httpConfig.httpRequestMaxRetry;
