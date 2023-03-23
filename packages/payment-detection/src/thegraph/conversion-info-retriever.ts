@@ -23,8 +23,8 @@ export class TheGraphConversionInfoRetriever extends TheGraphInfoRetriever<Conve
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
     const { payments } = await this.client.GetAnyToFungiblePaymentsAndEscrowState({
       reference: utils.keccak256(`0x${params.paymentReference}`),
-      to: params.toAddress,
-      currency: params.requestCurrency,
+      to: params.toAddress.toLowerCase(),
+      currency: params.requestCurrency.hash.toLowerCase(),
       acceptedTokens: params.acceptedTokens
         ? params.acceptedTokens.map((t) => t.toLowerCase())
         : [null],
@@ -46,7 +46,7 @@ export class TheGraphConversionInfoRetriever extends TheGraphInfoRetriever<Conve
     params: ConversionTransferEventsParams,
   ): boolean {
     // FIXME: move to TheGraph when they support OR operator
-    return (
+    return !(
       payment.maxRateTimespan !== undefined &&
       payment.maxRateTimespan !== null &&
       params.maxRateTimespan !== undefined &&
