@@ -15,7 +15,6 @@ import {
 import { createMockErc20FeeRequest } from '../utils';
 
 const erc20FeeProxy = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
-  // FIXME: the mocked advanced logic is address based
   advancedLogic: mockAdvancedLogic,
   currencyManager: CurrencyManager.getDefault(),
   getSubgraphClient: jest.fn(),

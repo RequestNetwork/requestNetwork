@@ -5,15 +5,12 @@ import ContentDataExtension from '../../src/api/content-data-extension';
 import * as TestData from './data-for-content-data-extension';
 import { IAdvancedLogicExtensions } from '@requestnetwork/types/src/advanced-logic-types';
 
-const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+const mockAdvancedLogic = {
   applyActionToExtensions: jest.fn(),
-  getNativeTokenExtensionForNetwork: jest.fn(),
-  getAnyToNativeTokenExtensionForNetwork: jest.fn(),
-  getFeeProxyContractErc20ForNetwork: jest.fn(),
   extensions: {
     contentData: { createCreationAction: jest.fn() },
   } as any as IAdvancedLogicExtensions,
-};
+} as any as AdvancedLogicTypes.IAdvancedLogic;
 
 let contentDataExtension: ContentDataExtension;
 

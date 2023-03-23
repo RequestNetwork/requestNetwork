@@ -37,13 +37,10 @@ const fakeMetaTransactionManager = {
 };
 let fakeTransactionManager: TransactionTypes.ITransactionManager;
 
-const fakeAdvancedLogicBase: AdvancedLogicTypes.IAdvancedLogic = {
-  getAnyToNativeTokenExtensionForNetwork: jest.fn(),
-  getNativeTokenExtensionForNetwork: jest.fn(),
+const fakeAdvancedLogicBase = {
   applyActionToExtensions: jest.fn(),
-  getFeeProxyContractErc20ForNetwork: jest.fn(),
   extensions: {} as AdvancedLogicTypes.IAdvancedLogicExtensions,
-};
+} as any as AdvancedLogicTypes.IAdvancedLogic;
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('index', () => {

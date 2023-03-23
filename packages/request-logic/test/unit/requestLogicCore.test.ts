@@ -15,15 +15,12 @@ import * as TestData from './utils/test-data-generator';
 
 import RequestLogicCore from '../../src/requestLogicCore';
 
-const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  getAnyToNativeTokenExtensionForNetwork: jest.fn(),
-  getNativeTokenExtensionForNetwork: jest.fn(),
-  getFeeProxyContractErc20ForNetwork: jest.fn(),
+const fakeAdvancedLogic = {
   applyActionToExtensions: (
     extensionStates: RequestLogicTypes.IExtensionStates,
   ): RequestLogicTypes.IExtensionStates => extensionStates,
   extensions: {} as AdvancedLogicTypes.IAdvancedLogicExtensions,
-};
+} as any as AdvancedLogicTypes.IAdvancedLogic;
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('requestLogicCore', () => {
