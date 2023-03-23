@@ -32,7 +32,7 @@ export class NearConversionInfoRetriever extends NearInfoRetriever {
   public async getTransferEvents(): Promise<
     PaymentTypes.IPaymentNetworkEvent<NearSubGraphPaymentEvent>[]
   > {
-    const payments = await this.client.GetNearConversionPayments({
+    const payments = await this.client.GetAnyToNativePayments({
       reference: this.paymentReference,
       to: this.toAddress,
       currency: this.requestCurrency.symbol,

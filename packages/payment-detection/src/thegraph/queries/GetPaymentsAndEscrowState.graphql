@@ -27,12 +27,73 @@ fragment EscrowEventResult on EscrowEvent {
   gasPrice
 }
 
-query GetPaymentsAndEscrowState($reference: Bytes!, $to: Bytes!) {
-  payments(where: { reference: $reference, to: $to }, orderBy: timestamp, orderDirection: asc) {
+query GetPaymentsAndEscrowState(
+  $reference: Bytes!
+  $to: Bytes!
+  $tokenAddress: Bytes
+  $contractAddress: Bytes!
+) {
+  payments(
+    where: {
+      reference: $reference
+      to: $to
+      contractAddress: $contractAddress
+      currency: null
+      tokenAddress: $tokenAddress
+    }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
     ...PaymentEventResult
   }
   escrowEvents(where: { reference: $reference }, orderBy: timestamp, orderDirection: asc) {
     ...EscrowEventResult
+  }
+}
+
+query GetAnyToFungiblePaymentsAndEscrowState(
+  $reference: Bytes!
+  $to: Bytes!
+  $currency: Bytes!
+  $acceptedTokens: [Bytes!]
+  $contractAddress: Bytes!
+) {
+  payments(
+    where: {
+      reference: $reference
+      to: $to
+      currency: $currency
+      tokenAddress_in: $acceptedTokens
+      contractAddress: $contractAddress
+    }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    ...PaymentEventResult
+  }
+  escrowEvents(where: { reference: $reference }, orderBy: timestamp, orderDirection: asc) {
+    ...EscrowEventResult
+  }
+}
+
+query GetAnyToNativePayments(
+  $reference: Bytes!
+  $to: Bytes!
+  $currency: Bytes!
+  $contractAddress: Bytes!
+) {
+  payments(
+    where: {
+      reference: $reference
+      to: $to
+      currency: $currency
+      contractAddress: $contractAddress
+      tokenAddress: null
+    }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    ...PaymentEventResult
   }
 }
 

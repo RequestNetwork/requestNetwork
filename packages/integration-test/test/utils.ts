@@ -45,3 +45,46 @@ export const createMockErc20FeeRequest = ({
   timestamp: 0,
   version: '0.2.0',
 });
+
+export const createMockConversionErc20Request = ({
+  network,
+  tokenAddress,
+  paymentAddress,
+  salt,
+  requestId,
+  feeAddress,
+  feeAmount,
+  currency,
+}: Record<
+  'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount',
+  string
+> & {
+  network: CurrencyTypes.VMChainName;
+  currency: RequestLogicTypes.ICurrency;
+}): RequestLogicTypes.IRequest => ({
+  creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
+  currency,
+  events: [],
+  expectedAmount: '0',
+  extensions: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
+      events: [],
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+      type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+      values: {
+        paymentAddress,
+        salt,
+        feeAddress,
+        feeAmount,
+        acceptedTokens: [tokenAddress],
+        network,
+      },
+      version: '0.1.0',
+    },
+  },
+  extensionsData: [],
+  requestId,
+  state: RequestLogicTypes.STATE.CREATED,
+  timestamp: 0,
+  version: '0.2.0',
+});

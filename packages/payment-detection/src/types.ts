@@ -6,7 +6,7 @@ import {
 } from '@requestnetwork/types';
 import { PaymentDetectorBase } from './payment-detector-base';
 import { GetDeploymentInformation } from './utils';
-import type { ICurrencyManager } from '@requestnetwork/currency';
+import type { CurrencyDefinition, ICurrencyManager } from '@requestnetwork/currency';
 import type { providers } from 'ethers';
 import type { TheGraphClient } from './thegraph';
 
@@ -15,6 +15,30 @@ export interface ContractBasedDetector {
 }
 
 /** Generic info retriever interface */
+
+/** Params for TheGraph-based getTransferEvents */
+export type TransferEventsParams = {
+  /** The reference to identify the payment*/
+  paymentReference: string;
+  /** The recipient of the transfer */
+  toAddress: string;
+  /** The address of the payment proxy */
+  contractAddress: string;
+  /** The chain to check for payment */
+  paymentChain: CurrencyTypes.VMChainName;
+  /** Indicates if it is an address for payment or refund */
+  eventName: PaymentTypes.EVENTS_NAMES;
+  /** The list of ERC20 tokens addresses accepted for payments and refunds OR undefined for native tokens (e.g. ETH) */
+  acceptedTokens?: string[];
+};
+
+export type ConversionTransferEventsParams = TransferEventsParams & {
+  /** The maximum span between the time the rate was fetched and the payment */
+  maxRateTimespan?: number;
+  /** Request denomination (usually fiat) */
+  requestCurrency: CurrencyDefinition;
+};
+
 export interface IPaymentRetriever<
   TPaymentNetworkEvent extends PaymentTypes.IPaymentNetworkEvent<unknown, TEventNames>,
   TEventNames = PaymentTypes.EVENTS_NAMES,
