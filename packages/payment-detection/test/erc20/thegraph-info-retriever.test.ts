@@ -56,7 +56,7 @@ describe('api/erc20/thegraph-info-retriever', () => {
           escrowEvents: [],
         })),
         GetAnyToNativePayments: jest.fn(),
-        GetAnyToFungiblePaymentsAndEscrowState: jest.fn(),
+        GetAnyToFungiblePayments: jest.fn(),
         GetLastSyncedBlock: jest.fn(),
         GetSyncedBlock: jest.fn(),
       };

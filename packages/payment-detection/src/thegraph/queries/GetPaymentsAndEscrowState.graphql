@@ -51,7 +51,8 @@ query GetPaymentsAndEscrowState(
   }
 }
 
-query GetAnyToFungiblePaymentsAndEscrowState(
+# AnyToErc20 payments: denominated in request $currency payable with many token addresses
+query GetAnyToFungiblePayments(
   $reference: Bytes!
   $to: Bytes!
   $currency: Bytes!
@@ -71,11 +72,9 @@ query GetAnyToFungiblePaymentsAndEscrowState(
   ) {
     ...PaymentEventResult
   }
-  escrowEvents(where: { reference: $reference }, orderBy: timestamp, orderDirection: asc) {
-    ...EscrowEventResult
-  }
 }
 
+# AnyToETH payments: denominated in request $currency payable with the EVM native token
 query GetAnyToNativePayments(
   $reference: Bytes!
   $to: Bytes!

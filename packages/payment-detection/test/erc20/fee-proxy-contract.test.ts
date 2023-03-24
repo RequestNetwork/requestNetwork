@@ -410,7 +410,7 @@ describe('api/erc20/fee-proxy-contract', () => {
       advancedLogic: mockAdvancedLogic,
       currencyManager,
       getSubgraphClient: () => ({
-        GetAnyToFungiblePaymentsAndEscrowState: jest.fn().mockImplementation(({ reference }) => ({
+        GetAnyToFungiblePayments: jest.fn().mockImplementation(({ reference }) => ({
           payments: [
             {
               contractAddress: '0x370de27fdb7d1ff1e1baa7d11c5820a324cf623c',
@@ -431,7 +431,6 @@ describe('api/erc20/fee-proxy-contract', () => {
               maxRateTimespan: null,
             },
           ].filter((x) => x.reference.toLowerCase() === reference.toLowerCase()),
-          escrowEvents: [],
         })),
         GetAnyToNativePayments: jest.fn(),
         GetPaymentsAndEscrowState: jest.fn(),

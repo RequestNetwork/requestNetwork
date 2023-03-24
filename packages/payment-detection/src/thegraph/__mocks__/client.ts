@@ -5,7 +5,7 @@ export const theGraphClient: TheGraphClient = {
   GetPaymentsAndEscrowState: jest.fn(),
   GetPaymentsAndEscrowStateForReceivables: jest.fn(),
   GetSyncedBlock: jest.fn(),
-  GetAnyToFungiblePaymentsAndEscrowState: jest.fn(),
+  GetAnyToFungiblePayments: jest.fn(),
   GetAnyToNativePayments: jest.fn(),
 };
 export const getTheGraphClient = () => theGraphClient;
