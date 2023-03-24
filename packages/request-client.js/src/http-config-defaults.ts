@@ -8,9 +8,9 @@ const config: ClientTypes.IHttpDataAccessConfig = {
   httpRequestMaxExponentialBackoffDelay: 30000,
   getConfirmationMaxRetry: 500,
   getConfirmationRetryDelay: 3000,
-  getConfirmationDeferDelay: 3000,
   getConfirmationExponentialBackoffDelay: 0,
   getConfirmationMaxExponentialBackoffDelay: 30000,
+  getConfirmationDeferDelay: 3000,
 };
 
 export default config;
