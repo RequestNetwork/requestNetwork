@@ -23,9 +23,9 @@ export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = Tr
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
     const { payments, escrowEvents } = await this.client.GetPaymentsAndEscrowState({
       reference: utils.keccak256(`0x${params.paymentReference}`),
-      to: params.toAddress,
+      to: params.toAddress.toLowerCase(),
       tokenAddress: params.acceptedTokens ? params.acceptedTokens[0].toLowerCase() : null,
-      contractAddress: params.contractAddress,
+      contractAddress: params.contractAddress.toLowerCase(),
     });
 
     return {
