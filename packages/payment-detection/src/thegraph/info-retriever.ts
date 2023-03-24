@@ -21,6 +21,9 @@ export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = Tr
   public async getTransferEvents(
     params: TGraphQuery,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
+    if (params.acceptedTokens && params.acceptedTokens.length > 1) {
+      throw new Error('TheGraphInfoRetriever can only be called with no or 1 acceptedToken.');
+    }
     const { payments, escrowEvents } = await this.client.GetPaymentsAndEscrowState({
       reference: utils.keccak256(`0x${params.paymentReference}`),
       to: params.toAddress.toLowerCase(),
@@ -43,31 +46,9 @@ export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = Tr
     });
 
     return {
-      paymentEvents: payments
-        .filter((payment) => this.filterPaymentEvents(payment, params))
-        .map((payment) => this.mapPaymentEvents(payment, params)),
+      paymentEvents: payments.map((payment) => this.mapPaymentEvents(payment, params)),
       escrowEvents: escrowEvents.map((escrow) => this.mapEscrowEvents(escrow, params)),
     };
-  }
-
-  protected filterPaymentEvents(
-    payment: PaymentEventResultFragment,
-    params: TransferEventsParams,
-  ): boolean {
-    // Check contract address matches expected
-    if (formatAddress(payment.contractAddress) !== formatAddress(params.contractAddress)) {
-      return false;
-    }
-    // Check paid token tokens matches expected (conversion only)
-    if (
-      payment.tokenAddress &&
-      params.acceptedTokens &&
-      params.acceptedTokens.length > 0 &&
-      !params.acceptedTokens?.includes(formatAddress(payment.tokenAddress, 'tokenAddress'))
-    ) {
-      return false;
-    }
-    return true;
   }
 
   protected mapPaymentEvents(

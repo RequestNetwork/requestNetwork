@@ -30,10 +30,11 @@
     "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint \"test/**/*.ts\"",
     "test": "run-s test:node test:layers",
-    "test:scheduled": "run-s test:erc20 test:any test:erc777 test:btc ",
+    "test:scheduled": "run-s test:erc20 test:any test:erc777 test:eth test:btc ",
     "test:layers": "jest test/layers.test.ts  --forceExit",
     "test:node": "jest test/node-client.test.ts --forceExit",
     "test:any": "jest test/scheduled/any*.test.ts --forceExit",
+    "test:eth": "jest test/scheduled/eth*.test.ts --forceExit",
     "test:erc20": "jest test/scheduled/erc20*.test.ts --forceExit",
     "test:erc777": "jest test/scheduled/erc777*.test.ts --forceExit",
     "test:btc": "jest test/scheduled/btc.test.ts --forceExit"
