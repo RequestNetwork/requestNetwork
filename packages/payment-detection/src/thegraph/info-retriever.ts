@@ -34,6 +34,7 @@ export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = Tr
     };
   }
 
+  // FIXME: this method should probably have the same filter as `getTransferEvents`.
   public async getReceivableEvents(
     params: TGraphQuery,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {

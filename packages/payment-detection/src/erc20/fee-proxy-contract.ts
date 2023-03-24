@@ -110,6 +110,7 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
         toAddress,
         contractAddress: proxyContractAddress,
         paymentChain,
+        acceptedTokens: [requestCurrency.value],
       });
     } else {
       const proxyInfoRetriever = new ProxyInfoRetriever(
