@@ -1,5 +1,5 @@
 import { CurrencyManager } from '@requestnetwork/currency';
-import { TheGraphInfoRetriever } from '../../src/thegraph';
+import { TheGraphClient, TheGraphInfoRetriever } from '../../src/thegraph';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { ERC20TransferableReceivablePaymentDetector } from '../../src/erc20';
 import {
@@ -445,7 +445,7 @@ describe('api/erc20/transferable-receivable-contract', () => {
       ],
     };
 
-    const clientMock = {
+    const clientMock: TheGraphClient = {
       GetPaymentsAndEscrowState: jest.fn().mockImplementation(({}) => ({
         payments: [],
         escrowEvents: [],
@@ -456,6 +456,8 @@ describe('api/erc20/transferable-receivable-contract', () => {
       })),
       GetLastSyncedBlock: jest.fn(),
       GetSyncedBlock: jest.fn(),
+      GetAnyToFungiblePayments: jest.fn(),
+      GetAnyToNativePayments: jest.fn(),
     };
 
     erc20TransferableReceivable = new ERC20TransferableReceivablePaymentDetector({
