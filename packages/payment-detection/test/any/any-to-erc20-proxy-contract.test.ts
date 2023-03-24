@@ -370,7 +370,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       version: '0.2',
     };
 
-    theGraphClientMock.GetPaymentsAndEscrowState.mockResolvedValue({
+    theGraphClientMock.GetAnyToFungiblePaymentsAndEscrowState.mockResolvedValue({
       payments: [
         {
           amount: '100000000',

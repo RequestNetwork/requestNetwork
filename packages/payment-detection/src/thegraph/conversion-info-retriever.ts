@@ -8,7 +8,7 @@ import { formatAddress, unpadAmountFromChainlink } from '../utils';
 import { ConversionTransferEventsParams } from '../types';
 
 /**
- * TheGraph info retriever for conversion payments on EVMs
+ * TheGraph info retriever for conversion payments on EVMs, with no escrow support
  */
 export class TheGraphConversionInfoRetriever extends TheGraphInfoRetriever<ConversionTransferEventsParams> {
   constructor(
@@ -21,15 +21,20 @@ export class TheGraphConversionInfoRetriever extends TheGraphInfoRetriever<Conve
   public async getTransferEvents(
     params: ConversionTransferEventsParams,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
-    const { payments } = await this.client.GetAnyToFungiblePaymentsAndEscrowState({
-      reference: utils.keccak256(`0x${params.paymentReference}`),
-      to: params.toAddress.toLowerCase(),
-      currency: params.requestCurrency.hash.toLowerCase(),
-      acceptedTokens: params.acceptedTokens
-        ? params.acceptedTokens.map((t) => t.toLowerCase())
-        : [null],
-      contractAddress: params.contractAddress.toLowerCase(),
-    });
+    const { payments } = params.acceptedTokens
+      ? await this.client.GetAnyToFungiblePaymentsAndEscrowState({
+          reference: utils.keccak256(`0x${params.paymentReference}`),
+          to: params.toAddress.toLowerCase(),
+          currency: params.requestCurrency.hash.toLowerCase(),
+          acceptedTokens: params.acceptedTokens.map((t) => t.toLowerCase()),
+          contractAddress: params.contractAddress.toLowerCase(),
+        })
+      : await this.client.GetAnyToNativePayments({
+          reference: utils.keccak256(`0x${params.paymentReference}`),
+          to: params.toAddress.toLowerCase(),
+          currency: params.requestCurrency.hash.toLowerCase(),
+          contractAddress: params.contractAddress.toLowerCase(),
+        });
 
     params.acceptedTokens =
       params.acceptedTokens?.map((tok) => formatAddress(tok, 'acceptedTokens')) || [];
