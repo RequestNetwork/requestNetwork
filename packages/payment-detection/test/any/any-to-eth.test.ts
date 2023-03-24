@@ -117,7 +117,7 @@ describe('Any to ETH payment detection', () => {
   });
 
   it('TheGraph Payment detection', async () => {
-    theGraphClientMock.GetPaymentsAndEscrowState.mockResolvedValue({
+    theGraphClientMock.GetAnyToNativePayments.mockResolvedValue({
       payments: [
         {
           amount: '5000000000',
@@ -138,7 +138,6 @@ describe('Any to ETH payment detection', () => {
           to: '0x0E8d9cb9e11278AD6E2bA1Ca90385C7295dC6532',
         },
       ],
-      escrowEvents: [],
     });
 
     const currencyManager = CurrencyManager.getDefault();

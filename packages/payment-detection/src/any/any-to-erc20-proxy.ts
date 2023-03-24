@@ -7,7 +7,7 @@ import {
 } from '@requestnetwork/types';
 import { ERC20FeeProxyPaymentDetectorBase } from '../erc20/fee-proxy-contract';
 import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy';
-import { TheGraphInfoRetriever } from '../thegraph';
+import { TheGraphConversionInfoRetriever } from '../thegraph/conversion-info-retriever';
 import { makeGetDeploymentInformation } from '../utils';
 import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
 import { generate8randomBytes } from '@requestnetwork/utils';
@@ -105,7 +105,10 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
 
     const subgraphClient = this.getSubgraphClient(paymentChain);
     if (subgraphClient) {
-      const infoRetriever = new TheGraphInfoRetriever(subgraphClient, this.currencyManager);
+      const infoRetriever = new TheGraphConversionInfoRetriever(
+        subgraphClient,
+        this.currencyManager,
+      );
       return await infoRetriever.getTransferEvents({
         paymentReference,
         contractAddress: conversionProxyContractAddress,
@@ -114,6 +117,7 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
         paymentChain,
         acceptedTokens,
         maxRateTimespan,
+        requestCurrency: currency,
       });
     }
 

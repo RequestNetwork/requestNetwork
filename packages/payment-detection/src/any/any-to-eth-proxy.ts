@@ -11,7 +11,7 @@ import { EvmChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
 import { AnyToAnyDetector } from '../any-to-any-detector';
 import { makeGetDeploymentInformation } from '../utils';
-import { TheGraphInfoRetriever } from '../thegraph';
+import { TheGraphConversionInfoRetriever } from '../thegraph/conversion-info-retriever';
 import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
 
 // interface of the object indexing the proxy contract version
@@ -84,7 +84,10 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
 
     const subgraphClient = this.getSubgraphClient(paymentChain);
     if (subgraphClient) {
-      const infoRetriever = new TheGraphInfoRetriever(subgraphClient, this.currencyManager);
+      const infoRetriever = new TheGraphConversionInfoRetriever(
+        subgraphClient,
+        this.currencyManager,
+      );
       return await infoRetriever.getTransferEvents({
         paymentReference,
         contractAddress: contractInfo.address,
@@ -92,6 +95,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
         eventName,
         paymentChain,
         maxRateTimespan: paymentNetwork.values?.maxRateTimespan,
+        requestCurrency: currency,
       });
     }
 
