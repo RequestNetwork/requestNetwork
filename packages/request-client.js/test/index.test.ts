@@ -32,7 +32,7 @@ const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = {
   getConfirmationDeferDelay: 0,
 };
 
-const encryptionData = {
+const idRaw1 = {
   decryptionParams: {
     key: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
     method: EncryptionTypes.METHOD.ECIES,
@@ -47,21 +47,74 @@ const encryptionData = {
   },
 };
 
+const idRaw2 = {
+  decryptionParams: {
+    key: '0x0906ff14227cead2b25811514302d57706e7d5013fcc40eca5985b216baeb998',
+    method: EncryptionTypes.METHOD.ECIES,
+  },
+  encryptionParams: {
+    key: '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
+    method: EncryptionTypes.METHOD.ECIES,
+  },
+  identity: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+  },
+};
+
+const idRaw3 = {
+  decryptionParams: {
+    key: '0x4025da5692759add08f98f4b056c41c71916a671cedc7584a80d73adc7fb43c0',
+    method: EncryptionTypes.METHOD.ECIES,
+  },
+  encryptionParams: {
+    key: 'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
+    method: EncryptionTypes.METHOD.ECIES,
+  },
+  identity: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: '0x818b6337657a23f58581715fc610577292e521d0',
+  },
+};
+
 const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider = {
   decrypt: (
     data: EncryptionTypes.IEncryptedData,
     identity: IdentityTypes.IIdentity,
   ): Promise<string> => {
     switch (identity.value.toLowerCase()) {
-      case encryptionData.identity.value:
-        return decrypt(data, encryptionData.decryptionParams);
+      case idRaw1.identity.value:
+        return decrypt(data, idRaw1.decryptionParams);
+
+      case idRaw2.identity.value:
+        return decrypt(data, idRaw2.decryptionParams);
 
       default:
         throw new Error('Identity not registered');
     }
   },
   isIdentityRegistered: async (identity: IdentityTypes.IIdentity): Promise<boolean> => {
-    return [encryptionData.identity.value].includes(identity.value.toLowerCase());
+    return [idRaw1.identity.value, idRaw2.identity.value].includes(identity.value.toLowerCase());
+  },
+  supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
+  supportedMethods: [EncryptionTypes.METHOD.ECIES],
+};
+
+const thirdPartyDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider = {
+  decrypt: (
+    data: EncryptionTypes.IEncryptedData,
+    identity: IdentityTypes.IIdentity,
+  ): Promise<string> => {
+    switch (identity.value.toLowerCase()) {
+      case idRaw3.identity.value:
+        return decrypt(data, idRaw3.decryptionParams);
+
+      default:
+        throw new Error('Identity not registered');
+    }
+  },
+  isIdentityRegistered: async (identity: IdentityTypes.IIdentity): Promise<boolean> => {
+    return [idRaw3.identity.value].includes(identity.value.toLowerCase());
   },
   supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
   supportedMethods: [EncryptionTypes.METHOD.ECIES],
@@ -793,7 +846,7 @@ describe('request-client.js', () => {
           requestInfo: TestData.parametersWithoutExtensionsData,
           signer: TestData.payee.identity,
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
 
       const requestFromId = await requestNetwork.fromRequestId(request.requestId);
@@ -838,7 +891,7 @@ describe('request-client.js', () => {
           signer: TestData.payee.identity,
           topics: ['my amazing test topic'],
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
 
       const requestsFromTopic = await requestNetwork.fromTopic('my amazing test topic');
@@ -863,7 +916,7 @@ describe('request-client.js', () => {
           signer: TestData.payee.identity,
           topics: ['my amazing test topic'],
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
 
       const request2 = await requestNetwork._createEncryptedRequest(
@@ -875,7 +928,7 @@ describe('request-client.js', () => {
           signer: TestData.payee.identity,
           topics: ['my second best test topic'],
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
 
       const requestsFromTopic = await requestNetwork.fromMultipleTopics([
@@ -906,7 +959,7 @@ describe('request-client.js', () => {
           signer: TestData.payee.identity,
           topics: ['my amazing test topic'],
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
 
       const requestFromIdentity = await requestNetwork.fromIdentity(TestData.payee.identity);
@@ -930,7 +983,7 @@ describe('request-client.js', () => {
           requestInfo: TestData.parametersWithoutExtensionsData,
           signer: TestData.payee.identity,
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
       await request.waitForConfirmation();
 
@@ -963,7 +1016,7 @@ describe('request-client.js', () => {
           requestInfo: TestData.parametersWithoutExtensionsData,
           signer: TestData.payee.identity,
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
@@ -994,7 +1047,7 @@ describe('request-client.js', () => {
           requestInfo: TestData.parametersWithoutExtensionsData,
           signer: TestData.payee.identity,
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
@@ -1038,7 +1091,7 @@ describe('request-client.js', () => {
           requestInfo: TestData.parametersWithoutExtensionsData,
           signer: TestData.payee.identity,
         },
-        [encryptionData.encryptionParams],
+        [idRaw1.encryptionParams],
       );
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
@@ -1074,6 +1127,58 @@ describe('request-client.js', () => {
       expect(declareReceivedPaymentResult.balance!.balance).toBe(
         TestData.parametersWithoutExtensionsData.expectedAmount,
       );
+    });
+
+    it('creates an encrypted request, adds a stakeholder, and fetches request by id using 2nd request network instance', async () => {
+      const mockStorage = new MockStorage();
+      const mockDataAccess = new MockDataAccess(mockStorage);
+
+      const payeeRequestNetwork = new RequestNetworkBase({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: TestData.fakeSignatureProvider,
+        dataAccess: mockDataAccess,
+      });
+
+      // Create encrypted request with 2 stakeholders
+      const request = await payeeRequestNetwork._createEncryptedRequest(
+        {
+          requestInfo: TestData.parametersWithoutExtensionsData,
+          signer: TestData.payee.identity,
+        },
+        [idRaw1.encryptionParams, idRaw2.encryptionParams],
+      );
+      const fetchedRequest = await payeeRequestNetwork.fromRequestId(request.requestId);
+      const requestData = fetchedRequest.getData();
+      expect(requestData).toMatchObject(request.getData());
+      expect(requestData.meta).not.toBeNull();
+      expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
+      expect(requestData.events).toHaveLength(1);
+      expect(requestData.events[0].name).toBe('create');
+
+      // Add a 3rd stakeholder
+      const requestDataAfterAddStakeholders = await waitForConfirmation(
+        fetchedRequest.addStakeholders([idRaw3.encryptionParams], TestData.payee.identity),
+      );
+      expect(requestDataAfterAddStakeholders.state).toBe(RequestLogicTypes.STATE.CREATED);
+      expect(requestDataAfterAddStakeholders.meta).not.toBeNull();
+      expect(requestDataAfterAddStakeholders.meta!.transactionManagerMeta.encryptionMethod).toBe(
+        'ecies-aes256-gcm',
+      );
+      expect(requestDataAfterAddStakeholders.events).toHaveLength(2);
+      expect(requestDataAfterAddStakeholders.events[1].name).toBe('addStakeholders');
+
+      // Fetch request by id using third party request network instance
+      const thirdPartyRequestNetwork = new RequestNetworkBase({
+        decryptionProvider: thirdPartyDecryptionProvider,
+        signatureProvider: TestData.fakeSignatureProvider,
+        dataAccess: mockDataAccess,
+      });
+      const thirdPartyFetchedRequest = await thirdPartyRequestNetwork.fromRequestId(
+        request.requestId,
+      );
+      const thirdPartyRequestData = thirdPartyFetchedRequest.getData();
+
+      expect(thirdPartyRequestData).toMatchObject(requestDataAfterAddStakeholders);
     });
   });
 

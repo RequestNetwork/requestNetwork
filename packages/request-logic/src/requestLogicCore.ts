@@ -8,6 +8,7 @@ import CancelAction from './actions/cancel';
 import CreateAction from './actions/create';
 import IncreaseExpectedAmountAction from './actions/increaseExpectedAmount';
 import ReduceExpectedAmountAction from './actions/reduceExpectedAmount';
+import AddStakeholdersAction from './actions/addStakeholders';
 import { deepCopy } from '@requestnetwork/utils';
 
 /**
@@ -21,6 +22,7 @@ export default {
   formatCreate: CreateAction.format,
   formatIncreaseExpectedAmount: IncreaseExpectedAmountAction.format,
   formatReduceExpectedAmount: ReduceExpectedAmountAction.format,
+  formatAddStakeholders: AddStakeholdersAction.format,
   getRequestIdFromAction,
 };
 
@@ -82,6 +84,14 @@ function applyActionToRequest(
 
     if (action.data.name === RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT) {
       requestAfterApply = ReduceExpectedAmountAction.applyActionToRequest(
+        action,
+        timestamp,
+        requestCopied,
+      );
+    }
+
+    if (action.data.name === RequestLogicTypes.ACTION_NAME.ADD_STAKEHOLDERS) {
+      requestAfterApply = AddStakeholdersAction.applyActionToRequest(
         action,
         timestamp,
         requestCopied,

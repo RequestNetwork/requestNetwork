@@ -5,6 +5,7 @@ import {
 } from '@requestnetwork/payment-detection';
 import {
   CurrencyTypes,
+  EncryptionTypes,
   IdentityTypes,
   PaymentTypes,
   RequestLogicTypes,
@@ -287,6 +288,44 @@ export default class Request {
     );
 
     return this.handleRequestDataEvents(reduceExpectedResult);
+  }
+
+  /**
+   * Adds stakeholders to a request
+   *
+   * @param IEncryptionParameters encryptionParams list of addtional encryption parameters to encrypt the channel key with
+   * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @param refundInformation refund information to add (any because it is specific to the payment network used by the request)
+   * @returns The updated request
+   */
+  public async addStakeholders(
+    encryptionParams: EncryptionTypes.IEncryptionParameters[],
+    signerIdentity: IdentityTypes.IIdentity,
+    refundInformation?: any,
+  ): Promise<Types.IRequestDataWithEvents> {
+    const extensionsData: any[] = [];
+    if (refundInformation) {
+      if (!this.paymentNetwork) {
+        throw new Error('Cannot add refund information without payment network');
+      }
+      extensionsData.push(
+        this.paymentNetwork.createExtensionsDataForAddRefundInformation(refundInformation),
+      );
+    }
+
+    const parameters: RequestLogicTypes.IAddStakeholdersParameters = {
+      extensionsData,
+      requestId: this.requestId,
+    };
+
+    const addStakeholdersResult = await this.requestLogic.addStakeholders(
+      parameters,
+      signerIdentity,
+      encryptionParams,
+      true,
+    );
+
+    return this.handleRequestDataEvents(addStakeholdersResult);
   }
 
   /**
