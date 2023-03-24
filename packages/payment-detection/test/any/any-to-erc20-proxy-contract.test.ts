@@ -370,7 +370,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       version: '0.2',
     };
 
-    theGraphClientMock.GetPaymentsAndEscrowState.mockResolvedValue({
+    theGraphClientMock.GetAnyToFungiblePayments.mockResolvedValue({
       payments: [
         {
           amount: '100000000',
@@ -391,7 +391,6 @@ describe('api/any/conversion-fee-proxy-contract', () => {
           to: '0x98f32171d88f9511b397809534ee42acfce4f640',
         },
       ],
-      escrowEvents: [],
     });
 
     const balance = await anyToErc20Proxy.getBalance(mockRequest);

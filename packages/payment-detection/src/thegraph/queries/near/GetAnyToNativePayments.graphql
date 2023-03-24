@@ -1,4 +1,4 @@
-query GetNearConversionPayments(
+query GetAnyToNativePayments(
   $reference: String!
   $to: String!
   $currency: String!

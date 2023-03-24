@@ -1,43 +1,18 @@
-import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
+import { PaymentTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { utils } from 'ethers';
 import { pick, mapValues } from 'lodash';
 import type { TheGraphClient } from '.';
 import type { EscrowEventResultFragment, PaymentEventResultFragment } from './generated/graphql';
 import { formatAddress, unpadAmountFromChainlink } from '../utils';
-
-export type TransferEventsParams = {
-  /** The reference to identify the payment*/
-  paymentReference: string;
-  /** The recipient of the transfer */
-  toAddress: string;
-  /** The address of the payment proxy */
-  contractAddress: string;
-  /** The chain to check for payment */
-  paymentChain: CurrencyTypes.VMChainName;
-  /** Indicates if it is an address for payment or refund */
-  eventName: PaymentTypes.EVENTS_NAMES;
-  /** The list of ERC20 tokens addresses accepted for payments and refunds */
-  acceptedTokens?: string[];
-  /** The maximum span between the time the rate was fetched and the payment */
-  maxRateTimespan?: number;
-};
-
-export interface ITheGraphBaseInfoRetriever<
-  TPaymentEvent extends PaymentTypes.IETHPaymentEventParameters,
-> {
-  getTransferEvents(
-    params: TransferEventsParams,
-  ): Promise<PaymentTypes.AllNetworkEvents<TPaymentEvent>>;
-}
+import { TransferEventsParams, ITheGraphBaseInfoRetriever } from '../types';
 
 /**
- * TheGraph info retriever for EVMs
+ * TheGraph info retriever for payments without conversion on EVMs
  */
-export class TheGraphInfoRetriever
+export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = TransferEventsParams>
   implements ITheGraphBaseInfoRetriever<PaymentTypes.IERC20FeePaymentEventParameters>
 {
-  // {
   constructor(
     protected readonly client: TheGraphClient,
     protected readonly currencyManager: ICurrencyManager,
@@ -45,70 +20,47 @@ export class TheGraphInfoRetriever
 
   // TODO No filter on the denomination currency for conversion ??
   public async getTransferEvents(
-    params: TransferEventsParams,
+    params: TGraphQuery,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
+    if (params.acceptedTokens && params.acceptedTokens.length > 1) {
+      throw new Error('TheGraphInfoRetriever only supports no or 1 acceptedToken.');
+    }
     const { payments, escrowEvents } = await this.client.GetPaymentsAndEscrowState({
       reference: utils.keccak256(`0x${params.paymentReference}`),
-      to: params.toAddress,
+      to: params.toAddress.toLowerCase(),
+      tokenAddress: params.acceptedTokens ? params.acceptedTokens[0].toLowerCase() : null,
+      contractAddress: params.contractAddress.toLowerCase(),
     });
 
-    params.contractAddress = formatAddress(params.contractAddress, 'contractAddress');
-    params.acceptedTokens =
-      params.acceptedTokens?.map((tok) => formatAddress(tok, 'acceptedTokens')) || [];
     return {
-      paymentEvents: payments
-        .filter((payment) => this.filterPaymentEvents(payment, params))
-        .map((payment) => this.mapPaymentEvents(payment, params)),
+      paymentEvents: payments.map((payment) => this.mapPaymentEvents(payment, params)),
       escrowEvents: escrowEvents.map((escrow) => this.mapEscrowEvents(escrow, params)),
     };
   }
 
+  // FIXME: this method should probably have the same filter as `getTransferEvents`.
   public async getReceivableEvents(
-    params: TransferEventsParams,
+    params: TGraphQuery,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
+    if (params.acceptedTokens && params.acceptedTokens.length > 1) {
+      throw new Error('TheGraphInfoRetriever only supports no or 1 acceptedToken.');
+    }
     const { payments, escrowEvents } = await this.client.GetPaymentsAndEscrowStateForReceivables({
       reference: utils.keccak256(`0x${params.paymentReference}`),
+      tokenAddress: params.acceptedTokens ? params.acceptedTokens[0].toLowerCase() : null,
+      contractAddress: params.contractAddress.toLowerCase(),
     });
 
-    params.contractAddress = formatAddress(params.contractAddress, 'contractAddress');
-    params.acceptedTokens =
-      params.acceptedTokens?.map((tok) => formatAddress(tok, 'acceptedTokens')) || [];
-
     return {
-      paymentEvents: payments
-        .filter((payment) => this.filterPaymentEvents(payment, params))
-        .map((payment) => this.mapPaymentEvents(payment, params)),
+      paymentEvents: payments.map((payment) => this.mapPaymentEvents(payment, params)),
       escrowEvents: escrowEvents.map((escrow) => this.mapEscrowEvents(escrow, params)),
     };
   }
 
-  private filterPaymentEvents(payment: PaymentEventResultFragment, params: TransferEventsParams) {
-    // Check contract address matches expected
-    if (formatAddress(payment.contractAddress) !== formatAddress(params.contractAddress)) {
-      return false;
-    }
-    // Check paid token tokens matches expected (conversion only)
-    if (
-      payment.tokenAddress &&
-      params.acceptedTokens &&
-      params.acceptedTokens.length > 0 &&
-      !params.acceptedTokens?.includes(formatAddress(payment.tokenAddress, 'tokenAddress'))
-    ) {
-      return false;
-    }
-    // Check payment was done within expected delays (conversion only)
-    if (
-      payment.maxRateTimespan !== undefined &&
-      payment.maxRateTimespan !== null &&
-      params.maxRateTimespan !== undefined &&
-      payment.maxRateTimespan < params.maxRateTimespan
-    ) {
-      return false;
-    }
-    return true;
-  }
-
-  private mapPaymentEvents(payment: PaymentEventResultFragment, params: TransferEventsParams) {
+  protected mapPaymentEvents(
+    payment: PaymentEventResultFragment,
+    params: TGraphQuery,
+  ): PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters> {
     let amount: string = payment.amount;
     let feeAmount: string = payment.feeAmount;
 
@@ -152,7 +104,7 @@ export class TheGraphInfoRetriever
     };
   }
 
-  private mapEscrowEvents(escrow: EscrowEventResultFragment, params: TransferEventsParams) {
+  private mapEscrowEvents(escrow: EscrowEventResultFragment, params: TGraphQuery) {
     return {
       name: PaymentTypes.EVENTS_NAMES.ESCROW,
       timestamp: escrow.timestamp,
