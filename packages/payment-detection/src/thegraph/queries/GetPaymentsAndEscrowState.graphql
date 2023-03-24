@@ -97,8 +97,16 @@ query GetAnyToNativePayments(
 }
 
 # Receivables can be transferred to different owners, so searching by to could drop balance events.
-query GetPaymentsAndEscrowStateForReceivables($reference: Bytes!) {
-  payments(where: { reference: $reference }, orderBy: timestamp, orderDirection: asc) {
+query GetPaymentsAndEscrowStateForReceivables(
+  $reference: Bytes!
+  $tokenAddress: Bytes!
+  $contractAddress: Bytes!
+) {
+  payments(
+    where: { reference: $reference, tokenAddress: $tokenAddress, contractAddress: $contractAddress }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
     ...PaymentEventResult
   }
   escrowEvents(where: { reference: $reference }, orderBy: timestamp, orderDirection: asc) {

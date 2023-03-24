@@ -397,21 +397,6 @@ describe('api/erc20/transferable-receivable-contract', () => {
 
     const paymentsMockData = {
       [hashedReference as string]: [
-        // Correct reference but incorrect contract
-        {
-          contractAddress: '0x186e7fe6c34ea0eca7f9c2fd29651fc0443e3f32',
-          to: paymentAddress,
-          from: '0x186e7fe6c34ea0eca7f9c2fd29651fc0443e3f29',
-          amount: '30000000000000',
-          feeAmount: '0',
-          reference: hashedReference,
-          block: 9606098,
-          txHash: '0x3e2d6cc2534b1d340ba2954f34e6cc819d6da64ff76863ea89c6d34b15d13c97',
-          feeAddress: feeAddress,
-          gasPrice: '',
-          gasUsed: '',
-          timestamp: 1,
-        },
         // Correct reference and contract
         {
           contractAddress: erc20LocalhostContractAddress,

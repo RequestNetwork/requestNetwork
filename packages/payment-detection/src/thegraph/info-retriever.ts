@@ -22,7 +22,7 @@ export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = Tr
     params: TGraphQuery,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
     if (params.acceptedTokens && params.acceptedTokens.length > 1) {
-      throw new Error('TheGraphInfoRetriever can only be called with no or 1 acceptedToken.');
+      throw new Error('TheGraphInfoRetriever only supports no or 1 acceptedToken.');
     }
     const { payments, escrowEvents } = await this.client.GetPaymentsAndEscrowState({
       reference: utils.keccak256(`0x${params.paymentReference}`),
@@ -41,8 +41,13 @@ export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = Tr
   public async getReceivableEvents(
     params: TGraphQuery,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
+    if (params.acceptedTokens && params.acceptedTokens.length > 1) {
+      throw new Error('TheGraphInfoRetriever only supports no or 1 acceptedToken.');
+    }
     const { payments, escrowEvents } = await this.client.GetPaymentsAndEscrowStateForReceivables({
       reference: utils.keccak256(`0x${params.paymentReference}`),
+      tokenAddress: params.acceptedTokens ? params.acceptedTokens[0].toLowerCase() : null,
+      contractAddress: params.contractAddress.toLowerCase(),
     });
 
     return {
