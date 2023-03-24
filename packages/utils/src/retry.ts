@@ -5,7 +5,7 @@ const DEFAULT_MAX_RETRIES = 5;
 const DEFAULT_RETRY_DELAY = 100;
 
 // Default exponential backoff delay increment
-const DEFAULT_EXPONENTIAL_BACKOFF_DELAY = 1000;
+const DEFAULT_EXPONENTIAL_BACKOFF_DELAY = 0;
 
 // Maximum exponential backoff delay allowed
 const DEFAULT_MAX_EXPONENTIAL_BACKOFF_DELAY = 30000;
@@ -18,6 +18,8 @@ const DEFAULT_MAX_EXPONENTIAL_BACKOFF_DELAY = 30000;
  * @param [options.context] The context to run the function
  * @param [options.maxRetries=DEFAULT_MAX_RETRIES] The maximum amount of retries for the function
  * @param [options.retryDelay=DEFAULT_RETRY_DELAY] The delay between retries
+ * @param [options.exponentialBackoffDelay=DEFAULT_EXPONENTIAL_BACKOFF_DELAY] The exponential backoff delay increment
+ * @param [options.maxExponentialBackoffDelay=DEFAULT_MAX_EXPONENTIAL_BACKOFF_DELAY] The maximum exponential backoff delay allowed
  */
 const retry = <TParams extends unknown[], TReturn>(
   target: (...params: TParams) => TReturn | Promise<TReturn>,

@@ -119,6 +119,8 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
           {
             maxRetries: this.httpConfig.getConfirmationMaxRetry,
             retryDelay: this.httpConfig.getConfirmationRetryDelay,
+            exponentialBackoffDelay: this.httpConfig.getConfirmationExponentialBackoffDelay,
+            maxExponentialBackoffDelay: this.httpConfig.getConfirmationMaxExponentialBackoffDelay,
           },
         );
         // when found, emit the event 'confirmed'
@@ -191,7 +193,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    *
    * @param url HTTP GET request url
    * @param params HTTP GET request parameters
-   * @param retryConfig Maximum retry count and delay between retries
+   * @param retryConfig Maximum retry count, delay between retries, exponential backoff delay, and maximum exponential backoff delay
    */
   protected async fetchAndRetry(
     url: string,
@@ -199,10 +201,17 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     retryConfig: {
       maxRetries?: number;
       retryDelay?: number;
+      exponentialBackoffDelay?: number;
+      maxExponentialBackoffDelay?: number;
     } = {},
   ): Promise<any> {
     retryConfig.maxRetries = retryConfig.maxRetries ?? this.httpConfig.httpRequestMaxRetry;
     retryConfig.retryDelay = retryConfig.retryDelay ?? this.httpConfig.httpRequestRetryDelay;
+    retryConfig.exponentialBackoffDelay =
+      retryConfig.exponentialBackoffDelay ?? this.httpConfig.httpRequestExponentialBackoffDelay;
+    retryConfig.maxExponentialBackoffDelay =
+      retryConfig.maxExponentialBackoffDelay ??
+      this.httpConfig.httpRequestMaxExponentialBackoffDelay;
     const { data } = await retry(
       async () => axios.get(url, { ...this.axiosConfig, params }),
       retryConfig,
