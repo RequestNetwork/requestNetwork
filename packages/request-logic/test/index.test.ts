@@ -843,6 +843,51 @@ describe('index', () => {
     });
   });
 
+  describe('addStakeholders', () => {
+    it('can addStakeholders', async () => {
+      const addStakeholdersRequest = {
+        requestId,
+      };
+      const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
+      const ret = await requestLogic.addStakeholders(
+        addStakeholdersRequest,
+        TestData.payeeRaw.identity,
+        [TestData.otherIdRaw.encryptionParams],
+      );
+
+      ret.on('confirmed', (resultConfirmed1) => {
+        // 'result Confirmed wrong'
+        expect(resultConfirmed1).toEqual({
+          meta: {
+            transactionManagerMeta: {
+              storageDataId: 'fakeDataId',
+            },
+          },
+        });
+      });
+
+      // 'ret.result is wrong'
+      expect(ret.result).toBeUndefined();
+      expect(ret.meta).toEqual({
+        transactionManagerMeta: fakeMetaTransactionManager.meta,
+      });
+
+      const data = {
+        name: RequestLogicTypes.ACTION_NAME.ADD_STAKEHOLDERS,
+        parameters: addStakeholdersRequest,
+        version: CURRENT_VERSION,
+      };
+      const actionExpected = TestData.fakeSignatureProvider.sign(data, TestData.payeeRaw.identity);
+
+      expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
+        JSON.stringify(actionExpected),
+        requestId,
+        undefined,
+        [TestData.otherIdRaw.encryptionParams],
+      );
+    });
+  });
+
   describe('addExtensionsDataRequest', () => {
     it('can addExtensionsDataRequest', async () => {
       const addExtRequest = {

@@ -194,7 +194,7 @@ export type ERC777BalanceWithEvents = IBalanceWithEvents<IERC777PaymentEventPara
  * ERC20 networks and events
  */
 
-/** Parameters for events of ERC20 payments */
+/** Parameters detectable payment events */
 export interface GenericEventParameters {
   block?: number;
   txHash?: string;
