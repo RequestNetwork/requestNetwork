@@ -92,7 +92,9 @@ export interface ISupportedPaymentNetworkByCurrency<
   [currency: string]: ISupportedPaymentNetworkByNetwork<TPaymentEventParameters>;
 }
 
-export type PaymentNetworkOptions<TGraphClientVariant extends 'near' | null = null> = {
+export type PaymentNetworkOptions<
+  TChain extends CurrencyTypes.ChainName = CurrencyTypes.ChainName,
+> = {
   /** override default bitcoin detection provider */
   bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
   /** the explorer API (e.g. Etherscan) api keys, for PNs that rely on it. Record by network name  */
@@ -100,13 +102,7 @@ export type PaymentNetworkOptions<TGraphClientVariant extends 'near' | null = nu
   /** override the default Subgraph for payment detection (EVM, Near) */
   getSubgraphClient: (
     network: CurrencyTypes.ChainName,
-  ) =>
-    | TheGraphClient<
-        TGraphClientVariant extends 'near'
-          ? CurrencyTypes.NearChainName
-          : CurrencyTypes.EvmChainName
-      >
-    | undefined;
+  ) => TChain extends CurrencyTypes.VMChainName ? TheGraphClient<TChain> | undefined : undefined;
   /** override the default RPC provider (EVM) */
   getRpcProvider: (network: CurrencyTypes.ChainName) => providers.Provider;
 };

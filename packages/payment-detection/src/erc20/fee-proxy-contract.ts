@@ -76,9 +76,8 @@ export abstract class ERC20FeeProxyPaymentDetectorBase<
   );
 }
 
-export type TGetSubGraphClient<TChain> = TChain extends CurrencyTypes.EvmChainName
-  ? PaymentNetworkOptions['getSubgraphClient']
-  : PaymentNetworkOptions<'near'>['getSubgraphClient'];
+export type TGetSubGraphClient<TChain extends CurrencyTypes.VMChainName> =
+  PaymentNetworkOptions<TChain>['getSubgraphClient'];
 
 /**
  * Handle payment networks with ERC20 fee proxy contract extension on EVM (default) or Near chains

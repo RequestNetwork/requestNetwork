@@ -32,7 +32,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
   PaymentTypes.IETHPaymentEventParameters
 > {
   private explorerApiKeys: Partial<Record<CurrencyTypes.ChainName, string>>;
-  private readonly getSubgraphClient: PaymentNetworkOptions['getSubgraphClient'];
+  private readonly getSubgraphClient: PaymentNetworkOptions<CurrencyTypes.EvmChainName>['getSubgraphClient'];
 
   /**
    * @param extension The advanced logic payment network extensions
@@ -43,7 +43,10 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
     explorerApiKeys,
     getSubgraphClient,
   }: ReferenceBasedDetectorOptions &
-    Pick<PaymentNetworkOptions, 'explorerApiKeys' | 'getSubgraphClient'>) {
+    Pick<
+      PaymentNetworkOptions<CurrencyTypes.EvmChainName>,
+      'explorerApiKeys' | 'getSubgraphClient'
+    >) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       advancedLogic.extensions.ethereumInputData,
