@@ -541,6 +541,8 @@ describe('api/erc20/fee-proxy-contract', () => {
         GetPaymentsAndEscrowStateForReceivables: jest.fn(),
         GetLastSyncedBlock: jest.fn(),
         GetSyncedBlock: jest.fn(),
+        GetAnyToFungiblePayments: jest.fn(),
+        GetAnyToNativePayments: jest.fn(),
       }),
     });
 
@@ -580,7 +582,7 @@ describe('api/erc20/fee-proxy-contract', () => {
             ],
           })),
           GetPaymentsAndEscrowState: jest.fn(),
-          GetNearConversionPayments: jest.fn(),
+          GetAnyToNativePayments: jest.fn(),
           GetNearPayments: jest.fn(),
           GetLastSyncedBlock: jest.fn(),
           GetSyncedBlock: jest.fn(),

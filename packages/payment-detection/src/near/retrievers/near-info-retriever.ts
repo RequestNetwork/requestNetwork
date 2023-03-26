@@ -1,6 +1,7 @@
 import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
-import { ITheGraphBaseInfoRetriever, TheGraphClient } from '../../thegraph';
+import { TheGraphClient } from '../../thegraph';
 import { GetNearPaymentsQuery } from 'payment-detection/src/thegraph/generated/graphql-near';
+import { ITheGraphBaseInfoRetriever } from 'payment-detection/src/types';
 
 // FIXME#1: when Near subgraphes can retrieve a txHash, replace the custom IPaymentNetworkEvent with PaymentTypes.ETHPaymentNetworkEvent
 export interface NearPaymentEvent extends PaymentTypes.IERC20FeePaymentEventParameters {
