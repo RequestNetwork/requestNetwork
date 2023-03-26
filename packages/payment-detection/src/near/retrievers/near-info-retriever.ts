@@ -33,7 +33,7 @@ export class NearInfoRetriever implements ITheGraphBaseInfoRetriever<NearPayment
    * @param eventName Indicate if it is an address for payment or refund
    *
    */
-  constructor(protected readonly client: TheGraphClient<'near'>) {}
+  constructor(protected readonly client: TheGraphClient<CurrencyTypes.NearChainName>) {}
 
   public async getTransferEvents(
     params: TransferEventsParams,

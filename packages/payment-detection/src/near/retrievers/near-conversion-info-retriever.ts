@@ -30,7 +30,7 @@ export class NearConversionInfoRetriever extends NearInfoRetriever {
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The id of network we want to check
    */
-  constructor(protected readonly client: TheGraphClient<'near'>) {
+  constructor(protected readonly client: TheGraphClient<CurrencyTypes.NearChainName>) {
     super(client);
   }
   public async getTransferEvents(
@@ -44,7 +44,7 @@ export class NearConversionInfoRetriever extends NearInfoRetriever {
       eventName,
       maxRateTimespan,
     } = params;
-    const payments = await this.client.GetNearConversionPayments({
+    const payments = await this.client.GetAnyToNativePayments({
       reference: paymentReference,
       to: toAddress,
       currency: requestCurrency.symbol,

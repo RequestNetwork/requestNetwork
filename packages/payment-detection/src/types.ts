@@ -100,7 +100,13 @@ export type PaymentNetworkOptions<TGraphClientVariant extends 'near' | null = nu
   /** override the default Subgraph for payment detection (EVM, Near) */
   getSubgraphClient: (
     network: CurrencyTypes.ChainName,
-  ) => TheGraphClient<TGraphClientVariant> | undefined;
+  ) =>
+    | TheGraphClient<
+        TGraphClientVariant extends 'near'
+          ? CurrencyTypes.NearChainName
+          : CurrencyTypes.EvmChainName
+      >
+    | undefined;
   /** override the default RPC provider (EVM) */
   getRpcProvider: (network: CurrencyTypes.ChainName) => providers.Provider;
 };
@@ -113,5 +119,7 @@ export type ReferenceBasedDetectorOptions = {
 export type NativeDetectorOptions = ReferenceBasedDetectorOptions & {
   network: CurrencyTypes.NearChainName;
   /** override the default Subgraph for payment detection (EVM, Near) */
-  getSubgraphClient: (network: CurrencyTypes.ChainName) => TheGraphClient<'near'> | undefined;
+  getSubgraphClient: (
+    network: CurrencyTypes.ChainName,
+  ) => TheGraphClient<CurrencyTypes.NearChainName> | undefined;
 };

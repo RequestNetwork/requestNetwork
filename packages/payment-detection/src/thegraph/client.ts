@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import { CurrencyTypes } from '@requestnetwork/types';
 import { GraphQLClient } from 'graphql-request';
 import { getSdk } from './generated/graphql';
 import { getSdk as getNearSdk } from './generated/graphql-near';
@@ -11,8 +12,8 @@ import { getSdk as getNearSdk } from './generated/graphql-near';
  *
  * @type TGraphClientVariant: null if no variant, 'near' if native token payments detection on Near
  */
-export type TheGraphClient<TGraphClientVariant extends 'near' | null = null> =
-  TGraphClientVariant extends 'near'
+export type TheGraphClient<TChain extends CurrencyTypes.VMChainName = CurrencyTypes.EvmChainName> =
+  TChain extends CurrencyTypes.NearChainName
     ? ReturnType<typeof getTheGraphNearClient>
     : ReturnType<typeof getTheGraphClient>;
 

@@ -1,4 +1,9 @@
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { PaymentNetworkFactory, TheGraphClient } from '../../src';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
@@ -44,7 +49,7 @@ const client = {
   GetNearPayments: jest.fn().mockImplementation(() => ({
     payments: [graphPaymentEvent],
   })),
-} as any as TheGraphClient<'near'>;
+} as any as TheGraphClient<CurrencyTypes.NearChainName>;
 const mockedGetSubgraphClient = jest.fn().mockImplementation(() => client);
 
 const infoRetriever = new NearInfoRetriever(client);
