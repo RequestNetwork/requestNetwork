@@ -48,27 +48,27 @@ describe('contract: ERC20TransferableReceivable', () => {
 
   describe('mint', async function () {
     it('revert with empty paymentReference', async function () {
-      await expect(receivable.mint([], 1, testToken.address, '')).to.be.revertedWith(
+      await expect(receivable.mint(user1Addr, [], 1, testToken.address, '')).to.be.revertedWith(
         'Zero paymentReference provided',
       );
     });
 
     it('revert with zero amount', async function () {
-      await expect(receivable.mint('0x01', 0, testToken.address, '')).to.be.revertedWith(
+      await expect(receivable.mint(user1Addr, '0x01', 0, testToken.address, '')).to.be.revertedWith(
         'Zero amount provided',
       );
     });
 
     it('revert with empty asset address', async function () {
-      await expect(receivable.mint('0x01', 1, ethers.constants.AddressZero, '')).to.be.revertedWith(
-        'Zero address provided',
-      );
+      await expect(
+        receivable.mint(user1Addr, '0x01', 1, ethers.constants.AddressZero, ''),
+      ).to.be.revertedWith('Zero address provided');
     });
 
     it('revert with duplicated receivableId', async function () {
-      await receivable.connect(user1).mint('0x01', 1, testToken.address, '');
+      await receivable.connect(user1).mint(user1Addr, '0x01', 1, testToken.address, '');
       await expect(
-        receivable.connect(user1).mint('0x01', 2, testToken.address, ''),
+        receivable.connect(user1).mint(user1Addr, '0x01', 2, testToken.address, ''),
       ).to.be.revertedWith('Receivable has already been minted for this user and request');
     });
 
@@ -76,7 +76,9 @@ describe('contract: ERC20TransferableReceivable', () => {
       const receivableId = '0x0134cc5f0224acb0544a9d325f8f2160c53130ba4671849472f2a96a35c93a78d6';
       const metadata = ethers.utils.base64.encode(receivableId);
       const paymentRef = '0x01' as BytesLike;
-      await receivable.connect(user1).mint(paymentRef, BASE_DECIMAL, testToken.address, metadata);
+      await receivable
+        .connect(user1)
+        .mint(user1Addr, paymentRef, BASE_DECIMAL, testToken.address, metadata);
       const ids = await receivable.getTokenIds(user1Addr);
       const tokenId = ids[0];
       expect(await receivable.ownerOf(tokenId)).to.equals(user1Addr);
@@ -94,7 +96,7 @@ describe('contract: ERC20TransferableReceivable', () => {
       const paymentRef = '0x01' as BytesLike;
       await receivable
         .connect(user1)
-        .mint(paymentRef, BASE_DECIMAL, testToken.address, receivableId);
+        .mint(user1Addr, paymentRef, BASE_DECIMAL, testToken.address, receivableId);
       const ids = await receivable.getTokenIds(user1Addr);
       const tokenId = ids[0];
 
@@ -103,12 +105,12 @@ describe('contract: ERC20TransferableReceivable', () => {
     });
 
     it('list receivables', async function () {
-      await receivable.connect(user1).mint('0x01', BASE_DECIMAL, testToken.address, '1');
-      await receivable.connect(user1).mint('0x02', BASE_DECIMAL, testToken.address, '2');
-      await receivable.connect(user1).mint('0x03', BASE_DECIMAL, testToken.address, '3');
+      await receivable.connect(user1).mint(user1Addr, '0x01', BASE_DECIMAL, testToken.address, '1');
+      await receivable.connect(user1).mint(user1Addr, '0x02', BASE_DECIMAL, testToken.address, '2');
+      await receivable.connect(user1).mint(user1Addr, '0x03', BASE_DECIMAL, testToken.address, '3');
       await verifyReceivables(user1Addr, [1, 2, 3]);
-      await receivable.connect(user2).mint('0x04', BASE_DECIMAL, testToken.address, '4');
-      await receivable.connect(user2).mint('0x05', BASE_DECIMAL, testToken.address, '5');
+      await receivable.connect(user2).mint(user2Addr, '0x04', BASE_DECIMAL, testToken.address, '4');
+      await receivable.connect(user2).mint(user2Addr, '0x05', BASE_DECIMAL, testToken.address, '5');
       await verifyReceivables(user2Addr, [4, 5]);
       await receivable.connect(user1).transferFrom(user1Addr, user2Addr, 1);
       await verifyReceivables(user1Addr, [3, 2]);
@@ -141,7 +143,7 @@ describe('contract: ERC20TransferableReceivable', () => {
     beforeEach(async () => {
       paymentRef = '0x01' as BytesLike;
       amount = BN.from(100).mul(BASE_DECIMAL);
-      await receivable.connect(user1).mint(paymentRef, amount, testToken.address, '1');
+      await receivable.connect(user1).mint(user1Addr, paymentRef, amount, testToken.address, '1');
       const ids = await receivable.getTokenIds(await user1.getAddress());
       tokenId = ids[0];
       feeAmount = BN.from(10).mul(BASE_DECIMAL);
@@ -183,7 +185,7 @@ describe('contract: ERC20TransferableReceivable', () => {
     });
 
     it('allow multiple mints per receivable', async function () {
-      await receivable.connect(user2).mint(paymentRef, amount, testToken.address, '1');
+      await receivable.connect(user2).mint(user2Addr, paymentRef, amount, testToken.address, '1');
       const key = ethers.utils.solidityKeccak256(['address', 'bytes'], [user1Addr, paymentRef]);
       expect(await receivable.receivableTokenIdMapping(key)).to.equals(tokenId);
     });
