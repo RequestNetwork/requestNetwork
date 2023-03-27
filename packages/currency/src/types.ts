@@ -1,4 +1,20 @@
-import { RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
+
+/**
+ * Common types used in token configuration files
+ */
+type TokenAddress = string;
+type TokenDefinition = { name: string; symbol: string; decimals: number };
+export type TokenMap = Record<TokenAddress, TokenDefinition>;
+
+/**
+ * Common types used in chain configuration files
+ */
+export type Chain = {
+  chainId: number | string;
+  testnet?: boolean;
+  currencies?: TokenMap;
+};
 
 /**
  * A native blockchain token (ETH, MATIC, ETH-rinkeby...)
@@ -6,8 +22,10 @@ import { RequestLogicTypes } from '@requestnetwork/types';
 export type NativeCurrency = {
   symbol: string;
   decimals: number;
-  network: string;
+  network: CurrencyTypes.ChainName;
 };
+type NamedCurrency = { name: string };
+export type NamedNativeCurrency = NativeCurrency & NamedCurrency;
 
 /** Native Currency types */
 export type NativeCurrencyType = RequestLogicTypes.CURRENCY.BTC | RequestLogicTypes.CURRENCY.ETH;
@@ -26,7 +44,7 @@ export type ISO4217Currency = {
 export type ERC20Currency = {
   symbol: string;
   decimals: number;
-  network: string;
+  network: CurrencyTypes.EvmChainName | CurrencyTypes.NearChainName;
   address: string;
 };
 
@@ -36,7 +54,7 @@ export type ERC20Currency = {
 export type ERC777Currency = {
   symbol: string;
   decimals: number;
-  network: string;
+  network: CurrencyTypes.EvmChainName;
   address: string;
 };
 
@@ -118,4 +136,4 @@ export interface ICurrencyManager<TMeta = unknown> {
  *
  * Format  { "chainName": {"TOKEN": ["NEW_TOKEN","NEW_CHAIN"]}}
  */
-export type LegacyTokenMap = Record<string, Record<string, [string, string]>>;
+export type LegacyTokenMap = Record<string, Record<string, [string, CurrencyTypes.ChainName]>>;

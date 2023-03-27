@@ -1,5 +1,6 @@
-import { ERC777Currency } from '../types';
-import { supportedNetworks } from './networks';
+import { ERC777Currency, TokenMap } from '../types';
+import { supportedNetworks } from './chains';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 /**
  * Returns a list of supported ERC777 tokens
@@ -7,7 +8,7 @@ import { supportedNetworks } from './networks';
  * @returns List of supported ERC777 tokens
  */
 export function getSupportedERC777Tokens(): ERC777Currency[] {
-  return Object.entries(supportedNetworks).reduce(
+  return (Object.entries(supportedNetworks) as [CurrencyTypes.EvmChainName, TokenMap][]).reduce(
     (acc: ERC777Currency[], [networkName, supportedCurrencies]) => {
       return [
         ...acc,

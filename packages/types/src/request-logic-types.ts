@@ -5,6 +5,7 @@ import * as Extension from './extension-types';
 import * as Identity from './identity-types';
 import * as Signature from './signature-types';
 import * as Transaction from './transaction-types';
+import { CurrencyTypes } from './index';
 
 /** Request Logic layer */
 export interface IRequestLogic {
@@ -41,6 +42,12 @@ export interface IRequestLogic {
   reduceExpectedAmountRequest: (
     requestParameters: IReduceExpectedAmountParameters,
     signerIdentity: Identity.IIdentity,
+    validate?: boolean,
+  ) => Promise<IRequestLogicReturnWithConfirmation>;
+  addStakeholders: (
+    requestParameters: IAddStakeholdersParameters,
+    signerIdentity: Identity.IIdentity,
+    encryptionParams: Encryption.IEncryptionParameters[],
     validate?: boolean,
   ) => Promise<IRequestLogicReturnWithConfirmation>;
   addExtensionsDataRequest: (
@@ -229,6 +236,12 @@ export interface IReduceExpectedAmountParameters {
   nonce?: number;
 }
 
+/** Parameters to add stakeholders to a request */
+export interface IAddStakeholdersParameters {
+  requestId: RequestId;
+  extensionsData?: any[];
+}
+
 /** Parameters to add extensions data to a request */
 export interface IAddExtensionsDataParameters {
   requestId: RequestId;
@@ -254,7 +267,7 @@ export interface ICurrency {
   /** The currency value (e.g.: '0x123...789', 'EUR', 'ETH') */
   value: string;
   /** The currency network (e.g.: 'mainnet', 'rinkeby', 'bank_sandbox') */
-  network?: string;
+  network?: CurrencyTypes.ChainName;
 }
 
 /** Enum of name possible in a action */
@@ -265,6 +278,7 @@ export enum ACTION_NAME {
   CANCEL = 'cancel',
   REDUCE_EXPECTED_AMOUNT = 'reduceExpectedAmount',
   INCREASE_EXPECTED_AMOUNT = 'increaseExpectedAmount',
+  ADD_STAKEHOLDERS = 'addStakeholders',
   ADD_EXTENSIONS_DATA = 'addExtensionsData',
 }
 

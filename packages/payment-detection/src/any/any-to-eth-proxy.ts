@@ -1,12 +1,17 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 
-import { UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { EvmChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
 import { AnyToAnyDetector } from '../any-to-any-detector';
 import { makeGetDeploymentInformation } from '../utils';
-import { TheGraphInfoRetriever } from '../thegraph';
+import { TheGraphConversionInfoRetriever } from '../thegraph/conversion-info-retriever';
 import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
 
 // interface of the object indexing the proxy contract version
@@ -58,7 +63,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: string,
+    paymentChain: CurrencyTypes.EvmChainName,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToEth.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IETHPaymentEventParameters>> {
     if (!toAddress) {
@@ -79,7 +84,10 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
 
     const subgraphClient = this.getSubgraphClient(paymentChain);
     if (subgraphClient) {
-      const infoRetriever = new TheGraphInfoRetriever(subgraphClient, this.currencyManager);
+      const infoRetriever = new TheGraphConversionInfoRetriever(
+        subgraphClient,
+        this.currencyManager,
+      );
       return await infoRetriever.getTransferEvents({
         paymentReference,
         contractAddress: contractInfo.address,
@@ -87,6 +95,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
         eventName,
         paymentChain,
         maxRateTimespan: paymentNetwork.values?.maxRateTimespan,
+        requestCurrency: currency,
       });
     }
 
@@ -117,11 +126,12 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
    * @param paymentNetwork the payment network
    * @returns The network of payment
    */
-  protected getPaymentChain(request: RequestLogicTypes.IRequest): string {
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): CurrencyTypes.EvmChainName {
     const network = this.getPaymentExtension(request).values.network;
     if (!network) {
       throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
     }
+    EvmChains.assertChainSupported(network);
     return network;
   }
 

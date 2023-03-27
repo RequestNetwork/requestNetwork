@@ -19,6 +19,7 @@ const defaultValues: any = {
       networkId: 0,
       web3ProviderUrl: 'http://localhost:8545',
       gasPriceMin: '1000000000', // one gwei
+      blockConfirmations: 2,
     },
     ipfs: {
       host: 'localhost',
@@ -117,6 +118,18 @@ export function getGasPriceMin(): BigNumber | undefined {
     process.env.GAS_PRICE_MIN ||
     defaultValues.ethereumStorage.ethereum.gasPriceMin;
   return gasPriceMin && BigNumber.from(gasPriceMin);
+}
+
+/**
+ * Get the number of block confirmations to wait before considering a transaction successful
+ * @returns the number of block confirmations
+ */
+export function getBlockConfirmations(): number {
+  return (
+    (argv.blockConfirmations && Number(argv.blockConfirmations)) ||
+    (process.env.BLOCK_CONFIRMATIONS && Number(process.env.BLOCK_CONFIRMATIONS)) ||
+    defaultValues.ethereumStorage.ethereum.blockConfirmations
+  );
 }
 
 /**

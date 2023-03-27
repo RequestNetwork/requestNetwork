@@ -108,7 +108,7 @@ The deployer contract should be deployed at `0xE99Ab70a5FAE59551544FA326fA048f7B
 
 Be sure to run `yarn build:sol` before deploying the deployer or a contract.
 
-The contracts implemented are listed in the array `create2ContractDeploymentList` in [Utils](./scripts-create2/utils.ts).
+The contracts implemented are listed in the array `create2ContractDeploymentList` in [Utils](scripts-create2/utils.ts).
 
 ### Deploy the request deployer (once per chain)
 
@@ -164,6 +164,16 @@ See `hardhat.config.ts`.
 
 ```bash
 yarn hardhat verify-contract-from-deployer --network <NETWORK>
+```
+
+### Add the contracts to Tenderly
+
+Once the contract has been added to the artifacts (`./src/lib/artifacts`), run the following command to synchronize
+contracts with the Tenderly account.
+Environment variables needed: `TENDERLY_...` (see `hardhat.config.ts`).
+
+```bash
+yarn hardhat tenderly-monitor-contracts
 ```
 
 #### Verify the contracts manually With Hardhat (legacy)

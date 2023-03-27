@@ -1,6 +1,6 @@
 import { LogTypes } from '@requestnetwork/types';
 
-import { providers, constants } from 'ethers';
+import { providers, constants, utils } from 'ethers';
 
 type ProviderFactory = (network: string | undefined) => providers.Provider | string;
 
@@ -15,11 +15,11 @@ type CurrentProviderFactory = (
 ) => providers.Provider | string;
 
 /**
- * Default API_KEYS configuration, can be overriden using initPaymentDetectionApiKeys
+ * Default API_KEYS configuration, can be overridden using initPaymentDetectionApiKeys
  */
 let providersApiKeys: Record<string, string | (() => string)> = {
-  // fallback to Ethers v4 default projectId
-  infura: () => process.env.RN_INFURA_KEY || '7d0d81d0919f4f05b9ab6634be01ee73',
+  // fallback to Ethers v5 default projectId
+  infura: () => process.env.RN_INFURA_KEY || '84842078b09946638c03157f83405213',
 };
 
 /**
@@ -67,7 +67,7 @@ const defaultProviderFactory: ProviderFactory = (network: string | undefined) =>
     return networkRpcs[network];
   }
 
-  // use infura, if supported
+  // use Infura, if supported
   try {
     // try getting the URL for the given network. Will throw if not supported.
     providers.InfuraProvider.getUrl(providers.getNetwork(network), {});
@@ -154,7 +154,11 @@ const isEip1559Supported = async (
   logger?: LogTypes.ILogger,
 ): Promise<boolean> => {
   try {
-    await (provider as providers.JsonRpcProvider).send('eth_feeHistory', [1, 'latest', []]);
+    await (provider as providers.JsonRpcProvider).send('eth_feeHistory', [
+      utils.hexStripZeros(utils.hexlify(1)),
+      'latest',
+      [],
+    ]);
     return true;
   } catch (e) {
     logger &&

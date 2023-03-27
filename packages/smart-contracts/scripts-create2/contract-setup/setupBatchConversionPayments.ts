@@ -1,14 +1,14 @@
 import { batchConversionPaymentsArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import {
-  updateBatchPaymentFees,
+  getSignerAndGasFees,
   updateBatchConversionProxy,
   updateBatchPaymentFeeAmountUSDLimit,
+  updateBatchPaymentFees,
   updateNativeAndUSDAddress,
-  getSignerAndGasFees,
 } from './adminTasks';
-import { CurrencyManager } from '@requestnetwork/currency';
-import { RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
+import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 /**
  * Updates the values of the batch fees of the BatchConversionPayments contract, if needed.
@@ -27,7 +27,7 @@ export const setupBatchConversionPayments = async (
   // constants related to chainlink and conversion rate
   const currencyManager = CurrencyManager.getDefault();
 
-  const setUpActions = async (network: string) => {
+  const setUpActions = async (network: CurrencyTypes.EvmChainName) => {
     console.log(`Setup BatchConversionPayments on ${network}`);
 
     const NativeAddress = currencyManager.getNativeCurrency(
@@ -79,11 +79,12 @@ export const setupBatchConversionPayments = async (
   };
   for (const network of hre.config.xdeploy.networks) {
     try {
+      EvmChains.assertChainSupported(network);
       await Promise.resolve(setUpActions(network));
     } catch (err) {
       console.warn(`An error occurred during the setup of BatchConversion on ${network}`);
       console.warn(err);
     }
   }
-  console.log('Setup for setupBatchConversionPayment successfull');
+  console.log('Setup for setupBatchConversionPayment successful');
 };

@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import { TheGraphInfoRetriever, TheGraphClient } from '../../src/thegraph';
+import { TheGraphClient, TheGraphInfoRetriever } from '../../src/thegraph';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { utils } from 'ethers';
 import { PaymentTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 
 const paymentsMockData = {
-  ['0x6c93723bc5f82e6fbb2ea994bf0fb572fa19f7a2a3146065e21752b95668efe5' as string]: [
+  ['0xc6e23a20c0a1933acc8e30247b5d1e2215796c1f' as string]: [
     {
       contractAddress: '0xc6e23a20c0a1933acc8e30247b5d1e2215796c1f',
       to: '0x5000ee9fb9c96a2a09d8efb695ac21d6c429ff11',
@@ -20,6 +20,8 @@ const paymentsMockData = {
       gasUsed: '',
       timestamp: 1,
     },
+  ],
+  ['0xca3353a15fcb5c83a1ff64bff055781ac5c4d2f4' as string]: [
     {
       contractAddress: '0xca3353a15fcb5c83a1ff64bff055781ac5c4d2f4',
       to: '0x5000ee9fb9c96a2a09d8efb695ac21d6c429ff11',
@@ -45,14 +47,16 @@ describe('api/erc20/thegraph-info-retriever', () => {
     let graphRetriever: TheGraphInfoRetriever;
     beforeEach(() => {
       clientMock = {
-        GetPaymentsAndEscrowState: jest.fn().mockImplementation(({ reference }) => ({
-          payments: paymentsMockData[reference] || [],
+        GetPaymentsAndEscrowState: jest.fn().mockImplementation(({ contractAddress }) => ({
+          payments: paymentsMockData[contractAddress] || [],
           escrowEvents: [],
         })),
         GetPaymentsAndEscrowStateForReceivables: jest.fn().mockImplementation(({ reference }) => ({
           payments: paymentsMockData[reference] || [],
           escrowEvents: [],
         })),
+        GetAnyToNativePayments: jest.fn(),
+        GetAnyToFungiblePayments: jest.fn(),
         GetLastSyncedBlock: jest.fn(),
         GetSyncedBlock: jest.fn(),
       };
@@ -72,7 +76,7 @@ describe('api/erc20/thegraph-info-retriever', () => {
         block: 9606098,
         feeAddress: '0x5000EE9FB9c96A2A09D8efB695aC21D6C429fF11',
         feeAmount: '0',
-      };
+      } as const;
       const paymentReference = PaymentReferenceCalculator.calculate(
         paymentData.requestId,
         paymentData.salt,
@@ -111,7 +115,7 @@ describe('api/erc20/thegraph-info-retriever', () => {
         amount: '7000',
         block: 9610470,
         requestId: '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e1',
-      };
+      } as const;
 
       const shortReference = PaymentReferenceCalculator.calculate(
         paymentData.requestId,

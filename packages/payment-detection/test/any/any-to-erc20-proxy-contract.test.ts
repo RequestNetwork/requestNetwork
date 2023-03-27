@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import {
   AdvancedLogicTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   PaymentTypes,
@@ -8,8 +9,7 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
-import { AnyToERC20PaymentDetector } from '../../src/any/any-to-erc20-proxy';
-import { getTheGraphClient } from '../../src/thegraph';
+import { AnyToERC20PaymentDetector, getTheGraphClient } from '../../src';
 import { mocked } from 'ts-jest/utils';
 import { mockAdvancedLogicBase } from '../utils';
 
@@ -55,7 +55,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
     jest.clearAllMocks();
   });
 
-  const testSuite = (network: string) => {
+  const testSuite = (network: CurrencyTypes.EvmChainName) => {
     it(`can createExtensionsDataForCreation on ${network}`, async () => {
       await anyToErc20Proxy.createExtensionsDataForCreation({
         paymentAddress: 'ethereum address',
@@ -370,7 +370,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       version: '0.2',
     };
 
-    theGraphClientMock.GetPaymentsAndEscrowState.mockResolvedValue({
+    theGraphClientMock.GetAnyToFungiblePayments.mockResolvedValue({
       payments: [
         {
           amount: '100000000',
@@ -391,7 +391,6 @@ describe('api/any/conversion-fee-proxy-contract', () => {
           to: '0x98f32171d88f9511b397809534ee42acfce4f640',
         },
       ],
-      escrowEvents: [],
     });
 
     const balance = await anyToErc20Proxy.getBalance(mockRequest);

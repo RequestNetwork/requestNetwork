@@ -366,6 +366,60 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   }
 
   /**
+   * Function to add stakeholders to a request and persist it on through the transaction manager layer
+   *
+   * @param IAddStakeholdersParameters requestParameters parameters to add stakeholders to a request
+   * @param IIdentity signerIdentity Identity of the signer
+   * @param IEncryptionParameters encryptionParams list of addtional encryption parameters to encrypt the channel key with
+   * @param boolean validate specifies if a validation should be done before persisting the transaction. Requires a full load of the Request.
+   *
+   * @returns Promise<IRequestLogicReturn> the meta data
+   */
+  public async addStakeholders(
+    requestParameters: RequestLogicTypes.IAddStakeholdersParameters,
+    signerIdentity: IdentityTypes.IIdentity,
+    encryptionParams: EncryptionTypes.IEncryptionParameters[],
+    validate = false,
+  ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
+    if (!this.signatureProvider) {
+      throw new Error('You must give a signature provider to create actions');
+    }
+    const action = await RequestLogicCore.formatAddStakeholders(
+      requestParameters,
+      signerIdentity,
+      this.signatureProvider,
+    );
+    const requestId = RequestLogicCore.getRequestIdFromAction(action);
+    if (validate) {
+      await this.validateAction(requestId, action);
+    }
+
+    const resultPersistTx = await this.transactionManager.persistTransaction(
+      JSON.stringify(action),
+      requestId,
+      undefined,
+      encryptionParams,
+    );
+
+    const result = Object.assign(new EventEmitter(), {
+      meta: { transactionManagerMeta: resultPersistTx.meta },
+    });
+
+    // When receive the confirmation from transaction manager propagate it
+    resultPersistTx
+      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+        result.emit('confirmed', {
+          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
+        });
+      })
+      .on('error', (error) => {
+        result.emit('error', error);
+      });
+
+    return result;
+  }
+
+  /**
    * Function to add extensions data to a request and persist it through the transaction manager layer
    *
    * @param IAddExtensionsDataParameters requestParameters parameters to add extensions Data to a request

@@ -1,5 +1,10 @@
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import { CurrencyDefinition, ICurrencyManager } from '@requestnetwork/currency';
 import ProxyInfoRetriever from './proxy-info-retriever';
 
@@ -84,7 +89,7 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
     toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: string,
+    paymentChain: CurrencyTypes.EvmChainName,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnFeeReferenceBased.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
     if (!toAddress) {
@@ -105,6 +110,7 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
         toAddress,
         contractAddress: proxyContractAddress,
         paymentChain,
+        acceptedTokens: [requestCurrency.value],
       });
     } else {
       const proxyInfoRetriever = new ProxyInfoRetriever(

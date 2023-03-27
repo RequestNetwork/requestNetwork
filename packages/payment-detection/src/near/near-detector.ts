@@ -1,4 +1,9 @@
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import { NearInfoRetriever } from './retrievers/near-info-retriever';
 import { NativeTokenPaymentDetector } from '../native-token-detector';
 import { NetworkNotSupported } from '../balance-error';
@@ -23,9 +28,12 @@ export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
     super(args);
   }
 
-  public static getContractName = (chainName: string, paymentNetworkVersion = '0.2.0'): string => {
+  public static getContractName = (
+    chainName: CurrencyTypes.NearChainName,
+    paymentNetworkVersion = '0.2.0',
+  ): string => {
     const version = NearNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
-    const versionMap: Record<string, Record<string, string>> = {
+    const versionMap: Record<CurrencyTypes.NearChainName, Record<string, string>> = {
       aurora: { '0.1.0': 'requestnetwork.near', '0.2.0': 'requestnetwork.near' },
       'aurora-testnet': {
         '0.1.0': 'dev-1626339335241-5544297',
@@ -58,7 +66,7 @@ export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
     address: string | undefined,
     paymentReference: string,
     _requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: string,
+    paymentChain: CurrencyTypes.NearChainName,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkRetrieverEvents<PaymentTypes.ETHPaymentNetworkEvent>> {
     if (!address) {

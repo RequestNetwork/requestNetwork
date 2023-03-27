@@ -1,16 +1,16 @@
 import { create2ContractDeploymentList, isContractDeployed } from './utils';
-import { IDeploymentParams } from './types';
-import { HardhatRuntimeEnvironmentExtended } from './types';
+import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './types';
 import { xdeploy } from './xdeployer';
 import { getConstructorArgs } from './constructor-args';
 import {
+  setupBatchConversionPayments,
+  setupChainlinkConversionPath,
+  setupErc20ConversionProxy,
   setupERC20SwapToConversion,
   setupERC20SwapToPay,
-  setupBatchConversionPayments,
   setupETHConversionProxy,
-  setupErc20ConversionProxy,
-  setupChainlinkConversionPath,
 } from './contract-setup';
+import { EvmChains } from '@requestnetwork/currency';
 
 // Deploys, set up the contracts and returns the address
 export const deployOneWithCreate2 = async (
@@ -22,33 +22,27 @@ export const deployOneWithCreate2 = async (
   }
   // Deploy the contract on several network through xdeployer
   const deploymentResult = await xdeploy(deploymentParams, hre);
-  for (let i = 0; i < hre.config.xdeploy.networks.length; i++) {
+  hre.config.xdeploy.networks.forEach((network, i) => {
     if (deploymentResult[i].deployed) {
       console.log(`${deploymentParams.contract} successfully deployed:`);
-      console.log(`         On network:        ${hre.config.xdeploy.networks[i]}`);
+      console.log(`         On network:        ${network}`);
       console.log(`         At address:        ${deploymentResult[i].address}`);
       console.log(`         At block:          ${deploymentResult[i].receipt.blockNumber}`);
     } else {
-      if (
-        isContractDeployed(
-          deploymentParams.contract,
-          hre.config.xdeploy.networks[i],
-          deploymentResult[i].address,
-        )
-      ) {
+      if (isContractDeployed(deploymentParams.contract, network, deploymentResult[i].address)) {
         console.log(`${deploymentParams.contract} already deployed:`);
-        console.log(`         On network:        ${hre.config.xdeploy.networks[i]}`);
+        console.log(`         On network:        ${network}`);
         console.log(`         At address:        ${deploymentResult[i].address}`);
       } else {
         console.log(`${deploymentParams.contract} has not been deployed:`);
-        console.log(`         On network:        ${hre.config.xdeploy.networks[i]}`);
+        console.log(`         On network:        ${network}`);
         console.log(`         Error:             ${deploymentResult[i].error}`);
         console.log(
           `         Hint:              Check admin wallet balance and that your artifacts are up to date`,
         );
       }
     }
-  }
+  });
   return deploymentResult[0].address;
 };
 
@@ -97,12 +91,14 @@ export const deployWithCreate2FromList = async (
       case 'ERC20EscrowToPay':
       case 'ERC20TransferableReceivable': {
         const network = hre.config.xdeploy.networks[0];
+        EvmChains.assertChainSupported(network);
         const constructorArgs = getConstructorArgs(contract, network);
         await deployOneWithCreate2({ contract, constructorArgs }, hre);
         break;
       }
       case 'BatchConversionPayments': {
         const network = hre.config.xdeploy.networks[0];
+        EvmChains.assertChainSupported(network);
         const constructorArgs = getConstructorArgs(contract, network);
         const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
         await setupBatchConversionPayments(address, hre);
