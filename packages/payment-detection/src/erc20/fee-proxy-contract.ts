@@ -17,7 +17,7 @@ import { loadCurrencyFromContract } from './currency';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
 import { TheGraphClient, TheGraphInfoRetriever } from '../thegraph';
-import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
+import { ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
 import { NearInfoRetriever } from '../near';
 import { NetworkNotSupported } from '../balance-error';
 
@@ -75,9 +75,6 @@ export abstract class ERC20FeeProxyPaymentDetectorBase<
     PROXY_CONTRACT_ADDRESS_MAP,
   );
 }
-
-export type TGetSubGraphClient<TChain extends CurrencyTypes.VMChainName> =
-  PaymentNetworkOptions<TChain>['getSubgraphClient'];
 
 /**
  * Handle payment networks with ERC20 fee proxy contract extension on EVM (default) or Near chains

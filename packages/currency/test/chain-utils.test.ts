@@ -1,4 +1,4 @@
-import { Utils } from '../src/index';
+import { EvmChains, NearChains, Utils } from '../src/index';
 
 describe('Utils.isSameNetwork', () => {
   it('Should return true for 2 identical EVMs', () => {
@@ -13,5 +13,27 @@ describe('Utils.isSameNetwork', () => {
   });
   it('Should return false for 2 different chains on 2 different ecosystems', () => {
     expect(Utils.isSameNetwork('aurora-testnet', 'arbitrum-one')).toBe(false);
+  });
+});
+
+describe('isChainSupported', () => {
+  describe('NearChains', () => {
+    it('returns true for near', () => {
+      expect(NearChains.isChainSupported('near')).toEqual(true);
+    });
+    it('returns true for aurora', () => {
+      expect(NearChains.isChainSupported('aurora')).toEqual(true);
+    });
+    it('returns false for mainnet', () => {
+      expect(NearChains.isChainSupported('mainnet')).toEqual(false);
+    });
+  });
+  describe('EvmChains', () => {
+    it('returns true for mainnet', () => {
+      expect(EvmChains.isChainSupported('mainnet')).toEqual(true);
+    });
+    it('returns false for near', () => {
+      expect(EvmChains.isChainSupported('near')).toEqual(false);
+    });
   });
 });

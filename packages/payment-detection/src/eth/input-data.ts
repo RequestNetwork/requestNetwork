@@ -10,7 +10,7 @@ import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
 import { TheGraphInfoRetriever } from '../thegraph';
-import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
+import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -32,7 +32,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
   PaymentTypes.IETHPaymentEventParameters
 > {
   private explorerApiKeys: Partial<Record<CurrencyTypes.ChainName, string>>;
-  private readonly getSubgraphClient: PaymentNetworkOptions<CurrencyTypes.EvmChainName>['getSubgraphClient'];
+  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
 
   /**
    * @param extension The advanced logic payment network extensions

@@ -18,7 +18,6 @@ export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = Tr
     protected readonly currencyManager: ICurrencyManager,
   ) {}
 
-  // TODO No filter on the denomination currency for conversion ??
   public async getTransferEvents(
     params: TGraphQuery,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {

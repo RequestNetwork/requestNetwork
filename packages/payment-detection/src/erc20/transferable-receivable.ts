@@ -11,6 +11,7 @@ import { makeGetDeploymentInformation } from '../utils';
 import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
 import ProxyERC20InfoRetriever from './proxy-info-retriever';
+import { TGetSubGraphClient } from './fee-proxy-contract';
 
 const ERC20_TRANSFERABLE_RECEIVABLE_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
@@ -23,7 +24,7 @@ export class ERC20TransferableReceivablePaymentDetector extends FeeReferenceBase
   ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
   PaymentTypes.IERC20PaymentEventParameters
 > {
-  private readonly getSubgraphClient: PaymentNetworkOptions<CurrencyTypes.EvmChainName>['getSubgraphClient'];
+  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
 
   /**
    * @param extension The advanced logic payment network extensions

@@ -9,7 +9,7 @@ import { ERC20FeeProxyPaymentDetectorBase } from '../erc20/fee-proxy-contract';
 import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy';
 import { TheGraphConversionInfoRetriever } from '../thegraph/conversion-info-retriever';
 import { makeGetDeploymentInformation } from '../utils';
-import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
+import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
 import { generate8randomBytes } from '@requestnetwork/utils';
 import { EvmChains } from '@requestnetwork/currency';
 
@@ -24,7 +24,7 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
   ExtensionTypes.PnAnyToErc20.IAnyToERC20,
   PaymentTypes.IERC20FeePaymentEventParameters
 > {
-  private readonly getSubgraphClient: PaymentNetworkOptions<CurrencyTypes.EvmChainName>['getSubgraphClient'];
+  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
 
   /**
    * @param extension The advanced logic payment network extensions
