@@ -8,10 +8,9 @@ import {
 import { TheGraphInfoRetriever } from '../thegraph';
 import { erc20TransferableReceivableArtifact } from '@requestnetwork/smart-contracts';
 import { makeGetDeploymentInformation } from '../utils';
-import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
+import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
 import ProxyERC20InfoRetriever from './proxy-info-retriever';
-import { TGetSubGraphClient } from './fee-proxy-contract';
 
 const ERC20_TRANSFERABLE_RECEIVABLE_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',

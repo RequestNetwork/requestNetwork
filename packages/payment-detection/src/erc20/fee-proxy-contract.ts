@@ -32,18 +32,18 @@ const PROXY_CONTRACT_ADDRESS_MAP = {
  */
 
 export abstract class ERC20FeeProxyPaymentDetectorBase<
-  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
-  TPaymentEventParameters extends PaymentTypes.IERC20FeePaymentEventParameters = PaymentTypes.IERC20FeePaymentEventParameters,
+  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
+  TPaymentEventParameters extends PaymentTypes.IERC20FeePaymentEventParameters,
 > extends FeeReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extensions
    */
   protected constructor(
-    extensionId: ExtensionTypes.PAYMENT_NETWORK_ID,
+    paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
     currencyManager: ICurrencyManager,
   ) {
-    super(extensionId, extension, currencyManager);
+    super(paymentNetworkId, extension, currencyManager);
   }
 
   protected async getCurrency(
@@ -81,7 +81,10 @@ export abstract class ERC20FeeProxyPaymentDetectorBase<
  */
 export class ERC20FeeProxyPaymentDetector<
   TChain extends CurrencyTypes.VMChainName = CurrencyTypes.EvmChainName,
-> extends ERC20FeeProxyPaymentDetectorBase {
+> extends ERC20FeeProxyPaymentDetectorBase<
+  ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
+  PaymentTypes.IERC20FeePaymentEventParameters
+> {
   private readonly getSubgraphClient: TGetSubGraphClient<TChain>;
   protected readonly network: TChain | undefined;
   constructor({
@@ -130,7 +133,7 @@ export class ERC20FeeProxyPaymentDetector<
 
     const subgraphClient = this.getSubgraphClient(paymentChain);
     if (subgraphClient) {
-      const graphInfoRetriever = this.getInfoRetriever(paymentChain, subgraphClient);
+      const graphInfoRetriever = this.getTheGraphInfoRetriever(paymentChain, subgraphClient);
       return graphInfoRetriever.getTransferEvents({
         eventName,
         paymentReference,
@@ -161,7 +164,7 @@ export class ERC20FeeProxyPaymentDetector<
     }
   }
 
-  protected getInfoRetriever(
+  protected getTheGraphInfoRetriever(
     paymentChain: TChain,
     subgraphClient: TheGraphClient | TheGraphClient<CurrencyTypes.NearChainName>,
   ): TheGraphInfoRetriever | NearInfoRetriever {
