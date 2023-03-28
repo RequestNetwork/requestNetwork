@@ -39,6 +39,7 @@ const chainlinkCurrencyPairs: AggregatorsMap<CurrencyTypes.EvmChainName> = {
 // Pairs supported by Flux Protocol
 const fluxCurrencyPairs: AggregatorsMap<CurrencyTypes.NearChainName> = {
   aurora: nearAggregator,
+  near: nearAggregator,
   'aurora-testnet': auroraTestnetAggregator,
   'near-testnet': nearTestnetAggregator,
 };

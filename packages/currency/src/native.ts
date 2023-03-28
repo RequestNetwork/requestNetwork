@@ -76,6 +76,12 @@ export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthC
       network: 'aurora',
     },
     {
+      symbol: 'NEAR',
+      decimals: 24,
+      name: 'Near',
+      network: 'near',
+    },
+    {
       symbol: 'NEAR-testnet',
       decimals: 24,
       name: 'Near Testnet',

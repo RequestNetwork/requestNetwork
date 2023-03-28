@@ -7,15 +7,15 @@ import { getHash } from './getHash';
 import iso4217 from './iso4217';
 import { nativeCurrencies } from './native';
 import {
-  StorageCurrency,
   CurrencyDefinition,
   CurrencyInput,
   ERC20Currency,
   ICurrencyManager,
   LegacyTokenMap,
   NativeCurrencyType,
+  StorageCurrency,
 } from './types';
-import { defaultConversionPairs, AggregatorsMap, getPath } from './conversion-aggregators';
+import { AggregatorsMap, defaultConversionPairs, getPath } from './conversion-aggregators';
 import { isValidNearAddress } from './currency-utils';
 import { NearChains } from './chains';
 
@@ -314,11 +314,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * Returns the default list of legacy names (for symbol or network)
    */
   static getDefaultLegacyTokens(): LegacyTokenMap {
-    return {
-      near: {
-        NEAR: ['NEAR', 'aurora'],
-      },
-    };
+    return {};
   }
 
   static getDefaultConversionPairs(): AggregatorsMap {

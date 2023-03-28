@@ -55,6 +55,7 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
   },
   ETH: {
     aurora: { [PN_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector },
+    near: { [PN_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector },
     'aurora-testnet': {
       [PN_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector,
     },

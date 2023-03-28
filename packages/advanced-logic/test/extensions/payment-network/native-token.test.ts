@@ -17,10 +17,15 @@ import NearTestnetNativeNativePaymentNetwork from '../../../src/extensions/payme
 const salt = arbitrarySalt;
 
 describe('extensions/payment-network/native-token', () => {
-  const nearCurrency = {
+  const auroraCurrency = {
     type: RequestLogicTypes.CURRENCY.ETH,
     value: 'NEAR',
     network: 'aurora',
+  } as const;
+  const nearCurrency = {
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'NEAR',
+    network: 'near',
   } as const;
   const auroraTestnetCurrency = {
     type: RequestLogicTypes.CURRENCY.ETH,
@@ -34,13 +39,22 @@ describe('extensions/payment-network/native-token', () => {
   } as const;
   const nativeTokenTestCases = [
     {
-      name: 'Near',
+      name: 'Aurora',
       paymentNetwork: new NearNativePaymentNetwork() as NativeTokenPaymentNetwork,
       networkName: 'aurora',
       suffix: 'near',
       wrongSuffix: 'testnet',
-      currency: nearCurrency,
+      currency: auroraCurrency,
       wrongCurrency: auroraTestnetCurrency,
+    },
+    {
+      name: 'Near',
+      paymentNetwork: new NearNativePaymentNetwork() as NativeTokenPaymentNetwork,
+      networkName: 'near',
+      suffix: 'near',
+      wrongSuffix: 'testnet',
+      currency: nearCurrency,
+      wrongCurrency: nearTestnetCurrency,
     },
     {
       name: 'Aurora testnet',
@@ -49,7 +63,7 @@ describe('extensions/payment-network/native-token', () => {
       suffix: 'testnet',
       wrongSuffix: 'near',
       currency: auroraTestnetCurrency,
-      wrongCurrency: nearCurrency,
+      wrongCurrency: auroraCurrency,
     },
     {
       name: 'Near testnet',
@@ -151,7 +165,7 @@ describe('extensions/payment-network/native-token', () => {
           paymentNetworkName: 'another-chain' as CurrencyTypes.NearChainName,
         });
       }).toThrowError(
-        `Payment network 'another-chain' is not supported by this extension (only aurora)`,
+        `Payment network 'another-chain' is not supported by this extension (only aurora, near)`,
       );
     });
     it('createCreationAction() throws without payment network', () => {
