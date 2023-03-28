@@ -4,6 +4,12 @@ const DEFAULT_MAX_RETRIES = 5;
 // Default delay between retries
 const DEFAULT_RETRY_DELAY = 100;
 
+// Default exponential backoff delay increment
+const DEFAULT_EXPONENTIAL_BACKOFF_DELAY = 0;
+
+// Maximum exponential backoff delay allowed
+const DEFAULT_MAX_EXPONENTIAL_BACKOFF_DELAY = 30000;
+
 /**
  * A method that retries a function a defined amount of times if it fails.
  *
@@ -12,6 +18,8 @@ const DEFAULT_RETRY_DELAY = 100;
  * @param [options.context] The context to run the function
  * @param [options.maxRetries=DEFAULT_MAX_RETRIES] The maximum amount of retries for the function
  * @param [options.retryDelay=DEFAULT_RETRY_DELAY] The delay between retries
+ * @param [options.exponentialBackoffDelay=DEFAULT_EXPONENTIAL_BACKOFF_DELAY] The exponential backoff delay increment
+ * @param [options.maxExponentialBackoffDelay=DEFAULT_MAX_EXPONENTIAL_BACKOFF_DELAY] The maximum exponential backoff delay allowed
  */
 const retry = <TParams extends unknown[], TReturn>(
   target: (...params: TParams) => TReturn | Promise<TReturn>,
@@ -19,10 +27,14 @@ const retry = <TParams extends unknown[], TReturn>(
     context,
     maxRetries = DEFAULT_MAX_RETRIES,
     retryDelay = DEFAULT_RETRY_DELAY,
+    exponentialBackoffDelay = DEFAULT_EXPONENTIAL_BACKOFF_DELAY,
+    maxExponentialBackoffDelay = DEFAULT_MAX_EXPONENTIAL_BACKOFF_DELAY,
   }: {
     context?: ThisParameterType<(...params: TParams) => Promise<TReturn>>;
     maxRetries?: number;
     retryDelay?: number;
+    exponentialBackoffDelay?: number;
+    maxExponentialBackoffDelay?: number;
   } = {},
 ): ((...params: TParams) => Promise<TReturn>) => {
   // If a context was passed in, bind it to to the target function
@@ -45,7 +57,13 @@ const retry = <TParams extends unknown[], TReturn>(
         if (retry < maxRetries) {
           retry++;
           // Wait for the delay before retrying
-          await new Promise((resolve) => setTimeout(resolve, retryDelay));
+          await new Promise((resolve) =>
+            setTimeout(
+              resolve,
+              retryDelay +
+                Math.min(maxExponentialBackoffDelay, exponentialBackoffDelay * 2 ** retry),
+            ),
+          );
 
           return retryFunction(...innerArgs);
         } else {
