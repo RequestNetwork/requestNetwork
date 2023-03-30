@@ -6,7 +6,9 @@ import { ICreationParameters as ICreationParametersAnyToAny } from './extensions
 import { EvmChainName } from './currency-types';
 
 /** Interface for payment network extensions state and interpretation */
-export interface IPaymentNetwork<TEventParameters = any> {
+export interface IPaymentNetwork<
+  TEventParameters extends GenericEventParameters = GenericEventParameters,
+> {
   paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID;
   extension: ExtensionTypes.IExtension;
   createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;

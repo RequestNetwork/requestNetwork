@@ -35,6 +35,7 @@ export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
     const version = NearNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
     const versionMap: Record<CurrencyTypes.NearChainName, Record<string, string>> = {
       aurora: { '0.1.0': 'requestnetwork.near', '0.2.0': 'requestnetwork.near' },
+      near: { '0.1.0': 'requestnetwork.near', '0.2.0': 'requestnetwork.near' },
       'aurora-testnet': {
         '0.1.0': 'dev-1626339335241-5544297',
         '0.2.0': 'dev-1631521265288-35171138540673',
@@ -74,14 +75,23 @@ export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
         paymentEvents: [],
       };
     }
-    const infoRetriever = new NearInfoRetriever(
+    const subgraphClient = this.getSubgraphClient(paymentChain);
+    if (!subgraphClient) {
+      throw new Error(
+        `Could not find graphInfoRetriever for chain ${paymentChain} in payment detector`,
+      );
+    }
+    const infoRetriever = new NearInfoRetriever(subgraphClient);
+    const { paymentEvents } = await infoRetriever.getTransferEvents({
       paymentReference,
-      address,
-      NearNativeTokenPaymentDetector.getContractName(paymentChain, paymentNetwork.version),
+      toAddress: address,
+      contractAddress: NearNativeTokenPaymentDetector.getContractName(
+        paymentChain,
+        paymentNetwork.version,
+      ),
       eventName,
       paymentChain,
-    );
-    const paymentEvents = await infoRetriever.getTransferEvents();
+    });
     return {
       paymentEvents,
     };

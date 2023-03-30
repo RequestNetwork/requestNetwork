@@ -55,6 +55,11 @@ export const tenderlyImportAll = async (hre: HardhatRuntimeEnvironmentExtended):
       const deployments = artifact.getAllAddressesFromAllNetworks();
       for (const deployment of deployments) {
         const { networkName, address, version } = deployment;
+        try {
+          EvmChains.assertChainSupported(networkName);
+        } catch {
+          continue;
+        }
         if (!supportedTenderlyChains.includes(networkName)) continue;
         const chainId = EvmChains.getChainId(networkName);
         const contract: TenderlyContract = {

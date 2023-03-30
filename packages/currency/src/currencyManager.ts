@@ -244,10 +244,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
       case RequestLogicTypes.CURRENCY.ERC777:
-        if (
-          currency.network &&
-          (NearChains.chainNames as CurrencyTypes.ChainName[]).includes(currency.network)
-        ) {
+        if (NearChains.isChainSupported(currency.network)) {
           return isValidNearAddress(address, currency.network);
         }
         return addressValidator.validate(address, 'ETH');

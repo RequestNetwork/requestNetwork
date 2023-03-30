@@ -38,6 +38,9 @@ export interface IAdvancedLogic {
   getAnyToNativeTokenExtensionForNetwork: (
     network: ChainName,
   ) => Extension.IExtension<Extension.PnAnyToEth.ICreationParameters> | undefined;
+  getFeeProxyContractErc20ForNetwork: (
+    network?: ChainName,
+  ) => Extension.PnFeeReferenceBased.IFeeReferenceBased | undefined;
   extensions: IAdvancedLogicExtensions;
 }
 

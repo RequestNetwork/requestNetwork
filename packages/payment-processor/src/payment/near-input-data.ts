@@ -9,7 +9,7 @@ import {
   getRequestPaymentValues,
   validateRequest,
 } from './utils';
-import { INearTransactionCallback, isNearNetwork, processNearPayment } from './utils-near';
+import { INearTransactionCallback, processNearPayment } from './utils-near';
 import { NearChains } from '@requestnetwork/currency';
 
 /**
@@ -24,7 +24,7 @@ export async function payNearInputDataRequest(
   amount?: BigNumberish,
   callback?: INearTransactionCallback,
 ): Promise<void> {
-  if (!request.currencyInfo.network || !isNearNetwork(request.currencyInfo.network)) {
+  if (!request.currencyInfo.network || !NearChains.isChainSupported(request.currencyInfo.network)) {
     throw new Error('request.currencyInfo should be a Near network');
   }
 
