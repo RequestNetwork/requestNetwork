@@ -10,6 +10,7 @@ import {
   EvmChains,
   ICurrencyManager,
   NearChains,
+  isSameChain,
 } from '@requestnetwork/currency';
 import ProxyInfoRetriever from './proxy-info-retriever';
 
@@ -117,7 +118,7 @@ export class ERC20FeeProxyPaymentDetector<
     paymentChain: TChain,
     paymentNetwork: ExtensionTypes.IState,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
-    if (this.network && paymentChain !== this.network) {
+    if (this.network && !isSameChain(paymentChain, this.network)) {
       throw new NetworkNotSupported(
         `Unsupported network '${paymentChain}' for payment detector instanciated with '${this.network}'`,
       );

@@ -57,24 +57,23 @@ export const tenderlyImportAll = async (hre: HardhatRuntimeEnvironmentExtended):
         const { networkName, address, version } = deployment;
         try {
           EvmChains.assertChainSupported(networkName);
-
-          if (!supportedTenderlyChains.includes(networkName)) continue;
-          const chainId = EvmChains.getChainId(networkName);
-          const contract: TenderlyContract = {
-            address,
-            chainId,
-          };
-          const contractId = getTenderlyContractId(contract);
-          contracts[contractId] = {
-            name: capitalizeFirstLetter(artifactName.replace(/Artifact/i, '')),
-            ...contract,
-          };
-          versions[version] ??= new Set();
-          versions[version].add(contractId);
-          (EvmChains.isTestnet(networkName) ? testnetContracts : mainnetContracts).add(contractId);
         } catch {
           continue;
         }
+        if (!supportedTenderlyChains.includes(networkName)) continue;
+        const chainId = EvmChains.getChainId(networkName);
+        const contract: TenderlyContract = {
+          address,
+          chainId,
+        };
+        const contractId = getTenderlyContractId(contract);
+        contracts[contractId] = {
+          name: capitalizeFirstLetter(artifactName.replace(/Artifact/i, '')),
+          ...contract,
+        };
+        versions[version] ??= new Set();
+        versions[version].add(contractId);
+        (EvmChains.isTestnet(networkName) ? testnetContracts : mainnetContracts).add(contractId);
       }
     }
     console.log(`> Retrieved ${Object.keys(contracts).length} contracts from protocol artifacts`);

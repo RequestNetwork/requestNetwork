@@ -1,5 +1,5 @@
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { NearChains, Utils } from '@requestnetwork/currency';
+import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { NearChains, isSameChain } from '@requestnetwork/currency';
 import { UnsupportedNetworkError } from '../address-based';
 import { FeeReferenceBasedPaymentNetwork } from '../fee-reference-based';
 
@@ -40,7 +40,7 @@ export default class Erc20FeeProxyPaymentNetwork<
     if (
       this.network &&
       request.currency.network &&
-      !Utils.isSameNetwork(this.network, request.currency.network)
+      !isSameChain(this.network, request.currency.network)
     ) {
       throw new UnsupportedNetworkError(request.currency.network, [this.network]);
     }
@@ -49,14 +49,13 @@ export default class Erc20FeeProxyPaymentNetwork<
 
   // Override `isValidAddress` to account for network-specific instanciation (non-EVM only)
   protected isValidAddress(address: string): boolean {
-    try {
-      NearChains.assertChainSupported(this.network);
-      if (NearChains.isTestnet(this.network)) {
+    if (NearChains.isChainSupported(this.network)) {
+      if (NearChains.isTestnet(this.network as CurrencyTypes.NearChainName)) {
         return this.isValidAddressForSymbolAndNetwork(address, 'NEAR-testnet', 'near-testnet');
       } else {
         return this.isValidAddressForSymbolAndNetwork(address, 'NEAR', 'near');
       }
-    } catch {
+    } else {
       return super.isValidAddress(address);
     }
   }

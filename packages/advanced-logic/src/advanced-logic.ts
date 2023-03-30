@@ -5,7 +5,12 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { CurrencyManager, ICurrencyManager, NearChains } from '@requestnetwork/currency';
+import {
+  CurrencyManager,
+  ICurrencyManager,
+  NearChains,
+  isSameChain,
+} from '@requestnetwork/currency';
 
 import ContentData from './extensions/content-data';
 import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
@@ -179,7 +184,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     if (
       requestState.currency.network &&
       extensionAction.parameters.paymentNetworkName &&
-      requestState.currency.network !== extensionAction.parameters.paymentNetworkName
+      !isSameChain(requestState.currency.network, extensionAction.parameters.paymentNetworkName)
     ) {
       throw new Error(
         `Cannot apply action for network ${extensionAction.parameters.paymentNetworkName} on state with payment network: ${requestState.currency.network}`,
