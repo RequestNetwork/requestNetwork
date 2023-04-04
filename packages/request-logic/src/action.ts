@@ -40,12 +40,11 @@ function createAction(
 }
 
 /**
- * Creates several actions from unsigned actions data and a signatures parameters
+ * Creates several actions from unsigned actions data and signatures parameters
  *
- * @notice it will sign the hash (keccak256) of the actions data
+ * @notice it will sign the hash (keccak256) of each actions data
  *
- * @param IUnsignedAction unsignedActions The unsigned action to sign
- * @param IIdentity signerIdentity Identity of the signer
+ * @param ISignatureBatchParameters actions data and associated signers
  * @param ISignatureProvider signatureProvider Signature provider in charge of the signature
  *
  * @returns IAction the action with the signature

@@ -44,8 +44,8 @@ function format(
  *
  * If requestParameters.timestamp not given, "Date.now() / 1000" will be used as default
  *
- * @param requestsParameters ICreateParameters[] parameters to create the requests
- * @param IIdentity signerIdentities Identities of the signer
+ * @param requestsParameters parameters to create the requests
+ * @param signerIdentities Identities of the different signers
  * @param ISignatureProvider signatureProvider Signature provider in charge of the signature
  *
  * @returns IAction  the action with the signature

@@ -144,12 +144,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   /**
    * Creates encrypted requests in batch and persists them on the transaction manager layer
    *
-   * @param requestParameters parameters to create a request
-   * @param signerIdentity Identity of the signer
-   * @param encryptionParams list of encryption parameters to encrypt the channel key with
-   * @param topics list of string to topic the request
+   * @param batchCreationInput Array of objects to create the requests for
    *
-   * @returns the request id and the meta data
+   * @returns the request ids and the meta data
    */
   public async batchCreateEncryptedRequests(
     batchCreationInput: {
