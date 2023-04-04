@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { mocked } from 'ts-jest/utils';
 
 import {
   ClientTypes,
@@ -18,7 +17,6 @@ import {
   PaymentReferenceCalculator,
   getPaymentReference,
   getPaymentNetworkExtension,
-  getTheGraphNearClient,
 } from '@requestnetwork/payment-detection';
 import { IRequestDataWithEvents } from '../src/types';
 import { CurrencyManager } from '@requestnetwork/currency';
