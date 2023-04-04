@@ -1,4 +1,4 @@
-import { CurrencyDefinition } from '@requestnetwork/currency';
+import { CurrencyDefinition, isValidNearAddress } from '@requestnetwork/currency';
 import {
   CurrencyTypes,
   ExtensionTypes,
@@ -62,7 +62,7 @@ const getChainlinkPaddingSize = ({
 
 export type DeploymentInformationWithVersion = DeploymentInformation & { contractVersion: string };
 export type GetDeploymentInformation<TAllowUndefined extends boolean> = (
-  network: CurrencyTypes.EvmChainName,
+  network: CurrencyTypes.VMChainName,
   paymentNetworkVersion: string,
 ) => TAllowUndefined extends false
   ? DeploymentInformationWithVersion
@@ -177,13 +177,19 @@ export function getPaymentReference(
   return PaymentReferenceCalculator.calculate(requestId, salt, info);
 }
 
-/** Alias to ethers.utils.getAddress that adds the key to error message, and supports nullish values */
+/**
+ * For EVMs: alias to ethers.utils.getAddress that adds the key to error message, and supports nullish values.
+ * For other chains: applies lower-case to the address.
+ */
 export const formatAddress: {
   (address: string | null | undefined, key?: string, allowsUndefined?: false): string;
   (address: string | null | undefined, key?: string, allowsUndefined?: true): string | undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } = (address: string | null | undefined, key?: string, allowsUndefined = false): any => {
   if (!address && allowsUndefined) return undefined;
+  if (address && isValidNearAddress(address)) {
+    return address?.toLowerCase();
+  }
   try {
     return getAddress(address || '');
   } catch (e) {

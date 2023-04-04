@@ -4,7 +4,6 @@ import {
   NearConversionNativeTokenPaymentDetector,
   NearNativeTokenPaymentDetector,
 } from '@requestnetwork/payment-detection';
-import { NearChains } from '@requestnetwork/currency';
 import { CurrencyTypes } from '@requestnetwork/types';
 
 /**
@@ -22,15 +21,6 @@ export const isValidNearAddress = async (nearNetwork: Near, address: string): Pr
     await nearNetwork.connection.provider.query(`account/${address}`, '');
     return true;
   } catch (e) {
-    return false;
-  }
-};
-
-export const isNearNetwork = (network?: string): boolean => {
-  try {
-    NearChains.assertChainSupported(network);
-    return true;
-  } catch {
     return false;
   }
 };

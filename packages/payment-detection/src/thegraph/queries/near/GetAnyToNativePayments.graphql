@@ -12,6 +12,7 @@ query GetAnyToNativePayments(
       currency: $currency
       maxRateTimespan_gte: $maxRateTimespan
       contractAddress: $contractAddress
+      tokenAddress: null
     }
     orderBy: timestamp
     orderDirection: asc
@@ -24,6 +25,8 @@ query GetAnyToNativePayments(
     from
     timestamp
     currency
+    gasPrice
+    gasUsed
     maxRateTimespan
     amountInCrypto
     feeAmountInCrypto

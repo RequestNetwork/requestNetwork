@@ -12,7 +12,7 @@ import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
 import { AnyToAnyDetector } from '../any-to-any-detector';
 import { makeGetDeploymentInformation } from '../utils';
 import { TheGraphConversionInfoRetriever } from '../thegraph/conversion-info-retriever';
-import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
+import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -31,7 +31,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
   ExtensionTypes.PnAnyToEth.IAnyToEth,
   PaymentTypes.IETHFeePaymentEventParameters
 > {
-  private readonly getSubgraphClient: PaymentNetworkOptions['getSubgraphClient'];
+  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -39,7 +39,8 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     advancedLogic,
     currencyManager,
     getSubgraphClient,
-  }: ReferenceBasedDetectorOptions & Pick<PaymentNetworkOptions, 'getSubgraphClient'>) {
+  }: ReferenceBasedDetectorOptions &
+    Pick<PaymentNetworkOptions<CurrencyTypes.EvmChainName>, 'getSubgraphClient'>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
       advancedLogic.extensions.anyToEthProxy,

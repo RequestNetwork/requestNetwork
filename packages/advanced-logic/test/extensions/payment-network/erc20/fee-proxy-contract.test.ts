@@ -1,13 +1,14 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import Erc20FeeProxyContract from '../../../../src/extensions/payment-network/erc20/fee-proxy-contract';
-
 import * as DataERC20FeeAddData from '../../../utils/payment-network/erc20/fee-proxy-contract-add-data-generator';
 import * as DataERC20FeeCreate from '../../../utils/payment-network/erc20/fee-proxy-contract-create-data-generator';
+import * as DataNearERC20FeeCreate from '../../../utils/payment-network/erc20/near-fee-proxy-contract';
 import * as TestData from '../../../utils/test-data-generator';
 import { deepCopy } from '@requestnetwork/utils';
+import { AdvancedLogic } from '../../../../src';
 
-const erc20FeeProxyContract = new Erc20FeeProxyContract();
+const advancedLogic = new AdvancedLogic();
+const erc20FeeProxyContract = advancedLogic.getFeeProxyContractErc20ForNetwork();
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
@@ -69,7 +70,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       });
     });
 
-    it('cannot createCreationAction with payment address not an ethereum address', () => {
+    it('cannot createCreationAction with an invalid payment address', () => {
       // 'must throw'
       expect(() => {
         erc20FeeProxyContract.createCreationAction({
@@ -111,6 +112,44 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
           salt: 'ea3bc7caf64110ca',
         });
       }).toThrowError('feeAmount is not a valid amount');
+    });
+
+    describe('on Near testnet', () => {
+      const extension = advancedLogic.getFeeProxyContractErc20ForNetwork('near-testnet');
+      it('can create a create action with all parameters', () => {
+        expect(
+          extension.createCreationAction({
+            feeAddress: 'buidler.reqnetwork.testnet',
+            feeAmount: '0',
+            paymentAddress: 'issuer.reqnetwork.testnet',
+            refundAddress: 'payer.reqnetwork.testnet',
+            salt: 'ea3bc7caf64110ca',
+          }),
+        ).toEqual({
+          action: 'create',
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
+          parameters: {
+            feeAddress: 'buidler.reqnetwork.testnet',
+            feeAmount: '0',
+            paymentAddress: 'issuer.reqnetwork.testnet',
+            refundAddress: 'payer.reqnetwork.testnet',
+            salt: 'ea3bc7caf64110ca',
+          },
+          version: 'NEAR-0.1.0',
+        });
+      });
+
+      it('cannot createCreationAction with an invalid payment address', () => {
+        expect(() => {
+          extension.createCreationAction({
+            paymentAddress: '0x0000000000000000000000000000000000000002',
+            refundAddress: 'payer.reqnetwork.testnet',
+            salt: 'ea3bc7caf64110ca',
+          });
+        }).toThrowError(
+          "paymentAddress '0x0000000000000000000000000000000000000002' is not a valid address",
+        );
+      });
     });
   });
 
@@ -337,6 +376,36 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
             TestData.arbitraryTimestamp,
           );
         }).toThrowError('version is required at creation');
+      });
+
+      describe('on Near testnet', () => {
+        const extension = advancedLogic.getFeeProxyContractErc20ForNetwork('near-testnet');
+        it('can applyActionToExtensions of creation', () => {
+          expect(
+            extension.applyActionToExtension(
+              DataNearERC20FeeCreate.requestStateNoExtensions.extensions,
+              DataNearERC20FeeCreate.actionCreationFull,
+              DataNearERC20FeeCreate.requestStateNoExtensions,
+              TestData.otherIdRaw.identity,
+              TestData.arbitraryTimestamp,
+            ),
+          ).toEqual(DataNearERC20FeeCreate.extensionFullState);
+        });
+        it('cannot applyActionToExtensions of creation', () => {
+          // 'new extension state wrong'
+          expect(() =>
+            extension.applyActionToExtension(
+              // State with currency on the wrong network
+              DataERC20FeeCreate.requestStateNoExtensions.extensions,
+              DataNearERC20FeeCreate.actionCreationFull,
+              DataERC20FeeCreate.requestStateNoExtensions,
+              TestData.otherIdRaw.identity,
+              TestData.arbitraryTimestamp,
+            ),
+          ).toThrowError(
+            "Payment network 'mainnet' is not supported by this extension (only near-testnet)",
+          );
+        });
       });
     });
 

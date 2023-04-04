@@ -9,7 +9,7 @@ import ProxyInfoRetriever from './proxy-info-retriever';
 import { TheGraphInfoRetriever } from '../thegraph';
 import { makeGetDeploymentInformation } from '../utils';
 import { ReferenceBasedDetector } from '../reference-based-detector';
-import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
+import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
@@ -22,7 +22,7 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
   PaymentTypes.IERC20PaymentEventParameters
 > {
-  private readonly getSubgraphClient: PaymentNetworkOptions['getSubgraphClient'];
+  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
 
   /**
    * @param extension The advanced logic payment network extensions
@@ -31,7 +31,8 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
     advancedLogic,
     currencyManager,
     getSubgraphClient,
-  }: ReferenceBasedDetectorOptions & Pick<PaymentNetworkOptions, 'getSubgraphClient'>) {
+  }: ReferenceBasedDetectorOptions &
+    Pick<PaymentNetworkOptions<CurrencyTypes.EvmChainName>, 'getSubgraphClient'>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       advancedLogic.extensions.proxyContractErc20,
