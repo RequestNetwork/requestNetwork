@@ -20,6 +20,14 @@ export interface IRequestLogic {
     encryptionParams: Encryption.IEncryptionParameters[],
     topics: any[],
   ) => Promise<IReturnCreateRequest>;
+  batchCreateEncryptedRequests: (
+    batchCreationInput: {
+      requestParameters: ICreateParameters;
+      signerIdentity: Identity.IIdentity;
+      encryptionParams: Encryption.IEncryptionParameters[];
+      topics: any[];
+    }[],
+  ) => Promise<IReturnCreateRequest[]>;
   computeRequestId: (
     requestParameters: ICreateParameters,
     signerIdentity: Identity.IIdentity,

@@ -157,6 +157,69 @@ export default class RequestNetwork {
   }
 
   /**
+   * Creates several encrypted requests.
+   *
+   * @param parameters Parameters to create a request
+   * @param encryptionParams Request encryption parameters
+   * @returns The created encrypted request
+   */
+  public async _batchCreateEncryptedRequests(
+    batchParameters: {
+      parameters: Types.ICreateRequestParameters;
+      encryptionParams: EncryptionTypes.IEncryptionParameters[];
+    }[],
+    options?: Types.ICreateRequestOptions,
+  ): Promise<Request[]> {
+    if (batchParameters.length === 0) {
+      throw new Error('Requests parameters are empty');
+    }
+    const batchCreationInput = await Promise.all(
+      batchParameters.map(async ({ parameters, encryptionParams }) => {
+        const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
+          parameters,
+        );
+        return {
+          requestParameters,
+          signerIdentity: parameters.signer,
+          encryptionParams,
+          topics,
+          paymentNetwork,
+        };
+      }),
+    );
+
+    const requestsLogicCreateResults = await this.requestLogic.batchCreateEncryptedRequests(
+      batchCreationInput,
+    );
+
+    // create request objects
+    const requests = requestsLogicCreateResults.map(
+      (requestLogicCreateResult, index) =>
+        new Request(
+          requestLogicCreateResult.result.requestId,
+          this.requestLogic,
+          this.currencyManager,
+          {
+            contentDataExtension: this.contentData,
+            paymentNetwork: batchCreationInput[index].paymentNetwork,
+            requestLogicCreateResult,
+            skipPaymentDetection: batchParameters[index].parameters.disablePaymentDetection,
+            disableEvents: batchParameters[index].parameters.disableEvents,
+          },
+        ),
+    );
+
+    if (!options?.skipRefresh) {
+      // refresh the local request data
+      for (const request of requests) {
+        await request.refresh();
+      }
+    }
+
+    return requests;
+  }
+
+  /**
    * Gets the ID of a request without creating it.
    *
    * @param requestParameters Parameters to create a request

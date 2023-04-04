@@ -120,6 +120,34 @@ const thirdPartyDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider 
   supportedMethods: [EncryptionTypes.METHOD.ECIES],
 };
 
+const fakeDecryptionProviderExtended: DecryptionProviderTypes.IDecryptionProvider = {
+  ...fakeDecryptionProvider,
+  decrypt: (
+    data: EncryptionTypes.IEncryptedData,
+    identity: IdentityTypes.IIdentity,
+  ): Promise<string> => {
+    console.log(identity);
+    switch (identity.value.toLowerCase()) {
+      case idRaw1.identity.value:
+        return decrypt(data, idRaw1.decryptionParams);
+
+      case idRaw2.identity.value:
+        return decrypt(data, idRaw2.decryptionParams);
+
+      case idRaw3.identity.value:
+        return decrypt(data, idRaw3.decryptionParams);
+
+      default:
+        throw new Error('Identity not registered');
+    }
+  },
+  isIdentityRegistered: async (identity: IdentityTypes.IIdentity): Promise<boolean> => {
+    return [idRaw1.identity.value, idRaw2.identity.value, idRaw3.identity.value].includes(
+      identity.value.toLowerCase(),
+    );
+  },
+};
+
 const requestParameters: RequestLogicTypes.ICreateParameters = {
   currency: {
     network: 'mainnet',
@@ -1179,6 +1207,142 @@ describe('request-client.js', () => {
       const thirdPartyRequestData = thirdPartyFetchedRequest.getData();
 
       expect(thirdPartyRequestData).toMatchObject(requestDataAfterAddStakeholders);
+    });
+  });
+
+  describe.only('Request Logic with encryption created in batch', () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+    it('creates encrypted requests and reads them', async () => {
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: TestData.fakeBatchSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const requests = await requestNetwork._batchCreateEncryptedRequests([
+        {
+          parameters: {
+            requestInfo: TestData.parametersWithoutExtensionsData,
+            signer: TestData.payee.identity,
+          },
+          encryptionParams: [idRaw1.encryptionParams],
+        },
+        {
+          parameters: {
+            requestInfo: { ...TestData.parametersWithoutExtensionsData, timestamp: Date.now() },
+            signer: TestData.payee.identity,
+          },
+          encryptionParams: [idRaw1.encryptionParams],
+        },
+      ]);
+
+      const requestsFromIds = await Promise.all(
+        requests.map((request) => requestNetwork.fromRequestId(request.requestId)),
+      );
+
+      expect(requestsFromIds).toMatchObject(requests);
+
+      const requestsData = requestsFromIds.map((requestFromId) => requestFromId.getData());
+      expect(requestsData.map((requestData) => requestData.meta)).not.toContain(null);
+      expect(
+        requestsData.map(
+          (requestData) => requestData.meta!.transactionManagerMeta.encryptionMethod,
+        ),
+      ).toEqual(['ecies-aes256-gcm', 'ecies-aes256-gcm']);
+    });
+
+    it.only('cannot access request created in batch with a different identity', async () => {
+      const mockStorage = new MockStorage();
+      const mockDataAccess = new MockDataAccess(mockStorage);
+
+      const requestNetworkWithTwoPayees = new RequestNetworkBase({
+        decryptionProvider: fakeDecryptionProviderExtended,
+        signatureProvider: TestData.fakeBatchSignatureProvider,
+        dataAccess: mockDataAccess,
+      });
+
+      const requests = await requestNetworkWithTwoPayees._batchCreateEncryptedRequests([
+        {
+          parameters: {
+            requestInfo: TestData.parametersWithoutExtensionsData,
+            signer: TestData.payee.identity,
+          },
+          encryptionParams: [idRaw1.encryptionParams],
+        },
+        {
+          parameters: {
+            requestInfo: {
+              ...TestData.parametersWithoutExtensionsData,
+              timestamp: Date.now(),
+              payee: TestData.otherPayee.identity,
+            },
+            signer: TestData.otherPayee.identity,
+          },
+          encryptionParams: [idRaw3.encryptionParams],
+        },
+      ]);
+
+      // Check access for Payee One:
+      const requestNetworkPayeeOne = new RequestNetworkBase({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: TestData.fakeBatchSignatureProvider,
+        dataAccess: mockDataAccess,
+      });
+      const payeeOneRequest = await requestNetworkPayeeOne.fromRequestId(requests[0].requestId);
+      expect(payeeOneRequest as Request).toMatchObject<Request>(requests[0] as Request);
+      await expect(requestNetworkPayeeOne.fromRequestId(requests[1].requestId)).rejects.toThrow();
+
+      // Check access for Payee Two
+      const requestNetworkPayeeTwo = new RequestNetworkBase({
+        decryptionProvider: thirdPartyDecryptionProvider,
+        signatureProvider: TestData.fakeBatchSignatureProvider,
+        dataAccess: mockDataAccess,
+      });
+      const payeeTwoRequest = await requestNetworkPayeeTwo.fromRequestId(requests[1].requestId);
+      expect(payeeTwoRequest).toMatchObject<Request>(requests[1]);
+      await expect(requestNetworkPayeeTwo.fromRequestId(requests[0].requestId)).rejects.toThrow();
+    });
+
+    it('cannot batch create encrypted requests without encryption parameters', async () => {
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: TestData.fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      await expect(
+        requestNetwork._batchCreateEncryptedRequests([
+          {
+            parameters: {
+              requestInfo: TestData.parametersWithoutExtensionsData,
+              signer: TestData.payee.identity,
+            },
+            encryptionParams: [idRaw1.encryptionParams],
+          },
+          {
+            parameters: {
+              requestInfo: { ...TestData.parametersWithoutExtensionsData, timestamp: Date.now() },
+              signer: TestData.payee.identity,
+            },
+            encryptionParams: [],
+          },
+        ]),
+      ).rejects.toThrowError(
+        'You must give at least one encryption parameter to create an encrypted request',
+      );
+    });
+    it('cannot batch create encrypted requests with empty parameters', async () => {
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: TestData.fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      await expect(requestNetwork._batchCreateEncryptedRequests([])).rejects.toThrowError(
+        'Requests parameters are empty',
+      );
     });
   });
 

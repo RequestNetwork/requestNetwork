@@ -12,6 +12,7 @@ import { normalizeKeccak256Hash, sign } from '@requestnetwork/utils';
 import AxiosMockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { Types } from '../src';
+import { ISignatureBatchParameters } from 'types/src/signature-provider-types';
 
 export const arbitraryTimestamp = 1549953337;
 
@@ -41,6 +42,17 @@ export const delegate = {
   identity: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE',
+  },
+};
+
+export const otherPayee = {
+  identity: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: '0xE6558f7D7C507B3b9598792ad7C9D6BeeD896149',
+  },
+  signatureParams: {
+    method: SignatureTypes.METHOD.ECDSA,
+    privateKey: '0x60456c06c01e8f844b5259b3709b46c7cf918d7b5e15f0cd66d73857d6f5b88e',
   },
 };
 
@@ -256,18 +268,34 @@ export const signatureParametersDelegate: SignatureTypes.ISignatureParameters = 
   privateKey: '0x8d5366123cb560bb606379f90a0bfd4769eecc0557f1b362dcae9012b548b1e5',
 };
 
+export const signatureParametersThirdParty: SignatureTypes.ISignatureParameters = {
+  method: SignatureTypes.METHOD.ECDSA,
+  privateKey: '0x60456c06c01e8f844b5259b3709b46c7cf918d7b5e15f0cd66d73857d6f5b88e',
+};
+
 export const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
   sign: (data: any, signer: IdentityTypes.IIdentity): any => {
     if (signer.value === payee.identity.value) {
       return sign(data, signatureParametersPayee);
     } else if (signer.value === payer.identity.value) {
       return sign(data, signatureParametersPayer);
+    } else if (signer.value === otherPayee.identity.value) {
+      return sign(data, signatureParametersThirdParty);
     } else {
       return sign(data, signatureParametersDelegate);
     }
   },
   supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
   supportedMethods: [SignatureTypes.METHOD.ECDSA],
+};
+
+export const fakeBatchSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
+  ...fakeSignatureProvider,
+  batchSign: (parameters: ISignatureBatchParameters[]): any => {
+    return parameters.map((parameter) =>
+      fakeBatchSignatureProvider.sign(parameter.data, parameter.signer),
+    );
+  },
 };
 
 export const mockAxiosRequestNode = (): AxiosMockAdapter => {

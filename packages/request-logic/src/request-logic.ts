@@ -11,6 +11,10 @@ import {
 } from '@requestnetwork/types';
 import RequestLogicCore from './requestLogicCore';
 import { normalizeKeccak256Hash, notNull, uniqueByProperty } from '@requestnetwork/utils';
+import {
+  ICreateCreationActionRequestIdAndTopicsParameters,
+  ICreateCreationActionRequestIdAndTopicsResult,
+} from './types';
 
 /**
  * Implementation of Request Logic
@@ -44,11 +48,11 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     signerIdentity: IdentityTypes.IIdentity,
     topics: any[] = [],
   ): Promise<RequestLogicTypes.IReturnCreateRequest> {
-    const { action, requestId, hashedTopics } = await this.createCreationActionRequestIdAndTopics(
+    const { action, requestId, hashedTopics } = await this.createCreationActionRequestIdAndTopics({
       requestParameters,
       signerIdentity,
       topics,
-    );
+    });
 
     // Validate the action, the apply will throw in case of error
     RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic);
@@ -101,11 +105,11 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       );
     }
 
-    const { action, requestId, hashedTopics } = await this.createCreationActionRequestIdAndTopics(
+    const { action, requestId, hashedTopics } = await this.createCreationActionRequestIdAndTopics({
       requestParameters,
       signerIdentity,
       topics,
-    );
+    });
 
     // Validate the action, the apply will throw in case of error
     RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic);
@@ -135,6 +139,72 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       });
 
     return result;
+  }
+
+  /**
+   * Creates encrypted requests in batch and persists them on the transaction manager layer
+   *
+   * @param requestParameters parameters to create a request
+   * @param signerIdentity Identity of the signer
+   * @param encryptionParams list of encryption parameters to encrypt the channel key with
+   * @param topics list of string to topic the request
+   *
+   * @returns the request id and the meta data
+   */
+  public async batchCreateEncryptedRequests(
+    batchCreationInput: {
+      requestParameters: RequestLogicTypes.ICreateParameters;
+      signerIdentity: IdentityTypes.IIdentity;
+      encryptionParams: EncryptionTypes.IEncryptionParameters[];
+      topics: any[];
+    }[],
+  ): Promise<RequestLogicTypes.IReturnCreateRequest[]> {
+    if (batchCreationInput.some((creationInput) => creationInput.encryptionParams.length === 0)) {
+      throw new Error(
+        'You must give at least one encryption parameter to create an encrypted request',
+      );
+    }
+
+    const actionsRequestsIdsAndTopics = await this.batchCreateCreationActionRequestIdAndTopics(
+      batchCreationInput,
+    );
+
+    const resultPersistTxs = await Promise.all(
+      actionsRequestsIdsAndTopics.map(async ({ action, requestId, hashedTopics }, index) => {
+        // Validate all actions, the apply will throw in case of error
+        RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic);
+        return await this.transactionManager.persistTransaction(
+          JSON.stringify(action),
+          requestId,
+          hashedTopics,
+          batchCreationInput[index].encryptionParams,
+        );
+      }),
+    );
+
+    const results = resultPersistTxs.map((resultPersistTx, index) => {
+      const requestId = actionsRequestsIdsAndTopics[index].requestId;
+      const result = Object.assign(new EventEmitter(), {
+        meta: { transactionManagerMeta: resultPersistTx.meta },
+        result: { requestId },
+      });
+
+      // When receive the confirmation from transaction manager propagate it
+      resultPersistTx
+        .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+          result.emit('confirmed', {
+            meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
+            result: { requestId },
+          });
+        })
+        .on('error', (error) => {
+          result.emit('error', error);
+        });
+
+      return result;
+    });
+
+    return results;
   }
 
   /**
@@ -550,14 +620,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @returns the request id, the action and the hashed topics
    */
   private async createCreationActionRequestIdAndTopics(
-    requestParameters: RequestLogicTypes.ICreateParameters,
-    signerIdentity: IdentityTypes.IIdentity,
-    topics: any[],
-  ): Promise<{
-    action: RequestLogicTypes.IAction;
-    hashedTopics: string[];
-    requestId: RequestLogicTypes.RequestId;
-  }> {
+    parameters: ICreateCreationActionRequestIdAndTopicsParameters,
+  ): Promise<ICreateCreationActionRequestIdAndTopicsResult> {
+    const { requestParameters, signerIdentity, topics } = parameters;
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
     }
@@ -579,6 +644,45 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       hashedTopics,
       requestId,
     };
+  }
+
+  /**
+   * Creates creation action and requestId for several requests
+   *
+   * @param requestsParameters parameters to create requests
+   * @param signerIdentities Identities of the signers
+   *
+   * @returns An array of object containing the request id, the action and the hashed topics
+   */
+  private async batchCreateCreationActionRequestIdAndTopics(
+    batchParameters: ICreateCreationActionRequestIdAndTopicsParameters[],
+  ): Promise<ICreateCreationActionRequestIdAndTopicsResult[]> {
+    if (!this.signatureProvider) {
+      throw new Error('You must give a signature provider to create actions');
+    }
+
+    const requestsParameters = batchParameters.map((parameters) => parameters.requestParameters);
+    const signerIdentities = batchParameters.map((parameters) => parameters.signerIdentity);
+
+    const actions = await RequestLogicCore.formatCreateBatch(
+      requestsParameters,
+      signerIdentities,
+      this.signatureProvider,
+    );
+    const requestIds = actions.map(RequestLogicCore.getRequestIdFromAction);
+
+    // hash all the topics
+    const hashedTopics = batchParameters.map((parameters) =>
+      parameters.topics.map((topic) => MultiFormat.serialize(normalizeKeccak256Hash(topic))),
+    );
+
+    return actions.map((action, index) => {
+      return {
+        action,
+        hashedTopics: hashedTopics[index],
+        requestId: requestIds[index],
+      };
+    });
   }
 
   /**

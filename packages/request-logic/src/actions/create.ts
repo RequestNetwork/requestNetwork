@@ -16,6 +16,7 @@ import {
 export default {
   createRequest,
   format,
+  formatBatch,
 };
 
 /**
@@ -34,6 +35,52 @@ function format(
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
 ): Promise<RequestLogicTypes.IAction> {
+  const unsignedAction = formatWithoutSignature(requestParameters, signerIdentity);
+  return Action.createAction(unsignedAction, signerIdentity, signatureProvider);
+}
+
+/**
+ * Function to format several actions to create a Request
+ *
+ * If requestParameters.timestamp not given, "Date.now() / 1000" will be used as default
+ *
+ * @param requestsParameters ICreateParameters[] parameters to create the requests
+ * @param IIdentity signerIdentities Identities of the signer
+ * @param ISignatureProvider signatureProvider Signature provider in charge of the signature
+ *
+ * @returns IAction  the action with the signature
+ */
+function formatBatch(
+  requestsParameters: RequestLogicTypes.ICreateParameters[],
+  signerIdentities: IdentityTypes.IIdentity[],
+  signatureProvider: SignatureProviderTypes.ISignatureProvider,
+): Promise<RequestLogicTypes.IAction[]> {
+  if (requestsParameters.length !== signerIdentities.length) {
+    throw new Error('Numbers of requests do not match numbers of signers');
+  }
+  const unsignedActions = requestsParameters.map((requestParameters, index) => {
+    return {
+      data: formatWithoutSignature(requestParameters, signerIdentities[index]),
+      signer: signerIdentities[index],
+    };
+  });
+  return Action.createActions(unsignedActions, signatureProvider);
+}
+
+/**
+ * Function to format action to create a Request without signing the action
+ *
+ * If requestParameters.timestamp not given, "Date.now() / 1000" will be used as default
+ *
+ * @param requestParameters ICreateParameters parameters to create a request
+ * @param IIdentity signerIdentity Identity of the signer
+ *
+ * @returns IUnsigneAction the action without the signature
+ */
+function formatWithoutSignature(
+  requestParameters: RequestLogicTypes.ICreateParameters,
+  signerIdentity: IdentityTypes.IIdentity,
+): RequestLogicTypes.IUnsignedAction {
   if (!requestParameters.payee && !requestParameters.payer) {
     throw new Error('payee or PayerId must be given');
   }
@@ -73,7 +120,7 @@ function format(
     throw new Error('Signer must be the payee or the payer');
   }
 
-  return Action.createAction(unsignedAction, signerIdentity, signatureProvider);
+  return unsignedAction;
 }
 
 /**
@@ -133,6 +180,10 @@ function createRequest(
     request.creator = action.data.parameters.payer;
     return request;
   }
+  console.log(request);
+  console.log(action);
+  console.log(signer);
+  console.log(signerRole);
 
   throw new Error('Signer must be the payee or the payer');
 }

@@ -4,12 +4,14 @@ import * as Semver from 'semver';
 import Role from './role';
 import Version from './version';
 import { normalizeKeccak256Hash, recoverSigner } from '@requestnetwork/utils';
+import { ISignatureBatchParameters } from 'types/dist/signature-provider-types';
 
 /**
  * Function to manage Request logic action (object that will be interpreted to create or modify a request)
  */
 export default {
   createAction,
+  createActions,
   getRequestId,
   getRoleInAction,
   getRoleInUnsignedAction,
@@ -35,6 +37,27 @@ function createAction(
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
 ): Promise<RequestLogicTypes.IAction> {
   return signatureProvider.sign(unsignedAction, signerIdentity);
+}
+
+/**
+ * Creates several actions from unsigned actions data and a signatures parameters
+ *
+ * @notice it will sign the hash (keccak256) of the actions data
+ *
+ * @param IUnsignedAction unsignedActions The unsigned action to sign
+ * @param IIdentity signerIdentity Identity of the signer
+ * @param ISignatureProvider signatureProvider Signature provider in charge of the signature
+ *
+ * @returns IAction the action with the signature
+ */
+function createActions(
+  actionAndSigners: ISignatureBatchParameters[],
+  signatureProvider: SignatureProviderTypes.ISignatureProvider,
+): Promise<RequestLogicTypes.IAction[]> {
+  if (!signatureProvider.batchSign) {
+    throw new Error('Signature provider does not support batch signature');
+  }
+  return signatureProvider.batchSign(actionAndSigners);
 }
 
 /**

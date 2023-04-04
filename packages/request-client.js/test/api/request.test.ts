@@ -17,6 +17,9 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
   async createEncryptedRequest(): Promise<any> {
     return;
   },
+  async batchCreateEncryptedRequests(): Promise<any> {
+    return;
+  },
   async computeRequestId(): Promise<any> {
     return;
   },
@@ -490,6 +493,9 @@ describe('api/request', () => {
           return;
         },
         async createEncryptedRequest(): Promise<any> {
+          return;
+        },
+        async batchCreateEncryptedRequests(): Promise<any> {
           return;
         },
         async computeRequestId(): Promise<any> {

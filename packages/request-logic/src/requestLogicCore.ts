@@ -20,6 +20,7 @@ export default {
   formatAddExtensionsData: AddExtensionsData.format,
   formatCancel: CancelAction.format,
   formatCreate: CreateAction.format,
+  formatCreateBatch: CreateAction.formatBatch,
   formatIncreaseExpectedAmount: IncreaseExpectedAmountAction.format,
   formatReduceExpectedAmount: ReduceExpectedAmountAction.format,
   formatAddStakeholders: AddStakeholdersAction.format,
