@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { mocked } from 'ts-jest/utils';
 
 import {
   ClientTypes,
@@ -17,6 +18,7 @@ import {
   PaymentReferenceCalculator,
   getPaymentReference,
   getPaymentNetworkExtension,
+  getTheGraphNearClient,
 } from '@requestnetwork/payment-detection';
 import { IRequestDataWithEvents } from '../src/types';
 import { CurrencyManager } from '@requestnetwork/currency';
@@ -331,7 +333,7 @@ describe('request-client.js: declarative payments', () => {
             type: RequestLogicTypes.CURRENCY.ERC20,
             address: '0x38cf23c52bb4b13f051aec09580a2de845a7fa35',
             decimals: 18,
-            network: 'private',
+            network: 'private', // private network forces RPC-based `getLogs`
             symbol: 'FAKE',
           },
         ],
