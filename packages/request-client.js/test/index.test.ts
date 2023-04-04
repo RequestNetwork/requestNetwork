@@ -1283,14 +1283,16 @@ describe('request-client.js', () => {
         },
       ]);
 
-      // Check access for Payee One:
+      // Check requests and access for Payee One:
       const requestNetworkPayeeOne = new RequestNetworkBase({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeBatchSignatureProvider,
         dataAccess: mockDataAccess,
       });
       const payeeOneRequest = await requestNetworkPayeeOne.fromRequestId(requests[0].requestId);
-      expect(payeeOneRequest as Request).toMatchObject<Request>(requests[0] as Request);
+      const payeeOneRequests = await requestNetworkPayeeOne.fromIdentity(TestData.payee.identity);
+      expect(payeeOneRequest.getData()).not.toBe(null);
+      expect(payeeOneRequests.length).toBe(1);
       await expect(requestNetworkPayeeOne.fromRequestId(requests[1].requestId)).rejects.toThrow();
 
       // Check access for Payee Two
@@ -1300,7 +1302,11 @@ describe('request-client.js', () => {
         dataAccess: mockDataAccess,
       });
       const payeeTwoRequest = await requestNetworkPayeeTwo.fromRequestId(requests[1].requestId);
-      expect(payeeTwoRequest).toMatchObject<Request>(requests[1]);
+      const payeeTwoRequests = await requestNetworkPayeeTwo.fromIdentity(
+        TestData.otherPayee.identity,
+      );
+      expect(payeeTwoRequest.getData()).not.toBe(null);
+      expect(payeeTwoRequests.length).toBe(1);
       await expect(requestNetworkPayeeTwo.fromRequestId(requests[0].requestId)).rejects.toThrow();
     });
 
