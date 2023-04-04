@@ -169,6 +169,16 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       batchCreationInput,
     );
 
+    // Assert requests unicity
+    if (
+      actionsRequestsIdsAndTopics.some(
+        ({ requestId }, index, self) =>
+          self.findIndex((val) => requestId === val.requestId) !== index,
+      )
+    ) {
+      throw new Error('Only unique requests can be batched together');
+    }
+
     const resultPersistTxs = await Promise.all(
       actionsRequestsIdsAndTopics.map(async ({ action, requestId, hashedTopics }, index) => {
         // Validate all actions, the apply will throw in case of error

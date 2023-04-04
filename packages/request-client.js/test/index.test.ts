@@ -1209,7 +1209,7 @@ describe('request-client.js', () => {
     });
   });
 
-  describe.only('Request Logic with encryption created in batch', () => {
+  describe('Request Logic with encryption created in batch', () => {
     afterEach(() => {
       jest.clearAllMocks();
     });
@@ -1252,7 +1252,7 @@ describe('request-client.js', () => {
       ).toEqual(['ecies-aes256-gcm', 'ecies-aes256-gcm']);
     });
 
-    it.only('cannot access request created in batch with a different identity', async () => {
+    it('cannot access request created in batch with a different identity', async () => {
       const mockStorage = new MockStorage();
       const mockDataAccess = new MockDataAccess(mockStorage);
 
@@ -1302,6 +1302,33 @@ describe('request-client.js', () => {
       const payeeTwoRequest = await requestNetworkPayeeTwo.fromRequestId(requests[1].requestId);
       expect(payeeTwoRequest).toMatchObject<Request>(requests[1]);
       await expect(requestNetworkPayeeTwo.fromRequestId(requests[0].requestId)).rejects.toThrow();
+    });
+
+    it('cannot create the exact same request twice', async () => {
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: TestData.fakeBatchSignatureProvider,
+        useMockStorage: true,
+      });
+
+      await expect(
+        requestNetwork._batchCreateEncryptedRequests([
+          {
+            parameters: {
+              requestInfo: TestData.parametersWithoutExtensionsData,
+              signer: TestData.payee.identity,
+            },
+            encryptionParams: [idRaw1.encryptionParams],
+          },
+          {
+            parameters: {
+              requestInfo: TestData.parametersWithoutExtensionsData,
+              signer: TestData.payee.identity,
+            },
+            encryptionParams: [idRaw1.encryptionParams],
+          },
+        ]),
+      ).rejects.toThrowError('Only unique requests can be batched together');
     });
 
     it('cannot batch create encrypted requests without encryption parameters', async () => {
