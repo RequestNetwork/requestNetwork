@@ -180,10 +180,6 @@ function createRequest(
     request.creator = action.data.parameters.payer;
     return request;
   }
-  console.log(request);
-  console.log(action);
-  console.log(signer);
-  console.log(signerRole);
 
   throw new Error('Signer must be the payee or the payer');
 }

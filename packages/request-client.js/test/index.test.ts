@@ -126,7 +126,6 @@ const fakeDecryptionProviderExtended: DecryptionProviderTypes.IDecryptionProvide
     data: EncryptionTypes.IEncryptedData,
     identity: IdentityTypes.IIdentity,
   ): Promise<string> => {
-    console.log(identity);
     switch (identity.value.toLowerCase()) {
       case idRaw1.identity.value:
         return decrypt(data, idRaw1.decryptionParams);
