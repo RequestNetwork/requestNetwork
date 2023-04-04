@@ -14,6 +14,7 @@ import {
 } from '@requestnetwork/payment-detection';
 import { ERC20TransferableReceivable__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes } from '@requestnetwork/types';
+import MultiFormat from '@requestnetwork/multi-format';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
@@ -115,7 +116,7 @@ export function encodeMintErc20TransferableReceivableRequest(
   validateERC20TransferableReceivable(request);
 
   const tokenAddress = request.currencyInfo.value;
-  const metadata = Buffer.from(request.requestId).toString('base64'); // metadata is requestId
+  const requestIdDeserialized = MultiFormat.deserialize(request.requestId).value;
 
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
   const amount = getAmountToPay(request);
@@ -126,7 +127,7 @@ export function encodeMintErc20TransferableReceivableRequest(
     `0x${paymentReference}`,
     amount,
     tokenAddress,
-    metadata,
+    requestIdDeserialized,
   ]);
 }
 
@@ -204,10 +205,11 @@ export async function encodePayErc20TransferableReceivableRequest(
 
   const receivableContract = ERC20TransferableReceivable__factory.createInterface();
 
+  // get tokenId from requestId
   const receivableTokenId = await getReceivableTokenIdForRequest(request, signerOrProvider);
 
   return receivableContract.encodeFunctionData('payOwner', [
-    receivableTokenId, // get tokenId from requestId
+    receivableTokenId,
     amountToPay,
     `0x${paymentReference}`,
     feeToPay,

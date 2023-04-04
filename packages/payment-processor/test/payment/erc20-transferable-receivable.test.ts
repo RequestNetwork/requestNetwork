@@ -118,7 +118,8 @@ describe('erc20-transferable-receivable', () => {
     it('rejects paying without minting', async () => {
       // Different request without a minted receivable
       const request = deepCopy(validRequest) as ClientTypes.IRequestData;
-      request.requestId = '0x01';
+      // Change the request id
+      request.requestId = '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e2';
 
       await expect(payErc20TransferableReceivableRequest(request, wallet)).rejects.toThrowError(
         'The receivable for this request has not been minted yet. Please check with the payee.',
@@ -235,7 +236,8 @@ describe('erc20-transferable-receivable', () => {
     it('other wallets can mint receivable for owner', async () => {
       // Request without a receivable minted yet
       const request = deepCopy(validRequest) as ClientTypes.IRequestData;
-      request.requestId = '0x01';
+      // Change the request id
+      request.requestId = '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e3';
 
       const mintTx = await mintErc20TransferableReceivable(request, thirdPartyWallet, {
         gasLimit: BigNumber.from('20000000'),
@@ -268,7 +270,8 @@ describe('erc20-transferable-receivable', () => {
     it('rejects paying unless minted to correct owner', async () => {
       // Request without a receivable minted yet
       const request = deepCopy(validRequest) as ClientTypes.IRequestData;
-      request.requestId = '0x02';
+      // Change the request id
+      request.requestId = '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e4';
 
       let shortReference = PaymentReferenceCalculator.calculate(
         request.requestId,

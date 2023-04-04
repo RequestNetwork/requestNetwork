@@ -2,8 +2,7 @@
 pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/utils/Counters.sol';
-import '@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol';
-import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
+import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 
 /**
  * @title ERC20TransferableReceivable
@@ -11,7 +10,7 @@ import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
  * @dev ERC721 contract for creating and managing unique NFTs representing receivables
  *      that can be paid with any ERC20 token
  */
-contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStorage {
+contract ERC20TransferableReceivable is ERC721 {
   using Counters for Counters.Counter;
 
   /**
@@ -31,6 +30,7 @@ contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStora
     address tokenAddress;
     uint256 amount;
     uint256 balance;
+    bytes32 requestID;
   }
 
   /**
@@ -158,7 +158,8 @@ contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStora
    * @param paymentReference A reference for the payment.
    * @param amount The amount of ERC20 tokens to be paid.
    * @param erc20Addr The address of the ERC20 token to be used as payment.
-   * @param newTokenURI The URI to be set on the minted receivable token.
+   * @param requestID The ID of the request associated with the receivable.
+   *                  Useful for retrieving details of the request from the Request Network.
    * @dev Anyone can pay for the mint of a receivable on behalf of a user
    */
   function mint(
@@ -166,7 +167,7 @@ contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStora
     bytes calldata paymentReference,
     uint256 amount,
     address erc20Addr,
-    string memory newTokenURI
+    bytes32 requestID
   ) external {
     require(paymentReference.length > 0, 'Zero paymentReference provided');
     require(amount > 0, 'Zero amount provided');
@@ -183,60 +184,10 @@ contract ERC20TransferableReceivable is ERC721, ERC721Enumerable, ERC721URIStora
     receivableInfoMapping[currentReceivableTokenId] = ReceivableInfo({
       tokenAddress: erc20Addr,
       amount: amount,
-      balance: 0
+      balance: 0,
+      requestID: requestID
     });
 
     _mint(owner, currentReceivableTokenId);
-    _setTokenURI(currentReceivableTokenId, newTokenURI);
-  }
-
-  /**
-   * @notice Get an array of all receivable token IDs owned by a specific address.
-   * @param _owner The address that owns the receivable tokens.
-   * @return An array of all receivable token IDs owned by the specified address.
-   */
-  function getTokenIds(address _owner) public view returns (uint256[] memory) {
-    uint256[] memory _tokensOfOwner = new uint256[](ERC721.balanceOf(_owner));
-    uint256 i;
-
-    for (i = 0; i < ERC721.balanceOf(_owner); i++) {
-      _tokensOfOwner[i] = ERC721Enumerable.tokenOfOwnerByIndex(_owner, i);
-    }
-    return (_tokensOfOwner);
-  }
-
-  // The following functions are overrides required by Solidity.
-  /// @dev Overrides ERC721's _beforeTokenTransfer method to include functionality from ERC721Enumerable.
-  function _beforeTokenTransfer(
-    address from,
-    address to,
-    uint256 tokenId
-  ) internal override(ERC721, ERC721Enumerable) {
-    super._beforeTokenTransfer(from, to, tokenId);
-  }
-
-  /// @dev Overrides ERC721's _burn method to include functionality from ERC721URIStorage.
-  function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
-    super._burn(tokenId);
-  }
-
-  /// @dev Overrides ERC721's tokenURI method to include functionality from ERC721URIStorage.
-  function tokenURI(uint256 tokenId)
-    public
-    view
-    override(ERC721, ERC721URIStorage)
-    returns (string memory)
-  {
-    return super.tokenURI(tokenId);
-  }
-
-  /// @dev Overrides ERC721's supportsInterface method to include functionality from ERC721Enumerable.
-  function supportsInterface(bytes4 interfaceId)
-    public
-    view
-    override(ERC721, ERC721Enumerable)
-    returns (bool)
-  {
-    return super.supportsInterface(interfaceId);
   }
 }
