@@ -268,7 +268,7 @@ export const signatureParametersDelegate: SignatureTypes.ISignatureParameters = 
   privateKey: '0x8d5366123cb560bb606379f90a0bfd4769eecc0557f1b362dcae9012b548b1e5',
 };
 
-export const signatureParametersThirdParty: SignatureTypes.ISignatureParameters = {
+export const signatureParametersOtherPayee: SignatureTypes.ISignatureParameters = {
   method: SignatureTypes.METHOD.ECDSA,
   privateKey: '0x60456c06c01e8f844b5259b3709b46c7cf918d7b5e15f0cd66d73857d6f5b88e',
 };
@@ -280,7 +280,7 @@ export const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = 
     } else if (signer.value === payer.identity.value) {
       return sign(data, signatureParametersPayer);
     } else if (signer.value === otherPayee.identity.value) {
-      return sign(data, signatureParametersThirdParty);
+      return sign(data, signatureParametersOtherPayee);
     } else {
       return sign(data, signatureParametersDelegate);
     }

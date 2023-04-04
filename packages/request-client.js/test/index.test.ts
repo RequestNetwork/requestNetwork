@@ -1252,7 +1252,7 @@ describe('request-client.js', () => {
       ).toEqual(['ecies-aes256-gcm', 'ecies-aes256-gcm']);
     });
 
-    it('cannot access request created in batch with a different identity', async () => {
+    it('cannot access request created in batch that is not yours', async () => {
       const mockStorage = new MockStorage();
       const mockDataAccess = new MockDataAccess(mockStorage);
 
@@ -1340,7 +1340,7 @@ describe('request-client.js', () => {
     it('cannot batch create encrypted requests without encryption parameters', async () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
-        signatureProvider: TestData.fakeSignatureProvider,
+        signatureProvider: TestData.fakeBatchSignatureProvider,
         useMockStorage: true,
       });
 
@@ -1368,13 +1368,39 @@ describe('request-client.js', () => {
     it('cannot batch create encrypted requests with empty parameters', async () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
-        signatureProvider: TestData.fakeSignatureProvider,
+        signatureProvider: TestData.fakeBatchSignatureProvider,
         useMockStorage: true,
       });
 
       await expect(requestNetwork._batchCreateEncryptedRequests([])).rejects.toThrowError(
         'Requests parameters are empty',
       );
+    });
+    it('cannot batch create encrypted requests without a batch signature provider', async () => {
+      const requestNetwork = new RequestNetwork({
+        decryptionProvider: fakeDecryptionProvider,
+        signatureProvider: TestData.fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      await expect(
+        requestNetwork._batchCreateEncryptedRequests([
+          {
+            parameters: {
+              requestInfo: TestData.parametersWithoutExtensionsData,
+              signer: TestData.payee.identity,
+            },
+            encryptionParams: [idRaw1.encryptionParams],
+          },
+          {
+            parameters: {
+              requestInfo: { ...TestData.parametersWithoutExtensionsData, timestamp: Date.now() },
+              signer: TestData.payee.identity,
+            },
+            encryptionParams: [idRaw1.encryptionParams],
+          },
+        ]),
+      ).rejects.toThrowError('Signature provider does not support batch signature');
     });
   });
 
