@@ -113,6 +113,46 @@ describe('Near payments detection', () => {
     expect(balance.balance).toBe('1000000000000000000000000');
   });
 
+  it('NearNativeTokenPaymentDetector can detect a payment on Near with an additional declarative payment', async () => {
+    const paymentDetector = new NearNativeTokenPaymentDetector({
+      network: 'aurora',
+      advancedLogic: advancedLogic,
+      currencyManager: CurrencyManager.getDefault(),
+      getSubgraphClient: mockedGetSubgraphClient,
+    });
+    const declarativeRequest = {
+      ...request,
+      extensions: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN as string]: {
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            paymentAddress,
+            salt,
+          },
+          version: '0.2.0',
+          events: [
+            {
+              name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
+              parameters: {
+                amount: '1000000000000000000000000',
+                note: 'first payment',
+                txHash: 'the-first-hash',
+                network: 'aurora',
+              },
+              timestamp: 10,
+            },
+          ],
+        },
+      },
+    };
+    const balance = await paymentDetector.getBalance(declarativeRequest);
+
+    expect(mockedGetSubgraphClient).toHaveBeenCalled();
+    expect(balance.events).toHaveLength(2);
+    expect(balance.balance).toBe('2000000000000000000000000');
+  });
+
   describe('Edge cases for NearNativeTokenPaymentDetector', () => {
     it('throws with a wrong version', async () => {
       let requestWithWrongVersion = deepCopy(request);
