@@ -4,7 +4,8 @@ import {
   NearConversionNativeTokenPaymentDetector,
   NearNativeTokenPaymentDetector,
 } from '@requestnetwork/payment-detection';
-import { CurrencyTypes } from '@requestnetwork/types';
+import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 
 /**
  * Callback arguments for the Near web wallet.
@@ -28,14 +29,29 @@ export const isValidNearAddress = async (nearNetwork: Near, address: string): Pr
 export const isNearAccountSolvent = (
   amount: BigNumberish,
   nearWalletConnection: WalletConnection,
+  token?: RequestLogicTypes.ICurrency,
 ): Promise<boolean> => {
-  return nearWalletConnection
-    .account()
-    .state()
-    .then((state) => {
-      const balance = BigNumber.from(state?.amount ?? '0');
-      return balance.gte(amount);
-    });
+  if (!token || token.type === RequestLogicTypes.CURRENCY.ETH) {
+    return nearWalletConnection
+      .account()
+      .state()
+      .then((state) => {
+        const balance = BigNumber.from(state?.amount ?? '0');
+        return balance.gte(amount);
+      });
+  }
+  if (token.type === RequestLogicTypes.CURRENCY.ERC20) {
+    const fungibleContract = new Contract(nearWalletConnection.account(), token.value, {
+      changeMethods: [],
+      viewMethods: ['ft_balance_of'],
+    }) as any;
+    return fungibleContract
+      .ft_balance_of({
+        account_id: nearWalletConnection.account().accountId,
+      })
+      .then((balance: string) => BigNumber.from(balance).gte(amount));
+  }
+  throw new Error(`isNearAccountSolvent not implemented for ${token.type}`);
 };
 
 const GAS_LIMIT_IN_TGAS = 50;
@@ -147,4 +163,99 @@ export const processNearPaymentWithConversion = async (
   } catch (e) {
     throw new Error(`Could not pay Near request. Got ${e.message}`);
   }
+};
+
+export const processNearFungiblePayment = async (
+  walletConnection: WalletConnection,
+  network: CurrencyTypes.NearChainName,
+  amount: BigNumberish,
+  to: string,
+  paymentReference: string,
+  currencyAddress: string,
+  feeAddress: string,
+  feeAmount: BigNumberish,
+  version = '0.1.0',
+  callback: INearTransactionCallback | undefined = undefined,
+): Promise<void> => {
+  const fungibleContract = new Contract(walletConnection.account(), currencyAddress, {
+    changeMethods: ['ft_transfer_call'],
+    viewMethods: [],
+  }) as any;
+
+  const proxyAddress = erc20FeeProxyArtifact.getAddress(network, version);
+  await fungibleContract.ft_transfer_call({
+    args: {
+      receiver_id: proxyAddress,
+      amount,
+      msg: JSON.stringify({
+        fee_address: feeAddress,
+        fee_amount: feeAmount,
+        payment_reference: paymentReference,
+        to,
+      }),
+    },
+    gas: GAS_LIMIT_CONVERSION_TO_NATIVE,
+    amount: '1000000000000000000000000 '.toString(), // 1 yoctoNEAR deposit is mandatory for ft_transfer_call
+    ...callback,
+  });
+};
+
+type StorageBalance = {
+  total: string;
+  available: string;
+};
+
+// min. 0.00125 Ⓝ
+const MIN_STORAGE_FOR_FUNGIBLE = '1250000000000000000000';
+
+/**
+ * Stores the minimum deposit amount on the `paymentAddress` account for `tokenAddress`.
+ * This does not check the existing deposit, if any, and should be called if `isReceiverReady` is false.
+ * @param walletConnection
+ * @param tokenAddress
+ * @param paymentAddress
+ */
+export const storageDeposit = async (
+  walletConnection: WalletConnection,
+  tokenAddress: string,
+  paymentAddress: string,
+): Promise<void> => {
+  const fungibleContract = new Contract(walletConnection.account(), tokenAddress, {
+    changeMethods: ['storage_deposit'],
+    viewMethods: [],
+  }) as any;
+  await fungibleContract.storage_deposit({
+    args: { account_id: paymentAddress },
+    value: MIN_STORAGE_FOR_FUNGIBLE,
+  });
+};
+
+/**
+ * TODO: need to check how I got this error once.
+ * 'Smart contract panicked: The account account.identifier.near is not registered' if `receiver_id` does not exist.
+ *
+ *
+ *
+ * This checks that the receiver `paymentAddress` has enough storage on the `tokenAddress` to receive tokens.
+ *
+ * It returns false if trying to send tokens to the `paymentAddress` would result in:
+ *
+ * - 'Smart contract panicked: The account account.identifier.near is not registered'
+ *
+ */
+export const isReceiverReady = async (
+  walletConnection: WalletConnection,
+  tokenAddress: string,
+  paymentAddress: string,
+): Promise<boolean> => {
+  const fungibleContract = new Contract(walletConnection.account(), tokenAddress, {
+    changeMethods: [],
+    viewMethods: ['storage_balance_of'],
+  }) as any;
+  const storage = (await fungibleContract.storage_balance_of({
+    args: {
+      account_id: paymentAddress,
+    },
+  })) as StorageBalance | null;
+  return !!storage && BigNumber.from(storage?.total).gte(MIN_STORAGE_FOR_FUNGIBLE);
 };

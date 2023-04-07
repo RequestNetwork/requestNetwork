@@ -114,15 +114,14 @@ export function encodeSwapToPayErc20FeeRequest(
   swapSettings: ISwapSettings,
   options?: IRequestPaymentOptions,
 ): string {
-  const { network } = request.currencyInfo;
+  const { paymentReference, paymentAddress, feeAddress, feeAmount, network } =
+    getRequestPaymentValues(request);
   EvmChains.assertChainSupported(network!);
 
   validateErc20FeeProxyRequest(request, options?.amount, options?.feeAmount);
 
   const signer = getSigner(signerOrProvider);
   const tokenAddress = request.currencyInfo.value;
-  const { paymentReference, paymentAddress, feeAddress, feeAmount } =
-    getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, options?.amount);
   const feeToPay = BigNumber.from(options?.feeAmount || feeAmount || 0);
 

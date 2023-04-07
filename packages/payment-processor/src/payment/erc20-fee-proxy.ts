@@ -80,9 +80,8 @@ export function _getErc20FeeProxyPaymentUrl(
   feeAmountOverride?: BigNumberish,
 ): string {
   validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
-  const { paymentReference, paymentAddress, feeAddress, feeAmount, version } =
+  const { paymentReference, paymentAddress, feeAddress, feeAmount, version, network } =
     getRequestPaymentValues(request);
-  const { network } = request.currencyInfo;
   EvmChains.assertChainSupported(network!);
   const contractAddress = erc20FeeProxyArtifact.getAddress(network, version);
   const amountToPay = getAmountToPay(request, amount);
@@ -92,7 +91,7 @@ export function _getErc20FeeProxyPaymentUrl(
 }
 
 /**
- * Prepate the transaction to pay a request through the ERC20 fee proxy contract, can be used with a Multisig contract.
+ * Prepare the transaction to pay a request through the ERC20 fee proxy contract, can be used with a Multisig contract.
  * @param request request to pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
