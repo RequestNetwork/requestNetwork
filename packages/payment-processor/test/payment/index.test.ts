@@ -194,7 +194,7 @@ describe('payNearInputDataRequest', () => {
       { callbackUrl: 'https://some.callback.url', meta: 'param' },
     );
   });
-  it('throws when tyring to pay another payment extension', async () => {
+  it('throws when trying to pay another payment extension', async () => {
     // A mock is used to bypass Near wallet connection for address validation and contract interaction
     const paymentSpy = jest
       .spyOn(nearUtils, 'processNearPayment')

@@ -56,8 +56,6 @@ describe('payFungibleNearRequest', () => {
     const mockedNearWalletConnection = {
       account: () => ({
         functionCall: () => true,
-        account: { viewFunction: () => 'payer.testnet' }, // Check if used
-        // state: () => Promise.resolve({ amount: 100 }),
       }),
     } as any;
 
@@ -80,14 +78,60 @@ describe('payFungibleNearRequest', () => {
       'fau.reqnetwork.testnet',
       feeAddress,
       feeAmount,
-      '0.1.0',
       {
         callbackUrl: 'https://some.callback.url',
         meta: 'param',
       },
     );
   });
-  it('throws when tyring to pay another payment extension', async () => {
+
+  it('throws when trying to pay if the recipient has no storage deposit', async () => {
+    jest
+      .spyOn(nearUtils, 'isReceiverReady')
+      .mockImplementation((_walletConnection, _tokenAddress, address) =>
+        Promise.resolve(address !== paymentAddress),
+      );
+    const mockedNearWalletConnection = {
+      account: () => ({
+        functionCall: () => true,
+        account: { viewFunction: () => 'payer.testnet' },
+      }),
+    } as any;
+
+    await expect(async () => {
+      await payFungibleNearRequest(request, mockedNearWalletConnection, undefined, {
+        callbackUrl: 'https://some.callback.url',
+        meta: 'param',
+      });
+    }).rejects.toThrowError(
+      'The paymentAddress is not registered for the token fau.reqnetwork.testnet',
+    );
+    expect(paymentSpy).not.toHaveBeenCalled();
+  });
+
+  it('throws when trying to pay if the proxy has no storage deposit', async () => {
+    jest
+      .spyOn(nearUtils, 'isReceiverReady')
+      .mockImplementation((_walletConnection, _tokenAddress, address) =>
+        Promise.resolve(address !== 'pay.reqnetwork.testnet'),
+      );
+    const mockedNearWalletConnection = {
+      account: () => ({
+        functionCall: () => true,
+        account: { viewFunction: () => 'payer.testnet' },
+      }),
+    } as any;
+
+    await expect(async () => {
+      await payFungibleNearRequest(request, mockedNearWalletConnection, undefined, {
+        callbackUrl: 'https://some.callback.url',
+        meta: 'param',
+      });
+    }).rejects.toThrowError('The proxy is not registered for the token fau.reqnetwork.testnet');
+    expect(paymentSpy).not.toHaveBeenCalled();
+  });
+
+  it('throws when trying to pay another payment extension', async () => {
     // A mock is used to bypass Near wallet connection for address validation and contract interaction
     const paymentSpy = jest
       .spyOn(nearUtils, 'processNearFungiblePayment')
@@ -115,7 +159,8 @@ describe('payFungibleNearRequest', () => {
     );
     expect(paymentSpy).toHaveBeenCalledTimes(0);
   });
-  it('throws when tyring to pay with a native token', async () => {
+
+  it('throws when trying to pay with a native token', async () => {
     const mockedNearWalletConnection = {
       account: () => ({
         functionCall: () => true,

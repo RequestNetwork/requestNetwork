@@ -174,7 +174,6 @@ export const processNearFungiblePayment = async (
   currencyAddress: string,
   feeAddress: string,
   feeAmount: BigNumberish,
-  version = '0.1.0',
   callback: INearTransactionCallback | undefined = undefined,
 ): Promise<void> => {
   const fungibleContract = new Contract(walletConnection.account(), currencyAddress, {
@@ -182,7 +181,7 @@ export const processNearFungiblePayment = async (
     viewMethods: [],
   }) as any;
 
-  const proxyAddress = erc20FeeProxyArtifact.getAddress(network, version);
+  const proxyAddress = erc20FeeProxyArtifact.getAddress(network, 'near');
   await fungibleContract.ft_transfer_call({
     args: {
       receiver_id: proxyAddress,

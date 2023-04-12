@@ -144,6 +144,10 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           address: 'pay.reqnetwork.testnet',
           creationBlockNumber: 120566834,
         },
+        aurora: {
+          address: 'pay.reqnetwork.near',
+          creationBlockNumber: 89421541,
+        },
       },
     },
     // Additional deployments of same versions, not worth upgrading the version number but worth using within next versions

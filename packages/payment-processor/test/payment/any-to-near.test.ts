@@ -89,7 +89,7 @@ describe('payNearWithConversionRequest', () => {
       },
     );
   });
-  it('throws when tyring to pay another payment extension', async () => {
+  it('throws when trying to pay another payment extension', async () => {
     // A mock is used to bypass Near wallet connection for address validation and contract interaction
     const paymentSpy = jest
       .spyOn(nearUtils, 'processNearPaymentWithConversion')
@@ -117,7 +117,7 @@ describe('payNearWithConversionRequest', () => {
     );
     expect(paymentSpy).toHaveBeenCalledTimes(0);
   });
-  it('throws when tyring to pay with an unsupported currency', async () => {
+  it('throws when trying to pay with an unsupported currency', async () => {
     // A mock is used to bypass Near wallet connection for address validation and contract interaction
     const paymentSpy = jest
       .spyOn(nearUtils, 'processNearPaymentWithConversion')
