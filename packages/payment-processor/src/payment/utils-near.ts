@@ -230,12 +230,7 @@ export const storageDeposit = async (
 };
 
 /**
- * TODO: need to check how I got this error once.
- * 'Smart contract panicked: The account account.identifier.near is not registered' if `receiver_id` does not exist.
- *
- *
- *
- * This checks that the receiver `paymentAddress` has enough storage on the `tokenAddress` to receive tokens.
+ * This checks that the `paymentAddress` has enough storage on the `tokenAddress` to receive tokens.
  *
  * It returns false if trying to send tokens to the `paymentAddress` would result in:
  *
