@@ -117,12 +117,12 @@ export function encodeMintErc20TransferableReceivableRequest(
   const tokenAddress = request.currencyInfo.value;
   const metadata = Buffer.from(request.requestId).toString('base64'); // metadata is requestId
 
-  const { paymentReference } = getRequestPaymentValues(request);
+  const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
   const amount = getAmountToPay(request);
 
   const receivableContract = ERC20TransferableReceivable__factory.createInterface();
   return receivableContract.encodeFunctionData('mint', [
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    paymentAddress,
     `0x${paymentReference}`,
     amount,
     tokenAddress,
