@@ -16,7 +16,7 @@ import { NearChains } from '@requestnetwork/currency';
  * Processes the transaction to pay a request in fungible token on NEAR with fee (Erc20FeeProxy).
  * @param request the request to pay
  */
-export async function payFungibleNearRequest(
+export async function payNearFungibleRequest(
   request: ClientTypes.IRequestData,
   walletConnection: WalletConnection,
   amount?: BigNumberish,

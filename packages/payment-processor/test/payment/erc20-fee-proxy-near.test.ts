@@ -3,7 +3,7 @@ import { deepCopy } from '@requestnetwork/utils';
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 
 import * as nearUtils from '../../src/payment/utils-near';
-import { payFungibleNearRequest } from '../../src/payment/near-fungible';
+import { payNearFungibleRequest } from '../../src/payment/near-fungible';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */
@@ -41,7 +41,7 @@ const request: any = {
 };
 let paymentSpy: ReturnType<typeof jest.spyOn>;
 
-describe('payFungibleNearRequest', () => {
+describe('payNearFungibleRequest', () => {
   beforeEach(() => {
     // A mock is used to bypass Near wallet connection for address validation and contract interaction
     paymentSpy = jest
@@ -65,7 +65,7 @@ describe('payFungibleNearRequest', () => {
       paymentAddress,
     );
 
-    await payFungibleNearRequest(request, mockedNearWalletConnection, undefined, {
+    await payNearFungibleRequest(request, mockedNearWalletConnection, undefined, {
       callbackUrl: 'https://some.callback.url',
       meta: 'param',
     });
@@ -99,7 +99,7 @@ describe('payFungibleNearRequest', () => {
     } as any;
 
     await expect(async () => {
-      await payFungibleNearRequest(request, mockedNearWalletConnection, undefined, {
+      await payNearFungibleRequest(request, mockedNearWalletConnection, undefined, {
         callbackUrl: 'https://some.callback.url',
         meta: 'param',
       });
@@ -123,7 +123,7 @@ describe('payFungibleNearRequest', () => {
     } as any;
 
     await expect(async () => {
-      await payFungibleNearRequest(request, mockedNearWalletConnection, undefined, {
+      await payNearFungibleRequest(request, mockedNearWalletConnection, undefined, {
         callbackUrl: 'https://some.callback.url',
         meta: 'param',
       });
@@ -153,7 +153,7 @@ describe('payFungibleNearRequest', () => {
     };
 
     await expect(
-      payFungibleNearRequest(invalidRequest, mockedNearWalletConnection, undefined, undefined),
+      payNearFungibleRequest(invalidRequest, mockedNearWalletConnection, undefined, undefined),
     ).rejects.toThrowError(
       'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
     );
@@ -178,7 +178,7 @@ describe('payFungibleNearRequest', () => {
     };
 
     await expect(
-      payFungibleNearRequest(invalidRequest, mockedNearWalletConnection),
+      payNearFungibleRequest(invalidRequest, mockedNearWalletConnection),
     ).rejects.toThrowError(
       'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
     );
