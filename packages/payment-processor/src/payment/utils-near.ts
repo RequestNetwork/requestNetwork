@@ -57,7 +57,8 @@ export const isNearAccountSolvent = (
 const GAS_LIMIT_IN_TGAS = 50;
 const GAS_LIMIT = ethers.utils.parseUnits(GAS_LIMIT_IN_TGAS.toString(), 12);
 const GAS_LIMIT_NATIVE = GAS_LIMIT.toString();
-const GAS_LIMIT_CONVERSION_TO_NATIVE = GAS_LIMIT.mul(2).toString();
+const GAS_LIMIT_CONVERSION_TO_NATIVE = GAS_LIMIT.mul(2).toString(); // 200 TGas
+const GAS_LIMIT_FUNGIBLE_PROXY = GAS_LIMIT.mul(4).toString(); // 400 TGas
 
 export const processNearPayment = async (
   walletConnection: WalletConnection,
@@ -193,8 +194,8 @@ export const processNearFungiblePayment = async (
         to,
       }),
     },
-    gas: GAS_LIMIT_CONVERSION_TO_NATIVE,
-    amount: '1000000000000000000000000 '.toString(), // 1 yoctoNEAR deposit is mandatory for ft_transfer_call
+    gas: GAS_LIMIT_FUNGIBLE_PROXY,
+    amount: '1'.toString(), // 1 yoctoNEAR deposit is mandatory for ft_transfer_call
     ...callback,
   });
 };
@@ -247,9 +248,7 @@ export const isReceiverReady = async (
     viewMethods: ['storage_balance_of'],
   }) as any;
   const storage = (await fungibleContract.storage_balance_of({
-    args: {
-      account_id: paymentAddress,
-    },
+    account_id: paymentAddress,
   })) as StorageBalance | null;
   return !!storage && BigNumber.from(storage?.total).gte(MIN_STORAGE_FOR_FUNGIBLE);
 };

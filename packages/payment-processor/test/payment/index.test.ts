@@ -225,7 +225,7 @@ describe('payNearInputDataRequest', () => {
     await expect(
       payNearInputDataRequest(request, mockedNearWalletConnection, '1'),
     ).rejects.toThrowError('request cannot be processed, or is not an pn-native-token request');
-    expect(paymentSpy).toHaveBeenCalledTimes(0);
+    expect(paymentSpy).not.toHaveBeenCalled();
   });
 });
 

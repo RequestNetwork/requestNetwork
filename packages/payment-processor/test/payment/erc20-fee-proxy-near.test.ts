@@ -157,7 +157,7 @@ describe('payNearFungibleRequest', () => {
     ).rejects.toThrowError(
       'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
     );
-    expect(paymentSpy).toHaveBeenCalledTimes(0);
+    expect(paymentSpy).not.toHaveBeenCalled();
   });
 
   it('throws when trying to pay with a native token', async () => {
@@ -182,6 +182,6 @@ describe('payNearFungibleRequest', () => {
     ).rejects.toThrowError(
       'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
     );
-    expect(paymentSpy).toHaveBeenCalledTimes(0);
+    expect(paymentSpy).not.toHaveBeenCalled();
   });
 });

@@ -115,7 +115,7 @@ describe('payNearWithConversionRequest', () => {
     ).rejects.toThrowError(
       'request cannot be processed, or is not an pn-any-to-native-token request',
     );
-    expect(paymentSpy).toHaveBeenCalledTimes(0);
+    expect(paymentSpy).not.toHaveBeenCalled();
   });
   it('throws when trying to pay with an unsupported currency', async () => {
     // A mock is used to bypass Near wallet connection for address validation and contract interaction
@@ -140,7 +140,7 @@ describe('payNearWithConversionRequest', () => {
     await expect(
       payNearConversionRequest(invalidRequest, mockedNearWalletConnection, conversionSettings),
     ).rejects.toThrowError('Near payment with conversion only implemented for fiat denominations.');
-    expect(paymentSpy).toHaveBeenCalledTimes(0);
+    expect(paymentSpy).not.toHaveBeenCalled();
   });
   it('throws when the netwrok is not near', async () => {
     // A mock is used to bypass Near wallet connection for address validation and contract interaction
@@ -171,6 +171,6 @@ describe('payNearWithConversionRequest', () => {
     await expect(
       payNearConversionRequest(invalidRequest, mockedNearWalletConnection, conversionSettings),
     ).rejects.toThrowError('Should be a Near network');
-    expect(paymentSpy).toHaveBeenCalledTimes(0);
+    expect(paymentSpy).not.toHaveBeenCalled();
   });
 });
