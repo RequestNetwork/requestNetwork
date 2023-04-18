@@ -4,6 +4,7 @@ import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { utils } from 'ethers';
 import { PaymentTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
+import { hashReference } from '../../src';
 
 const paymentsMockData = {
   ['0xc6e23a20c0a1933acc8e30247b5d1e2215796c1f' as string]: [
@@ -82,7 +83,7 @@ describe('api/erc20/thegraph-info-retriever', () => {
         paymentData.salt,
         paymentData.to,
       );
-      const onChainReference = utils.keccak256(`0x${paymentReference}`);
+      const onChainReference = hashReference(paymentReference);
       expect(onChainReference).toEqual(paymentData.reference);
 
       const graphRetriever = new TheGraphInfoRetriever(clientMock, CurrencyManager.getDefault());
