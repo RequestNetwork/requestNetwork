@@ -27,8 +27,8 @@ CreateRequest.createTestRequest(12);
 #### In the CLI
 
 ```bash
-yarn request-toolbox request create
-yarn request-toolbox request create 12
+yarn cli request create
+yarn cli request create 12
 ```
 
 ### Conversion paths
@@ -38,7 +38,7 @@ yarn request-toolbox request create 12
 The following command guides you in adding missing aggregators.
 
 ```bash
-yarn request-toolbox addAggregators mainnet --privateKey $PRIVATE_KEY --dryRun
+yarn cli addAggregators mainnet --privateKey $PRIVATE_KEY --dryRun
 ```
 
 It will suggest pairs of currencies:
