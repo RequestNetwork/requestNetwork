@@ -103,10 +103,6 @@ export const makeGetDeploymentInformation = <
   };
 };
 
-export const hashReference = (paymentReference: string): string => {
-  return keccak256(`0x${paymentReference}`);
-};
-
 /**
  * Returns escrow status based on array of escrow events
  * @param escrowEvents Balance of the request being updated
@@ -176,6 +172,14 @@ export function getPaymentReference(
 
   return PaymentReferenceCalculator.calculate(requestId, salt, info);
 }
+
+/**
+ * Returns the hash of a payment reference.
+ * @see getPaymentReference
+ */
+export const hashReference = (paymentReference: string): string => {
+  return keccak256(`0x${paymentReference}`);
+};
 
 /**
  * For EVMs: alias to ethers.utils.getAddress that adds the key to error message, and supports nullish values.
