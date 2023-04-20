@@ -48,7 +48,7 @@ export abstract class ChainsAbstract<
   /**
    * Check if chainName lives amongst the list of supported chains by this chain type.
    */
-  public isChainSupported(chainName?: string): boolean {
+  public isChainSupported(chainName?: string): chainName is CHAIN_NAME {
     return !!chainName && (this.chainNames as string[]).includes(chainName);
   }
 
