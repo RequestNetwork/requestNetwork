@@ -210,6 +210,7 @@ yarn hardhat deploy-live-payments --network private --force --dry-run
 
 The contracts to be updated are listed in the array `create2ContractDeploymentList` in [Utils](scripts-create2/utils.ts).
 Modify the content of the array depending on your need when you perform an administration task.
+Environment variables needed: `ADMIN_PRIVATE_KEY`
 
 To update the contracts on one network, use:
 
