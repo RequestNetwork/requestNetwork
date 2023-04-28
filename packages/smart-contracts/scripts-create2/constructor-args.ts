@@ -48,11 +48,6 @@ export const getConstructorArgs = (
       return [erc20FeeProxyAddress, getAdminWalletAddress(contract)];
     }
     case 'BatchConversionPayments': {
-      if (!network) {
-        throw new Error(
-          'Batch conversion contract requires network parameter to get correct address of erc20FeeProxy, erc20ConversionFeeProxy, ethereumFeeProxy, ethereumConversionFeeProxy, and chainlinkConversionPath',
-        );
-      }
       return [
         '0x0000000000000000000000000000000000000000',
         '0x0000000000000000000000000000000000000000',

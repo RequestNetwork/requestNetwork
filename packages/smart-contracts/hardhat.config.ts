@@ -15,6 +15,7 @@ import { deployWithCreate2FromList } from './scripts-create2/deploy';
 import { NUMBER_ERRORS } from './scripts/utils';
 import { networkRpcs } from '@requestnetwork/utils';
 import { tenderlyImportAll } from './scripts-create2/tenderly';
+import { updateContractsFromList } from './scripts-create2/update-contracts-setup';
 
 config();
 
@@ -269,6 +270,14 @@ task(
 ).setAction(async (_args, hre) => {
   await checkCreate2Deployer(hre as HardhatRuntimeEnvironmentExtended);
   await deployWithCreate2FromList(hre as HardhatRuntimeEnvironmentExtended);
+});
+
+task(
+  'update-contracts',
+  'Update the latest deployed contracts from the Create2DeploymentList',
+).setAction(async (_args, hre) => {
+  await hre.run(DEPLOYER_KEY_GUARD);
+  await updateContractsFromList(hre as HardhatRuntimeEnvironmentExtended);
 });
 
 task(
