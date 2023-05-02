@@ -75,7 +75,10 @@ export default class RequestNetwork {
    * @param requestParameters Parameters to create a request
    * @returns The created request
    */
-  public async createRequest(parameters: Types.ICreateRequestParameters): Promise<Request> {
+  public async createRequest(
+    parameters: Types.ICreateRequestParameters,
+    options?: Types.ICreateRequestOptions,
+  ): Promise<Request> {
     const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
       parameters,
     );
@@ -100,8 +103,10 @@ export default class RequestNetwork {
       },
     );
 
-    // refresh the local request data
-    await request.refresh();
+    if (!options?.skipRefresh) {
+      // refresh the local request data
+      await request.refresh();
+    }
 
     return request;
   }
@@ -116,6 +121,7 @@ export default class RequestNetwork {
   public async _createEncryptedRequest(
     parameters: Types.ICreateRequestParameters,
     encryptionParams: EncryptionTypes.IEncryptionParameters[],
+    options?: Types.ICreateRequestOptions,
   ): Promise<Request> {
     const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
       parameters,
@@ -142,8 +148,10 @@ export default class RequestNetwork {
       },
     );
 
-    // refresh the local request data
-    await request.refresh();
+    if (!options?.skipRefresh) {
+      // refresh the local request data
+      await request.refresh();
+    }
 
     return request;
   }

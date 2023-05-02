@@ -8,6 +8,7 @@ export * from './payment/erc777-utils';
 export * from './payment/eth-input-data';
 export * from './payment/near-input-data';
 export * from './payment/near-conversion';
+export * from './payment/near-fungible';
 export * from './payment/eth-proxy';
 export * from './payment/eth-fee-proxy';
 export * from './payment/batch-proxy';

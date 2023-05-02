@@ -67,9 +67,8 @@ export function getSigner(
 }
 
 /**
- * Utility to access the payment address, reference,
- * and optional feeAmount, feeAddress, expectedFlowRate, expectedStartDate
- * of a Request.
+ * Utility to access payment-related information from a request.
+ * All data is taken from the request's payment extension, except the network that may be retrieved from the request's currency if needed.
  */
 export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   paymentAddress: string;
@@ -107,7 +106,7 @@ export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
     expectedStartDate,
     tokensAccepted,
     maxRateTimespan,
-    network,
+    network: network ?? request.currencyInfo.network,
     version: extension.version,
   };
 }
@@ -207,7 +206,7 @@ export function validateRequest(
     getRequestPaymentValues(request);
   let extension = request.extensions[paymentNetworkId];
 
-  // FIXME: updating the extension: not needed anymore when "invoicing" will use only ethFeeProxy
+  // FIXME: updating the extension: not needed anymore when ETH_INPUT_DATA gets deprecated
   if (paymentNetworkId === ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT && !extension) {
     extension = request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA];
   }

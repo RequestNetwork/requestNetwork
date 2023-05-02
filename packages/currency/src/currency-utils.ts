@@ -13,11 +13,7 @@ import { RequestLogicTypes } from '@requestnetwork/types';
  */
 export const isValidNearAddress = (address: string, network?: string): boolean => {
   if (!network) {
-    return (
-      isValidNearAddress(address, 'aurora') ||
-      isValidNearAddress(address, 'aurora-testnet') ||
-      isValidNearAddress(address, 'near-testnet')
-    );
+    return isValidNearAddress(address, 'near') || isValidNearAddress(address, 'near-testnet');
   }
   // see link bellow for NEAR address specification
   // https://nomicon.io/DataStructures/Account.html
@@ -37,6 +33,7 @@ export const isValidNearAddress = (address: string, network?: string): boolean =
   // https://docs.near.org/docs/videos/accounts-keys
   switch (network) {
     case 'aurora':
+    case 'near':
       return !!address.match(/\.near$/);
     case 'aurora-testnet':
     case 'near-testnet':

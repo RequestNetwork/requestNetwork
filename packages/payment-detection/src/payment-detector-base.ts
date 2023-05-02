@@ -8,7 +8,7 @@ import {
 
 export abstract class PaymentDetectorBase<
   TExtension extends ExtensionTypes.IExtension,
-  TPaymentEventParameters,
+  TPaymentEventParameters extends PaymentTypes.GenericEventParameters,
 > implements PaymentTypes.IPaymentNetwork<TPaymentEventParameters>
 {
   protected constructor(

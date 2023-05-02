@@ -5,6 +5,7 @@ import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { EthereumTransactionSubmitter } from './ethereum-tx-submitter';
 import { getCurrentTimestampInSecond, SimpleLogger } from '@requestnetwork/utils';
+import { getDefaultEthereumBlockConfirmations } from './config';
 
 export type GasDefinerProps = {
   gasPriceMin?: BigNumber;
@@ -18,6 +19,7 @@ export type SubmitterProps = GasDefinerProps & {
 
 type StorageProps = SubmitterProps & {
   ipfsStorage: StorageTypes.IIpfsStorage;
+  blockConfirmations?: number;
 };
 
 export type StorageEventEmitter = TypedEmitter<{
@@ -31,12 +33,21 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
 
   private readonly network: CurrencyTypes.EvmChainName;
   private readonly txSubmitter: EthereumTransactionSubmitter;
+  private readonly blockConfirmations: number | undefined;
 
-  constructor({ network, signer, ipfsStorage, logger, gasPriceMin }: StorageProps) {
+  constructor({
+    network,
+    signer,
+    ipfsStorage,
+    logger,
+    gasPriceMin,
+    blockConfirmations,
+  }: StorageProps) {
     this.logger = logger || new SimpleLogger();
     this.ipfsStorage = ipfsStorage;
     this.network = network;
     this.txSubmitter = new EthereumTransactionSubmitter({ network, signer, logger, gasPriceMin });
+    this.blockConfirmations = blockConfirmations;
   }
 
   async initialize(): Promise<void> {
@@ -75,7 +86,7 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
     this.logger.debug(`TX ${tx.hash} submitted, waiting for confirmation...`);
 
     void tx
-      .wait()
+      .wait(this.blockConfirmations || getDefaultEthereumBlockConfirmations())
       .then((receipt: providers.TransactionReceipt) => {
         this.logger.debug(
           `TX ${receipt.transactionHash} confirmed at block ${receipt.blockNumber}`,

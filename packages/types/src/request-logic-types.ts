@@ -44,6 +44,12 @@ export interface IRequestLogic {
     signerIdentity: Identity.IIdentity,
     validate?: boolean,
   ) => Promise<IRequestLogicReturnWithConfirmation>;
+  addStakeholders: (
+    requestParameters: IAddStakeholdersParameters,
+    signerIdentity: Identity.IIdentity,
+    encryptionParams: Encryption.IEncryptionParameters[],
+    validate?: boolean,
+  ) => Promise<IRequestLogicReturnWithConfirmation>;
   addExtensionsDataRequest: (
     requestParameters: IAddExtensionsDataParameters,
     signerIdentity: Identity.IIdentity,
@@ -230,6 +236,12 @@ export interface IReduceExpectedAmountParameters {
   nonce?: number;
 }
 
+/** Parameters to add stakeholders to a request */
+export interface IAddStakeholdersParameters {
+  requestId: RequestId;
+  extensionsData?: any[];
+}
+
 /** Parameters to add extensions data to a request */
 export interface IAddExtensionsDataParameters {
   requestId: RequestId;
@@ -266,6 +278,7 @@ export enum ACTION_NAME {
   CANCEL = 'cancel',
   REDUCE_EXPECTED_AMOUNT = 'reduceExpectedAmount',
   INCREASE_EXPECTED_AMOUNT = 'increaseExpectedAmount',
+  ADD_STAKEHOLDERS = 'addStakeholders',
   ADD_EXTENSIONS_DATA = 'addExtensionsData',
 }
 

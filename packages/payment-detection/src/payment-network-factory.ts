@@ -25,7 +25,7 @@ import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
 import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
 import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetector } from './near';
 import { getPaymentNetworkExtension } from './utils';
-import { getTheGraphClient } from './thegraph';
+import { defaultGetTheGraphClient } from './thegraph';
 import { getDefaultProvider } from 'ethers';
 
 const PN_ID = ExtensionTypes.PAYMENT_NETWORK_ID;
@@ -46,6 +46,16 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
     },
   },
   ERC20: {
+    aurora: {
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>,
+    },
+    'aurora-testnet': {
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>,
+    },
+    'near-testnet': {
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>,
+    },
+
     '*': {
       [PN_ID.ERC20_ADDRESS_BASED]: ERC20AddressBasedPaymentDetector,
       [PN_ID.ERC20_PROXY_CONTRACT]: ERC20ProxyPaymentDetector,
@@ -94,13 +104,7 @@ export class PaymentNetworkFactory {
 
   private buildOptions(options: Partial<PaymentNetworkOptions>): PaymentNetworkOptions {
     const defaultOptions: PaymentNetworkOptions = {
-      getSubgraphClient: (network) => {
-        return network === 'private'
-          ? undefined
-          : getTheGraphClient(
-              `https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-${network}`,
-            );
-      },
+      getSubgraphClient: defaultGetTheGraphClient,
       explorerApiKeys: {},
       getRpcProvider: getDefaultProvider,
     };
@@ -108,7 +112,7 @@ export class PaymentNetworkFactory {
   }
 
   /**
-   * Creates a payment network according to payment network creation parameters
+   * Creates a payment network interpretor according to payment network creation parameters
    * It throws if the payment network given is not supported by this library
    *
    * @param paymentNetworkId the ID of the payment network to instantiate
@@ -150,7 +154,7 @@ export class PaymentNetworkFactory {
     if (detector.extension && 'getDeploymentInformation' in detectorClass) {
       // this throws when the contract isn't deployed and was mandatory for payment detection
       (detectorClass as ContractBasedDetector).getDeploymentInformation(
-        network as CurrencyTypes.EvmChainName,
+        network as CurrencyTypes.VMChainName,
         paymentNetworkVersion || detector.extension.currentVersion,
       );
     }

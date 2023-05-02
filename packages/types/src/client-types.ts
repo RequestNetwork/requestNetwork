@@ -38,6 +38,14 @@ export interface ICreateRequestParameters {
   disableEvents?: boolean;
 }
 
+export interface ICreateRequestOptions {
+  /**
+   * Disable the request refresh after creation
+   * Warning: the `balance` will be null.
+   */
+  skipRefresh?: boolean;
+}
+
 /** Parameters to create a request. ICreateParameters with a more flexible currency */
 export interface IRequestInfo {
   currency: string | RequestLogic.ICurrency;
@@ -63,10 +71,18 @@ export interface IHttpDataAccessConfig {
   httpRequestMaxRetry: number;
   /** Delay between retry in ms */
   httpRequestRetryDelay: number;
+  /** Exponential backoff delay in ms when requests to the Node fail. */
+  httpRequestExponentialBackoffDelay: number;
+  /** Maximum exponential backoff delay in ms when requests to the Node fail. */
+  httpRequestMaxExponentialBackoffDelay: number;
   /** Maximum number of retries to get the confirmation of a persistTransaction */
   getConfirmationMaxRetry: number;
   /** Delay between retry in ms to get the confirmation of a persistTransaction */
   getConfirmationRetryDelay: number;
+  /** Exponential backoff delay in ms to get the confirmation of a persistTransaction */
+  getConfirmationExponentialBackoffDelay: number;
+  /** Maximum exponential backoff delay in ms to get the confirmation of a persistTransaction */
+  getConfirmationMaxExponentialBackoffDelay: number;
   /** Delay to wait in ms before trying for the first time to get the confirmation of a persistTransaction */
   getConfirmationDeferDelay: number;
 }

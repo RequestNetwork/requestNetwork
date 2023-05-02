@@ -4,9 +4,10 @@ import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { utils } from 'ethers';
 import { PaymentTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
+import { hashReference } from '../../src';
 
 const paymentsMockData = {
-  ['0x6c93723bc5f82e6fbb2ea994bf0fb572fa19f7a2a3146065e21752b95668efe5' as string]: [
+  ['0xc6e23a20c0a1933acc8e30247b5d1e2215796c1f' as string]: [
     {
       contractAddress: '0xc6e23a20c0a1933acc8e30247b5d1e2215796c1f',
       to: '0x5000ee9fb9c96a2a09d8efb695ac21d6c429ff11',
@@ -20,6 +21,8 @@ const paymentsMockData = {
       gasUsed: '',
       timestamp: 1,
     },
+  ],
+  ['0xca3353a15fcb5c83a1ff64bff055781ac5c4d2f4' as string]: [
     {
       contractAddress: '0xca3353a15fcb5c83a1ff64bff055781ac5c4d2f4',
       to: '0x5000ee9fb9c96a2a09d8efb695ac21d6c429ff11',
@@ -45,14 +48,16 @@ describe('api/erc20/thegraph-info-retriever', () => {
     let graphRetriever: TheGraphInfoRetriever;
     beforeEach(() => {
       clientMock = {
-        GetPaymentsAndEscrowState: jest.fn().mockImplementation(({ reference }) => ({
-          payments: paymentsMockData[reference] || [],
+        GetPaymentsAndEscrowState: jest.fn().mockImplementation(({ contractAddress }) => ({
+          payments: paymentsMockData[contractAddress] || [],
           escrowEvents: [],
         })),
         GetPaymentsAndEscrowStateForReceivables: jest.fn().mockImplementation(({ reference }) => ({
           payments: paymentsMockData[reference] || [],
           escrowEvents: [],
         })),
+        GetAnyToNativePayments: jest.fn(),
+        GetAnyToFungiblePayments: jest.fn(),
         GetLastSyncedBlock: jest.fn(),
         GetSyncedBlock: jest.fn(),
       };
@@ -78,7 +83,7 @@ describe('api/erc20/thegraph-info-retriever', () => {
         paymentData.salt,
         paymentData.to,
       );
-      const onChainReference = utils.keccak256(`0x${paymentReference}`);
+      const onChainReference = hashReference(paymentReference);
       expect(onChainReference).toEqual(paymentData.reference);
 
       const graphRetriever = new TheGraphInfoRetriever(clientMock, CurrencyManager.getDefault());

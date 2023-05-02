@@ -122,4 +122,48 @@ describe('Retry', () => {
 
     expect(after).toBeGreaterThanOrEqual(now + 500);
   });
+
+  it('delay increases exponentially if using exponentialBackoff', async () => {
+    jest.useFakeTimers('modern');
+    jest.setSystemTime(0);
+
+    const throwFn = jest.fn().mockImplementation(() => {
+      throw new Error(`threw`);
+    });
+
+    retry(throwFn, {
+      exponentialBackoffDelay: 1000,
+      maxExponentialBackoffDelay: 7000,
+    })();
+
+    // Should call immediately
+    expect(throwFn).toHaveBeenCalledTimes(1);
+
+    // Exponential backoff should only call a second time after 2000ms
+    jest.advanceTimersByTime(1100);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(1);
+    jest.advanceTimersByTime(1100);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(2);
+
+    // Exponential backoff should call a third time after 4100ms
+    jest.advanceTimersByTime(4100);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(3);
+
+    // Exponential backoff should call a fourth time after 7100ms
+    // since maxExponentialBackoffDelay (7000) < 8000
+    jest.advanceTimersByTime(7100);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(4);
+
+    // Exponential backoff should call a fifth time after 7100ms
+    // since maxExponentialBackoffDelay (7000) < 8000
+    jest.advanceTimersByTime(7100);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(5);
+
+    jest.useRealTimers();
+  });
 });

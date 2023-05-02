@@ -18,6 +18,8 @@ import { IConversionSettings } from '../../src/payment/settings';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */
+// eslint-disable-next-line no-magic-numbers
+jest.setTimeout(10000);
 
 const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';

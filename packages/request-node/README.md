@@ -243,6 +243,9 @@ Default values correspond to the basic configuration used to run a server in a t
 - `--headers` Custom headers to send with the API responses (as a stringified JSON object)
   - Default value: `'{}'`
   - Environment variable name: `$HEADERS`
+    `--blockConfirmations` The number of block confirmations to consider a transaction successful
+  - Default value: `2`
+  - Environment variable name: `$BLOCK_CONFIRMATIONS`
 - `--lastBlockNumberDelay` The minimum delay between getLastBlockNumber calls to ethereum network
   - Default value: `'10000'`
   - Environment variable name: `$LAST_BLOCK_NUMBER_DELAY`
@@ -306,6 +309,9 @@ cd requestNetwork
 ```
 
 #### 2. Install and build all the dependencies.
+
+Install IPFS Kubo (go-ipfs)
+https://docs.ipfs.tech/install/command-line/#install-ipfs-kubo
 
 ```bash
 yarn install

@@ -32,6 +32,9 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
   async reduceExpectedAmountRequest(): Promise<any> {
     return Object.assign(new EventEmitter(), { meta: {} });
   },
+  async addStakeholders(): Promise<any> {
+    return Object.assign(new EventEmitter(), { meta: {} });
+  },
   async addExtensionsDataRequest(): Promise<any> {
     return Object.assign(new EventEmitter(), { meta: {} });
   },
@@ -502,6 +505,9 @@ describe('api/request', () => {
           return { meta: {} };
         },
         async reduceExpectedAmountRequest(): Promise<any> {
+          return { meta: {} };
+        },
+        async addStakeholders(): Promise<any> {
           return { meta: {} };
         },
         async addExtensionsDataRequest(): Promise<any> {

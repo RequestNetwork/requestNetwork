@@ -13,9 +13,7 @@ export type ArtifactNetworkInfo = {
 };
 
 /** Deployment information and ABI per network */
-export type ArtifactDeploymentInfo<
-  TNetwork extends CurrencyTypes.EvmChainName = CurrencyTypes.EvmChainName,
-> = {
+export type ArtifactDeploymentInfo<TNetwork extends CurrencyTypes.VMChainName> = {
   abi: JsonFragment[];
   deployment: Partial<Record<TNetwork, ArtifactNetworkInfo>>;
 };
@@ -23,7 +21,7 @@ export type ArtifactDeploymentInfo<
 /** Deployment information and ABI per version and network */
 export type ArtifactInfo<
   TVersion extends string = string,
-  TNetwork extends CurrencyTypes.EvmChainName = CurrencyTypes.EvmChainName,
+  TNetwork extends CurrencyTypes.VMChainName = CurrencyTypes.VMChainName,
 > = Record<TVersion, ArtifactDeploymentInfo<TNetwork>>;
 
 export type DeploymentInformation = {
@@ -80,7 +78,7 @@ export class ContractArtifact<TContract extends Contract> {
    * @param networkName the name of the network where the contract is deployed
    * @returns the address of the deployed contract
    */
-  getAddress(networkName: CurrencyTypes.EvmChainName, version = this.lastVersion): string {
+  getAddress(networkName: CurrencyTypes.VMChainName, version = this.lastVersion): string {
     return this.getDeploymentInformation(networkName, version).address;
   }
 
@@ -90,7 +88,7 @@ export class ContractArtifact<TContract extends Contract> {
    * @returns the addresses of the deployed contract and the associated version.
    */
   getAllAddresses(
-    networkName: CurrencyTypes.EvmChainName,
+    networkName: CurrencyTypes.VMChainName,
   ): { version: string; address: string | undefined }[] {
     const entries = Object.entries(this.info);
     return entries.map(([version, { deployment }]) => ({
@@ -106,11 +104,11 @@ export class ContractArtifact<TContract extends Contract> {
   getAllAddressesFromAllNetworks(): {
     version: string;
     address: string;
-    networkName: CurrencyTypes.EvmChainName;
+    networkName: CurrencyTypes.VMChainName;
   }[] {
     const deployments = [];
     for (const version in this.info) {
-      let networkName: CurrencyTypes.EvmChainName;
+      let networkName: CurrencyTypes.VMChainName;
       for (networkName in this.info[version].deployment) {
         const address = this.info[version].deployment[networkName]?.address;
         if (!address) continue;
@@ -131,7 +129,7 @@ export class ContractArtifact<TContract extends Contract> {
    * @returns the number of the block where the contract was deployed
    */
   getCreationBlockNumber(
-    networkName: CurrencyTypes.EvmChainName,
+    networkName: CurrencyTypes.VMChainName,
     version = this.lastVersion,
   ): number {
     return this.getDeploymentInformation(networkName, version).creationBlockNumber;
@@ -144,7 +142,7 @@ export class ContractArtifact<TContract extends Contract> {
    * @returns The address and the number of the creation block
    */
   getDeploymentInformation(
-    networkName: CurrencyTypes.EvmChainName,
+    networkName: CurrencyTypes.VMChainName,
     version = this.lastVersion,
   ): DeploymentInformation {
     const versionInfo = this.info[version];
@@ -166,7 +164,7 @@ export class ContractArtifact<TContract extends Contract> {
    * @returns The address and the number of the creation block, or null if not found
    */
   getOptionalDeploymentInformation(
-    networkName: CurrencyTypes.EvmChainName,
+    networkName: CurrencyTypes.VMChainName,
     version = this.lastVersion,
   ): DeploymentInformation | null {
     return this.info[version]?.deployment[networkName] || null;

@@ -6,6 +6,7 @@ import {
   TheGraphClientOptions,
 } from '../thegraph/superfluid';
 import { getCurrentTimestampInSecond } from '@requestnetwork/utils';
+import { BigNumber } from 'ethers';
 
 /** Parameters for getting payment events from theGraph */
 type GraphPaymentQueryParams = {
@@ -115,8 +116,10 @@ export class SuperFluidInfoRetriever {
           // FIXME:Handle decreasing flowrate of ongoing payment without closing it
           continue;
         }
-        const amount =
-          diffFlowRate * (streamEvents[index].timestamp - streamEvents[index - 1].timestamp);
+        const period = BigNumber.from(streamEvents[index].timestamp).sub(
+          streamEvents[index - 1].timestamp,
+        );
+        const amount = BigNumber.from(diffFlowRate).mul(period);
         paymentEvents.push({
           amount: amount.toString(),
           name: this.eventName,

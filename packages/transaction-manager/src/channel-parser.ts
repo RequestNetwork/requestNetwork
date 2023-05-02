@@ -27,13 +27,14 @@ export default class ChannelParser {
     ignoredTransactions: Array<TransactionTypes.IIgnoredTransaction | null>;
   }> {
     let channelType: TransactionTypes.ChannelType = TransactionTypes.ChannelType.UNKNOWN;
-    let channelKey: EncryptionTypes.IDecryptionParameters | undefined;
     let encryptionMethod: string | undefined;
-
     interface IValidAndIgnoredTransactions {
       valid: TransactionTypes.ITimestampedTransaction | null;
       ignored: TransactionTypes.IIgnoredTransaction | null;
     }
+
+    // Search for channel key
+    const { channelKey } = await this.getChannelTypeAndChannelKey(channelId, transactions);
 
     // use of .reduce instead of .map to keep a sequential execution
     const validAndIgnoredTransactions: IValidAndIgnoredTransactions[] = await transactions.reduce(
@@ -50,6 +51,7 @@ export default class ChannelParser {
             timestampedTransaction.transaction,
             channelType,
             channelKey,
+            encryptionMethod,
           );
         } catch (error) {
           return result.concat([
@@ -100,9 +102,6 @@ export default class ChannelParser {
             : TransactionTypes.ChannelType.CLEAR;
 
           encryptionMethod = parsedData.encryptionMethod;
-
-          // we keep the channelKey for this channel
-          channelKey = parsedData.channelKey;
         }
 
         const data = await transaction.getData();
@@ -139,12 +138,13 @@ export default class ChannelParser {
   /**
    * Get channel type and channel key from a list of transactions (if applicable)
    *
-   * @param channelId the channelId of the channel
+   * @param _channelId the channelId of the channel
    * @param transactions the transactions of the channel to decrypt and clean
    * @returns Promise resolving the channel type and the channel key (if applicable)
    */
   public async getChannelTypeAndChannelKey(
-    channelId: string,
+    // TODO: Consider removing channelId argument
+    _channelId: string,
     transactions: TransactionTypes.ITimestampedTransaction[],
   ): Promise<{
     channelType: TransactionTypes.ChannelType;
@@ -167,8 +167,8 @@ export default class ChannelParser {
       ) => {
         const result = await accumulatorPromise;
 
-        // if we know the channel type, we skip the remaining transactions
-        if (result.channelType !== TransactionTypes.ChannelType.UNKNOWN) {
+        // Skip remaining transactions if channel is CLEAR or after channelKey is found
+        if (result.channelType === TransactionTypes.ChannelType.CLEAR || result.channelKey) {
           return result;
         }
 
@@ -177,9 +177,22 @@ export default class ChannelParser {
           // Parse the transaction from data-access to get a transaction object and the channel key if encrypted
           parsedData = await this.transactionParser.parsePersistedTransaction(
             timestampedTransaction.transaction,
-            TransactionTypes.ChannelType.UNKNOWN,
+            result.channelType,
+            result.channelKey,
+            result.encryptionMethod,
           );
         } catch (error) {
+          // If the transaction is encrypted but the channel key is not found, save channelType and encryptionMethod
+          if (
+            error.message.startsWith(
+              'Impossible to decrypt the channel key from this transaction',
+            ) &&
+            result.channelType === TransactionTypes.ChannelType.UNKNOWN
+          ) {
+            result.channelType = TransactionTypes.ChannelType.ENCRYPTED;
+            result.encryptionMethod = timestampedTransaction.transaction.encryptionMethod;
+          }
+
           // Error during the parsing, we just ignore this transaction
           return result;
         }
@@ -190,13 +203,6 @@ export default class ChannelParser {
         const error = await transaction.getError();
         if (error !== '') {
           // Error in the transaction, we just ignore it
-          return result;
-        }
-
-        // check if the data hash matches the channel id
-        const hash = await transaction.getHash();
-        if (hash !== channelId) {
-          // we just ignored it
           return result;
         }
 

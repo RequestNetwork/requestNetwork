@@ -37,12 +37,10 @@ const fakeMetaTransactionManager = {
 };
 let fakeTransactionManager: TransactionTypes.ITransactionManager;
 
-const fakeAdvancedLogicBase: AdvancedLogicTypes.IAdvancedLogic = {
-  getAnyToNativeTokenExtensionForNetwork: jest.fn(),
-  getNativeTokenExtensionForNetwork: jest.fn(),
+const fakeAdvancedLogicBase = {
   applyActionToExtensions: jest.fn(),
   extensions: {} as AdvancedLogicTypes.IAdvancedLogicExtensions,
-};
+} as any as AdvancedLogicTypes.IAdvancedLogic;
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('index', () => {
@@ -86,12 +84,10 @@ describe('index', () => {
 
     it('cannot createRequest if apply fails in the advanced request logic', async () => {
       const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-        getAnyToNativeTokenExtensionForNetwork: jest.fn(),
-        getNativeTokenExtensionForNetwork: jest.fn(),
+        ...fakeAdvancedLogicBase,
         applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
           throw new Error('Expected throw');
         },
-        extensions: {} as AdvancedLogicTypes.IAdvancedLogicExtensions,
       };
 
       const requestLogic = new RequestLogic(
@@ -844,6 +840,51 @@ describe('index', () => {
       await expect(
         requestLogic.reduceExpectedAmountRequest(increaseRequest, TestData.payerRaw.identity, true),
       ).rejects.toThrowError('signer must be the payee');
+    });
+  });
+
+  describe('addStakeholders', () => {
+    it('can addStakeholders', async () => {
+      const addStakeholdersRequest = {
+        requestId,
+      };
+      const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
+      const ret = await requestLogic.addStakeholders(
+        addStakeholdersRequest,
+        TestData.payeeRaw.identity,
+        [TestData.otherIdRaw.encryptionParams],
+      );
+
+      ret.on('confirmed', (resultConfirmed1) => {
+        // 'result Confirmed wrong'
+        expect(resultConfirmed1).toEqual({
+          meta: {
+            transactionManagerMeta: {
+              storageDataId: 'fakeDataId',
+            },
+          },
+        });
+      });
+
+      // 'ret.result is wrong'
+      expect(ret.result).toBeUndefined();
+      expect(ret.meta).toEqual({
+        transactionManagerMeta: fakeMetaTransactionManager.meta,
+      });
+
+      const data = {
+        name: RequestLogicTypes.ACTION_NAME.ADD_STAKEHOLDERS,
+        parameters: addStakeholdersRequest,
+        version: CURRENT_VERSION,
+      };
+      const actionExpected = TestData.fakeSignatureProvider.sign(data, TestData.payeeRaw.identity);
+
+      expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
+        JSON.stringify(actionExpected),
+        requestId,
+        undefined,
+        [TestData.otherIdRaw.encryptionParams],
+      );
     });
   });
 
