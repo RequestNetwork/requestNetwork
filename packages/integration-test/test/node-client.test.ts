@@ -538,7 +538,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     expect(requestData.pending).toBeNull();
   });
 
-  it.only('can create ERC20 requests with any to erc20 proxy', async () => {
+  it('can create ERC20 requests with any to erc20 proxy', async () => {
     const tokenContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 
     const currencies: CurrencyInput[] = [
