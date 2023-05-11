@@ -82,7 +82,7 @@ const waitForConfirmation = async (input: Request | Types.IRequestDataWithEvents
   const mineBlockPromise = provider.send('evm_mine', []);
 
   // Set a time limit to wait for confirmation before throwing.
-  // Create the error object right away to conserve context stacktrace.
+  // Create the error object right away to conserve the context's stacktrace.
   const timeoutError = new Error('waiting for confirmation took too long');
   const timeout = setTimeout(() => {
     throw timeoutError;
