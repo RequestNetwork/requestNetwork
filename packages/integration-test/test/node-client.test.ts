@@ -72,22 +72,23 @@ const wrongDecryptionProvider = new EthereumPrivateKeyDecryptionProvider({
 });
 
 const waitForConfirmation = async (input: Request | Types.IRequestDataWithEvents) => {
-  // create the promise to wait for confirmation
+  // Create the promise to wait for confirmation.
   const waitForConfirmationPromise = new Promise<Types.IRequestDataWithEvents>((resolve) =>
     input.on('confirmed', resolve),
   );
 
-  // in parallel, mine an empty block, because a confirmation needs to wait for two blocks
-  // (the block that persisted the action + another block)
+  // In parallel, mine an empty block, because a confirmation needs to wait for two blocks
+  // (the block that persisted the action + another block).
   const mineBlockPromise = provider.send('evm_mine', []);
 
-  // set a time limit to wait for confirmation before throwing
+  // Set a time limit to wait for confirmation before throwing.
+  // Create the error object right away to conserve context stacktrace.
   const timeoutError = new Error('waiting for confirmation took too long');
   const timeout = setTimeout(() => {
     throw timeoutError;
   }, 5000);
 
-  // return the confirmation result
+  // Return the confirmation result.
   const promiseResults = await Promise.all([waitForConfirmationPromise, mineBlockPromise]);
   clearTimeout(timeout);
   return promiseResults[0];
@@ -99,7 +100,6 @@ describe('Request client using a request node', () => {
     const request = await requestNetwork.createRequest({
       requestInfo: requestCreationHashBTC,
       signer: payeeIdentity,
-      disableEvents: false,
     });
     expect(request).toBeInstanceOf(Request);
     expect(request.requestId).toBeDefined();
