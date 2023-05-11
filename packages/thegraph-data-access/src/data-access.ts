@@ -4,12 +4,11 @@ import TypedEmitter from 'typed-emitter';
 import { BigNumber } from 'ethers';
 
 import { getCurrentTimestampInSecond, retry, SimpleLogger } from '@requestnetwork/utils';
-import { Block } from '@requestnetwork/data-access';
+import { Block, CombinedDataAccess } from '@requestnetwork/data-access';
 import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 
 import { Transaction } from './queries';
 import { SubgraphClient } from './subgraph-client';
-import { CombinedDataAccess } from '@requestnetwork/data-access';
 import { PendingStore } from './pending-store';
 import { RequestInit } from 'graphql-request/dist/types.dom';
 
@@ -270,6 +269,7 @@ export class TheGraphDataWrite implements DataAccessTypes.IDataWrite {
     };
 
     storageResult.on('confirmed', () => {
+      this.logger.debug(`Looking for ${storageResult.id} in subgraph`);
       retry(
         async () => {
           const response = await this.graphql.getTransactionsByHash(storageResult.id);
