@@ -73,12 +73,7 @@ const wrongDecryptionProvider = new EthereumPrivateKeyDecryptionProvider({
 
 const waitForConfirmation = async (input: Request | Types.IRequestDataWithEvents) => {
   // create the promise to wait for confirmation
-  let waitForConfirmationPromise: Promise<Types.IRequestDataWithEvents>;
-  if ('waitForConfirmation' in input) {
-    waitForConfirmationPromise = input.waitForConfirmation();
-  } else {
-    waitForConfirmationPromise = new Promise((resolve) => input.on('confirmed', resolve));
-  }
+  const waitForConfirmationPromise = new Promise((resolve) => input.on('confirmed', resolve));
 
   // in parallel, mine an empty block, because a confirmation needs to wait for two blocks
   // (the block that persisted the action + another block)
