@@ -12,7 +12,9 @@ import {
 } from '@requestnetwork/utils';
 import { CurrencyTypes } from '@requestnetwork/types';
 
+// Swap Fees: set to 5 for 0.5%
 const REQUEST_SWAP_FEES = 0;
+// Batch Fees: set to 30 for 0.3%
 const BATCH_FEE = BigNumber.from(0);
 
 // Batch fee amount in USD Limit: 150 * 1e8 ($150)
