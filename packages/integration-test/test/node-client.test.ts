@@ -30,7 +30,7 @@ const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
 // eslint-disable-next-line no-magic-numbers
-jest.setTimeout(10000);
+jest.setTimeout(30000);
 
 const requestCreationHashBTC: Types.IRequestInfo = {
   currency: 'BTC',
@@ -71,6 +71,29 @@ const wrongDecryptionProvider = new EthereumPrivateKeyDecryptionProvider({
   method: Types.Encryption.METHOD.ECIES,
 });
 
+const waitForConfirmation = async (input: Request | Types.IRequestDataWithEvents) => {
+  // Create the promise to wait for confirmation.
+  const waitForConfirmationPromise = new Promise<Types.IRequestDataWithEvents>((resolve) =>
+    input.on('confirmed', resolve),
+  );
+
+  // In parallel, mine an empty block, because a confirmation needs to wait for two blocks
+  // (the block that persisted the action + another block).
+  const mineBlockPromise = provider.send('evm_mine', []);
+
+  // Set a time limit to wait for confirmation before throwing.
+  // Create the error object right away to conserve the context's stacktrace.
+  const timeoutError = new Error('waiting for confirmation took too long');
+  const timeout = setTimeout(() => {
+    throw timeoutError;
+  }, 5000);
+
+  // Return the confirmation result.
+  const promiseResults = await Promise.all([waitForConfirmationPromise, mineBlockPromise]);
+  clearTimeout(timeout);
+  return promiseResults[0];
+};
+
 describe('Request client using a request node', () => {
   it('can create a request, change the amount and get data', async () => {
     // Create a request
@@ -89,7 +112,7 @@ describe('Request client using a request node', () => {
     expect(requestData.meta).toBeDefined();
     expect(requestData.pending!.state).toBe(Types.RequestLogic.STATE.CREATED);
 
-    requestData = await request.waitForConfirmation();
+    requestData = await waitForConfirmation(request);
     expect(requestData.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.pending).toBeNull();
 
@@ -101,7 +124,7 @@ describe('Request client using a request node', () => {
     expect(requestData.meta).toBeDefined();
     expect(requestData.pending!.expectedAmount).toBe('800');
 
-    requestData = await new Promise((resolve) => requestData.on('confirmed', resolve));
+    requestData = await waitForConfirmation(requestData);
     expect(requestData.expectedAmount).toBe('800');
     expect(requestData.pending).toBeNull();
   });
@@ -145,7 +168,7 @@ describe('Request client using a request node', () => {
     expect(extension.events[0].name).toBe('create');
     expect(extension.events[0].parameters).toEqual(paymentNetwork.parameters);
 
-    requestData = await request.waitForConfirmation();
+    requestData = await waitForConfirmation(request);
     expect(requestData.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.pending).toBeNull();
 
@@ -153,7 +176,7 @@ describe('Request client using a request node', () => {
     expect(requestData.balance).toBeDefined();
     expect(requestData.balance!.balance).toBe('0');
 
-    requestData = await new Promise((resolve) => requestData.on('confirmed', resolve));
+    requestData = await waitForConfirmation(requestData);
     expect(requestData.balance!.balance).toBe('0');
 
     requestData = await request.declareReceivedPayment(
@@ -164,7 +187,7 @@ describe('Request client using a request node', () => {
     expect(requestData.balance).toBeDefined();
     expect(requestData.balance!.balance).toBe('0');
 
-    requestData = await new Promise((resolve) => requestData.on('confirmed', resolve));
+    requestData = await waitForConfirmation(requestData);
     expect(requestData.balance!.balance).toBe('100');
   });
 
@@ -187,7 +210,7 @@ describe('Request client using a request node', () => {
       signer: payeeIdentity,
       topics: topicsRequest1and2,
     });
-    await request1.waitForConfirmation();
+    await waitForConfirmation(request1);
     const timestampBeforeReduce = getCurrentTimestampInSecond();
 
     // make sure that request 2 timestamp is greater than request 1 timestamp
@@ -209,15 +232,15 @@ describe('Request client using a request node', () => {
       topics: topicsRequest1and2,
     });
 
-    await request2.waitForConfirmation();
+    await waitForConfirmation(request2);
 
     // reduce request 1
     const requestDataReduce = await request1.reduceExpectedAmountRequest('10000000', payeeIdentity);
-    await new Promise((r) => requestDataReduce.on('confirmed', r));
+    await waitForConfirmation(requestDataReduce);
 
     // cancel request 1
     const requestDataCancel = await request1.cancel(payeeIdentity);
-    await new Promise((r) => requestDataCancel.on('confirmed', r));
+    await waitForConfirmation(requestDataCancel);
 
     // get requests without boundaries
     let requests = await requestNetwork.fromTopic(topicsRequest1and2[0]);
@@ -375,7 +398,7 @@ describe('Request client using a request node', () => {
     expect(requestData.pending!.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
 
-    await new Promise((resolve) => request.on('confirmed', resolve));
+    await waitForConfirmation(request);
 
     // Fetch the created request by its id
     const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
@@ -395,7 +418,7 @@ describe('Request client using a request node', () => {
     expect(fetchedRequestData.state).toBe(Types.RequestLogic.STATE.CREATED);
 
     const acceptData = await request.accept(payerIdentity);
-    await new Promise((resolve) => acceptData.on('confirmed', resolve));
+    await waitForConfirmation(acceptData);
 
     await fetchedRequest.refresh();
     fetchedRequestData = fetchedRequest.getData();
@@ -405,7 +428,7 @@ describe('Request client using a request node', () => {
       requestCreationHashBTC.expectedAmount,
       payerIdentity,
     );
-    await new Promise((resolve) => increaseData.on('confirmed', resolve));
+    await waitForConfirmation(increaseData);
 
     await fetchedRequest.refresh();
     expect(fetchedRequest.getData().expectedAmount).toEqual(
@@ -416,7 +439,7 @@ describe('Request client using a request node', () => {
       Number(requestCreationHashBTC.expectedAmount) * 2,
       payeeIdentity,
     );
-    await new Promise((resolve) => reduceData.on('confirmed', resolve));
+    await waitForConfirmation(reduceData);
 
     await fetchedRequest.refresh();
     expect(fetchedRequest.getData().expectedAmount).toBe('0');
@@ -442,7 +465,7 @@ describe('Request client using a request node', () => {
       },
       [encryptionData.encryptionParams],
     );
-    await encryptedRequest.waitForConfirmation();
+    await waitForConfirmation(encryptedRequest);
 
     // Create a plain request
     const plainRequest = await requestNetwork.createRequest({
@@ -533,12 +556,12 @@ describe('ERC20 localhost request creation and detection test', () => {
     expect(requestData.meta).toBeDefined();
     expect(requestData.pending!.state).toBe(Types.RequestLogic.STATE.CREATED);
 
-    requestData = await new Promise((resolve) => request.on('confirmed', resolve));
+    requestData = await waitForConfirmation(request);
     expect(requestData.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.pending).toBeNull();
   });
 
-  it.only('can create ERC20 requests with any to erc20 proxy', async () => {
+  it('can create ERC20 requests with any to erc20 proxy', async () => {
     const tokenContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 
     const currencies: CurrencyInput[] = [

@@ -71,7 +71,7 @@ export default class PersistTransactionHandler {
         clientRequest.body.topics,
       );
 
-      // when the transaction is confirmed, store the information to be serve when requested
+      // when the transaction is confirmed, store the information to be served when requested
       dataAccessResponse.on('confirmed', async (dataAccessConfirmedResponse) => {
         await this.confirmedTransactionStore.addConfirmedTransaction(
           transactionHash.value,
