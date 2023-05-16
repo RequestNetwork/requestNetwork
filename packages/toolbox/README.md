@@ -27,8 +27,30 @@ CreateRequest.createTestRequest(12);
 #### In the CLI
 
 ```bash
+yarn request-toolbox request create
+yarn request-toolbox request create 12
+```
+
+or
+
+```bash
 yarn cli request create
 yarn cli request create 12
+```
+
+#### CLI Troubleshooting
+
+If you receive the following error
+
+```bash
+error Command "request-toolbox" not found.
+```
+
+then build the toolbox package like bellow:
+
+```bash
+cd packages/toolbox
+yarn --check-files
 ```
 
 ### Conversion paths
@@ -38,7 +60,7 @@ yarn cli request create 12
 The following command guides you in adding missing aggregators.
 
 ```bash
-yarn cli addAggregators mainnet --privateKey $PRIVATE_KEY --dryRun
+yarn request-toolbox addAggregators mainnet --privateKey $PRIVATE_KEY --dryRun
 ```
 
 It will suggest pairs of currencies:
@@ -49,9 +71,9 @@ It will suggest pairs of currencies:
 
 The following commands are also available:
 
-- `yarn cli addAggregator` can be used if you have all information about an aggregator you want to add
-- `yarn cli removeAggregator` will set the given currency pair to the 0x00[...]00 address.
-- `yarn cli listMissingAggregators <name>` (where `name` is a valid Request Finance currency list, [https://api.request.network/currency/list/name]() should be valid) will display missing aggregators for that list on all networks.
+- `yarn request-toolbox addAggregator` can be used if you have all information about an aggregator you want to add
+- `yarn request-toolbox removeAggregator` will set the given currency pair to the 0x00[...]00 address.
+- `yarn request-toolbox listMissingAggregators <name>` (where `name` is a valid Request Finance currency list, [https://api.request.network/currency/list/name]() should be valid) will display missing aggregators for that list on all networks.
 
 Use `--help` for details about each command.
 
