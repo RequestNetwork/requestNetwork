@@ -31,7 +31,7 @@ yarn request-toolbox request create
 yarn request-toolbox request create 12
 ```
 
-or
+or if ran from the `/toolbox` folder
 
 ```bash
 yarn cli request create
