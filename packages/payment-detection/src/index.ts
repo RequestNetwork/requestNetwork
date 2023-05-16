@@ -16,6 +16,7 @@ import {
   formatAddress,
   getPaymentNetworkExtension,
   getPaymentReference,
+  hashReference,
   padAmountForChainlink,
   parseLogArgs,
   unpadAmountFromChainlink,
@@ -59,5 +60,6 @@ export {
   calculateEscrowState,
   getPaymentNetworkExtension,
   getPaymentReference,
+  hashReference,
   formatAddress,
 };
