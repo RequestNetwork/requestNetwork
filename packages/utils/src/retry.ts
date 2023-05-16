@@ -37,7 +37,7 @@ const retry = <TParams extends unknown[], TReturn>(
     maxExponentialBackoffDelay?: number;
   } = {},
 ): ((...params: TParams) => Promise<TReturn>) => {
-  // If a context was passed in, bind it to to the target function
+  // If a context was passed in, bind it to the target function
   if (context) {
     target = target.bind(context);
   }
