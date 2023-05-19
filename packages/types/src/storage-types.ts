@@ -136,6 +136,8 @@ export interface IEthereumMetadata {
   fee?: string;
   /** gas fee in wei of the transaction that stored the data id */
   gasFee?: string;
+  /** nonce of the transaction that stored the data id */
+  nonce?: number;
 }
 
 /** Ethereum network id */
