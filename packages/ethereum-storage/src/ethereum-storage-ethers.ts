@@ -69,13 +69,14 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
         ipfs: { size: ipfsSize },
         local: { location: ipfsHash },
         ethereum: {
+          nonce: tx.nonce,
+          transactionHash: tx.hash,
           blockConfirmation: tx.confirmations,
           blockNumber: Number(tx.blockNumber),
           // wrong value, but this metadata will not be used, as it's in Pending state
           blockTimestamp: -1,
           networkName: this.network,
           smartContractAddress: this.txSubmitter.hashSubmitterAddress,
-          transactionHash: tx.hash,
         },
         state: StorageTypes.ContentState.PENDING,
         storageType: StorageTypes.StorageSystemType.LOCAL,

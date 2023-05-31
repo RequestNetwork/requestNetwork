@@ -3,7 +3,7 @@ import Keyv, { Store } from 'keyv';
 
 /**
  * Class for storing confirmed transactions information
- * When 'confirmed' event is receive from a 'persistTransaction', the event data are stored.
+ * When 'confirmed' event is received from a 'persistTransaction', the event data are stored.
  * The client can call the getConfirmed entry point, to get the confirmed event.
  */
 export default class ConfirmedTransactionStore {
