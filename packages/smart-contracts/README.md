@@ -206,6 +206,26 @@ yarn hardhat deploy-live-payments --network private --force
 yarn hardhat deploy-live-payments --network private --force --dry-run
 ```
 
+## Administrate the contracts
+
+The contracts to be updated are listed in the array `create2ContractDeploymentList` in [Utils](scripts-create2/utils.ts).
+Modify the content of the array depending on your need when you perform an administration task.
+Environment variables needed: `ADMIN_PRIVATE_KEY`
+
+To update the contracts on one network, use:
+
+```bash
+NETWORK=<NETWORK> yarn hardhat update-contracts
+```
+
+If you want to update the contracts on all networks:
+
+```bash
+yarn hardhat update-contracts
+```
+
+This command will output details about each update on each chain
+
 ## Tests
 
 After a local deployment:

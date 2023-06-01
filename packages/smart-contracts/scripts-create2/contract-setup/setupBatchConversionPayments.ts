@@ -12,23 +12,32 @@ import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 /**
  * Updates the values of the batch fees of the BatchConversionPayments contract, if needed.
- * @param contractAddress address of the BatchConversionPayments proxy.
+ * @param contractAddress address of the BatchConversionPayments contract.
+ *                        If not provided fallback to the latest deployment address
  * @param hre Hardhat runtime environment.
  */
-export const setupBatchConversionPayments = async (
-  contractAddress: string,
-  hre: HardhatRuntimeEnvironmentExtended,
-): Promise<void> => {
+export const setupBatchConversionPayments = async ({
+  contractAddress,
+  hre,
+}: {
+  contractAddress?: string;
+  hre: HardhatRuntimeEnvironmentExtended;
+}): Promise<void> => {
   // Setup contract parameters
-  const batchConversionPaymentContract = new hre.ethers.Contract(
-    contractAddress,
-    batchConversionPaymentsArtifact.getContractAbi(),
-  );
+
   // constants related to chainlink and conversion rate
   const currencyManager = CurrencyManager.getDefault();
 
   const setUpActions = async (network: CurrencyTypes.EvmChainName) => {
     console.log(`Setup BatchConversionPayments on ${network}`);
+
+    if (!contractAddress) {
+      contractAddress = batchConversionPaymentsArtifact.getAddress(network);
+    }
+    const batchConversionPaymentContract = new hre.ethers.Contract(
+      contractAddress,
+      batchConversionPaymentsArtifact.getContractAbi(),
+    );
 
     const NativeAddress = currencyManager.getNativeCurrency(
       RequestLogicTypes.CURRENCY.ETH,
@@ -80,7 +89,7 @@ export const setupBatchConversionPayments = async (
   for (const network of hre.config.xdeploy.networks) {
     try {
       EvmChains.assertChainSupported(network);
-      await Promise.resolve(setUpActions(network));
+      await setUpActions(network);
     } catch (err) {
       console.warn(`An error occurred during the setup of BatchConversion on ${network}`);
       console.warn(err);
