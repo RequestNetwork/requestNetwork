@@ -1,7 +1,7 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { FeeReferenceBasedPaymentNetwork } from '../fee-reference-based';
 
-const CURRENT_VERSION = '0.1.0';
+const CURRENT_VERSION = '0.2.0';
 
 /**
  * Implementation of the payment network to pay in ERC20 based on a transferable receivable contract.

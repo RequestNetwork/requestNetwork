@@ -18,6 +18,7 @@ export async function deployERC20TransferableReceivable(
           'tREC',
           mainPaymentAddresses.ERC20FeeProxyAddress,
         ],
+        version: '0.2.0',
       },
     );
 

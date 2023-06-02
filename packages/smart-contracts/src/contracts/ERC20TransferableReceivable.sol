@@ -14,11 +14,6 @@ contract ERC20TransferableReceivable is ERC721 {
   using Counters for Counters.Counter;
 
   /**
-   * @dev Counter for uniquely identifying payments
-   */
-  Counters.Counter private _paymentId;
-
-  /**
    * @dev Counter for uniquely identifying receivables
    */
   Counters.Counter private _receivableTokenId;
@@ -30,7 +25,6 @@ contract ERC20TransferableReceivable is ERC721 {
     address tokenAddress;
     uint256 amount;
     uint256 balance;
-    bytes32 requestID;
   }
 
   /**
@@ -53,20 +47,14 @@ contract ERC20TransferableReceivable is ERC721 {
    * @param sender The address of the sender
    * @param recipient The address of the recipient of the payment
    * @param amount The amount of the payment
-   * @param paymentProxy The address of the payment proxy contract
    * @param receivableTokenId The ID of the receivable being paid
-   * @param tokenAddress The address of the ERC20 token used to pay the receivable
-   * @param paymentId The ID of the payment
    * @param paymentReference The reference for the payment
    */
   event TransferableReceivablePayment(
     address sender,
     address recipient,
     uint256 amount,
-    address paymentProxy,
     uint256 receivableTokenId,
-    address tokenAddress,
-    uint256 paymentId,
     bytes indexed paymentReference
   );
 
@@ -121,7 +109,6 @@ contract ERC20TransferableReceivable is ERC721 {
   ) external {
     require(amount != 0, 'Zero amount provided');
     address owner = ownerOf(receivableTokenId);
-    _paymentId.increment();
 
     ReceivableInfo storage receivableInfo = receivableInfoMapping[receivableTokenId];
     address tokenAddress = receivableInfo.tokenAddress;
@@ -144,10 +131,7 @@ contract ERC20TransferableReceivable is ERC721 {
       msg.sender,
       owner,
       amount,
-      paymentProxy,
       receivableTokenId,
-      tokenAddress,
-      _paymentId.current(),
       paymentReference
     );
   }
@@ -158,16 +142,13 @@ contract ERC20TransferableReceivable is ERC721 {
    * @param paymentReference A reference for the payment.
    * @param amount The amount of ERC20 tokens to be paid.
    * @param erc20Addr The address of the ERC20 token to be used as payment.
-   * @param requestID The ID of the request associated with the receivable.
-   *                  Useful for retrieving details of the request from the Request Network.
    * @dev Anyone can pay for the mint of a receivable on behalf of a user
    */
   function mint(
     address owner,
     bytes calldata paymentReference,
     uint256 amount,
-    address erc20Addr,
-    bytes32 requestID
+    address erc20Addr
   ) external {
     require(paymentReference.length > 0, 'Zero paymentReference provided');
     require(amount > 0, 'Zero amount provided');
@@ -184,8 +165,7 @@ contract ERC20TransferableReceivable is ERC721 {
     receivableInfoMapping[currentReceivableTokenId] = ReceivableInfo({
       tokenAddress: erc20Addr,
       amount: amount,
-      balance: 0,
-      requestID: requestID
+      balance: 0
     });
 
     _mint(owner, currentReceivableTokenId);
