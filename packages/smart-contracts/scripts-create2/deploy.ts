@@ -2,17 +2,16 @@ import { create2ContractDeploymentList, isContractDeployed } from './utils';
 import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './types';
 import { xdeploy } from './xdeployer';
 import { getConstructorArgs } from './constructor-args';
-import {
-  setupBatchConversionPayments,
-  setupChainlinkConversionPath,
-  setupErc20ConversionProxy,
-  setupERC20SwapToConversion,
-  setupERC20SwapToPay,
-  setupETHConversionProxy,
-} from './contract-setup';
 import { EvmChains } from '@requestnetwork/currency';
+import { setupContract } from './contract-setup/setups';
 
-// Deploys, set up the contracts and returns the address
+/**
+ * Deploy a contract on the networks specified in the hardhat config.
+ * Use the CREATE2 scheme for the deployments.
+ * @param deploymentParams contract and constructor arguments
+ * @param hre hardhat runtime environment
+ * @returns The address of the deployed contract - same for all network
+ */
 export const deployOneWithCreate2 = async (
   deploymentParams: IDeploymentParams,
   hre: HardhatRuntimeEnvironmentExtended,
@@ -46,67 +45,19 @@ export const deployOneWithCreate2 = async (
   return deploymentResult[0].address;
 };
 
+/**
+ * Deploy all the contracts specified in create2ContractDeploymentList.
+ * Once deployed, do the setup.
+ * @param hre
+ */
 export const deployWithCreate2FromList = async (
   hre: HardhatRuntimeEnvironmentExtended,
 ): Promise<void> => {
   for (const contract of create2ContractDeploymentList) {
-    switch (contract) {
-      case 'EthereumProxy':
-      case 'ERC20FeeProxy':
-      case 'EthereumFeeProxy': {
-        const constructorArgs = getConstructorArgs(contract);
-        await deployOneWithCreate2({ contract, constructorArgs }, hre);
-        break;
-      }
-      case 'ChainlinkConversionPath': {
-        const constructorArgs = getConstructorArgs(contract);
-        const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
-        await setupChainlinkConversionPath(address, hre);
-        break;
-      }
-      case 'EthConversionProxy': {
-        const constructorArgs = getConstructorArgs(contract);
-        const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
-        await setupETHConversionProxy(address, hre);
-        break;
-      }
-      case 'Erc20ConversionProxy': {
-        const constructorArgs = getConstructorArgs(contract);
-        const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
-        await setupErc20ConversionProxy(address, hre);
-        break;
-      }
-      case 'ERC20SwapToPay': {
-        const constructorArgs = getConstructorArgs(contract);
-        const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
-        await setupERC20SwapToPay(address, hre);
-        break;
-      }
-      case 'ERC20SwapToConversion': {
-        const constructorArgs = getConstructorArgs(contract);
-        const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
-        await setupERC20SwapToConversion(address, hre);
-        break;
-      }
-      case 'ERC20EscrowToPay':
-      case 'ERC20TransferableReceivable': {
-        const network = hre.config.xdeploy.networks[0];
-        EvmChains.assertChainSupported(network);
-        const constructorArgs = getConstructorArgs(contract, network);
-        await deployOneWithCreate2({ contract, constructorArgs }, hre);
-        break;
-      }
-      case 'BatchConversionPayments': {
-        const network = hre.config.xdeploy.networks[0];
-        EvmChains.assertChainSupported(network);
-        const constructorArgs = getConstructorArgs(contract, network);
-        const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
-        await setupBatchConversionPayments(address, hre);
-        break;
-      }
-      // Other cases to add when necessary
-      default:
-        throw new Error(`The contract ${contract} is not to be deployed using the CREATE2 scheme`);
-    }
+    const network = hre.config.xdeploy.networks[0];
+    EvmChains.assertChainSupported(network);
+    const constructorArgs = getConstructorArgs(contract, network);
+    const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
+    await setupContract({ contractAddress: address, contractName: contract, hre });
   }
 };

@@ -77,8 +77,8 @@ export function encodeSwapToPayAnyToErc20Request(
   signerOrProvider: providers.Provider | Signer = getProvider(),
   options: IRequestPaymentOptions,
 ): string {
-  const conversionSettings = options?.conversion;
-  const swapSettings = options?.swap;
+  const conversionSettings = options.conversion;
+  const swapSettings = options.swap;
 
   if (!conversionSettings) {
     throw new Error(`Conversion Settings are required`);
@@ -87,7 +87,7 @@ export function encodeSwapToPayAnyToErc20Request(
     throw new Error(`Swap Settings are required`);
   }
   const currencyManager = conversionSettings.currencyManager || CurrencyManager.getDefault();
-  const network = conversionSettings.currency?.network;
+  const network = conversionSettings.currency.network;
   if (!network) {
     throw new Error(`Currency in conversion settings must have a network`);
   }

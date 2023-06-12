@@ -243,9 +243,9 @@ export async function isSolvent(
 ): Promise<boolean> {
   // Near case
   if (NearChains.isChainSupported(currency.network) && providerOptions?.nearWalletConnection) {
-    return isNearAccountSolvent(amount, providerOptions.nearWalletConnection);
+    return isNearAccountSolvent(amount, providerOptions.nearWalletConnection, currency);
   }
-  // Main case (web3)
+  // Main case (EVM)
   if (!providerOptions?.provider) {
     throw new Error('provider missing');
   }

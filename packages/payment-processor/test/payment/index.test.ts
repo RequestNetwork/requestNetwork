@@ -194,7 +194,7 @@ describe('payNearInputDataRequest', () => {
       { callbackUrl: 'https://some.callback.url', meta: 'param' },
     );
   });
-  it('throws when tyring to pay another payment extension', async () => {
+  it('throws when trying to pay another payment extension', async () => {
     // A mock is used to bypass Near wallet connection for address validation and contract interaction
     const paymentSpy = jest
       .spyOn(nearUtils, 'processNearPayment')
@@ -225,7 +225,7 @@ describe('payNearInputDataRequest', () => {
     await expect(
       payNearInputDataRequest(request, mockedNearWalletConnection, '1'),
     ).rejects.toThrowError('request cannot be processed, or is not an pn-native-token request');
-    expect(paymentSpy).toHaveBeenCalledTimes(0);
+    expect(paymentSpy).not.toHaveBeenCalled();
   });
 });
 

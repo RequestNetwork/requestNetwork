@@ -11,22 +11,29 @@ const ERC20ConversionVersion = '0.1.2';
 
 /**
  * Updates the values of the chainlinkConversionPath and ERC20FeeProxy addresses if needed
- * @param contractAddress address of the ERC20Conversion Proxy
+ * @param contractAddress address of the ERC20Conversion contract.
+ *                        If not provided fallback to the latest deployment address
  * @param hre Hardhat runtime environment
  */
-export const setupErc20ConversionProxy = async (
-  contractAddress: string,
-  hre: HardhatRuntimeEnvironmentExtended,
-): Promise<void> => {
-  // Setup contract parameters
-  const Erc20ConversionProxyContract = new hre.ethers.Contract(
-    contractAddress,
-    erc20ConversionProxy.getContractAbi(ERC20ConversionVersion),
-  );
+export const setupErc20ConversionProxy = async ({
+  contractAddress,
+  hre,
+}: {
+  contractAddress?: string;
+  hre: HardhatRuntimeEnvironmentExtended;
+}): Promise<void> => {
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network) => {
       try {
         EvmChains.assertChainSupported(network);
+        if (!contractAddress) {
+          contractAddress = erc20ConversionProxy.getAddress(network);
+        }
+        const Erc20ConversionProxyContract = new hre.ethers.Contract(
+          contractAddress,
+          erc20ConversionProxy.getContractAbi(ERC20ConversionVersion),
+        );
+
         const { signer, txOverrides } = await getSignerAndGasFees(network, hre);
         const Erc20ConversionProxyConnected = Erc20ConversionProxyContract.connect(signer);
         await updatePaymentFeeProxyAddress(
