@@ -29,6 +29,7 @@ contract ERC20TransferableReceivable is ERC721 {
 
   /**
    * @notice Mapping for looking up a receivable given a paymentReference and minter address
+   * @dev Prevents minting multiple tokens for a given paymentReference and minter address
    */
   mapping(bytes32 => uint256) public receivableTokenIdMapping;
 
