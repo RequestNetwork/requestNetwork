@@ -115,7 +115,6 @@ export function encodeMintErc20TransferableReceivableRequest(
   validateERC20TransferableReceivable(request);
 
   const tokenAddress = request.currencyInfo.value;
-  const metadata = Buffer.from(request.requestId).toString('base64'); // metadata is requestId
 
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
   const amount = getAmountToPay(request);
@@ -126,7 +125,6 @@ export function encodeMintErc20TransferableReceivableRequest(
     `0x${paymentReference}`,
     amount,
     tokenAddress,
-    metadata,
   ]);
 }
 
@@ -204,10 +202,11 @@ export async function encodePayErc20TransferableReceivableRequest(
 
   const receivableContract = ERC20TransferableReceivable__factory.createInterface();
 
+  // get tokenId from request
   const receivableTokenId = await getReceivableTokenIdForRequest(request, signerOrProvider);
 
   return receivableContract.encodeFunctionData('payOwner', [
-    receivableTokenId, // get tokenId from requestId
+    receivableTokenId,
     amountToPay,
     `0x${paymentReference}`,
     feeToPay,

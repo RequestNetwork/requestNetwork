@@ -25,7 +25,7 @@ import { getProxyAddress } from '../../src/payment/utils';
 const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
-const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
+const feeAddress = '0x75c35C980C0d37ef46DF04d31A140b65503c0eEd';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const payeeWallet = Wallet.createRandom().connect(provider);
 const thirdPartyWallet = Wallet.createRandom().connect(provider);
@@ -61,7 +61,7 @@ const validRequest: ClientTypes.IRequestData = {
         paymentAddress,
         salt: '0ee84db293a752c6',
       },
-      version: '0.1.0',
+      version: '0.2.0',
     },
   },
   payee: {
@@ -118,7 +118,8 @@ describe('erc20-transferable-receivable', () => {
     it('rejects paying without minting', async () => {
       // Different request without a minted receivable
       const request = deepCopy(validRequest) as ClientTypes.IRequestData;
-      request.requestId = '0x01';
+      // Change the request id
+      request.requestId = '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e2';
 
       await expect(payErc20TransferableReceivableRequest(request, wallet)).rejects.toThrowError(
         'The receivable for this request has not been minted yet. Please check with the payee.',
@@ -192,7 +193,7 @@ describe('erc20-transferable-receivable', () => {
           .hexZeroPad(tokenId.toHexString(), 16)
           .substring(
             2,
-          )}000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000008${shortReference}000000000000000000000000000000000000000000000000`,
+          )}000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000075c35c980c0d37ef46df04d31a140b65503c0eed0000000000000000000000000000000000000000000000000000000000000008${shortReference}000000000000000000000000000000000000000000000000`,
         gasPrice: '20000000000',
         to: '0xF426505ac145abE033fE77C666840063757Be9cd',
         value: 0,
@@ -235,7 +236,8 @@ describe('erc20-transferable-receivable', () => {
     it('other wallets can mint receivable for owner', async () => {
       // Request without a receivable minted yet
       const request = deepCopy(validRequest) as ClientTypes.IRequestData;
-      request.requestId = '0x01';
+      // Change the request id
+      request.requestId = '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e3';
 
       const mintTx = await mintErc20TransferableReceivable(request, thirdPartyWallet, {
         gasLimit: BigNumber.from('20000000'),
@@ -268,7 +270,8 @@ describe('erc20-transferable-receivable', () => {
     it('rejects paying unless minted to correct owner', async () => {
       // Request without a receivable minted yet
       const request = deepCopy(validRequest) as ClientTypes.IRequestData;
-      request.requestId = '0x02';
+      // Change the request id
+      request.requestId = '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e4';
 
       let shortReference = PaymentReferenceCalculator.calculate(
         request.requestId,
@@ -276,14 +279,12 @@ describe('erc20-transferable-receivable', () => {
           .salt,
         paymentAddress,
       );
-      let metadata = Buffer.from(request.requestId).toString('base64');
       let receivableContract = ERC20TransferableReceivable__factory.createInterface();
       let data = receivableContract.encodeFunctionData('mint', [
         thirdPartyWallet.address,
         `0x${shortReference}`,
         '100',
         erc20ContractAddress,
-        metadata,
       ]);
       let tx = await thirdPartyWallet.sendTransaction({
         data,
@@ -309,14 +310,12 @@ describe('erc20-transferable-receivable', () => {
           .salt,
         paymentAddress,
       );
-      metadata = Buffer.from(request.requestId).toString('base64');
       receivableContract = ERC20TransferableReceivable__factory.createInterface();
       data = receivableContract.encodeFunctionData('mint', [
         paymentAddress,
         `0x${shortReference}`,
         '100',
         erc20ContractAddress,
-        metadata,
       ]);
       tx = await thirdPartyWallet.sendTransaction({
         data,
