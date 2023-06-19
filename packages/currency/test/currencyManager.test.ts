@@ -649,7 +649,7 @@ describe('CurrencyManager', () => {
         },
       ];
       it.each(currencies)('Should validate $label', ({ currency }) => {
-        const result = CurrencyManager.validateCurrency(currency);
+        const result = currencyManager.validateCurrency(currency);
         expect(result).toBe(true);
       });
     });
@@ -682,7 +682,7 @@ describe('CurrencyManager', () => {
         },
       ];
       it.each(currencies)('Should not validate an invalid $label', ({ currency }) => {
-        const result = CurrencyManager.validateCurrency(currency);
+        const result = currencyManager.validateCurrency(currency);
         expect(result).toBe(false);
       });
     });

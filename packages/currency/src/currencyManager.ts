@@ -262,14 +262,14 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   /**
    * Validate the correctness of a Storage Currency
    */
-  static validateCurrency(currency: StorageCurrency): boolean {
+  validateCurrency(currency: StorageCurrency): boolean {
     if (
       currency.type === RequestLogicTypes.CURRENCY.ISO4217 ||
       currency.type === RequestLogicTypes.CURRENCY.ETH ||
       currency.type === RequestLogicTypes.CURRENCY.BTC
     )
       return true;
-    return this.validateAddress(currency.value, currency);
+    return CurrencyManager.validateAddress(currency.value, currency);
   }
 
   /**
