@@ -1,8 +1,8 @@
 import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import * as RequestNetwork from '@requestnetwork/request-client.js';
-import MockStorage from '../../request-client.js/dist/mock-storage';
-import MockDataAccess from '../../request-client.js/dist/mock-data-access';
+import MockStorage from './mock/mock-storage';
+import { MockDataAccess } from '@requestnetwork/data-access';
 
 // payee information
 const payeeSignatureInfo = {

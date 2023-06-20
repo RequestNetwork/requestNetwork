@@ -1,4 +1,3 @@
-export { EthereumStorage } from './ethereum-storage';
 export {
   getEthereumStorageNetworkNameFromId,
   getEthereumStorageNetworkIdFromName,

@@ -6,37 +6,14 @@ import { getCurrentTimestampInSecond, normalizeKeccak256Hash } from '@requestnet
 /**
  * Storage layer implemented with in-memory hashmap, to be used for testing.
  */
-export default class MockStorage implements StorageTypes.IStorage {
-  private data: Map<
-    string,
-    { state: StorageTypes.ContentState; content: string; timestamp: number }
-  > = new Map();
+export class MockStorage implements StorageTypes.IStorage {
+  private data: Map<string, StorageTypes.IEntry> = new Map();
 
   // For test purpose we can force the next append call to emit Error
   private forceEmitError = false;
 
   public async initialize(): Promise<void> {
     return;
-  }
-
-  public async ipfsAdd(content: string): Promise<StorageTypes.IIpfsMeta> {
-    if (!content) {
-      throw Error('Error: no content provided');
-    }
-    const hash = MultiFormat.serialize(normalizeKeccak256Hash(content));
-
-    const nowTimestampInSec = getCurrentTimestampInSecond();
-
-    this.data.set(hash, {
-      content,
-      state: StorageTypes.ContentState.PENDING,
-      timestamp: nowTimestampInSec,
-    });
-
-    return {
-      ipfsHash: hash,
-      ipfsSize: content.length,
-    };
   }
 
   public async append(content: string): Promise<StorageTypes.IAppendResult> {
@@ -47,14 +24,6 @@ export default class MockStorage implements StorageTypes.IStorage {
 
     const nowTimestampInSec = getCurrentTimestampInSecond();
 
-    const dataToStore = {
-      content,
-      state: StorageTypes.ContentState.PENDING,
-      timestamp: nowTimestampInSec,
-    };
-
-    this.data.set(hash, dataToStore);
-
     const resultData = {
       content,
       id: hash,
@@ -64,7 +33,12 @@ export default class MockStorage implements StorageTypes.IStorage {
         timestamp: nowTimestampInSec,
       },
     };
-    const result = Object.assign(new EventEmitter(), resultData);
+    this.data.set(hash, resultData);
+
+    const result = Object.assign(
+      new EventEmitter() as StorageTypes.AppendResultEmitter,
+      resultData,
+    );
 
     setTimeout(() => {
       if (this.forceEmitError) {
@@ -72,9 +46,8 @@ export default class MockStorage implements StorageTypes.IStorage {
         this.forceEmitError = false;
         result.emit('error', 'forced error asked by _makeNextAppendFailInsteadOfConfirmed()');
       } else {
-        // emit confirmed
-        dataToStore.state = StorageTypes.ContentState.CONFIRMED;
-        this.data.set(hash, dataToStore);
+        resultData.meta.state = StorageTypes.ContentState.CONFIRMED;
+        this.data.set(hash, resultData);
         result.emit('confirmed', resultData);
       }
       // eslint-disable-next-line no-magic-numbers
@@ -91,15 +64,7 @@ export default class MockStorage implements StorageTypes.IStorage {
     if (!data) {
       throw Error('No content found from this id');
     }
-    return {
-      content: data.content,
-      id,
-      meta: {
-        state: data.state,
-        storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
-        timestamp: data.timestamp,
-      },
-    };
+    return data;
   }
 
   public async readMany(ids: string[]): Promise<StorageTypes.IEntry[]> {
@@ -107,15 +72,7 @@ export default class MockStorage implements StorageTypes.IStorage {
   }
 
   public async getData(): Promise<StorageTypes.IEntriesWithLastTimestamp> {
-    const entries = Array.from(this.data.entries()).map(([id, { content, state, timestamp }]) => ({
-      content,
-      id,
-      meta: {
-        state,
-        storageType: StorageTypes.StorageSystemType.IN_MEMORY_MOCK,
-        timestamp,
-      },
-    }));
+    const entries = Array.from(this.data.values());
 
     const nowTimestampInSec = getCurrentTimestampInSecond();
 
@@ -125,24 +82,19 @@ export default class MockStorage implements StorageTypes.IStorage {
     };
   }
 
-  public async getIgnoredData(): Promise<StorageTypes.IEntry[]> {
-    return [];
-  }
-
   /**
    * Gets information
    *
-   * @param detailed if true get the list of files hash
    */
-  public async _getStatus(detailed?: boolean): Promise<any> {
+  public async _getStatus(): Promise<any> {
     return {
       dataIds: {
         count: Object.entries(this.data).length,
-        values: detailed ? Object.entries(this.data) : undefined,
+        values: [],
       },
       ignoredDataIds: {
         count: 0,
-        values: detailed ? [] : undefined,
+        values: [],
       },
     };
   }

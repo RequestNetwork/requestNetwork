@@ -3,7 +3,6 @@ import * as yargs from 'yargs';
 import { LogTypes } from '@requestnetwork/types';
 import * as config from './config';
 import { Logger } from './logger';
-import { RequestNode } from './requestNode';
 import withShutdown from 'http-shutdown';
 import { TheGraphRequestNode } from './thegraph-node';
 
@@ -34,9 +33,7 @@ const startNode = async (): Promise<void> => {
 
   const port = config.getServerPort();
   const graphNodeUrl = config.getGraphNodeUrl();
-  const requestNode = graphNodeUrl
-    ? new TheGraphRequestNode(graphNodeUrl, logger)
-    : new RequestNode(logger);
+  const requestNode = new TheGraphRequestNode(graphNodeUrl, logger);
   const server = withShutdown(
     requestNode.listen(port, () => {
       logger.info(`Listening on port ${port}`);

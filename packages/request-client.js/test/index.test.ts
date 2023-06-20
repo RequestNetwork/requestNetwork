@@ -22,8 +22,8 @@ import EtherscanProviderMock from './etherscan-mock';
 import httpConfigDefaults from '../src/http-config-defaults';
 import { IRequestDataWithEvents } from '../src/types';
 import HttpMetaMaskDataAccess from '../src/http-metamask-data-access';
-import MockDataAccess from '../src/mock-data-access';
-import MockStorage from '../src/mock-storage';
+import { MockDataAccess } from '@requestnetwork/data-access';
+import { MockStorage } from '../src/mock-storage';
 import * as RequestLogic from '@requestnetwork/types/src/request-logic-types';
 
 const packageJson = require('../package.json');

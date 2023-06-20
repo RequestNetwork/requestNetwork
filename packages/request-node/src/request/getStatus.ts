@@ -36,9 +36,7 @@ export default class GetStatusHandler {
     }
 
     try {
-      const dataAccessStatus = await this.dataAccess._getStatus(
-        Boolean(clientRequest.query.detailed),
-      );
+      const dataAccessStatus = await this.dataAccess._getStatus();
       let providerUrl = '';
 
       // let's extract only the hostname to hide any token or sensible key

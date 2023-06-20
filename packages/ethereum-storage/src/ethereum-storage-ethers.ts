@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
-import { BigNumber, ContractReceipt, providers, Signer } from 'ethers';
-import TypedEmitter from 'typed-emitter';
+import { BigNumber, providers, Signer } from 'ethers';
 import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { EthereumTransactionSubmitter } from './ethereum-tx-submitter';
@@ -21,11 +20,6 @@ type StorageProps = SubmitterProps & {
   ipfsStorage: StorageTypes.IIpfsStorage;
   blockConfirmations?: number;
 };
-
-export type StorageEventEmitter = TypedEmitter<{
-  confirmed: (receipt: ContractReceipt) => void;
-  error: (error: unknown) => void;
-}>;
 
 export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
   private readonly logger: LogTypes.ILogger;
@@ -61,7 +55,7 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
 
     const tx = await this.txSubmitter.submit(ipfsHash, ipfsSize);
 
-    const eventEmitter = new EventEmitter() as StorageEventEmitter;
+    const eventEmitter = new EventEmitter() as StorageTypes.AppendResultEmitter;
     const result: StorageTypes.IEntry = {
       id: ipfsHash,
       content,
@@ -92,7 +86,17 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
         this.logger.debug(
           `TX ${receipt.transactionHash} confirmed at block ${receipt.blockNumber}`,
         );
-        eventEmitter.emit('confirmed', receipt);
+        result.meta.ethereum = {
+          nonce: tx.nonce,
+          transactionHash: tx.hash,
+          blockConfirmation: tx.confirmations,
+          blockNumber: Number(tx.blockNumber),
+          // wrong value, but this metadata will not be used, as it's in Pending state
+          blockTimestamp: -1,
+          networkName: this.network,
+          smartContractAddress: this.txSubmitter.hashSubmitterAddress,
+        };
+        eventEmitter.emit('confirmed', result);
       })
       .catch((e: Error) => eventEmitter.emit('error', e));
 

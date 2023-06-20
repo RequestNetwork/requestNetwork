@@ -121,14 +121,6 @@ export function getSafeGasPriceLimit(): string {
 }
 
 /**
- * Retrieve from config the maximum number of concurrent calls made from the ethereum-storage
- * @returns the maximum amount concurrent calls
- */
-export function getMaxConcurrency(): number {
-  return config.maxConcurrency;
-}
-
-/**
  * Retrieve from config the default pin request maximum size, timeout and wait time between calls
  * @returns array of the swarm addresses
  */

@@ -20,7 +20,7 @@ const defaultValues = {
       web3ProviderUrl: 'http://localhost:8545',
       gasPriceMin: '1000000000', // one gwei
       blockConfirmations: 2,
-      graphNodeUrl: '',
+      graphNodeUrl: 'http://localhost:8000/subgraphs/name/RequestNetwork/request-storage',
     },
     ipfs: {
       host: 'localhost',
