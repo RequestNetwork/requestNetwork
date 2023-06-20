@@ -1,5 +1,4 @@
 import { CurrencyTypes, StorageTypes } from '@requestnetwork/types';
-import { BigNumber } from 'ethers';
 
 // This contains default values used to use Ethereum Network and IPFS
 // if information are not provided by the user
@@ -71,8 +70,8 @@ export function getDefaultEthereumNetwork(): CurrencyTypes.EvmChainName {
  * Retrieve from config the default gas price to make transactions into Ethereum network
  * @returns the gas price as a string
  */
-export function getDefaultEthereumGasPrice(): BigNumber {
-  return BigNumber.from(process?.env?.GAS_PRICE_DEFAULT || config.ethereum.gasPriceDefault);
+export function getDefaultEthereumGasPrice(): bigint {
+  return BigInt(process?.env?.GAS_PRICE_DEFAULT || config.ethereum.gasPriceDefault);
 }
 
 /**

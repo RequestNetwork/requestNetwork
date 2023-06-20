@@ -47,7 +47,8 @@
     "@requestnetwork/utils": "0.39.0",
     "multicoin-address-validator": "0.5.12",
     "node-dijkstra": "2.5.0",
-    "tslib": "2.5.0"
+    "tslib": "2.5.0",
+    "viem": "^1.0.7"
   },
   "devDependencies": {
     "@types/jest": "29.5.6",

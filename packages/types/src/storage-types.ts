@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers';
 import { ConfirmationEventEmitter } from './events';
 
 export type IIndexedTransaction = {
@@ -246,7 +245,7 @@ export enum GasPriceType {
 
 /** Interface of the class to retrieve gas price through a provider API */
 export interface IGasPriceProvider {
-  getGasPrice: (type: GasPriceType) => Promise<BigNumber | null>;
+  getGasPrice: (type: GasPriceType) => Promise<bigint | null>;
 }
 
 /** Configuration for the IPFS error handling parameters */

@@ -1,5 +1,3 @@
-import { BigNumber, constants } from 'ethers';
-
 import { maxBigNumber, minBigNumber } from './index';
 import { LogTypes, FeeTypes } from '@requestnetwork/types';
 
@@ -19,28 +17,23 @@ async function normalizeGasFees({
   suggestFees,
 }: {
   logger: LogTypes.ILogger;
-  gasPriceMin?: BigNumber;
-  gasPriceMax?: BigNumber;
+  gasPriceMin?: bigint;
+  gasPriceMax?: bigint;
   gasPriceMultiplier?: number;
   suggestFees: () => Promise<FeeTypes.SuggestedFees>;
 }): Promise<FeeTypes.EstimatedGasFees> {
   try {
     const suggestedFee = await suggestFees();
-    const baseFee = maxBigNumber(suggestedFee.baseFee, gasPriceMin || constants.Zero);
-    const maxPriorityFeePerGas = maxBigNumber(
-      suggestedFee.maxPriorityFee,
-      gasPriceMin || constants.Zero,
-    );
+    const baseFee = maxBigNumber(suggestedFee.baseFee, gasPriceMin || 0n);
+    const maxPriorityFeePerGas = maxBigNumber(suggestedFee.maxPriorityFee, gasPriceMin || 0n);
 
-    const maxFeePerGasInit = baseFee
-      .add(maxPriorityFeePerGas)
-      .mul(gasPriceMultiplier || 100)
-      .div(100);
+    const maxFeePerGasInit =
+      ((baseFee + maxPriorityFeePerGas) * BigInt(gasPriceMultiplier || 100)) / 100n;
     const maxFeePerGas = gasPriceMax
       ? minBigNumber(maxFeePerGasInit, gasPriceMax)
       : maxFeePerGasInit;
 
-    if (maxPriorityFeePerGas.eq(0) || maxFeePerGas.eq(0)) {
+    if (maxPriorityFeePerGas === 0n || maxFeePerGas === 0n) {
       logger.warn(
         `normalizeGasFees: maxPriorityFeePerGas or maxFeePerGas too low (maxPriorityFeePerGas: ${maxPriorityFeePerGas.toString()} / maxFeePerGas: ${maxFeePerGas.toString()})`,
       );

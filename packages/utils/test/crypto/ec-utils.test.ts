@@ -31,7 +31,7 @@ describe('Utils/EcUtils', () => {
     });
     it('cannot get Address From PrivateKey if the private key is wrong', () => {
       expect(() => getAddressFromPrivateKey('aa')).toThrowError(
-        'The private key must be a string representing 32 bytes',
+        'private key must be 32 bytes, hex or bigint, not string',
       );
     });
     it('can get an address from a private key without 0x', () => {
@@ -68,7 +68,7 @@ describe('Utils/EcUtils', () => {
     it('cannot signs if the private key is wrong', () => {
       expect(() =>
         ecSign('aa', '0xfd6201dabdd4d7177f7c3baba47c5533b12f0a8127ab5d8c71d831fa4df2b19f'),
-      ).toThrowError('The private key must be a string representing 32 bytes');
+      ).toThrowError('private key must be 32 bytes, hex or bigint, not string');
     });
   });
 
@@ -104,7 +104,7 @@ describe('Utils/EcUtils', () => {
 
     it('cannot encrypt data with a wrong public key', async () => {
       await expect(ecEncrypt('cf4a', anyData)).rejects.toThrowError(
-        'The public key must be a string representing 64 bytes',
+        'Point of length 2 was invalid. Expected 33 compressed bytes or 65 uncompressed bytes',
       );
     });
   });
@@ -124,12 +124,12 @@ describe('Utils/EcUtils', () => {
           '0xaa',
           '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc70a',
         ),
-      ).rejects.toThrowError('The private key must be a string representing 32 bytes');
+      ).rejects.toThrowError('Bad private key');
     });
 
     it('cannot decrypt data with a wrong encrypted data: public key too short', async () => {
       await expect(ecDecrypt(rawId.privateKey, 'aa')).rejects.toThrowError(
-        'The encrypted data is not well formatted',
+        'Point of length 1 was invalid. Expected 33 compressed bytes or 65 uncompressed bytes',
       );
     });
 
@@ -139,7 +139,7 @@ describe('Utils/EcUtils', () => {
           rawId.privateKey,
           'e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc7',
         ),
-      ).rejects.toThrowError('The encrypted data is not well formatted');
+      ).rejects.toThrowError('Point of length 33 was invalid. Expected 33 compressed bytes or 65 uncompressed bytes');
     });
 
     it('cannot decrypt data with a wrong encrypted data: bad MAC', async () => {

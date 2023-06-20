@@ -1,5 +1,4 @@
 import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
-import { ethers } from 'ethers';
 import {
   ecRecover,
   ecSign,
@@ -7,6 +6,7 @@ import {
   normalize,
   normalizeKeccak256Hash,
 } from './crypto';
+import { hashMessage } from 'viem';
 
 /**
  * Function to manage Request Logic Signature
@@ -57,7 +57,7 @@ function sign(
 
   if (signatureParams.method === SignatureTypes.METHOD.ECDSA_ETHEREUM) {
     const normalizedData = normalize(data);
-    value = ecSign(signatureParams.privateKey, ethers.utils.hashMessage(normalizedData));
+    value = ecSign(signatureParams.privateKey, hashMessage(normalizedData));
 
     return { data, signature: { method: signatureParams.method, value } };
   }
@@ -94,12 +94,12 @@ function recoverSigner(signedData: SignatureTypes.ISignedData): IdentityTypes.II
     } else if (v.toLowerCase() === '01') {
       signature = `${signedData.signature.value.slice(0, V_POSITION_FROM_END_IN_ECDSA_HEX)}1b`;
     }
-    const normalizedData = ethers.utils.hashMessage(normalize(signedData.data));
-    value = ecRecover(signature, normalizedData).toLowerCase();
+    const normalizedData = hashMessage(normalize(signedData.data));
+    value = ecRecover(signature, normalizedData);
 
     return {
       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-      value,
+      value: value.toLowerCase(),
     };
   }
 

@@ -1,7 +1,7 @@
-import { publicKeyConvert, ecdsaRecover } from 'secp256k1';
-import { ethers } from 'ethers';
+import { hexToNumber, isHex, toHex, padHex } from 'viem';
+import { privateKeyToAccount, publicKeyToAddress } from 'viem/accounts';
+import { secp256k1 } from '@noble/curves/secp256k1';
 import { Ecies, decrypt, encrypt } from '@toruslabs/eccrypto';
-
 /**
  * Function to manage Elliptic-curve cryptography
  */
@@ -22,21 +22,10 @@ export {
  * @returns the address
  */
 function getAddressFromPrivateKey(privateKey: string): string {
-  try {
-    if (!privateKey.match(/^0x/)) {
-      privateKey = `0x` + privateKey;
-    }
-    return ethers.utils.computeAddress(ethers.utils.hexlify(privateKey));
-  } catch (e) {
-    if (
-      e.message === 'private key length is invalid' ||
-      e.message === 'Expected private key to be an Uint8Array with length 32' ||
-      e.code === 'INVALID_ARGUMENT'
-    ) {
-      throw new Error('The private key must be a string representing 32 bytes');
-    }
-    throw e;
+  if (isHex(privateKey)) {
+    return privateKeyToAccount(privateKey).address;
   }
+  return privateKeyToAccount(`0x${privateKey}`).address;
 }
 
 /**
@@ -47,18 +36,8 @@ function getAddressFromPrivateKey(privateKey: string): string {
  * @returns the address
  */
 function getAddressFromPublicKey(publicKey: string): string {
-  try {
-    return ethers.utils.computeAddress(compressPublicKey(publicKey));
-  } catch (e) {
-    if (
-      e.message === 'public key length is invalid' ||
-      e.message === 'Expected public key to be an Uint8Array with length [33, 65]' ||
-      e.code === 'INVALID_ARGUMENT'
-    ) {
-      throw new Error('The public key must be a string representing 64 bytes');
-    }
-    throw e;
-  }
+  const normalizedPublicKey = padHex(isHex(publicKey) ? publicKey : `0x${publicKey}`, { size: 65 });
+  return publicKeyToAddress(normalizedPublicKey);
 }
 
 /**
@@ -68,60 +47,50 @@ function getAddressFromPublicKey(publicKey: string): string {
  *
  * @returns the signature
  */
-function ecSign(privateKey: string, data: string): string {
-  try {
-    const signingKey = new ethers.utils.SigningKey(privateKey);
-    return ethers.utils.joinSignature(signingKey.signDigest(data));
-  } catch (e) {
-    if (
-      e.message === 'private key length is invalid' ||
-      e.message === 'Expected private key to be an Uint8Array with length 32' ||
-      e.code === 'INVALID_ARGUMENT'
-    ) {
-      throw new Error('The private key must be a string representing 32 bytes');
-    }
-    throw e;
-  }
+function ecSign(privateKey: string, message: string): string {
+  // NB: viem doesn't expose the "raw" sign method, only abstractions (signMessage...)
+  // so this code copies the behaviour
+  // https://github.com/wagmi-dev/viem/blob/7bf9189b03f75a56d8435ffe33c2d16ccfdec137/src/accounts/utils/sign.ts
+  const { r, s, recovery } = secp256k1.sign(message.slice(2), privateKey.slice(2));
+  const signature = new secp256k1.Signature(r, s).toCompactHex();
+  const suffix = toHex(recovery ? 28n : 27n).slice(2);
+  return `0x${signature}${suffix}`;
 }
 
 /**
  * Function to recover address from a signature
+ *
  *
  * @param signature the signature
  * @param data the data signed
  *
  * @returns the address
  */
-function ecRecover(signature: string, data: string): string {
-  try {
-    signature = signature.replace(/^0x/, '');
-    data = data.replace(/^0x/, '');
-    // split into v-value and sig
-    const sigOnly = signature.substring(0, signature.length - 2); // all but last 2 chars
-    const vValue = signature.slice(-2); // last 2 chars
+function ecRecover(signature: string, hash: string): string {
+  /*
+   * This function is a copy from viem's recoverPublicKey method
+   * When using recoverPublicKey, the code crashes with Segmentation fault.
+   * This might be due to the dynamic import of the secp256k1 module
+   */
 
-    const recoveryNumber = vValue === '1c' ? 1 : 0;
+  const signatureHex = isHex(signature) ? signature : toHex(signature);
 
-    return ethers.utils.computeAddress(
-      Buffer.from(
-        ecdsaRecover(
-          new Uint8Array(Buffer.from(sigOnly, 'hex')),
-          recoveryNumber,
-          new Uint8Array(Buffer.from(data, 'hex')),
-          false,
-        ),
-      ),
-    );
-  } catch (e) {
-    if (
-      e.message === 'signature length is invalid' ||
-      e.message === 'Expected signature to be an Uint8Array with length 64' ||
-      e.code === 'INVALID_ARGUMENT'
-    ) {
-      throw new Error('The signature must be a string representing 66 bytes');
-    }
-    throw e;
+  if (signatureHex.length !== 132) {
+    throw new Error('The signature must be a string representing 66 bytes');
   }
+
+  const hashHex = isHex(hash) ? hash : toHex(hash);
+
+  // Derive v = recoveryId + 27 from end of the signature (27 is added when signing the message)
+  // The recoveryId represents the y-coordinate on the secp256k1 elliptic curve and can have a value [0, 1].
+  let v = hexToNumber(`0x${signatureHex.slice(130)}`);
+  if (v === 0 || v === 1) v += 27;
+
+  const publicKey = secp256k1.Signature.fromCompact(signatureHex.substring(2, 130))
+    .addRecoveryBit(v - 27)
+    .recoverPublicKey(hashHex.substring(2))
+    .toHex(false);
+  return publicKeyToAddress(`0x${publicKey}`);
 }
 
 /**
@@ -135,13 +104,16 @@ function ecRecover(signature: string, data: string): string {
 async function ecEncrypt(publicKey: string, data: string): Promise<string> {
   try {
     // encrypts the data with the publicKey, returns the encrypted data with encryption parameters (such as IV..)
-    const compressed = compressPublicKey(publicKey);
-    const encrypted = await encrypt(Buffer.from(compressed), Buffer.from(data));
+    const uncompressedPublicKey = uncompressPublicKey(publicKey);
+
+    const encrypted = await encrypt(Buffer.from(uncompressedPublicKey), Buffer.from(data));
+
+    const ephemCompressedPublicKey = compressPublicKey(encrypted.ephemPublicKey);
 
     // Transforms the object with the encrypted data into a smaller string-representation.
     return Buffer.concat([
       encrypted.iv,
-      publicKeyConvert(encrypted.ephemPublicKey),
+      ephemCompressedPublicKey,
       encrypted.mac,
       encrypted.ciphertext,
     ]).toString('hex');
@@ -192,13 +164,18 @@ async function ecDecrypt(privateKey: string, data: string): Promise<string> {
 /**
  * Converts a public key to its compressed form.
  */
-function compressPublicKey(publicKey: string): Uint8Array {
+function uncompressPublicKey(publicKey: string): Uint8Array {
   publicKey = publicKey.replace(/^0x/, '');
   // if there are more bytes than the key itself, it means there is already a prefix
   if (publicKey.length % 32 === 0) {
     publicKey = `04${publicKey}`;
   }
-  return publicKeyConvert(Buffer.from(publicKey, 'hex'));
+  // return publicKeyConvert(Buffer.from(publicKey, 'hex'));
+  return secp256k1.ProjectivePoint.fromHex(publicKey).toRawBytes(false);
+}
+
+function compressPublicKey(publicKey: Buffer): Uint8Array {
+  return secp256k1.ProjectivePoint.fromHex(publicKey).toRawBytes(true);
 }
 
 /**
@@ -214,8 +191,6 @@ const eciesSplit = (str: string): Ecies => {
     iv: Buffer.from(buf.toString('hex', 0, 16), 'hex'),
     mac: Buffer.from(buf.toString('hex', 49, 81), 'hex'),
     ciphertext: Buffer.from(buf.toString('hex', 81, buf.length), 'hex'),
-    ephemPublicKey: Buffer.from(
-      publicKeyConvert(new Uint8Array(Buffer.from(ephemPublicKeyStr, 'hex')), false),
-    ),
+    ephemPublicKey: Buffer.from(uncompressPublicKey(ephemPublicKeyStr)),
   };
 };

@@ -10,8 +10,7 @@ type ISignatureParametersDictionary = Map<string, SignatureTypes.ISignatureParam
  * Allows to sign() with "Ethereum_address" identities thanks to their private key given in constructor() or addSignatureParameters()
  */
 export default class EthereumPrivateKeySignatureProvider
-  implements SignatureProviderTypes.ISignatureProvider
-{
+  implements SignatureProviderTypes.ISignatureProvider {
   /** list of supported signing method */
   public supportedMethods: SignatureTypes.METHOD[] = [SignatureTypes.METHOD.ECDSA];
   /** list of supported identity types */
@@ -56,7 +55,7 @@ export default class EthereumPrivateKeySignatureProvider
 
     // the hash format in request start by 01 but the ec-utils need a hash starting by 0x
     const hashData = normalizeKeccak256Hash(data).value;
-    const signatureValue = ecSign(signatureParameter.privateKey, hashData);
+    const signatureValue = await ecSign(signatureParameter.privateKey, hashData);
 
     return {
       data,

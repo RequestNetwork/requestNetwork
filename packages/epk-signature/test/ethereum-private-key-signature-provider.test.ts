@@ -35,14 +35,7 @@ export const id2Raw = {
 
 const data = { What: 'ever', the: 'data', are: true };
 const hashData = normalizeKeccak256Hash(data).value;
-const signatureValueExpected = ecSign(id1Raw.privateKey, hashData);
-const signedDataExpected = {
-  data,
-  signature: {
-    method: SignatureTypes.METHOD.ECDSA,
-    value: signatureValueExpected,
-  },
-};
+
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('ethereum-private-key-signature-provider', () => {
   describe('constructor', () => {
@@ -149,6 +142,15 @@ describe('ethereum-private-key-signature-provider', () => {
       const signProvider = new EthereumPrivateKeySignatureProvider(id1Raw.signatureParams);
 
       const signedData: SignatureTypes.ISignedData = await signProvider.sign(data, id1Raw.identity);
+
+      const signatureValueExpected = await ecSign(id1Raw.privateKey, hashData);
+      const signedDataExpected = {
+        data,
+        signature: {
+          method: SignatureTypes.METHOD.ECDSA,
+          value: signatureValueExpected,
+        },
+      };
 
       // 'signedData is wrong'
       expect(signedData).toEqual(signedDataExpected);

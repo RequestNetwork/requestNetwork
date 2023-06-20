@@ -1,5 +1,4 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
-import { ethers } from 'ethers';
 import {
   decryptWithAes256cbc,
   decryptWithAes256gcm,
@@ -16,6 +15,7 @@ import {
   ecSign,
 } from './crypto/ec-utils';
 import { deepSort } from './utils';
+import { keccak256, stringToBytes } from 'viem';
 
 /**
  * manages crypto functions
@@ -80,7 +80,7 @@ function normalize(data: unknown): string {
  * @returns The hashed data multi-formatted
  */
 function keccak256Hash(data: string): string {
-  return ethers.utils.keccak256(ethers.utils.toUtf8Bytes(data));
+  return keccak256(stringToBytes(data));
 }
 
 /**

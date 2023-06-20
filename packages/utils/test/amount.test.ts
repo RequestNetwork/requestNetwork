@@ -1,5 +1,3 @@
-import { BigNumber } from 'ethers';
-
 import { addAmount, isValidAmount, reduceAmount } from '../src';
 
 const magicIntegerSmall = 10000;
@@ -27,7 +25,7 @@ describe('Amount', () => {
     });
     it('cannot valid amount as bn', () => {
       // 'BN should not be valid'
-      expect(isValidAmount(BigNumber.from('1000000000000000000000000'))).toBe(false);
+      expect(isValidAmount(BigInt('1000000000000000000000000'))).toBe(false);
     });
     it('can valid amount as string representing integer', () => {
       // 'integer as string should be valid'

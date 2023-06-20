@@ -58,7 +58,6 @@
     "graphql-request": "6.1.0",
     "http-shutdown": "1.2.2",
     "http-status-codes": "2.1.4",
-    "shelljs": "0.8.5",
     "tslib": "2.5.0",
     "yargs": "17.6.2"
   },

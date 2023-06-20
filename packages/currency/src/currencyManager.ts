@@ -1,5 +1,5 @@
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { utils } from 'ethers';
+import { getAddress, isAddress } from 'viem';
 import addressValidator from 'multicoin-address-validator';
 import { getSupportedERC20Tokens } from './erc20';
 import { getSupportedERC777Tokens } from './erc777';
@@ -67,7 +67,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     if (!currencyIdentifier) {
       return;
     }
-    if (utils.isAddress(currencyIdentifier)) {
+    if (isAddress(currencyIdentifier)) {
       return this.fromAddress(currencyIdentifier, network);
     }
 
@@ -96,7 +96,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * If more than one currency are found, undefined is returned
    */
   fromAddress(address: string, network?: string): CurrencyDefinition<TMeta> | undefined {
-    address = utils.getAddress(address);
+    address = getAddress(address);
     const matches = this.knownCurrencies.filter(
       (x) =>
         (x.type === ERC20 || x.type === ERC777) &&
@@ -202,10 +202,8 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     meta,
     ...input
   }: CurrencyInput & { id?: string; hash?: string; meta?: TMeta }): CurrencyDefinition<TMeta> {
-    if ('address' in input) {
-      if (input.address.startsWith('0x') && input.address.length === 42) {
-        input.address = utils.getAddress(input.address);
-      }
+    if ('address' in input && isAddress(input.address)) {
+      input.address = getAddress(input.address);
     }
     return {
       id: id || CurrencyManager.currencyId(input),

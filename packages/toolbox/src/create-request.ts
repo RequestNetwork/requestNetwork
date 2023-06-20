@@ -1,4 +1,5 @@
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
+import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
 
 export default {
@@ -17,7 +18,11 @@ export default {
 function createTestRequest(expectedAmount = '1000', nodeConnectionConfig = {}): Promise<Request> {
   const signatureProvider = new EthereumPrivateKeySignatureProvider({
     method: Types.Signature.METHOD.ECDSA,
-    privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
+    privateKey: wallet.privateKey,
+  });
+  const decryptionProvider = new EthereumPrivateKeyDecryptionProvider({
+    method: Types.Encryption.METHOD.ECIES,
+    key: wallet.privateKey,
   });
 
   const payeeIdentity: Types.Identity.IIdentity = {
@@ -39,10 +44,26 @@ function createTestRequest(expectedAmount = '1000', nodeConnectionConfig = {}): 
     payer: payerIdentity,
   };
 
-  const requestNetwork = new RequestNetwork({ nodeConnectionConfig, signatureProvider });
-
-  return requestNetwork.createRequest({
-    requestInfo: requestCreationHash,
-    signer: payeeIdentity,
+  const requestNetwork = new RequestNetwork({
+    nodeConnectionConfig,
+    signatureProvider,
+    decryptionProvider,
+    useMockStorage: true,
   });
+
+  return requestNetwork._createEncryptedRequest(
+    {
+      requestInfo: requestCreationHash,
+      signer: payeeIdentity,
+    },
+    [
+      {
+        method: Types.Encryption.METHOD.ECIES,
+        key: wallet.publicKey,
+      },
+    ],
+    {
+      skipRefresh: true,
+    },
+  );
 }

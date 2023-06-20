@@ -37,9 +37,6 @@
     "lint:check": "eslint .",
     "prepare": "yarn run build"
   },
-  "dependencies": {
-    "ethers": "5.5.1"
-  },
   "devDependencies": {
     "shx": "0.3.2",
     "ts-node": "10.9.1",

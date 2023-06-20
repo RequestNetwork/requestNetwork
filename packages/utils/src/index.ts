@@ -41,11 +41,8 @@ export {
 
 export {
   setProviderFactory,
-  initPaymentDetectionApiKeys,
   isEip1559Supported,
   getDefaultProvider,
-  getCeloProvider,
-  networkRpcs,
 } from './providers';
 
 export { retry } from './retry';
@@ -65,3 +62,6 @@ export {
   uniqueByProperty,
   notNull,
 } from './utils';
+
+export { publicClientToProvider } from "./ethers"
+export { axios } from "./axios"

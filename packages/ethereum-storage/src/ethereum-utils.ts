@@ -1,8 +1,6 @@
 import { StorageTypes } from '@requestnetwork/types';
 import * as config from './config';
 
-import { BigNumber } from 'ethers';
-
 /**
  * Collection of utils functions related to Ethereum Storage
  */
@@ -38,6 +36,6 @@ export const getEthereumStorageNetworkIdFromName = (name: string): number | unde
  * @param gasPrice Value of the gas price
  * @returns True if the gas price can be used
  */
-export const isGasPriceSafe = (gasPrice: BigNumber): boolean => {
-  return gasPrice.gt(0) && gasPrice.lt(config.getSafeGasPriceLimit());
+export const isGasPriceSafe = (gasPrice: bigint): boolean => {
+  return gasPrice > (0) && gasPrice < BigInt(config.getSafeGasPriceLimit());
 };
