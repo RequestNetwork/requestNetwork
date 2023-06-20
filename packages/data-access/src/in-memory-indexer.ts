@@ -16,18 +16,16 @@ class ArrayMap<T> extends Map<string, T[]> {
  * The data itself is not indexed, only references to its location
  */
 export class InMemoryIndexer implements StorageTypes.IIndexer {
-  /** channelId => location[] */
-  private readonly locationIndex = new ArrayMap<string>();
-  /** topic => channelId[] */
-  private readonly topicIndex = new ArrayMap<string>();
+  private readonly channelToLocationsIndex = new ArrayMap<string>();
+  private readonly topicToChannelsIndex = new ArrayMap<string>();
 
   constructor(private readonly storageRead: StorageTypes.IStorageRead) {}
 
   /** Adds the indexed data for easy retrieval */
   public addIndex(channelId: string, topics: string[], location: string): void {
-    this.locationIndex.add(channelId, location);
+    this.channelToLocationsIndex.add(channelId, location);
     for (const topic of topics || []) {
-      this.topicIndex.add(topic, channelId);
+      this.topicToChannelsIndex.add(topic, channelId);
     }
   }
 
@@ -48,7 +46,7 @@ export class InMemoryIndexer implements StorageTypes.IIndexer {
   async getTransactionsByChannelId(
     channelId: string,
   ): Promise<StorageTypes.IGetTransactionsResponse> {
-    const locations = this.locationIndex.get(channelId);
+    const locations = this.channelToLocationsIndex.get(channelId);
     const transactions = await this.parseDocuments(locations);
     return {
       blockNumber: 0,
@@ -57,8 +55,8 @@ export class InMemoryIndexer implements StorageTypes.IIndexer {
   }
 
   async getTransactionsByTopics(topics: string[]): Promise<StorageTypes.IGetTransactionsResponse> {
-    const channelIds = topics.map(this.topicIndex.get).flat();
-    const locations = channelIds.map(this.locationIndex.get).flat();
+    const channelIds = topics.map((topic) => this.topicToChannelsIndex.get(topic)).flat();
+    const locations = channelIds.map((channel) => this.channelToLocationsIndex.get(channel)).flat();
     const transactions = await this.parseDocuments(locations);
 
     return {
