@@ -236,7 +236,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * Validates an address for a given currency.
    * Throws if the currency is an ISO4217 currency.
    */
-  static validateAddress(address: string, currency: CurrencyInput | StorageCurrency): boolean {
+  validateAddress(address: string, currency: CurrencyInput | StorageCurrency): boolean {
     if (currency.type === RequestLogicTypes.CURRENCY.ISO4217) {
       throw new Error(`Could not validate an address for an ISO4217 currency`);
     }
@@ -269,7 +269,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       currency.type === RequestLogicTypes.CURRENCY.BTC
     )
       return true;
-    return CurrencyManager.validateAddress(currency.value, currency);
+    return this.validateAddress(currency.value, currency);
   }
 
   /**

@@ -527,7 +527,7 @@ describe('CurrencyManager', () => {
       if (!currency) {
         throw new Error('currency is undefined');
       }
-      const result = CurrencyManager.validateAddress(address, currency);
+      const result = currencyManager.validateAddress(address, currency);
       expect(result).toBe(expectedResult);
     };
 
@@ -590,7 +590,7 @@ describe('CurrencyManager', () => {
           it(`should throw for ${currencyTemplate.symbol} currency`, () => {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const currency = currencyManager.from(currencyTemplate.symbol)!;
-            expect(() => CurrencyManager.validateAddress('anyAddress', currency)).toThrow();
+            expect(() => currencyManager.validateAddress('anyAddress', currency)).toThrow();
           });
         });
       });
