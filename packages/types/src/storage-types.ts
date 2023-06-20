@@ -7,7 +7,7 @@ export type IIndexedTransaction = {
   data?: string;
   encryptedData?: string;
   encryptionMethod?: string;
-  keys: Record<string, string>;
+  keys?: Record<string, string>;
   blockNumber: number;
   blockTimestamp: number;
   transactionHash: string;

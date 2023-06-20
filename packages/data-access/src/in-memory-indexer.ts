@@ -95,7 +95,7 @@ export class InMemoryIndexer implements StorageTypes.IIndexer {
           data: item.transaction.data,
           encryptedData: item.transaction.encryptedData,
           encryptionMethod: item.transaction.encryptionMethod,
-          keys: item.transaction.keys || {},
+          keys: item.transaction.keys,
         }),
       );
   }
