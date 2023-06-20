@@ -26,7 +26,7 @@ async function estimateGasFees({
   maxPriorityFeePerGas?: BigNumber;
 }> {
   try {
-    const suggestedFee = await suggestFees(provider as providers.JsonRpcProvider);
+    const suggestedFee = await suggestFees(provider as any);
 
     const baseFee = maxBigNumber(suggestedFee.baseFeeSuggestion, gasPriceMin || constants.Zero);
 
