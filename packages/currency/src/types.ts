@@ -129,6 +129,8 @@ export interface ICurrencyManager<TMeta = unknown> {
     network: string,
   ): string[] | null;
   supportsConversion(currency: Pick<CurrencyDefinition, 'hash'>, network: string): boolean;
+  validateAddress(address: string, currency: CurrencyInput | StorageCurrency): boolean;
+  validateCurrency(currency: StorageCurrency): boolean;
 }
 
 /**

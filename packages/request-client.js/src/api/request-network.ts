@@ -391,7 +391,7 @@ export default class RequestNetwork {
     const topics = parameters.topics?.slice() || [];
 
     // Check that currency is valid
-    if (!CurrencyManager.validateCurrency(currency)) {
+    if (!this.currencyManager.validateCurrency(currency)) {
       throw new Error('The currency is not valid');
     }
 

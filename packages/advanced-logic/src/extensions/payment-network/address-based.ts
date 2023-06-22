@@ -167,7 +167,7 @@ export default abstract class AddressBasedPaymentNetwork<
     if (!currency) {
       throw new UnsupportedCurrencyError({ value: symbol, network });
     }
-    return CurrencyManager.validateAddress(address, currency);
+    return currencyManager.validateAddress(address, currency);
   }
 
   /**
