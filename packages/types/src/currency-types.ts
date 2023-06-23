@@ -30,7 +30,7 @@ export type EvmChainName =
 export type BtcChainName = 'mainnet' | 'testnet';
 
 /**
- * List of supported Tron chains
+ * List of supported Declarative chains
  */
 export type DeclarativeChainName = 'tron';
 
