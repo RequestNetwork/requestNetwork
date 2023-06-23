@@ -1,1 +1,1 @@
-export const chainId = 728126428;
+export const chainId = 'tron';
