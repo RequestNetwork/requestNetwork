@@ -16,6 +16,14 @@ export type IIndexedTransaction = {
   size: string;
 };
 
+export interface ITransactionSubmitter {
+  initialize: () => Promise<void>;
+  submit(ipfsHash: string, ipfsSize: number): Promise<any>;
+  hashSubmitterAddress?: string;
+  network?: string;
+  creationBlockNumber?: number;
+}
+
 export interface IStorageWrite {
   initialize: () => Promise<void>;
   append: (data: string) => Promise<IAppendResult>;

@@ -21,9 +21,9 @@
   "engines": {
     "node": ">=16.0.0"
   },
-  "main": "dist/server",
+  "main": "dist/bin",
   "bin": {
-    "request-node": "dist/server.js"
+    "request-node": "dist/bin.js"
   },
   "files": [
     "dist"
@@ -33,8 +33,8 @@
     "build:watch": "tsc -b tsconfig.build.json --watch",
     "test": "jest --runInBand --forceExit",
     "test:watch": "yarn test --watch",
-    "start": "ts-node src/server.ts",
-    "start:watch": "ts-node-dev src/server.ts",
+    "start": "ts-node src/bin.ts",
+    "start:watch": "ts-node-dev src/bin.ts",
     "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",

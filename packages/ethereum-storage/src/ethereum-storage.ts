@@ -1,53 +1,34 @@
 import { EventEmitter } from 'events';
-import { BigNumber, providers, Signer } from 'ethers';
-import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
-import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
-import { EthereumTransactionSubmitter } from './ethereum-tx-submitter';
+import { providers } from 'ethers';
+import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { getCurrentTimestampInSecond, SimpleLogger } from '@requestnetwork/utils';
 import { getDefaultEthereumBlockConfirmations } from './config';
 
-export type GasDefinerProps = {
-  gasPriceMin?: BigNumber;
-};
-
-export type SubmitterProps = GasDefinerProps & {
-  network: CurrencyTypes.EvmChainName;
-  signer: Signer;
+type StorageProps = {
+  ipfsStorage: StorageTypes.IIpfsStorage;
+  blockConfirmations?: number;
+  txSubmitter: StorageTypes.ITransactionSubmitter;
   logger?: LogTypes.ILogger;
 };
 
-type StorageProps = SubmitterProps & {
-  ipfsStorage: StorageTypes.IIpfsStorage;
-  blockConfirmations?: number;
-};
-
-export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
+export class EthereumStorage implements StorageTypes.IStorageWrite {
   private readonly logger: LogTypes.ILogger;
   private readonly ipfsStorage: StorageTypes.IIpfsStorage;
 
-  private readonly network: CurrencyTypes.EvmChainName;
-  private readonly txSubmitter: EthereumTransactionSubmitter;
+  private readonly txSubmitter: StorageTypes.ITransactionSubmitter;
   private readonly blockConfirmations: number | undefined;
 
-  constructor({
-    network,
-    signer,
-    ipfsStorage,
-    logger,
-    gasPriceMin,
-    blockConfirmations,
-  }: StorageProps) {
+  constructor({ ipfsStorage, logger, blockConfirmations, txSubmitter }: StorageProps) {
     this.logger = logger || new SimpleLogger();
     this.ipfsStorage = ipfsStorage;
-    this.network = network;
-    this.txSubmitter = new EthereumTransactionSubmitter({ network, signer, logger, gasPriceMin });
+    this.txSubmitter = txSubmitter;
     this.blockConfirmations = blockConfirmations;
   }
 
   async initialize(): Promise<void> {
     await this.ipfsStorage.initialize();
     await this.txSubmitter.initialize();
-    this.logger.debug(`${EthereumStorageEthers.name} storage initialized`);
+    this.logger.debug(`${EthereumStorage.name} storage initialized`);
   }
 
   async append(content: string): Promise<StorageTypes.IAppendResult> {
@@ -69,8 +50,8 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
           blockNumber: Number(tx.blockNumber),
           // wrong value, but this metadata will not be used, as it's in Pending state
           blockTimestamp: -1,
-          networkName: this.network,
-          smartContractAddress: this.txSubmitter.hashSubmitterAddress,
+          networkName: this.txSubmitter.network || '',
+          smartContractAddress: this.txSubmitter.hashSubmitterAddress || '',
         },
         state: StorageTypes.ContentState.PENDING,
         storageType: StorageTypes.StorageSystemType.LOCAL,
@@ -86,16 +67,6 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
         this.logger.debug(
           `TX ${receipt.transactionHash} confirmed at block ${receipt.blockNumber}`,
         );
-        result.meta.ethereum = {
-          nonce: tx.nonce,
-          transactionHash: tx.hash,
-          blockConfirmation: tx.confirmations,
-          blockNumber: Number(tx.blockNumber),
-          // wrong value, but this metadata will not be used, as it's in Pending state
-          blockTimestamp: -1,
-          networkName: this.network,
-          smartContractAddress: this.txSubmitter.hashSubmitterAddress,
-        };
         eventEmitter.emit('confirmed', result);
       })
       .catch((e: Error) => eventEmitter.emit('error', e));
@@ -105,15 +76,12 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
 
   public async _getStatus(): Promise<unknown> {
     const ipfs = await this.ipfsStorage.getConfig();
-    const { address, creationBlockNumber } = requestHashSubmitterArtifact.getDeploymentInformation(
-      this.network,
-    );
 
     return {
       ethereum: {
-        networkName: this.network,
-        hashSubmitterAddress: address,
-        creationBlockNumberHashStorage: creationBlockNumber,
+        networkName: this.txSubmitter.network,
+        hashSubmitterAddress: this.txSubmitter.hashSubmitterAddress,
+        creationBlockNumberHashStorage: this.txSubmitter.creationBlockNumber,
       },
       ipfs,
     };

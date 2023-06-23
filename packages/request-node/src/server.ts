@@ -1,36 +1,29 @@
-#!/usr/bin/env node
-import * as yargs from 'yargs';
-import { LogTypes } from '@requestnetwork/types';
 import * as config from './config';
 import { Logger } from './logger';
 import withShutdown from 'http-shutdown';
-import { TheGraphRequestNode } from './thegraph-node';
+import { RequestNode } from './requestNode';
+import { getDataAccess } from './dataAccess';
+import KeyvFile from 'keyv-file';
+import { getDataStorage } from './dataStorage';
 
-const argv = yargs.parseSync();
-
-const logLevel = config.getLogLevel();
-const logMode = config.getLogMode();
 // Initialize the node logger
-const logger = new Logger(logLevel, logMode);
+const logger = new Logger(config.getLogLevel(), config.getLogMode());
 
-const startNode = async (): Promise<void> => {
-  const serverMessage = `Using config:
-  Ethereum network id: ${config.getStorageNetworkId()}
-  Log Level: ${LogTypes.LogLevel[logLevel]}
-  Log Mode: ${logMode}
-  Web3 provider url: ${config.getStorageWeb3ProviderUrl()}
-  TheGraph url: ${config.getGraphNodeUrl()}
-  IPFS url: ${config.getIpfsUrl()}
-  IPFS timeout: ${config.getIpfsTimeout()}
-  Initialization storage path: ${config.getInitializationStorageFilePath()}
-  Storage block confirmations: ${config.getBlockConfirmations()}
-`;
+export const getRequestNode = (): RequestNode => {
+  const initializationStoragePath = config.getInitializationStorageFilePath();
+  const store = initializationStoragePath
+    ? new KeyvFile({
+        filename: initializationStoragePath,
+      })
+    : undefined;
+  const storage = getDataStorage(logger);
+  const dataAccess = getDataAccess(storage, logger);
+  return new RequestNode(dataAccess, storage, store, logger);
+};
 
-  logger.info(serverMessage);
-
+export const startNode = async (): Promise<void> => {
   const port = config.getServerPort();
-  const graphNodeUrl = config.getGraphNodeUrl();
-  const requestNode = new TheGraphRequestNode(graphNodeUrl, logger);
+  const requestNode = getRequestNode();
   const server = withShutdown(
     requestNode.listen(port, () => {
       logger.info(`Listening on port ${port}`);
@@ -48,15 +41,3 @@ const startNode = async (): Promise<void> => {
 
   await requestNode.initialize();
 };
-
-// If -h option is used, commands are printed
-// Otherwise the node is started
-if (argv.h) {
-  /* eslint-disable no-console */
-  console.log(config.getHelpMessage());
-} else {
-  startNode().catch((error) => {
-    logger.error(error);
-    process.exit(1);
-  });
-}

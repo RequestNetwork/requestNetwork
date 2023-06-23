@@ -2,8 +2,8 @@ import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { RequestNodeBase } from '../../src/requestNodeBase';
-import { TheGraphRequestNode } from '../../src/thegraph-node';
+import { RequestNode } from '../../src/requestNode';
+import { TheGraphRequestNode } from '../../src/requestNode';
 import * as core from 'express-serve-static-core';
 
 const subgraphUrl = 'http://localhost:8000/subgraphs/name/RequestNetwork/request-storage';
@@ -14,7 +14,7 @@ const topics = [
 ];
 const transactionData = { data: 'this is sample data for a transaction' };
 
-let requestNodeInstance: RequestNodeBase;
+let requestNodeInstance: RequestNode;
 let server: core.Express;
 
 const axiosMock = new MockAdapter(axios);

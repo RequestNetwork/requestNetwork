@@ -28,7 +28,7 @@ export const REQUEST_NODE_VERSION_HEADER = 'X-Request-Network-Node-Version';
  * This class defines routes to handle requests from client
  */
 
-export class RequestNodeBase {
+export class RequestNode {
   /**
    * DataAccess layer of the protocol
    * This attribute is left public for mocking purpose

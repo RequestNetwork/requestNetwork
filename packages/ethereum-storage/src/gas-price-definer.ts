@@ -7,7 +7,6 @@ import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 
 import { BigNumber } from 'ethers';
 import XDaiFixedProvider from './gas-price-providers/xdai-fixed-provider';
-import { GasDefinerProps } from './ethereum-storage-ethers';
 import { SimpleLogger } from '@requestnetwork/utils';
 import { getEthereumStorageNetworkIdFromName } from './ethereum-utils';
 
@@ -47,7 +46,7 @@ export class GasPriceDefiner {
   public constructor({
     logger,
     gasPriceMin,
-  }: GasDefinerProps & { logger?: LogTypes.ILogger } = {}) {
+  }: { gasPriceMin?: BigNumber; logger?: LogTypes.ILogger } = {}) {
     this.logger = logger || new SimpleLogger();
     this.gasPriceMin = gasPriceMin;
   }

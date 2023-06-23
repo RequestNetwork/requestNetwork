@@ -6,7 +6,7 @@ import { LogTypes } from '@requestnetwork/types';
 
 import { LogMode } from './logger';
 
-const argv = yargs.parseSync();
+const argv = yargs.option('help', { alias: 'h', type: 'boolean' }).parseSync();
 
 // Load environment variables from .env file (without overriding variables already set)
 config();
@@ -58,6 +58,8 @@ const makeOption =
   <T extends string | number>(...params: Parameters<typeof getOption<T>>) =>
   () =>
     getOption<T>(...params);
+
+export const isHelp = (): boolean => argv.help || false;
 
 /**
  * Get the port from command line argument, environment variables or default values to allow user to connect to the server
@@ -188,21 +190,31 @@ export function getHelpMessage(): string {
     OPTIONS
       SERVER OPTIONS
         port (${defaultValues.server.port})\t\t\t\tPort for the server to listen for API requests
-        headers (${defaultValues.server.headers})\t\t\t\tCustom headers to send with the API responses
+        headers (${
+          defaultValues.server.headers
+        })\t\t\t\tCustom headers to send with the API responses
 
       THE GRAPH OPTIONS
         graphNodeUrl (${defaultValues.storage.thegraph.nodeUrl})\t\t\t\t
 
       ETHEREUM OPTIONS
-        networkId (${defaultValues.storage.ethereum.networkId})\t\t\t\tId of the Ethereum network used
-        providerUrl (${defaultValues.storage.ethereum.web3ProviderUrl})\tUrl of the web3 provider for Ethereum
+        networkId (${
+          defaultValues.storage.ethereum.networkId
+        })\t\t\t\tId of the Ethereum network used
+        providerUrl (${
+          defaultValues.storage.ethereum.web3ProviderUrl
+        })\tUrl of the web3 provider for Ethereum
 
       IPFS OPTIONS
         ipfsUrl (${defaultValues.storage.ipfs.url})\t\t\tURL of the IPFS gateway
-        ipfsTimeout (${defaultValues.storage.ipfs.timeout})\t\t\tTimeout threshold to connect to the IPFS gateway
+        ipfsTimeout (${
+          defaultValues.storage.ipfs.timeout
+        })\t\t\tTimeout threshold to connect to the IPFS gateway
 
       OTHER OPTIONS
-        logLevel (${defaultValues.log.level})\t\t\tThe node log level (ERROR, WARN, INFO or DEBUG)
+        logLevel (${
+          LogTypes.LogLevel[defaultValues.log.level]
+        })\t\t\tThe node log level (ERROR, WARN, INFO or DEBUG)
         logMode (${defaultValues.log.mode})\t\t\tThe node log mode (human or machine)
 
     EXAMPLE
@@ -217,3 +229,17 @@ export function getHelpMessage(): string {
 
   return message;
 }
+
+export const getConfigDisplay = (): string => {
+  return `Using config:
+  Ethereum network id: ${getStorageNetworkId()}
+  Log Level: ${LogTypes.LogLevel[getLogLevel()]}
+  Log Mode: ${getLogMode()}
+  Web3 provider url: ${getStorageWeb3ProviderUrl()}
+  TheGraph url: ${getGraphNodeUrl()}
+  IPFS url: ${getIpfsUrl()}
+  IPFS timeout: ${getIpfsTimeout()}
+  Initialization storage path: ${getInitializationStorageFilePath()}
+  Storage block confirmations: ${getBlockConfirmations()}
+`;
+};

@@ -1,5 +1,4 @@
 import { BigNumber, providers, constants } from 'ethers';
-import { GasDefinerProps } from './ethereum-storage-ethers';
 import { estimateGasFees } from '@requestnetwork/utils';
 import { LogTypes } from '@requestnetwork/types';
 
@@ -12,8 +11,13 @@ export class GasFeeDefiner {
     logger,
     provider,
     gasPriceMin,
-  }: GasDefinerProps & { logger?: LogTypes.ILogger; provider: providers.JsonRpcProvider }) {
+  }: {
+    logger?: LogTypes.ILogger;
+    gasPriceMin?: BigNumber;
+    provider: providers.JsonRpcProvider;
+  }) {
     this.logger = logger || console;
+
     this.provider = provider;
     this.gasPriceMin = gasPriceMin || constants.Zero;
   }

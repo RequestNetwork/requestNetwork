@@ -36,11 +36,16 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
     }
 
     // Add content to IPFS and get the hash back
-    let ipfsHash;
+    let ipfsHash: string;
     try {
       ipfsHash = await this.ipfsManager.add(data);
     } catch (error) {
-      throw Error(`Ipfs add request error: ${error}`);
+      throw new Error(`Ipfs add request error: ${error}`);
+    }
+    try {
+      await this.ipfsManager.pin([ipfsHash]);
+    } catch (error) {
+      throw new Error(`Ipfs pin request error: ${error}`);
     }
 
     const ipfsSize = await this.getSize(ipfsHash);
