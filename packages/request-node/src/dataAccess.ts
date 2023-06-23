@@ -1,6 +1,7 @@
 import { providers, Wallet } from 'ethers';
 import { NonceManager } from '@ethersproject/experimental';
 import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
+import { EvmChains } from '@requestnetwork/currency';
 
 import * as config from './config';
 import { TheGraphDataAccess } from '@requestnetwork/thegraph-data-access';
@@ -20,6 +21,7 @@ export function getDataAccess(
   if (!network) {
     throw new Error(`Storage network not supported: ${config.getStorageNetworkId()}`);
   }
+  EvmChains.assertChainSupported(network);
 
   const wallet = Wallet.fromMnemonic(config.getMnemonic()).connect(
     new providers.StaticJsonRpcProvider(config.getStorageWeb3ProviderUrl()),

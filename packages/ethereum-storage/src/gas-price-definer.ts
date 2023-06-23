@@ -3,7 +3,7 @@ import EtherchainProvider from './gas-price-providers/etherchain-provider';
 import EtherscanProvider from './gas-price-providers/etherscan-provider';
 import EthGasStationProvider from './gas-price-providers/ethgasstation-provider';
 
-import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
+import { LogTypes, StorageTypes } from '@requestnetwork/types';
 
 import { BigNumber } from 'ethers';
 import XDaiFixedProvider from './gas-price-providers/xdai-fixed-provider';
@@ -60,7 +60,7 @@ export class GasPriceDefiner {
    */
   public async getGasPrice(
     type: StorageTypes.GasPriceType,
-    networkName: CurrencyTypes.EvmChainName,
+    networkName: string,
   ): Promise<BigNumber> {
     const network = getEthereumStorageNetworkIdFromName(networkName);
     if (network) {
