@@ -1,7 +1,5 @@
 import { IpfsStorage } from '../src/ipfs-storage';
 
-const hash1 = 'QmNXA5DyFZkdf4XkUT81nmJSo3nS2bL25x7YepxeoDa6tY';
-
 describe('IPFS Storage', () => {
   let ipfsStorage: IpfsStorage;
   beforeEach(() => {
@@ -10,8 +8,9 @@ describe('IPFS Storage', () => {
   });
   it('cannot initialize if ipfs node not reachable', async () => {
     const ipfsStorage = new IpfsStorage({
-      ipfsUrl: 'http://nonexistant:5001',
-      ipfsTimeout: 1000,
+      ipfsUrl: 'http://nonexistent:5001',
+      ipfsTimeout: 1500,
+      ipfsErrorHandling: { maxRetries: 1, delayBetweenRetries: 0 }, // speedup test
     });
     await expect(ipfsStorage.initialize()).rejects.toThrowError(
       'IPFS node is not accessible or corrupted: Error: getaddrinfo ENOTFOUND nonexistent',

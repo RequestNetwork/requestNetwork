@@ -19,6 +19,12 @@ type IpfsPaths = {
   'bootstrap/list': { Peers: string[] };
 };
 
+export type IpfsOptions = {
+  ipfsUrl?: string;
+  ipfsTimeout?: number;
+  ipfsErrorHandling?: StorageTypes.IIpfsErrorHandlingConfiguration;
+  logger?: LogTypes.ILogger;
+};
 /**
  * Manages Ipfs communication used as storage
  */
@@ -35,12 +41,7 @@ export default class IpfsManager {
    * If no values are provided default values from config are used
    * Private network is used for default values
    */
-  public constructor(options?: {
-    ipfsUrl?: string;
-    ipfsTimeout?: number;
-    ipfsErrorHandling?: StorageTypes.IIpfsErrorHandlingConfiguration;
-    logger?: LogTypes.ILogger;
-  }) {
+  public constructor(options?: IpfsOptions) {
     const ipfsUrl = options?.ipfsUrl || getDefaultIpfsUrl();
     const ipfsTimeout = options?.ipfsTimeout || getDefaultIpfsTimeout();
     this.ipfsErrorHandling = options?.ipfsErrorHandling || getIpfsErrorHandlingConfig();

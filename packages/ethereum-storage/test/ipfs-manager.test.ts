@@ -104,7 +104,7 @@ describe('Ipfs manager', () => {
   it('operations with a invalid host network should throw ENOTFOUND errors', async () => {
     ipfsManager = new IpfsManager({
       ipfsUrl: 'http://nonexistent:5001',
-      ipfsTimeout: 1000,
+      ipfsTimeout: 1500,
       ipfsErrorHandling: testErrorHandling,
     });
     await expect(ipfsManager.getIpfsNodeId()).rejects.toThrowError('getaddrinfo ENOTFOUND');
@@ -112,7 +112,7 @@ describe('Ipfs manager', () => {
     await expect(ipfsManager.add(content)).rejects.toThrowError('getaddrinfo ENOTFOUND');
     await expect(ipfsManager.read(hash)).rejects.toThrowError('getaddrinfo ENOTFOUND');
     await expect(ipfsManager.getContentLength(hash)).rejects.toThrowError('getaddrinfo ENOTFOUND');
-  });
+  }, 10000);
 
   it('reading a non-existent hash should throw a timeout error', async () => {
     await expect(ipfsManager.read(notAddedHash)).rejects.toThrowError('timeout of 1000ms exceeded');

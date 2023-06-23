@@ -2,21 +2,15 @@ import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { SimpleLogger } from '@requestnetwork/utils';
 
 import { getIpfsExpectedBootstrapNodes } from './config';
-import IpfsManager from './ipfs-manager';
-
-export type IpfsStorageProps = {
-  logger?: LogTypes.ILogger;
-  ipfsUrl?: string;
-  ipfsTimeout?: number;
-};
+import IpfsManager, { IpfsOptions } from './ipfs-manager';
 
 export class IpfsStorage implements StorageTypes.IIpfsStorage {
   private ipfsManager: IpfsManager;
   private logger: LogTypes.ILogger;
 
-  constructor({ ipfsTimeout, ipfsUrl, logger }: IpfsStorageProps = {}) {
-    this.ipfsManager = new IpfsManager({ ipfsUrl, ipfsTimeout, logger });
-    this.logger = logger || new SimpleLogger();
+  constructor(options: IpfsOptions = {}) {
+    this.ipfsManager = new IpfsManager(options);
+    this.logger = options.logger || new SimpleLogger();
   }
 
   public async initialize(): Promise<void> {
