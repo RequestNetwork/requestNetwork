@@ -3,7 +3,7 @@ import { SimpleLogger } from '@requestnetwork/utils';
 import chalk from 'chalk';
 
 /** The different logging modes supported by this logger */
-export enum modeType {
+export enum LogMode {
   human = 'human',
   machine = 'machine',
 }
@@ -22,7 +22,7 @@ const levelColor = {
  */
 export class Logger extends SimpleLogger {
   // The class modeType
-  private mode: modeType;
+  private mode: LogMode;
 
   /**
    * Creates an instance of Logger
@@ -30,7 +30,7 @@ export class Logger extends SimpleLogger {
    * @param [maxLogLevel] The maximum log level for this logger
    * @param [mode] The logging mode, can be human or
    */
-  constructor(maxLogLevel: LogTypes.LogLevel, mode: modeType) {
+  constructor(maxLogLevel: LogTypes.LogLevel, mode: LogMode) {
     super(maxLogLevel);
     this.mode = mode;
   }
@@ -44,7 +44,7 @@ export class Logger extends SimpleLogger {
    * @returns A string with the formatted log message
    */
   protected formatLog(level: LogTypes.LogLevel, message: string, tags?: string[]): string {
-    if (this.mode === modeType.human) {
+    if (this.mode === LogMode.human) {
       return this.formatHuman(level, message, tags);
     }
 
