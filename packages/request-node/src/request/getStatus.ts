@@ -50,24 +50,17 @@ export default class GetStatusHandler {
       const status = {
         dataAccess: dataAccessStatus,
         node: {
-          customHeaders: config.getCustomHeaders(),
           ethereum: {
-            concurrency: config.getStorageConcurrency(),
-            lastBlockNumberDelay: config.getLastBlockNumberDelay(),
             networkId: config.getStorageNetworkId(),
             providerUrl,
-            retryDelay: config.getEthereumRetryDelay(),
             blockConfirmations: config.getBlockConfirmations(),
           },
           ipfs: {
-            host: config.getIpfsHost(),
-            port: config.getIpfsPort(),
-            protocol: config.getIpfsProtocol(),
+            url: config.getIpfsUrl(),
             timeout: config.getIpfsTimeout(),
           },
           persistTransactionTimeout: config.getPersistTransactionTimeout(),
           port: config.getServerPort(),
-          serverExternalUrl: config.getServerExternalUrl(),
           version: packageJson.version,
         },
       };

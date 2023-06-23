@@ -1,19 +1,4 @@
-import { StorageTypes } from '@requestnetwork/types';
 import { IpfsStorage } from '../src/ipfs-storage';
-
-const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
-  host: 'localhost',
-  port: 5001,
-  protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
-  timeout: 1000,
-};
-
-const invalidHostIpfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
-  host: 'nonexistent',
-  port: 5001,
-  protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
-  timeout: 10000,
-};
 
 const hash1 = 'QmNXA5DyFZkdf4XkUT81nmJSo3nS2bL25x7YepxeoDa6tY';
 
@@ -21,20 +6,18 @@ describe('IPFS Storage', () => {
   let ipfsStorage: IpfsStorage;
   beforeEach(() => {
     jest.resetAllMocks();
-    ipfsStorage = new IpfsStorage({ ipfsGatewayConnection });
+    ipfsStorage = new IpfsStorage({ ipfsTimeout: 1000 });
   });
   it('cannot initialize if ipfs node not reachable', async () => {
     const ipfsStorage = new IpfsStorage({
-      ipfsGatewayConnection: invalidHostIpfsGatewayConnection,
+      ipfsUrl: 'http://nonexistant:5001',
+      ipfsTimeout: 1000,
     });
     await expect(ipfsStorage.initialize()).rejects.toThrowError(
       'IPFS node is not accessible or corrupted: Error: getaddrinfo ENOTFOUND nonexistent',
     );
   });
   it('cannot initialize if ipfs node not in the right network', async () => {
-    const ipfsStorage = new IpfsStorage({
-      ipfsGatewayConnection,
-    });
     jest
       .spyOn((ipfsStorage as any).ipfsManager, 'getBootstrapList')
       .mockImplementation(async () => ['not findable node']);
@@ -61,41 +44,6 @@ describe('IPFS Storage', () => {
       });
     await expect(ipfsStorage.ipfsAdd('this is a test')).rejects.toThrowError(
       'Ipfs get length request error',
-    );
-  });
-
-  it('allows to IPFS pin a list of hashes', async () => {
-    const spy = jest
-      .spyOn((ipfsStorage as any).ipfsManager, 'pin')
-      .mockReturnValue(Promise.resolve(['']));
-
-    const pinConfig = {
-      delayBetweenCalls: 0,
-      maxSize: 100,
-      timeout: 1000,
-    };
-
-    let hashes = new Array(100).fill(hash1);
-
-    await ipfsStorage.pinDataToIPFS(hashes, pinConfig);
-
-    expect(spy).toHaveBeenCalledTimes(1);
-
-    hashes = new Array(200).fill(hash1);
-    await ipfsStorage.pinDataToIPFS(hashes, pinConfig);
-    expect(spy).toHaveBeenCalledTimes(3);
-  });
-
-  it('pinning errors are non blocking', async () => {
-    const warnLogMock = jest.spyOn((ipfsStorage as any).logger, 'warn');
-    jest.spyOn((ipfsStorage as any).ipfsManager, 'pin').mockImplementation(() => {
-      throw new Error('expected error');
-    });
-
-    await ipfsStorage.pinDataToIPFS([hash1]);
-    expect(warnLogMock).toHaveBeenCalledWith(
-      'Failed pinning some hashes the IPFS node: Error: expected error',
-      ['ipfs'],
     );
   });
 

@@ -5,11 +5,11 @@ import { LogTypes } from '@requestnetwork/types';
 
 import { RequestNodeBase } from './requestNodeBase';
 import * as config from './config';
-import { getIpfsStorage } from './storageUtils';
 import { TheGraphDataAccess } from '@requestnetwork/thegraph-data-access';
 import {
   EthereumStorageEthers,
   getEthereumStorageNetworkNameFromId,
+  IpfsStorage,
 } from '@requestnetwork/ethereum-storage';
 import { SimpleLogger } from '@requestnetwork/utils';
 
@@ -33,7 +33,11 @@ export class TheGraphRequestNode extends RequestNodeBase {
       new providers.StaticJsonRpcProvider(config.getStorageWeb3ProviderUrl()),
     );
     const signer = new NonceManager(wallet);
-    const ipfsStorage = getIpfsStorage(logger);
+    const ipfsStorage = new IpfsStorage({
+      logger,
+      ipfsUrl: config.getIpfsUrl(),
+      ipfsTimeout: config.getIpfsTimeout(),
+    });
     const gasPriceMin = config.getGasPriceMin();
     const blockConfirmations = config.getBlockConfirmations();
     const storage = new EthereumStorageEthers({

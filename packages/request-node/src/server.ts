@@ -20,11 +20,8 @@ const startNode = async (): Promise<void> => {
   Log Mode: ${logMode}
   Web3 provider url: ${config.getStorageWeb3ProviderUrl()}
   TheGraph url: ${config.getGraphNodeUrl()}
-  IPFS host: ${config.getIpfsHost()}
-  IPFS port: ${config.getIpfsPort()}
-  IPFS protocol: ${config.getIpfsProtocol()}
+  IPFS url: ${config.getIpfsUrl()}
   IPFS timeout: ${config.getIpfsTimeout()}
-  Storage concurrency: ${config.getStorageConcurrency()}
   Initialization storage path: ${config.getInitializationStorageFilePath()}
   Storage block confirmations: ${config.getBlockConfirmations()}
 `;

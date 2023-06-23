@@ -5,7 +5,6 @@ import { Server } from 'http';
 import express, { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { Store } from 'keyv';
-import { getCustomHeaders } from './config';
 import ConfirmedTransactionStore from './request/confirmedTransactionStore';
 import GetConfirmedTransactionHandler from './request/getConfirmedTransactionHandler';
 import GetTransactionsByChannelIdHandler from './request/getTransactionsByChannelId';
@@ -141,11 +140,6 @@ export class RequestNodeBase {
     // Enable all CORS requests
     this.express.use(cors());
 
-    const customHeaders = getCustomHeaders();
-    if (customHeaders) {
-      this.express.use(this.customHeadersMiddelware(customHeaders));
-    }
-
     // Set the Request Node version to the header
     this.express.use((_, res, next) => {
       res.header(REQUEST_NODE_VERSION_HEADER, this.requestNodeVersion);
@@ -171,18 +165,6 @@ export class RequestNodeBase {
     this.express.use((_clientRequest, serverResponse) => {
       serverResponse.status(StatusCodes.NOT_FOUND).send(NOT_FOUND_MESSAGE);
     });
-  }
-
-  /**
-   * Middleware to send custom header on every response
-   */
-  private customHeadersMiddelware(customHeaders: Record<string, string>) {
-    return (_: Request, res: Response, next: NextFunction) => {
-      Object.entries(customHeaders).forEach(([key, value]: [string, string]) =>
-        res.header(key, value),
-      );
-      next();
-    };
   }
 
   /**

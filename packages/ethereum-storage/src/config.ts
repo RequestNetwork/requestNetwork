@@ -14,18 +14,13 @@ const config = {
         url: 'http://localhost:8545',
       },
     },
-    retryDelay: 0,
     safeGasPriceLimit: '500000000000',
     transactionPollingTimeout: 300,
     blockConfirmations: 2,
   },
   ipfs: {
-    defaultNode: {
-      host: 'localhost',
-      port: 5001,
-      protocol: 'http' as StorageTypes.IpfsGatewayProtocol,
-      timeout: 30000,
-    },
+    url: 'http://localhost:5001',
+    timeout: 30000,
     errorHandling: {
       delayBetweenRetries: 500,
       maxRetries: 3,
@@ -37,21 +32,15 @@ const config = {
       'ipfs-survival.request.network': 'Qmb6a5DH45k8JwLdLVZUhRhv1rnANpsbXjtsH41esGhNCh',
     },
     maxIpfsReadRetry: 1,
-    pinRequest: {
-      delayBetweenCalls: 1000,
-      maxSize: 500,
-      timeout: 30000,
-    },
   },
-  maxConcurrency: 5,
 };
 
-/**
- * Retrieve from config the default information to connect to ipfs
- * @returns IIpfsGatewayConnection the host, port, protocol and timeout threshold to connect to the gateway
- */
-export function getDefaultIpfs(): StorageTypes.IIpfsGatewayConnection {
-  return config.ipfs.defaultNode;
+export function getDefaultIpfsUrl(): string {
+  return config.ipfs.url;
+}
+
+export function getDefaultIpfsTimeout(): number {
+  return config.ipfs.timeout;
 }
 
 /**
@@ -95,14 +84,6 @@ export function getDefaultEthereumBlockConfirmations(): number {
 }
 
 /**
- * Retrieve from config the time to wait between query retries
- * @returns the query retry delay
- */
-export function getEthereumRetryDelay(): number {
-  return config.ethereum.retryDelay;
-}
-
-/**
  * Retrieve from config the maximum number of query retries
  * @returns the maximum amount of query retries
  */
@@ -118,18 +99,6 @@ export function getEthereumMaxRetries(): number {
  */
 export function getSafeGasPriceLimit(): string {
   return process?.env?.SAFE_GAS_PRICE_LIMIT || config.ethereum.safeGasPriceLimit;
-}
-
-/**
- * Retrieve from config the default pin request maximum size, timeout and wait time between calls
- * @returns array of the swarm addresses
- */
-export function getPinRequestConfig(): StorageTypes.IPinRequestConfiguration {
-  return {
-    delayBetweenCalls: config.ipfs.pinRequest.delayBetweenCalls,
-    maxSize: config.ipfs.pinRequest.maxSize,
-    timeout: config.ipfs.pinRequest.timeout,
-  };
 }
 
 /**

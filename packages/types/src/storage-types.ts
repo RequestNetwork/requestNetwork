@@ -50,11 +50,9 @@ export interface IIndexer {
 
 export type IIpfsConfig = {
   delayBetweenRetries?: number;
-  host: string;
+  url: string;
   id: string;
   maxRetries?: number;
-  port: number;
-  protocol: string;
   timeout?: number;
 };
 
@@ -62,7 +60,6 @@ export interface IIpfsStorage {
   initialize: () => Promise<void>;
   ipfsAdd: (data: string) => Promise<IIpfsMeta>;
   read(hash: string, maxSize?: number, retries?: number): Promise<IIpfsObject>;
-  pinDataToIPFS(hashes: string[], config?: IPinRequestConfiguration): Promise<void>;
   getConfig(): Promise<IIpfsConfig>;
 }
 
@@ -185,24 +182,10 @@ export interface IWeb3Connection {
   timeout?: number;
 }
 
-/** Information to connect to an IPFS gateway */
-export interface IIpfsGatewayConnection {
-  host: string;
-  port: number;
-  protocol: IpfsGatewayProtocol;
-  timeout: number;
-}
-
 /** two blocks number */
 export interface IBlockNumbersInterval {
   blockAfter: number;
   blockBefore: number;
-}
-
-/** Protocol to connect to ipfs */
-export enum IpfsGatewayProtocol {
-  HTTP = 'http',
-  HTTPS = 'https',
 }
 
 /** Storage type for now only ethereum + ipfs available */

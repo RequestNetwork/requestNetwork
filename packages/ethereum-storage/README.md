@@ -15,6 +15,7 @@ npm install @requestnetwork/ethereum-storage
 ## Usage
 
 ```js
+// TODO update usage
 import { EthereumStorage } from '@requestnetwork/ethereum-storage';
 import { StorageTypes } from '@requestnetwork/types';
 
