@@ -3,8 +3,8 @@ import { Chain } from '../../types';
 
 import * as TronDefinition from './data/tron';
 
-export type TronChain = Chain;
+export type DeclarativeChain = Chain;
 
-export const chains: Record<CurrencyTypes.TronChainName, TronChain> = {
+export const chains: Record<CurrencyTypes.DeclarativeChainName, DeclarativeChain> = {
   tron: TronDefinition,
 };
