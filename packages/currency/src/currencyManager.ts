@@ -17,7 +17,7 @@ import {
 } from './types';
 import { defaultConversionPairs, AggregatorsMap, getPath } from './conversion-aggregators';
 import { isValidNearAddress } from './currency-utils';
-import { NearChains, DeclarativeChains } from './chains';
+import { NearChains } from './chains';
 
 const { BTC, ERC20, ERC777, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 
@@ -246,7 +246,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       case RequestLogicTypes.CURRENCY.ERC777:
         if (NearChains.isChainSupported(currency.network)) {
           return isValidNearAddress(address, currency.network);
-        } else if (DeclarativeChains.isChainSupported(currency.network)) {
+        } else if (currency.network === 'tron') {
           return addressValidator.validate(address, currency.network);
         }
         return addressValidator.validate(address, 'ETH');
