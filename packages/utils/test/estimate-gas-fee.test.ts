@@ -19,6 +19,10 @@ const checkEstimation = (
   expect(absRatio).toBeLessThan(ratioMax);
 };
 
+afterEach(() => {
+  jest.clearAllMocks();
+});
+
 describe('Gas fee estimation', () => {
   it('Should not be undefined', async () => {
     const estimation = await estimateGasFees({ logger: console, provider });
@@ -51,6 +55,51 @@ describe('Gas fee estimation', () => {
       value: BigNumber.from(1),
     });
     checkEstimation(estimation.maxFeePerGas as BigNumber, tx.maxFeePerGas as BigNumber, 0.1);
-    checkEstimation(estimation.maxFeePerGas as BigNumber, tx.maxFeePerGas as BigNumber, 0.1);
+  });
+
+  it('Should handle estimation errors properly', async () => {
+    jest.spyOn(provider, 'send').mockImplementation((command) => {
+      if (command !== 'eth_feeHistory') throw new Error('unhandled command');
+      return Promise.resolve({
+        // random data, found on https://docs.infura.io/networks/ethereum/json-rpc-methods/eth_feehistory#body
+        // not important in this test
+        baseFeePerGas: [
+          '0x3da8e7618',
+          '0x3e1ba3b1b',
+          '0x3dfd72b90',
+          '0x3d64eee76',
+          '0x3d4da2da0',
+          '0x3ccbcac6b',
+        ],
+        gasUsedRatio: [
+          0.5290747666666666, 0.49240453333333334, 0.4615576, 0.49407083333333335, 0.4669053,
+        ],
+        oldestBlock: '0xfab8ac',
+        // here return only rewards > 5 Gwei
+        // thus all blocks would be considered as outlier blocks in https://github.com/rainbow-me/fee-suggestions/blob/main/src/utils.ts#L123C11-L123C22
+        // thus triggering an error
+        reward: [
+          // 6000000000 wei
+          ['x165A0BC00'],
+          // 7000000000 wei
+          ['x1A13B8600'],
+          // 8000000000 wei
+          ['x1DCD65000'],
+        ],
+      });
+    });
+
+    const loggerMock = {
+      debug: jest.fn(),
+      error: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+    };
+
+    const estimation = await estimateGasFees({ logger: loggerMock, provider });
+    expect(estimation).toStrictEqual({});
+    expect(loggerMock.error).toHaveBeenCalledWith(
+      'estimateGasFees error: Error: Error: ema was undefined',
+    );
   });
 });
