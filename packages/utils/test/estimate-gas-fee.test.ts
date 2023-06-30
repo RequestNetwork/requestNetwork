@@ -75,9 +75,10 @@ describe('Gas fee estimation', () => {
           0.5290747666666666, 0.49240453333333334, 0.4615576, 0.49407083333333335, 0.4669053,
         ],
         oldestBlock: '0xfab8ac',
-        // here return only rewards > 5 Gwei
-        // thus all blocks would be considered as outlier blocks in https://github.com/rainbow-me/fee-suggestions/blob/main/src/utils.ts#L123C11-L123C22
-        // thus triggering an error
+        // Here, return all rewards as > 5 Gwei.
+        // This is so that all blocks would be considered as outlier blocks in
+        // https://github.com/rainbow-me/fee-suggestions/blob/76b9fe14d3740c9df7cedf40b2f85cd8871ff9c2/src/utils.ts#L123C11-L123C22
+        // thus triggering an error.
         reward: [
           // 6000000000 wei
           ['x165A0BC00'],
