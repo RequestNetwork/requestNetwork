@@ -21,15 +21,15 @@ const checkEstimation = (
 
 describe('Gas fee estimation', () => {
   it('Should not be undefined', async () => {
-    const estimation = await estimateGasFees({ provider });
+    const estimation = await estimateGasFees({ logger: console, provider });
     expect(estimation.maxFeePerGas).toBeDefined();
     expect(estimation.maxPriorityFeePerGas).toBeDefined();
   });
 
   it('Should return a lower estimation when the previous block is empty', async () => {
-    const firstEstimation = await estimateGasFees({ provider });
+    const firstEstimation = await estimateGasFees({ logger: console, provider });
     await provider.send('evm_mine', []);
-    const secondEstimation = await estimateGasFees({ provider });
+    const secondEstimation = await estimateGasFees({ logger: console, provider });
 
     expect(
       firstEstimation.maxFeePerGas?.sub(secondEstimation.maxFeePerGas || 0).toNumber(),
@@ -45,7 +45,7 @@ describe('Gas fee estimation', () => {
       });
     }
 
-    const estimation = await estimateGasFees({ provider });
+    const estimation = await estimateGasFees({ logger: console, provider });
     const tx = await wallet.sendTransaction({
       to: dummyAddress,
       value: BigNumber.from(1),
