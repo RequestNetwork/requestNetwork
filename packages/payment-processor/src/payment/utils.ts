@@ -89,7 +89,7 @@ export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   return {
     ...extension.values,
     paymentReference: getPaymentReference(request),
-    network: network ?? request.currencyInfo.network,
+    network: extension.values.network ?? request.currencyInfo.network,
     version: extension.version,
   };
 }
