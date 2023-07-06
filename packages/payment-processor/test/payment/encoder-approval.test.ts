@@ -149,7 +149,7 @@ const validRequestERC20ConversionProxy: ClientTypes.IRequestData = {
         paymentAddress,
         salt: 'salt',
         network: 'private',
-        tokensAccepted: [alphaContractAddress],
+        acceptedTokens: [alphaContractAddress],
       },
       version: '0.1.0',
     },
