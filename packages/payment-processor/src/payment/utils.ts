@@ -86,28 +86,9 @@ export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   if (!extension) {
     throw new Error('no payment network found');
   }
-  const {
-    paymentAddress,
-    feeAmount,
-    feeAddress,
-    expectedFlowRate,
-    expectedStartDate,
-    acceptedTokens,
-    maxRateTimespan,
-    network,
-  } = extension.values;
-  const paymentReference = getPaymentReference(request);
   return {
-    paymentAddress,
-    paymentReference,
-    feeAmount,
-    feeAddress,
-    expectedFlowRate,
-    expectedStartDate,
-    acceptedTokens,
-    maxRateTimespan,
-    network: network ?? request.currencyInfo.network,
-    version: extension.version,
+    paymentReference: getPaymentReference(request),
+    ...extension.values,
   };
 }
 
