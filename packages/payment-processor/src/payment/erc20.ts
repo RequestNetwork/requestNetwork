@@ -87,11 +87,29 @@ export async function hasErc20Approval(
 }
 
 /**
+ * Retrieves the allowance given by an ERC20 token owner to a spender.
+ * @param ownerAddress address of the owner
+ * @param spenderAddress address of the spender
+ * @param signerOprovider the web3 provider
+ * @param tokenAddress Address of the ERC20 token
+ */
+export async function getErc20Allowance(
+  ownerAddress: string,
+  spenderAddress: string,
+  signerOrProvider: providers.Provider | Signer,
+  tokenAddress: string,
+): Promise<BigNumber> {
+  const erc20Contract = ERC20__factory.connect(tokenAddress, signerOrProvider);
+  return await erc20Contract.allowance(ownerAddress, spenderAddress);
+}
+
+/**
  * Checks if a spender has enough allowance from an ERC20 token owner to pay an amount.
  * @param ownerAddress address of the owner
  * @param spenderAddress address of the spender
- * @param provider the web3 provider. Defaults to Etherscan.
- * @param paymentCurrency ERC20 currency
+ * @param signerOrProvider the web3 provider.
+ * @param tokenAddress Address of the ERC20 currency
+ * @param amount The amount to check the allowance for
  */
 export async function checkErc20Allowance(
   ownerAddress: string,
@@ -100,8 +118,12 @@ export async function checkErc20Allowance(
   tokenAddress: string,
   amount: BigNumberish,
 ): Promise<boolean> {
-  const erc20Contract = ERC20__factory.connect(tokenAddress, signerOrProvider);
-  const allowance = await erc20Contract.allowance(ownerAddress, spenderAddress);
+  const allowance = await getErc20Allowance(
+    ownerAddress,
+    spenderAddress,
+    signerOrProvider,
+    tokenAddress,
+  );
   return allowance.gte(amount);
 }
 
