@@ -87,8 +87,10 @@ export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
     throw new Error('no payment network found');
   }
   return {
-    paymentReference: getPaymentReference(request),
     ...extension.values,
+    paymentReference: getPaymentReference(request),
+    network: network ?? request.currencyInfo.network,
+    version: extension.version,
   };
 }
 
