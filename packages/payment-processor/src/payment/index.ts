@@ -213,7 +213,10 @@ export async function hasSufficientFunds(
   }
 
   let feeAmount = 0;
-  if (paymentNetwork === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT) {
+  if (
+    paymentNetwork === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT ||
+    paymentNetwork === ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT
+  ) {
     feeAmount = request.extensions[paymentNetwork].values.feeAmount || 0;
   }
   return isSolvent(
