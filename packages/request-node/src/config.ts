@@ -190,19 +190,17 @@ export function getMnemonic(): string {
   return process.env.MNEMONIC;
 }
 
-/**
- * Get log configs: level and mode, from command line argument, environment variables or default values.
- * logLevel is the maximum level of messages we will log
- * logMode defines the log format to display: `human` is a more readable log, `machine` is better for parsing
- *
- * @returns the log level
- */
-export function getLogConfig(): { logLevel: LogTypes.LogLevel; logMode: LogMode } {
-  return {
-    logLevel: getOption('logLevel', 'LOG_LEVEL', defaultValues.log.level),
-    logMode: getOption('logMode', 'LOG_MODE', defaultValues.log.mode),
-  };
-}
+/** logLevel is the maximum level of messages we will log */
+export const getLogLevel = (): LogTypes.LogLevel => {
+  const logLevelStr = getOption<keyof typeof LogTypes.LogLevel>('logLevel', 'LOG_LEVEL');
+  return LogTypes.LogLevel[logLevelStr] || defaultValues.log.level;
+};
+
+/** logMode defines the log format to display: `human` is a more readable log, `machine` is better for parsing */
+export const getLogMode = (): LogMode => {
+  const logModeStr = getOption<keyof typeof LogMode>('logMode', 'LOG_MODE');
+  return LogMode[logModeStr] || defaultValues.log.mode;
+};
 
 /**
  * Get the minimum delay between getLastBlockNumber calls
