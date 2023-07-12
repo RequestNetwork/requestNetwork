@@ -1,5 +1,4 @@
 import { DataAccessTypes } from '@requestnetwork/types';
-import { TheGraphDataAccess } from './data-access';
 
 export class NoopDataWrite implements DataAccessTypes.IDataWrite {
   async initialize(): Promise<void> {
@@ -12,7 +11,7 @@ export class NoopDataWrite implements DataAccessTypes.IDataWrite {
 
   persistTransaction(): Promise<DataAccessTypes.IReturnPersistTransaction> {
     throw new Error(
-      `cannot call persistTranscation without storage. Specify storage on ${TheGraphDataAccess.name}`,
+      `cannot call persistTranscation without storage. Specify storage on TheGraphDataAccess`,
     );
   }
 }

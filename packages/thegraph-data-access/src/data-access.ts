@@ -5,6 +5,10 @@ import { DataAccessWrite, DataAccessRead } from '@requestnetwork/data-access';
 import { TheGraphDataAccessOptions } from './types';
 import { NoopDataWrite } from './NoopDataWrite';
 
+/**
+ * A custom DataAccess to retrieve Request data from a TheGraph subgraph.
+ * If no `storage` is passed, the data access is read-only.
+ */
 export class TheGraphDataAccess extends CombinedDataAccess {
   constructor({ graphql, storage, ...options }: TheGraphDataAccessOptions) {
     const { url, ...rest } = graphql;
