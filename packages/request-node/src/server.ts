@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { LogTypes } from '@requestnetwork/types';
 import * as yargs from 'yargs';
+import { LogTypes } from '@requestnetwork/types';
 import * as config from './config';
 import { Logger } from './logger';
 import { RequestNode } from './requestNode';
@@ -9,15 +9,16 @@ import { TheGraphRequestNode } from './thegraph-node';
 
 const argv = yargs.parseSync();
 
+const logLevel = config.getLogLevel();
+const logMode = config.getLogMode();
 // Initialize the node logger
-const { logLevel, logMode } = config.getLogConfig();
 const logger = new Logger(logLevel, logMode);
 
 const startNode = async (): Promise<void> => {
   const serverMessage = `Using config:
   Ethereum network id: ${config.getStorageNetworkId()}
-  Log Level: ${LogTypes.LogLevel[config.getLogConfig().logLevel]}
-  Log Mode: ${config.getLogConfig().logMode}
+  Log Level: ${LogTypes.LogLevel[logLevel]}
+  Log Mode: ${logMode}
   Web3 provider url: ${config.getStorageWeb3ProviderUrl()}
   TheGraph url: ${config.getGraphNodeUrl()}
   IPFS host: ${config.getIpfsHost()}
