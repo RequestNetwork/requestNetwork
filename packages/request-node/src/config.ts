@@ -197,10 +197,7 @@ export const getLogLevel = (): LogTypes.LogLevel => {
 };
 
 /** logMode defines the log format to display: `human` is a more readable log, `machine` is better for parsing */
-export const getLogMode = (): LogMode => {
-  const logModeStr = getOption<keyof typeof LogMode>('logMode', 'LOG_MODE');
-  return LogMode[logModeStr] || defaultValues.log.mode;
-};
+export const getLogMode = makeOption('logMode', 'LOG_MODE', defaultValues.log.mode);
 
 /**
  * Get the minimum delay between getLastBlockNumber calls
