@@ -13,7 +13,8 @@ You may need some environment variables.
 You can create a .env file at the root of this package:
 
 ```
-DEPLOYMENT_PRIVATE_KEY=...  # Mandatory to deploy on live blockchains
+DEPLOYMENT_PRIVATE_KEY=...  # Mandatory to deploy on live blockchains (legacy)
+ADMIN_PRIVATE_KEY=...       # Mandatory to deploy on live blockchains (xdeployer)
 WEB3_PROVIDER_URL=...       # Mandatory to interact with live blockchains
 ETHERSCAN_API_KEY=...       # Only used to verify smart contracts code on live blockchains, even for other explorers, except:
 BSCSCAN_API_KEY=...         # ... for BSCScan
