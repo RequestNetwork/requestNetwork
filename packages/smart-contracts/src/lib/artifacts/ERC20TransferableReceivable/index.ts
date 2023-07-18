@@ -36,6 +36,14 @@ export const erc20TransferableReceivableArtifact =
             address: '0xF426505ac145abE033fE77C666840063757Be9cd',
             creationBlockNumber: 0,
           },
+          goerli: {
+            address: '0x6fb42f5826045e96171664e0E540818134F5431f',
+            creationBlockNumber: 9333948,
+          },
+          matic: {
+            address: '0xd6C04C5d0e561D94B15622e770045776D4ce3739',
+            creationBlockNumber: 45005575,
+          },
         },
       },
     },
