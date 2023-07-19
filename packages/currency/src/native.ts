@@ -123,6 +123,12 @@ export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthC
       name: 'Tomb',
       network: 'tombchain',
     },
+    {
+      symbol: 'MNT',
+      decimals: 18,
+      name: 'Mantle',
+      network: 'mantle-wadsley',
+    },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [
     {

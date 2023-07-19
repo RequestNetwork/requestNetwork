@@ -12,6 +12,7 @@ import * as FantomDefinition from './data/fantom';
 import * as FuseDefinition from './data/fuse';
 import * as GoerliDefinition from './data/goerli';
 import * as MainnetDefinition from './data/mainnet';
+import * as MantleWadsleyDefinition from './data/mantle-wadsley';
 import * as MaticDefinition from './data/matic';
 import * as MoonbeamDefinition from './data/moonbeam';
 import * as MumbaiDefinition from './data/mumbai';
@@ -39,6 +40,7 @@ export const chains: Record<CurrencyTypes.EvmChainName, EvmChain> = {
   fuse: FuseDefinition,
   goerli: GoerliDefinition,
   mainnet: MainnetDefinition,
+  'mantle-wadsley': MantleWadsleyDefinition,
   matic: MaticDefinition,
   moonbeam: MoonbeamDefinition,
   mumbai: MumbaiDefinition,

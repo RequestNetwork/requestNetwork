@@ -46,6 +46,7 @@ const networkRpcs: Record<string, string> = {
   optimism: 'https://mainnet.optimism.io',
   moonbeam: 'https://moonbeam.public.blastapi.io',
   tombchain: 'https://rpc.tombchain.com/',
+  'mantle-wadsley': 'https://rpc.testnet.mantle.xyz/',
 };
 
 /**
@@ -91,7 +92,7 @@ const defaultProviderFactory: ProviderFactory = (network: string | undefined) =>
 
   if (!warned) {
     console.warn(
-      `No provider is specified for network ${network}, using ethers default provider. 
+      `No provider is specified for network ${network}, using ethers default provider.
       This is not recommended for Production environments.
       Use setProviderFactory to override the default provider`,
     );

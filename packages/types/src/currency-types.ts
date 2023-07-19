@@ -13,6 +13,7 @@ export type EvmChainName =
   | 'fuse'
   | 'goerli'
   | 'mainnet'
+  | 'mantle-wadsley'
   | 'matic'
   | 'moonbeam'
   | 'mumbai'
