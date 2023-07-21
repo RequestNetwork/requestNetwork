@@ -126,7 +126,7 @@ export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthC
     {
       symbol: 'MNT',
       decimals: 18,
-      name: 'Mantle',
+      name: 'Wadsley Mantle',
       network: 'mantle-wadsley',
     },
   ],
