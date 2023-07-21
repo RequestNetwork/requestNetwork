@@ -44,6 +44,10 @@ export const erc20TransferableReceivableArtifact =
             address: '0xd6C04C5d0e561D94B15622e770045776D4ce3739',
             creationBlockNumber: 45005575,
           },
+          mainnet: {
+            address: '0xcE80D17d38cfee8E5E6c682F7712bfb5A04Ae912',
+            creationBlockNumber: 17735969,
+          },
         },
       },
     },
