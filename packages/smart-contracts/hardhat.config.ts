@@ -146,6 +146,11 @@ export default {
       chainId: 6969,
       accounts,
     },
+    mantle: {
+      url: url('mantle'),
+      chainId: 5000,
+      accounts,
+    },
     'mantle-testnet': {
       url: url('mantle-testnet'),
       chainId: 5001,
