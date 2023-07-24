@@ -47,7 +47,7 @@ const networkRpcs: Record<string, string> = {
   moonbeam: 'https://moonbeam.public.blastapi.io',
   tombchain: 'https://rpc.tombchain.com/',
   mantle: 'https://rpc.mantle.xyz/',
-  'mantle-wadsley': 'https://rpc.testnet.mantle.xyz/',
+  'mantle-testnet': 'https://rpc.testnet.mantle.xyz/',
 };
 
 /**

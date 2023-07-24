@@ -13,7 +13,7 @@ const networks: Record<string, ethers.providers.Network> = {
   moonbeam: { chainId: 1284, name: 'moonbeam' },
   tombchain: { chainId: 6969, name: 'tombchain' },
   mantle: { chainId: 5000, name: 'mantle' },
-  'mantle-wadsley': { chainId: 5001, name: 'mantle-wadsley' },
+  'mantle-testnet': { chainId: 5001, name: 'mantle-testnet' },
 };
 
 /**
@@ -61,7 +61,7 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
         return 'https://api.snowtrace.io';
       case 'mantle':
         return 'https://explorer.mantle.xyz/';
-      case 'mantle-wadsley':
+      case 'mantle-testnet':
         return 'https://explorer.testnet.mantle.xyz/';
       default:
         return super.getBaseUrl();

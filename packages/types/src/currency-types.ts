@@ -14,7 +14,7 @@ export type EvmChainName =
   | 'goerli'
   | 'mainnet'
   | 'mantle'
-  | 'mantle-wadsley'
+  | 'mantle-testnet'
   | 'matic'
   | 'moonbeam'
   | 'mumbai'

@@ -146,8 +146,8 @@ export default {
       chainId: 6969,
       accounts,
     },
-    'mantle-wadsley': {
-      url: url('mantle-wadsley'),
+    'mantle-testnet': {
+      url: url('mantle-testnet'),
       chainId: 5001,
       accounts,
     },
