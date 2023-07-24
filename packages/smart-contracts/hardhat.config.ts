@@ -190,6 +190,22 @@ export default {
           browserURL: 'https://optimistic.etherscan.io/',
         },
       },
+      {
+        network: 'mantle',
+        chainId: 5000,
+        urls: {
+          apiURL: 'https://explorer.mantle.xyz/api',
+          browserURL: 'https://explorer.mantle.xyz/',
+        },
+      },
+      {
+        network: 'mantle-testnet',
+        chainId: 5001,
+        urls: {
+          apiURL: 'https://explorer.testnet.mantle.xyz/api',
+          browserURL: 'https://explorer.testnet.mantle.xyz/',
+        },
+      },
     ],
   },
   tenderly: {
