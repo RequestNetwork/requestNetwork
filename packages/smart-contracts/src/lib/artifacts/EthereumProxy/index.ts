@@ -184,6 +184,10 @@ export const ethereumProxyArtifact = new ContractArtifact<EthereumProxy>(
           address: '0x171Ee0881407d4c0C11eA1a2FB7D5b4cdED71e6e',
           creationBlockNumber: 2415488,
         },
+        mantle: {
+          address: '0x171Ee0881407d4c0C11eA1a2FB7D5b4cdED71e6e',
+          creationBlockNumber: 127942,
+        },
         'mantle-testnet': {
           address: '0x171Ee0881407d4c0C11eA1a2FB7D5b4cdED71e6e',
           creationBlockNumber: 16210080,
