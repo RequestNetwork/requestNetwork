@@ -12,6 +12,7 @@ const networks: Record<string, ethers.providers.Network> = {
   optimism: { chainId: 10, name: 'optimism' },
   moonbeam: { chainId: 1284, name: 'moonbeam' },
   tombchain: { chainId: 6969, name: 'tombchain' },
+  mantle: { chainId: 5000, name: 'mantle' },
   'mantle-wadsley': { chainId: 5001, name: 'mantle-wadsley' },
 };
 
@@ -58,6 +59,8 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
         return 'https://api.arbiscan.io';
       case 'avalanche':
         return 'https://api.snowtrace.io';
+      case 'mantle':
+        return 'https://explorer.mantle.xyz/';
       case 'mantle-wadsley':
         return 'https://explorer.testnet.mantle.xyz/';
       default:

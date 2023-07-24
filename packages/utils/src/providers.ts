@@ -46,6 +46,7 @@ const networkRpcs: Record<string, string> = {
   optimism: 'https://mainnet.optimism.io',
   moonbeam: 'https://moonbeam.public.blastapi.io',
   tombchain: 'https://rpc.tombchain.com/',
+  mantle: 'https://rpc.mantle.xyz/',
   'mantle-wadsley': 'https://rpc.testnet.mantle.xyz/',
 };
 
