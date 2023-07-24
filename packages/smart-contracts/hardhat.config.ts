@@ -7,7 +7,7 @@ import { config } from 'dotenv';
 import deployAllContracts from './scripts/test-deploy-all';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { checkCreate2Deployer } from './scripts-create2/check-deployer';
-import { deployDeployer } from './scripts-create2/deploy-request-deployer';
+import { deployDeployer, verifyDeployer } from './scripts-create2/deploy-request-deployer';
 import { HardhatRuntimeEnvironmentExtended } from './scripts-create2/types';
 import { computeCreate2DeploymentAddressesFromList } from './scripts-create2/compute-one-address';
 import { VerifyCreate2FromList } from './scripts-create2/verify';
@@ -282,6 +282,13 @@ task(
   'Deploy request deployer contract on the specified network',
 ).setAction(async (_args, hre) => {
   await deployDeployer(hre);
+});
+
+task(
+  'verify-deployer-contract',
+  'Verify request deployer contract on the specified network',
+).setAction(async (_args, hre) => {
+  await verifyDeployer(hre);
 });
 
 task(
