@@ -21,6 +21,10 @@ export const erc20ProxyArtifact = new ContractArtifact<ERC20Proxy>(
           address: '0x162edb802fae75b9ee4288345735008ba51a4ec9',
           creationBlockNumber: 5628198,
         },
+        'mantle-testnet': {
+          address: '0x88Ecc15fDC2985A7926171B938BB2Cd808A5ba40',
+          creationBlockNumber: 16210085,
+        },
       },
     },
   },
