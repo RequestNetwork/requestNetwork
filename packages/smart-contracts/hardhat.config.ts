@@ -185,6 +185,8 @@ export default {
       sokol: 'api-key',
       aurora: 'api-key',
       auroraTestnet: 'api-key',
+      mantle: 'api-key',
+      'mantle-testnet': 'api-key',
     },
     customChains: [
       {
