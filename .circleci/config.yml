@@ -384,6 +384,7 @@ jobs:
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+      - run: *step_graph_deploy
       - run:
           name: 'Start request-node'
           command: 'yarn workspace @requestnetwork/request-node run start'
@@ -492,6 +493,8 @@ jobs:
       - *node_image
       - *ipfs_image
       - *ganache_image
+      - *postgres_image
+      - *graph_image
     working_directory: *working_directory
     steps:
       - attach_workspace:
@@ -502,20 +505,12 @@ jobs:
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+      - run: *step_graph_deploy
       - run:
           name: 'Start request-node'
           command: 'yarn workspace @requestnetwork/request-node run start'
           background: true
-      - run:
-          name: Waiting for Request Node to be ready
-          command: |
-            for i in `seq 1 10`;
-            do
-              curl -s -o /dev/null -f http://localhost:3000/readyz > /dev/null && echo Success && exit 0
-              echo -n .
-              sleep 1
-            done
-            echo Failed waiting for Node initialization && exit 1
+      - run: *step_wait_for_node
       - run:
           name: 'Test integration-test (erc20)'
           command: 'yarn workspace @requestnetwork/integration-test run test:erc20 --ci --maxWorkers=1'
