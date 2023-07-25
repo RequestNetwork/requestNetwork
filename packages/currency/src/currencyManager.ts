@@ -284,7 +284,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * - NEAR, YEL, ZIL, BTC
    * - ETH-rinkeby, FAU-rinkeby, CTBK-rinkeby
    */
-  static getDefaultList(): CurrencyDefinition[] {
+  static getDefaultList<TMeta = unknown>(): CurrencyDefinition<TMeta>[] {
     const isoCurrencies: CurrencyInput[] = iso4217.map((cc) => ({
       decimals: cc.digits,
       name: cc.currency,
@@ -306,7 +306,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       .concat(erc777Currencies)
       .concat(eth)
       .concat(btc)
-      .map(CurrencyManager.fromInput);
+      .map(CurrencyManager.fromInput<TMeta>);
   }
 
   /**
