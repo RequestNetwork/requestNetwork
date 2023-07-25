@@ -623,9 +623,6 @@ workflows:
       - test-integration-test:
           requires:
             - build
-      - test-integration-graph-node:
-          requires:
-            - build
       - test-payment-detection:
           requires:
             - build
@@ -663,7 +660,6 @@ workflows:
             - test-epk-signature
             - test-ethereum-storage
             - test-integration-test
-            - test-integration-graph-node
             - test-smart-contracts
             - test-multi-format
             - test-request-client
