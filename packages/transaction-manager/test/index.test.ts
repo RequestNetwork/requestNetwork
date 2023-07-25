@@ -10,10 +10,8 @@ import TransactionsFactory from '../src/transactions-factory';
 import TransactionsParser from '../src/transactions-parser';
 
 import * as TestData from './unit/utils/test-data';
-import { DataAccessTypes } from '@requestnetwork/types';
 
 const extraTopics = ['topic1', 'topic2'];
-const fakeTxHash = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 const data = '{ "what": "ever", "it": "is,", "this": "must", "work": true }';
 const data2 = '{"or": "can", "be":false}';
@@ -63,19 +61,17 @@ describe('index', () => {
       getTransactionsByChannelId: jest.fn().mockReturnValue(fakeMetaDataAccessGetReturn),
       initialize: jest.fn(),
       close: jest.fn(),
-      // persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
       persistTransaction: jest.fn((): any => {
-        setTimeout(() => {
-          fakeMetaDataAccessPersistReturn.emit(
-            'confirmed',
-            {
+        setTimeout(
+          () => {
+            fakeMetaDataAccessPersistReturn.emit('confirmed', {
               meta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
-              result: { topics: [fakeTxHash] },
-            },
-            // eslint-disable-next-line no-magic-numbers
-            100,
-          );
-        });
+              result: {},
+            });
+          },
+          // eslint-disable-next-line no-magic-numbers
+          100,
+        );
         return fakeMetaDataAccessPersistReturn;
       }),
     };
