@@ -10,6 +10,7 @@ import TransactionsFactory from '../src/transactions-factory';
 import TransactionsParser from '../src/transactions-parser';
 
 import * as TestData from './unit/utils/test-data';
+import { DataAccessTypes } from '@requestnetwork/types';
 
 const extraTopics = ['topic1', 'topic2'];
 const fakeTxHash = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
@@ -34,7 +35,7 @@ const dataHash2 = normalizeKeccak256Hash(JSON.parse(data2));
 const channelId2 = MultiFormat.serialize(dataHash2);
 
 const fakeMetaDataAccessPersistReturn: DataAccessTypes.IReturnPersistTransaction = Object.assign(
-  new EventEmitter(),
+  new EventEmitter() as DataAccessTypes.PersistTransactionEmitter,
   {
     meta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
     result: {},

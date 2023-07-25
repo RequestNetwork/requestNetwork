@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import { getRequestNode } from 'request-node/src/server';
+import { getRequestNode } from '../src/server';
 import request from 'supertest';
 import { RequestNode } from '../src/requestNode';
 
