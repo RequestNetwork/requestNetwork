@@ -9,15 +9,16 @@ import { EvmChains } from '@requestnetwork/currency';
  */
 export const create2ContractDeploymentList = [
   // 'ChainlinkConversionPath',
-  // 'EthereumProxy',
-  // 'EthereumFeeProxy',
+  'EthereumProxy',
+  'EthereumFeeProxy',
   // 'EthConversionProxy',
-  // 'ERC20FeeProxy',
+  'ERC20Proxy',
+  'ERC20FeeProxy',
   // 'ERC20SwapToPay',
   // 'ERC20SwapToConversion',
   // 'BatchConversionPayments',
   // 'ERC20EscrowToPay',
-  'ERC20TransferableReceivable',
+  // 'ERC20TransferableReceivable',
 ];
 
 /**

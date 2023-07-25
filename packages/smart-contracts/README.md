@@ -177,6 +177,14 @@ Environment variables needed: `TENDERLY_...` (see `hardhat.config.ts`).
 yarn hardhat tenderly-monitor-contracts
 ```
 
+### Verify the RequestDeployer contract
+
+If the RequestDeployer contract verification failed initially, it can be verified with:
+
+```bash
+yarn hardhat verify-deployer-contract --network <NETWORK>
+```
+
 #### Verify the contracts manually With Hardhat (legacy)
 
 A more generic way to verify any contract by setting constructor argments manually:
