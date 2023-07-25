@@ -894,11 +894,13 @@ describe('request-client.js', () => {
         [idRaw1.encryptionParams],
       );
 
+      await request.waitForConfirmation();
+
       const requestsFromTopic = await requestNetwork.fromTopic('my amazing test topic');
       expect(requestsFromTopic).not.toHaveLength(0);
-      expect(requestsFromTopic[0]).toMatchObject(request);
-
       const requestData = requestsFromTopic[0].getData();
+      expect(requestData).toMatchObject(request.getData());
+
       expect(requestData.meta).not.toBeNull();
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
     });
@@ -919,6 +921,8 @@ describe('request-client.js', () => {
         [idRaw1.encryptionParams],
       );
 
+      await request.waitForConfirmation();
+
       const request2 = await requestNetwork._createEncryptedRequest(
         {
           requestInfo: {
@@ -930,21 +934,22 @@ describe('request-client.js', () => {
         },
         [idRaw1.encryptionParams],
       );
+      await request2.waitForConfirmation();
 
       const requestsFromTopic = await requestNetwork.fromMultipleTopics([
         'my amazing test topic',
         'my second best test topic',
       ]);
       expect(requestsFromTopic).toHaveLength(2);
-      expect(requestsFromTopic[0]).toMatchObject(request);
-      expect(requestsFromTopic[1]).toMatchObject(request2);
+      expect(requestsFromTopic[0].getData()).toMatchObject(request.getData());
+      expect(requestsFromTopic[1].getData()).toMatchObject(request2.getData());
 
       requestsFromTopic.forEach((req) => {
         const requestData = req.getData();
         expect(requestData.meta).not.toBeNull();
         expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
       });
-    }, 10000);
+    }, 15000);
 
     it('creates an encrypted request and recovers it by identity', async () => {
       const requestNetwork = new RequestNetwork({
@@ -961,12 +966,13 @@ describe('request-client.js', () => {
         },
         [idRaw1.encryptionParams],
       );
+      await request.waitForConfirmation();
 
       const requestFromIdentity = await requestNetwork.fromIdentity(TestData.payee.identity);
       expect(requestFromIdentity).not.toBe('');
-      expect(requestFromIdentity[0]).toMatchObject(request);
-
       const requestData = requestFromIdentity[0].getData();
+      expect(requestData).toMatchObject(request.getData());
+
       expect(requestData.meta).not.toBeNull();
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
     });

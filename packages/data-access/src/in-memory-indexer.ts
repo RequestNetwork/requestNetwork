@@ -16,16 +16,17 @@ class ArrayMap<T> extends Map<string, T[]> {
  * The data itself is not indexed, only references to its location
  */
 export class InMemoryIndexer implements StorageTypes.IIndexer {
-  private readonly channelToLocationsIndex = new ArrayMap<string>();
-  private readonly topicToChannelsIndex = new ArrayMap<string>();
+  // these fields must be private (#) or jest's matcher won't work.
+  readonly #channelToLocationsIndex = new ArrayMap<string>();
+  readonly #topicToChannelsIndex = new ArrayMap<string>();
 
   constructor(private readonly storageRead: StorageTypes.IStorageRead) {}
 
   /** Adds the indexed data for easy retrieval */
   public addIndex(channelId: string, topics: string[], location: string): void {
-    this.channelToLocationsIndex.add(channelId, location);
+    this.#channelToLocationsIndex.add(channelId, location);
     for (const topic of topics || []) {
-      this.topicToChannelsIndex.add(topic, channelId);
+      this.#topicToChannelsIndex.add(topic, channelId);
     }
   }
 
@@ -46,7 +47,7 @@ export class InMemoryIndexer implements StorageTypes.IIndexer {
   async getTransactionsByChannelId(
     channelId: string,
   ): Promise<StorageTypes.IGetTransactionsResponse> {
-    const locations = this.channelToLocationsIndex.get(channelId);
+    const locations = this.#channelToLocationsIndex.get(channelId);
     const transactions = await this.parseDocuments(locations);
     return {
       blockNumber: 0,
@@ -55,8 +56,11 @@ export class InMemoryIndexer implements StorageTypes.IIndexer {
   }
 
   async getTransactionsByTopics(topics: string[]): Promise<StorageTypes.IGetTransactionsResponse> {
-    const channelIds = topics.map((topic) => this.topicToChannelsIndex.get(topic)).flat();
-    const locations = channelIds.map((channel) => this.channelToLocationsIndex.get(channel)).flat();
+    const channelIds = topics.map((topic) => this.#topicToChannelsIndex.get(topic)).flat();
+    const locations = channelIds
+      .map((channel) => this.#channelToLocationsIndex.get(channel))
+      .flat();
+
     const transactions = await this.parseDocuments(locations);
 
     return {
