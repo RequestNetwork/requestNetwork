@@ -1,5 +1,8 @@
-import { StatusCodes } from 'http-status-codes';
+import axios from 'axios';
 import request from 'supertest';
+import { StatusCodes } from 'http-status-codes';
+import MockAdapter from 'axios-mock-adapter';
+
 import { getRequestNode } from '../src/server';
 import { RequestNode } from '../src/requestNode';
 
@@ -16,10 +19,14 @@ const badlyFormattedTransactionData = { not: 'a transaction' };
 let requestNodeInstance: RequestNode;
 let server: any;
 
+const axiosMock = new MockAdapter(axios);
+
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('persistTransaction', () => {
   beforeAll(async () => {
+    axiosMock.onAny().passThrough();
+
     requestNodeInstance = getRequestNode();
     await requestNodeInstance.initialize();
 
@@ -29,6 +36,8 @@ describe('persistTransaction', () => {
   afterAll(async () => {
     await requestNodeInstance.close();
     server.close();
+    jest.restoreAllMocks();
+    axiosMock.reset();
   });
 
   it('responds with status 200 to requests with correct values', async () => {
@@ -38,7 +47,7 @@ describe('persistTransaction', () => {
       .set('Accept', 'application/json')
       .expect(StatusCodes.OK);
 
-    expect(serverResponse.body.result).toMatchObject({});
+    expect(serverResponse.body).toMatchObject({ result: {} });
 
     // topics parameter should be optional
     serverResponse = await request(server)
@@ -67,5 +76,22 @@ describe('persistTransaction', () => {
       })
       .set('Accept', 'application/json')
       .expect(StatusCodes.INTERNAL_SERVER_ERROR);
+  });
+
+  it('should catch IPFS timeout error', async () => {
+    axiosMock.reset();
+    axiosMock.onAny().timeout();
+    const assertionsNb = 10;
+    const assertions = [];
+    for (let i = 0; i < assertionsNb; i++) {
+      assertions.push(
+        request(server)
+          .post('/persistTransaction')
+          .send({ channelId, topics, transactionData })
+          .set('Accept', 'application/json')
+          .expect(StatusCodes.INTERNAL_SERVER_ERROR),
+      );
+    }
+    await Promise.all(assertions);
   });
 });
