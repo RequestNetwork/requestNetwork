@@ -15,7 +15,9 @@ export class TheGraphDataAccess extends CombinedDataAccess {
     const graphqlClient = new SubgraphClient(url, rest);
 
     const reader = new DataAccessRead(graphqlClient, options);
-    const writer = storage ? new DataAccessWrite(storage) : new NoopDataWrite();
+    const writer = storage
+      ? new DataAccessWrite(storage, options.pendingStore)
+      : new NoopDataWrite();
 
     super(reader, writer);
   }

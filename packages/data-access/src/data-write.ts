@@ -1,12 +1,11 @@
 import { EventEmitter } from 'events';
 import Block from './block';
 import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
-import { PendingStore } from './pending-store';
 
 export class DataAccessWrite implements DataAccessTypes.IDataWrite {
   constructor(
     protected readonly storage: StorageTypes.IStorageWrite,
-    private readonly pendingStore?: PendingStore,
+    private readonly pendingStore?: DataAccessTypes.IPendingStore,
   ) {
     this.pendingStore = pendingStore;
   }

@@ -5,6 +5,7 @@ import { EvmChains } from '@requestnetwork/currency';
 
 import * as config from './config';
 import { TheGraphDataAccess } from '@requestnetwork/thegraph-data-access';
+import { PendingStore } from '@requestnetwork/data-access';
 import {
   EthereumStorage,
   EthereumTransactionSubmitter,
@@ -32,6 +33,7 @@ export function getDataAccess(
   const gasPriceMin = config.getGasPriceMin();
   const blockConfirmations = config.getBlockConfirmations();
   const txSubmitter = new EthereumTransactionSubmitter({ network, logger, gasPriceMin, signer });
+  const pendingStore = new PendingStore();
   const storage = new EthereumStorage({
     ipfsStorage,
     txSubmitter,
@@ -43,5 +45,6 @@ export function getDataAccess(
     storage,
     network,
     logger,
+    pendingStore,
   });
 }
