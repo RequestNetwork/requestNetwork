@@ -460,7 +460,6 @@ describe('request-client.js: declarative payments', () => {
       await request.waitForConfirmation();
 
       const data = request.getData();
-      console.debug(data);
 
       const pn = getPaymentNetworkExtension(data)!;
 
