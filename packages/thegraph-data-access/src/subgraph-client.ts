@@ -77,7 +77,7 @@ export class SubgraphClient implements StorageTypes.IIndexer {
             [curr]: encryptedKeys?.[i] || '',
           }),
           {} as Record<string, string>,
-        ) || {},
+        ) || undefined,
     };
   }
 
