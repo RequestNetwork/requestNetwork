@@ -1,43 +1,45 @@
 import { getCurrentTimestampInSecond } from '@requestnetwork/utils';
 
-// import { AdvancedLogic } from '@requestnetwork/advanced-logic';
-// import { MockDataAccess as DataAccess } from '@requestnetwork/data-access';
-// import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
-// import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
-// import { IpfsStorage } from '@requestnetwork/ethereum-storage';
+import { AdvancedLogic } from '@requestnetwork/advanced-logic';
+import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
+import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
+import { TheGraphDataAccess } from '@requestnetwork/thegraph-data-access';
+import {
+  EthereumStorage,
+  EthereumTransactionSubmitter,
+  IpfsStorage,
+} from '@requestnetwork/ethereum-storage';
 import MultiFormat from '@requestnetwork/multi-format';
-// import { RequestLogic } from '@requestnetwork/request-logic';
-// import { TransactionManager } from '@requestnetwork/transaction-manager';
+import { RequestLogic } from '@requestnetwork/request-logic';
+import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
   AdvancedLogicTypes,
   DataAccessTypes,
-  // EncryptionTypes,
+  EncryptionTypes,
   IdentityTypes,
   RequestLogicTypes,
-  // SignatureTypes,
-  // StorageTypes,
+  SignatureTypes,
 } from '@requestnetwork/types';
+import { providers, Wallet } from 'ethers';
 
 let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 let requestLogic: RequestLogicTypes.IRequestLogic;
-let provider: any;
-// let payeeSignatureInfo: SignatureTypes.ISignatureParameters;
+let provider: providers.JsonRpcProvider;
+let payeeSignatureInfo: SignatureTypes.ISignatureParameters;
 let payeeIdentity: IdentityTypes.IIdentity;
 let encryptionDataPayee: any;
-// let payerSignatureInfo: SignatureTypes.ISignatureParameters;
+let payerSignatureInfo: SignatureTypes.ISignatureParameters;
 let payerIdentity: IdentityTypes.IIdentity;
 let encryptionDataPayer: any;
-// let decryptionProvider: any;
-// let signatureProvider: any;
+let decryptionProvider: any;
+let signatureProvider: any;
 
 let dataAccess: DataAccessTypes.IDataAccess;
-
-// const { time } = require('@openzeppelin/test-helpers');
 
 let nbBlocks = 0;
 let testsFinished = false;
 const interval = setInterval(async () => {
-  // await time.advanceBlock();
+  // await provider.send('evm_mine', []);
   if (testsFinished) {
     nbBlocks++;
   }
@@ -52,102 +54,95 @@ afterAll(() => {
   testsFinished = true;
 });
 
+const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
+
 describe('Request system', () => {
-  // beforeEach(async () => {
-  //   // Storage setup
-  //   provider = new web3Eth.providers.HttpProvider('http://localhost:8545');
-  //   const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
-  //     host: 'localhost',
-  //     port: 5001,
-  //     protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
-  //     timeout: 10000,
-  //   };
-  //   const web3Connection: StorageTypes.IWeb3Connection = {
-  //     networkId: StorageTypes.EthereumNetwork.PRIVATE,
-  //     web3Provider: provider,
-  //   };
-  //   const ipfsStorage = new IpfsStorage({ ipfsGatewayConnection });
-  //   const ethereumStorage = new EthereumStorage('localhost', ipfsStorage, web3Connection);
+  beforeEach(async () => {
+    // Storage setup
+    provider = new providers.JsonRpcProvider('http://localhost:8545');
+    const signer = Wallet.fromMnemonic(mnemonic).connect(provider);
+    const ipfsStorage = new IpfsStorage({ ipfsTimeout: 10000 });
+    const txSubmitter = new EthereumTransactionSubmitter({ signer, network: 'private' });
+    const ethereumStorage = new EthereumStorage({ ipfsStorage, txSubmitter });
+    // Data access setup
+    dataAccess = new TheGraphDataAccess({
+      graphql: { url: 'http://localhost:8000/subgraphs/name/RequestNetwork/request-storage' },
+      network: 'private',
+      storage: ethereumStorage,
+    });
 
-  //   // Data access setup
-  //   dataAccess = new DataAccess(ethereumStorage);
-  //   await dataAccess.initialize();
+    await dataAccess.initialize();
 
-  //   // Signature provider setup
-  //   payeeSignatureInfo = {
-  //     method: SignatureTypes.METHOD.ECDSA,
-  //     privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
-  //   };
-  //   payeeIdentity = {
-  //     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-  //     value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-  //   };
-  //   payerSignatureInfo = {
-  //     method: SignatureTypes.METHOD.ECDSA,
-  //     privateKey: '0x8d5366123cb560bb606379f90a0bfd4769eecc0557f1b362dcae9012b548b1e5',
-  //   };
-  //   payerIdentity = {
-  //     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-  //     value: '0x5aeda56215b167893e80b4fe645ba6d5bab767de',
-  //   };
+    // Signature provider setup
+    payeeSignatureInfo = {
+      method: SignatureTypes.METHOD.ECDSA,
+      privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
+    };
+    payeeIdentity = {
+      type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+      value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
+    };
+    payerSignatureInfo = {
+      method: SignatureTypes.METHOD.ECDSA,
+      privateKey: '0x8d5366123cb560bb606379f90a0bfd4769eecc0557f1b362dcae9012b548b1e5',
+    };
+    payerIdentity = {
+      type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+      value: '0x5aeda56215b167893e80b4fe645ba6d5bab767de',
+    };
 
-  //   signatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignatureInfo);
-  //   signatureProvider.addSignatureParameters(payerSignatureInfo);
+    signatureProvider = new EthereumPrivateKeySignatureProvider(payeeSignatureInfo);
+    signatureProvider.addSignatureParameters(payerSignatureInfo);
 
-  //   encryptionDataPayee = {
-  //     decryptionParams: {
-  //       key: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
-  //       method: EncryptionTypes.METHOD.ECIES,
-  //     },
-  //     encryptionParams: {
-  //       key: '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
-  //       method: EncryptionTypes.METHOD.ECIES,
-  //     },
-  //     identity: {
-  //       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-  //       value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
-  //     },
-  //     privateKey: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
-  //     publicKey:
-  //       '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
-  //   };
-  //   encryptionDataPayer = {
-  //     decryptionParams: {
-  //       key: '0x0906ff14227cead2b25811514302d57706e7d5013fcc40eca5985b216baeb998',
-  //       method: EncryptionTypes.METHOD.ECIES,
-  //     },
-  //     encryptionParams: {
-  //       key: '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
-  //       method: EncryptionTypes.METHOD.ECIES,
-  //     },
-  //     identity: {
-  //       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-  //       value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
-  //     },
-  //     privateKey: '0x0906ff14227cead2b25811514302d57706e7d5013fcc40eca5985b216baeb998',
-  //     publicKey:
-  //       '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
-  //   };
+    encryptionDataPayee = {
+      decryptionParams: {
+        key: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
+        method: EncryptionTypes.METHOD.ECIES,
+      },
+      encryptionParams: {
+        key: '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+        method: EncryptionTypes.METHOD.ECIES,
+      },
+      identity: {
+        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+        value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
+      },
+      privateKey: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
+      publicKey:
+        '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+    };
+    encryptionDataPayer = {
+      decryptionParams: {
+        key: '0x0906ff14227cead2b25811514302d57706e7d5013fcc40eca5985b216baeb998',
+        method: EncryptionTypes.METHOD.ECIES,
+      },
+      encryptionParams: {
+        key: '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
+        method: EncryptionTypes.METHOD.ECIES,
+      },
+      identity: {
+        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+        value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+      },
+      privateKey: '0x0906ff14227cead2b25811514302d57706e7d5013fcc40eca5985b216baeb998',
+      publicKey:
+        '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
+    };
 
-  //   // Decryption provider setup
-  //   decryptionProvider = new EthereumPrivateKeyDecryptionProvider(
-  //     encryptionDataPayee.decryptionParams,
-  //   );
-  //   decryptionProvider.addDecryptionParameters(encryptionDataPayer.decryptionParams);
+    // Decryption provider setup
+    decryptionProvider = new EthereumPrivateKeyDecryptionProvider(
+      encryptionDataPayee.decryptionParams,
+    );
+    decryptionProvider.addDecryptionParameters(encryptionDataPayer.decryptionParams);
 
-  //   // Transaction manager setup
-  //   const transactionManager = new TransactionManager(dataAccess, decryptionProvider);
+    // Transaction manager setup
+    const transactionManager = new TransactionManager(dataAccess, decryptionProvider);
 
-  //   // Advanced Logic setup
-  //   advancedLogic = new AdvancedLogic();
+    // Advanced Logic setup
+    advancedLogic = new AdvancedLogic();
 
-  //   // Logic setup
-  //   requestLogic = new RequestLogic(transactionManager, signatureProvider, advancedLogic);
-  // });
-
-  afterAll(() => {
-    // Stop web3 provider
-    provider.disconnect();
+    // Logic setup
+    requestLogic = new RequestLogic(transactionManager, signatureProvider, advancedLogic);
   });
 
   it('can create a request', async () => {
