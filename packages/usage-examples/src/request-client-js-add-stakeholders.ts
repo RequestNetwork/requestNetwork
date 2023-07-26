@@ -80,16 +80,16 @@ const thirdPartyRequestNetwork = new RequestNetwork.RequestNetworkBase({
 });
 
 const requestInfo: RequestNetwork.Types.IRequestInfo = {
-  currency: 'BTC',
+  currency: 'EUR',
   expectedAmount: '100000000000',
   payee: payeeIdentity,
   payer: payerIdentity,
 };
 
 const paymentNetwork: RequestNetwork.Types.Payment.PaymentNetworkCreateParameters = {
-  id: RequestNetwork.Types.Extension.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+  id: RequestNetwork.Types.Extension.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
   parameters: {
-    paymentAddress: '1LEMZPBit6tTtjXfaEfz4yYmTuctHWoMV',
+    paymentInfo: { IBAN: 'FR89370400440532013000', BIC: 'SABAIE2D' },
   },
 };
 
@@ -104,63 +104,37 @@ const createParams = {
 // Optionally, compute the request ID before actually creating it.
 // Setting the timestamp is recommended, as it has an impact on the generated ID.
 createParams.requestInfo.timestamp = RequestNetwork.Utils.getCurrentTimestampInSecond();
-payeeRequestNetwork
-  .computeRequestId(createParams)
-  .then((requestId) => {
-    console.log(`The request will be created with ID ${requestId}`);
-  })
-  .catch((error) => {
-    console.error(error.message || error);
-    process.exit(1);
-  });
 
-payeeRequestNetwork
-  ._createEncryptedRequest(createParams, [payeeEncryptionParameters, payerEncryptionParameters])
-  .then((request) => {
-    console.log('request:');
-    console.log(request);
-    request
-      .addStakeholders([thirdPartyEncryptionParameters], payeeIdentity)
-      .then((requestData) => {
-        console.log('request data after add stakeholders:');
-        console.log(requestData);
-        request
-          .waitForConfirmation()
-          .then((confirmedRequestData) => {
-            console.log('confirmed request data:');
-            console.log(confirmedRequestData);
-            payeeRequestNetwork
-              .fromRequestId(confirmedRequestData.requestId)
-              .then((payeeFetchedRequest) => {
-                console.log('payee fetched request:');
-                console.log(payeeFetchedRequest);
-                thirdPartyRequestNetwork
-                  .fromRequestId(confirmedRequestData.requestId)
-                  .then((thirdPartyFetchedRequest) => {
-                    console.log('third party fetched request:');
-                    console.log(thirdPartyFetchedRequest);
-                  })
-                  .catch((error) => {
-                    console.error(error.message || error);
-                    process.exit(1);
-                  });
-              })
-              .catch((error) => {
-                console.error(error.message || error);
-                process.exit(1);
-              });
-          })
-          .catch((error) => {
-            console.error(error.message || error);
-            process.exit(1);
-          });
-      })
-      .catch((error) => {
-        console.error(error.message || error);
-        process.exit(1);
-      });
-  })
-  .catch((error) => {
-    console.error(error.message || error);
-    process.exit(1);
+const main = async () => {
+  const requestId = await payeeRequestNetwork.computeRequestId(createParams);
+  console.log(`The request will be created with ID ${requestId}`);
+  const request = await payeeRequestNetwork._createEncryptedRequest(createParams, [
+    payeeEncryptionParameters,
+    payerEncryptionParameters,
+  ]);
+  console.log('request:', request.requestId);
+
+  const confirmedRequestData = await request.waitForConfirmation();
+  console.log('confirmed request data:');
+  console.log(confirmedRequestData);
+
+  const requestData = await request.addStakeholders(
+    [thirdPartyEncryptionParameters],
+    payeeIdentity,
+  );
+  console.log('request data after add stakeholders:');
+  console.log(requestData);
+
+  const payeeFetchedRequest = await payeeRequestNetwork.fromRequestId(requestId, {
+    disablePaymentDetection: true,
   });
+  console.log('payee fetched request:');
+  console.log(payeeFetchedRequest.getData());
+
+  const thirdPartyFetchedRequest = await thirdPartyRequestNetwork.fromRequestId(requestId, {
+    disablePaymentDetection: true,
+  });
+  console.log('third party fetched request:');
+  console.log(thirdPartyFetchedRequest.getData());
+};
+main();

@@ -157,9 +157,10 @@ export const getLogMode = makeOption('logMode', 'LOG_MODE', defaultValues.log.mo
  * Get the initialization storage (a json-like file) path.
  * @returns the path to the json-like file that stores the initialization data (ethereum metadata and transaction index).
  */
-export const getInitializationStorageFilePath = makeOption<string>(
+export const getInitializationStorageFilePath = makeOption(
   'initializationStorageFilePath',
   'INITIALIZATION_STORAGE_FILE_PATH',
+  '',
 );
 
 /**
