@@ -59,17 +59,33 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
     const result = await this.storage.getTransactionsByTopics(topics);
+    const pending = this.pendingStore?.findByTopics(topics) || [];
+    const pendingItems = pending.map((item) => ({
+      hash: item.storageResult.id,
+      channelId: item.channelId,
+      ...item.transaction,
+
+      blockNumber: -1,
+      blockTimestamp: -1,
+      transactionHash: '',
+      smartContractAddress: '',
+      size: '',
+      topics: [],
+    }));
+
+    const transactions = result.transactions.concat(...pendingItems);
 
     // list of channels having at least one tx updated during the updatedBetween boundaries
-    const channels = result.transactions
+    const channels = transactions
       .filter(
         (tx) =>
-          tx.blockTimestamp >= (updatedBetween?.from || 0) &&
-          tx.blockTimestamp <= (updatedBetween?.to || Number.MAX_SAFE_INTEGER),
+          !updatedBetween?.from ||
+          !updatedBetween?.to ||
+          (tx.blockTimestamp >= updatedBetween?.from && tx.blockTimestamp <= updatedBetween?.to),
       )
       .map((x) => x.channelId);
 
-    const filteredTxs = result.transactions.filter((tx) => channels.includes(tx.channelId));
+    const filteredTxs = transactions.filter((tx) => channels.includes(tx.channelId));
     return {
       meta: {
         storageMeta: filteredTxs.reduce((acc, tx) => {

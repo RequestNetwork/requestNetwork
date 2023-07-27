@@ -12,6 +12,16 @@ export class PendingStore implements DataAccessTypes.IPendingStore {
     return this.pending.get(channelId);
   }
 
+  public findByTopics(topics: string[]): (DataAccessTypes.PendingItem & { channelId: string })[] {
+    const results: (DataAccessTypes.PendingItem & { channelId: string })[] = [];
+    for (const [channelId, pendingItem] of this.pending.entries()) {
+      if (topics.find((topic) => pendingItem.topics.includes(topic))) {
+        results.push({ channelId, ...pendingItem });
+      }
+    }
+    return results;
+  }
+
   public add(channelId: string, pendingItem: DataAccessTypes.PendingItem): void {
     this.pending.set(channelId, pendingItem);
   }

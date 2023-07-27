@@ -148,12 +148,15 @@ export interface ITimestampedTransaction {
 export type ITransactionData = string;
 
 export type PendingItem = {
+  topics: string[];
   transaction: ITransaction;
-  storageResult: StorageTypes.IAppendResult;
+  storageResult: StorageTypes.IEntry;
 };
 
 export interface IPendingStore {
   get(channelId: string): PendingItem | undefined;
+
+  findByTopics(topic: string[]): (PendingItem & { channelId: string })[];
 
   add(channelId: string, item: PendingItem): void;
 

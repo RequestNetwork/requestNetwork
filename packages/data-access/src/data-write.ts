@@ -33,7 +33,7 @@ export class DataAccessWrite implements DataAccessTypes.IDataWrite {
     const storageResult = await this.storage.append(JSON.stringify(updatedBlock));
 
     const eventEmitter = new EventEmitter() as DataAccessTypes.PersistTransactionEmitter;
-    this.pendingStore?.add(channelId, { transaction, storageResult });
+    this.pendingStore?.add(channelId, { transaction, storageResult, topics: topics || [] });
 
     const result: DataAccessTypes.IReturnPersistTransactionRaw = {
       meta: {
