@@ -471,13 +471,13 @@ describe('Request system', () => {
     expect(request.result.pending!.expectedAmount).toEqual('12345678987654321');
     expect(request.result.pending!.state).toEqual(RequestLogicTypes.STATE.CREATED);
 
+    await new Promise((resolve) => resultCreation.on('confirmed', resolve));
+
     // reduce the expected amount by payee
     const resultReduce = await requestLogic.reduceExpectedAmountRequest(
       { requestId: resultCreation.result.requestId, deltaAmount: '987654321' },
       payeeIdentity,
     );
-
-    await new Promise((resolve) => resultCreation.on('confirmed', resolve));
 
     expect(resultReduce.meta.transactionManagerMeta.encryptionMethod).toEqual('ecies-aes256-gcm');
     expect(resultReduce.result).not.toBeDefined();
