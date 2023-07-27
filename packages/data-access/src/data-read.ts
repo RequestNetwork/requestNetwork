@@ -1,4 +1,3 @@
-import { getCurrentTimestampInSecond } from '@requestnetwork/utils';
 import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 import { DataAccessBaseOptions } from './types';
 
@@ -65,12 +64,12 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
       channelId: item.channelId,
       ...item.transaction,
 
-      blockNumber: -1,
-      blockTimestamp: -1,
-      transactionHash: '',
-      smartContractAddress: '',
-      size: '',
-      topics: [],
+      blockNumber: item.storageResult.meta.ethereum?.blockNumber || -1,
+      blockTimestamp: item.storageResult.meta.ethereum?.blockTimestamp || -1,
+      transactionHash: item.storageResult.meta.ethereum?.transactionHash || '',
+      smartContractAddress: item.storageResult.meta.ethereum?.smartContractAddress || '',
+      size: String(item.storageResult.meta.ipfs?.size || 0),
+      topics: item.topics || [],
     }));
 
     const transactions = result.transactions.concat(...pendingItems);
@@ -79,9 +78,8 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
     const channels = transactions
       .filter(
         (tx) =>
-          !updatedBetween?.from ||
-          !updatedBetween?.to ||
-          (tx.blockTimestamp >= updatedBetween?.from && tx.blockTimestamp <= updatedBetween?.to),
+          tx.blockTimestamp >= (updatedBetween?.from || 0) &&
+          tx.blockTimestamp <= (updatedBetween?.to || Number.MAX_SAFE_INTEGER),
       )
       .map((x) => x.channelId);
 
@@ -145,7 +143,7 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
         transactions: [
           {
             state: DataAccessTypes.TransactionState.PENDING,
-            timestamp: getCurrentTimestampInSecond(),
+            timestamp: storageResult.meta.timestamp,
             transaction,
           },
         ],

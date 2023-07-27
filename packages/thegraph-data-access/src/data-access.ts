@@ -33,7 +33,7 @@ export class TheGraphDataAccess extends CombinedDataAccess {
     });
   }
 
-  /** intercept events and re-emit them only once the indexer has found the transaction */
+  /** intercept events so that confirmation is emitted only once the transaction is indexed */
   persistTransaction = async (
     transactionData: DataAccessTypes.ITransaction,
     channelId: string,

@@ -4,6 +4,7 @@ import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { TheGraphDataAccess } from '@requestnetwork/thegraph-data-access';
+import { PendingStore } from '@requestnetwork/data-access';
 import {
   EthereumStorage,
   EthereumTransactionSubmitter,
@@ -36,22 +37,13 @@ let signatureProvider: any;
 
 let dataAccess: DataAccessTypes.IDataAccess;
 
-let nbBlocks = 0;
-let testsFinished = false;
 const interval = setInterval(async () => {
-  // await provider.send('evm_mine', []);
-  if (testsFinished) {
-    nbBlocks++;
-  }
-  // eslint-disable-next-line no-magic-numbers
-  if (nbBlocks > 25) {
-    clearInterval(interval);
-  }
+  await provider.send('evm_mine', []);
   // eslint-disable-next-line no-magic-numbers
 }, 1000);
 
 afterAll(() => {
-  testsFinished = true;
+  clearInterval(interval);
 });
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
@@ -69,6 +61,7 @@ describe('Request system', () => {
       graphql: { url: 'http://localhost:8000/subgraphs/name/RequestNetwork/request-storage' },
       network: 'private',
       storage: ethereumStorage,
+      pendingStore: new PendingStore(),
     });
 
     await dataAccess.initialize();
@@ -399,7 +392,7 @@ describe('Request system', () => {
       requestId: requestId1,
     };
 
-    // wait a bit
+    // wait a bit so that we can later filter based on timestamp
     // eslint-disable-next-line no-magic-numbers
     await new Promise((r: any): any => setTimeout(r, 1000));
 
@@ -436,7 +429,7 @@ describe('Request system', () => {
     expect(request1.request!.requestId).toEqual(requestId1);
     expect(request1.request!.state).toEqual(RequestLogicTypes.STATE.CANCELED);
     expect(request1.request!.expectedAmount).toEqual('190000000000');
-  });
+  }, 10000);
 
   it('can create and update an encrypted request', async () => {
     const contentDataExtensionData = advancedLogic.extensions.contentData.createCreationAction({
@@ -603,5 +596,5 @@ describe('Request system', () => {
 
     expect(dataAccessData.result.transactions[4].transaction.encryptedData).toBeDefined();
     expect(dataAccessData.result.transactions[4].transaction.data).not.toBeDefined();
-  });
+  }, 20000);
 });
