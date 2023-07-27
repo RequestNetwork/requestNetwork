@@ -273,7 +273,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    return this.persistTransaction(requestId, action, undefined, encryptionParams);
+    return this.persistTransaction(requestId, action, undefined, [], encryptionParams);
   }
 
   /**
@@ -781,8 +781,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   private persistTransaction(
     requestId: string,
     action: RequestLogicCore.IAction,
-    result: unknown,
-    topics: string[],
+    result?: unknown,
+    topics: string[] = [],
     encryptionParams: EncryptionTypes.IEncryptionParameters[] = [],
   ) {
     const resultPersistTx = await this.transactionManager.persistTransaction(
