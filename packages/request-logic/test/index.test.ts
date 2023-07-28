@@ -889,7 +889,7 @@ describe('index', () => {
   });
 
   describe('addExtensionsDataRequest', () => {
-    fit('can addExtensionsDataRequest', async () => {
+    it('can addExtensionsDataRequest', async () => {
       const addExtRequest = {
         extensionsData: TestData.oneExtension,
         requestId,
