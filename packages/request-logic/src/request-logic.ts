@@ -151,7 +151,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    return this.persistTransaction(requestId, action);
+    return this.persistTransaction(requestId, action, undefined);
   }
 
   /**
@@ -181,7 +181,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    return this.persistTransaction(requestId, action);
+    return this.persistTransaction(requestId, action, undefined);
   }
 
   /**
@@ -211,7 +211,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    return this.persistTransaction(requestId, action);
+    return this.persistTransaction(requestId, action, undefined);
   }
 
   /**
@@ -241,7 +241,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    return this.persistTransaction(requestId, action);
+    return this.persistTransaction(requestId, action, undefined);
   }
 
   /**
@@ -304,7 +304,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    return this.persistTransaction(requestId, action);
+    return this.persistTransaction(requestId, action, undefined);
   }
 
   /**
@@ -778,10 +778,10 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     return { ignoredTransactions, keptTransactions };
   }
 
-  private persistTransaction(
+  private async persistTransaction<T = unknown>(
     requestId: string,
-    action: RequestLogicCore.IAction,
-    result?: unknown,
+    action: RequestLogicTypes.IAction,
+    result: T,
     topics: string[] = [],
     encryptionParams: EncryptionTypes.IEncryptionParameters[] = [],
   ) {
