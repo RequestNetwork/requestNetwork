@@ -782,8 +782,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     requestId: string,
     action: RequestLogicTypes.IAction,
     result: T,
-    topics: string[] = [],
-    encryptionParams: EncryptionTypes.IEncryptionParameters[] = [],
+    topics?: string[],
+    encryptionParams?: EncryptionTypes.IEncryptionParameters[],
   ) {
     const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
