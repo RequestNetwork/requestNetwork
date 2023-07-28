@@ -889,7 +889,7 @@ describe('index', () => {
   });
 
   describe('addExtensionsDataRequest', () => {
-    it('can addExtensionsDataRequest', async () => {
+    fit('can addExtensionsDataRequest', async () => {
       const addExtRequest = {
         extensionsData: TestData.oneExtension,
         requestId,
@@ -928,6 +928,8 @@ describe('index', () => {
       expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(actionExpected),
         requestId,
+        [],
+        [],
       );
     });
     it('cannot addExtensionsDataRequest without signature provider', async () => {
