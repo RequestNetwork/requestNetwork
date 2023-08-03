@@ -142,6 +142,7 @@ describe('index', () => {
         JSON.stringify(action),
         requestId,
         [],
+        [],
       );
     });
 
@@ -166,6 +167,7 @@ describe('index', () => {
           MultiFormat.serialize(normalizeKeccak256Hash(TestData.payeeRaw.identity)),
           MultiFormat.serialize(normalizeKeccak256Hash(TestData.payerRaw.identity)),
         ],
+        [],
       );
     });
 
@@ -211,6 +213,7 @@ describe('index', () => {
       expect(fakeTransactionManagerEmittingError.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(action),
         requestId,
+        [],
         [],
       );
       jest.useRealTimers();
@@ -478,6 +481,8 @@ describe('index', () => {
       expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(actionExpected),
         requestId,
+        [],
+        [],
       );
     });
     it('cannot acceptRequest without signature provider', async () => {
@@ -574,6 +579,8 @@ describe('index', () => {
       expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(actionExpected),
         requestId,
+        [],
+        [],
       );
     });
     it('cannot cancelRequest without signature provider', async () => {
@@ -675,6 +682,8 @@ describe('index', () => {
       expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(actionExpected),
         requestId,
+        [],
+        [],
       );
     });
     it('cannot increaseExpectedAmountRequest without signature provider', async () => {
@@ -781,6 +790,8 @@ describe('index', () => {
       expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(actionExpected),
         requestId,
+        [],
+        [],
       );
     });
     it('cannot reduceExpectedAmountRequest without signature provider', async () => {
