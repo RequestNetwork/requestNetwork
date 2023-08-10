@@ -6,8 +6,6 @@ import {
   ChainlinkConversionPath__factory,
 } from '@requestnetwork/smart-contracts/types';
 import { CurrencyManager, EvmChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
-import Bluebird from 'bluebird';
-import chunk from 'lodash/chunk';
 import { retry } from '@requestnetwork/utils';
 import { CurrencyTypes } from '@requestnetwork/types';
 
@@ -32,7 +30,7 @@ class ChainlinkConversionPathTools {
   public chainLinkConversionPath: ChainlinkConversionPath;
   public creationBlockNumber: number;
   public provider: ethers.providers.Provider;
-  private maxRange?: number;
+  private maxRange: number;
 
   /**
    * @param network The Ethereum network to use
@@ -56,7 +54,7 @@ class ChainlinkConversionPathTools {
 
     this.creationBlockNumber = chainlinkConversionPath.getCreationBlockNumber(this.network);
 
-    this.maxRange = options?.maxRange || 5000;
+    this.maxRange = options?.maxRange || 1000000;
   }
 
   /**
@@ -64,29 +62,27 @@ class ChainlinkConversionPathTools {
    */
   public async getAggregators(): Promise<Record<string, Record<string, string>>> {
     const lastBlock = await this.provider.getBlockNumber();
-    const chunks = chunk(
-      Array(lastBlock - this.creationBlockNumber)
-        .fill(0)
-        .map((_, i) => this.creationBlockNumber + i),
-      this.maxRange,
-    );
+    let currentBlock = this.creationBlockNumber;
 
     // Get the fee proxy contract event logs
-    const logs = await Bluebird.map(
-      chunks,
-      (blocks) => {
-        console.error(`Fetching logs from ${blocks[0]} to ${blocks[blocks.length - 1]}`);
-        return retry(this.chainLinkConversionPath.queryFilter.bind(this.chainLinkConversionPath), {
+    const logs = [];
+    while (currentBlock <= lastBlock) {
+      const nextBlock = currentBlock + this.maxRange;
+      console.error(
+        `Fetching logs from ${currentBlock} to ${nextBlock} (progress: ${Math.round(
+          (currentBlock * 100) / lastBlock,
+        )}%)`,
+      );
+      const chunkLogs = await retry(
+        this.chainLinkConversionPath.queryFilter.bind(this.chainLinkConversionPath),
+        {
           maxRetries: 3,
           retryDelay: 2000,
-        })(
-          this.chainLinkConversionPath.filters.AggregatorUpdated(),
-          blocks[0],
-          blocks[blocks.length - 1],
-        );
-      },
-      { concurrency: 20 },
-    ).then((r) => r.flat());
+        },
+      )(this.chainLinkConversionPath.filters.AggregatorUpdated(), currentBlock, nextBlock);
+      logs.push(...chunkLogs);
+      currentBlock = nextBlock;
+    }
 
     // Parses, filters and creates the events from the logs with the payment reference
     const aggregatorsMaps = logs.reduce(
