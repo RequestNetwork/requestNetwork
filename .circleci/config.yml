@@ -43,7 +43,7 @@ references:
       cd storage-subgraph
       yarn
       yarn codegen  ./subgraph-private.yaml
-      yarn create-local ./subgraph-private.yaml
+      yarn create-local
       yarn deploy-local --version-label v0.0.1 ./subgraph-private.yaml
       sleep 5
   step_wait_for_node: &step_wait_for_node
