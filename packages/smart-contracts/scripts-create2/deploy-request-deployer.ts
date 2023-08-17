@@ -35,7 +35,7 @@ export async function verifyDeployer(hre: HardhatRuntimeEnvironment): Promise<vo
   try {
     const RequestDeployer = await hre.ethers.getContractAt(
       'RequestDeployer',
-      '0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2',
+      (hre as HardhatRuntimeEnvironmentExtended).config.xdeploy.deployerAddress,
     );
     await verifyOne(
       RequestDeployer.address,
