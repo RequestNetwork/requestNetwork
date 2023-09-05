@@ -24,6 +24,7 @@ describe('contract: EthereumFeeProxy', () => {
   const referenceExample = '0xaaaa';
   const amount = BigNumber.from('10000000000000000');
   const feeAmount = BigNumber.from('2000000000000000');
+  const zeroFeeAmount = BigNumber.from('0');
   const networkConfig = network.config as HttpNetworkConfig;
   const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
   const feeAddress = '0xF4255c5e53a08f72b0573D1b8905C5a50aA9c2De';
@@ -177,6 +178,34 @@ describe('contract: EthereumFeeProxy', () => {
     expect(feeAddressNewBalance.toString()).to.equals(
       feeAddressOldBalance.add(feeAmount).toString(),
     );
+    expect(contractBalance.toString()).to.equals('0');
+  });
+
+  it('allows to pay exact eth with a reference with 0 fee', async () => {
+    const toOldBalance = await provider.getBalance(to);
+    const feeAddressOldBalance = await provider.getBalance(feeAddress);
+
+    await expect(
+      ethFeeProxy.transferWithReferenceAndFee(to, referenceExample, zeroFeeAmount, feeAddress, {
+        value: amount.add(zeroFeeAmount),
+      }),
+    )
+      .to.emit(ethFeeProxy, 'TransferWithReferenceAndFee')
+      .withArgs(
+        to,
+        amount.toString(),
+        ethers.utils.keccak256(referenceExample),
+        zeroFeeAmount.toString(),
+        feeAddress,
+      );
+
+    const toNewBalance = await provider.getBalance(to);
+    const feeAddressNewBalance = await provider.getBalance(feeAddress);
+    const contractBalance = await provider.getBalance(ethFeeProxy.address);
+
+    // Check balance changes
+    expect(toNewBalance.toString()).to.equals(toOldBalance.add(amount).toString());
+    expect(feeAddressNewBalance.toString()).to.equals(feeAddressOldBalance.toString());
     expect(contractBalance.toString()).to.equals('0');
   });
 });
