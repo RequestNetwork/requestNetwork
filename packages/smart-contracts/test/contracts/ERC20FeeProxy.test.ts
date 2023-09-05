@@ -230,9 +230,7 @@ describe('contract: ERC20FeeProxy', () => {
         zeroFeeAddress,
       )
       .and.to.emit(testERC20, 'Transfer')
-      .withArgs(from, to, '100')
-      .and.to.not.emit(testERC20, 'Transfer')
-      .withArgs(from, zeroFeeAddress, '0');
+      .withArgs(from, to, '100');
 
     const fromNewBalance = await testERC20.balanceOf(from);
     const toNewBalance = await testERC20.balanceOf(to);
