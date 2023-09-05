@@ -17,6 +17,7 @@ use(solidity);
 
 describe('contract: ERC20FeeProxy', () => {
   const feeAddress = '0xF4255c5e53a08f72b0573D1b8905C5a50aA9c2De';
+  const zeroFeeAddress = '0x0000000000000000000000000000000000000000';
   const referenceExample = '0xaaaa';
   let signer: Signer;
   let from: string;
@@ -192,6 +193,50 @@ describe('contract: ERC20FeeProxy', () => {
     const fromNewBalance = await testERC20.balanceOf(from);
     const toNewBalance = await testERC20.balanceOf(to);
     const feeNewBalance = await testERC20.balanceOf(feeAddress);
+
+    // Check balance changes
+    expect(fromNewBalance.toString()).to.equals(fromOldBalance.sub(100).toString());
+    expect(toNewBalance.toString()).to.equals(toOldBalance.add(100).toString());
+    expect(feeNewBalance.toString()).to.equals(feeOldBalance.toString());
+  });
+
+  it('should skip fee transfer if fee amount is 0 and fee address is 0', async function () {
+    await testERC20.approve(erc20FeeProxy.address, '100');
+    const fromOldBalance = await testERC20.balanceOf(from);
+    const toOldBalance = await testERC20.balanceOf(to);
+    const feeOldBalance = await testERC20.balanceOf(zeroFeeAddress);
+
+    await expect(
+      erc20FeeProxy.transferFromWithReferenceAndFee(
+        testERC20.address,
+        to,
+        '100',
+        referenceExample,
+        '0',
+        zeroFeeAddress,
+        {
+          from,
+        },
+      ),
+    )
+      // transferReference indexes the event log, therefore the keccak256 is stored
+      .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+      .withArgs(
+        testERC20.address,
+        to,
+        '100',
+        ethers.utils.keccak256(referenceExample),
+        '0',
+        zeroFeeAddress,
+      )
+      .and.to.emit(erc20FeeProxy, 'Transfer')
+      .withArgs(from, to, '100')
+      .and.to.not.emit(erc20FeeProxy, 'Transfer')
+      .withArgs(from, zeroFeeAddress, '0');
+
+    const fromNewBalance = await testERC20.balanceOf(from);
+    const toNewBalance = await testERC20.balanceOf(to);
+    const feeNewBalance = await testERC20.balanceOf(zeroFeeAddress);
 
     // Check balance changes
     expect(fromNewBalance.toString()).to.equals(fromOldBalance.sub(100).toString());
