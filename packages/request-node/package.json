@@ -52,7 +52,7 @@
     "chalk": "4.1.0",
     "cors": "2.8.5",
     "dotenv": "8.2.0",
-    "ethers": "5.5.1",
+    "ethers": "5.7.2",
     "express": "4.17.3",
     "graphql": "15.5.0",
     "graphql-request": "3.4.0",
