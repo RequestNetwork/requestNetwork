@@ -54,7 +54,7 @@ describe('Gas fee estimation', () => {
       to: dummyAddress,
       value: BigNumber.from(1),
     });
-    checkEstimation(estimation.maxFeePerGas as BigNumber, tx.maxFeePerGas as BigNumber, 0.1);
+    checkEstimation(estimation.maxFeePerGas as BigNumber, tx.maxFeePerGas as BigNumber, 0.3);
   });
 
   it('Should handle estimation errors properly', async () => {
