@@ -52,7 +52,7 @@
     "@requestnetwork/utils": "0.36.0",
     "axios": "0.27.2",
     "bluebird": "3.7.2",
-    "ethers": "5.5.1",
+    "ethers": "5.7.2",
     "inquirer": "8.2.0",
     "lodash": "4.17.21",
     "tslib": "2.5.0",
