@@ -24,6 +24,8 @@ export interface ISwapSettings {
    * ['0xPaymentCurrency', '0xIntermediate1', ..., '0xRequestCurrency']
    */
   path: string[];
+  /** maximum time in seconds of how old chainlink rate can be used, default is zero for infinitely old */
+  maxRateAge?: number;
 }
 
 export interface IConversionSettings {

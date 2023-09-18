@@ -167,6 +167,6 @@ export function encodeSwapToPayAnyToErc20Request(
     feeToPay, // _requestFeeAmount: BigNumberish,
     feeAddress || constants.AddressZero, // _feeAddress: string,
     Math.round(swapSettings.deadline / 1000), // _uniswapDeadline: BigNumberish,
-    0, // _chainlinkMaxRateTimespan: BigNumberish,
+    swapSettings.maxRateAge || 0, // _chainlinkMaxRateTimespan: BigNumberish,
   ]);
 }
