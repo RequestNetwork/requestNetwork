@@ -1,3 +1,11 @@
+/*
+ *
+ * This script is deprecated and will be removed in the future.
+ * Use the Request IPFS docker image (https://hub.docker.com/r/requestnetwork/request-ipfs) instead.
+ *
+ *
+ */
+
 const shell = require('shelljs');
 const fs = require('fs');
 const path = require('path');

@@ -179,11 +179,13 @@ The Request Node uses IPFS to store and share transactions in a private network.
 We use a private network to allow all nodes to connect to each other directly,
 instead of having to navigate through the public IPFS network.
 
-To setup your IPFS node to the private network, you can run the following utility script:
+To setup your IPFS node to the private network, you can use the [request-ipfs](https://hub.docker.com/r/requestnetwork/request-ipfs) docker image. Make sure that [docker is installed](https://docs.docker.com/get-docker/) on your system and then run the following command:
 
 ```bash
-yarn init-ipfs
+docker run -p 4001:4001 -p 5001:5001 requestnetwork/request-ipfs
 ```
+
+This will pull the [request-ipfs](https://hub.docker.com/r/requestnetwork/request-ipfs) docker image and run it locally.
 
 #### TheGraph mode
 
@@ -310,9 +312,6 @@ cd requestNetwork
 
 #### 2. Install and build all the dependencies.
 
-Install IPFS Kubo (go-ipfs)
-https://docs.ipfs.tech/install/command-line/#install-ipfs-kubo
-
 ```bash
 yarn install
 yarn build
@@ -320,38 +319,33 @@ yarn build
 
 #### 3. On a new terminal, launch a local IPFS node
 
-```bash
-ipfs daemon
-```
-
-#### 4. On a new terminal, configure your IPFS node to connect to the private Request IPFS network
+Make sure the [Docker](https://docs.docker.com/get-docker/) is installed.
 
 ```bash
-cd packages/request-node
-yarn init-ipfs
+docker run -p 4001:4001 -p 5001:5001 requestnetwork/request-ipfs
 ```
 
-#### 5. Launch [ganache](https://github.com/trufflesuite/ganache-cli#installation) with the default Request Node mnemonic
+#### 4. Launch [ganache](https://github.com/trufflesuite/ganache-cli#installation) with the default Request Node mnemonic
 
 ```bash
 ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"
 ```
 
-#### 6. Deploy the smart contracts on ganache
+#### 5. Deploy the smart contracts on ganache
 
 ```bash
 cd packages/smart-contracts
 yarn deploy
 ```
 
-#### 7. Run the Request Node
+#### 6. Run the Request Node
 
 ```bash
 cd ../packages/request-node
 yarn start
 ```
 
-#### 8. Test
+#### 7. Test
 
 Open a browser and navigate towards: http://localhost:3000/status
 You can see the details of your local Request & IPFS nodes.
