@@ -33,6 +33,8 @@ export interface IConversionSettings {
   maxToSpend?: BigNumberish;
   /** a currency manager to access currencies property, like decimals */
   currencyManager?: ICurrencyManager;
+  /** maximum time in seconds of how old chainlink rate can be used, default is zero for infinitely old */
+  maxRateAge?: number;
 }
 
 /**
