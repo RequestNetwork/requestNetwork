@@ -87,13 +87,7 @@ TRUFFLE_GANACHE_HOST="host" TRUFFLE_GANACHE_PORT=1010 yarn run deploy
 
 ## IPFS
 
-In order to use the package in a test environment, IPFS should be [installed locally](https://docs.ipfs.io/guides/guides/install/) and can then be started with the following commands:
-
-```bash
-yarn init-ipfs # documented below
-ipfs daemon
-```
-
+In order to use the package in a test environment, IPFS should be running locally.
 Local IPFS listening on port 5001 is used by default by the `ethereum-storage` package.
 
 ### Setup IPFS private network
@@ -101,11 +95,13 @@ Local IPFS listening on port 5001 is used by default by the `ethereum-storage` p
 Request uses an IPFS private network to allow all nodes to connect to each other directly,
 instead of having to navigate through the public IPFS network.
 
-To setup your IPFS node to the private network, you can run the following utility script:
+You may use the [Request IPFS docker image](https://github.com/RequestNetwork/docker-images/tree/master/request-ipfs) to setup your IPFS node to the private network. Make sure that [docker is installed](https://docs.docker.com/get-docker/) on your system and then run the following command:
 
 ```bash
-yarn init-ipfs
+docker run -p 4001:4001 -p 5001:5001 requestnetwork/request-ipfs
 ```
+
+This will pull the [request-ipfs](https://hub.docker.com/r/requestnetwork/request-ipfs) docker image and run it locally.
 
 ## Contributing
 
