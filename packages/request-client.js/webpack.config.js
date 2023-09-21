@@ -25,6 +25,10 @@ module.exports = {
       // Dedup packages
       'ethereumjs-util': path.resolve(__dirname, '../../node_modules/ethereumjs-util'),
     },
+    fallback: {
+      crypto: require.resolve('crypto-browserify'),
+      stream: require.resolve('stream-browserify'),
+    },
   },
   devtool: 'source-map',
   optimization: {
