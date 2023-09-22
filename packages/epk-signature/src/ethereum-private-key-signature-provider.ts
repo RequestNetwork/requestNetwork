@@ -75,7 +75,7 @@ export default class EthereumPrivateKeySignatureProvider
         data,
         signature: {
           method,
-          // add address for recover purpose
+          // add publickey for recover
           value: signatureValue.concat(pubKey), 
         },
       };
