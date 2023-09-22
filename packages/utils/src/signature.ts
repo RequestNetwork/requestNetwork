@@ -5,8 +5,10 @@ import {
   ecSign,
   edSign,
   getAddressFromEcPrivateKey,
+  getAddressFromEdPrivateKey,
   normalize,
   normalizeKeccak256Hash,
+  edVerify
 } from './crypto';
 
 /**
@@ -16,6 +18,7 @@ export { getIdentityFromSignatureParams, recoverSigner, sign };
 
 // Use to localize the parameter V in an ECDSA signature in hex format
 const V_POSITION_FROM_END_IN_ECDSA_HEX = -2;
+const PUBKEY_POSITION_FROM_END_IN_EDDSA_HEX = -64;
 
 /**
  * Function to get the signer identity from the signature parameters
@@ -66,8 +69,9 @@ async function sign(
   if (signatureParams.method === SignatureTypes.METHOD.EDDSA_POSEIDON) {
     const normalizedData = normalize(data);
     value = await edSign(signatureParams.privateKey, normalizedData);
+    const address = await getAddressFromEdPrivateKey(signatureParams.privateKey);
 
-    return { data, signature: { method: signatureParams.method, value } };
+    return { data, signature: { method: signatureParams.method, value: value.concat(address) } };
   }
 
   throw new Error('signatureParams.method not supported');
@@ -81,7 +85,7 @@ async function sign(
  * @param signedData the data signed
  * @returns identity of the signer
  */
-function recoverSigner(signedData: SignatureTypes.ISignedData): IdentityTypes.IIdentity {
+async function recoverSigner(signedData: SignatureTypes.ISignedData): Promise<IdentityTypes.IIdentity> {
   let value: string;
   if (signedData.signature.method === SignatureTypes.METHOD.ECDSA) {
     value = ecRecover(signedData.signature.value, normalizeKeccak256Hash(signedData.data).value);
@@ -109,6 +113,24 @@ function recoverSigner(signedData: SignatureTypes.ISignedData): IdentityTypes.II
       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       value,
     };
+  }
+
+
+  if (signedData.signature.method === SignatureTypes.METHOD.EDDSA_POSEIDON) {
+    const pubkeyHex = signedData.signature.value.slice(PUBKEY_POSITION_FROM_END_IN_EDDSA_HEX);
+    const packedSignatureHex = signedData.signature.value.slice(0, PUBKEY_POSITION_FROM_END_IN_EDDSA_HEX);
+
+    const verified = await edVerify(packedSignatureHex, signedData.data, pubkeyHex);
+
+    if(verified) {
+      return {
+        type: IdentityTypes.TYPE.POSEIDON_ADDRESS,
+        value: await getAddressFromEdPrivateKey(pubkeyHex),
+      };
+    } else {
+      throw new Error('invalid signature');
+    }
+
   }
 
   throw new Error('signatureParams.method not supported');

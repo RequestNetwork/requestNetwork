@@ -10,6 +10,7 @@ const circomlibjs = require('circomlibjs');
 export {
   getAddressFromPrivateKey,
   getAddressFromPublicKey,
+  getPublicKeyFromPrivateKey,
 //   edRecover,
   edSign,
   edVerify,
@@ -46,6 +47,25 @@ async function poseidonHash(data: string): Promise<string> {
   const hashBuff = await poseidon(data);
   return Buffer.from(hashBuff).toString('hex');
 }
+
+/**
+ * Function to derive the address from an EC public key
+ *
+ * @param publicKey the public key to derive
+ *
+ * @returns the address
+ */
+async function getPublicKeyFromPrivateKey(privateKey: string): Promise<string> {
+  const eddsa = await circomlibjs.buildEddsa();
+  const F = eddsa.F;
+
+  const publicKey = eddsa.prv2pub(Buffer.from(privateKey, "hex"));
+
+  const publicKeyHex = Buffer.from([...publicKey[0], ...publicKey[1]]).toString('hex');
+
+  return F.toObject(publicKeyHex);
+}
+
 
 /**
  * Function to derive the address from an EC public key

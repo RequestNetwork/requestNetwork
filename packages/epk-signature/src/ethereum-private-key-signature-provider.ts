@@ -1,6 +1,6 @@
 import { IdentityTypes, SignatureProviderTypes, SignatureTypes } from '@requestnetwork/types';
 
-import { ecSign, getAddressFromPrivateKey, normalizeKeccak256Hash } from '@requestnetwork/utils';
+import { ecSign, edSign, getAddressFromEcPrivateKey, getAddressFromEdPrivateKey, getPublicKeyFromEdPrivateKey, normalizeKeccak256Hash, normalizePoseidonHash } from '@requestnetwork/utils';
 
 /** Type of the dictionary of signatureParameters (private keys) indexed by ethereum address */
 type ISignatureParametersDictionary = Map<string, SignatureTypes.ISignatureParameters>;
@@ -13,9 +13,9 @@ export default class EthereumPrivateKeySignatureProvider
   implements SignatureProviderTypes.ISignatureProvider
 {
   /** list of supported signing method */
-  public supportedMethods: SignatureTypes.METHOD[] = [SignatureTypes.METHOD.ECDSA];
+  public supportedMethods: SignatureTypes.METHOD[] = [SignatureTypes.METHOD.ECDSA, SignatureTypes.METHOD.EDDSA];
   /** list of supported identity types */
-  public supportedIdentityTypes: IdentityTypes.TYPE[] = [IdentityTypes.TYPE.ETHEREUM_ADDRESS];
+  public supportedIdentityTypes: IdentityTypes.TYPE[] = [IdentityTypes.TYPE.ETHEREUM_ADDRESS, IdentityTypes.TYPE.POSEIDON_ADDRESS];
 
   /** Dictionary containing all the private key indexed by address */
   private signatureParametersDictionary: ISignatureParametersDictionary;
@@ -39,9 +39,9 @@ export default class EthereumPrivateKeySignatureProvider
   public async sign(
     data: any,
     signer: IdentityTypes.IIdentity,
+    method: SignatureTypes.METHOD = this.supportedMethods[0],
   ): Promise<SignatureTypes.ISignedData> {
     const actualSigner = signer;
-
     if (!this.supportedIdentityTypes.includes(actualSigner.type)) {
       throw Error(`Identity type not supported ${actualSigner.type}`);
     }
@@ -54,17 +54,35 @@ export default class EthereumPrivateKeySignatureProvider
       throw Error(`private key unknown for the address ${actualSigner.value}`);
     }
 
-    // the hash format in request start by 01 but the ec-utils need a hash starting by 0x
-    const hashData = normalizeKeccak256Hash(data).value;
-    const signatureValue = ecSign(signatureParameter.privateKey, hashData);
+    if(method === SignatureTypes.METHOD.ECDSA) {
+      // the hash format in request start by 01 but the ec-utils need a hash starting by 0x
+      const hashData = normalizeKeccak256Hash(data).value;
+      const signatureValue = ecSign(signatureParameter.privateKey, hashData);
 
-    return {
-      data,
-      signature: {
-        method: SignatureTypes.METHOD.ECDSA,
-        value: signatureValue,
-      },
-    };
+      return {
+        data,
+        signature: {
+          method,
+          value: signatureValue,
+        },
+      };
+    } else if(method === SignatureTypes.METHOD.EDDSA) {
+      // the hash format in request start by 01 but the ec-utils need a hash starting by 0x
+      const hashData = await normalizePoseidonHash(data);
+      const signatureValue = await edSign(signatureParameter.privateKey, hashData.value);
+      const pubKey = getPublicKeyFromEdPrivateKey(signatureParameter.privateKey);
+      return {
+        data,
+        signature: {
+          method,
+          // add address for recover purpose
+          value: signatureValue.concat(pubKey), 
+        },
+      };
+    } else {
+      throw Error(`Signing method not supported ${method}`);
+    }
+
   }
 
   /**
@@ -77,20 +95,32 @@ export default class EthereumPrivateKeySignatureProvider
   public addSignatureParameters(
     signatureParams: SignatureTypes.ISignatureParameters,
   ): IdentityTypes.IIdentity {
-    if (!this.supportedMethods.includes(signatureParams.method)) {
+    if(signatureParams.method === SignatureTypes.METHOD.ECDSA) {
+      // compute the address from private key
+      // toLowerCase to avoid mismatch because of case
+      const address = getAddressFromEcPrivateKey(signatureParams.privateKey).toLowerCase();
+
+      this.signatureParametersDictionary.set(address, signatureParams);
+
+      return {
+        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+        value: address,
+      };
+    } else if(signatureParams.method === SignatureTypes.METHOD.EDDSA) {
+      // compute the address from private key
+      // toLowerCase to avoid mismatch because of case
+      const address = getAddressFromEdPrivateKey(signatureParams.privateKey).toLowerCase();
+
+      this.signatureParametersDictionary.set(address, signatureParams);
+
+      return {
+        type: IdentityTypes.TYPE.POSEIDON_ADDRESS,
+        value: address,
+      };
+    } else {
       throw Error(`Signing method not supported ${signatureParams.method}`);
     }
 
-    // compute the address from private key
-    // toLowerCase to avoid mismatch because of case
-    const address = getAddressFromPrivateKey(signatureParams.privateKey).toLowerCase();
-
-    this.signatureParametersDictionary.set(address, signatureParams);
-
-    return {
-      type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-      value: address,
-    };
   }
 
   /**
@@ -127,7 +157,7 @@ export default class EthereumPrivateKeySignatureProvider
    */
   public getAllRegisteredIdentities(): IdentityTypes.IIdentity[] {
     return Array.from(this.signatureParametersDictionary.keys(), (address) => ({
-      type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+      type: this.signatureParametersDictionary.get(address)?.method === SignatureTypes.METHOD.ECDSA ? IdentityTypes.TYPE.ETHEREUM_ADDRESS : IdentityTypes.TYPE.POSEIDON_ADDRESS,
       value: address,
     }));
   }

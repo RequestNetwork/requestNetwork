@@ -18,6 +18,7 @@ import {
 import {
   getAddressFromPrivateKey as getAddressFromEdPrivateKey,
   getAddressFromPublicKey as getAddressFromEdPublicKey,
+  getPublicKeyFromPrivateKey as getPublicKeyFromEdPrivateKey,
   edVerify,
   edSign,
   poseidonHash,
@@ -40,6 +41,7 @@ export {
   getAddressFromEcPublicKey,
   getAddressFromEdPrivateKey,
   getAddressFromEdPublicKey,
+  getPublicKeyFromEdPrivateKey,
   ecRecover,
   ecSign,
   edVerify,
