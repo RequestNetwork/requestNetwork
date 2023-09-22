@@ -9,4 +9,5 @@ export interface IHash {
 /** Supported hash types */
 export enum TYPE {
   KECCAK256 = 'keccak256',
+  POSEIDON = 'poseidon'
 }

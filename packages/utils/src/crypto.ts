@@ -10,11 +10,19 @@ import {
 import {
   ecDecrypt,
   ecEncrypt,
-  getAddressFromPrivateKey,
-  getAddressFromPublicKey,
+  getAddressFromPrivateKey as getAddressFromEcPrivateKey,
+  getAddressFromPublicKey as getAddressFromEcPublicKey,
   ecRecover,
   ecSign,
 } from './crypto/ec-utils';
+import {
+  getAddressFromPrivateKey as getAddressFromEdPrivateKey,
+  getAddressFromPublicKey as getAddressFromEdPublicKey,
+  edVerify,
+  edSign,
+  poseidonHash,
+  merkleTree8root
+} from './crypto/ed-utils';
 import { deepSort } from './utils';
 
 /**
@@ -28,16 +36,23 @@ export {
   random32Bytes,
   ecDecrypt,
   ecEncrypt,
-  getAddressFromPrivateKey,
-  getAddressFromPublicKey,
+  getAddressFromEcPrivateKey,
+  getAddressFromEcPublicKey,
+  getAddressFromEdPrivateKey,
+  getAddressFromEdPublicKey,
   ecRecover,
   ecSign,
+  edVerify,
+  edSign,
   generate32BufferKey,
   generate8randomBytes,
   keccak256Hash,
   last20bytesOfNormalizedKeccak256Hash,
   normalize,
   normalizeKeccak256Hash,
+  normalizePoseidonHash,
+  poseidonHash,
+  merkleTree8root
 };
 
 /**
@@ -54,6 +69,24 @@ function normalizeKeccak256Hash(data: unknown): MultiFormatTypes.HashTypes.IHash
     value: keccak256Hash(normalize(data)),
   };
 }
+
+/**
+ * Hashes with the poseidon algorithm with a normalization before and formats it
+ *
+ * @notice It will sort the object by keys before hashing
+ *
+ * @param data The data to hash
+ * @returns The hashed data multi-formatted
+ */
+async function normalizePoseidonHash(data: unknown): Promise<MultiFormatTypes.HashTypes.IHash> {
+  return {
+    type: MultiFormatTypes.HashTypes.TYPE.POSEIDON,
+    value: await poseidonHash(normalize(data)),
+  };
+}
+
+
+
 
 /**
  * Normalizes data: sorts the object by keys and convert it in string

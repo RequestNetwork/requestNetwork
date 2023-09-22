@@ -6,7 +6,7 @@ import {
   ecEncrypt,
   encryptWithAes256cbc,
   encryptWithAes256gcm,
-  getAddressFromPublicKey,
+  getAddressFromEcPublicKey,
 } from './index';
 
 /**
@@ -27,7 +27,7 @@ function getIdentityFromEncryptionParams(
   if (encryptionParams.method === EncryptionTypes.METHOD.ECIES) {
     return {
       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-      value: getAddressFromPublicKey(encryptionParams.key),
+      value: getAddressFromEcPublicKey(encryptionParams.key),
     };
   }
 

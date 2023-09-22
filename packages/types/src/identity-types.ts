@@ -16,4 +16,5 @@ export interface ISmartContractIdentity extends IIdentity {
 export enum TYPE {
   ETHEREUM_ADDRESS = 'ethereumAddress',
   ETHEREUM_SMART_CONTRACT = 'ethereumSmartContract',
+  POSEIDON_ADDRESS = 'poseidonAddress',
 }

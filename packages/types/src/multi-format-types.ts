@@ -14,9 +14,13 @@ export enum prefix {
   AES256_CBC_ENCRYPTED = '03',
   /** AES256-GCM encrypted data */
   AES256_GCM_ENCRYPTED = '04',
+  /** the data is poseidon hash of normalized data (sorted object, stringify and lowercase) */
+  NORMALIZE_POSEIDON_HASH = '05',
 
   /** Identity Ethereum address */
   IDENTITY_ETHEREUM_ADDRESS = '20',
+  /** Identity Poseidon address */
+  IDENTITY_POSEIDON_ADDRESS = '21',
 }
 
 /** Interface of all the deserialized multi-format object */
@@ -35,3 +39,5 @@ export const FORMAT_NORMALIZE_KECCAK256_HASH_LENGTH = 66;
 
 /** Length of a formatted ethereum address identity (prefix + address = 2 + 40 = 42) (no 0x expected) */
 export const FORMAT_IDENTITY_ETHEREUM_ADDRESS_LENGTH = 42;
+
+export const FORMAT_IDENTITY_POSEIDON_ADDRESS_LENGTH = 42;

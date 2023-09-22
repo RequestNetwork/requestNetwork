@@ -3,7 +3,8 @@ import { ethers } from 'ethers';
 import {
   ecRecover,
   ecSign,
-  getAddressFromPrivateKey,
+  edSign,
+  getAddressFromEcPrivateKey,
   normalize,
   normalizeKeccak256Hash,
 } from './crypto';
@@ -29,7 +30,7 @@ function getIdentityFromSignatureParams(
   if (signatureParams.method === SignatureTypes.METHOD.ECDSA) {
     return {
       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-      value: getAddressFromPrivateKey(signatureParams.privateKey),
+      value: getAddressFromEcPrivateKey(signatureParams.privateKey),
     };
   }
 
@@ -45,10 +46,10 @@ function getIdentityFromSignatureParams(
  * @param signatureParams Signature parameters
  * @returns ISignature the signature
  */
-function sign(
+async function sign(
   data: unknown,
   signatureParams: SignatureTypes.ISignatureParameters,
-): SignatureTypes.ISignedData {
+): Promise<SignatureTypes.ISignedData> {
   let value: string;
   if (signatureParams.method === SignatureTypes.METHOD.ECDSA) {
     value = ecSign(signatureParams.privateKey, normalizeKeccak256Hash(data).value);
@@ -58,6 +59,13 @@ function sign(
   if (signatureParams.method === SignatureTypes.METHOD.ECDSA_ETHEREUM) {
     const normalizedData = normalize(data);
     value = ecSign(signatureParams.privateKey, ethers.utils.hashMessage(normalizedData));
+
+    return { data, signature: { method: signatureParams.method, value } };
+  }
+
+  if (signatureParams.method === SignatureTypes.METHOD.EDDSA_POSEIDON) {
+    const normalizedData = normalize(data);
+    value = await edSign(signatureParams.privateKey, normalizedData);
 
     return { data, signature: { method: signatureParams.method, value } };
   }

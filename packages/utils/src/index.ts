@@ -16,16 +16,20 @@ export {
   random32Bytes,
   ecDecrypt,
   ecEncrypt,
-  getAddressFromPrivateKey,
-  getAddressFromPublicKey,
+  getAddressFromEcPrivateKey,
+  getAddressFromEcPublicKey,
   ecRecover,
   ecSign,
+  edSign,
   generate32BufferKey,
   generate8randomBytes,
   keccak256Hash,
   last20bytesOfNormalizedKeccak256Hash,
   normalize,
   normalizeKeccak256Hash,
+  normalizePoseidonHash,
+  poseidonHash,
+  merkleTree8root
 } from './crypto';
 
 export { decrypt, encrypt, getIdentityFromEncryptionParams } from './encryption';
