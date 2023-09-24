@@ -5,7 +5,8 @@ import {
   ecSign,
   edSign,
   getAddressFromEcPrivateKey,
-  getAddressFromEdPrivateKey,
+  getPublicKeyFromEdPrivateKey,
+  getAddressFromEdPublicKey,
   normalize,
   normalizeKeccak256Hash,
   edVerify
@@ -18,7 +19,7 @@ export { getIdentityFromSignatureParams, recoverSigner, sign };
 
 // Use to localize the parameter V in an ECDSA signature in hex format
 const V_POSITION_FROM_END_IN_ECDSA_HEX = -2;
-const PUBKEY_POSITION_FROM_END_IN_EDDSA_HEX = -64;
+const PUBKEY_POSITION_FROM_END_IN_EDDSA_HEX = -168;
 
 /**
  * Function to get the signer identity from the signature parameters
@@ -52,6 +53,7 @@ function getIdentityFromSignatureParams(
 async function sign(
   data: unknown,
   signatureParams: SignatureTypes.ISignatureParameters,
+  rawSignature: boolean = false,
 ): Promise<SignatureTypes.ISignedData> {
   let value: string;
   if (signatureParams.method === SignatureTypes.METHOD.ECDSA) {
@@ -68,10 +70,10 @@ async function sign(
 
   if (signatureParams.method === SignatureTypes.METHOD.EDDSA_POSEIDON) {
     const normalizedData = normalize(data);
-    value = await edSign(signatureParams.privateKey, normalizedData);
-    const address = await getAddressFromEdPrivateKey(signatureParams.privateKey);
+    value = await edSign(signatureParams.privateKey, rawSignature ? data as string : ethers.utils.hashMessage(normalizedData));
+    const pubKey = await getPublicKeyFromEdPrivateKey(signatureParams.privateKey);
 
-    return { data, signature: { method: signatureParams.method, value: value.concat(address) } };
+    return { data, signature: { method: signatureParams.method, value: value.concat(pubKey) } };
   }
 
   throw new Error('signatureParams.method not supported');
@@ -125,7 +127,7 @@ async function recoverSigner(signedData: SignatureTypes.ISignedData): Promise<Id
     if(verified) {
       return {
         type: IdentityTypes.TYPE.POSEIDON_ADDRESS,
-        value: await getAddressFromEdPrivateKey(pubkeyHex),
+        value: await getAddressFromEdPublicKey(pubkeyHex),
       };
     } else {
       throw new Error('invalid signature');

@@ -87,6 +87,29 @@ describe('Signature', () => {
       });
     });
 
+
+    it.only('can sign() with EDDSA_POSEIDON', async () => {
+      const data = "0x8476cd52f01a6a5a9bf1c59b969b9edd63295fc8badd8e20e4cf9336590b1b06";
+      const payeePrivHex = "0001020304050607080900010203040506070809000102030405060708090001";
+      // const payeePriv = Buffer.from(payeePrivHex, "hex");
+
+      const signature = await sign(data, {
+        method: SignatureTypes.METHOD.EDDSA_POSEIDON,
+        privateKey: payeePrivHex,
+      }, true);
+      // 'sign() error'
+
+      expect(signature).toEqual({
+        data,
+        signature: {
+          method: SignatureTypes.METHOD.EDDSA_POSEIDON,
+          value:
+            'f8322a9048654cd5fb420f019969b80f302fb9bf1d8fa883879a602e0e4711026a62f6648efd4a6b3c686154c653efd31ed4ed2d22b6fac636775a270ad11504681bfe5ad300d997e245c3de3a371e5dc1219cb115ebb1ed901e9f9ea0e7eb16',
+        },
+      });
+    });
+
+
     it('can sign() with different case', () => {
       const signature = sign(dataDiffCase, {
         method: SignatureTypes.METHOD.ECDSA,
@@ -128,8 +151,8 @@ describe('Signature', () => {
       expect(id).toEqual(otherIdRaw.identity);
     });
 
-    it('can recoverSigner()  ECDSA_ETHEREUM signature', () => {
-      const id = recoverSigner({
+    it('can recoverSigner()  ECDSA_ETHEREUM signature', async () => {
+      const id = await recoverSigner({
         data,
         signature: {
           method: SignatureTypes.METHOD.ECDSA_ETHEREUM,

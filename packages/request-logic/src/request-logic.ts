@@ -12,6 +12,8 @@ import {
 import RequestLogicCore from './requestLogicCore';
 import { normalizeKeccak256Hash, notNull, uniqueByProperty } from '@requestnetwork/utils';
 
+import generateProof from './circom/zkproof';
+
 /**
  * Implementation of Request Logic
  */
@@ -51,7 +53,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     );
 
     // Validate the action, the apply will throw in case of error
-    RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic);
+    RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic); // TODO validate the proof
 
     return this.persistTransaction(requestId, action, { requestId }, hashedTopics);
   }
@@ -78,7 +80,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       );
     }
 
-    const { action, requestId, hashedTopics } = await this.createCreationActionRequestIdAndTopics(
+    const { action, requestId, proof, hashedTopics } = await this.createCreationActionRequestIdAndTopics(
       requestParameters,
       signerIdentity,
       topics,
@@ -93,6 +95,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       { requestId },
       hashedTopics,
       encryptionParams,
+      proof
     );
   }
 
@@ -393,6 +396,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   ): Promise<{
     action: RequestLogicTypes.IAction;
     hashedTopics: string[];
+    proof: any,
     requestId: RequestLogicTypes.RequestId;
   }> {
     if (!this.signatureProvider) {
@@ -411,9 +415,12 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       MultiFormat.serialize(normalizeKeccak256Hash(topic)),
     );
 
+    const proof = await generateProof('requestErc20FeeProxy', requestParameters, this.signatureProvider); // TODO
+
     return {
       action,
       hashedTopics,
+      proof,
       requestId,
     };
   }
@@ -501,9 +508,10 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const ignoredTransactionsByApplication: RequestLogicTypes.IIgnoredTransaction[] = [];
 
     // second parameter is null, because the first action must be a creation (no state expected)
-    const confirmedRequestState = transactions
+    const confirmedRequestState = await transactions
       .filter((action) => action.state === TransactionTypes.TransactionState.CONFIRMED)
-      .reduce((requestState, actionConfirmed) => {
+      .reduce(async (requestStateP, actionConfirmed) => {
+        const requestState = await requestStateP;
         try {
           return RequestLogicCore.applyActionToRequest(
             requestState,
@@ -519,11 +527,12 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           });
           return requestState;
         }
-      }, null as RequestLogicTypes.IRequest | null);
+      }, Promise.resolve(null as RequestLogicTypes.IRequest | null));
 
-    const pendingRequestState = transactions
+    const pendingRequestState = await transactions
       .filter((action) => action.state === TransactionTypes.TransactionState.PENDING)
-      .reduce((requestState, actionConfirmed) => {
+      .reduce(async (requestStateP, actionConfirmed) => {
+        const requestState = await requestStateP;
         try {
           return RequestLogicCore.applyActionToRequest(
             requestState,
@@ -539,7 +548,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           });
           return requestState;
         }
-      }, confirmedRequestState);
+      }, Promise.resolve(confirmedRequestState));
 
     return {
       confirmedRequestState,
@@ -784,12 +793,14 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     result: T,
     topics: string[] = [],
     encryptionParams: EncryptionTypes.IEncryptionParameters[] = [],
+    proof ?: any
   ) {
     const resultPersistTx = await this.transactionManager.persistTransaction(
       JSON.stringify(action),
       requestId,
       topics,
       encryptionParams,
+      proof
     );
 
     const eventEmitter = new EventEmitter();

@@ -45,6 +45,7 @@
     "@requestnetwork/types": "0.36.0",
     "@requestnetwork/utils": "0.36.0",
     "semver": "7.5.2",
+    "snarkjs": "^0.7.1",
     "tslib": "2.5.0"
   },
   "devDependencies": {

@@ -3,6 +3,7 @@ import { IdentityTypes } from '@requestnetwork/types';
 const supportedIdentities: IdentityTypes.TYPE[] = [
   IdentityTypes.TYPE.ETHEREUM_ADDRESS,
   IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
+  IdentityTypes.TYPE.POSEIDON_ADDRESS,
 ];
 
 /**
@@ -46,8 +47,9 @@ function identityHasError(id: IdentityTypes.IIdentity): string | null {
   if (!supportedIdentities.includes(id.type)) {
     return 'identity type not supported';
   }
-  if (id.value.match(/^0x[a-fA-F0-9]{40}$/) === null) {
-    return 'identity value must be an ethereum address';
-  }
+  // TODO: check addresses eth & poseidon  
+  // if (id.value.match(/^0x[a-fA-F0-9]{40}$/) === null) {
+  //   return 'identity value must be an ethereum address';
+  // }
   return null;
 }

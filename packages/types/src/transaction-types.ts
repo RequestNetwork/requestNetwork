@@ -8,6 +8,7 @@ export interface ITransactionManager {
     channelId: string,
     topics?: string[],
     encryptionParams?: Encryption.IEncryptionParameters[],
+    proof?:any,
   ) => Promise<IReturnPersistTransaction>;
   getTransactionsByChannelId: (
     channelId: string,
@@ -80,6 +81,8 @@ export interface IPersistedTransaction {
   keys?: IKeysDictionary;
   /** Encryption method */
   encryptionMethod?: string;
+
+  proof?:any
 }
 
 /** Enum of state possible for an action */

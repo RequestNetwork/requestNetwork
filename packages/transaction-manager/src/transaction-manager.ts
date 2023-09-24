@@ -42,6 +42,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     channelId: string,
     topics: string[] = [],
     encryptionParams: EncryptionTypes.IEncryptionParameters[] = [],
+    proof: any,
   ): Promise<TransactionTypes.IReturnPersistTransaction> {
     let transaction: TransactionTypes.IPersistedTransaction = {};
     let channelEncryptionMethod: string | undefined;
@@ -59,6 +60,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
         transaction = await TransactionsFactory.createEncryptedTransactionInNewChannel(
           transactionData,
           encryptionParams,
+          proof,
         );
         channelEncryptionMethod = transaction.encryptionMethod;
       }

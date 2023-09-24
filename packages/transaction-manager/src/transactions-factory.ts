@@ -38,6 +38,7 @@ export default class TransactionsFactory {
   public static async createEncryptedTransactionInNewChannel(
     data: TransactionTypes.ITransactionData,
     encryptionParams: EncryptionTypes.IEncryptionParameters[],
+    proof: any
   ): Promise<TransactionTypes.IPersistedTransaction> {
     // format encryption method property
     const encryptionMethod = `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`;
@@ -106,7 +107,7 @@ export default class TransactionsFactory {
 
     const encryptedDataSerialized: string = MultiFormat.serialize(encryptedData);
 
-    return { encryptedData: encryptedDataSerialized, keys, encryptionMethod };
+    return { encryptedData: encryptedDataSerialized, keys, encryptionMethod, proof };
   }
 
   /**

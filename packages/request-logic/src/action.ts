@@ -44,7 +44,7 @@ function createAction(
  *
  * @returns RequestEnum.ROLE the role of the signer (payee, payer or third party)
  */
-function getSignerIdentityFromAction(action: RequestLogicTypes.IAction): IdentityTypes.IIdentity {
+async function getSignerIdentityFromAction(action: RequestLogicTypes.IAction): Promise<IdentityTypes.IIdentity> {
   return recoverSigner(action);
 }
 

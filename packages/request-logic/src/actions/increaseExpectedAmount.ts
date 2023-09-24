@@ -47,11 +47,11 @@ function format(
  *
  * @returns Types.IRequest the new request
  */
-function applyActionToRequest(
+async function applyActionToRequest(
   action: RequestLogicTypes.IAction,
   timestamp: number,
   request: RequestLogicTypes.IRequest,
-): RequestLogicTypes.IRequest {
+): Promise<RequestLogicTypes.IRequest> {
   if (!action.data.parameters.requestId) {
     throw new Error('requestId must be given');
   }
@@ -65,7 +65,7 @@ function applyActionToRequest(
     throw new Error('deltaAmount must be a string representing a positive integer');
   }
 
-  const signer: IdentityTypes.IIdentity = Action.getSignerIdentityFromAction(action);
+  const signer: IdentityTypes.IIdentity = await Action.getSignerIdentityFromAction(action);
   const signerRole = Request.getRoleInRequest(signer, request);
 
   // avoid to mutate the request

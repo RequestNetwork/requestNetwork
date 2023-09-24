@@ -26,14 +26,12 @@ export {
  * @returns the address
  */
 async function getAddressFromPrivateKey(privateKey: string): Promise<string> {
+  const poseidon = await circomlibjs.buildPoseidon();
     const eddsa = await circomlibjs.buildEddsa();
-    const poseidon = await circomlibjs.buildPoseidon();
-    const F = poseidon.F;
-
     const publicKey = eddsa.prv2pub(Buffer.from(privateKey, "hex"));
     const address = await poseidon(publicKey);
-
-    return F.toObject(address);
+    
+    return Buffer.from(address).toString('hex');
 }
 
 /**
@@ -44,7 +42,7 @@ async function getAddressFromPrivateKey(privateKey: string): Promise<string> {
  */
 async function poseidonHash(data: string): Promise<string> {
   const poseidon = await circomlibjs.buildPoseidon();
-  const hashBuff = await poseidon(data);
+  const hashBuff = await poseidon(Buffer.from(data));
   return Buffer.from(hashBuff).toString('hex');
 }
 
@@ -57,13 +55,12 @@ async function poseidonHash(data: string): Promise<string> {
  */
 async function getPublicKeyFromPrivateKey(privateKey: string): Promise<string> {
   const eddsa = await circomlibjs.buildEddsa();
-  const F = eddsa.F;
 
   const publicKey = eddsa.prv2pub(Buffer.from(privateKey, "hex"));
 
   const publicKeyHex = Buffer.from([...publicKey[0], ...publicKey[1]]).toString('hex');
 
-  return F.toObject(publicKeyHex);
+  return publicKeyHex;
 }
 
 
@@ -96,9 +93,10 @@ async function getAddressFromPublicKey(publicKey: string): Promise<string> {
 async function edSign(privateKey: string, data: string): Promise<string> {
   const eddsa = await circomlibjs.buildEddsa();
   const payeePrivBuff = Buffer.from(privateKey, "hex");
-  const dataBuff = Buffer.from(data, "hex");
-  const signature = eddsa.signPoseidon(payeePrivBuff, dataBuff);
-  
+  const dataBuff = Buffer.from(data.slice(2), "hex");
+
+  const signature = await eddsa.signPoseidon(payeePrivBuff, dataBuff);
+
   return Buffer.from(eddsa.packSignature(signature)).toString('hex');
 }
 

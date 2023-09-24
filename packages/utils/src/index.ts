@@ -18,6 +18,8 @@ export {
   ecEncrypt,
   getAddressFromEcPrivateKey,
   getAddressFromEcPublicKey,
+  getAddressFromEdPrivateKey,
+  getAddressFromEdPublicKey,
   ecRecover,
   ecSign,
   edSign,

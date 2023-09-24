@@ -6,5 +6,5 @@ export interface ISignatureProvider {
   supportedMethods: Signature.METHOD[];
   supportedIdentityTypes: Identity.TYPE[];
 
-  sign: (data: any, signer: Identity.IIdentity) => Promise<Signature.ISignedData>;
+  sign: (data: any, signer: Identity.IIdentity, rawSignature?: boolean) => Promise<Signature.ISignedData>;
 }

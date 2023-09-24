@@ -36,12 +36,12 @@ export default {
  *
  * @returns Types.IRequest  The request updated
  */
-function applyActionToRequest(
+async function applyActionToRequest(
   request: RequestLogicTypes.IRequest | null,
   action: RequestLogicTypes.IAction,
   timestamp: number,
   advancedLogic?: AdvancedLogicTypes.IAdvancedLogic,
-): RequestLogicTypes.IRequest {
+): Promise<RequestLogicTypes.IRequest> {
   if (!Action.isActionVersionSupported(action)) {
     throw new Error('action version not supported');
   }
@@ -56,7 +56,7 @@ function applyActionToRequest(
     if (requestCopied) {
       throw new Error('no request is expected at the creation');
     }
-    requestAfterApply = CreateAction.createRequest(action, timestamp);
+    requestAfterApply = await CreateAction.createRequest(action, timestamp);
   } else {
     // Update request
     if (!requestCopied) {
@@ -67,15 +67,15 @@ function applyActionToRequest(
     Request.checkRequest(requestCopied);
 
     if (action.data.name === RequestLogicTypes.ACTION_NAME.ACCEPT) {
-      requestAfterApply = AcceptAction.applyActionToRequest(action, timestamp, requestCopied);
+      requestAfterApply = await AcceptAction.applyActionToRequest(action, timestamp, requestCopied);
     }
 
     if (action.data.name === RequestLogicTypes.ACTION_NAME.CANCEL) {
-      requestAfterApply = CancelAction.applyActionToRequest(action, timestamp, requestCopied);
+      requestAfterApply = await CancelAction.applyActionToRequest(action, timestamp, requestCopied);
     }
 
     if (action.data.name === RequestLogicTypes.ACTION_NAME.INCREASE_EXPECTED_AMOUNT) {
-      requestAfterApply = IncreaseExpectedAmountAction.applyActionToRequest(
+      requestAfterApply = await IncreaseExpectedAmountAction.applyActionToRequest(
         action,
         timestamp,
         requestCopied,
@@ -83,7 +83,7 @@ function applyActionToRequest(
     }
 
     if (action.data.name === RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT) {
-      requestAfterApply = ReduceExpectedAmountAction.applyActionToRequest(
+      requestAfterApply = await ReduceExpectedAmountAction.applyActionToRequest(
         action,
         timestamp,
         requestCopied,
@@ -91,7 +91,7 @@ function applyActionToRequest(
     }
 
     if (action.data.name === RequestLogicTypes.ACTION_NAME.ADD_STAKEHOLDERS) {
-      requestAfterApply = AddStakeholdersAction.applyActionToRequest(
+      requestAfterApply = await AddStakeholdersAction.applyActionToRequest(
         action,
         timestamp,
         requestCopied,
@@ -99,7 +99,7 @@ function applyActionToRequest(
     }
 
     if (action.data.name === RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA) {
-      requestAfterApply = AddExtensionsData.applyActionToRequest(action, timestamp, requestCopied);
+      requestAfterApply = await AddExtensionsData.applyActionToRequest(action, timestamp, requestCopied);
     }
   }
 
@@ -110,17 +110,18 @@ function applyActionToRequest(
   // skip extension application if no extension given or no advanced logic layer given
   if (action.data.parameters.extensionsData && advancedLogic) {
     // Apply the extension on the state
-    requestAfterApply.extensions = action.data.parameters.extensionsData.reduce(
-      (extensionState: RequestLogicTypes.IExtensionStates, extensionAction: any) => {
+    requestAfterApply.extensions = await action.data.parameters.extensionsData.reduce(
+      async (extensionStateP: Promise<RequestLogicTypes.IExtensionStates>, extensionAction: any) => {
+        const extensionState = await extensionStateP;
         return advancedLogic.applyActionToExtensions(
           extensionState,
           extensionAction,
           requestAfterApply as RequestLogicTypes.IRequest,
-          Action.getSignerIdentityFromAction(action),
+          await Action.getSignerIdentityFromAction(action),
           timestamp,
         );
       },
-      requestAfterApply.extensions,
+      Promise.resolve(requestAfterApply.extensions),
     );
   }
 

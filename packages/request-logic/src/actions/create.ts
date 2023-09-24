@@ -83,10 +83,10 @@ function format(
  *
  * @returns Types.IRequest the new request
  */
-function createRequest(
+async function createRequest(
   action: RequestLogicTypes.IAction,
   timestamp: number,
-): RequestLogicTypes.IRequest {
+): Promise<RequestLogicTypes.IRequest> {
   if (!action.data.parameters.payee && !action.data.parameters.payer) {
     throw new Error('action.parameters.payee or action.parameters.payer must be given');
   }
@@ -108,7 +108,7 @@ function createRequest(
     );
   }
 
-  const signer: IdentityTypes.IIdentity = Action.getSignerIdentityFromAction(action);
+  const signer: IdentityTypes.IIdentity = await Action.getSignerIdentityFromAction(action);
 
   // Copy to not modify the action itself
   const request: RequestLogicTypes.IRequest = deepCopy(action.data.parameters);

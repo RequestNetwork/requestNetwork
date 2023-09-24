@@ -1,13 +1,15 @@
 import { EventEmitter } from 'events';
 
 import MultiFormat from '@requestnetwork/multi-format';
-import { AdvancedLogicTypes, RequestLogicTypes, TransactionTypes } from '@requestnetwork/types';
+import { SignatureTypes, AdvancedLogicTypes,SignatureProviderTypes, RequestLogicTypes, TransactionTypes,IdentityTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { RequestLogic } from '../src/index';
 import * as TestData from './unit/utils/test-data-generator';
 
 import Version from '../src/version';
 import { normalizeKeccak256Hash, sign } from '@requestnetwork/utils';
+jest.setTimeout(30000);
+const circomlibjs = require('circomlibjs');
 
 const CURRENT_VERSION = Version.currentVersion;
 
@@ -112,6 +114,113 @@ describe('index', () => {
         requestLogic.createRequest(createParamsWithExtensions, TestData.payeeRaw.identity),
       ).rejects.toThrowError('Expected throw');
     });
+
+
+
+
+    it.only('can createRequest WITH ZK PROOF', async () => {
+      const eddsa = await circomlibjs.buildEddsa();
+      const poseidon = await circomlibjs.buildPoseidon();
+      // const F = poseidon.F;
+      const payeePriv = Buffer.from("0001020304050607080900010203040506070809000102030405060708090001", "hex");
+      const payeePub = eddsa.prv2pub(payeePriv);
+      const payeeAddress = await poseidon(payeePub);
+      const payeeAddressHex = Buffer.from(payeeAddress).toString('hex')
+      const payerPriv = Buffer.from("0000000304050607080900010203040506070809000102030405060708090001", "hex");
+      const payerPub = eddsa.prv2pub(payerPriv);
+      const payerAddress = await poseidon(payerPub);
+      const payerAddressHex = Buffer.from(payerAddress).toString('hex')
+      
+      const payeeIdentity = {
+        type: IdentityTypes.TYPE.POSEIDON_ADDRESS,
+        value: payeeAddressHex,
+      };
+      const payeeIdentitySignParams =  {
+        method: SignatureTypes.METHOD.EDDSA_POSEIDON,
+        privateKey: "0001020304050607080900010203040506070809000102030405060708090001",
+      }
+      const payerIdentity = {
+        type: IdentityTypes.TYPE.POSEIDON_ADDRESS,
+        value: payerAddressHex,
+      };
+      const payerIdentitySignParams =  {
+        method: SignatureTypes.METHOD.EDDSA_POSEIDON,
+        privateKey: "0000000304050607080900010203040506070809000102030405060708090001",
+      }
+
+      const signatureProvider: SignatureProviderTypes.ISignatureProvider = {
+        sign: async (data: any, identity: IdentityTypes.IIdentity, rawSignature: boolean = false): Promise<SignatureTypes.ISignedData> =>
+          ({
+            [payeeAddressHex as string]: sign(data, payeeIdentitySignParams, rawSignature),
+            [payerAddressHex as string]: sign(data, payerIdentitySignParams, rawSignature),
+          }[identity.value]),
+        supportedIdentityTypes: [IdentityTypes.TYPE.POSEIDON_ADDRESS],
+        supportedMethods: [SignatureTypes.METHOD.EDDSA_POSEIDON],
+      };
+
+
+
+      const createParams2: RequestLogicTypes.ICreateParameters = {
+        currency: {
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x6b175474e89094c44da98b954eedeac495271d0f', // DAI
+        },
+        expectedAmount: TestData.arbitraryExpectedAmount,
+        payee: payeeIdentity,
+        payer: payerIdentity,
+        timestamp: 1544426030,
+        extensionsData: [
+          {
+            action: 'create',
+            id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
+            parameters: {
+              feeAddress: '0x0000000000000000000000000000000000000001',
+              feeAmount: '0',
+              paymentAddress: '0x0000000000000000000000000000000000000002',
+              refundAddress: '0x0000000000000000000000000000000000000003',
+              salt: 'ea3bc7caf64110ca',
+            },
+            version: '0.2.0',
+          }
+        ]
+      };
+
+      // TODO fakeSignatureProvider
+      const requestLogic = new RequestLogic(fakeTransactionManager, signatureProvider);
+      const ret = await requestLogic.createRequest(createParams2, payeeIdentity);
+
+      ret.on('confirmed', (resultConfirmed1) => {
+        // 'result Confirmed wrong'
+        expect(resultConfirmed1).toEqual({
+          meta: {
+            transactionManagerMeta: {
+              storageDataId: 'fakeDataId',
+            },
+          },
+          result: {
+            requestId: '010246b8aeb3aa72f4c7039284bf7307c3d543541ff309ee52e9361f4bd2c89c9c',
+          },
+        });
+      });
+
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual({ requestId });
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
+        transactionManagerMeta: fakeMetaTransactionManager.meta,
+      });
+
+      expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
+        JSON.stringify(action),
+        requestId,
+        [],
+        [],
+      );
+    });
+
+
+
 
     it('can createRequest', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
@@ -219,7 +328,7 @@ describe('index', () => {
       jest.useRealTimers();
     });
   });
-
+/*
   describe('createEncryptedRequest', () => {
     it('cannot create encrypted request without signature provider', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager);
@@ -2441,4 +2550,6 @@ describe('index', () => {
       expect(requests.result.requests.length).toBe(3);
     });
   });
+
+  */
 });

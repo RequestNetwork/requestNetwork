@@ -3,8 +3,8 @@ import {
   ecEncrypt,
   ecRecover,
   ecSign,
-  getAddressFromPrivateKey,
-  getAddressFromPublicKey,
+  getAddressFromEcPrivateKey,
+  getAddressFromEcPublicKey,
 } from '../../src';
 
 const rawId = {
@@ -22,36 +22,36 @@ const anyData = 'this is any data!';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Utils/EcUtils', () => {
-  describe('getAddressFromPrivateKey', () => {
+  describe('getAddressFromEcPrivateKey', () => {
     it('can get Address From PrivateKey', () => {
-      const identity = getAddressFromPrivateKey(rawId.privateKey);
-      // 'getAddressFromPrivateKey() error'
+      const identity = getAddressFromEcPrivateKey(rawId.privateKey);
+      // 'getAddressFromEcPrivateKey() error'
       expect(identity).toBe(rawId.address);
     });
     it('cannot get Address From PrivateKey if the private key is wrong', () => {
-      // 'getAddressFromPrivateKey() error'
-      expect(() => getAddressFromPrivateKey('aa')).toThrowError(
+      // 'getAddressFromEcPrivateKey() error'
+      expect(() => getAddressFromEcPrivateKey('aa')).toThrowError(
         'The private key must be a string representing 32 bytes',
       );
     });
     it('can get an address from a private key without 0x', () => {
       expect(
-        getAddressFromPrivateKey(
+        getAddressFromEcPrivateKey(
           'af16c10a33bd8c2a0d55551080c3eb248ab727e5ff17d052c95f9d92b7e6528e',
         ),
       ).toBe('0xe011e28aBAa005223a2d4AEfFD5c2fF8D7B5291c');
     });
   });
 
-  describe('getAddressFromPublicKey', () => {
+  describe('getAddressFromEcPublicKey', () => {
     it('can get Address From Public Key', () => {
-      const identity = getAddressFromPublicKey(rawId.publicKey);
-      // 'getAddressFromPublicKey() error'
+      const identity = getAddressFromEcPublicKey(rawId.publicKey);
+      // 'getAddressFromEcPublicKey() error'
       expect(identity).toBe(rawId.address);
     });
     it('cannot get Address From Public Key if the Public key is wrong', () => {
-      // 'getAddressFromPrivateKey() error'
-      expect(() => getAddressFromPublicKey('aa')).toThrowError(
+      // 'getAddressFromEcPrivateKey() error'
+      expect(() => getAddressFromEcPublicKey('aa')).toThrowError(
         'The public key must be a string representing 64 bytes',
       );
     });
