@@ -44,7 +44,10 @@ export type ISO4217Currency = {
 export type ERC20Currency = {
   symbol: string;
   decimals: number;
-  network: CurrencyTypes.EvmChainName | CurrencyTypes.NearChainName;
+  network:
+    | CurrencyTypes.EvmChainName
+    | CurrencyTypes.NearChainName
+    | CurrencyTypes.DeclarativeChainName;
   address: string;
 };
 
@@ -129,6 +132,8 @@ export interface ICurrencyManager<TMeta = unknown> {
     network: string,
   ): string[] | null;
   supportsConversion(currency: Pick<CurrencyDefinition, 'hash'>, network: string): boolean;
+  validateAddress(address: string, currency: CurrencyInput | StorageCurrency): boolean;
+  validateCurrency(currency: StorageCurrency): boolean;
 }
 
 /**

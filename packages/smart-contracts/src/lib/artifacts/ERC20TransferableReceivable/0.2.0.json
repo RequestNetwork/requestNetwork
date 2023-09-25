@@ -162,26 +162,8 @@
         },
         {
           "indexed": false,
-          "internalType": "address",
-          "name": "paymentProxy",
-          "type": "address"
-        },
-        {
-          "indexed": false,
           "internalType": "uint256",
           "name": "receivableTokenId",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "tokenAddress",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "paymentId",
           "type": "uint256"
         },
         {
@@ -254,25 +236,6 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_owner",
-          "type": "address"
-        }
-      ],
-      "name": "getTokenIds",
-      "outputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "",
-          "type": "uint256[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
           "name": "owner",
           "type": "address"
         },
@@ -316,9 +279,9 @@
           "type": "address"
         },
         {
-          "internalType": "string",
-          "name": "newTokenURI",
-          "type": "string"
+          "internalType": "bytes32",
+          "name": "requestID",
+          "type": "bytes32"
         }
       ],
       "name": "mint",
@@ -428,6 +391,11 @@
           "internalType": "uint256",
           "name": "balance",
           "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "requestID",
+          "type": "bytes32"
         }
       ],
       "stateMutability": "view",
@@ -557,49 +525,6 @@
       "inputs": [
         {
           "internalType": "uint256",
-          "name": "index",
-          "type": "uint256"
-        }
-      ],
-      "name": "tokenByIndex",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "index",
-          "type": "uint256"
-        }
-      ],
-      "name": "tokenOfOwnerByIndex",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
           "name": "tokenId",
           "type": "uint256"
         }
@@ -610,19 +535,6 @@
           "internalType": "string",
           "name": "",
           "type": "string"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "totalSupply",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
         }
       ],
       "stateMutability": "view",

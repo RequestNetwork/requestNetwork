@@ -444,6 +444,66 @@ describe('hasSufficientFunds', () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
+  it('should call ETH getBalance for ETH_FEE_PROXY_CONTRACT requests', async () => {
+    const fakeProvider: any = {
+      getBalance: jest.fn().mockReturnValue(Promise.resolve(BigNumber.from('200'))),
+    };
+    const request: any = {
+      balance: {
+        balance: '0',
+      },
+      currencyInfo: {
+        network: 'goerli',
+        type: RequestLogicTypes.CURRENCY.ETH,
+      },
+      expectedAmount: '100',
+      extensions: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
+          events: [],
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            feeAddress: '0xfee',
+            feeAmount: '1',
+          },
+          version: '1.0',
+        },
+      },
+    };
+    await hasSufficientFunds(request, 'abcd', { provider: fakeProvider });
+    expect(fakeProvider.getBalance).toHaveBeenCalledTimes(1);
+  });
+
+  it('should return false if balance is insufficient to pay expectedAmount plus fee', async () => {
+    const fakeProvider: any = {
+      getBalance: jest.fn().mockReturnValue(Promise.resolve(BigNumber.from('200'))),
+    };
+    const request: any = {
+      balance: {
+        balance: '0',
+      },
+      currencyInfo: {
+        network: 'goerli',
+        type: RequestLogicTypes.CURRENCY.ETH,
+      },
+      expectedAmount: '100',
+      extensions: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
+          events: [],
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            feeAddress: '0xfee',
+            feeAmount: '101',
+          },
+          version: '1.0',
+        },
+      },
+    };
+    const solvency = await hasSufficientFunds(request, 'abcd', { provider: fakeProvider });
+    expect(solvency).toBeFalsy();
+  });
+
   it('should skip ETH balance checks for smart contract wallets', async () => {
     const walletConnectProvider = {
       ...provider,

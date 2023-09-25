@@ -13,6 +13,8 @@ export type EvmChainName =
   | 'fuse'
   | 'goerli'
   | 'mainnet'
+  | 'mantle'
+  | 'mantle-testnet'
   | 'matic'
   | 'moonbeam'
   | 'mumbai'
@@ -30,12 +32,17 @@ export type EvmChainName =
 export type BtcChainName = 'mainnet' | 'testnet';
 
 /**
+ * List of supported Declarative chains
+ */
+export type DeclarativeChainName = 'tron';
+
+/**
  * List of supported NEAR chains
  * FIXME: get rid of the wrong 'aurora' alias
  */
 export type NearChainName = 'aurora' | 'aurora-testnet' | 'near' | 'near-testnet';
 
-export type ChainName = EvmChainName | BtcChainName | NearChainName;
+export type ChainName = EvmChainName | BtcChainName | NearChainName | DeclarativeChainName;
 
 /**
  * Virtual machin chains, where payment proxy contracts can be deployed

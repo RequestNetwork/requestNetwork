@@ -108,7 +108,7 @@ const EURValidRequest: ClientTypes.IRequestData = {
         paymentAddress,
         salt: 'salt',
         network: 'private',
-        tokensAccepted: [DAITokenAddress],
+        acceptedTokens: [DAITokenAddress],
       },
       version: '0.1.0',
     },

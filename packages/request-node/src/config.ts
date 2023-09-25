@@ -1,6 +1,6 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import * as yargs from 'yargs';
-import { modeType } from './logger';
+import { LogMode } from './logger';
 import { config } from 'dotenv';
 import { BigNumber } from 'ethers';
 
@@ -13,18 +13,19 @@ config();
  * This contains default values used for the server and storage initialization
  * when environment variable is not specified
  */
-const defaultValues: any = {
+const defaultValues = {
   ethereumStorage: {
     ethereum: {
       networkId: 0,
       web3ProviderUrl: 'http://localhost:8545',
       gasPriceMin: '1000000000', // one gwei
       blockConfirmations: 2,
+      graphNodeUrl: '',
     },
     ipfs: {
       host: 'localhost',
       port: 5001,
-      protocol: 'http',
+      protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
       timeout: 30000,
     },
     lastBlockNumberDelay: 10000,
@@ -34,7 +35,7 @@ const defaultValues: any = {
   },
   log: {
     level: LogTypes.LogLevel.INFO,
-    mode: modeType.human,
+    mode: LogMode.human,
   },
   server: {
     externalUrl: 'localhost',
@@ -46,32 +47,39 @@ const defaultValues: any = {
   },
 };
 
+const getOption = <T extends string | number>(
+  argName: string,
+  envName: string,
+  defaultValue?: T,
+): T => {
+  const val = argv[argName] || process.env[envName] || defaultValue;
+  if (typeof defaultValue === 'number') return Number(val) as T;
+  return String(val) as T;
+};
+const makeOption =
+  <T extends string | number>(...params: Parameters<typeof getOption<T>>) =>
+  () =>
+    getOption<T>(...params);
+
 /**
  * Get the external url of the node (used to identified where the buffer data are stored before being broadcasted)
- * @returns the external url
  */
-export function getServerExternalUrl(): string {
-  return argv.externalUrl || process.env.EXTERNAL_URL || defaultValues.server.externalUrl;
-}
+export const getServerExternalUrl = makeOption(
+  'externalUrl',
+  'EXTERNAL_URL',
+  defaultValues.server.externalUrl,
+);
 
 /**
  * Get the port from command line argument, environment variables or default values to allow user to connect to the server
- * @returns the port to listen to connection on the server
  */
-export function getServerPort(): number {
-  return (
-    (argv.port && Number(argv.port)) ||
-    (process.env.PORT && Number(process.env.PORT)) ||
-    defaultValues.server.port
-  );
-}
+export const getServerPort = makeOption('port', 'PORT', defaultValues.server.port);
 
 /**
  * Get custom headers as a JSON stringified object from command line argument, environment variables or default values
- * @returns an object with the custom headers to be set
  */
 export function getCustomHeaders(): Record<string, string> {
-  const headersString = argv.headers || process.env.HEADERS || defaultValues.server.headers;
+  const headersString = getOption('headers', 'HEADERS', defaultValues.server.headers);
 
   try {
     return JSON.parse(headersString);
@@ -82,98 +90,87 @@ export function getCustomHeaders(): Record<string, string> {
 
 /**
  * Get network id of the Ethereum network from command line argument, environment variables or default values
- * @returns Ethereum network id
  */
-export function getStorageNetworkId(): number {
-  return (
-    (argv.networkId && Number(argv.networkId)) ||
-    (process.env.ETHEREUM_NETWORK_ID && Number(process.env.ETHEREUM_NETWORK_ID)) ||
-    defaultValues.ethereumStorage.ethereum.networkId
-  );
-}
+export const getStorageNetworkId = makeOption(
+  'networkId',
+  'ETHEREUM_NETWORK_ID',
+  defaultValues.ethereumStorage.ethereum.networkId,
+);
 
 /**
  * Get Web3 provider url from command line argument, environment variables or default values
- * @returns Web3 provider url
  */
-export function getStorageWeb3ProviderUrl(): string {
-  return (
-    argv.providerUrl ||
-    process.env.WEB3_PROVIDER_URL ||
-    defaultValues.ethereumStorage.ethereum.web3ProviderUrl
-  );
-}
+export const getStorageWeb3ProviderUrl = makeOption(
+  'providerUrl',
+  'WEB3_PROVIDER_URL',
+  defaultValues.ethereumStorage.ethereum.web3ProviderUrl,
+);
 
-export function getGraphNodeUrl(): string | undefined {
-  return (
-    argv.graphNodeUrl ||
-    process.env.GRAPH_NODE_URL ||
-    defaultValues.ethereumStorage.ethereum.graphNodeUrl
-  );
-}
+/** Get the Graph node URL */
+export const getGraphNodeUrl = makeOption(
+  'graphNodeUrl',
+  'GRAPH_NODE_URL',
+  defaultValues.ethereumStorage.ethereum.graphNodeUrl,
+);
 
 export function getGasPriceMin(): BigNumber | undefined {
-  const gasPriceMin =
-    argv.gasPriceMin ||
-    process.env.GAS_PRICE_MIN ||
-    defaultValues.ethereumStorage.ethereum.gasPriceMin;
-  return gasPriceMin && BigNumber.from(gasPriceMin);
+  const gasPriceMin = getOption(
+    'gasPriceMin',
+    'GAS_PRICE_MIN',
+    defaultValues.ethereumStorage.ethereum.gasPriceMin,
+  );
+  return gasPriceMin ? BigNumber.from(gasPriceMin) : undefined;
 }
 
 /**
  * Get the number of block confirmations to wait before considering a transaction successful
- * @returns the number of block confirmations
  */
-export function getBlockConfirmations(): number {
-  return (
-    (argv.blockConfirmations && Number(argv.blockConfirmations)) ||
-    (process.env.BLOCK_CONFIRMATIONS && Number(process.env.BLOCK_CONFIRMATIONS)) ||
-    defaultValues.ethereumStorage.ethereum.blockConfirmations
-  );
-}
+export const getBlockConfirmations = makeOption(
+  'blockConfirmations',
+  'BLOCK_CONFIRMATIONS',
+  defaultValues.ethereumStorage.ethereum.blockConfirmations,
+);
 
 /**
  * Get host from command line argument, environment variables or default values to connect to IPFS gateway
  * @returns the host of the IPFS gateway
  */
-export function getIpfsHost(): string {
-  return argv.ipfsHost || process.env.IPFS_HOST || defaultValues.ethereumStorage.ipfs.host;
-}
+export const getIpfsHost = makeOption(
+  'ipfsHost',
+  'IPFS_HOST',
+  defaultValues.ethereumStorage.ipfs.host,
+);
 
 /**
  * Get port from command line argument, environment variables or default values to connect to IPFS gateway
  * @returns the port of the IPFS gateway
  */
-export function getIpfsPort(): number {
-  return (
-    (argv.ipfsPort && Number(argv.ipfsPort)) ||
-    (process.env.IPFS_PORT && Number(process.env.IPFS_PORT)) ||
-    defaultValues.ethereumStorage.ipfs.port
-  );
-}
+export const getIpfsPort = makeOption(
+  'ipfsPort',
+  'IPFS_PORT',
+  defaultValues.ethereumStorage.ipfs.port,
+);
 
 /**
  * Get protocol from command line argument, environment variables or default values to connect to IPFS gateway
  * @returns the protocol to connect to the IPFS gateway
  */
-export function getIpfsProtocol(): StorageTypes.IpfsGatewayProtocol {
-  return (
-    argv.ipfsProtocol || process.env.IPFS_PROTOCOL || defaultValues.ethereumStorage.ipfs.protocol
-  );
-}
+export const getIpfsProtocol = makeOption(
+  'ipfsProtocol',
+  'IPFS_PROTOCOL',
+  defaultValues.ethereumStorage.ipfs.protocol,
+);
 
 /**
  * Get the timeout threshold from command line argument, environment variables or default values for IPFS gateway connection
  * If the connection delay for IPFS gateway reachs this value, the connection fails
  * @returns the timeout threshold for IPFS gateway connection
  */
-export function getIpfsTimeout(): number {
-  return (
-    (argv.ipfsTimeout && Number(argv.ipfsTimeout)) ||
-    (process.env.IPFS_TIMEOUT && Number(process.env.IPFS_TIMEOUT)) ||
-    defaultValues.ethereumStorage.ipfs.timeout
-  );
-}
+export const getIpfsTimeout = makeOption(
+  'ipfsTimeout',
+  'IPFS_TIMEOUT',
+  defaultValues.ethereumStorage.ipfs.timeout,
+);
 
 /**
  * Get the mnemonic from environment variables or default values to generate the private key for the wallet
@@ -193,75 +190,56 @@ export function getMnemonic(): string {
   return process.env.MNEMONIC;
 }
 
-/**
- * Get log configs: level and mode, from command line argument, environment variables or default values.
- * logLevel is the maximum level of messages we will log
- * logMode defines the log format to display: `human` is a more readable log, `machine` is better for parsing
- *
- * @returns the log level
- */
-export function getLogConfig(): { logLevel: LogTypes.LogLevel; logMode: modeType } {
-  return {
-    logLevel:
-      LogTypes.LogLevel[
-        (argv.logLevel || process.env.LOG_LEVEL) as keyof typeof LogTypes.LogLevel
-      ] || defaultValues.log.level,
-    logMode:
-      modeType[(argv.logMode || process.env.LOG_MODE) as keyof typeof modeType] ||
-      defaultValues.log.mode,
-  };
-}
+/** logLevel is the maximum level of messages we will log */
+export const getLogLevel = (): LogTypes.LogLevel => {
+  const logLevelStr = getOption<keyof typeof LogTypes.LogLevel>('logLevel', 'LOG_LEVEL');
+  return LogTypes.LogLevel[logLevelStr] || defaultValues.log.level;
+};
+
+/** logMode defines the log format to display: `human` is a more readable log, `machine` is better for parsing */
+export const getLogMode = makeOption('logMode', 'LOG_MODE', defaultValues.log.mode);
 
 /**
  * Get the minimum delay between getLastBlockNumber calls
  *
  * @returns the minimum delay between last block number fetches
  */
-export function getLastBlockNumberDelay(): number {
-  return (
-    argv.lastBlockNumberDelay ||
-    process.env.LAST_BLOCK_NUMBER_DELAY ||
-    defaultValues.ethereumStorage.lastBlockNumberDelay
-  );
-}
+export const getLastBlockNumberDelay = makeOption(
+  'lastBlockNumberDelay',
+  'LAST_BLOCK_NUMBER_DELAY',
+  defaultValues.ethereumStorage.lastBlockNumberDelay,
+);
 
 /**
  * Get the number of concurrent calls the ethereum storage can make
  *
  * @returns the maximum concurrency number
  */
-export function getStorageConcurrency(): number {
-  return Number(
-    argv.storageMaxConcurrency ||
-      process.env.STORAGE_MAX_CONCURRENCY ||
-      defaultValues.ethereumStorage.maxConcurrency,
-  );
-}
+export const getStorageConcurrency = makeOption(
+  'storageMaxConcurrency',
+  'STORAGE_MAX_CONCURRENCY',
+  defaultValues.ethereumStorage.maxConcurrency,
+);
 
 /**
  * Get the delay between subsequent Ethereum call retries
  *
  * @returns the delay between call retries
  */
-export function getEthereumRetryDelay(): number {
-  return (
-    argv.ethereumRetryDelay ||
-    process.env.ETHEREUM_RETRY_DELAY ||
-    defaultValues.ethereumStorage.retryDelay
-  );
-}
+export const getEthereumRetryDelay = makeOption(
+  'ethereumRetryDelay',
+  'ETHEREUM_RETRY_DELAY',
+  defaultValues.ethereumStorage.retryDelay,
+);
 
 /**
  * Get the initialization storage (a json-like file) path.
  * @returns the path to the json-like file that stores the initialization data (ethereum metadata and transaction index).
  */
-export function getInitializationStorageFilePath(): string | null {
-  return (
-    (argv.initializationStorageFilePath as string) ||
-    process.env.INITIALIZATION_STORAGE_FILE_PATH ||
-    null
-  );
-}
+export const getInitializationStorageFilePath = makeOption<string>(
+  'initializationStorageFilePath',
+  'INITIALIZATION_STORAGE_FILE_PATH',
+);
 
 /**
  * Get the delay to wait before sending a timeout when performing a persistTransaction request
@@ -270,13 +248,11 @@ export function getInitializationStorageFilePath(): string | null {
  * because there will be no more need to wait for the smart contract
  * @returns THe delay to wait for the timeout
  */
-export function getPersistTransactionTimeout(): number {
-  return (
-    argv.persistTransactionTimeout ||
-    process.env.PERSIST_TRANSACTION_TIMEOUT ||
-    defaultValues.ethereumStorage.persistTransactionTimeout
-  );
-}
+export const getPersistTransactionTimeout = makeOption(
+  'persistTransactionTimeout',
+  'PERSIST_TRANSACTION_TIMEOUT',
+  defaultValues.ethereumStorage.persistTransactionTimeout,
+);
 
 /**
  * Get the IPFS connection configuration.

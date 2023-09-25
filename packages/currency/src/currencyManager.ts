@@ -236,7 +236,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * Validates an address for a given currency.
    * Throws if the currency is an ISO4217 currency.
    */
-  static validateAddress(address: string, currency: CurrencyInput | StorageCurrency): boolean {
+  validateAddress(address: string, currency: CurrencyInput | StorageCurrency): boolean {
     if (currency.type === RequestLogicTypes.CURRENCY.ISO4217) {
       throw new Error(`Could not validate an address for an ISO4217 currency`);
     }
@@ -246,6 +246,8 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       case RequestLogicTypes.CURRENCY.ERC777:
         if (NearChains.isChainSupported(currency.network)) {
           return isValidNearAddress(address, currency.network);
+        } else if (currency.network === 'tron') {
+          return addressValidator.validate(address, currency.network);
         }
         return addressValidator.validate(address, 'ETH');
       case RequestLogicTypes.CURRENCY.BTC:
@@ -262,7 +264,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   /**
    * Validate the correctness of a Storage Currency
    */
-  static validateCurrency(currency: StorageCurrency): boolean {
+  validateCurrency(currency: StorageCurrency): boolean {
     if (
       currency.type === RequestLogicTypes.CURRENCY.ISO4217 ||
       currency.type === RequestLogicTypes.CURRENCY.ETH ||
@@ -282,7 +284,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * - NEAR, YEL, ZIL, BTC
    * - ETH-rinkeby, FAU-rinkeby, CTBK-rinkeby
    */
-  static getDefaultList(): CurrencyDefinition[] {
+  static getDefaultList<TMeta = unknown>(): CurrencyDefinition<TMeta>[] {
     const isoCurrencies: CurrencyInput[] = iso4217.map((cc) => ({
       decimals: cc.digits,
       name: cc.currency,
@@ -304,7 +306,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       .concat(erc777Currencies)
       .concat(eth)
       .concat(btc)
-      .map(CurrencyManager.fromInput);
+      .map(CurrencyManager.fromInput<TMeta>);
   }
 
   /**

@@ -30,6 +30,7 @@ export const noConversionNetworks = [
   ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE,
   ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
   ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
+  ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
 ];
 
 export interface IConversionPaymentSettings {
@@ -212,7 +213,10 @@ export async function hasSufficientFunds(
   }
 
   let feeAmount = 0;
-  if (paymentNetwork === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT) {
+  if (
+    paymentNetwork === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT ||
+    paymentNetwork === ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT
+  ) {
     feeAmount = request.extensions[paymentNetwork].values.feeAmount || 0;
   }
   return isSolvent(

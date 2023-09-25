@@ -13,7 +13,8 @@ You may need some environment variables.
 You can create a .env file at the root of this package:
 
 ```
-DEPLOYMENT_PRIVATE_KEY=...  # Mandatory to deploy on live blockchains
+DEPLOYMENT_PRIVATE_KEY=...  # Mandatory to deploy on live blockchains (legacy)
+ADMIN_PRIVATE_KEY=...       # Mandatory to deploy on live blockchains (xdeployer)
 WEB3_PROVIDER_URL=...       # Mandatory to interact with live blockchains
 ETHERSCAN_API_KEY=...       # Only used to verify smart contracts code on live blockchains, even for other explorers, except:
 BSCSCAN_API_KEY=...         # ... for BSCScan
@@ -176,6 +177,14 @@ Environment variables needed: `TENDERLY_...` (see `hardhat.config.ts`).
 yarn hardhat tenderly-monitor-contracts
 ```
 
+### Verify the RequestDeployer contract
+
+If the RequestDeployer contract verification failed initially, it can be verified with:
+
+```bash
+yarn hardhat verify-deployer-contract --network <NETWORK>
+```
+
 #### Verify the contracts manually With Hardhat (legacy)
 
 A more generic way to verify any contract by setting constructor argments manually:
@@ -205,6 +214,26 @@ yarn hardhat deploy-live-payments --network matic
 yarn hardhat deploy-live-payments --network private --force
 yarn hardhat deploy-live-payments --network private --force --dry-run
 ```
+
+## Administrate the contracts
+
+The contracts to be updated are listed in the array `create2ContractDeploymentList` in [Utils](scripts-create2/utils.ts).
+Modify the content of the array depending on your need when you perform an administration task.
+Environment variables needed: `ADMIN_PRIVATE_KEY`
+
+To update the contracts on one network, use:
+
+```bash
+NETWORK=<NETWORK> yarn hardhat update-contracts
+```
+
+If you want to update the contracts on all networks:
+
+```bash
+yarn hardhat update-contracts
+```
+
+This command will output details about each update on each chain
 
 ## Tests
 

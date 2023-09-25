@@ -77,7 +77,7 @@ export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   feeAddress?: string;
   expectedFlowRate?: string;
   expectedStartDate?: string;
-  tokensAccepted?: string[];
+  acceptedTokens?: string[];
   maxRateTimespan?: string;
   network?: CurrencyTypes.ChainName;
   version: string;
@@ -86,27 +86,10 @@ export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   if (!extension) {
     throw new Error('no payment network found');
   }
-  const {
-    paymentAddress,
-    feeAmount,
-    feeAddress,
-    expectedFlowRate,
-    expectedStartDate,
-    tokensAccepted,
-    maxRateTimespan,
-    network,
-  } = extension.values;
-  const paymentReference = getPaymentReference(request);
   return {
-    paymentAddress,
-    paymentReference,
-    feeAmount,
-    feeAddress,
-    expectedFlowRate,
-    expectedStartDate,
-    tokensAccepted,
-    maxRateTimespan,
-    network: network ?? request.currencyInfo.network,
+    ...extension.values,
+    paymentReference: getPaymentReference(request),
+    network: extension.values.network ?? request.currencyInfo.network,
     version: extension.version,
   };
 }
@@ -306,7 +289,7 @@ export function validateConversionFeeProxyRequest(
     feeAmountOverride,
     ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
   );
-  const { tokensAccepted } = getRequestPaymentValues(request);
+  const { acceptedTokens } = getRequestPaymentValues(request);
   const requestCurrencyHash = path[0];
   if (requestCurrencyHash.toLowerCase() !== getCurrencyHash(request.currencyInfo).toLowerCase()) {
     throw new Error(`The first entry of the path does not match the request currency`);
@@ -314,8 +297,8 @@ export function validateConversionFeeProxyRequest(
 
   const tokenAddress = path[path.length - 1];
   if (
-    tokensAccepted &&
-    !tokensAccepted?.map((t) => t.toLowerCase()).includes(tokenAddress.toLowerCase())
+    acceptedTokens &&
+    !acceptedTokens?.map((t) => t.toLowerCase()).includes(tokenAddress.toLowerCase())
   ) {
     throw new Error(`The token ${tokenAddress} is not accepted to pay this request`);
   }

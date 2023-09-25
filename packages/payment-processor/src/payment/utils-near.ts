@@ -186,7 +186,7 @@ export const processNearFungiblePayment = async (
   await fungibleContract.ft_transfer_call({
     args: {
       receiver_id: proxyAddress,
-      amount,
+      amount: BigNumber.from(amount).add(feeAmount).toString(),
       msg: JSON.stringify({
         fee_address: feeAddress,
         fee_amount: feeAmount,

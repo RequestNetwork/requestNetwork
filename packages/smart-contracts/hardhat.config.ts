@@ -7,7 +7,7 @@ import { config } from 'dotenv';
 import deployAllContracts from './scripts/test-deploy-all';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { checkCreate2Deployer } from './scripts-create2/check-deployer';
-import { deployDeployer } from './scripts-create2/deploy-request-deployer';
+import { deployDeployer, verifyDeployer } from './scripts-create2/deploy-request-deployer';
 import { HardhatRuntimeEnvironmentExtended } from './scripts-create2/types';
 import { computeCreate2DeploymentAddressesFromList } from './scripts-create2/compute-one-address';
 import { VerifyCreate2FromList } from './scripts-create2/verify';
@@ -15,6 +15,7 @@ import { deployWithCreate2FromList } from './scripts-create2/deploy';
 import { NUMBER_ERRORS } from './scripts/utils';
 import { networkRpcs } from '@requestnetwork/utils';
 import { tenderlyImportAll } from './scripts-create2/tenderly';
+import { updateContractsFromList } from './scripts-create2/update-contracts-setup';
 
 config();
 
@@ -145,6 +146,16 @@ export default {
       chainId: 6969,
       accounts,
     },
+    mantle: {
+      url: url('mantle'),
+      chainId: 5000,
+      accounts,
+    },
+    'mantle-testnet': {
+      url: url('mantle-testnet'),
+      chainId: 5001,
+      accounts,
+    },
   },
   etherscan: {
     apiKey: {
@@ -174,6 +185,8 @@ export default {
       sokol: 'api-key',
       aurora: 'api-key',
       auroraTestnet: 'api-key',
+      mantle: 'api-key',
+      'mantle-testnet': 'api-key',
     },
     customChains: [
       {
@@ -182,6 +195,22 @@ export default {
         urls: {
           apiURL: 'https://api-optimistic.etherscan.io/api',
           browserURL: 'https://optimistic.etherscan.io/',
+        },
+      },
+      {
+        network: 'mantle',
+        chainId: 5000,
+        urls: {
+          apiURL: 'https://explorer.mantle.xyz/api',
+          browserURL: 'https://explorer.mantle.xyz/',
+        },
+      },
+      {
+        network: 'mantle-testnet',
+        chainId: 5001,
+        urls: {
+          apiURL: 'https://explorer.testnet.mantle.xyz/api',
+          browserURL: 'https://explorer.testnet.mantle.xyz/',
         },
       },
     ],
@@ -256,6 +285,13 @@ task(
 });
 
 task(
+  'verify-deployer-contract',
+  'Verify request deployer contract on the specified network',
+).setAction(async (_args, hre) => {
+  await verifyDeployer(hre);
+});
+
+task(
   'compute-contract-addresses',
   'Compute the contract addresses from the Create2DeploymentList using the create2 scheme',
 ).setAction(async (_args, hre) => {
@@ -269,6 +305,14 @@ task(
 ).setAction(async (_args, hre) => {
   await checkCreate2Deployer(hre as HardhatRuntimeEnvironmentExtended);
   await deployWithCreate2FromList(hre as HardhatRuntimeEnvironmentExtended);
+});
+
+task(
+  'update-contracts',
+  'Update the latest deployed contracts from the Create2DeploymentList',
+).setAction(async (_args, hre) => {
+  await hre.run(DEPLOYER_KEY_GUARD);
+  await updateContractsFromList(hre as HardhatRuntimeEnvironmentExtended);
 });
 
 task(

@@ -53,30 +53,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     // Validate the action, the apply will throw in case of error
     RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic);
 
-    const resultPersistTx = await this.transactionManager.persistTransaction(
-      JSON.stringify(action),
-      requestId,
-      hashedTopics,
-    );
-
-    const result = Object.assign(new EventEmitter(), {
-      meta: { transactionManagerMeta: resultPersistTx.meta },
-      result: { requestId },
-    });
-
-    // When receive the confirmation from transaction manager propagate it
-    resultPersistTx
-      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
-        result.emit('confirmed', {
-          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
-          result: { requestId },
-        });
-      })
-      .on('error', (error) => {
-        result.emit('error', error);
-      });
-
-    return result;
+    return this.persistTransaction(requestId, action, { requestId }, hashedTopics);
   }
 
   /**
@@ -110,31 +87,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     // Validate the action, the apply will throw in case of error
     RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic);
 
-    const resultPersistTx = await this.transactionManager.persistTransaction(
-      JSON.stringify(action),
+    return this.persistTransaction(
       requestId,
+      action,
+      { requestId },
       hashedTopics,
       encryptionParams,
     );
-
-    const result = Object.assign(new EventEmitter(), {
-      meta: { transactionManagerMeta: resultPersistTx.meta },
-      result: { requestId },
-    });
-
-    // When receive the confirmation from transaction manager propagate it
-    resultPersistTx
-      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
-        result.emit('confirmed', {
-          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
-          result: { requestId },
-        });
-      })
-      .on('error', (error) => {
-        result.emit('error', error);
-      });
-
-    return result;
   }
 
   /**
@@ -192,27 +151,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    const resultPersistTx = await this.transactionManager.persistTransaction(
-      JSON.stringify(action),
-      requestId,
-    );
-
-    const result = Object.assign(new EventEmitter(), {
-      meta: { transactionManagerMeta: resultPersistTx.meta },
-    });
-
-    // When receive the confirmation from transaction manager propagate it
-    resultPersistTx
-      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
-        result.emit('confirmed', {
-          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
-        });
-      })
-      .on('error', (error) => {
-        result.emit('error', error);
-      });
-
-    return result;
+    return this.persistTransaction(requestId, action, undefined);
   }
 
   /**
@@ -242,27 +181,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    const resultPersistTx = await this.transactionManager.persistTransaction(
-      JSON.stringify(action),
-      requestId,
-    );
-
-    const result = Object.assign(new EventEmitter(), {
-      meta: { transactionManagerMeta: resultPersistTx.meta },
-    });
-
-    // When receive the confirmation from transaction manager propagate it
-    resultPersistTx
-      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
-        result.emit('confirmed', {
-          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
-        });
-      })
-      .on('error', (error) => {
-        result.emit('error', error);
-      });
-
-    return result;
+    return this.persistTransaction(requestId, action, undefined);
   }
 
   /**
@@ -292,27 +211,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    const resultPersistTx = await this.transactionManager.persistTransaction(
-      JSON.stringify(action),
-      requestId,
-    );
-
-    const result = Object.assign(new EventEmitter(), {
-      meta: { transactionManagerMeta: resultPersistTx.meta },
-    });
-
-    // When receive the confirmation from transaction manager propagate it
-    resultPersistTx
-      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
-        result.emit('confirmed', {
-          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
-        });
-      })
-      .on('error', (error) => {
-        result.emit('error', error);
-      });
-
-    return result;
+    return this.persistTransaction(requestId, action, undefined);
   }
 
   /**
@@ -342,27 +241,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    const resultPersistTx = await this.transactionManager.persistTransaction(
-      JSON.stringify(action),
-      requestId,
-    );
-
-    const result = Object.assign(new EventEmitter(), {
-      meta: { transactionManagerMeta: resultPersistTx.meta },
-    });
-
-    // When receive the confirmation from transaction manager propagate it
-    resultPersistTx
-      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
-        result.emit('confirmed', {
-          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
-        });
-      })
-      .on('error', (error) => {
-        result.emit('error', error);
-      });
-
-    return result;
+    return this.persistTransaction(requestId, action, undefined);
   }
 
   /**
@@ -394,29 +273,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    const resultPersistTx = await this.transactionManager.persistTransaction(
-      JSON.stringify(action),
-      requestId,
-      undefined,
-      encryptionParams,
-    );
-
-    const result = Object.assign(new EventEmitter(), {
-      meta: { transactionManagerMeta: resultPersistTx.meta },
-    });
-
-    // When receive the confirmation from transaction manager propagate it
-    resultPersistTx
-      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
-        result.emit('confirmed', {
-          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
-        });
-      })
-      .on('error', (error) => {
-        result.emit('error', error);
-      });
-
-    return result;
+    return this.persistTransaction(requestId, action, undefined, [], encryptionParams);
   }
 
   /**
@@ -447,27 +304,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    const resultPersistTx = await this.transactionManager.persistTransaction(
-      JSON.stringify(action),
-      requestId,
-    );
-
-    const result = Object.assign(new EventEmitter(), {
-      meta: { transactionManagerMeta: resultPersistTx.meta },
-    });
-
-    // When receive the confirmation from transaction manager propagate it
-    resultPersistTx
-      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
-        result.emit('confirmed', {
-          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
-        });
-      })
-      .on('error', (error) => {
-        result.emit('error', error);
-      });
-
-    return result;
+    return this.persistTransaction(requestId, action, undefined);
   }
 
   /**
@@ -939,5 +776,37 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       .reverse();
 
     return { ignoredTransactions, keptTransactions };
+  }
+
+  private async persistTransaction<T = unknown>(
+    requestId: string,
+    action: RequestLogicTypes.IAction,
+    result: T,
+    topics: string[] = [],
+    encryptionParams: EncryptionTypes.IEncryptionParameters[] = [],
+  ) {
+    const resultPersistTx = await this.transactionManager.persistTransaction(
+      JSON.stringify(action),
+      requestId,
+      topics,
+      encryptionParams,
+    );
+
+    const eventEmitter = new EventEmitter();
+
+    // When receive the confirmation from transaction manager propagate it
+    resultPersistTx
+      .on('confirmed', (resultPersistTxConfirmed) =>
+        eventEmitter.emit('confirmed', {
+          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
+          result,
+        }),
+      )
+      .on('error', (error) => eventEmitter.emit('error', error));
+
+    return Object.assign(eventEmitter, {
+      meta: { transactionManagerMeta: resultPersistTx.meta },
+      result,
+    });
   }
 }

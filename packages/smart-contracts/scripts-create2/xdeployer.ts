@@ -79,7 +79,7 @@ export const xdeploy = async (
     let txOverrides: Overrides = {};
 
     if (await isEip1559Supported(provider, console)) {
-      txOverrides = await estimateGasFees({ provider });
+      txOverrides = await estimateGasFees({ logger: console, provider });
     }
     txOverrides.gasLimit = hre.config.xdeploy.gasLimit;
 

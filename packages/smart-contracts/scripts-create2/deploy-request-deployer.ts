@@ -29,3 +29,20 @@ export async function deployDeployer(hre: HardhatRuntimeEnvironment): Promise<vo
     console.error(e);
   }
 }
+
+// Verifies the RequestDeployer (useful if the verification failed after deployment)
+export async function verifyDeployer(hre: HardhatRuntimeEnvironment): Promise<void> {
+  try {
+    const RequestDeployer = await hre.ethers.getContractAt(
+      'RequestDeployer',
+      (hre as HardhatRuntimeEnvironmentExtended).config.xdeploy.deployerAddress,
+    );
+    await verifyOne(
+      RequestDeployer.address,
+      { contract: 'RequestDeployer' },
+      hre as HardhatRuntimeEnvironmentExtended,
+    );
+  } catch (e) {
+    console.error(e);
+  }
+}

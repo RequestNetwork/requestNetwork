@@ -64,7 +64,7 @@ const validEuroRequest: ClientTypes.IRequestData = {
         paymentAddress,
         salt: 'salt',
         network: 'private',
-        tokensAccepted: [erc20ContractAddress],
+        acceptedTokens: [erc20ContractAddress],
       },
       version: '0.1.0',
     },
