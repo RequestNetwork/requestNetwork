@@ -126,7 +126,7 @@ export default class RequestNetwork {
     const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
       parameters,
     );
-
+    
     const requestLogicCreateResult = await this.requestLogic.createEncryptedRequest(
       requestParameters,
       parameters.signer,

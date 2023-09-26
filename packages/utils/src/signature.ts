@@ -19,7 +19,7 @@ export { getIdentityFromSignatureParams, recoverSigner, sign };
 
 // Use to localize the parameter V in an ECDSA signature in hex format
 const V_POSITION_FROM_END_IN_ECDSA_HEX = -2;
-const PUBKEY_POSITION_FROM_END_IN_EDDSA_HEX = -168;
+const PUBKEY_POSITION_FROM_END_IN_EDDSA_HEX = -128;
 
 /**
  * Function to get the signer identity from the signature parameters
@@ -69,11 +69,12 @@ async function sign(
   }
 
   if (signatureParams.method === SignatureTypes.METHOD.EDDSA_POSEIDON) {
-    const normalizedData = normalize(data);
-    value = await edSign(signatureParams.privateKey, rawSignature ? data as string : ethers.utils.hashMessage(normalizedData));
+    const dataToSign = rawSignature ? data : normalizeKeccak256Hash(data).value;
+
+    value = await edSign(signatureParams.privateKey, dataToSign as string);
     const pubKey = await getPublicKeyFromEdPrivateKey(signatureParams.privateKey);
 
-    return { data, signature: { method: signatureParams.method, value: value.concat(pubKey) } };
+    return { data, signature: { method: signatureParams.method, value: value.concat(pubKey) }, raw: rawSignature };
   }
 
   throw new Error('signatureParams.method not supported');
@@ -117,12 +118,14 @@ async function recoverSigner(signedData: SignatureTypes.ISignedData): Promise<Id
     };
   }
 
-
   if (signedData.signature.method === SignatureTypes.METHOD.EDDSA_POSEIDON) {
     const pubkeyHex = signedData.signature.value.slice(PUBKEY_POSITION_FROM_END_IN_EDDSA_HEX);
     const packedSignatureHex = signedData.signature.value.slice(0, PUBKEY_POSITION_FROM_END_IN_EDDSA_HEX);
 
-    const verified = await edVerify(packedSignatureHex, signedData.data, pubkeyHex);
+    // const dataToVerify = signedData.raw ? signedData.data : ethers.utils.hashMessage(normalize(signedData.data));
+    const dataToVerify = signedData.raw ? signedData.data : normalizeKeccak256Hash(signedData.data).value;
+
+    const verified = await edVerify(packedSignatureHex, dataToVerify, pubkeyHex);
 
     if(verified) {
       return {

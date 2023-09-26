@@ -20,6 +20,7 @@ export {
   getAddressFromEcPublicKey,
   getAddressFromEdPrivateKey,
   getAddressFromEdPublicKey,
+  getPublicKeyFromEdPrivateKey,
   ecRecover,
   ecSign,
   edSign,

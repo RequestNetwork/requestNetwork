@@ -34,6 +34,7 @@ function createAction(
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
 ): Promise<RequestLogicTypes.IAction> {
+
   return signatureProvider.sign(unsignedAction, signerIdentity);
 }
 

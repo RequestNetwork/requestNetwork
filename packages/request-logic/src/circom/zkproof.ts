@@ -18,8 +18,9 @@ export default async function generateProof(
     const inputs = await createInputs(requestParameters, signatureProvider);
     const { proof, publicSignals } = await snarkjs.groth16.fullProve(
         inputs,
-        `src/circom/${name}.wasm`,
-        `src/circom/${name}_final.zkey`
+        // TODO relative path
+        `/home/vincent/Documents/request/requestNetwork/packages/request-logic/src/circom/${name}.wasm`,
+        `/home/vincent/Documents/request/requestNetwork/packages/request-logic/src/circom/${name}_final.zkey`
     );
     return { proof, publicSignals };
 }
@@ -85,8 +86,6 @@ async function createInputs(
     ]);
     const rootPN = await poseidon(level1PN);
 
-
-    console.log({'0': F.toObject(Buffer.from(requestParameters.payee!.value, 'hex'))})
     const leavesRequest = await Promise.all(
         [F.toObject(Buffer.from(requestParameters.payee!.value, 'hex'))]
             .concat(requestInputs)

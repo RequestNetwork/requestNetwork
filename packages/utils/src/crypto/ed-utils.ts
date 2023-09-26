@@ -73,14 +73,13 @@ async function getPublicKeyFromPrivateKey(privateKey: string): Promise<string> {
  */
 async function getAddressFromPublicKey(publicKey: string): Promise<string> {
     const poseidon = await circomlibjs.buildPoseidon();
-    const F = poseidon.F;
 
     const publicKeyLength = publicKey.length / 2;
     const Ax = Buffer.from(publicKey.slice(0,publicKeyLength), 'hex');
     const Ay = Buffer.from(publicKey.slice(publicKeyLength,publicKeyLength*2), 'hex');
 
     const address = await poseidon([Ax, Ay]);
-    return F.toObject(address);
+    return Buffer.from(address).toString('hex');
 }
 
 /**
@@ -96,7 +95,7 @@ async function edSign(privateKey: string, data: string): Promise<string> {
   const dataBuff = Buffer.from(data.slice(2), "hex");
 
   const signature = await eddsa.signPoseidon(payeePrivBuff, dataBuff);
-
+  
   return Buffer.from(eddsa.packSignature(signature)).toString('hex');
 }
 
@@ -128,9 +127,10 @@ async function edVerify(signature: string, data: string, publicKey: string): Pro
     const Ax = Buffer.from(publicKey.slice(0,publicKeyLength), 'hex');
     const Ay = Buffer.from(publicKey.slice(publicKeyLength,publicKeyLength*2), 'hex');
 
-    const dataBuff = Buffer.from(data, "hex");
 
-    return eddsa.verifyPoseidon(dataBuff, unpackedSignatureBuff, [Ax, Ay])
+    const dataBuff = Buffer.from(data.slice(2), "hex");
+
+    return await eddsa.verifyPoseidon(dataBuff, unpackedSignatureBuff, [Ax, Ay])
   }
 
 

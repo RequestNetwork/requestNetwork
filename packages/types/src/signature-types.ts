@@ -25,4 +25,5 @@ export enum METHOD {
 export interface ISignedData {
   data: any;
   signature: ISignature;
+  raw?: boolean;
 }
