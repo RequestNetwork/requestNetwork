@@ -16,6 +16,7 @@ export interface IRequestData extends Omit<RequestLogic.IRequest, 'currency'> {
   contentData: any;
   currencyInfo: RequestLogic.ICurrency;
   pending: RequestLogic.IPendingRequest | null;
+  proofs: any[];
 }
 
 /** Interface request data with event emitter and subscriber */

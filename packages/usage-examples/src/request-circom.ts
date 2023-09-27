@@ -17,6 +17,10 @@ const payeeIdentity = {
 };
 
 // payer information
+const payerSignatureInfo = {
+  method: RequestNetwork.Types.Signature.METHOD.EDDSA_POSEIDON,
+  privateKey: '0000000304050607080900010203040506070809000102030405060708090001',
+};
 const payerIdentity = {
   type: RequestNetwork.Types.Identity.TYPE.POSEIDON_ADDRESS,
   value: 'c51da3491a2d0cd6eb789627e3aa569031cbf127f634f2bea4b8808fd1232920',
@@ -80,13 +84,25 @@ const createParams = {
 
 (async () => {
   await signatureProvider.addSignatureParameters(payeeSignatureInfo);
+  await signatureProvider.addSignatureParameters(payerSignatureInfo);
 
   createParams.requestInfo.timestamp = 1544426030; //RequestNetwork.Utils.getCurrentTimestampInSecond();
   const request = await requestNetwork._createEncryptedRequest(createParams,[payeeEncryptionParameters,payerEncryptionParameters]);
-  console.log(`The request will be created with ID ${request}`);
+  console.log(`The request will be created with ID ${request.requestId} -------------------------------------------`);
   const confirmedRequest = await request.waitForConfirmation()
-  console.log('Confirmed request:');
-  console.log(confirmedRequest);
+  console.log('Confirmed request: ------------------------------------------- ');
+  console.log(confirmedRequest.version);
+
+  const requestAccepted = await request.accept(payerIdentity);
+
+  // console.log('Accepted request?');
+  // console.log(requestAccepted);
+
+  requestAccepted.on('confirmed', (resultPersistTxConfirmed) => {
+    console.log('Accepted request! -------------------------------------------');
+    console.log(resultPersistTxConfirmed.proofs);
+  });
+
 })()
 // Optionally, compute the request ID before actually creating it.
 // Setting the timestamp is recommended, as it has an impact on the generated ID.

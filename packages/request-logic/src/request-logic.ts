@@ -139,7 +139,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async acceptRequest(
     requestParameters: RequestLogicTypes.IAcceptParameters,
     signerIdentity: IdentityTypes.IIdentity,
-    validate = false,
+    _validate = false, // TODO
   ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
@@ -150,11 +150,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       this.signatureProvider,
     );
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
-    if (validate) {
-      await this.validateAction(requestId, action);
-    }
+    // if (validate) { // TODO
+    const requestState = await this.validateAction(requestId, action);
+    // }
 
-    return this.persistTransaction(requestId, action, undefined);
+    const proof = await generateProof('accept', requestParameters, this.signatureProvider, requestState); // TODO
+    
+    return this.persistTransaction(requestId, action, undefined, undefined, undefined, proof);
   }
 
   /**
@@ -415,7 +417,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       MultiFormat.serialize(normalizeKeccak256Hash(topic)),
     );
 
-    const proof = await generateProof('requestErc20FeeProxy', requestParameters, this.signatureProvider); // TODO
+    const proof = await generateProof('requestErc20FeeProxy', requestParameters, this.signatureProvider, null); // TODO
 
     return {
       action,
@@ -439,9 +441,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     proofs: any[]
   }> {
     const resultGetTx = await this.transactionManager.getTransactionsByChannelId(requestId);
-    // console.log({resultGetTx})
-    console.log('resultGetTx.meta')
-    console.log(resultGetTx.meta)
+
     const actions = resultGetTx.result.transactions
       // filter the actions ignored by the previous layers
       .filter(notNull)
@@ -687,7 +687,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   private async validateAction(
     requestId: RequestLogicTypes.RequestId,
     action: RequestLogicTypes.IAction,
-  ): Promise<void> {
+  ): Promise<RequestLogicTypes.IRequest | null> {
     const { confirmedRequestState, pendingRequestState } = await this.computeRequestFromRequestId(
       requestId,
     );
@@ -700,6 +700,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         Date.now(),
         this.advancedLogic,
       );
+
+      // TODO: 
+      return confirmedRequestState;
     } catch (error) {
       // Check if the action works with the pending state
       if (pendingRequestState) {
@@ -709,8 +712,11 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           Date.now(),
           this.advancedLogic,
         );
+        // TODO return
       }
     }
+    // TODO
+    return null;
   }
 
   /**

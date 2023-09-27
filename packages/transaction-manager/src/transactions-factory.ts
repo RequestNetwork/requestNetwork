@@ -123,6 +123,7 @@ export default class TransactionsFactory {
     data: TransactionTypes.ITransactionData,
     channelKey: EncryptionTypes.IEncryptionParameters,
     encryptionParams: EncryptionTypes.IEncryptionParameters[] = [],
+    proof: any
   ): Promise<TransactionTypes.IPersistedTransaction> {
     // check if the encryption method is the good one
     if (channelKey.method !== EncryptionTypes.METHOD.AES256_GCM) {
@@ -141,7 +142,7 @@ export default class TransactionsFactory {
     const encryptedDataSerialized: string = MultiFormat.serialize(encryptedData);
 
     if (encryptionParams.length === 0) {
-      return { encryptedData: encryptedDataSerialized };
+      return { encryptedData: encryptedDataSerialized, proof };
     } else {
       // FIXME: Refactor, duplicated from createEncryptedTransactionInNewChannel
       // Check that all the encryption parameters given are ECIES (the only encryption method supported for now)
@@ -193,7 +194,7 @@ export default class TransactionsFactory {
         {},
       );
 
-      return { encryptedData: encryptedDataSerialized, keys };
+      return { encryptedData: encryptedDataSerialized, keys, proof };
     }
   }
 }

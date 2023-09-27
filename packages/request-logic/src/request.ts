@@ -54,13 +54,13 @@ function checkRequest(request: RequestLogicTypes.IRequest): boolean {
   if (!request.payee && !request.payer) {
     throw Error('request.payee and request.payer are missing');
   }
-  if (request.creator.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
+  if (request.creator.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS && request.creator.type !== IdentityTypes.TYPE.POSEIDON_ADDRESS) {
     throw Error('request.creator.type not supported');
   }
-  if (request.payee && request.payee.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
+  if (request.payee && request.payee.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS && request.payee.type !== IdentityTypes.TYPE.POSEIDON_ADDRESS) {
     throw Error('request.payee.type not supported');
   }
-  if (request.payer && request.payer.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
+  if (request.payer && request.payer.type !== IdentityTypes.TYPE.ETHEREUM_ADDRESS && request.payer.type !== IdentityTypes.TYPE.POSEIDON_ADDRESS) {
     throw Error('request.payer.type not supported');
   }
   if (!isValidAmount(request.expectedAmount)) {
