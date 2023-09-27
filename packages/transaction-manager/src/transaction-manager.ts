@@ -64,7 +64,6 @@ export default class TransactionManager implements TransactionTypes.ITransaction
         );
         channelEncryptionMethod = transaction.encryptionMethod;
       }
-
       // Add the transaction to an existing channel
     } else {
       const resultGetTx = await this.dataAccess.getTransactionsByChannelId(channelId);
@@ -153,7 +152,6 @@ export default class TransactionManager implements TransactionTypes.ITransaction
       channelId,
       timestampBoundaries,
     );
-
     // Decrypts and cleans the channel from the data-access layers
     const { transactions, ignoredTransactions, encryptionMethod } =
       await this.channelParser.decryptAndCleanChannel(channelId, resultGetTx.result.transactions);

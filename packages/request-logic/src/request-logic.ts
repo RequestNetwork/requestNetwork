@@ -325,19 +325,19 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       confirmedRequestState,
       pendingRequestState,
       transactionManagerMeta,
+      proofs,
     } = await this.computeRequestFromRequestId(requestId);
 
     const pending = this.computeDiffBetweenPendingAndConfirmedRequestState(
       confirmedRequestState,
       pendingRequestState,
     );
-
     return {
       meta: {
         ignoredTransactions,
         transactionManagerMeta,
       },
-      result: { request: confirmedRequestState, pending },
+      result: { request: confirmedRequestState, proofs,  pending },
     };
   }
 
@@ -436,8 +436,12 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     pendingRequestState: RequestLogicTypes.IRequest | null;
     ignoredTransactions: any[];
     transactionManagerMeta: any;
+    proofs: any[]
   }> {
     const resultGetTx = await this.transactionManager.getTransactionsByChannelId(requestId);
+    // console.log({resultGetTx})
+    console.log('resultGetTx.meta')
+    console.log(resultGetTx.meta)
     const actions = resultGetTx.result.transactions
       // filter the actions ignored by the previous layers
       .filter(notNull)
@@ -456,6 +460,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
               action: JSON.parse(t.transaction.data || ''),
               state: t.state,
               timestamp: t.timestamp,
+              proof: t.proof,
             };
           } catch (e) {
             // We ignore the transaction.data that cannot be parsed
@@ -480,7 +485,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       }),
     );
 
-    const { confirmedRequestState, pendingRequestState, ignoredTransactionsByApplication } =
+    const { confirmedRequestState, pendingRequestState, ignoredTransactionsByApplication, proofs } =
       await this.computeRequestFromTransactions(timestampedActionsWithoutDuplicates.uniqueItems);
     ignoredTransactions = ignoredTransactions.concat(ignoredTransactionsByApplication);
 
@@ -489,6 +494,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       ignoredTransactions,
       pendingRequestState,
       transactionManagerMeta: resultGetTx.meta,
+      proofs,
     };
   }
 
@@ -504,8 +510,10 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     confirmedRequestState: RequestLogicTypes.IRequest | null;
     pendingRequestState: RequestLogicTypes.IRequest | null;
     ignoredTransactionsByApplication: RequestLogicTypes.IIgnoredTransaction[];
+    proofs: any[]
   }> {
     const ignoredTransactionsByApplication: RequestLogicTypes.IIgnoredTransaction[] = [];
+    const proofs: any = [];
 
     // second parameter is null, because the first action must be a creation (no state expected)
     const confirmedRequestState = await transactions
@@ -513,12 +521,14 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       .reduce(async (requestStateP, actionConfirmed) => {
         const requestState = await requestStateP;
         try {
-          return RequestLogicCore.applyActionToRequest(
+          const r =  RequestLogicCore.applyActionToRequest(
             requestState,
             actionConfirmed.action,
             actionConfirmed.timestamp,
             this.advancedLogic,
           );
+          proofs.push(actionConfirmed.proof)
+          return r;
         } catch (e) {
           // if an error occurs while applying we ignore the action
           ignoredTransactionsByApplication.push({
@@ -534,12 +544,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       .reduce(async (requestStateP, actionConfirmed) => {
         const requestState = await requestStateP;
         try {
-          return RequestLogicCore.applyActionToRequest(
+          const r = RequestLogicCore.applyActionToRequest(
             requestState,
             actionConfirmed.action,
             actionConfirmed.timestamp,
             this.advancedLogic,
           );
+          return r;
         } catch (e) {
           // if an error occurs while applying we ignore the action
           ignoredTransactionsByApplication.push({
@@ -554,6 +565,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       confirmedRequestState,
       ignoredTransactionsByApplication,
       pendingRequestState,
+      proofs,
     };
   }
 
@@ -640,6 +652,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           finalResult.result.requests.push({
             pending: requestAndMeta.pending,
             request: requestAndMeta.request,
+            proofs: requestAndMeta.proofs,
           });
 
           // workaround to quiet the error "finalResult.meta.ignoredTransactions can be undefined" (but defined in the initialization value of the accumulator)

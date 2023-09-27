@@ -12,6 +12,10 @@ export default class ClearTransaction implements TransactionTypes.ITransaction {
     this.data = data;
   }
 
+  public getProof(): any {
+    return {};
+  }
+
   /**
    * Gets the data of the transaction
    *

@@ -101,12 +101,12 @@ export interface IReturnCreateRequest extends IRequestLogicReturnWithConfirmatio
 
 /** return of the function getFirstRequestFromTopic */
 export interface IReturnGetRequestFromId extends IRequestLogicReturn {
-  result: { request: IRequest | null; pending: IPendingRequest | null };
+  result: { request: IRequest | null; pending: IPendingRequest | null; proofs: any[] };
 }
 
 /** return of the function getRequestsByTopic */
 export interface IReturnGetRequestsByTopic extends IRequestLogicReturn {
-  result: { requests: Array<{ request: IRequest | null; pending: IPendingRequest | null }> };
+  result: { requests: Array<{ request: IRequest | null; pending: IPendingRequest | null; proofs: any[] }> };
 }
 
 /** Interface of a request logic action */
@@ -120,6 +120,7 @@ export interface IConfirmedAction {
   state: Transaction.TransactionState;
   action: IAction;
   timestamp: number;
+  proof?: any;
 }
 
 export interface IIgnoredTransaction {

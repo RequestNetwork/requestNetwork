@@ -53,6 +53,7 @@ export default class ChannelParser {
             channelKey,
             encryptionMethod,
           );
+
         } catch (error) {
           return result.concat([
             {
@@ -64,7 +65,6 @@ export default class ChannelParser {
             },
           ]);
         }
-
         const transaction: TransactionTypes.ITransaction = parsedData.transaction;
 
         // We check if the transaction is valid
@@ -114,6 +114,7 @@ export default class ChannelParser {
               state: timestampedTransaction.state,
               timestamp: timestampedTransaction.timestamp,
               transaction: { data },
+              proof: transaction.getProof() ,
             },
           },
         ]);

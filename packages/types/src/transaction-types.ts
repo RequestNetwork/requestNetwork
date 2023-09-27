@@ -82,7 +82,7 @@ export interface IPersistedTransaction {
   /** Encryption method */
   encryptionMethod?: string;
 
-  proof?:any
+  proof?:any;
 }
 
 /** Enum of state possible for an action */
@@ -96,6 +96,7 @@ export interface ITimestampedTransaction {
   state: TransactionState;
   transaction: IPersistedTransaction;
   timestamp: number;
+  proof?: any;
 }
 
 /** Transaction data */
@@ -112,6 +113,7 @@ export interface ITransaction {
   getData: () => Promise<ITransactionData>;
   getHash: () => Promise<string>;
   getError: () => Promise<string>;
+  getProof: () => any;
 }
 
 /** Keys dictionary */

@@ -18,6 +18,8 @@ export default class EncryptedTransaction implements TransactionTypes.ITransacti
   /** channel key to decrypt the encrypted data */
   private channelKey: EncryptionTypes.IDecryptionParameters;
 
+  private proof: any;
+
   /**
    * Creates an instance of EncryptedTransaction.
    * @param persistedData the encrypted data of the transaction
@@ -26,9 +28,21 @@ export default class EncryptedTransaction implements TransactionTypes.ITransacti
   constructor(
     persistedData: TransactionTypes.ITransactionData,
     channelKey: EncryptionTypes.IDecryptionParameters,
+    proof: any
   ) {
     this.persistedData = persistedData;
     this.channelKey = channelKey;
+    this.proof = proof;
+  }
+
+
+  /**
+   * Gets the data of the transaction
+   *
+   * @returns a promise resolving the transaction data
+   */
+  public getProof(): any {
+    return this.proof;
   }
 
   /**

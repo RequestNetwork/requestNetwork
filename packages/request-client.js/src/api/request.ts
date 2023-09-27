@@ -55,6 +55,7 @@ export default class Request {
    */
   private contentData: any | null = null;
 
+  private proofs: any[];
   /**
    * Meta data of the request (e.g: where the data have been retrieved from)
    */
@@ -109,6 +110,7 @@ export default class Request {
     this.skipPaymentDetection = options?.skipPaymentDetection || false;
     this.disableEvents = options?.disableEvents || false;
     this.currencyManager = currencyManager;
+    this.proofs = [];
 
     if (options?.requestLogicCreateResult && !this.disableEvents) {
       const originalEmitter = options.requestLogicCreateResult;
@@ -691,6 +693,7 @@ export default class Request {
       currency: currency ? currency.id : 'unknown',
       currencyInfo: requestData.currency,
       meta: this.requestMeta,
+      proofs: this.proofs,
       pending,
     });
   }
@@ -745,6 +748,7 @@ export default class Request {
     this.requestData = requestAndMeta.result.request;
     this.pendingData = requestAndMeta.result.pending;
     this.requestMeta = requestAndMeta.meta;
+    this.proofs = requestAndMeta.result.proofs;
 
     if (!this.skipPaymentDetection) {
       // let's refresh the balance
