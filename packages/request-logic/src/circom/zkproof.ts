@@ -1,3 +1,4 @@
+/* @ts-lint no-unused-vars */
 const snarkjs = require("snarkjs");
 const circomlibjs = require('circomlibjs');
 
@@ -25,8 +26,6 @@ export default async function generateProof(
     } else {
         throw Error('Not implemented')
     }
-    
-
 
 
     const { proof, publicSignals } = await snarkjs.groth16.fullProve(
@@ -35,10 +34,10 @@ export default async function generateProof(
         `/home/vincent/Documents/request/requestNetwork/packages/request-logic/src/circom/${name}.wasm`,
         `/home/vincent/Documents/request/requestNetwork/packages/request-logic/src/circom/${name}_final.zkey`
     );
+
     return { proof, publicSignals };
 }
-    
-
+  
 async function createInputs(
     requestParameters: RequestLogicTypes.ICreateParameters,
     signatureProvider: SignatureProviderTypes.ISignatureProvider,

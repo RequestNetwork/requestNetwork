@@ -39,7 +39,7 @@ export default class EthereumPrivateKeySignatureProvider
   public async sign(
     data: any,
     signer: IdentityTypes.IIdentity,
-    rawSignature: boolean = false
+    rawSignature = false
   ): Promise<SignatureTypes.ISignedData> {
     const method = signer.type === IdentityTypes.TYPE.POSEIDON_ADDRESS ? SignatureTypes.METHOD.EDDSA_POSEIDON : SignatureTypes.METHOD.ECDSA;
 

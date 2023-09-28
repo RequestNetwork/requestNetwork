@@ -86,44 +86,56 @@ const createParams = {
   await signatureProvider.addSignatureParameters(payeeSignatureInfo);
   await signatureProvider.addSignatureParameters(payerSignatureInfo);
 
-  createParams.requestInfo.timestamp = 1544426030; //RequestNetwork.Utils.getCurrentTimestampInSecond();
-  const request = await requestNetwork._createEncryptedRequest(createParams,[payeeEncryptionParameters,payerEncryptionParameters]);
-  console.log(`The request will be created with ID ${request.requestId} -------------------------------------------`);
-  const confirmedRequest = await request.waitForConfirmation()
-  console.log('Confirmed request: ------------------------------------------- ');
-  console.log(confirmedRequest.version);
+  createParams.requestInfo.timestamp = RequestNetwork.Utils.getCurrentTimestampInSecond();
+  const request1 = await requestNetwork._createEncryptedRequest(createParams,[payeeEncryptionParameters,payerEncryptionParameters]);
+  console.log(`The request will be created with ID ${request1.requestId} -------------------------------------------`);
 
-  const requestAccepted = await request.accept(payerIdentity);
+  createParams.requestInfo.timestamp = RequestNetwork.Utils.getCurrentTimestampInSecond();
+  const request2 = await requestNetwork._createEncryptedRequest(createParams,[payeeEncryptionParameters,payerEncryptionParameters]);
+  console.log(`The request will be created with ID ${request2.requestId} -------------------------------------------`);
+  
 
-  // console.log('Accepted request?');
-  // console.log(requestAccepted);
+  createParams.requestInfo.timestamp = RequestNetwork.Utils.getCurrentTimestampInSecond();
+  const request3 = await requestNetwork._createEncryptedRequest(createParams,[payeeEncryptionParameters,payerEncryptionParameters]);
+  console.log(`The request will be created with ID ${request3.requestId} -------------------------------------------`);
 
-  requestAccepted.on('confirmed', (resultPersistTxConfirmed) => {
-    console.log('Accepted request! -------------------------------------------');
-    console.log(resultPersistTxConfirmed.proofs);
-  });
+  await request3.waitForConfirmation();
+  
+  console.log(request1.getData().state);
+  console.log(request2.getData().state);
+  console.log(request3.getData().state);
+
+  
+  await request1.accept(payerIdentity);
+  await request2.accept(payerIdentity);
+  await request3.accept(payerIdentity);
+  
+  console.log(request1.getData().state);
+  console.log(request2.getData().state);
+  console.log(request3.getData().proofs);
+
+
+  const waitAccept3 = await new Promise(resolve => {
+    console.log("wait accept 3")
+    request1.on('confirmed', (resultPersistTxConfirmed) => {
+      console.log('Accepted request 3 ! -------------------------------------------');
+      console.log(resultPersistTxConfirmed.proofs);
+      resolve(resultPersistTxConfirmed.proofs);
+    });
+  })
+  console.log(waitAccept3);
+
+
+  // request2.on('confirmed', (resultPersistTxConfirmed) => {
+  //   console.log('Accepted request 2 ! -------------------------------------------');
+  //   console.log(resultPersistTxConfirmed.proofs);
+  // });
+
+
+  // request3.on('confirmed', (resultPersistTxConfirmed) => {
+  //   console.log('Accepted request 3 ! -------------------------------------------');
+  //   console.log(resultPersistTxConfirmed.proofs);
+  // });
+
 
 })()
-// Optionally, compute the request ID before actually creating it.
-// Setting the timestamp is recommended, as it has an impact on the generated ID.
-
-// requestNetwork
-//   .createRequest(createParams)
-//   .then((request) => {
-//     console.log('clear request:');
-//     console.log(request);
-//     request
-//       .waitForConfirmation()
-//       .then((confirmedRequest) => {
-//         console.log('clear confirmed request:');
-//         console.log(confirmedRequest);
-//       })
-//       .catch((error) => {
-//         console.error(error.message || error);
-//         process.exit(1);
-//       });
-//   })
-//   .catch((error) => {
-//     console.error(error.message || error);
-//     process.exit(1);
-//   });

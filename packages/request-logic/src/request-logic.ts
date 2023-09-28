@@ -53,7 +53,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     );
 
     // Validate the action, the apply will throw in case of error
-    RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic); // TODO validate the proof
+    await RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic); // TODO validate the proof
 
     return this.persistTransaction(requestId, action, { requestId }, hashedTopics);
   }
@@ -87,7 +87,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     );
 
     // Validate the action, the apply will throw in case of error
-    RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic);
+    await RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic);
 
     return this.persistTransaction(
       requestId,
@@ -122,7 +122,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     );
 
     // Validate the action, the apply will throw in case of error
-    RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic);
+    await RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic);
 
     return RequestLogicCore.getRequestIdFromAction(action);
   }
@@ -521,7 +521,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       .reduce(async (requestStateP, actionConfirmed) => {
         const requestState = await requestStateP;
         try {
-          const r =  RequestLogicCore.applyActionToRequest(
+          const r =  await RequestLogicCore.applyActionToRequest(
             requestState,
             actionConfirmed.action,
             actionConfirmed.timestamp,
@@ -544,7 +544,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       .reduce(async (requestStateP, actionConfirmed) => {
         const requestState = await requestStateP;
         try {
-          const r = RequestLogicCore.applyActionToRequest(
+          const r = await RequestLogicCore.applyActionToRequest(
             requestState,
             actionConfirmed.action,
             actionConfirmed.timestamp,
@@ -694,7 +694,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
 
     try {
       // Check if the action doesn't fail with the request state
-      RequestLogicCore.applyActionToRequest(
+      await RequestLogicCore.applyActionToRequest(
         confirmedRequestState,
         action,
         Date.now(),
@@ -706,7 +706,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     } catch (error) {
       // Check if the action works with the pending state
       if (pendingRequestState) {
-        RequestLogicCore.applyActionToRequest(
+        await RequestLogicCore.applyActionToRequest(
           pendingRequestState,
           action,
           Date.now(),
