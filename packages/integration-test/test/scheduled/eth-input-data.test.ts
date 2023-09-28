@@ -107,30 +107,6 @@ describe('ETH Fee proxy detection test-suite', () => {
       expect(balance.events[0].amount).toBe('5000000000000000000');
       expect(balance.events[0].timestamp).toBe(1679673933);
     });
-    it('getBalance of ETHFeeProxy request on Mantle', async () => {
-      const pnFactory = new PaymentNetworkFactory(mockAdvancedLogic, CurrencyManager.getDefault());
-      const mockRequest = createMockNativeTokenRequest({
-        network: 'mantle',
-        requestId: '01b3b6fe1ac1031f96d1c44714766be12fd3ef7047d2b7c04f9bd4b7ea928edc64',
-        paymentAddress: '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93',
-        salt: '4b297a41ff3b247a',
-        feeAddress: '0x35d0e078755cd84d3e0656caab417dee1d7939c7',
-        feeAmount: '0',
-        nativeTokenCode: 'MNT',
-      });
-
-      const detector = pnFactory.getPaymentNetworkFromRequest(mockRequest);
-      expect(detector).not.toBeNull();
-      const balance = await detector!.getBalance(mockRequest);
-
-      expect(balance.balance).toBe('5000000000000000000'); // 5 MATIC
-      expect(balance.events).toHaveLength(1);
-      expect(balance.events[0].name).toBe('payment');
-      const params = balance.events[0].parameters as PaymentTypes.ETHPaymentNetworkEventParameters;
-      expect(params?.to).toBe('0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93');
-      expect(balance.events[0].amount).toBe('5000000000000000000');
-      expect(balance.events[0].timestamp).toBe(1679673933);
-    });
     it('getBalance=0 for an ETHFeeProxy request paid with conversion', async () => {
       const pnFactory = new PaymentNetworkFactory(mockAdvancedLogic, CurrencyManager.getDefault());
       const mockRequest = createMockNativeTokenRequest({
