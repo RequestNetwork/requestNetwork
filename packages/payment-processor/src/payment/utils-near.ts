@@ -243,11 +243,17 @@ export const isReceiverReady = async (
   tokenAddress: string,
   paymentAddress: string,
 ): Promise<boolean> => {
+  const storageCheckMethod =
+    tokenAddress === '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1'
+      ? // USDC
+        'check_registration'
+      : // Near Fungible Token standard
+        'storage_balance_of';
   const fungibleContract = new Contract(walletConnection.account(), tokenAddress, {
     changeMethods: [],
-    viewMethods: ['storage_balance_of'],
+    viewMethods: [storageCheckMethod],
   }) as any;
-  const storage = (await fungibleContract.storage_balance_of({
+  const storage = (await fungibleContract[storageCheckMethod]({
     account_id: paymentAddress,
   })) as StorageBalance | null;
   return !!storage && BigNumber.from(storage?.total).gte(MIN_STORAGE_FOR_FUNGIBLE);
