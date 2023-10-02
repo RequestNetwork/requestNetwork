@@ -34,7 +34,7 @@ export type BtcChainName = 'mainnet' | 'testnet';
 /**
  * List of supported Declarative chains
  */
-export type DeclarativeChainName = 'tron';
+export type DeclarativeChainName = 'tron' | 'solana';
 
 /**
  * List of supported NEAR chains
