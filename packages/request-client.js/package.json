@@ -56,7 +56,7 @@
     "@requestnetwork/types": "0.36.0",
     "@requestnetwork/utils": "0.36.0",
     "axios": "0.27.2",
-    "ethers": "5.7.2",
+    "ethers": "5.5.1",
     "tslib": "2.5.0"
   },
   "devDependencies": {

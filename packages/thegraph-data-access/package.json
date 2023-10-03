@@ -44,7 +44,7 @@
     "@requestnetwork/smart-contracts": "0.29.0",
     "@requestnetwork/types": "0.36.0",
     "@requestnetwork/utils": "0.36.0",
-    "ethers": "5.7.2",
+    "ethers": "5.5.1",
     "graphql-request": "3.4.0",
     "tslib": "2.5.0"
   },
