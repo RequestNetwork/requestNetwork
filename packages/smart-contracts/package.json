@@ -63,7 +63,6 @@
     "@requestnetwork/currency": "0.9.0",
     "@requestnetwork/types": "0.36.0",
     "@requestnetwork/utils": "0.36.0",
-    "@superfluid-finance/ethereum-contracts": "1.1.1",
     "@typechain/ethers-v5": "7.0.1",
     "@typechain/hardhat": "2.1.2",
     "@types/chai": "4.2.21",

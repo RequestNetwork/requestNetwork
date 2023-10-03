@@ -12,7 +12,6 @@ import { prepareEthProxyPaymentTransaction } from './eth-proxy';
 import { prepareEthFeeProxyPaymentTransaction } from './eth-fee-proxy';
 import { prepareAnyToEthProxyPaymentTransaction } from './any-to-eth-proxy';
 import { IConversionPaymentSettings } from '.';
-import { prepareErc777StreamPaymentTransaction } from './erc777-stream';
 
 /**
  * Encodes a transaction to pay a Request in generic way. ERC777 stream excepted.
@@ -107,31 +106,6 @@ export function encodeRequestPaymentWithoutSwap(
       };
     default:
       throw new Error('Payment network not found');
-  }
-}
-
-/**
- * Encodes a transaction to pay a Request with ERC777 stream.
- * @param request the request data to pay
- * @param provider the Web3 provider. Defaults to window.ethereum.
- * @param options optionally, the request payment options.
- */
-export async function encodeRequestPaymentWithStream(
-  request: ClientTypes.IRequestData,
-  provider: providers.Provider,
-  options?: IRequestPaymentOptions,
-): Promise<IPreparedTransaction> {
-  const paymentNetwork = getPaymentNetworkExtension(request)?.id;
-  const overrides = options?.overrides ? options.overrides : {};
-
-  switch (paymentNetwork) {
-    case ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM:
-      return {
-        ...(await prepareErc777StreamPaymentTransaction(request, provider)),
-        ...overrides,
-      };
-    default:
-      throw new Error(`Payment network {paymentNetwork} does not support stream`);
   }
 }
 
