@@ -7,6 +7,7 @@ import {
   getDefaultProvider,
   isEip1559Supported,
 } from '@requestnetwork/utils';
+import { suggestFeesEip1559 } from './fee-suggestion';
 
 const ZERO_ETH_INPUT = 0;
 
@@ -79,7 +80,10 @@ export const xdeploy = async (
     let txOverrides: Overrides = {};
 
     if (await isEip1559Supported(provider, console)) {
-      txOverrides = await estimateGasFees({ logger: console, provider });
+      txOverrides = await estimateGasFees({
+        logger: console,
+        suggestFees: suggestFeesEip1559(provider),
+      });
     }
     txOverrides.gasLimit = hre.config.xdeploy.gasLimit;
 

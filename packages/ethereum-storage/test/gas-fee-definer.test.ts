@@ -1,4 +1,4 @@
-import { estimateGasFees } from '@requestnetwork/utils/src';
+import { GasFeeDefiner } from '../src/gas-fee-definer';
 import { BigNumber, providers, Wallet } from 'ethers';
 
 jest.setTimeout(10000);
@@ -23,17 +23,19 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
+const gasFeeDefiner = new GasFeeDefiner({ provider, logger: console });
+
 describe('Gas fee estimation', () => {
   it('Should not be undefined', async () => {
-    const estimation = await estimateGasFees({ logger: console, provider });
+    const estimation = await gasFeeDefiner.getGasFees();
     expect(estimation.maxFeePerGas).toBeDefined();
     expect(estimation.maxPriorityFeePerGas).toBeDefined();
   });
 
   it('Should return a lower estimation when the previous block is empty', async () => {
-    const firstEstimation = await estimateGasFees({ logger: console, provider });
+    const firstEstimation = await gasFeeDefiner.getGasFees();
     await provider.send('evm_mine', []);
-    const secondEstimation = await estimateGasFees({ logger: console, provider });
+    const secondEstimation = await gasFeeDefiner.getGasFees();
 
     expect(
       firstEstimation.maxFeePerGas?.sub(secondEstimation.maxFeePerGas || 0).toNumber(),
@@ -49,7 +51,7 @@ describe('Gas fee estimation', () => {
       });
     }
 
-    const estimation = await estimateGasFees({ logger: console, provider });
+    const estimation = await gasFeeDefiner.getGasFees();
     const tx = await wallet.sendTransaction({
       to: dummyAddress,
       value: BigNumber.from(1),
@@ -97,7 +99,8 @@ describe('Gas fee estimation', () => {
       warn: jest.fn(),
     };
 
-    const estimation = await estimateGasFees({ logger: loggerMock, provider });
+    const gasFeeDefiner = new GasFeeDefiner({ logger: loggerMock, provider });
+    const estimation = await gasFeeDefiner.getGasFees();
     expect(estimation).toStrictEqual({});
     expect(loggerMock.error).toHaveBeenCalledWith(
       'estimateGasFees error: Error: Error: ema was undefined',

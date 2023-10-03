@@ -1,7 +1,7 @@
-import { BigNumber, constants, providers } from 'ethers';
-import { suggestFees } from '@rainbow-me/fee-suggestions';
+import { BigNumber, constants } from 'ethers';
+
 import { maxBigNumber } from './index';
-import { LogTypes } from '@requestnetwork/types';
+import { LogTypes, FeeTypes } from '@requestnetwork/types';
 
 /**
  * The function estimates gas fee with EIP-1559.
@@ -15,23 +15,20 @@ import { LogTypes } from '@requestnetwork/types';
  */
 async function estimateGasFees({
   logger,
-  provider,
   gasPriceMin,
+  suggestFees,
 }: {
   logger: LogTypes.ILogger;
-  provider: providers.Provider | providers.JsonRpcProvider;
   gasPriceMin?: BigNumber;
-}): Promise<{
-  maxFeePerGas?: BigNumber;
-  maxPriorityFeePerGas?: BigNumber;
-}> {
+  suggestFees: () => Promise<FeeTypes.SuggestedFees>;
+}): Promise<FeeTypes.EstimatedGasFees> {
   try {
-    const suggestedFee = await suggestFees(provider as providers.JsonRpcProvider);
+    const suggestedFee = await suggestFees();
 
-    const baseFee = maxBigNumber(suggestedFee.baseFeeSuggestion, gasPriceMin || constants.Zero);
+    const baseFee = maxBigNumber(suggestedFee.baseFee, gasPriceMin || constants.Zero);
 
     const maxPriorityFeePerGas = maxBigNumber(
-      suggestedFee.maxPriorityFeeSuggestions.urgent,
+      suggestedFee.maxPriorityFee,
       gasPriceMin || constants.Zero,
     );
     const maxFeePerGas = baseFee.add(maxPriorityFeePerGas);

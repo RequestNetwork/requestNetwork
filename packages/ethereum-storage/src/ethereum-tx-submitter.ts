@@ -24,7 +24,7 @@ export class EthereumTransactionSubmitter {
       network,
       signer,
     ) as RequestOpenHashSubmitter; // type mismatch with ethers.
-    this.gasFeeDefiner = new GasFeeDefiner({ provider, gasPriceMin });
+    this.gasFeeDefiner = new GasFeeDefiner({ provider, gasPriceMin, logger: this.logger });
   }
 
   get hashSubmitterAddress(): string {
