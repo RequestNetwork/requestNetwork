@@ -1,4 +1,4 @@
-import { estimateGasFees } from '@requestnetwork/utils/src';
+import { estimateGasFees } from '../src/estimate-gas-fees';
 import { BigNumber, providers, Wallet } from 'ethers';
 
 jest.setTimeout(10000);
