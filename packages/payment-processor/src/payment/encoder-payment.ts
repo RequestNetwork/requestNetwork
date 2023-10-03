@@ -14,7 +14,7 @@ import { prepareAnyToEthProxyPaymentTransaction } from './any-to-eth-proxy';
 import { IConversionPaymentSettings } from '.';
 
 /**
- * Encodes a transaction to pay a Request in generic way. ERC777 stream excepted.
+ * Encodes a transaction to pay a Request in generic way.
  * @param request the request data to pay
  * @param provider the Web3 provider. Defaults to window.ethereum.
  * @param options optionally, the request payment options.
