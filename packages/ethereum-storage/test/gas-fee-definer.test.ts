@@ -50,9 +50,9 @@ describe('Gas fee estimation', () => {
     await provider.send('evm_mine', []);
     const secondEstimation = await gasFeeDefiner.getGasFees();
 
-    expect(
-      firstEstimation.maxFeePerGas?.sub(secondEstimation.maxFeePerGas || 0).toNumber(),
-    ).toBeGreaterThan(0);
+    expect(firstEstimation.maxFeePerGas?.toNumber()).toBeGreaterThan(
+      secondEstimation.maxFeePerGas?.toNumber() || 0,
+    );
   });
 
   it('Should return a consistent value compared to the default value', async () => {
