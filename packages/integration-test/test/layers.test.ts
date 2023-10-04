@@ -479,6 +479,8 @@ describe('Request system', () => {
       payeeIdentity,
     );
 
+    await new Promise((resolve) => resultReduce.on('confirmed', resolve));
+
     expect(resultReduce.meta.transactionManagerMeta.encryptionMethod).toEqual('ecies-aes256-gcm');
     expect(resultReduce.result).not.toBeDefined();
 
@@ -542,6 +544,8 @@ describe('Request system', () => {
     expect(requestAfterIncrease.result.pending).toBeDefined();
     expect(requestAfterIncrease.result.pending!.expectedAmount).toEqual('12345678000000111');
 
+    await new Promise((resolve) => resultIncrease.on('confirmed', resolve));
+
     // cancel the request by payee
     const resultCancel = await requestLogic.cancelRequest(
       { requestId: resultCreation.result.requestId },
@@ -562,6 +566,8 @@ describe('Request system', () => {
 
     expect(requestAfterCancel.result.pending).toBeDefined();
     expect(requestAfterCancel.result.pending!.state).toEqual(RequestLogicTypes.STATE.CANCELED);
+
+    await new Promise((resolve) => resultCancel.on('confirmed', resolve));
 
     // check that the data are encrypted:
     const dataAccessData = await dataAccess.getTransactionsByChannelId(
