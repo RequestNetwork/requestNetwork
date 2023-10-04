@@ -19,6 +19,18 @@ const checkEstimation = (
   expect(absRatio).toBeLessThan(ratioMax);
 };
 
+const dummyTransaction = () =>
+  wallet.sendTransaction({
+    to: dummyAddress,
+    value: BigNumber.from(1),
+  });
+
+const dummyTransactions = async (count: number) => {
+  for (let i = 0; i < count; i++) {
+    await dummyTransaction();
+  }
+};
+
 afterEach(() => {
   jest.clearAllMocks();
 });
@@ -33,6 +45,7 @@ describe('Gas fee estimation', () => {
   });
 
   it('Should return a lower estimation when the previous block is empty', async () => {
+    await dummyTransactions(3);
     const firstEstimation = await gasFeeDefiner.getGasFees();
     await provider.send('evm_mine', []);
     const secondEstimation = await gasFeeDefiner.getGasFees();
@@ -44,18 +57,10 @@ describe('Gas fee estimation', () => {
 
   it('Should return a consistent value compared to the default value', async () => {
     // Run some transactions so there is data to perform the estimation
-    for (let i = 0; i < 10; i++) {
-      await wallet.sendTransaction({
-        to: dummyAddress,
-        value: BigNumber.from(1),
-      });
-    }
+    await dummyTransactions(5);
 
     const estimation = await gasFeeDefiner.getGasFees();
-    const tx = await wallet.sendTransaction({
-      to: dummyAddress,
-      value: BigNumber.from(1),
-    });
+    const tx = await dummyTransaction();
     checkEstimation(estimation.maxFeePerGas as BigNumber, tx.maxFeePerGas as BigNumber, 0.1);
   });
 
