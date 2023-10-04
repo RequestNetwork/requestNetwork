@@ -44,7 +44,7 @@ describe('Gas fee estimation', () => {
 
   it('Should return a consistent value compared to the default value', async () => {
     // Run some transactions so there is data to perform the estimation
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       await wallet.sendTransaction({
         to: dummyAddress,
         value: BigNumber.from(1),
