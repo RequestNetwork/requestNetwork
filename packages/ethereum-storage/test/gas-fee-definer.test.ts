@@ -42,7 +42,7 @@ describe('Gas fee estimation', () => {
   });
 
   it('Should return a lower estimation when the previous block is empty', async () => {
-    await dummyTransactions(5);
+    await dummyTransactions(10);
     const firstEstimation = await gasFeeDefiner.getGasFees();
     await provider.send('evm_mine', []);
     await provider.send('evm_mine', []);
