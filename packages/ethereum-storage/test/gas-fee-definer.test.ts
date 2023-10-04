@@ -20,10 +20,7 @@ const checkEstimation = (
 };
 
 const dummyTransaction = () =>
-  wallet.sendTransaction({
-    to: dummyAddress,
-    value: BigNumber.from(1),
-  });
+  wallet.sendTransaction({ to: dummyAddress, value: BigNumber.from(1) });
 
 const dummyTransactions = async (count: number) => {
   for (let i = 0; i < count; i++) {
@@ -45,8 +42,10 @@ describe('Gas fee estimation', () => {
   });
 
   it('Should return a lower estimation when the previous block is empty', async () => {
-    await dummyTransactions(3);
+    await dummyTransactions(5);
     const firstEstimation = await gasFeeDefiner.getGasFees();
+    await provider.send('evm_mine', []);
+    await provider.send('evm_mine', []);
     await provider.send('evm_mine', []);
     const secondEstimation = await gasFeeDefiner.getGasFees();
 
@@ -57,7 +56,7 @@ describe('Gas fee estimation', () => {
 
   it('Should return a consistent value compared to the default value', async () => {
     // Run some transactions so there is data to perform the estimation
-    await dummyTransactions(5);
+    await dummyTransactions(10);
 
     const estimation = await gasFeeDefiner.getGasFees();
     const tx = await dummyTransaction();
