@@ -16,8 +16,6 @@ import * as StorageTypes from './storage-types';
 import * as TransactionTypes from './transaction-types';
 import * as TypesUtils from './utils';
 
-const unusedvar = '';
-
 export {
   AdvancedLogicTypes,
   ClientTypes,
