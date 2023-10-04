@@ -2,6 +2,8 @@ import { StatusCodes } from 'http-status-codes';
 import { getRequestNode } from '../src/server';
 import request from 'supertest';
 import { RequestNode } from '../src/requestNode';
+import { normalizeKeccak256Hash } from '@requestnetwork/utils';
+import { providers } from 'ethers';
 
 // enable re-running these tests on local environment by having a different channel ID each time.
 const time = Date.now();
@@ -96,7 +98,26 @@ describe('getChannelsByTopic', () => {
         [anotherChannelId]: [expect.objectContaining({ transaction: otherTransactionData })],
       }),
     );
-  });
+
+    // confirm the transactions for clean shutdown
+    const provider = new providers.JsonRpcProvider();
+    const confirm = (txData: unknown) => {
+      const transactionHash = normalizeKeccak256Hash(txData).value;
+      return new Promise<void>((r) => {
+        const i = setInterval(async () => {
+          await provider.send('evm_mine', []);
+          const res = await request(server)
+            .get('/getConfirmedTransaction')
+            .query({ transactionHash });
+          if (res.status === 200) {
+            clearInterval(i);
+            return r();
+          }
+        }, 200);
+      });
+    };
+    await Promise.all([confirm(transactionData), confirm(otherTransactionData)]);
+  }, 10000);
 
   it('responds with no transaction to requests with a non-existent topic', async () => {
     const serverResponse = await request(server)
