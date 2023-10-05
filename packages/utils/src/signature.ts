@@ -1,15 +1,17 @@
 import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
-import Crypto from './crypto';
+import {
+  ecRecover,
+  ecSign,
+  getAddressFromPrivateKey,
+  normalize,
+  normalizeKeccak256Hash,
+} from './crypto';
 
 /**
  * Function to manage Request Logic Signature
  */
-export default {
-  getIdentityFromSignatureParams,
-  recover,
-  sign,
-};
+export { getIdentityFromSignatureParams, recoverSigner, sign };
 
 // Use to localize the parameter V in an ECDSA signature in hex format
 const V_POSITION_FROM_END_IN_ECDSA_HEX = -2;
@@ -27,7 +29,7 @@ function getIdentityFromSignatureParams(
   if (signatureParams.method === SignatureTypes.METHOD.ECDSA) {
     return {
       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-      value: Crypto.EcUtils.getAddressFromPrivateKey(signatureParams.privateKey),
+      value: getAddressFromPrivateKey(signatureParams.privateKey),
     };
   }
 
@@ -49,19 +51,13 @@ function sign(
 ): SignatureTypes.ISignedData {
   let value: string;
   if (signatureParams.method === SignatureTypes.METHOD.ECDSA) {
-    value = Crypto.EcUtils.sign(
-      signatureParams.privateKey,
-      Crypto.normalizeKeccak256Hash(data).value,
-    );
+    value = ecSign(signatureParams.privateKey, normalizeKeccak256Hash(data).value);
     return { data, signature: { method: signatureParams.method, value } };
   }
 
   if (signatureParams.method === SignatureTypes.METHOD.ECDSA_ETHEREUM) {
-    const normalizedData = Crypto.normalize(data);
-    value = Crypto.EcUtils.sign(
-      signatureParams.privateKey,
-      ethers.utils.hashMessage(normalizedData),
-    );
+    const normalizedData = normalize(data);
+    value = ecSign(signatureParams.privateKey, ethers.utils.hashMessage(normalizedData));
 
     return { data, signature: { method: signatureParams.method, value } };
   }
@@ -77,13 +73,10 @@ function sign(
  * @param signedData the data signed
  * @returns identity of the signer
  */
-function recover(signedData: SignatureTypes.ISignedData): IdentityTypes.IIdentity {
+function recoverSigner(signedData: SignatureTypes.ISignedData): IdentityTypes.IIdentity {
   let value: string;
   if (signedData.signature.method === SignatureTypes.METHOD.ECDSA) {
-    value = Crypto.EcUtils.recover(
-      signedData.signature.value,
-      Crypto.normalizeKeccak256Hash(signedData.data).value,
-    );
+    value = ecRecover(signedData.signature.value, normalizeKeccak256Hash(signedData.data).value);
     return {
       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       value,
@@ -101,8 +94,8 @@ function recover(signedData: SignatureTypes.ISignedData): IdentityTypes.IIdentit
     } else if (v.toLowerCase() === '01') {
       signature = `${signedData.signature.value.slice(0, V_POSITION_FROM_END_IN_ECDSA_HEX)}1b`;
     }
-    const normalizedData = ethers.utils.hashMessage(Crypto.normalize(signedData.data));
-    value = Crypto.EcUtils.recover(signature, normalizedData).toLowerCase();
+    const normalizedData = ethers.utils.hashMessage(normalize(signedData.data));
+    value = ecRecover(signature, normalizedData).toLowerCase();
 
     return {
       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,

@@ -1,16 +1,23 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
+// eslint-disable-next-line
+// @ts-ignore Cannot find module
+import { Erc20ConversionProxy } from '../src/types/Erc20ConversionProxy';
 import {
   erc20ConversionProxy as erc20ConversionProxyArtifact,
   ethConversionArtifact,
 } from '../src/lib';
-import { DeploymentResult, deployOne } from './deploy-one';
+import { deployOne } from './deploy-one';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 
 export async function deployERC20ConversionProxy(
-  args: { chainlinkConversionPathAddress?: string; erc20FeeProxyAddress?: string },
+  args: {
+    chainlinkConversionPathAddress?: string;
+    erc20FeeProxyAddress?: string;
+    nonceCondition?: number;
+  },
   hre: HardhatRuntimeEnvironment,
-): Promise<DeploymentResult | undefined> {
+) {
   const contractName = 'Erc20ConversionProxy';
 
   if (!args.chainlinkConversionPathAddress) {
@@ -26,16 +33,25 @@ export async function deployERC20ConversionProxy(
     return undefined;
   }
 
-  return deployOne(args, hre, contractName, {
-    constructorArguments: [args.erc20FeeProxyAddress, args.chainlinkConversionPathAddress],
+  return deployOne<Erc20ConversionProxy>(args, hre, contractName, {
+    constructorArguments: [
+      args.erc20FeeProxyAddress,
+      args.chainlinkConversionPathAddress,
+      process.env.ADMIN_WALLET_ADDRESS ?? (await (await hre.ethers.getSigners())[0].getAddress()),
+    ],
     artifact: erc20ConversionProxyArtifact,
+    nonceCondition: args.nonceCondition,
+    version: '0.1.1',
   });
 }
 
-export async function deployETHConversionProxy(
+export async function deployEthConversionProxy(
   args: {
     chainlinkConversionPathAddress?: string;
     ethFeeProxyAddress?: string;
+    owner: string;
+    nonceCondition?: number;
+    version?: string;
   },
   hre: HardhatRuntimeEnvironment,
 ) {
@@ -72,7 +88,10 @@ export async function deployETHConversionProxy(
       args.ethFeeProxyAddress,
       args.chainlinkConversionPathAddress,
       nativeTokenHash,
+      args.owner,
     ],
     artifact: ethConversionArtifact,
+    nonceCondition: args.nonceCondition,
+    version: args.version,
   });
 }

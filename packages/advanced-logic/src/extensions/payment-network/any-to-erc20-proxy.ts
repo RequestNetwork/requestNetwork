@@ -1,20 +1,21 @@
+import {
+  conversionSupportedNetworks,
+  ICurrencyManager,
+  UnsupportedCurrencyError,
+} from '@requestnetwork/currency';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Erc20FeeProxyPaymentNetwork from './erc20/fee-proxy-contract';
-import { currenciesWithConversionOracles } from './conversion-supported-currencies';
 
 const CURRENT_VERSION = '0.1.0';
 
 export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentNetwork {
   public constructor(
-    extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+    private currencyManager: ICurrencyManager,
+    extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
+      .ANY_TO_ERC20_PROXY,
     currentVersion: string = CURRENT_VERSION,
   ) {
-    super(
-      extensionId,
-      currentVersion,
-      Object.keys(currenciesWithConversionOracles),
-      RequestLogicTypes.CURRENCY.ERC20,
-    );
+    super(extensionId, currentVersion);
   }
 
   /**
@@ -33,18 +34,18 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     if (creationParameters.acceptedTokens.some((address) => !this.isValidAddress(address))) {
       throw Error('acceptedTokens must contains only valid ethereum addresses');
     }
-
     const network = creationParameters.network;
-    if (!network) {
-      throw Error('network is required');
-    }
-    if (!currenciesWithConversionOracles[network]) {
-      throw Error(`network ${network} not supported`);
-    }
-    const supportedErc20: string[] = currenciesWithConversionOracles[network][RequestLogicTypes.CURRENCY.ERC20];
+    this.throwIfInvalidNetwork(network);
 
     for (const address of creationParameters.acceptedTokens) {
-      if (!supportedErc20.includes(address.toLowerCase())) {
+      const acceptedCurrency = this.currencyManager.fromAddress(address, network);
+      if (!acceptedCurrency) {
+        throw new UnsupportedCurrencyError({
+          value: address,
+          network,
+        });
+      }
+      if (!this.currencyManager.supportsConversion(acceptedCurrency, network)) {
         throw Error(
           `acceptedTokens must contain only supported token addresses (ERC20 only). ${address} is not supported for ${network}.`,
         );
@@ -116,39 +117,35 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
   /**
    * Validate the extension action regarding the currency and network
    * It must throw in case of error
-   *
-   * @param request
    */
   protected validate(
     request: RequestLogicTypes.IRequest,
     extensionAction: ExtensionTypes.IAction,
   ): void {
     const network =
-      extensionAction.parameters.network || request.extensions[this.extensionId]?.values.network;
+      extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE
+        ? extensionAction.parameters.network
+        : request.extensions[this.extensionId]?.values.network;
+    if (!network) {
+      return;
+    }
 
     // Nothing can be validated if the network has not been given yet
     if (!network) {
       return;
     }
 
-    if (!currenciesWithConversionOracles[network]) {
+    if (!conversionSupportedNetworks.includes(network)) {
       throw new Error(`The network (${network}) is not supported for this payment network.`);
     }
 
-    if (!currenciesWithConversionOracles[network][request.currency.type]) {
-      throw new Error(
-        `The currency type (${request.currency.type}) of the request is not supported for this payment network.`,
-      );
+    const currency = this.currencyManager.fromStorageCurrency(request.currency);
+    if (!currency) {
+      throw new UnsupportedCurrencyError(request.currency);
     }
-
-    const currency =
-      request.currency.type === RequestLogicTypes.CURRENCY.ERC20
-        ? request.currency.value.toLowerCase()
-        : request.currency.value;
-
-    if (!currenciesWithConversionOracles[network][request.currency.type].includes(currency)) {
+    if (!this.currencyManager.supportsConversion(currency, network)) {
       throw new Error(
-        `The currency (${request.currency.value}) of the request is not supported for this payment network.`,
+        `The currency (${currency.id}, ${currency.hash}) of the request is not supported for this payment network.`,
       );
     }
   }

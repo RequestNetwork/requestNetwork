@@ -96,17 +96,22 @@ describe('getNetworkProvider', () => {
         network: 'mainnet',
       },
     };
-    expect(getNetworkProvider(request)).toBeInstanceOf(providers.BaseProvider);
+    expect(getNetworkProvider(request)).toBeInstanceOf(providers.Provider);
   });
 
-  it('returns a provider for rinkeby', () => {
-    const request: any = {
-      currencyInfo: {
-        network: 'rinkeby',
-      },
-    };
-    expect(getNetworkProvider(request)).toBeInstanceOf(providers.BaseProvider);
-  });
+  const testProvider = (network: string) => {
+    it(`returns a provider for ${network}`, () => {
+      const request: any = {
+        currencyInfo: {
+          network: network,
+        },
+      };
+      expect(getNetworkProvider(request)).toBeInstanceOf(providers.Provider);
+    });
+  };
+
+  testProvider('rinkeby');
+  testProvider('goerli');
 
   it('fails for other network', () => {
     const request: any = {

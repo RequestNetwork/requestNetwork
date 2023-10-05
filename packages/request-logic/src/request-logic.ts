@@ -9,8 +9,8 @@ import {
   SignatureProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import RequestLogicCore from './requestLogicCore';
+import { normalizeKeccak256Hash, notNull, uniqueByProperty } from '@requestnetwork/utils';
 
 /**
  * Implementation of Request Logic
@@ -53,30 +53,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     // Validate the action, the apply will throw in case of error
     RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic);
 
-    const resultPersistTx = await this.transactionManager.persistTransaction(
-      JSON.stringify(action),
-      requestId,
-      hashedTopics,
-    );
-
-    const result = Object.assign(new EventEmitter(), {
-      meta: { transactionManagerMeta: resultPersistTx.meta },
-      result: { requestId },
-    });
-
-    // When receive the confirmation from transaction manager propagate it
-    resultPersistTx
-      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
-        result.emit('confirmed', {
-          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
-          result: { requestId },
-        });
-      })
-      .on('error', (error) => {
-        result.emit('error', error);
-      });
-
-    return result;
+    return this.persistTransaction(requestId, action, { requestId }, hashedTopics);
   }
 
   /**
@@ -110,31 +87,13 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     // Validate the action, the apply will throw in case of error
     RequestLogicCore.applyActionToRequest(null, action, Date.now(), this.advancedLogic);
 
-    const resultPersistTx = await this.transactionManager.persistTransaction(
-      JSON.stringify(action),
+    return this.persistTransaction(
       requestId,
+      action,
+      { requestId },
       hashedTopics,
       encryptionParams,
     );
-
-    const result = Object.assign(new EventEmitter(), {
-      meta: { transactionManagerMeta: resultPersistTx.meta },
-      result: { requestId },
-    });
-
-    // When receive the confirmation from transaction manager propagate it
-    resultPersistTx
-      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
-        result.emit('confirmed', {
-          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
-          result: { requestId },
-        });
-      })
-      .on('error', (error) => {
-        result.emit('error', error);
-      });
-
-    return result;
   }
 
   /**
@@ -192,27 +151,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    const resultPersistTx = await this.transactionManager.persistTransaction(
-      JSON.stringify(action),
-      requestId,
-    );
-
-    const result = Object.assign(new EventEmitter(), {
-      meta: { transactionManagerMeta: resultPersistTx.meta },
-    });
-
-    // When receive the confirmation from transaction manager propagate it
-    resultPersistTx
-      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
-        result.emit('confirmed', {
-          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
-        });
-      })
-      .on('error', (error) => {
-        result.emit('error', error);
-      });
-
-    return result;
+    return this.persistTransaction(requestId, action, undefined);
   }
 
   /**
@@ -242,27 +181,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    const resultPersistTx = await this.transactionManager.persistTransaction(
-      JSON.stringify(action),
-      requestId,
-    );
-
-    const result = Object.assign(new EventEmitter(), {
-      meta: { transactionManagerMeta: resultPersistTx.meta },
-    });
-
-    // When receive the confirmation from transaction manager propagate it
-    resultPersistTx
-      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
-        result.emit('confirmed', {
-          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
-        });
-      })
-      .on('error', (error) => {
-        result.emit('error', error);
-      });
-
-    return result;
+    return this.persistTransaction(requestId, action, undefined);
   }
 
   /**
@@ -292,27 +211,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    const resultPersistTx = await this.transactionManager.persistTransaction(
-      JSON.stringify(action),
-      requestId,
-    );
-
-    const result = Object.assign(new EventEmitter(), {
-      meta: { transactionManagerMeta: resultPersistTx.meta },
-    });
-
-    // When receive the confirmation from transaction manager propagate it
-    resultPersistTx
-      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
-        result.emit('confirmed', {
-          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
-        });
-      })
-      .on('error', (error) => {
-        result.emit('error', error);
-      });
-
-    return result;
+    return this.persistTransaction(requestId, action, undefined);
   }
 
   /**
@@ -342,27 +241,39 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    const resultPersistTx = await this.transactionManager.persistTransaction(
-      JSON.stringify(action),
-      requestId,
+    return this.persistTransaction(requestId, action, undefined);
+  }
+
+  /**
+   * Function to add stakeholders to a request and persist it on through the transaction manager layer
+   *
+   * @param IAddStakeholdersParameters requestParameters parameters to add stakeholders to a request
+   * @param IIdentity signerIdentity Identity of the signer
+   * @param IEncryptionParameters encryptionParams list of addtional encryption parameters to encrypt the channel key with
+   * @param boolean validate specifies if a validation should be done before persisting the transaction. Requires a full load of the Request.
+   *
+   * @returns Promise<IRequestLogicReturn> the meta data
+   */
+  public async addStakeholders(
+    requestParameters: RequestLogicTypes.IAddStakeholdersParameters,
+    signerIdentity: IdentityTypes.IIdentity,
+    encryptionParams: EncryptionTypes.IEncryptionParameters[],
+    validate = false,
+  ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
+    if (!this.signatureProvider) {
+      throw new Error('You must give a signature provider to create actions');
+    }
+    const action = await RequestLogicCore.formatAddStakeholders(
+      requestParameters,
+      signerIdentity,
+      this.signatureProvider,
     );
+    const requestId = RequestLogicCore.getRequestIdFromAction(action);
+    if (validate) {
+      await this.validateAction(requestId, action);
+    }
 
-    const result = Object.assign(new EventEmitter(), {
-      meta: { transactionManagerMeta: resultPersistTx.meta },
-    });
-
-    // When receive the confirmation from transaction manager propagate it
-    resultPersistTx
-      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
-        result.emit('confirmed', {
-          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
-        });
-      })
-      .on('error', (error) => {
-        result.emit('error', error);
-      });
-
-    return result;
+    return this.persistTransaction(requestId, action, undefined, [], encryptionParams);
   }
 
   /**
@@ -393,27 +304,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    const resultPersistTx = await this.transactionManager.persistTransaction(
-      JSON.stringify(action),
-      requestId,
-    );
-
-    const result = Object.assign(new EventEmitter(), {
-      meta: { transactionManagerMeta: resultPersistTx.meta },
-    });
-
-    // When receive the confirmation from transaction manager propagate it
-    resultPersistTx
-      .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
-        result.emit('confirmed', {
-          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
-        });
-      })
-      .on('error', (error) => {
-        result.emit('error', error);
-      });
-
-    return result;
+    return this.persistTransaction(requestId, action, undefined);
   }
 
   /**
@@ -450,7 +341,6 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   /**
    * Gets the requests indexed by a topic from the transactions of transaction-manager layer
    *
-   * @param topic
    * @returns all the requests indexed by topic
    */
   public async getRequestsByTopic(
@@ -458,7 +348,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     updatedBetween?: RequestLogicTypes.ITimestampBoundaries,
   ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
     // hash all the topics
-    const hashedTopic = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(topic));
+    const hashedTopic = MultiFormat.serialize(normalizeKeccak256Hash(topic));
 
     const getChannelsResult = await this.transactionManager.getChannelsByTopic(
       hashedTopic,
@@ -470,7 +360,6 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   /**
    * Gets the requests indexed by multiple topics from the transactions of transaction-manager layer
    *
-   * @param topics
    * @returns all the requests indexed by topics
    */
   public async getRequestsByMultipleTopics(
@@ -479,7 +368,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
     // hash all the topics
     const hashedTopics = topics.map((topic) =>
-      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(topic)),
+      MultiFormat.serialize(normalizeKeccak256Hash(topic)),
     );
 
     const getChannelsResult = await this.transactionManager.getChannelsByMultipleTopics(
@@ -519,7 +408,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
 
     // hash all the topics
     const hashedTopics = topics.map((topic) =>
-      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(topic)),
+      MultiFormat.serialize(normalizeKeccak256Hash(topic)),
     );
 
     return {
@@ -535,9 +424,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param requestId the requestId of the request to compute
    * @returns the request, the pending state of the request and the ignored transactions
    */
-  private async computeRequestFromRequestId(
-    requestId: RequestLogicTypes.RequestId,
-  ): Promise<{
+  private async computeRequestFromRequestId(requestId: RequestLogicTypes.RequestId): Promise<{
     confirmedRequestState: RequestLogicTypes.IRequest | null;
     pendingRequestState: RequestLogicTypes.IRequest | null;
     ignoredTransactions: any[];
@@ -546,16 +433,16 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const resultGetTx = await this.transactionManager.getTransactionsByChannelId(requestId);
     const actions = resultGetTx.result.transactions
       // filter the actions ignored by the previous layers
-      .filter(Utils.notNull)
+      .filter(notNull)
       .sort((a, b) => a.timestamp - b.timestamp);
 
     // eslint-disable-next-line prefer-const
     let { ignoredTransactions, keptTransactions } = this.removeOldPendingTransactions(actions);
 
     // array of transaction without duplicates to avoid replay attack
-    const timestampedActionsWithoutDuplicates = Utils.uniqueByProperty(
+    const timestampedActionsWithoutDuplicates = uniqueByProperty(
       keptTransactions
-        .filter(Utils.notNull)
+        .filter(notNull)
         .map((t) => {
           try {
             return {
@@ -572,7 +459,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
             return;
           }
         })
-        .filter(Utils.notNull),
+        .filter(notNull),
       'action',
     );
 
@@ -586,11 +473,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       }),
     );
 
-    const {
-      confirmedRequestState,
-      pendingRequestState,
-      ignoredTransactionsByApplication,
-    } = await this.computeRequestFromTransactions(timestampedActionsWithoutDuplicates.uniqueItems);
+    const { confirmedRequestState, pendingRequestState, ignoredTransactionsByApplication } =
+      await this.computeRequestFromTransactions(timestampedActionsWithoutDuplicates.uniqueItems);
     ignoredTransactions = ignoredTransactions.concat(ignoredTransactionsByApplication);
 
     return {
@@ -685,10 +569,10 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           transactionsByChannel[channelId],
         );
 
-        const timestampedActionsWithoutDuplicates = Utils.uniqueByProperty(
+        const timestampedActionsWithoutDuplicates = uniqueByProperty(
           keptTransactions
             // filter the actions ignored by the previous layers
-            .filter(Utils.notNull)
+            .filter(notNull)
             .map((t) => {
               try {
                 return {
@@ -705,7 +589,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
                 return;
               }
             })
-            .filter(Utils.notNull),
+            .filter(notNull),
           'action',
         );
 
@@ -718,13 +602,10 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         );
 
         // Computes the request from the transactions
-        const {
-          confirmedRequestState,
-          pendingRequestState,
-          ignoredTransactionsByApplication,
-        } = await this.computeRequestFromTransactions(
-          timestampedActionsWithoutDuplicates.uniqueItems,
-        );
+        const { confirmedRequestState, pendingRequestState, ignoredTransactionsByApplication } =
+          await this.computeRequestFromTransactions(
+            timestampedActionsWithoutDuplicates.uniqueItems,
+          );
         ignoredTransactions = ignoredTransactions.concat(ignoredTransactionsByApplication);
 
         const pending = this.computeDiffBetweenPendingAndConfirmedRequestState(
@@ -830,8 +711,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         if (key in pendingRequestState) {
           // TODO: Should find a better way to do that
           if (
-            Utils.crypto.normalizeKeccak256Hash(pendingRequestState[key]).value !==
-            Utils.crypto.normalizeKeccak256Hash(confirmedRequestState[key]).value
+            normalizeKeccak256Hash(pendingRequestState[key]).value !==
+            normalizeKeccak256Hash(confirmedRequestState[key]).value
           ) {
             if (!pending) {
               pending = {};
@@ -895,5 +776,37 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       .reverse();
 
     return { ignoredTransactions, keptTransactions };
+  }
+
+  private async persistTransaction<T = unknown>(
+    requestId: string,
+    action: RequestLogicTypes.IAction,
+    result: T,
+    topics: string[] = [],
+    encryptionParams: EncryptionTypes.IEncryptionParameters[] = [],
+  ) {
+    const resultPersistTx = await this.transactionManager.persistTransaction(
+      JSON.stringify(action),
+      requestId,
+      topics,
+      encryptionParams,
+    );
+
+    const eventEmitter = new EventEmitter();
+
+    // When receive the confirmation from transaction manager propagate it
+    resultPersistTx
+      .on('confirmed', (resultPersistTxConfirmed) =>
+        eventEmitter.emit('confirmed', {
+          meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
+          result,
+        }),
+      )
+      .on('error', (error) => eventEmitter.emit('error', error));
+
+    return Object.assign(eventEmitter, {
+      meta: { transactionManagerMeta: resultPersistTx.meta },
+      result,
+    });
   }
 }

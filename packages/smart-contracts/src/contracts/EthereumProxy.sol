@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-
 /**
  * @title EthereumProxy
  * @notice This contract performs an Ethereum transfer and stores a reference
@@ -12,19 +11,20 @@ contract EthereumProxy {
 
   // Fallback function returns funds to the sender
   receive() external payable {
-    revert("not payable receive");
+    revert('not payable receive');
   }
 
   /**
-  * @notice Performs an Ethereum transfer with a reference
-  * @param _to Transfer recipient
-  * @param _paymentReference Reference of the payment related
-  */
+   * @notice Performs an Ethereum transfer with a reference
+   * @param _to Transfer recipient
+   * @param _paymentReference Reference of the payment related
+   */
   function transferWithReference(address payable _to, bytes calldata _paymentReference)
     external
     payable
   {
-    _to.transfer(msg.value);
+    (bool success, ) = _to.call{value: msg.value}('');
+    require(success, 'Could not pay the recipient');
     emit TransferWithReference(_to, msg.value, _paymentReference);
   }
 }

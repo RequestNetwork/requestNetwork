@@ -3,19 +3,14 @@ import { AdvancedLogicTypes } from '@requestnetwork/types';
 import ContentDataExtension from '../../src/api/content-data-extension';
 
 import * as TestData from './data-for-content-data-extension';
+import { IAdvancedLogicExtensions } from '@requestnetwork/types/src/advanced-logic-types';
 
-const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+const mockAdvancedLogic = {
+  applyActionToExtensions: jest.fn(),
   extensions: {
-    contentData: {
-      createCreationAction(): any {
-        return;
-      },
-    },
-  },
-};
+    contentData: { createCreationAction: jest.fn() },
+  } as any as IAdvancedLogicExtensions,
+} as any as AdvancedLogicTypes.IAdvancedLogic;
 
 let contentDataExtension: ContentDataExtension;
 

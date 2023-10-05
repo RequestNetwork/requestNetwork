@@ -1,7 +1,7 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import { StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import { EventEmitter } from 'events';
+import { getCurrentTimestampInSecond, normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 /**
  * Storage layer implemented with in-memory hashmap, to be used for testing.
@@ -19,13 +19,13 @@ export default class MockStorage implements StorageTypes.IStorage {
     return;
   }
 
-  public async _ipfsAdd(content: string): Promise<StorageTypes.IIpfsMeta> {
+  public async ipfsAdd(content: string): Promise<StorageTypes.IIpfsMeta> {
     if (!content) {
       throw Error('Error: no content provided');
     }
-    const hash = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(content));
+    const hash = MultiFormat.serialize(normalizeKeccak256Hash(content));
 
-    const nowTimestampInSec = Utils.getCurrentTimestampInSecond();
+    const nowTimestampInSec = getCurrentTimestampInSecond();
 
     this.data.set(hash, {
       content,
@@ -43,9 +43,9 @@ export default class MockStorage implements StorageTypes.IStorage {
     if (!content) {
       throw Error('Error: no content provided');
     }
-    const hash = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(content));
+    const hash = MultiFormat.serialize(normalizeKeccak256Hash(content));
 
-    const nowTimestampInSec = Utils.getCurrentTimestampInSecond();
+    const nowTimestampInSec = getCurrentTimestampInSecond();
 
     const dataToStore = {
       content,
@@ -117,7 +117,7 @@ export default class MockStorage implements StorageTypes.IStorage {
       },
     }));
 
-    const nowTimestampInSec = Utils.getCurrentTimestampInSecond();
+    const nowTimestampInSec = getCurrentTimestampInSecond();
 
     return {
       entries,

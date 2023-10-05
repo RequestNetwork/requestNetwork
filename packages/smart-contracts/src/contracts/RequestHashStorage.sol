@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./legacy_openzeppelin/contracts/access/roles/WhitelistedRole.sol";
-
+import './legacy_openzeppelin/contracts/access/roles/WhitelistedRole.sol';
 
 /**
  * @title RequestHashStorage
  * @notice This contract is the entry point to retrieve all the hashes of the request network system.
-  */
+ */
 contract RequestHashStorage is WhitelistedRole {
-
   // Event to declare a new hash
   event NewHash(string hash, address hashSubmitter, bytes feesParameters);
 

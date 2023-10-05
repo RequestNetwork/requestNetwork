@@ -1,5 +1,6 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import {
+  ExtensionTypes,
   IdentityTypes,
   PaymentTypes,
   RequestLogicTypes,
@@ -7,7 +8,7 @@ import {
   SignatureTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { normalizeKeccak256Hash, sign } from '@requestnetwork/utils';
 import AxiosMockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
 import { Types } from '../src';
@@ -73,13 +74,29 @@ export const parametersWithDeclarative: RequestLogicTypes.ICreateParameters = {
     {
       action: 'create',
       id: 'pn-any-declarative',
-      parameters: {},
+      parameters: {
+        paymentInfo: {
+          BIC: 'SABAIE2D',
+          IBAN: 'FR89370400440532013000',
+        },
+      },
       version: '0.1.0',
     },
   ],
   payee: payee.identity,
   payer: payer.identity,
   timestamp: arbitraryTimestamp,
+};
+const parametersWithDeclarativeNoPaymentInfo: RequestLogicTypes.ICreateParameters = {
+  ...parametersWithDeclarative,
+  extensionsData: [
+    {
+      action: 'create',
+      id: 'pn-any-declarative',
+      parameters: {},
+      version: '0.1.0',
+    },
+  ],
 };
 
 export const parametersWithoutExtensionsData: RequestLogicTypes.ICreateParameters = {
@@ -89,6 +106,17 @@ export const parametersWithoutExtensionsData: RequestLogicTypes.ICreateParameter
     value: 'BTC',
   },
   expectedAmount: '100000000000',
+  payee: payee.identity,
+  payer: payer.identity,
+  timestamp: arbitraryTimestamp,
+};
+export const parametersUSDWithoutExtensionsData: RequestLogicTypes.ICreateParameters = {
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ISO4217,
+    value: 'USD',
+  },
+  // 345.67 USD
+  expectedAmount: '34567',
   payee: payee.identity,
   payer: payer.identity,
   timestamp: arbitraryTimestamp,
@@ -111,23 +139,29 @@ export const data = {
   parameters,
   version: '2.0.3',
 };
-export const dataWithoutExtensionsData = {
+const dataWithoutExtensionsData = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters: parametersWithoutExtensionsDataForSigning,
   version: '2.0.3',
 };
-export const dataWithDeclarative = {
+const dataWithDeclarative = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters: parametersWithDeclarative,
   version: '2.0.3',
 };
+const dataWithDeclarativeNoPaymentInfo = {
+  name: RequestLogicTypes.ACTION_NAME.CREATE,
+  parameters: parametersWithDeclarativeNoPaymentInfo,
+  version: '2.0.3',
+};
 
-export const action: RequestLogicTypes.IAction = Utils.signature.sign(
-  dataWithDeclarative,
+export const action: RequestLogicTypes.IAction = sign(dataWithDeclarative, payee.signatureParams);
+const actionWithoutExtensionsData: RequestLogicTypes.IAction = sign(
+  dataWithoutExtensionsData,
   payee.signatureParams,
 );
-export const actionWithoutExtensionsData: RequestLogicTypes.IAction = Utils.signature.sign(
-  dataWithoutExtensionsData,
+const actionWithoutPaymentInfo: RequestLogicTypes.IAction = sign(
+  dataWithDeclarativeNoPaymentInfo,
   payee.signatureParams,
 );
 
@@ -136,28 +170,27 @@ export const timestampedTransaction: TransactionTypes.ITimestampedTransaction = 
   timestamp: arbitraryTimestamp,
   transaction: { data: JSON.stringify(action) },
 };
-export const timestampedTransactionWithoutExtensionsData: TransactionTypes.ITimestampedTransaction = {
-  state: TransactionTypes.TransactionState.PENDING,
-  timestamp: arbitraryTimestamp,
-  transaction: { data: JSON.stringify(actionWithoutExtensionsData) },
-};
-export const timestampedTransactionWithoutExtensionsDataConfirmed: TransactionTypes.ITimestampedTransaction = {
+export const timestampedTransactionWithoutExtensionsData: TransactionTypes.ITimestampedTransaction =
+  {
+    state: TransactionTypes.TransactionState.PENDING,
+    timestamp: arbitraryTimestamp,
+    transaction: { data: JSON.stringify(actionWithoutExtensionsData) },
+  };
+export const timestampedTransactionWithoutExtensionsDataConfirmed: TransactionTypes.ITimestampedTransaction =
+  {
+    state: TransactionTypes.TransactionState.CONFIRMED,
+    timestamp: arbitraryTimestamp,
+    transaction: { data: JSON.stringify(actionWithoutExtensionsData) },
+  };
+export const timestampedTransactionWithoutPaymentInfo: TransactionTypes.ITimestampedTransaction = {
   state: TransactionTypes.TransactionState.CONFIRMED,
   timestamp: arbitraryTimestamp,
-  transaction: { data: JSON.stringify(actionWithoutExtensionsData) },
-};
-export const timestampedTransactionWithDeclarative: TransactionTypes.ITimestampedTransaction = {
-  state: TransactionTypes.TransactionState.CONFIRMED,
-  timestamp: arbitraryTimestamp,
-  transaction: { data: JSON.stringify(action) },
+  transaction: { data: JSON.stringify(actionWithoutPaymentInfo) },
 };
 
-export const actionRequestId = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(action));
+export const actionRequestId = MultiFormat.serialize(normalizeKeccak256Hash(action));
 
-export const anotherCreationAction: RequestLogicTypes.IAction = Utils.signature.sign(
-  data,
-  payer.signatureParams,
-);
+export const anotherCreationAction: RequestLogicTypes.IAction = sign(data, payer.signatureParams);
 
 export const anotherCreationTransactionConfirmed: TransactionTypes.ITimestampedTransaction = {
   state: TransactionTypes.TransactionState.PENDING,
@@ -181,7 +214,7 @@ const dataSecondRequest = {
   version: '2.0.3',
 };
 
-export const actionCreationSecondRequest: RequestLogicTypes.IAction = Utils.signature.sign(
+export const actionCreationSecondRequest: RequestLogicTypes.IAction = sign(
   dataSecondRequest,
   payee.signatureParams,
 );
@@ -193,17 +226,21 @@ export const timestampedTransactionSecondRequest: TransactionTypes.ITimestampedT
 };
 
 export const actionRequestIdSecondRequest = MultiFormat.serialize(
-  Utils.crypto.normalizeKeccak256Hash(actionCreationSecondRequest),
+  normalizeKeccak256Hash(actionCreationSecondRequest),
 );
 
-export const declarativePaymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-  id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+export const declarativePaymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
   parameters: {
-    paymentInformation: {
+    paymentInfo: {
       BIC: 'SABAIE2D',
       IBAN: 'FR89370400440532013000',
     },
   },
+};
+export const declarativePaymentNetworkNoPaymentInfo: PaymentTypes.PaymentNetworkCreateParameters = {
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
+  parameters: {},
 };
 
 export const signatureParametersPayee: SignatureTypes.ISignatureParameters = {
@@ -222,11 +259,11 @@ export const signatureParametersDelegate: SignatureTypes.ISignatureParameters = 
 export const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
   sign: (data: any, signer: IdentityTypes.IIdentity): any => {
     if (signer.value === payee.identity.value) {
-      return Utils.signature.sign(data, signatureParametersPayee);
+      return sign(data, signatureParametersPayee);
     } else if (signer.value === payer.identity.value) {
-      return Utils.signature.sign(data, signatureParametersPayer);
+      return sign(data, signatureParametersPayer);
     } else {
-      return Utils.signature.sign(data, signatureParametersDelegate);
+      return sign(data, signatureParametersDelegate);
     }
   },
   supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],

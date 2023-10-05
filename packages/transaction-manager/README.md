@@ -17,7 +17,7 @@ npm install @requestnetwork/transaction-manager
 In order to decrypt encrypted transactions, you must provide a decryption provider.
 You can see the specification of decryption provider [here](./specs/decryption-provider.md).
 
-An example of implementation of a decryption provider is available in the package: [epk-decryption](../../epk-decryption)
+An example of implementation of a decryption provider is available in the package: [epk-decryption](../epk-decryption/)
 
 ```javascript
 import EthereumPrivateKeyDecryptionProvider from '@requestnetwork/epk-decryption';
@@ -50,7 +50,7 @@ const transactionManager = new TransactionManager(dataAccess);
 
 const data = '{ what: "ever", it: "is,", this: "must", work: true }';
 const channelId = 'myRequest';
-const channelTopics = ['stakeholder1','stakeholder2'];
+const channelTopics = ['stakeholder1', 'stakeholder2'];
 
 const { result } = await transactionManager.persistTransaction(data, channelId, channelTopics);
 ```
@@ -103,7 +103,9 @@ const transactionManager = new TransactionManager(dataAccess, decryptionProvider
 
 const channelId = 'myRequest';
 
-const { result: {transactions} } = await transactionManager.getTransactionsByChannelId(channelId);
+const {
+  result: { transactions },
+} = await transactionManager.getTransactionsByChannelId(channelId);
 ```
 
 ### Get Transactions from topic

@@ -15,7 +15,7 @@ export interface IAnyDeclarative<TCreationParameters = ICreationParameters>
   createAddRefundInstructionAction: (
     parameters: IAddRefundInstructionParameters,
   ) => Extension.IAction;
-  createCreationAction: (parameters?: TCreationParameters) => Extension.IAction;
+  createCreationAction: (parameters: TCreationParameters) => Extension.IAction<TCreationParameters>;
   createAddDelegateAction: (parameters: IAddDelegateParameters) => Extension.IAction;
 }
 
@@ -31,6 +31,8 @@ export interface ICreationParameters {
   refundInfo?: any;
   payeeDelegate?: IIdentity;
   payerDelegate?: IIdentity;
+  /** Optional salt to compute a payment reference */
+  salt?: string;
 }
 
 /** Parameters of declareSentPayment and declareSentRefund action */

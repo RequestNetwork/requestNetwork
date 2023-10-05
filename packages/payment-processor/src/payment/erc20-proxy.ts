@@ -2,7 +2,7 @@ import { ContractTransaction, Signer, BigNumberish, providers } from 'ethers';
 
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { ERC20Proxy__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
@@ -17,14 +17,13 @@ import { IPreparedTransaction } from './prepared-transaction';
 
 /**
  * Processes a transaction to pay an ERC20 Request.
- * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param overrides optionally, override default transaction values, like gas.
  */
 export async function payErc20ProxyRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   amount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
@@ -43,7 +42,7 @@ export function encodePayErc20Request(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
 ): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
   const tokenAddress = request.currencyInfo.value;
 
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
@@ -62,14 +61,13 @@ export function encodePayErc20Request(
  * Return the EIP-681 format URL with the transaction to pay an ERC20
  * Warning: this EIP isn't widely used, be sure to test compatibility yourself.
  *
- * @param request
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
 export function _getErc20ProxyPaymentUrl(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
 ): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
   const { paymentAddress, paymentReference } = getRequestPaymentValues(request);
   const contractAddress = getProxyAddress(
     request,
@@ -90,7 +88,7 @@ export function prepareErc20ProxyPaymentTransaction(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
 ): IPreparedTransaction {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
 
   return {
     data: encodePayErc20Request(request, amount),

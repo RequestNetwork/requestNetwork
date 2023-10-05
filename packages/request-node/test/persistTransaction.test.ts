@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
-import requestNode from '../src/requestNode';
+import { RequestNode } from '../src/requestNode';
+import { RequestNodeBase } from '../src/requestNodeBase';
 
 const channelId = '010aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 const anotherChannelId = '010bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
@@ -12,20 +13,21 @@ const transactionData = { data: 'this is sample data for a transaction' };
 const anotherTransactionData = { data: 'you can put any data' };
 const badlyFormattedTransactionData = { not: 'a transaction' };
 
-let requestNodeInstance;
+let requestNodeInstance: RequestNodeBase;
 let server: any;
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('persistTransaction', () => {
   beforeAll(async () => {
-    requestNodeInstance = new requestNode();
+    requestNodeInstance = new RequestNode();
     await requestNodeInstance.initialize();
 
     server = (requestNodeInstance as any).express;
   });
 
-  afterAll(() => {
+  afterAll(async () => {
+    await requestNodeInstance.close();
     server.close();
   });
 

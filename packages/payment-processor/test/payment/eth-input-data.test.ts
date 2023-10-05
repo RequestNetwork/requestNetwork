@@ -2,12 +2,12 @@ import { Wallet, providers, BigNumber } from 'ethers';
 
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
-  PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 import { _getEthPaymentUrl, payEthInputDataRequest } from '../../src/payment/eth-input-data';
 import { getRequestPaymentValues } from '../../src/payment/utils';
@@ -40,9 +40,9 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '1',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,
@@ -72,7 +72,7 @@ describe('getRequestPaymentValues', () => {
 
 describe('payEthInputDataRequest', () => {
   it('should throw an error if the request is not eth', async () => {
-    const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+    const request = deepCopy(validRequest) as ClientTypes.IRequestData;
     request.currencyInfo.type = RequestLogicTypes.CURRENCY.ERC20;
     await expect(payEthInputDataRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-input-data request',
@@ -80,15 +80,15 @@ describe('payEthInputDataRequest', () => {
   });
 
   it('should throw an error if currencyInfo has no network', async () => {
-    const request = Utils.deepCopy(validRequest);
-    request.currencyInfo.network = '';
+    const request = deepCopy(validRequest);
+    request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
     await expect(payEthInputDataRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );
   });
 
   it('should throw an error if request has no extension', async () => {
-    const request = Utils.deepCopy(validRequest);
+    const request = deepCopy(validRequest);
     request.extensions = [] as any;
 
     await expect(payEthInputDataRequest(request, wallet)).rejects.toThrowError(
@@ -123,8 +123,10 @@ describe('payEthInputDataRequest', () => {
     const balanceAfter = await wallet.getBalance();
     expect(confirmedTx.status).toBe(1);
     // new_balance = old_balance + amount + fees
-    expect(
-      balanceAfter.eq(balanceBefore.sub(validRequest.expectedAmount).sub(confirmedTx.gasUsed || 0)),
+    expect(balanceAfter).toEqual(
+      balanceBefore
+        .sub(validRequest.expectedAmount)
+        .sub(confirmedTx.cumulativeGasUsed.mul(confirmedTx.effectiveGasPrice) || 0),
     );
   });
 });

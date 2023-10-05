@@ -8,13 +8,17 @@ import {
 
 export abstract class PaymentDetectorBase<
   TExtension extends ExtensionTypes.IExtension,
-  TPaymentEventParameters
-> implements PaymentTypes.IPaymentNetwork<TPaymentEventParameters> {
-  public constructor(
-    readonly paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
-    protected readonly extension: TExtension,
+  TPaymentEventParameters extends PaymentTypes.GenericEventParameters,
+> implements PaymentTypes.IPaymentNetwork<TPaymentEventParameters>
+{
+  protected constructor(
+    public readonly paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
+    public readonly extension: TExtension,
   ) {}
-  abstract createExtensionsDataForCreation(paymentNetworkCreationParameters: any): Promise<any>;
+
+  abstract createExtensionsDataForCreation(
+    paymentNetworkCreationParameters: PaymentTypes.PaymentNetworkCreateParameters['parameters'],
+  ): Promise<any>;
   abstract createExtensionsDataForAddRefundInformation(parameters: any): any;
   abstract createExtensionsDataForAddPaymentInformation(parameters: any): any;
 
@@ -28,13 +32,16 @@ export abstract class PaymentDetectorBase<
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents<TPaymentEventParameters>> {
     try {
-      const rawEvents = await this.getEvents(request);
-      const events = this.sortEvents(this.filterEvents(request, rawEvents));
-      const balance = this.computeBalance(events).toString();
+      const allNetworkEvents = await this.getEvents(request);
+      const rawPaymentEvents = allNetworkEvents.paymentEvents;
+      const events = this.sortEvents(rawPaymentEvents);
 
+      const balance = this.computeBalance(events).toString();
+      const escrowEvents = this.sortEscrowEvents(allNetworkEvents.escrowEvents || []);
       return {
         balance,
         events,
+        escrowEvents,
       };
     } catch (error) {
       return getBalanceErrorObject(error);
@@ -42,11 +49,11 @@ export abstract class PaymentDetectorBase<
   }
 
   /**
-   * Gets all paymnent events for a given Request
+   * Gets all payment events for a given Request
    */
   protected abstract getEvents(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[]>;
+  ): Promise<PaymentTypes.AllNetworkEvents<TPaymentEventParameters>>;
 
   protected getPaymentExtension(
     request: RequestLogicTypes.IRequest,
@@ -79,14 +86,10 @@ export abstract class PaymentDetectorBase<
     return events.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
   }
 
-  /**
-   * Override to ignore invalid events in `getBalance()`
-   */
-  protected filterEvents(
-    _request: RequestLogicTypes.IRequest,
-    events: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[],
-  ): PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[] {
-    return events;
+  protected sortEscrowEvents(
+    events: PaymentTypes.EscrowNetworkEvent[],
+  ): PaymentTypes.EscrowNetworkEvent[] {
+    return events.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
   }
 
   protected checkRequiredParameter<T>(value: T | undefined, name: string): asserts value is T {

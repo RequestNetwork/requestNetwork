@@ -1,80 +1,73 @@
 import { StorageTypes } from '@requestnetwork/types';
 import { getSafeGasPriceLimit } from '../src/config';
-import EthereumUtils from '../src/ethereum-utils';
 
 import { BigNumber } from 'ethers';
+import {
+  getEthereumStorageNetworkIdFromName,
+  getEthereumStorageNetworkNameFromId,
+  isGasPriceSafe,
+} from '../src/ethereum-utils';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('Ethereum Utils', () => {
-  describe('getEthereumNetworkNameFromId', () => {
+  describe('getEthereumStorageNetworkNameFromId', () => {
     it('allows to get the correct network name', async () => {
-      expect(EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.PRIVATE)).toBe(
+      expect(getEthereumStorageNetworkNameFromId(StorageTypes.EthereumNetwork.PRIVATE)).toBe(
         'private',
       );
-      expect(EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)).toBe(
+      expect(getEthereumStorageNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)).toBe(
         'mainnet',
       );
-      expect(EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.KOVAN)).toBe(
-        'kovan',
-      );
-      expect(EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.RINKEBY)).toBe(
+      expect(getEthereumStorageNetworkNameFromId(StorageTypes.EthereumNetwork.RINKEBY)).toBe(
         'rinkeby',
       );
-      expect(EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.SOKOL)).toBe(
-        'sokol',
+      expect(getEthereumStorageNetworkNameFromId(StorageTypes.EthereumNetwork.GOERLI)).toBe(
+        'goerli',
       );
-      expect(EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI)).toBe(
-        'xdai',
-      );
+      expect(getEthereumStorageNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI)).toBe('xdai');
     });
 
-    it(`should return undefined if the network doesn't exist`, async () => {
-      expect(EthereumUtils.getEthereumNetworkNameFromId(2000)).toBeUndefined();
+    it(`should throw if the storage network is not supported`, async () => {
+      expect(() => getEthereumStorageNetworkNameFromId(2000)).toThrowError(
+        'Unsupported storage chain: 2000',
+      );
     });
   });
 
-  describe('getEthereumIdFromNetworkName', () => {
+  describe('getEthereumStorageNetworkIdFromName', () => {
     it('allows to get the correct network name', async () => {
-      expect(EthereumUtils.getEthereumIdFromNetworkName('private')).toBe(
+      expect(getEthereumStorageNetworkIdFromName('private')).toBe(
         StorageTypes.EthereumNetwork.PRIVATE,
       );
-      expect(EthereumUtils.getEthereumIdFromNetworkName('mainnet')).toBe(
+      expect(getEthereumStorageNetworkIdFromName('mainnet')).toBe(
         StorageTypes.EthereumNetwork.MAINNET,
       );
-      expect(EthereumUtils.getEthereumIdFromNetworkName('kovan')).toBe(
-        StorageTypes.EthereumNetwork.KOVAN,
-      );
-      expect(EthereumUtils.getEthereumIdFromNetworkName('rinkeby')).toBe(
+      expect(getEthereumStorageNetworkIdFromName('rinkeby')).toBe(
         StorageTypes.EthereumNetwork.RINKEBY,
       );
-      expect(EthereumUtils.getEthereumIdFromNetworkName('sokol')).toBe(
-        StorageTypes.EthereumNetwork.SOKOL,
+      expect(getEthereumStorageNetworkIdFromName('goerli')).toBe(
+        StorageTypes.EthereumNetwork.GOERLI,
       );
-      expect(EthereumUtils.getEthereumIdFromNetworkName('xdai')).toBe(
-        StorageTypes.EthereumNetwork.XDAI,
-      );
+      expect(getEthereumStorageNetworkIdFromName('xdai')).toBe(StorageTypes.EthereumNetwork.XDAI);
     });
 
-    it(`should return undefined if the network doesn't exist`, async () => {
-      expect(EthereumUtils.getEthereumIdFromNetworkName('wrong')).toBeUndefined();
+    it(`should return undefined if the network is not supported for storage`, async () => {
+      expect(getEthereumStorageNetworkIdFromName('avalanche')).toBeUndefined();
+      expect(getEthereumStorageNetworkIdFromName('mumbai')).toBeUndefined();
     });
   });
 
   describe('isGasPriceSafe', () => {
     it('should return true when a safe value is given', async () => {
-      expect(EthereumUtils.isGasPriceSafe(BigNumber.from(1))).toBe(true);
-      expect(EthereumUtils.isGasPriceSafe(BigNumber.from(1000))).toBe(true);
-      expect(
-        EthereumUtils.isGasPriceSafe(BigNumber.from(parseInt(getSafeGasPriceLimit()) - 1)),
-      ).toBe(true);
+      expect(isGasPriceSafe(BigNumber.from(1))).toBe(true);
+      expect(isGasPriceSafe(BigNumber.from(1000))).toBe(true);
+      expect(isGasPriceSafe(BigNumber.from(parseInt(getSafeGasPriceLimit()) - 1))).toBe(true);
     });
 
     it('should return false when an unsafe value is given', async () => {
-      expect(EthereumUtils.isGasPriceSafe(BigNumber.from(0))).toBe(false);
-      expect(EthereumUtils.isGasPriceSafe(BigNumber.from(parseInt(getSafeGasPriceLimit())))).toBe(
-        false,
-      );
+      expect(isGasPriceSafe(BigNumber.from(0))).toBe(false);
+      expect(isGasPriceSafe(BigNumber.from(parseInt(getSafeGasPriceLimit())))).toBe(false);
     });
   });
 });

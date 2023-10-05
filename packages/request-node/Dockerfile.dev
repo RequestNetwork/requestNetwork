@@ -1,0 +1,16 @@
+FROM node:16-alpine
+
+## Warning! This Docker config is meant to be used for development and debugging, not in prod.
+## This is a simplified Dockerfile for a fast build
+## It expects that the monorepo is compiled (`yarn build:tsc` at the monorepo root)
+## And that the request-node is built with NCC: `npx @vercel/ncc build src/server.ts -o dist/ncc`
+
+WORKDIR /request-node
+COPY dist/ncc .
+
+# Port configuration
+ENV PORT 3000
+EXPOSE 3000
+
+# Run
+CMD ["node", "index.js"]

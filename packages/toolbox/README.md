@@ -27,11 +27,71 @@ CreateRequest.createTestRequest(12);
 #### In the CLI
 
 ```bash
-yarn run:create
-yarn run:create 12
+yarn request-toolbox request create
+yarn request-toolbox request create 12
 ```
 
-### Get conversion paths
+or if ran from the `/toolbox` folder
+
+```bash
+yarn cli request create
+yarn cli request create 12
+```
+
+#### CLI Troubleshooting
+
+If you receive the following error
+
+```bash
+error Command "request-toolbox" not found.
+```
+
+then build the toolbox package like bellow:
+
+```bash
+cd packages/toolbox
+yarn --check-files
+```
+
+### Conversion paths
+
+#### Adding & removing aggregators
+
+The following command guides you in adding missing aggregators.
+
+```bash
+yarn request-toolbox addAggregators mainnet --privateKey $PRIVATE_KEY --dryRun
+```
+
+It will suggest pairs of currencies:
+
+- With a Chainlink price feed oracle (according to [a cached JSON](https://cl-docs-addresses.web.app/addresses.json]))
+- If they exist in Currency Manager (cf. [../currency/src/erc20/networks]())
+- If they are not already added to the Chainlink Aggregation Path contract, as reported by the Price Aggregators subgraph ([Example for BSC](https://thegraph.com/hosted-service/subgraph/requestnetwork/price-aggregators-bsc))
+
+The following commands are also available:
+
+- `yarn request-toolbox addAggregator` can be used if you have all information about an aggregator you want to add
+- `yarn request-toolbox removeAggregator` will set the given currency pair to the 0x00[...]00 address.
+- `yarn request-toolbox listMissingAggregators <name>` (where `name` is a valid Request Finance currency list, [https://api.request.network/currency/list/name]() should be valid) will display missing aggregators for that list on all networks.
+
+Use `--help` for details about each command.
+
+#### Updating conversion paths
+
+> NB: this procedure is only used to update the standard list.
+> For an always up-to-date list, use the Aggregator Subgraphs
+> _requires [jq](https://stedolan.github.io/jq/)_
+
+```bash
+./updateAggregators.sh mainnet
+# or, depending on the network, you can specify the URL
+WEB3_URL=https://polygon-mainnet.infura.io/v3/xxx ./updateAggregators.sh matic
+git add ../currency
+git commit ...
+```
+
+#### Getting conversion paths
 
 Returns all the aggregators used for the any-to-erc20 proxy.
 It can be used to populate the [currency pair](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/currency/src/chainlink-path-aggregators.ts#L9) (in @requestnetwork/currency) when we add a new aggregator to [ChainlinkConversionPath.sol](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ChainlinkConversionPath.sol) on any network.
@@ -71,18 +131,10 @@ To get only aggregators of one network:
 yarn chainlinkPath mainnet
 ```
 
-To get aggregators of a network with a lot of blocks, you have to gather most updates with updateAggregatorsList.
-
-Case 1: you only use updateAggregatorsList, and update every pair each time, take this block of its last execution.
+You can change the default blockRange (some networks allow a very large range, some don't) with `maxRange`
 
 ```bash
-yarn chainlinkPath --network=matic --firstBlock=$LAST_EXECUTION_BLOCK
-```
-
-Case 2: you used updateAggregator a few times after a full updateAggregatorsList (mass update), all within a blockspan of less than 100'000.
-
-```bash
-yarn chainlinkPath --network=matic --firstBlock=$MASS_UPDATE_BLOCK --lastBlock=$LAST_SINGLE_UPDATE_BLOCK
+yarn chainlinkPath mainnet --maxRange 1000000
 ```
 
 To get a currency hash:

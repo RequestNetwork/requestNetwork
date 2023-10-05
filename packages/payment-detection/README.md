@@ -1,22 +1,84 @@
 # @requestnetwork/payment-detection
 
 `@requestnetwork/payment-detection` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
-It contains client-side payment detection for all supported payment networks.
+It contains the implementation of request-related events interpretations, typically onchain payments of requests.
 
-### Payment and Refund detections
+The interpretation of events is specified by the payment extension added to the request. [Cf. advanced-logic specifications](../advanced-logic/specs/).
+
+# Balance and events
 
 If a payment network has been given to the request, the payment detection can be done.
 
-From the information provided in payment network, the library will feed the property `balance` of the request with:
+Based on information found in the payment network state, and included manual payment declarations, the library will perform queries and feed the property `balance` of the request with:
 
-- `balance`: the sum of the amount of all payments minus the sum of amount of all refunds
-- `events`: all the payments and refunds events with the amount, timestamp etc...
+- `balance`: the detected amount paid on the request, in request currency
+- `events`: all the payments, payment declarations, refunds, and other balance-related events with the amount, timestamp etc...
 
-The payment networks available are:
+# Retrievers and detectors
 
-- `Types.Payment.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED` ('pn-bitcoin-address-based'): handle Bitcoin payments associated to a BTC address to the request, every transaction hitting this address will be consider as a payment. Optionally, the payer can provide a BTC address for the refunds. Note that **the addresses must be used only for one and only one request** otherwise one transaction will be considered as a payment for more than one request. (see [the specification](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/advanced-logic/specs/payment-network-btc-address-based-0.1.0.md))
-- `Types.Payment.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED` ('pn-testnet-bitcoin-address-based'): Same as previous but for the bitcoin testnet (for test purpose)
-- `Types.Payment.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED`('pn-erc20-address-based'): Same as `BITCOIN_ADDRESS_BASED`, for ERC20 payments.
-- `Types.Payment.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT`('pn-erc20-proxy-contract'): uses an intermediary contract to document which request is being paid, through the `PaymentReference`. (see [the specification](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/advanced-logic/specs/payment-network-erc20-address-based-0.1.0.md))
-- `Types.Payment.PAYMENT_NETWORK_ID.ETH_INPUT_DATA`('pn-eth-input-data'): uses the transaction input data to pass the `PaymentReference`. (see [the specification](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/advanced-logic/specs/payment-network-eth-input-data-0.1.0.md))
-- `Types.Payment.PAYMENT_NETWORK_ID.DECLARATIVE`('pn-any-declarative'): a manual alternative, where payer can declare a payment sent, and payee can declare it received, working for any currency. (see [the specification](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/advanced-logic/specs/payment-network-any-declarative-0.1.0.md))
+This library relies on two concepts:
+
+- **Retrievers** perform RPC or TheGraph calls and fetch relevant events. Balance-impacting events are fetched with `InfoRetrievers`, implementing the `getTransferEvents()` method (cf. [IPaymentRetriever](./src/types.ts))
+- **Payment detectors** implement the interface **PaymentTypes.IPaymentNetwork**, with the method `getBalance()`, which calls retrievers and interpret events according to the payment network (cf. [Abstract PaymentDetectorBase](./src/payment-detector-base.ts)). `getBalance()` returns the balance as well as events: payments, refunds, and possibly other events (declarations, escrow events...)
+
+## PaymentDetectorBase
+
+A good part of the logic is implemented in the abstract class `PaymentDetectorBase`:
+
+```typescript
+export abstract class PaymentDetectorBase<
+  TExtension extends ExtensionTypes.IExtension,
+  TPaymentEventParameters,
+> implements PaymentTypes.IPaymentNetwork<TPaymentEventParameters>
+{
+  public async getBalance(
+    request: RequestLogicTypes.IRequest,
+  ): Promise<PaymentTypes.IBalanceWithEvents<TPaymentEventParameters>> {
+    // ...
+
+    // getEvents() should be implemented by children payment detectors, and use appropriate retrievers
+    // For example: RPC or The Graph based retriever
+    const rawEvents = await this.getEvents(request);
+    // ...
+    // computeBalance() sums up all payment events and deduces all refunds.
+    const balance = this.computeBalance(events).toString();
+
+    return {
+      balance,
+      events,
+    };
+  }
+}
+```
+
+[cf. full implementation](./src/payment-detector-base.ts)
+
+## Subgraph-based payment retrievers
+
+For TheGraph-based information retrieval, a client can be retrieved using `getTheGraphClient()` in `./src/thegraph/index.ts`. It provides a strongly typed interface, generated based on the queries in `/src/thegraph/queries`.
+
+The automated type generation is configured within files `./codegen.yml` (for EVM chains) and `./codegen-near.yml` (for Near) and output in `./src/thegraph/generated`. It depends on the deployed subgraphes schema and on the queries.
+
+The code generation is included in the pre-build script and can be run manually:
+
+```
+yarn codegen
+```
+
+# Test
+
+The ETH `InfoRetriever` tests require explorer API keys. Before running the
+payment-detection tests, define `DISABLE_API_TESTS` or define all required
+explorer API keys.
+
+```bash
+export DISABLE_API_TESTS=1
+# OR
+export EXPLORER_API_KEY_MAINNET=
+export EXPLORER_API_KEY_RINKEBY=
+export EXPLORER_API_KEY_FUSE=
+export EXPLORER_API_KEY_MATIC=
+export EXPLORER_API_KEY_FANTOM=
+
+yarn run test
+```

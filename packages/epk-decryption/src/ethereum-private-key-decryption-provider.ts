@@ -1,6 +1,6 @@
 import { DecryptionProviderTypes, EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
 
-import Utils from '@requestnetwork/utils';
+import { decrypt, getAddressFromPrivateKey } from '@requestnetwork/utils';
 
 /** Type of the dictionary of decryptionParameters (private keys) indexed by ethereum address */
 type IDecryptionParametersDictionary = Map<string, EncryptionTypes.IDecryptionParameters>;
@@ -10,7 +10,8 @@ type IDecryptionParametersDictionary = Map<string, EncryptionTypes.IDecryptionPa
  * Allows to decrypt() with "ethereumAddress" identities thanks to their private key given in constructor() or addDecryptionParameters()
  */
 export default class EthereumPrivateKeyDecryptionProvider
-  implements DecryptionProviderTypes.IDecryptionProvider {
+  implements DecryptionProviderTypes.IDecryptionProvider
+{
   /** list of supported encryption method */
   public supportedMethods: EncryptionTypes.METHOD[] = [EncryptionTypes.METHOD.ECIES];
   /** list of supported identity types */
@@ -47,15 +48,14 @@ export default class EthereumPrivateKeyDecryptionProvider
     }
 
     // toLowerCase to avoid mismatch because of case
-    const decryptionParameters:
-      | EncryptionTypes.IDecryptionParameters
-      | undefined = this.decryptionParametersDictionary.get(identity.value.toLowerCase());
+    const decryptionParameters: EncryptionTypes.IDecryptionParameters | undefined =
+      this.decryptionParametersDictionary.get(identity.value.toLowerCase());
 
     if (!decryptionParameters) {
       throw Error(`private key unknown for the identity: ${identity.value}`);
     }
 
-    return Utils.encryption.decrypt(encryptedData, decryptionParameters);
+    return decrypt(encryptedData, decryptionParameters);
   }
 
   /**
@@ -87,9 +87,7 @@ export default class EthereumPrivateKeyDecryptionProvider
 
     // compute the address from private key
     // toLowerCase to avoid mismatch because of case
-    const address = Utils.crypto.EcUtils.getAddressFromPrivateKey(
-      decryptionParameters.key,
-    ).toLowerCase();
+    const address = getAddressFromPrivateKey(decryptionParameters.key).toLowerCase();
 
     this.decryptionParametersDictionary.set(address, decryptionParameters);
 

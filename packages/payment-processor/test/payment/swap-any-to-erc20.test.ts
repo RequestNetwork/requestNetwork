@@ -4,10 +4,9 @@ import {
   ClientTypes,
   ExtensionTypes,
   IdentityTypes,
-  PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 import { approveErc20ForSwapWithConversionIfNeeded } from '../../src/payment/swap-conversion-erc20';
 import { ERC20, ERC20__factory } from '@requestnetwork/smart-contracts/types';
@@ -15,6 +14,7 @@ import { swapToPayAnyToErc20Request } from '../../src/payment/swap-any-to-erc20'
 import { IConversionSettings } from '../../src/payment/settings';
 
 import { currencyManager } from './shared';
+import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -49,9 +49,9 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -61,7 +61,7 @@ const validRequest: ClientTypes.IRequestData = {
         acceptedTokens: [acceptedTokenAddress],
         network: 'private',
       },
-      version: '1.0',
+      version: '0.1.0',
     },
   },
   extensionsData: [],
@@ -111,8 +111,8 @@ describe('swap-any-to-erc20', () => {
     });
 
     it('should throw an error if the payment network is wrong', async () => {
-      const request = Utils.deepCopy(validRequest);
-      delete request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY];
+      const request = deepCopy(validRequest);
+      delete request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY];
 
       await expect(
         swapToPayAnyToErc20Request(request, wallet, {
@@ -123,7 +123,7 @@ describe('swap-any-to-erc20', () => {
     });
 
     it('should throw an error if the conversion path is impossible', async () => {
-      const request = Utils.deepCopy(validRequest);
+      const request = deepCopy(validRequest);
       (request.currencyInfo = {
         type: RequestLogicTypes.CURRENCY.ISO4217,
         value: 'XXX',
@@ -139,7 +139,7 @@ describe('swap-any-to-erc20', () => {
     });
 
     it('should throw an error if the conversion currency is not an acceptedTokens', async () => {
-      const wrongCurrency = {
+      const wrongCurrency: RequestLogicTypes.ICurrency = {
         type: 'ERC20' as any,
         value: '0x17b4158805772ced11225e77339f90beb5aae968',
         network: 'private',
@@ -156,7 +156,7 @@ describe('swap-any-to-erc20', () => {
             path: [paymentTokenAddress, wrongCurrency.value],
           },
         }),
-      ).rejects.toThrowError(`The conversion currency is not an accepted token`);
+      ).rejects.toThrowError(new UnsupportedCurrencyError(wrongCurrency));
     });
 
     it('should swap and pay with an ERC20 request with fees', async () => {
@@ -199,11 +199,13 @@ describe('swap-any-to-erc20', () => {
       //   feeAmount:        +    2000000
       //                     =  102000000 (8 decimals)
       //   AggDaiUsd.sol     /  101000000
-      //                     =  1009900990099009900 (18 decimals)
+      //                     =  1009900990099009900
+      //   Swap fees         *                1.005
+      //                     =  1014950495049504949 (18 decimals)
       //   Swapper           *  2
-      //                     =  2019801980198019800 (18 decimals) paid by payer in erc20BeforeSwap
+      //                     =  2029900990099009898 (18 decimals) paid by payer in erc20BeforeSwap
       expect(finalPayerBalance.toString()).toEqual(
-        initialPayerBalance.sub('2019801980198019800').toString(),
+        initialPayerBalance.sub('2029900990099009898').toString(),
       );
 
       //   expectedAmount:      100000000 (8 decimals)
@@ -216,8 +218,18 @@ describe('swap-any-to-erc20', () => {
       //   feeAmount:           2000000 (8 decimals)
       //   AggDaiUsd.sol     /  101000000
       //                     =  19801980198019801 (18 decimals) received by fee address in erc20AfterConversion
+      //      +
+      //
+      //   Swap fees            100000000
+      //   feeAmount         +    2000000
+      //                     =  102000000 (8 decimals)
+      //   AggDaiUsd.sol     /  101000000
+      //                     =  1009900990099009900
+      //   Swap fees         *                0.005
+      //                     =     5049504950495049
+      //   Total fees        =    24851485148514850
       expect(finalBuilderBalance.toString()).toEqual(
-        initialBuilderBalance.add('19801980198019801').toString(),
+        initialBuilderBalance.add('24851485148514850').toString(),
       );
     });
   });

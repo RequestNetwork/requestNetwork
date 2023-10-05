@@ -1,53 +1,69 @@
-import { constants, ContractTransaction, Signer, BigNumber, providers } from 'ethers';
+import { BigNumber, constants, ContractTransaction, providers, Signer } from 'ethers';
 
+import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { erc20SwapConversionArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20SwapToConversion__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import {
   getAmountToPay,
   getProvider,
+  getProxyAddress,
   getRequestPaymentValues,
   getSigner,
   validateConversionFeeProxyRequest,
 } from './utils';
-import { CurrencyManager, getConversionPath } from '@requestnetwork/currency';
+import { CurrencyManager, EvmChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { IRequestPaymentOptions } from './settings';
+import { IPreparedTransaction } from './prepared-transaction';
 
 export { ISwapSettings } from './swap-erc20-fee-proxy';
 
 /**
  * Processes a transaction to swap tokens and pay an ERC20 Request through a proxy with fees.
- * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param options to override amount, feeAmount and transaction parameters
  */
 export async function swapToPayAnyToErc20Request(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   options: IRequestPaymentOptions,
 ): Promise<ContractTransaction> {
-  if (!request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]) {
+  const preparedTx = prepareSwapToPayAnyToErc20Request(request, signerOrProvider, options);
+  const signer = getSigner(signerOrProvider);
+  const tx = await signer.sendTransaction(preparedTx);
+  return tx;
+}
+
+/**
+ * Processes a transaction to swap tokens and pay an ERC20 Request through a proxy with fees.
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param options to override amount, feeAmount and transaction parameters
+ */
+export function prepareSwapToPayAnyToErc20Request(
+  request: ClientTypes.IRequestData,
+  signerOrProvider: providers.Provider | Signer = getProvider(),
+  options: IRequestPaymentOptions,
+): IPreparedTransaction {
+  if (!request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]) {
     throw new Error(`The request must have the payment network any-to-erc20-proxy`);
   }
 
   const network =
-    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
+    request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
   if (!network) {
     throw new Error(`Payment network currency must have a network`);
   }
 
   const encodedTx = encodeSwapToPayAnyToErc20Request(request, signerOrProvider, options);
   const proxyAddress = erc20SwapConversionArtifact.getAddress(network);
-  const signer = getSigner(signerOrProvider);
 
-  const tx = await signer.sendTransaction({
+  return {
     data: encodedTx,
     to: proxyAddress,
     value: 0,
     ...options?.overrides,
-  });
-  return tx;
+  };
 }
 
 /**
@@ -58,11 +74,11 @@ export async function swapToPayAnyToErc20Request(
  */
 export function encodeSwapToPayAnyToErc20Request(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   options: IRequestPaymentOptions,
 ): string {
-  const conversionSettings = options?.conversion;
-  const swapSettings = options?.swap;
+  const conversionSettings = options.conversion;
+  const swapSettings = options.swap;
 
   if (!conversionSettings) {
     throw new Error(`Conversion Settings are required`);
@@ -71,22 +87,19 @@ export function encodeSwapToPayAnyToErc20Request(
     throw new Error(`Swap Settings are required`);
   }
   const currencyManager = conversionSettings.currencyManager || CurrencyManager.getDefault();
-  const network = conversionSettings.currency?.network;
+  const network = conversionSettings.currency.network;
   if (!network) {
     throw new Error(`Currency in conversion settings must have a network`);
   }
+  EvmChains.assertChainSupported(network);
 
   const requestCurrency = currencyManager.fromStorageCurrency(request.currencyInfo);
   if (!requestCurrency) {
-    throw new Error(
-      `Could not find request currency ${request.currencyInfo.value}. Did you forget to specify the currencyManager?`,
-    );
+    throw new UnsupportedCurrencyError(request.currencyInfo);
   }
   const paymentCurrency = currencyManager.fromStorageCurrency(conversionSettings.currency);
   if (!paymentCurrency) {
-    throw new Error(
-      `Could not find payment currency ${conversionSettings.currency.value}. Did you forget to specify the currencyManager?`,
-    );
+    throw new UnsupportedCurrencyError(conversionSettings.currency);
   }
 
   /** On Chain conversion preparation */
@@ -94,14 +107,14 @@ export function encodeSwapToPayAnyToErc20Request(
   // check if conversion currency is accepted
   if (
     !request.extensions[
-      PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
+      ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
     ].values.acceptedTokens.includes(conversionSettings.currency.value)
   ) {
     throw new Error(`The conversion currency is not an accepted token`);
   }
 
   // Compute the path automatically
-  const path = getConversionPath(requestCurrency, paymentCurrency, network);
+  const path = currencyManager.getConversionPath(requestCurrency, paymentCurrency, network);
   if (!path) {
     throw new Error(
       `Impossible to find a conversion path between from ${requestCurrency.symbol} (${requestCurrency.hash}) to ${paymentCurrency.symbol} (${paymentCurrency.hash})`,
@@ -111,9 +124,8 @@ export function encodeSwapToPayAnyToErc20Request(
 
   const signer = getSigner(signerOrProvider);
   const paymentNetworkTokenAddress = conversionSettings.currency.value;
-  const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
-    request,
-  );
+  const { paymentReference, paymentAddress, feeAddress, feeAmount } =
+    getRequestPaymentValues(request);
 
   const chainlinkDecimal = 8;
   const decimals = currencyManager.fromStorageCurrency(request.currencyInfo)?.decimals;
@@ -136,10 +148,16 @@ export function encodeSwapToPayAnyToErc20Request(
     throw new Error('A swap with a past deadline will fail, the transaction will not be pushed');
   }
 
+  const conversionProxyAddress = getProxyAddress(
+    request,
+    AnyToERC20PaymentDetector.getDeploymentInformation,
+  );
+
   const contractAddress = erc20SwapConversionArtifact.getAddress(network);
   const swapToPayContract = ERC20SwapToConversion__factory.connect(contractAddress, signer);
 
   return swapToPayContract.interface.encodeFunctionData('swapTransferWithReference', [
+    conversionProxyAddress,
     paymentAddress, // _to: string,
     amountToPay, // _requestAmount: BigNumberish,
     swapSettings.maxInputAmount, // _amountInMax: BigNumberish,
@@ -149,6 +167,6 @@ export function encodeSwapToPayAnyToErc20Request(
     feeToPay, // _requestFeeAmount: BigNumberish,
     feeAddress || constants.AddressZero, // _feeAddress: string,
     Math.round(swapSettings.deadline / 1000), // _uniswapDeadline: BigNumberish,
-    0, // _chainlinkMaxRateTimespan: BigNumberish,
+    conversionSettings.maxRateAge ?? 0, // _chainlinkMaxRateTimespan: BigNumberish,
   ]);
 }

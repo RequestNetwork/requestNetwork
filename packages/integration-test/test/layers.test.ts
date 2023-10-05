@@ -1,10 +1,12 @@
+import { getCurrentTimestampInSecond } from '@requestnetwork/utils';
+
 const web3Eth = require('web3-eth');
 
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { DataAccess } from '@requestnetwork/data-access';
 import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
-import { EthereumStorage } from '@requestnetwork/ethereum-storage';
+import { EthereumStorage, IpfsStorage } from '@requestnetwork/ethereum-storage';
 import MultiFormat from '@requestnetwork/multi-format';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
@@ -17,7 +19,6 @@ import {
   SignatureTypes,
   StorageTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 
 let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 let requestLogic: RequestLogicTypes.IRequestLogic;
@@ -67,7 +68,8 @@ describe('Request system', () => {
       networkId: StorageTypes.EthereumNetwork.PRIVATE,
       web3Provider: provider,
     };
-    const ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
+    const ipfsStorage = new IpfsStorage({ ipfsGatewayConnection });
+    const ethereumStorage = new EthereumStorage('localhost', ipfsStorage, web3Connection);
 
     // Data access setup
     dataAccess = new DataAccess(ethereumStorage);
@@ -100,8 +102,7 @@ describe('Request system', () => {
         method: EncryptionTypes.METHOD.ECIES,
       },
       encryptionParams: {
-        key:
-          '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+        key: '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
         method: EncryptionTypes.METHOD.ECIES,
       },
       identity: {
@@ -118,8 +119,7 @@ describe('Request system', () => {
         method: EncryptionTypes.METHOD.ECIES,
       },
       encryptionParams: {
-        key:
-          '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
+        key: '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
         method: EncryptionTypes.METHOD.ECIES,
       },
       identity: {
@@ -244,7 +244,8 @@ describe('Request system', () => {
       networkId: StorageTypes.EthereumNetwork.PRIVATE,
       web3Provider: provider,
     };
-    const ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
+    const ipfsStorage = new IpfsStorage({ ipfsGatewayConnection });
+    const ethereumStorage = new EthereumStorage('localhost', ipfsStorage, web3Connection);
 
     // Data access setup
     dataAccess = new DataAccess(ethereumStorage);
@@ -367,7 +368,7 @@ describe('Request system', () => {
         type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
       },
-      timestamp: Utils.getCurrentTimestampInSecond(),
+      timestamp: getCurrentTimestampInSecond(),
     };
     // create a unique topic just to not have collisions in tests
     const topics1 = [request1CreationHash];
@@ -390,7 +391,7 @@ describe('Request system', () => {
         type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
       },
-      timestamp: Utils.getCurrentTimestampInSecond(),
+      timestamp: getCurrentTimestampInSecond(),
     };
     const resultCreation2 = await requestLogic.createRequest(
       request2CreationHash,

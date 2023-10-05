@@ -1,17 +1,17 @@
 import { ethers, network } from 'hardhat';
 import {
-  ERC20FeeProxy__factory,
+  ChainlinkConversionPath,
+  Erc20ConversionProxy,
   Erc20ConversionProxy__factory,
   ERC20FeeProxy,
-  ChainlinkConversionPath,
+  ERC20FeeProxy__factory,
   TestERC20,
-  Erc20ConversionProxy,
   TestERC20__factory,
 } from '../../src/types';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { chainlinkConversionPath } from '../../src/lib';
 import { localERC20AlphaArtifact } from './localArtifacts';
 
@@ -41,14 +41,15 @@ describe('contract: Erc20ConversionProxy', () => {
   let chainlinkPath: ChainlinkConversionPath;
 
   before(async () => {
+    EvmChains.assertChainSupported(network.name);
     [from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
     [signer] = await ethers.getSigners();
-
     chainlinkPath = chainlinkConversionPath.connect(network.name, signer);
     erc20FeeProxy = await new ERC20FeeProxy__factory(signer).deploy();
     testErc20ConversionProxy = await new Erc20ConversionProxy__factory(signer).deploy(
       erc20FeeProxy.address,
       chainlinkPath.address,
+      await signer.getAddress(),
     );
     DAI_address = await localERC20AlphaArtifact.getAddress(network.name);
     testERC20 = await new TestERC20__factory(signer).attach(DAI_address);
@@ -188,9 +189,11 @@ describe('contract: Erc20ConversionProxy', () => {
             feeAddress,
             hundredWith18Decimal,
             0,
-            { from },
+            {
+              from,
+            },
           ),
-        ).to.be.reverted;
+        ).to.be.revertedWith('No aggregator found');
       });
 
       it('cannot transfer if max to spend too low', async function () {
@@ -209,9 +212,11 @@ describe('contract: Erc20ConversionProxy', () => {
             feeAddress,
             100,
             0,
-            { from },
+            {
+              from,
+            },
           ),
-        ).to.be.reverted;
+        ).to.be.revertedWith('Amount to pay is over the user limit');
       });
 
       it('cannot transfer if rate is too old', async function () {
@@ -230,9 +235,11 @@ describe('contract: Erc20ConversionProxy', () => {
             feeAddress,
             hundredWith18Decimal,
             10, // ten secondes
-            { from },
+            {
+              from,
+            },
           ),
-        ).to.be.reverted;
+        ).to.be.revertedWith('aggregator rate is outdated');
       });
     });
   });

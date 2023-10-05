@@ -1,10 +1,14 @@
 {
   "extends": "../../tsconfig",
   "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": ".",
     "resolveJsonModule": true
   },
-  "include": ["./src/**/*", "./src/**/*.json"],
-  "references": [{ "path": "../currency" }, { "path": "../utils" }]
+  "include": [
+    "src/",
+    "src/lib/artifacts/**/*.json",
+    "test/",
+    "scripts/",
+    "scripts-create2/",
+    "hardhat.config.ts"
+  ]
 }

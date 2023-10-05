@@ -1,16 +1,15 @@
 import {
-  AdvancedLogicTypes,
+  CurrencyTypes,
   ExtensionTypes,
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
-import { NetworkNotSupported, VersionNotSupported } from '../balance-error';
 import ProxyInfoRetriever from './proxy-info-retriever';
-import TheGraphInfoRetriever from './thegraph-info-retriever';
-import { networkSupportsTheGraph } from '../thegraph';
+import { TheGraphInfoRetriever } from '../thegraph';
 import { makeGetDeploymentInformation } from '../utils';
 import { ReferenceBasedDetector } from '../reference-based-detector';
+import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
@@ -23,14 +22,23 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
   PaymentTypes.IERC20PaymentEventParameters
 > {
+  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
+
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
+  public constructor({
+    advancedLogic,
+    currencyManager,
+    getSubgraphClient,
+  }: ReferenceBasedDetectorOptions &
+    Pick<PaymentNetworkOptions<CurrencyTypes.EvmChainName>, 'getSubgraphClient'>) {
     super(
-      PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+      ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       advancedLogic.extensions.proxyContractErc20,
+      currencyManager,
     );
+    this.getSubgraphClient = getSubgraphClient;
   }
 
   /**
@@ -45,61 +53,47 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
    */
   protected async extractEvents(
     eventName: PaymentTypes.EVENTS_NAMES,
-    address: string | undefined,
+    toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: string,
+    paymentChain: CurrencyTypes.EvmChainName,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20PaymentEventParameters>[]> {
-    if (!address) {
-      return [];
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20PaymentEventParameters>> {
+    if (!toAddress) {
+      return {
+        paymentEvents: [],
+      };
     }
 
-    let proxyContractAddress: string;
-    let proxyCreationBlockNumber: number;
-    try {
-      const info = ERC20ProxyPaymentDetector.getDeploymentInformation(
+    const { address: proxyContractAddress, creationBlockNumber: proxyCreationBlockNumber } =
+      ERC20ProxyPaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
+
+    const subgraphClient = this.getSubgraphClient(paymentChain);
+    if (subgraphClient) {
+      const graphInfoRetriever = new TheGraphInfoRetriever(subgraphClient, this.currencyManager);
+
+      return graphInfoRetriever.getTransferEvents({
+        paymentReference,
+        toAddress,
+        eventName,
+        contractAddress: proxyContractAddress,
         paymentChain,
-        paymentNetwork.version,
+      });
+    } else {
+      const proxyInfoRetriever = new ProxyInfoRetriever(
+        paymentReference,
+        proxyContractAddress,
+        proxyCreationBlockNumber,
+        requestCurrency.value,
+        toAddress,
+        eventName,
+        paymentChain,
       );
-      proxyContractAddress = info.address;
-      proxyCreationBlockNumber = info.creationBlockNumber;
-    } catch (e) {
-      const errMessage = (e as Error)?.message || '';
-      if (errMessage.startsWith('No deployment for network')) {
-        throw new NetworkNotSupported(
-          `Network not supported for this payment network: ${paymentChain}`,
-        );
-      }
-      if (
-        errMessage.startsWith('No contract matches payment network version') ||
-        errMessage.startsWith('No deployment for version')
-      ) {
-        throw new VersionNotSupported(errMessage);
-      }
-      throw e;
+      const paymentEvents = await proxyInfoRetriever.getTransferEvents();
+      return {
+        paymentEvents,
+      };
     }
-
-    const infoRetriever = networkSupportsTheGraph(paymentChain)
-      ? new TheGraphInfoRetriever(
-          paymentReference,
-          proxyContractAddress,
-          requestCurrency.value,
-          address,
-          eventName,
-          paymentChain,
-        )
-      : new ProxyInfoRetriever(
-          paymentReference,
-          proxyContractAddress,
-          proxyCreationBlockNumber,
-          requestCurrency.value,
-          address,
-          eventName,
-          paymentChain,
-        );
-
-    return infoRetriever.getTransferEvents();
   }
 
   /*

@@ -71,7 +71,7 @@ const requestNetwork = new RequestNetwork({ useMockStorage: true });
 
 ## Guide
 
-We are currently writing the full API reference and more detailed guides. This section will be updated. If you need help in the meantime, [join the Request Hub Slack](https://request-slack.herokuapp.com/) and come chat with us.
+We are currently writing the full API reference and more detailed guides. This section will be updated. If you need help in the meantime, [join the Request Discord](https://request.network/discord/) and come chat with us.
 
 ### Create a request
 
@@ -88,7 +88,7 @@ const request = await requestNetwork.createRequest({
 await request.waitForConfirmation();
 
 // or wait the confirmation with an event
-request.on('confirmed', confirmedRequest => {
+request.on('confirmed', (confirmedRequest) => {
   // ...
 });
 ```
@@ -104,14 +104,12 @@ request.on('confirmed', confirmedRequest => {
 ```javascript
 // a public key to encrypt the request with
 const encryptionParameters = {
-  key:
-    'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
+  key: 'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
   method: EncryptionTypes.METHOD.ECIES,
 };
 // another public key to encrypt the request with
 const encryptionParameters2 = {
-  key:
-    '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+  key: '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
   method: EncryptionTypes.METHOD.ECIES,
 };
 
@@ -130,7 +128,7 @@ const request = await requestNetwork.createEncryptedRequest(
 await request.waitForConfirmation();
 
 // or wait the confirmation with an event
-request.on('confirmed', confirmedRequest => {
+request.on('confirmed', (confirmedRequest) => {
   // ...
 });
 ```
@@ -228,7 +226,7 @@ npm install @requestnetwork/epk-decryption
 const requestData = await request.accept(signerIdentity, refundInformation);
 
 // wait the confirmation with an event
-requestData.on('confirmed', confirmedRequestData => {
+requestData.on('confirmed', (confirmedRequestData) => {
   // ...
 });
 ```
@@ -242,7 +240,7 @@ requestData.on('confirmed', confirmedRequestData => {
 await request.cancel(signerIdentity, refundInformation);
 
 // wait the confirmation with an event
-requestData.on('confirmed', confirmedRequestData => {
+requestData.on('confirmed', (confirmedRequestData) => {
   // ...
 });
 ```
@@ -256,7 +254,7 @@ requestData.on('confirmed', confirmedRequestData => {
 await request.increaseExpectedAmountRequest(amount, signerIdentity, refundInformation);
 
 // wait the confirmation with an event
-requestData.on('confirmed', confirmedRequestData => {
+requestData.on('confirmed', (confirmedRequestData) => {
   // ...
 });
 ```
@@ -271,7 +269,7 @@ requestData.on('confirmed', confirmedRequestData => {
 await request.reduceExpectedAmountRequest(amount, signerIdentity, paymentInformation);
 
 // wait the confirmation with an event
-requestData.on('confirmed', confirmedRequestData => {
+requestData.on('confirmed', (confirmedRequestData) => {
   // ...
 });
 ```

@@ -5,6 +5,25 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "transaction-manager add-stakeholders",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "-t",
+        "'can get transactions from an encrypted channel that has been spammed and added a stakeholder'"
+      ],
+      "request": "launch",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node",
+      "cwd": "${workspaceFolder}/packages/transaction-manager"
+    },
+    {
+      "name": "request-client.js add-stakeholders",
+      "program": "${workspaceFolder}/packages/usage-examples/src/request-client-js-add-stakeholders.ts",
+      "request": "launch",
+      "skipFiles": ["<node_internals>/**"],
+      "type": "node"
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Start Request Node",
@@ -34,17 +53,19 @@
       "name": "Integration test",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-      "args": [
-        "--no-timeouts",
-        "--require",
-        "ts-node/register",
-        "${workspaceFolder}/packages/integration-test/test/index.test.ts",
-        "--colors"
-      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+      "program": "${workspaceFolder}/packages/integration-test/node_modules/.bin/jest",
       "cwd": "${workspaceFolder}/packages/integration-test/",
-      "protocol": "inspector",
-      "sourceMaps": true
+      "args": [
+        "--config",
+        "${workspaceFolder}/packages/integration-test/jest.config.js",
+        "--verbose",
+        "-i",
+        "--runInBand",
+        "--watchAll=false"
+      ]
     }
   ]
 }

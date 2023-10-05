@@ -4,6 +4,7 @@ import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 
 import RequestDataAccessBlock from '../src/block';
 import DataAccess from '../src/data-access';
+import TransactionIndex from '../src/transaction-index';
 
 // We use this function to flush the call stack
 // If we don't use this function, the fake timer will be increased before the interval function being called
@@ -109,15 +110,13 @@ const emptyDataResult: StorageTypes.IEntriesWithLastTimestamp = {
   lastTimestamp: 0,
 };
 
-const defaultTestData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise.resolve(
-  getDataResult,
-);
+const defaultTestData: Promise<StorageTypes.IEntriesWithLastTimestamp> =
+  Promise.resolve(getDataResult);
 
 const defaultFakeStorage: StorageTypes.IStorage = {
   _getStatus: jest.fn((): any => ({
     fake: 'status',
   })),
-  _ipfsAdd: jest.fn(),
   append: jest.fn((): any => {
     const appendResultWithEvent = Object.assign(new EventEmitter(), appendResult);
     setTimeout(
@@ -504,7 +503,6 @@ describe('data-access', () => {
     it('cannot persistTransaction() and emit error if confirmation failed', async () => {
       const mockStorageEmittingError: StorageTypes.IStorage = {
         _getStatus: jest.fn(),
-        _ipfsAdd: jest.fn(),
         append: jest.fn((): any => {
           const appendResultWithEvent = Object.assign(new EventEmitter(), appendResult);
           setTimeout(
@@ -631,7 +629,6 @@ describe('data-access', () => {
     });
 
     const fakeStorageWithNotJsonData: StorageTypes.IStorage = {
-      _ipfsAdd: jest.fn(),
       append: jest.fn(),
       getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => testDataNotJsonData,
       getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
@@ -641,10 +638,10 @@ describe('data-access', () => {
       readMany: jest.fn(),
     };
 
-    const dataAccess = new DataAccess(fakeStorageWithNotJsonData);
+    const transactionIndex = new TransactionIndex();
+    const dataAccess = new DataAccess(fakeStorageWithNotJsonData, { transactionIndex });
+    const spy = jest.spyOn(transactionIndex, 'addTransaction').mockImplementation();
     await dataAccess.initialize();
-    const spy = jest.fn();
-    dataAccess.transactionIndex.addTransaction = spy;
     await dataAccess.synchronizeNewDataIds();
 
     expect(spy).not.toHaveBeenCalled();
@@ -760,7 +757,6 @@ describe('data-access', () => {
 
   it('startSynchronizationTimer() should throw an error if not initialized', async () => {
     const fakeStorageSpied: StorageTypes.IStorage = {
-      _ipfsAdd: jest.fn(),
       append: jest.fn().mockReturnValue(appendResult),
       getData: jest.fn(() => Promise.resolve({} as any)),
       getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
@@ -813,7 +809,7 @@ describe('data-access', () => {
     // Should have been called once after 2100ms
     expect(dataAccess.synchronizeNewDataIds).toHaveBeenCalledTimes(2);
 
-    dataAccess.stopAutoSynchronization();
+    await dataAccess.stopAutoSynchronization();
     jest.advanceTimersByTime(1000);
     await flushCallStack();
 
@@ -854,6 +850,6 @@ describe('data-access', () => {
 
     expect(fakeStorageSpied.getData).toHaveBeenNthCalledWith(2, { from: 501, to: 1000 });
 
-    dataAccess.stopAutoSynchronization();
+    await dataAccess.stopAutoSynchronization();
   });
 });

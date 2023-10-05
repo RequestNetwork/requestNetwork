@@ -1,6 +1,6 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
-import { CurrencyManager, getConversionPath } from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { AnyToEthFeeProxyPaymentDetector } from '@requestnetwork/payment-detection';
 import { EthConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
@@ -24,7 +24,7 @@ import { getProxyAddress } from './utils';
  */
 export async function payAnyToEthProxyRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   paymentSettings: IConversionPaymentSettings,
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
@@ -62,32 +62,26 @@ export function encodePayAnyToEthProxyRequest(
 
   const requestCurrency = currencyManager.fromStorageCurrency(request.currencyInfo);
   if (!requestCurrency) {
-    throw new Error(
-      `Could not find request currency ${request.currencyInfo.value}. Did you forget to specify the currencyManager?`,
-    );
+    throw new UnsupportedCurrencyError(request.currencyInfo);
   }
 
-  const {
-    paymentReference,
-    paymentAddress,
-    feeAddress,
-    feeAmount,
-    maxRateTimespan,
-    network,
-  } = getRequestPaymentValues(request);
+  const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan, network } =
+    getRequestPaymentValues(request);
+
+  if (!network) {
+    throw new Error(`missing network`);
+  }
 
   const paymentCurrency = currencyManager.getNativeCurrency(
     RequestLogicTypes.CURRENCY.ETH,
-    network || 'mainnet',
+    network,
   );
   if (!paymentCurrency) {
-    throw new Error(
-      `Could not find currency for network: ${network}. Did you forget to specify the currencyManager?`,
-    );
+    throw new UnsupportedCurrencyError({ value: 'ETH', network });
   }
 
   // Compute the path automatically
-  const path = getConversionPath(requestCurrency, paymentCurrency, network);
+  const path = currencyManager.getConversionPath(requestCurrency, paymentCurrency, network);
   if (!path) {
     throw new Error(
       `Impossible to find a conversion path between from ${requestCurrency.symbol} (${requestCurrency.hash}) to ${paymentCurrency.symbol} (${paymentCurrency.hash})`,

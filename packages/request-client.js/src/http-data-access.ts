@@ -1,9 +1,9 @@
 import { ClientTypes, DataAccessTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
 
 import { EventEmitter } from 'events';
 import httpConfigDefaults from './http-config-defaults';
+import { normalizeKeccak256Hash, retry } from '@requestnetwork/utils';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -67,6 +67,16 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   }
 
   /**
+   * Closes the module. Does nothing, exists only to implement IDataAccess
+   *
+   * @returns nothing
+   */
+  public async close(): Promise<void> {
+    // no-op, nothing to do
+    return;
+  }
+
+  /**
    * Persists a new transaction on a node through HTTP.
    *
    * @param transactionData The transaction data
@@ -90,7 +100,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
       this.axiosConfig,
     );
 
-    const transactionHash: string = Utils.crypto.normalizeKeccak256Hash(transactionData).value;
+    const transactionHash: string = normalizeKeccak256Hash(transactionData).value;
 
     // Create the return result with EventEmitter
     const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(
@@ -109,6 +119,8 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
           {
             maxRetries: this.httpConfig.getConfirmationMaxRetry,
             retryDelay: this.httpConfig.getConfirmationRetryDelay,
+            exponentialBackoffDelay: this.httpConfig.getConfirmationExponentialBackoffDelay,
+            maxExponentialBackoffDelay: this.httpConfig.getConfirmationMaxExponentialBackoffDelay,
           },
         );
         // when found, emit the event 'confirmed'
@@ -181,7 +193,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    *
    * @param url HTTP GET request url
    * @param params HTTP GET request parameters
-   * @param retryConfig Maximum retry count and delay between retries
+   * @param retryConfig Maximum retry count, delay between retries, exponential backoff delay, and maximum exponential backoff delay
    */
   protected async fetchAndRetry(
     url: string,
@@ -189,11 +201,18 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     retryConfig: {
       maxRetries?: number;
       retryDelay?: number;
+      exponentialBackoffDelay?: number;
+      maxExponentialBackoffDelay?: number;
     } = {},
   ): Promise<any> {
     retryConfig.maxRetries = retryConfig.maxRetries ?? this.httpConfig.httpRequestMaxRetry;
     retryConfig.retryDelay = retryConfig.retryDelay ?? this.httpConfig.httpRequestRetryDelay;
-    const { data } = await Utils.retry(
+    retryConfig.exponentialBackoffDelay =
+      retryConfig.exponentialBackoffDelay ?? this.httpConfig.httpRequestExponentialBackoffDelay;
+    retryConfig.maxExponentialBackoffDelay =
+      retryConfig.maxExponentialBackoffDelay ??
+      this.httpConfig.httpRequestMaxExponentialBackoffDelay;
+    const { data } = await retry(
       async () => axios.get(url, { ...this.axiosConfig, params }),
       retryConfig,
     )();

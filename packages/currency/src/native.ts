@@ -1,7 +1,13 @@
-import { RequestLogicTypes } from '@requestnetwork/types';
-import { NativeCurrency, NativeCurrencyType } from './types';
+import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { NamedNativeCurrency } from './types';
 
-export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { name: string })[]> = {
+type NativeEthCurrency = NamedNativeCurrency & {
+  network: CurrencyTypes.EvmChainName | CurrencyTypes.NearChainName;
+};
+type NativeBtcCurrency = NamedNativeCurrency & { network: CurrencyTypes.BtcChainName };
+
+export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthCurrency[]> &
+  Record<RequestLogicTypes.CURRENCY.BTC, NativeBtcCurrency[]> = {
   [RequestLogicTypes.CURRENCY.ETH]: [
     {
       symbol: 'ETH',
@@ -14,6 +20,12 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       decimals: 18,
       name: 'Rinkeby Ether',
       network: 'rinkeby',
+    },
+    {
+      symbol: 'ETH-goerli',
+      decimals: 18,
+      name: 'Goerli Ether',
+      network: 'goerli',
     },
     {
       symbol: 'MATIC',
@@ -55,12 +67,6 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       symbol: 'BNB',
       decimals: 18,
       name: 'BNB',
-      network: 'bsctest',
-    },
-    {
-      symbol: 'BNB',
-      decimals: 18,
-      name: 'BNB',
       network: 'bsc',
     },
     {
@@ -74,6 +80,60 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       decimals: 24,
       name: 'Near Testnet',
       network: 'aurora-testnet',
+    },
+    {
+      symbol: 'NEAR-testnet',
+      decimals: 24,
+      name: 'Test Near',
+      network: 'near-testnet',
+    },
+    {
+      symbol: 'ARETH',
+      decimals: 18,
+      name: 'Arbitrum Testnet',
+      network: 'arbitrum-rinkeby',
+    },
+    {
+      symbol: 'AETH',
+      decimals: 18,
+      name: 'Arbitrum Ether',
+      network: 'arbitrum-one',
+    },
+    {
+      symbol: 'AVAX',
+      decimals: 18,
+      name: 'AVAX',
+      network: 'avalanche',
+    },
+    {
+      symbol: 'ETH-optimism',
+      decimals: 18,
+      name: 'Optimism Ether',
+      network: 'optimism',
+    },
+    {
+      symbol: 'GLMR',
+      decimals: 18,
+      name: 'Glimmer',
+      network: 'moonbeam',
+    },
+    {
+      symbol: 'TOMB',
+      decimals: 18,
+      name: 'Tomb',
+      network: 'tombchain',
+    },
+    {
+      symbol: 'MNT',
+      decimals: 18,
+      name: 'Mantle',
+      network: 'mantle',
+    },
+    {
+      symbol: 'MNT-testnet',
+      decimals: 18,
+      name: 'Mantle Testnet',
+      network: 'mantle-testnet',
     },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [

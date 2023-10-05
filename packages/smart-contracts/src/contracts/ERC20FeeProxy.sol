@@ -18,7 +18,7 @@ contract ERC20FeeProxy {
 
   // Fallback function returns funds to the sender
   receive() external payable {
-    revert("not payable receive");
+    revert('not payable receive');
   }
 
   /**
@@ -38,11 +38,13 @@ contract ERC20FeeProxy {
     bytes calldata _paymentReference,
     uint256 _feeAmount,
     address _feeAddress
-    ) external
-    {
-    require(safeTransferFrom(_tokenAddress, _to, _amount), "payment transferFrom() failed");
+  ) external {
+    require(safeTransferFrom(_tokenAddress, _to, _amount), 'payment transferFrom() failed');
     if (_feeAmount > 0 && _feeAddress != address(0)) {
-      require(safeTransferFrom(_tokenAddress, _feeAddress, _feeAmount), "fee transferFrom() failed");
+      require(
+        safeTransferFrom(_tokenAddress, _feeAddress, _feeAmount),
+        'fee transferFrom() failed'
+      );
     }
     emit TransferWithReferenceAndFee(
       _tokenAddress,
@@ -59,36 +61,42 @@ contract ERC20FeeProxy {
    * @dev This is necessary because of non-standard ERC20 tokens that don't have a return value.
    * @return result The return value of the ERC20 call, returning true for non-standard tokens
    */
-  function safeTransferFrom(address _tokenAddress, address _to, uint256 _amount) internal returns (bool result) {
+  function safeTransferFrom(
+    address _tokenAddress,
+    address _to,
+    uint256 _amount
+  ) internal returns (bool result) {
     /* solium-disable security/no-inline-assembly */
     // check if the address is a contract
     assembly {
-      if iszero(extcodesize(_tokenAddress)) { revert(0, 0) }
+      if iszero(extcodesize(_tokenAddress)) {
+        revert(0, 0)
+      }
     }
-    
+
     // solium-disable-next-line security/no-low-level-calls
-    (bool success, ) = _tokenAddress.call(abi.encodeWithSignature(
-      "transferFrom(address,address,uint256)",
-      msg.sender,
-      _to,
-      _amount
-    ));
+    (bool success, ) = _tokenAddress.call(
+      abi.encodeWithSignature('transferFrom(address,address,uint256)', msg.sender, _to, _amount)
+    );
 
     assembly {
-        switch returndatasize()
-        case 0 { // not a standard erc20
-            result := 1
-        }
-        case 32 { // standard erc20
-            returndatacopy(0, 0, 32)
-            result := mload(0)
-        }
-        default { // anything else, should revert for safety
-            revert(0, 0)
-        }
+      switch returndatasize()
+      case 0 {
+        // not a standard erc20
+        result := 1
+      }
+      case 32 {
+        // standard erc20
+        returndatacopy(0, 0, 32)
+        result := mload(0)
+      }
+      default {
+        // anything else, should revert for safety
+        revert(0, 0)
+      }
     }
 
-    require(success, "transferFrom() has been reverted");
+    require(success, 'transferFrom() has been reverted');
 
     /* solium-enable security/no-inline-assembly */
     return result;

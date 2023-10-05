@@ -5,6 +5,7 @@ import * as Extension from './extension-types';
 import * as Identity from './identity-types';
 import * as Signature from './signature-types';
 import * as Transaction from './transaction-types';
+import { CurrencyTypes } from './index';
 
 /** Request Logic layer */
 export interface IRequestLogic {
@@ -41,6 +42,12 @@ export interface IRequestLogic {
   reduceExpectedAmountRequest: (
     requestParameters: IReduceExpectedAmountParameters,
     signerIdentity: Identity.IIdentity,
+    validate?: boolean,
+  ) => Promise<IRequestLogicReturnWithConfirmation>;
+  addStakeholders: (
+    requestParameters: IAddStakeholdersParameters,
+    signerIdentity: Identity.IIdentity,
+    encryptionParams: Encryption.IEncryptionParameters[],
     validate?: boolean,
   ) => Promise<IRequestLogicReturnWithConfirmation>;
   addExtensionsDataRequest: (
@@ -182,6 +189,10 @@ export interface IVersionSupportConfig {
 /** Parameters to create a request */
 export interface ICreateParameters {
   currency: ICurrency;
+  /**
+   * `expectedAmount` in `currency`, given with the most precise decimal know for this currency.
+   * By convention, fiat amounts have a precision of 2, so '1000' for 'EUR' means '10.00 EUR'.
+   */
   expectedAmount: Amount;
   payee?: Identity.IIdentity;
   payer?: Identity.IIdentity;
@@ -225,6 +236,12 @@ export interface IReduceExpectedAmountParameters {
   nonce?: number;
 }
 
+/** Parameters to add stakeholders to a request */
+export interface IAddStakeholdersParameters {
+  requestId: RequestId;
+  extensionsData?: any[];
+}
+
 /** Parameters to add extensions data to a request */
 export interface IAddExtensionsDataParameters {
   requestId: RequestId;
@@ -245,12 +262,12 @@ export interface IEvent {
 
 /** Currency interface */
 export interface ICurrency {
-  /** The main currency name (e.g.: 'ERC20', 'ISO4217', 'ETH') */
+  /** The main currency name (e.g.: 'ERC20', 'ERC777', 'ISO4217', 'ETH') */
   type: CURRENCY;
   /** The currency value (e.g.: '0x123...789', 'EUR', 'ETH') */
   value: string;
   /** The currency network (e.g.: 'mainnet', 'rinkeby', 'bank_sandbox') */
-  network?: string;
+  network?: CurrencyTypes.ChainName;
 }
 
 /** Enum of name possible in a action */
@@ -261,15 +278,22 @@ export enum ACTION_NAME {
   CANCEL = 'cancel',
   REDUCE_EXPECTED_AMOUNT = 'reduceExpectedAmount',
   INCREASE_EXPECTED_AMOUNT = 'increaseExpectedAmount',
+  ADD_STAKEHOLDERS = 'addStakeholders',
   ADD_EXTENSIONS_DATA = 'addExtensionsData',
 }
 
 /** Supported currencies */
 export enum CURRENCY {
+  /** ETH Currency type refers to any kind of blockchain native currency - excepted bitcoin */
   ETH = 'ETH',
+  /** BTC Currency type refers to the Bitcoin native currency */
   BTC = 'BTC',
+  /** ISO4217 Currency type refers to fiat currencies (e.g. EUR, USD, ...) */
   ISO4217 = 'ISO4217',
+  /** ERC20 Currency type refers to any kind of fungible token (USDC, DAI, ...) */
   ERC20 = 'ERC20',
+  /** ERC777 Currency type refers to any kind of streamable fungible token (USDCx, DAIx, ...) */
+  ERC777 = 'ERC777',
 }
 
 /** States of a request */
@@ -286,6 +310,4 @@ export enum ROLE {
   PAYEE = 'payee',
   PAYER = 'payer',
   THIRD_PARTY = 'third-party',
-  PAYEE_DELEGATE = 'payeeDelegate',
-  PAYER_DELEGATE = 'payerDelegate',
 }

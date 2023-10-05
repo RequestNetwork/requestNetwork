@@ -8,10 +8,14 @@ import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
   getProvider,
+  getProxyAddress,
   getRequestPaymentValues,
   getSigner,
   validateErc20FeeProxyRequest,
 } from './utils';
+import { IPreparedTransaction } from './prepared-transaction';
+import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
+import { EvmChains } from '@requestnetwork/currency';
 
 /**
  * Details required for a token swap:
@@ -47,33 +51,54 @@ export interface IRequestPaymentOptions {
 
 /**
  * Processes a transaction to swap tokens and pay an ERC20 Request through a proxy with fees.
- * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param swapSettings settings for the swap: swap path, max amount to swap, deadline
  * @param options to override amount, feeAmount and transaction parameters
  */
 export async function swapErc20FeeProxyRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   swapSettings: ISwapSettings,
   options?: ISwapTransactionOptions,
 ): Promise<ContractTransaction> {
+  const preparedTx = prepareSwapToPayErc20FeeRequest(
+    request,
+    signerOrProvider,
+    swapSettings,
+    options,
+  );
+  const signer = getSigner(signerOrProvider);
+  const tx = await signer.sendTransaction(preparedTx);
+  return tx;
+}
+
+/**
+ * Prepare a transaction to swap tokens and pay an ERC20 Request through a proxy with fees.
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param swapSettings settings for the swap: swap path, max amount to swap, deadline
+ * @param options to override amount, feeAmount and transaction parameters
+ */
+export function prepareSwapToPayErc20FeeRequest(
+  request: ClientTypes.IRequestData,
+  signerOrProvider: providers.Provider | Signer = getProvider(),
+  swapSettings: ISwapSettings,
+  options?: ISwapTransactionOptions,
+): IPreparedTransaction {
+  const { network } = request.currencyInfo;
+  EvmChains.assertChainSupported(network!);
   const encodedTx = encodeSwapToPayErc20FeeRequest(
     request,
     signerOrProvider,
     swapSettings,
     options,
   );
-  const proxyAddress = erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!);
-  const signer = getSigner(signerOrProvider);
-
-  const tx = await signer.sendTransaction({
+  const proxyAddress = erc20SwapToPayArtifact.getAddress(network);
+  return {
     data: encodedTx,
     to: proxyAddress,
     value: 0,
     ...options?.overrides,
-  });
-  return tx;
+  };
 }
 
 /**
@@ -85,17 +110,18 @@ export async function swapErc20FeeProxyRequest(
  */
 export function encodeSwapToPayErc20FeeRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   swapSettings: ISwapSettings,
   options?: IRequestPaymentOptions,
 ): string {
+  const { paymentReference, paymentAddress, feeAddress, feeAmount, network } =
+    getRequestPaymentValues(request);
+  EvmChains.assertChainSupported(network!);
+
   validateErc20FeeProxyRequest(request, options?.amount, options?.feeAmount);
 
   const signer = getSigner(signerOrProvider);
   const tokenAddress = request.currencyInfo.value;
-  const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
-    request,
-  );
   const amountToPay = getAmountToPay(request, options?.amount);
   const feeToPay = BigNumber.from(options?.feeAmount || feeAmount || 0);
 
@@ -112,10 +138,16 @@ export function encodeSwapToPayErc20FeeRequest(
     throw new Error('Request currency network is missing');
   }
 
-  const swapToPayAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network);
+  const feeProxyAddress = getProxyAddress(
+    request,
+    Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector.getDeploymentInformation,
+  );
+
+  const swapToPayAddress = erc20FeeProxyArtifact.getAddress(network);
   const swapToPayContract = ERC20SwapToPay__factory.connect(swapToPayAddress, signer);
 
   return swapToPayContract.interface.encodeFunctionData('swapTransferWithReference', [
+    feeProxyAddress,
     paymentAddress,
     amountToPay,
     swapSettings.maxInputAmount,

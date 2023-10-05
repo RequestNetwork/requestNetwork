@@ -2,16 +2,40 @@ import { EventEmitter } from 'events';
 
 import { BigNumber } from 'ethers';
 
-/** Interface of the storage */
-export interface IStorage {
+export interface IStorageWrite {
   initialize: () => Promise<void>;
   append: (data: string) => Promise<IAppendResult>;
+}
+
+export interface IStorageRead {
+  initialize: () => Promise<void>;
   read: (dataId: string) => Promise<IEntry>;
   readMany: (dataIds: string[]) => Promise<IEntry[]>;
   getData: (options?: ITimestampBoundaries) => Promise<IEntriesWithLastTimestamp>;
   getIgnoredData: () => Promise<IEntry[]>;
-  _ipfsAdd?: (data: string) => Promise<IIpfsMeta>;
+}
+
+/** Interface of the storage */
+export interface IStorage extends IStorageRead, IStorageWrite {
   _getStatus: (detailed?: boolean) => Promise<any>;
+}
+
+export type IIpfsConfig = {
+  delayBetweenRetries?: number;
+  host: string;
+  id: string;
+  maxRetries?: number;
+  port: number;
+  protocol: string;
+  timeout?: number;
+};
+
+export interface IIpfsStorage {
+  initialize: () => Promise<void>;
+  ipfsAdd: (data: string) => Promise<IIpfsMeta>;
+  read(hash: string, maxSize?: number, retries?: number): Promise<IIpfsObject>;
+  pinDataToIPFS(hashes: string[], config?: IPinRequestConfiguration): Promise<void>;
+  getConfig(): Promise<IIpfsConfig>;
 }
 
 /** An extensible template that declares a generic meta */
@@ -25,18 +49,13 @@ export interface ITimestampBoundaries {
   to?: number;
 }
 
-/** Result of the append (IEntry + EventEmitter) */
-export interface IAppendResult extends EventEmitter {
-  id: string;
-  content: string;
-  meta: IEntryMetadata;
-}
-
 /** One entry on the storage layer */
 export interface IEntry extends IWithMeta<IEntryMetadata> {
   id: string;
   content: string;
 }
+
+export type IAppendResult = EventEmitter & IEntry;
 
 /** A list of entries with the last timestamp these entries were fetched from */
 export interface IEntriesWithLastTimestamp {
@@ -117,6 +136,8 @@ export interface IEthereumMetadata {
   fee?: string;
   /** gas fee in wei of the transaction that stored the data id */
   gasFee?: string;
+  /** nonce of the transaction that stored the data id */
+  nonce?: number;
 }
 
 /** Ethereum network id */
@@ -124,8 +145,7 @@ export enum EthereumNetwork {
   PRIVATE = 0,
   MAINNET = 1,
   RINKEBY = 4,
-  KOVAN = 42,
-  SOKOL = 77,
+  GOERLI = 5,
   XDAI = 100,
 }
 
@@ -136,7 +156,7 @@ export interface IWeb3Connection {
   timeout?: number;
 }
 
-/** Information to connect to a ipfs gateway */
+/** Information to connect to an IPFS gateway */
 export interface IIpfsGatewayConnection {
   host: string;
   port: number;

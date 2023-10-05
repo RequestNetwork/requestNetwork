@@ -1,15 +1,12 @@
+import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import EthereumFeeProxyPaymentNetwork from './ethereum/fee-proxy-contract';
-import { currenciesWithConversionOracles } from './conversion-supported-currencies';
 
-const CURRENT_VERSION = '0.1.0';
+const CURRENT_VERSION = '0.2.0';
 
 export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPaymentNetwork {
-  public constructor(
-    extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
-    currentVersion: string = CURRENT_VERSION,
-  ) {
-    super(extensionId, currentVersion, Object.keys(currenciesWithConversionOracles));
+  public constructor(private currencyManager: ICurrencyManager) {
+    super(ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY, CURRENT_VERSION);
   }
 
   /**
@@ -22,13 +19,7 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
   public createCreationAction(
     creationParameters: ExtensionTypes.PnAnyToEth.ICreationParameters,
   ): ExtensionTypes.IAction {
-    const network = creationParameters.network;
-    if (!network) {
-      throw Error('network is required');
-    }
-    if (!currenciesWithConversionOracles[network]) {
-      throw Error(`network ${network} not supported`);
-    }
+    this.throwIfInvalidNetwork(creationParameters.network);
     return super.createCreationAction(creationParameters);
   }
 
@@ -78,15 +69,15 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
   /**
    * Validate the extension action regarding the currency and network
    * It must throw in case of error
-   *
-   * @param request
    */
   protected validate(
     request: RequestLogicTypes.IRequest,
     extensionAction: ExtensionTypes.IAction,
   ): void {
     const network =
-      extensionAction.parameters.network || request.extensions[this.extensionId]?.values.network;
+      extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE
+        ? extensionAction.parameters.network
+        : request.extensions[this.extensionId]?.values.network;
 
     if (!network) {
       throw new Error(
@@ -94,22 +85,11 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
       );
     }
 
-    if (!currenciesWithConversionOracles[network]) {
-      throw new Error(`The network (${network}) is not supported for this payment network.`);
+    const currency = this.currencyManager.fromStorageCurrency(request.currency);
+    if (!currency) {
+      throw new UnsupportedCurrencyError(request.currency);
     }
-
-    if (!currenciesWithConversionOracles[network][request.currency.type]) {
-      throw new Error(
-        `The currency type (${request.currency.type}) of the request is not supported for this payment network.`,
-      );
-    }
-
-    const currency =
-      request.currency.type === RequestLogicTypes.CURRENCY.ERC20
-        ? request.currency.value.toLowerCase()
-        : request.currency.value;
-
-    if (!currenciesWithConversionOracles[network][request.currency.type].includes(currency)) {
+    if (!this.currencyManager.supportsConversion(currency, network)) {
       throw new Error(
         `The currency (${request.currency.value}) of the request is not supported for this payment network.`,
       );

@@ -1,5 +1,5 @@
 import MultiFormat from '@requestnetwork/multi-format';
-import Utils from '@requestnetwork/utils';
+import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 import { EventEmitter } from 'events';
 
@@ -7,6 +7,7 @@ import { DataAccessTypes, EncryptionTypes, TransactionTypes } from '@requestnetw
 
 import { TransactionManager } from '../src/index';
 import TransactionsFactory from '../src/transactions-factory';
+import TransactionsParser from '../src/transactions-parser';
 
 import * as TestData from './unit/utils/test-data';
 
@@ -27,9 +28,9 @@ const tx2: DataAccessTypes.ITimestampedTransaction = {
   transaction: { data: data2 },
 };
 
-const dataHash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
+const dataHash = normalizeKeccak256Hash(JSON.parse(data));
 const channelId = MultiFormat.serialize(dataHash);
-const dataHash2 = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data2));
+const dataHash2 = normalizeKeccak256Hash(JSON.parse(data2));
 const channelId2 = MultiFormat.serialize(dataHash2);
 
 const fakeMetaDataAccessPersistReturn: DataAccessTypes.IReturnPersistTransaction = Object.assign(
@@ -60,6 +61,7 @@ describe('index', () => {
       getChannelsByTopic: jest.fn().mockReturnValue(fakeMetaDataAccessGetChannelsReturn),
       getTransactionsByChannelId: jest.fn().mockReturnValue(fakeMetaDataAccessGetReturn),
       initialize: jest.fn(),
+      close: jest.fn(),
       // persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
       persistTransaction: jest.fn((): any => {
         setTimeout(() => {
@@ -194,20 +196,21 @@ describe('index', () => {
           TestData.idRaw1.encryptionParams,
         ]);
 
-        const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions = {
-          meta: {
-            transactionsStorageLocation: ['fakeDataId1'],
-          },
-          result: {
-            transactions: [
-              {
-                state: TransactionTypes.TransactionState.PENDING,
-                timestamp: 1,
-                transaction: encryptedTx,
-              },
-            ],
-          },
-        };
+        const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
+          {
+            meta: {
+              transactionsStorageLocation: ['fakeDataId1'],
+            },
+            result: {
+              transactions: [
+                {
+                  state: TransactionTypes.TransactionState.PENDING,
+                  timestamp: 1,
+                  transaction: encryptedTx,
+                },
+              ],
+            },
+          };
 
         fakeDataAccess = {
           _getStatus: jest.fn(),
@@ -217,6 +220,7 @@ describe('index', () => {
             .fn()
             .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
           initialize: jest.fn(),
+          close: jest.fn(),
           persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
         };
 
@@ -234,7 +238,7 @@ describe('index', () => {
           encryptionMethod: 'ecies-aes256-gcm',
         });
 
-        // TODO challenge this
+        expect(fakeDataAccess.persistTransaction).toHaveBeenCalledTimes(1);
         expect(fakeDataAccess.persistTransaction).toHaveBeenCalledWith(
           {
             encryptedData: expect.stringMatching(/^04.{76}/),
@@ -260,6 +264,7 @@ describe('index', () => {
           getChannelsByTopic: jest.fn(),
           getTransactionsByChannelId: jest.fn().mockReturnValue(fakeMetaDataAccessGetReturnEmpty),
           initialize: jest.fn(),
+          close: jest.fn(),
           persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
         };
 
@@ -272,25 +277,26 @@ describe('index', () => {
         ).rejects.toThrowError(`Impossible to retrieve the channel: ${channelId}`);
       });
 
-      it('cannot persist a encrypted transaction in an existing channel with encryption parameters given', async () => {
+      it('can persist a encrypted transaction in an existing channel with encryption parameters given', async () => {
         const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
           TestData.idRaw1.encryptionParams,
         ]);
 
-        const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions = {
-          meta: {
-            transactionsStorageLocation: ['fakeDataId1'],
-          },
-          result: {
-            transactions: [
-              {
-                state: TransactionTypes.TransactionState.PENDING,
-                timestamp: 1,
-                transaction: encryptedTx,
-              },
-            ],
-          },
-        };
+        const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
+          {
+            meta: {
+              transactionsStorageLocation: ['fakeDataId1'],
+            },
+            result: {
+              transactions: [
+                {
+                  state: TransactionTypes.TransactionState.PENDING,
+                  timestamp: 1,
+                  transaction: encryptedTx,
+                },
+              ],
+            },
+          };
 
         fakeDataAccess = {
           _getStatus: jest.fn(),
@@ -300,6 +306,7 @@ describe('index', () => {
             .fn()
             .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
           initialize: jest.fn(),
+          close: jest.fn(),
           persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
         };
 
@@ -307,11 +314,30 @@ describe('index', () => {
           fakeDataAccess,
           TestData.fakeDecryptionProvider,
         );
-        await expect(
-          transactionManager.persistTransaction(data2, channelId, extraTopics, [
-            TestData.idRaw1.encryptionParams,
-          ]),
-        ).rejects.toThrowError('Impossible to add new stakeholder to an existing channel');
+
+        const ret = await transactionManager.persistTransaction(data2, channelId, extraTopics, [
+          TestData.idRaw2.encryptionParams,
+        ]);
+
+        // 'ret.result is wrong'
+        expect(ret.result).toEqual({});
+        // 'ret.meta is wrong'
+        expect(ret.meta).toEqual({
+          dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
+          encryptionMethod: 'ecies-aes256-gcm',
+        });
+
+        expect(fakeDataAccess.persistTransaction).toHaveBeenCalledTimes(1);
+        expect(fakeDataAccess.persistTransaction).toHaveBeenCalledWith(
+          {
+            encryptedData: expect.stringMatching(/^04.{76}/),
+            keys: {
+              '20740fc87bd3f41d07d23a01dec90623ebc5fed9d6': expect.stringMatching(/^02.{258}/),
+            },
+          },
+          channelId,
+          extraTopics.concat([channelId2]),
+        );
       });
     });
   });
@@ -352,6 +378,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnFirstHashWrong),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -399,6 +426,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnFirstHashWrong),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -432,18 +460,19 @@ describe('index', () => {
         TestData.idRaw2.encryptionParams,
         TestData.idRaw3.encryptionParams,
       ]);
-      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions = {
-        meta: { transactionsStorageLocation: ['fakeDataId1'] },
-        result: {
-          transactions: [
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 1,
-              transaction: encryptedTx,
-            },
-          ],
-        },
-      };
+      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
+        {
+          meta: { transactionsStorageLocation: ['fakeDataId1'] },
+          result: {
+            transactions: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
+            ],
+          },
+        };
 
       fakeDataAccess = {
         _getStatus: jest.fn(),
@@ -453,6 +482,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -487,18 +517,19 @@ describe('index', () => {
         TestData.idRaw2.encryptionParams,
         TestData.idRaw3.encryptionParams,
       ]);
-      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions = {
-        meta: { transactionsStorageLocation: ['fakeDataId1'] },
-        result: {
-          transactions: [
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 1,
-              transaction: encryptedTx,
-            },
-          ],
-        },
-      };
+      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
+        {
+          meta: { transactionsStorageLocation: ['fakeDataId1'] },
+          result: {
+            transactions: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
+            ],
+          },
+        };
 
       fakeDataAccess = {
         _getStatus: jest.fn(),
@@ -508,6 +539,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -533,33 +565,44 @@ describe('index', () => {
       });
     });
 
-    it('can get two transactions with different encryptions from the same encrypted channel', async () => {
+    it('can get two transactions from the same encrypted channel both have encryption method', async () => {
       const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
       ]);
-      const encryptedTx2 = await TransactionsFactory.createEncryptedTransactionInNewChannel(data2, [
-        TestData.idRaw3.encryptionParams,
-      ]);
-      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions = {
-        meta: {
-          transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
-        },
-        result: {
-          transactions: [
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 1,
-              transaction: encryptedTx,
-            },
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 2,
-              transaction: encryptedTx2,
-            },
-          ],
-        },
-      };
+
+      // Get channel key of 1st encrypted transaction
+      const transactionsParser = new TransactionsParser(TestData.fakeDecryptionProvider);
+      let { channelKey } = await transactionsParser.parsePersistedTransaction(
+        encryptedTx,
+        TransactionTypes.ChannelType.ENCRYPTED,
+      );
+      channelKey = <EncryptionTypes.IEncryptionParameters>channelKey;
+
+      // Create 2nd encrypted transaction using same channel key
+      let encryptedTx2 = await TransactionsFactory.createEncryptedTransaction(data2, channelKey);
+      encryptedTx2.encryptionMethod = 'diffferent-encryption-method';
+
+      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
+        {
+          meta: {
+            transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
+          },
+          result: {
+            transactions: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: encryptedTx2,
+              },
+            ],
+          },
+        };
 
       fakeDataAccess = {
         _getStatus: jest.fn(),
@@ -569,6 +612,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -588,8 +632,7 @@ describe('index', () => {
           ignoredTransactions: [
             null,
             {
-              reason:
-                'the properties "encryptionMethod" and "keys" have been already given for this channel',
+              reason: 'the "encryptionMethod" property has been already given for this channel',
               transaction: {
                 state: TransactionTypes.TransactionState.PENDING,
                 timestamp: 2,
@@ -614,32 +657,39 @@ describe('index', () => {
     it('can get two transactions with different encryptions from the same encrypted channel the first has the right hash but wrong data', async () => {
       const encryptedTxFakeHash = await TransactionsFactory.createEncryptedTransactionInNewChannel(
         data2,
-        [TestData.idRaw3.encryptionParams],
+        [TestData.idRaw1.encryptionParams, TestData.idRaw2.encryptionParams],
       );
 
-      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
-        TestData.idRaw1.encryptionParams,
-        TestData.idRaw2.encryptionParams,
-      ]);
-      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions = {
-        meta: {
-          transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
-        },
-        result: {
-          transactions: [
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 1,
-              transaction: encryptedTxFakeHash,
-            },
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 2,
-              transaction: encryptedTx,
-            },
-          ],
-        },
-      };
+      // Get channel key of 1st encrypted transaction
+      const transactionsParser = new TransactionsParser(TestData.fakeDecryptionProvider);
+      let { channelKey } = await transactionsParser.parsePersistedTransaction(
+        encryptedTxFakeHash,
+        TransactionTypes.ChannelType.ENCRYPTED,
+      );
+      channelKey = <EncryptionTypes.IEncryptionParameters>channelKey;
+
+      // Create 2nd encrypted transaction using same channel key
+      let encryptedTx2 = await TransactionsFactory.createEncryptedTransaction(data, channelKey);
+      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
+        {
+          meta: {
+            transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
+          },
+          result: {
+            transactions: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTxFakeHash,
+              },
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: encryptedTx2,
+              },
+            ],
+          },
+        };
 
       fakeDataAccess = {
         _getStatus: jest.fn(),
@@ -649,6 +699,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -664,7 +715,6 @@ describe('index', () => {
           dataAccessMeta: {
             transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
           },
-          encryptionMethod: 'ecies-aes256-gcm',
           ignoredTransactions: [
             {
               reason:
@@ -675,18 +725,18 @@ describe('index', () => {
                 transaction: encryptedTxFakeHash,
               },
             },
-            null,
+            {
+              reason: 'the "encryptionMethod" property is needed to use the channel key',
+              transaction: {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: encryptedTx2,
+              },
+            },
           ],
         },
         result: {
-          transactions: [
-            null,
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 2,
-              transaction: { data },
-            },
-          ],
+          transactions: [null, null],
         },
       });
     });
@@ -696,25 +746,26 @@ describe('index', () => {
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
       ]);
-      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions = {
-        meta: {
-          transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
-        },
-        result: {
-          transactions: [
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 1,
-              transaction: encryptedTx,
-            },
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 2,
-              transaction: { data: data2 },
-            },
-          ],
-        },
-      };
+      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
+        {
+          meta: {
+            transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
+          },
+          result: {
+            transactions: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: { data: data2 },
+              },
+            ],
+          },
+        };
 
       fakeDataAccess = {
         _getStatus: jest.fn(),
@@ -724,6 +775,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -772,25 +824,26 @@ describe('index', () => {
           method: EncryptionTypes.METHOD.ECIES,
         },
       ]);
-      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions = {
-        meta: {
-          transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
-        },
-        result: {
-          transactions: [
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 1,
-              transaction: encryptedTx,
-            },
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 2,
-              transaction: { data: data2 },
-            },
-          ],
-        },
-      };
+      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
+        {
+          meta: {
+            transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
+          },
+          result: {
+            transactions: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: { data: data2 },
+              },
+            ],
+          },
+        };
 
       fakeDataAccess = {
         _getStatus: jest.fn(),
@@ -800,6 +853,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -847,25 +901,26 @@ describe('index', () => {
         TestData.idRaw1.encryptionParams,
         TestData.idRaw2.encryptionParams,
       ]);
-      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions = {
-        meta: {
-          transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
-        },
-        result: {
-          transactions: [
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 1,
-              transaction: { data },
-            },
-            {
-              state: TransactionTypes.TransactionState.PENDING,
-              timestamp: 2,
-              transaction: encryptedTx,
-            },
-          ],
-        },
-      };
+      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
+        {
+          meta: {
+            transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
+          },
+          result: {
+            transactions: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: { data },
+              },
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 2,
+                transaction: encryptedTx,
+              },
+            ],
+          },
+        };
 
       fakeDataAccess = {
         _getStatus: jest.fn(),
@@ -875,6 +930,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -914,6 +970,127 @@ describe('index', () => {
         },
       });
     });
+
+    it('can get transactions from an encrypted channel with spam and added stakeholder', async () => {
+      // Create encrypted transation with ID1 and ID2 as stakeholders
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
+        TestData.idRaw1.encryptionParams,
+        TestData.idRaw2.encryptionParams,
+      ]);
+
+      // Get channel key from 1st encrypted transaction
+      const transactionsParser = new TransactionsParser(TestData.fakeDecryptionProvider);
+      let { channelKey } = await transactionsParser.parsePersistedTransaction(
+        encryptedTx,
+        TransactionTypes.ChannelType.ENCRYPTED,
+      );
+      channelKey = <EncryptionTypes.IEncryptionParameters>channelKey;
+
+      // Create spam transaction that pretends to add ID3 as a stakeholder
+      // but uses garbage as the encrypted channel key
+      const spamData = '{ "spammy": "spam" }';
+      const garbage =
+        '029f00713571588a32dc91c948c5cbb09a0293d20c3a0a32879581dfad210526ac5d6b978fe81b55a26344ff6eb5d231f331bd9d215d61c3d21a219a96a81ff713d6b67aa62d7e4c119ca16031c6d3d67d45d7b27ebc03f3961843cd3228c08b43224916370147182322c058fe1a25d1dd52b23ec0438180d229ebdeb41b39f6e95d';
+      let spamTx = await TransactionsFactory.createEncryptedTransaction(spamData, channelKey, [
+        TestData.idRaw3.encryptionParams,
+      ]);
+      spamTx!.keys!['20818b6337657a23f58581715fc610577292e521d0'] = garbage;
+
+      // Create real transaction that adds ID3 as a stakeholder
+      let encryptedTx2 = await TransactionsFactory.createEncryptedTransaction(data2, channelKey, [
+        TestData.idRaw3.encryptionParams,
+      ]);
+
+      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetTransactions =
+        {
+          meta: {
+            transactionsStorageLocation: ['fakeDataId1', 'fakeDataId3'],
+          },
+          result: {
+            transactions: [
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 1,
+                transaction: encryptedTx,
+              },
+              //  <== Spam transactions inserted here
+              {
+                state: TransactionTypes.TransactionState.PENDING,
+                timestamp: 3,
+                transaction: encryptedTx2,
+              },
+            ],
+          },
+        };
+
+      const expectedRet = {
+        meta: {
+          dataAccessMeta: {
+            transactionsStorageLocation: ['fakeDataId1', 'fakeDataId3'],
+          },
+          encryptionMethod: 'ecies-aes256-gcm',
+          ignoredTransactions: [null, null],
+        },
+        result: {
+          transactions: [
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 1,
+              transaction: { data },
+            },
+            //  <== Spam transactions inserted here
+            {
+              state: TransactionTypes.TransactionState.PENDING,
+              timestamp: 3,
+              transaction: { data: data2 },
+            },
+          ],
+        },
+      };
+
+      // Insert spam transactions
+      for (let i = 0; i < 10; i++) {
+        fakeMetaDataAccessGetReturnWithEncryptedTransaction.meta.transactionsStorageLocation.splice(
+          1,
+          0,
+          'fakeDataId2',
+        );
+        fakeMetaDataAccessGetReturnWithEncryptedTransaction.result.transactions.splice(1, 0, {
+          state: TransactionTypes.TransactionState.PENDING,
+          timestamp: 2,
+          transaction: spamTx,
+        });
+
+        expectedRet.meta.dataAccessMeta.transactionsStorageLocation.splice(1, 0, 'fakeDataId2');
+        expectedRet.meta.ignoredTransactions.splice(1, 0, null);
+        expectedRet.result.transactions.splice(1, 0, {
+          state: TransactionTypes.TransactionState.PENDING,
+          timestamp: 2,
+          transaction: { data: spamData },
+        });
+      }
+
+      fakeDataAccess = {
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest.fn(),
+        getTransactionsByChannelId: jest
+          .fn()
+          .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
+        initialize: jest.fn(),
+        close: jest.fn(),
+        persistTransaction: jest.fn(),
+      };
+
+      const transactionManager = new TransactionManager(
+        fakeDataAccess,
+        TestData.id3DecryptionProvider,
+      );
+      const ret = await transactionManager.getTransactionsByChannelId(channelId);
+
+      // 'return is wrong'
+      expect(ret).toEqual(expectedRet);
+    });
   });
 
   describe('getChannelsByTopic', () => {
@@ -941,24 +1118,25 @@ describe('index', () => {
         TestData.idRaw3.encryptionParams,
       ]);
 
-      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetChannelsByTopic = {
-        meta: {
-          transactionsStorageLocation: {
-            [channelId]: ['fakeDataId1'],
+      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetChannelsByTopic =
+        {
+          meta: {
+            transactionsStorageLocation: {
+              [channelId]: ['fakeDataId1'],
+            },
           },
-        },
-        result: {
-          transactions: {
-            [channelId]: [
-              {
-                state: TransactionTypes.TransactionState.PENDING,
-                timestamp: 1,
-                transaction: encryptedTx,
-              },
-            ],
+          result: {
+            transactions: {
+              [channelId]: [
+                {
+                  state: TransactionTypes.TransactionState.PENDING,
+                  timestamp: 1,
+                  transaction: encryptedTx,
+                },
+              ],
+            },
           },
-        },
-      };
+        };
       fakeDataAccess = {
         _getStatus: jest.fn(),
         getChannelsByMultipleTopics: jest.fn(),
@@ -967,6 +1145,7 @@ describe('index', () => {
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         getTransactionsByChannelId: jest.fn(),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -1000,24 +1179,25 @@ describe('index', () => {
         TestData.idRaw3.encryptionParams,
       ]);
 
-      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetChannelsByTopic = {
-        meta: {
-          transactionsStorageLocation: {
-            [channelId]: ['fakeDataId1'],
+      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetChannelsByTopic =
+        {
+          meta: {
+            transactionsStorageLocation: {
+              [channelId]: ['fakeDataId1'],
+            },
           },
-        },
-        result: {
-          transactions: {
-            [channelId]: [
-              {
-                state: TransactionTypes.TransactionState.PENDING,
-                timestamp: 1,
-                transaction: encryptedTx,
-              },
-            ],
+          result: {
+            transactions: {
+              [channelId]: [
+                {
+                  state: TransactionTypes.TransactionState.PENDING,
+                  timestamp: 1,
+                  transaction: encryptedTx,
+                },
+              ],
+            },
           },
-        },
-      };
+        };
       fakeDataAccess = {
         _getStatus: jest.fn(),
         getChannelsByMultipleTopics: jest.fn(),
@@ -1026,6 +1206,7 @@ describe('index', () => {
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         getTransactionsByChannelId: jest.fn(),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -1065,29 +1246,30 @@ describe('index', () => {
         TestData.idRaw3.encryptionParams,
       ]);
 
-      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetChannelsByTopic = {
-        meta: {
-          transactionsStorageLocation: {
-            [channelId]: ['fakeDataId1', 'fakeDataId2'],
+      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetChannelsByTopic =
+        {
+          meta: {
+            transactionsStorageLocation: {
+              [channelId]: ['fakeDataId1', 'fakeDataId2'],
+            },
           },
-        },
-        result: {
-          transactions: {
-            [channelId]: [
-              {
-                state: TransactionTypes.TransactionState.PENDING,
-                timestamp: 1,
-                transaction: encryptedTx,
-              },
-              {
-                state: TransactionTypes.TransactionState.PENDING,
-                timestamp: 2,
-                transaction: { data },
-              },
-            ],
+          result: {
+            transactions: {
+              [channelId]: [
+                {
+                  state: TransactionTypes.TransactionState.PENDING,
+                  timestamp: 1,
+                  transaction: encryptedTx,
+                },
+                {
+                  state: TransactionTypes.TransactionState.PENDING,
+                  timestamp: 2,
+                  transaction: { data },
+                },
+              ],
+            },
           },
-        },
-      };
+        };
       fakeDataAccess = {
         _getStatus: jest.fn(),
         getChannelsByMultipleTopics: jest.fn(),
@@ -1096,6 +1278,7 @@ describe('index', () => {
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         getTransactionsByChannelId: jest.fn(),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -1157,6 +1340,7 @@ describe('index', () => {
         getChannelsByTopic: jest.fn().mockReturnValue(fakeMetaDataAccessGetReturnFirstHashWrong),
         getTransactionsByChannelId: jest.fn(),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -1193,32 +1377,33 @@ describe('index', () => {
         TestData.idRaw3.encryptionParams,
       ]);
 
-      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetChannelsByTopic = {
-        meta: {
-          transactionsStorageLocation: {
-            [channelId]: ['fakeDataId1'],
-            [channelId2]: ['fakeDataId2'],
+      const fakeMetaDataAccessGetReturnWithEncryptedTransaction: DataAccessTypes.IReturnGetChannelsByTopic =
+        {
+          meta: {
+            transactionsStorageLocation: {
+              [channelId]: ['fakeDataId1'],
+              [channelId2]: ['fakeDataId2'],
+            },
           },
-        },
-        result: {
-          transactions: {
-            [channelId]: [
-              {
-                state: TransactionTypes.TransactionState.PENDING,
-                timestamp: 1,
-                transaction: encryptedTx,
-              },
-            ],
-            [channelId2]: [
-              {
-                state: TransactionTypes.TransactionState.PENDING,
-                timestamp: 1,
-                transaction: { data: data2 },
-              },
-            ],
+          result: {
+            transactions: {
+              [channelId]: [
+                {
+                  state: TransactionTypes.TransactionState.PENDING,
+                  timestamp: 1,
+                  transaction: encryptedTx,
+                },
+              ],
+              [channelId2]: [
+                {
+                  state: TransactionTypes.TransactionState.PENDING,
+                  timestamp: 1,
+                  transaction: { data: data2 },
+                },
+              ],
+            },
           },
-        },
-      };
+        };
       fakeDataAccess = {
         _getStatus: jest.fn(),
         getChannelsByMultipleTopics: jest.fn(),
@@ -1227,6 +1412,7 @@ describe('index', () => {
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         getTransactionsByChannelId: jest.fn(),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 

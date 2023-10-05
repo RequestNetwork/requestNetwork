@@ -14,7 +14,7 @@ Therefore, the Node receives request transactions from users, batches them into 
 
 Once received by the Node, other request actors connecting to this Node can directly read the request transaction before it is persisted into the storage layer.
 
-To use Infura to connect to an Ethereum node, get an infura token on [infura.io](infura.io) and
+To use Infura to connect to an Ethereum node, get an Infura token on [infura.io](infura.io) and
 use as provider `"NETWORK_YOU_WANT.infura.io/v3/YOUR_INFURA_TOKEN"`.
 
 ## Usage
@@ -105,6 +105,8 @@ Since the Node doesn't implement a cache yet, all transactions have to be retrie
 As a consequence, this request can take a long time if the topic requested indexes many transactions.
 This delay will be optimized with the implementation of a cache.
 
+If you experience issues, look into the [Graph mode](#thegraph-mode).
+
 #### getChannelsByTopic
 
 Get transactions from channels indexed by a specified topic.
@@ -177,11 +179,19 @@ The Request Node uses IPFS to store and share transactions in a private network.
 We use a private network to allow all nodes to connect to each other directly,
 instead of having to navigate through the public IPFS network.
 
-To setup your IPFS node to the private network, you can run the following utility script:
+To setup your IPFS node to the private network, you can use the [request-ipfs](https://hub.docker.com/r/requestnetwork/request-ipfs) docker image. Make sure that [docker is installed](https://docs.docker.com/get-docker/) on your system and then run the following command:
 
 ```bash
-yarn init-ipfs
+docker run -p 4001:4001 -p 5001:5001 requestnetwork/request-ipfs
 ```
+
+This will pull the [request-ipfs](https://hub.docker.com/r/requestnetwork/request-ipfs) docker image and run it locally.
+
+#### TheGraph mode
+
+An alternative data access relies on a [Graph](https://thegraph.com/) node, for better indexing & performance.
+
+To enable it, set the `GRAPH_NODE_URL` environment variable to a Graph node with the [Request Storage Subgraph](https://github.com/RequestNetwork/storage-subgraph) deployed and synced.
 
 ### Launch
 
@@ -235,6 +245,9 @@ Default values correspond to the basic configuration used to run a server in a t
 - `--headers` Custom headers to send with the API responses (as a stringified JSON object)
   - Default value: `'{}'`
   - Environment variable name: `$HEADERS`
+    `--blockConfirmations` The number of block confirmations to consider a transaction successful
+  - Default value: `2`
+  - Environment variable name: `$BLOCK_CONFIRMATIONS`
 - `--lastBlockNumberDelay` The minimum delay between getLastBlockNumber calls to ethereum network
   - Default value: `'10000'`
   - Environment variable name: `$LAST_BLOCK_NUMBER_DELAY`
@@ -256,6 +269,8 @@ Default values correspond to the basic configuration used to run a server in a t
   - Environment variable name: `$PERSIST_TRANSACTION_TIMEOUT`
 - `--externalUrl` External url of the node (used to identified where the buffer data are stored before being broadcasted on ethereum)
   - Environment variable name: `$EXTERNAL_URL`
+- `--graphNodeUrl` External url of the Graph node, if any. If specified, this will replace the traditional data access with the Graph implementation. Default is undefined. See [TheGraph mode](#thegraph-mode).
+  - Environment variable name: `$GRAPH_NODE_URL`
 
 #### Mnemonic
 
@@ -274,42 +289,13 @@ This mnemonic should only be used for testing.
 ### Docker
 
 The Request Node can be deployed with Docker.
-For now, the user has to clone the repository to build the Docker and run it.
+The Docker image is available on the [DockerHub](https://hub.docker.com/r/requestnetwork/request-node).
+Please refer to the [RequestNetwork/docker-images](https://github.com/RequestNetwork/docker-images) repository
+for instructions on how to use this image.
 
-```bash
-git clone https://github.com/RequestNetwork/requestNetwork.git
-cd packages/request-node
-docker build -t "request-node" .
-docker run request-node
-```
+#### Docker for unpublished version
 
-The environment variables used to configure the Node can be defined in the `docker run` command.
-
-For example, the user can define custom parameters for IPFS connection with the following command:
-
-```
-docker run -e IPFS_HOST=<custom_ipfs_host> IPFS_PORT=<custom_ipfs_port>
-```
-
-If the user want the server to listen on a specific port, he has to expose that port as well:
-
-```
-docker run -e PORT=80 --expose 80
-```
-
-The user can connect to an IPFS node and Ethereum node (like ganache) on the local machine, using the following:
-
-```bash
-docker run -e IPFS_HOST=host.docker.internal -e WEB3_PROVIDER_URL=http://host.docker.internal:8545
-```
-
-The user can use the docker-compose tool to run an environment containing the Request Node and an instance of IPFS with the following command:
-
-```bash
-docker-compose up
-```
-
-The environment variables must be defined in the `docker-compose.yml` file in the `environment` section. `$ETHEREUM_NETWORK_ID` and `$WEB3_PROVIDER_URL` must be defined.
+See instructions in [Dockerfile.dev](./Dockerfile.dev).
 
 ### Running fully locally
 
@@ -332,40 +318,34 @@ yarn build
 ```
 
 #### 3. On a new terminal, launch a local IPFS node
-Note: only IPFS v0.4.* supported, from the [IPFS Installation docs](https://docs.ipfs.io/install/), replace the binary URL with the good one from the following list: https://github.com/ipfs/go-ipfs/releases/tag/v0.4.23
+
+Make sure the [Docker](https://docs.docker.com/get-docker/) is installed.
 
 ```bash
-ipfs daemon
+docker run -p 4001:4001 -p 5001:5001 requestnetwork/request-ipfs
 ```
 
-#### 4. On a new terminal, configure your IPFS node to connect to the private Request IPFS network
-
-```bash
-cd packages/request-node
-yarn init-ipfs
-```
-
-#### 5. Launch [ganache](https://github.com/trufflesuite/ganache-cli#installation) with the default Request Node mnemonic
+#### 4. Launch [ganache](https://github.com/trufflesuite/ganache-cli#installation) with the default Request Node mnemonic
 
 ```bash
 ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"
 ```
 
-#### 6. Deploy the smart contracts on ganache
+#### 5. Deploy the smart contracts on ganache
 
 ```bash
 cd packages/smart-contracts
 yarn deploy
 ```
 
-#### 7. Run the Request Node
+#### 6. Run the Request Node
 
 ```bash
 cd ../packages/request-node
 yarn start
 ```
 
-#### 8. Test
+#### 7. Test
 
 Open a browser and navigate towards: http://localhost:3000/status
 You can see the details of your local Request & IPFS nodes.

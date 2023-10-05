@@ -1,16 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-
 contract AggregatorMock {
   uint8 private _decimals;
   int256 private _rate;
   uint8 private _rateAge;
 
-  constructor(int256 _r, uint8 _d, uint8 _ra) {
-      _rate = _r;
-      _decimals = _d;
-      _rateAge = _ra;
+  constructor(
+    int256 _r,
+    uint8 _d,
+    uint8 _ra
+  ) {
+    _rate = _r;
+    _decimals = _d;
+    _rateAge = _ra;
   }
 
   function decimals() external view returns (uint8) {

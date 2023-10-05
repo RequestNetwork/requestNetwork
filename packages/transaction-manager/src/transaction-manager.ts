@@ -5,7 +5,7 @@ import {
   EncryptionTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 import { EventEmitter } from 'events';
 
@@ -47,9 +47,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     let channelEncryptionMethod: string | undefined;
 
     // compute hash to add it to the topics
-    const hash = MultiFormat.serialize(
-      Utils.crypto.normalizeKeccak256Hash(JSON.parse(transactionData)),
-    );
+    const hash = MultiFormat.serialize(normalizeKeccak256Hash(JSON.parse(transactionData)));
 
     // Need to create a new channel (only the first transaction can have the hash equals to the channel id)
     if (channelId === hash) {
@@ -69,14 +67,11 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     } else {
       const resultGetTx = await this.dataAccess.getTransactionsByChannelId(channelId);
 
-      const {
-        channelKey,
-        channelType,
-        encryptionMethod,
-      } = await this.channelParser.getChannelTypeAndChannelKey(
-        channelId,
-        resultGetTx.result.transactions,
-      );
+      const { channelKey, channelType, encryptionMethod } =
+        await this.channelParser.getChannelTypeAndChannelKey(
+          channelId,
+          resultGetTx.result.transactions,
+        );
 
       if (channelType === TransactionTypes.ChannelType.UNKNOWN) {
         throw new Error(`Impossible to retrieve the channel: ${channelId}`);
@@ -88,11 +83,6 @@ export default class TransactionManager implements TransactionTypes.ITransaction
       }
 
       if (channelType === TransactionTypes.ChannelType.ENCRYPTED) {
-        // we cannot add new stakeholders to an existing channel
-        if (encryptionParams.length !== 0) {
-          throw new Error('Impossible to add new stakeholder to an existing channel');
-        }
-
         if (!channelKey) {
           throw new Error(`Impossible to decrypt the channel key of: ${channelId}`);
         }
@@ -100,6 +90,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
         transaction = await TransactionsFactory.createEncryptedTransaction(
           transactionData,
           channelKey,
+          encryptionParams,
         );
 
         channelEncryptionMethod = encryptionMethod;
@@ -162,11 +153,8 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     );
 
     // Decrypts and cleans the channel from the data-access layers
-    const {
-      transactions,
-      ignoredTransactions,
-      encryptionMethod,
-    } = await this.channelParser.decryptAndCleanChannel(channelId, resultGetTx.result.transactions);
+    const { transactions, ignoredTransactions, encryptionMethod } =
+      await this.channelParser.decryptAndCleanChannel(channelId, resultGetTx.result.transactions);
 
     const meta = {
       dataAccessMeta: resultGetTx.meta,

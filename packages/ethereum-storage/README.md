@@ -3,7 +3,7 @@
 `@requestnetwork/ethereum-storage` is a package part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 It is an implementation of the Storage layer of Request Network protocol that uses IPFS to immutably store the data and uses the Ethereum network to persist the IPFS hash of the data and make them permanently available to everyone.
 
-To use Infura to connect to an Ethereum node, get an infura token on [infura.io](infura.io) and
+To use Infura to connect to an Ethereum node, get an Infura token on [infura.io](infura.io) and
 use as provider `"NETWORK_YOU_WANT.infura.io/v3/YOUR_INFURA_TOKEN"`.
 
 ## Installation
@@ -15,7 +15,7 @@ npm install @requestnetwork/ethereum-storage
 ## Usage
 
 ```js
-import EthereumStorage from '@requestnetwork/ethereum-storage';
+import { EthereumStorage } from '@requestnetwork/ethereum-storage';
 import { StorageTypes } from '@requestnetwork/types';
 
 const web3HttpProvider = require('web3-providers-http');
@@ -46,6 +46,7 @@ const data = 'Some data';
 
 await ethereumStorage.append(data);
 ```
+
 ## Gas Limit
 
 The gas limit defined as `safeGasPriceLimit` in [/src/config.ts](./src/config.ts) can be overridden with the environment variable `GAS_PRICE_DEFAULT`.
@@ -86,13 +87,7 @@ TRUFFLE_GANACHE_HOST="host" TRUFFLE_GANACHE_PORT=1010 yarn run deploy
 
 ## IPFS
 
-In order to use the package in a test environment, IPFS should be [installed locally](https://docs.ipfs.io/guides/guides/install/) and can then be started with the following commands:
-
-```bash
-yarn init-ipfs # documented below
-ipfs daemon
-```
-
+In order to use the package in a test environment, IPFS should be running locally.
 Local IPFS listening on port 5001 is used by default by the `ethereum-storage` package.
 
 ### Setup IPFS private network
@@ -100,11 +95,13 @@ Local IPFS listening on port 5001 is used by default by the `ethereum-storage` p
 Request uses an IPFS private network to allow all nodes to connect to each other directly,
 instead of having to navigate through the public IPFS network.
 
-To setup your IPFS node to the private network, you can run the following utility script:
+You may use the [Request IPFS docker image](https://github.com/RequestNetwork/docker-images/tree/master/request-ipfs) to setup your IPFS node to the private network. Make sure that [docker is installed](https://docs.docker.com/get-docker/) on your system and then run the following command:
 
 ```bash
-yarn init-ipfs
+docker run -p 4001:4001 -p 5001:5001 requestnetwork/request-ipfs
 ```
+
+This will pull the [request-ipfs](https://hub.docker.com/r/requestnetwork/request-ipfs) docker image and run it locally.
 
 ## Contributing
 

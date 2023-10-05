@@ -1,4 +1,20 @@
-import { RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
+
+/**
+ * Common types used in token configuration files
+ */
+type TokenAddress = string;
+type TokenDefinition = { name: string; symbol: string; decimals: number };
+export type TokenMap = Record<TokenAddress, TokenDefinition>;
+
+/**
+ * Common types used in chain configuration files
+ */
+export type Chain = {
+  chainId: number | string;
+  testnet?: boolean;
+  currencies?: TokenMap;
+};
 
 /**
  * A native blockchain token (ETH, MATIC, ETH-rinkeby...)
@@ -6,8 +22,10 @@ import { RequestLogicTypes } from '@requestnetwork/types';
 export type NativeCurrency = {
   symbol: string;
   decimals: number;
-  network: string;
+  network: CurrencyTypes.ChainName;
 };
+type NamedCurrency = { name: string };
+export type NamedNativeCurrency = NativeCurrency & NamedCurrency;
 
 /** Native Currency types */
 export type NativeCurrencyType = RequestLogicTypes.CURRENCY.BTC | RequestLogicTypes.CURRENCY.ETH;
@@ -26,17 +44,59 @@ export type ISO4217Currency = {
 export type ERC20Currency = {
   symbol: string;
   decimals: number;
-  network: string;
+  network:
+    | CurrencyTypes.EvmChainName
+    | CurrencyTypes.NearChainName
+    | CurrencyTypes.DeclarativeChainName;
   address: string;
 };
+
+/**
+ * An ERC777 SuperToken (DAIx, USDCx...)
+ */
+export type ERC777Currency = {
+  symbol: string;
+  decimals: number;
+  network: CurrencyTypes.EvmChainName;
+  address: string;
+};
+
+/**
+ * The minimum properties of a native Currency
+ */
+export type NativeCurrencyInput = {
+  type: RequestLogicTypes.CURRENCY.ETH | RequestLogicTypes.CURRENCY.BTC;
+} & NativeCurrency;
+
+/**
+ * The minimum properties of an ISO4217 Currency
+ */
+export type ISO4217CurrencyInput = {
+  type: RequestLogicTypes.CURRENCY.ISO4217;
+} & ISO4217Currency;
+
+/**
+ * The minimum properties of an ERC20 Currency
+ */
+export type ERC20CurrencyInput = {
+  type: RequestLogicTypes.CURRENCY.ERC20;
+} & ERC20Currency;
+
+/**
+ * The minimum properties of an ERC777 Currency
+ */
+export type ERC777CurrencyInput = {
+  type: RequestLogicTypes.CURRENCY.ERC777;
+} & ERC777Currency;
 
 /**
  * The minimum properties of a Currency
  */
 export type CurrencyInput =
-  | ({ type: RequestLogicTypes.CURRENCY.ETH | RequestLogicTypes.CURRENCY.BTC } & NativeCurrency)
-  | ({ type: RequestLogicTypes.CURRENCY.ISO4217 } & ISO4217Currency)
-  | ({ type: RequestLogicTypes.CURRENCY.ERC20 } & ERC20Currency);
+  | NativeCurrencyInput
+  | ISO4217CurrencyInput
+  | ERC20CurrencyInput
+  | ERC777CurrencyInput;
 
 /**
  * The description of Currency, its core properties and some computed properties.
@@ -60,11 +120,20 @@ export interface ICurrencyManager<TMeta = unknown> {
   from(symbolOrAddress: string, network?: string): CurrencyDefinition<TMeta> | undefined;
   fromAddress(address: string, network?: string): CurrencyDefinition<TMeta> | undefined;
   fromSymbol(symbol: string, network?: string): CurrencyDefinition<TMeta> | undefined;
+  fromHash(hash: string, network?: string): CurrencyDefinition<TMeta> | undefined;
   fromStorageCurrency(currency: StorageCurrency): CurrencyDefinition<TMeta> | undefined;
   getNativeCurrency(
     type: NativeCurrencyType,
     network: string,
   ): CurrencyDefinition<TMeta> | undefined;
+  getConversionPath(
+    from: Pick<CurrencyDefinition, 'hash'>,
+    to: Pick<CurrencyDefinition, 'hash'>,
+    network: string,
+  ): string[] | null;
+  supportsConversion(currency: Pick<CurrencyDefinition, 'hash'>, network: string): boolean;
+  validateAddress(address: string, currency: CurrencyInput | StorageCurrency): boolean;
+  validateCurrency(currency: StorageCurrency): boolean;
 }
 
 /**
@@ -72,4 +141,4 @@ export interface ICurrencyManager<TMeta = unknown> {
  *
  * Format  { "chainName": {"TOKEN": ["NEW_TOKEN","NEW_CHAIN"]}}
  */
-export type LegacyTokenMap = Record<string, Record<string, [string, string]>>;
+export type LegacyTokenMap = Record<string, Record<string, [string, CurrencyTypes.ChainName]>>;

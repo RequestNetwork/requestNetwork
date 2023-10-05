@@ -1,14 +1,4 @@
 {
   "extends": "../../tsconfig",
-  "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src"
-  },
-  "include": ["./src/**/*"],
-  "references": [
-    { "path": "../types" },
-    { "path": "../utils" },
-    { "path": "../payment-detection" },
-    { "path": "../smart-contracts" }
-  ]
+  "include": ["src/", "test/"]
 }

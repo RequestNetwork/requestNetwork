@@ -1,12 +1,21 @@
 import { EventEmitter } from 'events';
-
-import { DeclarativePaymentDetector } from '@requestnetwork/payment-detection';
-import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  DeclarativePaymentDetector,
+  EscrowERC20InfoRetriever,
+} from '@requestnetwork/payment-detection';
+import {
+  CurrencyTypes,
+  EncryptionTypes,
+  IdentityTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import localUtils from './utils';
+import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
+import { deepCopy } from '@requestnetwork/utils';
 
 /**
  * Class representing a request.
@@ -101,7 +110,7 @@ export default class Request {
     this.disableEvents = options?.disableEvents || false;
     this.currencyManager = currencyManager;
 
-    if (options && options.requestLogicCreateResult && !this.disableEvents) {
+    if (options?.requestLogicCreateResult && !this.disableEvents) {
       const originalEmitter = options.requestLogicCreateResult;
       originalEmitter
         .on('confirmed', async () => {
@@ -282,6 +291,44 @@ export default class Request {
   }
 
   /**
+   * Adds stakeholders to a request
+   *
+   * @param IEncryptionParameters encryptionParams list of addtional encryption parameters to encrypt the channel key with
+   * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @param refundInformation refund information to add (any because it is specific to the payment network used by the request)
+   * @returns The updated request
+   */
+  public async addStakeholders(
+    encryptionParams: EncryptionTypes.IEncryptionParameters[],
+    signerIdentity: IdentityTypes.IIdentity,
+    refundInformation?: any,
+  ): Promise<Types.IRequestDataWithEvents> {
+    const extensionsData: any[] = [];
+    if (refundInformation) {
+      if (!this.paymentNetwork) {
+        throw new Error('Cannot add refund information without payment network');
+      }
+      extensionsData.push(
+        this.paymentNetwork.createExtensionsDataForAddRefundInformation(refundInformation),
+      );
+    }
+
+    const parameters: RequestLogicTypes.IAddStakeholdersParameters = {
+      extensionsData,
+      requestId: this.requestId,
+    };
+
+    const addStakeholdersResult = await this.requestLogic.addStakeholders(
+      parameters,
+      signerIdentity,
+      encryptionParams,
+      true,
+    );
+
+    return this.handleRequestDataEvents(addStakeholdersResult);
+  }
+
+  /**
    * Adds payment information
    *
    * @param paymentInformation Payment information to add (any because it is specific to the payment network used by the request)
@@ -378,7 +425,10 @@ export default class Request {
     }
 
     extensionsData.push(
-      declarativePaymentNetwork.createExtensionsDataForDeclareSentPayment({ amount, note }),
+      declarativePaymentNetwork.createExtensionsDataForDeclareSentPayment({
+        amount,
+        note,
+      }),
     );
 
     const parameters: RequestLogicTypes.IAddExtensionsDataParameters = {
@@ -624,9 +674,9 @@ export default class Request {
       throw Error('request confirmation failed');
     }
 
-    let requestData = Utils.deepCopy(this.requestData);
+    let requestData = deepCopy(this.requestData);
 
-    let pending = Utils.deepCopy(this.pendingData);
+    let pending = deepCopy(this.pendingData);
     if (!requestData) {
       requestData = pending as RequestLogicTypes.IRequest;
       requestData.state = RequestLogicTypes.STATE.PENDING;
@@ -643,6 +693,22 @@ export default class Request {
       meta: this.requestMeta,
       pending,
     });
+  }
+
+  public async getEscrowData(
+    paymentReference: string,
+    network: CurrencyTypes.EvmChainName,
+  ): Promise<PaymentTypes.EscrowChainData> {
+    const escrowContractAddress = erc20EscrowToPayArtifact.getAddress(network);
+    const escrowInfoRetriever = new EscrowERC20InfoRetriever(
+      paymentReference,
+      escrowContractAddress,
+      0,
+      '',
+      '',
+      network,
+    );
+    return await escrowInfoRetriever.getEscrowRequestMapping();
   }
 
   /**

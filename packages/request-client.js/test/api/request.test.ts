@@ -1,5 +1,10 @@
 import { CurrencyManager } from '@requestnetwork/currency';
-import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  ExtensionTypes,
+  IdentityTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 
 import { EventEmitter } from 'events';
 
@@ -27,6 +32,9 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
   async reduceExpectedAmountRequest(): Promise<any> {
     return Object.assign(new EventEmitter(), { meta: {} });
   },
+  async addStakeholders(): Promise<any> {
+    return Object.assign(new EventEmitter(), { meta: {} });
+  },
   async addExtensionsDataRequest(): Promise<any> {
     return Object.assign(new EventEmitter(), { meta: {} });
   },
@@ -52,7 +60,9 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
 };
 
 const mockPaymentNetwork: PaymentTypes.IPaymentNetwork = {
-  paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+  extension:
+    {} as ExtensionTypes.PnAnyDeclarative.IAnyDeclarative<ExtensionTypes.PnAnyDeclarative.ICreationParameters>,
+  paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
 
   async createExtensionsDataForCreation(): Promise<any> {
     return;
@@ -69,7 +79,9 @@ const mockPaymentNetwork: PaymentTypes.IPaymentNetwork = {
 };
 
 const mockDeclarativePaymentNetwork: PaymentTypes.IPaymentNetwork = {
-  paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+  extension:
+    {} as ExtensionTypes.PnAnyDeclarative.IAnyDeclarative<ExtensionTypes.PnAnyDeclarative.ICreationParameters>,
+  paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
   async createExtensionsDataForCreation(): Promise<any> {
     return;
   },
@@ -493,6 +505,9 @@ describe('api/request', () => {
           return { meta: {} };
         },
         async reduceExpectedAmountRequest(): Promise<any> {
+          return { meta: {} };
+        },
+        async addStakeholders(): Promise<any> {
           return { meta: {} };
         },
         async addExtensionsDataRequest(): Promise<any> {

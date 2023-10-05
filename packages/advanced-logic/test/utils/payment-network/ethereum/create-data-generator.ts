@@ -14,7 +14,7 @@ export const salt = 'ea3bc7caf64110ca';
 // actions
 export const actionCreationWithPaymentAndRefund = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
   parameters: {
     paymentAddress,
     refundAddress,
@@ -24,7 +24,7 @@ export const actionCreationWithPaymentAndRefund = {
 };
 export const actionCreationOnlyPayment = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
   parameters: {
     paymentAddress,
   },
@@ -32,7 +32,7 @@ export const actionCreationOnlyPayment = {
 };
 export const actionCreationOnlyRefund = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
   parameters: {
     refundAddress,
   },
@@ -40,7 +40,7 @@ export const actionCreationOnlyRefund = {
 };
 export const actionCreationEmpty = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
   parameters: {},
   version: '0.2.0',
 };
@@ -48,7 +48,7 @@ export const actionCreationEmpty = {
 // ---------------------------------------------------------------------
 // extensions states
 export const extensionStateWithPaymentAndRefund = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA as string]: {
     events: [
       {
         name: 'create',
@@ -60,7 +60,7 @@ export const extensionStateWithPaymentAndRefund = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentAddress,
@@ -69,17 +69,17 @@ export const extensionStateWithPaymentAndRefund = {
       payeeDelegate: undefined,
       payerDelegate: undefined,
       paymentInfo: undefined,
-      receivedPaymentAmount: "0",
-      receivedRefundAmount: "0",
+      receivedPaymentAmount: '0',
+      receivedRefundAmount: '0',
       refundInfo: undefined,
-      sentPaymentAmount: "0",
-      sentRefundAmount: "0",
+      sentPaymentAmount: '0',
+      sentRefundAmount: '0',
     },
     version: '0.2.0',
   },
 };
 export const extensionStateCreatedEmpty = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA as string]: {
     events: [
       {
         name: 'create',
@@ -87,7 +87,7 @@ export const extensionStateCreatedEmpty = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {},
     version: '0.2.0',

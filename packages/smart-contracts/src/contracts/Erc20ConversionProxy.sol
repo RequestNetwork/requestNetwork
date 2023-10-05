@@ -1,22 +1,27 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./ChainlinkConversionPath.sol";
-import "./interfaces/ERC20FeeProxy.sol";
-
+import './ChainlinkConversionPath.sol';
+import './interfaces/ERC20FeeProxy.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
 
 /**
  * @title Erc20ConversionProxy
  * @notice This contract convert from chainlink then swaps ERC20 tokens
  *         before paying a request thanks to a conversion payment proxy
-  */
-contract Erc20ConversionProxy {
+ */
+contract Erc20ConversionProxy is Ownable {
   address public paymentProxy;
   ChainlinkConversionPath public chainlinkConversionPath;
 
-  constructor(address _paymentProxyAddress, address _chainlinkConversionPathAddress) {
+  constructor(
+    address _paymentProxyAddress,
+    address _chainlinkConversionPathAddress,
+    address _owner
+  ) {
     paymentProxy = _paymentProxyAddress;
     chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
+    transferOwnership(_owner);
   }
 
   // Event to declare a conversion with a reference
@@ -27,7 +32,7 @@ contract Erc20ConversionProxy {
     uint256 feeAmount,
     uint256 maxRateTimespan
   );
-  
+
   // Event to declare a transfer with a reference
   event TransferWithReferenceAndFee(
     address tokenAddress,
@@ -39,7 +44,7 @@ contract Erc20ConversionProxy {
   );
 
   /**
-   * @notice Performs an ERC20 token transfer with a reference computing the payment amount based on the request amount
+   * @notice Transfers ERC20 tokens with a reference with amount based on the request amount in fiat
    * @param _to Transfer recipient of the payement
    * @param _requestAmount Request amount
    * @param _path Conversion path
@@ -58,24 +63,20 @@ contract Erc20ConversionProxy {
     address _feeAddress,
     uint256 _maxToSpend,
     uint256 _maxRateTimespan
-  )
-  external
-  {
+  ) external {
     (uint256 amountToPay, uint256 amountToPayInFees) = getConversions(
       _path,
       _requestAmount,
       _feeAmount,
-      _maxRateTimespan);
-
-    require(
-      amountToPay + amountToPayInFees <= _maxToSpend,
-      "Amount to pay is over the user limit"
+      _maxRateTimespan
     );
+
+    require(amountToPay + amountToPayInFees <= _maxToSpend, 'Amount to pay is over the user limit');
 
     // Pay the request and fees
     (bool status, ) = paymentProxy.delegatecall(
       abi.encodeWithSignature(
-        "transferFromWithReferenceAndFee(address,address,uint256,bytes,uint256,address)",
+        'transferFromWithReferenceAndFee(address,address,uint256,bytes,uint256,address)',
         // payment currency
         _path[_path.length - 1],
         _to,
@@ -85,7 +86,7 @@ contract Erc20ConversionProxy {
         _feeAddress
       )
     );
-    require(status, "transferFromWithReferenceAndFee failed");
+    require(status, 'transferFromWithReferenceAndFee failed');
 
     // Event to declare a transfer with a reference
     emit TransferWithConversionAndReference(
@@ -103,21 +104,35 @@ contract Erc20ConversionProxy {
     uint256 _requestAmount,
     uint256 _feeAmount,
     uint256 _maxRateTimespan
-  )
-    internal
-    view
-    returns (uint256 amountToPay, uint256 amountToPayInFees)
-  {
-    (uint256 rate, uint256 oldestTimestampRate, uint256 decimals) = chainlinkConversionPath.getRate(_path);
+  ) internal view returns (uint256 amountToPay, uint256 amountToPayInFees) {
+    (uint256 rate, uint256 oldestTimestampRate, uint256 decimals) = chainlinkConversionPath.getRate(
+      _path
+    );
 
     // Check rate timespan
     require(
       _maxRateTimespan == 0 || block.timestamp - oldestTimestampRate <= _maxRateTimespan,
-      "aggregator rate is outdated"
+      'aggregator rate is outdated'
     );
 
     // Get the amount to pay in the crypto currency chosen
     amountToPay = (_requestAmount * rate) / decimals;
-    amountToPayInFees = (_feeAmount * rate) /decimals;
+    amountToPayInFees = (_feeAmount * rate) / decimals;
+  }
+
+  /**
+   * @notice Update the conversion path contract used to fetch conversions
+   * @param _chainlinkConversionPathAddress address of the conversion path contract
+   */
+  function updateConversionPathAddress(address _chainlinkConversionPathAddress) external onlyOwner {
+    chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
+  }
+
+  /**
+   * @notice Update the conversion proxy used to process the payment
+   * @param _paymentProxyAddress address of the ETH conversion proxy
+   */
+  function updateConversionProxyAddress(address _paymentProxyAddress) external onlyOwner {
+    paymentProxy = _paymentProxyAddress;
   }
 }

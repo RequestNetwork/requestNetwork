@@ -1,6 +1,6 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { EthFeeProxyPaymentDetector } from '@requestnetwork/payment-detection';
 import { EthereumFeeProxy__factory } from '@requestnetwork/smart-contracts/types';
 
@@ -17,7 +17,6 @@ import { IPreparedTransaction } from './prepared-transaction';
 
 /**
  * Processes a transaction to pay an ETH Request with fees.
- * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
@@ -25,7 +24,7 @@ import { IPreparedTransaction } from './prepared-transaction';
  */
 export async function payEthFeeProxyRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
@@ -38,7 +37,6 @@ export async function payEthFeeProxyRequest(
 /**
  * Encodes the call to pay a request through the ETH fee proxy contract, can be used with a Multisig contract.
  * @param request request to pay
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
@@ -49,9 +47,8 @@ export function encodePayEthFeeProxyRequest(
 ): string {
   validateEthFeeProxyRequest(request, amount, feeAmountOverride);
 
-  const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
-    request,
-  );
+  const { paymentReference, paymentAddress, feeAddress, feeAmount } =
+    getRequestPaymentValues(request);
   const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
   const proxyContract = EthereumFeeProxy__factory.createInterface();
 
@@ -103,7 +100,7 @@ export function validateEthFeeProxyRequest(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
-  paymentNetwork: PaymentTypes.PAYMENT_NETWORK_ID = PaymentTypes.PAYMENT_NETWORK_ID
+  paymentNetwork: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
     .ETH_FEE_PROXY_CONTRACT,
 ): void {
   validateRequest(request, paymentNetwork);

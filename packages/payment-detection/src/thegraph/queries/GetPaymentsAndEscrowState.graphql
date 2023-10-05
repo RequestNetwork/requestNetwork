@@ -1,0 +1,115 @@
+fragment PaymentEventResult on Payment {
+  amount
+  block
+  txHash
+  feeAmount
+  feeAddress
+  from
+  gasUsed
+  gasPrice
+  timestamp
+  contractAddress
+  to
+  tokenAddress
+  currency
+  amountInCrypto
+  feeAmountInCrypto
+  maxRateTimespan
+}
+
+fragment EscrowEventResult on EscrowEvent {
+  txHash
+  eventName
+  from
+  timestamp
+  block
+  gasUsed
+  gasPrice
+}
+
+query GetPaymentsAndEscrowState(
+  $reference: Bytes!
+  $to: Bytes!
+  $tokenAddress: Bytes
+  $contractAddress: Bytes!
+) {
+  payments(
+    where: {
+      reference: $reference
+      to: $to
+      contractAddress: $contractAddress
+      currency: null
+      tokenAddress: $tokenAddress
+    }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    ...PaymentEventResult
+  }
+  escrowEvents(where: { reference: $reference }, orderBy: timestamp, orderDirection: asc) {
+    ...EscrowEventResult
+  }
+}
+
+# AnyToErc20 payments: denominated in request $currency payable with many token addresses
+query GetAnyToFungiblePayments(
+  $reference: Bytes!
+  $to: Bytes!
+  $currency: Bytes!
+  $acceptedTokens: [Bytes!]
+  $contractAddress: Bytes!
+) {
+  payments(
+    where: {
+      reference: $reference
+      to: $to
+      currency: $currency
+      tokenAddress_in: $acceptedTokens
+      contractAddress: $contractAddress
+    }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    ...PaymentEventResult
+  }
+}
+
+# AnyToETH payments: denominated in request $currency payable with the EVM native token
+query GetAnyToNativePayments(
+  $reference: Bytes!
+  $to: Bytes!
+  $currency: Bytes!
+  $contractAddress: Bytes!
+) {
+  payments(
+    where: {
+      reference: $reference
+      to: $to
+      currency: $currency
+      contractAddress: $contractAddress
+      tokenAddress: null
+    }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    ...PaymentEventResult
+  }
+}
+
+# Receivables can be transferred to different owners, so searching by to could drop balance events.
+query GetPaymentsAndEscrowStateForReceivables(
+  $reference: Bytes!
+  $tokenAddress: Bytes!
+  $contractAddress: Bytes!
+) {
+  payments(
+    where: { reference: $reference, tokenAddress: $tokenAddress, contractAddress: $contractAddress }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    ...PaymentEventResult
+  }
+  escrowEvents(where: { reference: $reference }, orderBy: timestamp, orderDirection: asc) {
+    ...EscrowEventResult
+  }
+}

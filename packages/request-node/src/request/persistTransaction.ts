@@ -1,11 +1,10 @@
-import { DataAccess } from '@requestnetwork/data-access';
 import { LogTypes, MultiFormatTypes, DataAccessTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { getPersistTransactionTimeout } from '../config';
 
 import ConfirmedTransactionStore from './confirmedTransactionStore';
+import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 /**
  * Class to persist transactions though the data-access layer
@@ -16,7 +15,7 @@ export default class PersistTransactionHandler {
    */
   constructor(
     private confirmedTransactionStore: ConfirmedTransactionStore,
-    private dataAccess: DataAccess,
+    private dataAccess: DataAccessTypes.IDataWrite,
     private logger: LogTypes.ILogger,
   ) {
     this.handler = this.handler.bind(this);
@@ -53,7 +52,7 @@ export default class PersistTransactionHandler {
       return;
     }
     try {
-      const transactionHash: MultiFormatTypes.HashTypes.IHash = Utils.crypto.normalizeKeccak256Hash(
+      const transactionHash: MultiFormatTypes.HashTypes.IHash = normalizeKeccak256Hash(
         clientRequest.body.transactionData,
       );
 
@@ -72,7 +71,7 @@ export default class PersistTransactionHandler {
         clientRequest.body.topics,
       );
 
-      // when the transaction is confirmed, store the information to be serve when requested
+      // when the transaction is confirmed, store the information to be served when requested
       dataAccessResponse.on('confirmed', async (dataAccessConfirmedResponse) => {
         await this.confirmedTransactionStore.addConfirmedTransaction(
           transactionHash.value,

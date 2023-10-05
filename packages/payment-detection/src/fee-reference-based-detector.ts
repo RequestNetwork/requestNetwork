@@ -1,22 +1,29 @@
 import { BigNumber } from 'ethers';
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { ICurrencyManager } from '@requestnetwork/currency';
 import { ReferenceBasedDetector } from './reference-based-detector';
+import { generate8randomBytes } from '@requestnetwork/utils';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
  */
 export abstract class FeeReferenceBasedDetector<
   TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
-  TPaymentEventParameters extends { feeAmount?: string; feeAddress?: string }
+  TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters<string> & {
+    feeAddress?: string;
+    feeAmount?: string;
+  },
 > extends ReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
-   * @param paymentNetworkId Example : PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
+   * @param paymentNetworkId Example : ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
    * @param extension The advanced logic payment network extension, reference based
    */
-
-  public constructor(paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
-    super(paymentNetworkId, extension);
+  protected constructor(
+    paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
+    extension: TExtension,
+    currencyManager: ICurrencyManager,
+  ) {
+    super(paymentNetworkId, extension, currencyManager);
   }
 
   /**
@@ -31,7 +38,7 @@ export abstract class FeeReferenceBasedDetector<
   ): Promise<ExtensionTypes.IAction> {
     // If no salt is given, generate one
     paymentNetworkCreationParameters.salt =
-      paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
+      paymentNetworkCreationParameters.salt || (await generate8randomBytes());
 
     return this.extension.createCreationAction({
       feeAddress: paymentNetworkCreationParameters.feeAddress,
@@ -87,7 +94,7 @@ export abstract class FeeReferenceBasedDetector<
   > {
     const { feeAddress } = this.getPaymentExtension(request).values;
     this.checkRequiredParameter(feeAddress, 'feeAddress');
-    const feeBalance = this.computeFeeBalance(balance.events).toString();
+    const feeBalance = this.computeFeeBalance(balance.events, feeAddress).toString();
 
     return {
       events: balance.events,
@@ -95,25 +102,19 @@ export abstract class FeeReferenceBasedDetector<
     };
   }
 
-  protected filterEvents(
-    request: RequestLogicTypes.IRequest,
-    events: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[],
-  ): PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[] {
-    // for a PN with fees, we ignore events with wrong fees.
-    const { feeAddress } = this.getPaymentExtension(request).values;
-    return events.filter(
-      (x) => !x.parameters?.feeAddress || x.parameters.feeAddress === feeAddress,
-    );
-  }
-
+  // Sum fee that are directed to the right fee address
   protected computeFeeBalance(
     feeEvents: PaymentTypes.IPaymentNetworkEvent<
       TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
     >[],
+    feeAddress: string,
   ): BigNumber {
     return feeEvents.reduce(
       (sum, curr) =>
-        curr.parameters && 'feeAmount' in curr.parameters && curr.parameters.feeAmount
+        curr.parameters &&
+        'feeAmount' in curr.parameters &&
+        curr.parameters.feeAmount &&
+        (!curr.parameters?.feeAddress || curr.parameters.feeAddress === feeAddress)
           ? sum.add(curr.parameters.feeAmount)
           : sum,
       BigNumber.from(0),

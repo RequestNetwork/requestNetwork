@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>@requestnetwork/request-client.js Test Page</title>
+    <script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
     <script src="..\..\request-client.js\dist\requestnetwork.min.js"></script>
     <script src="..\..\web3-signature\dist\web3-signature.min.js"></script>
   </head>
@@ -10,30 +11,13 @@
     <p>
       This HTML page <strong>must be served on HTTP</strong> to be able to communicate with MetaMask
     </p>
-    <p>
-      The dependencies must be built. (yarn build)
-    </p>
+    <p>The dependencies must be built. (yarn build)</p>
     <script>
       window.addEventListener('load', async () => {
-        // Modern dapp browsers...
-        if (window.ethereum) {
-          window.web3 = new Web3(window.ethereum);
-          try {
-            await window.ethereum.enable();
-            startTestSignatureWithMetamask(window.web3);
-          } catch (error) {
-            // User denied account access...
-            console.log(error);
-          }
-        }
-        // Legacy dapp browsers...
-        else if (window.web3) {
-          window.web3 = new Web3(web3.currentProvider);
-
-          startTestSignatureWithMetamask(window.web3);
-        }
-        // Non-dapp browsers...
-        else {
+        const metamaskProvider = await detectEthereumProvider();
+        if (metamaskProvider) {
+          startTestSignatureWithMetamask(metamaskProvider);
+        } else {
           console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
         }
       });
@@ -75,24 +59,18 @@
         };
       }
 
-      async function startTestSignatureWithMetamask(web3) {
-        const {
-          contentData,
-          paymentNetwork,
-          requestCreationHash,
-          signatureInfo,
-          topics,
-        } = getMockData();
+      async function startTestSignatureWithMetamask(web3Provider) {
+        const { contentData, paymentNetwork, requestCreationHash, signatureInfo, topics } =
+          getMockData();
 
         // Initialize the signature provider
-        const signatureProvider = new Web3SignatureProvider.Web3SignatureProvider(web3);
+        const signatureProvider = new Web3SignatureProvider.Web3SignatureProvider(web3Provider);
 
         // Initialize the library in local test mode
-        const requestNetwork = new RequestNetwork.RequestNetwork({
+        const dataAccess = new RequestNetwork.HttpMetaMaskDataAccess({ web3: web3Provider });
+        const requestNetwork = new RequestNetwork.RequestNetworkBase({
+          dataAccess,
           signatureProvider,
-          // this is a test using the mock storage instead of a real request node
-          useLocalEthereumBroadcast: true,
-          web3: window.web3,
         });
 
         // Create a request

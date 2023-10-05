@@ -1,0 +1,34 @@
+query GetAnyToNativePayments(
+  $reference: String!
+  $to: String!
+  $currency: String!
+  $maxRateTimespan: Int!
+  $contractAddress: String!
+) {
+  payments(
+    where: {
+      reference: $reference
+      to: $to
+      currency: $currency
+      maxRateTimespan_gte: $maxRateTimespan
+      contractAddress: $contractAddress
+      tokenAddress: null
+    }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    amount
+    block
+    receiptId
+    feeAmount
+    feeAddress
+    from
+    timestamp
+    currency
+    gasPrice
+    gasUsed
+    maxRateTimespan
+    amountInCrypto
+    feeAmountInCrypto
+  }
+}

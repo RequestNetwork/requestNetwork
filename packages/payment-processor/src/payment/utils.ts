@@ -1,13 +1,19 @@
-import { ethers, Signer, providers, BigNumber, BigNumberish } from 'ethers';
+import { ethers, Signer, providers, BigNumber, BigNumberish, ContractTransaction } from 'ethers';
 
-import { PaymentReferenceCalculator, getDefaultProvider } from '@requestnetwork/payment-detection';
+import { getDefaultProvider, getPaymentReference } from '@requestnetwork/payment-detection';
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
-  PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { getCurrencyHash } from '@requestnetwork/currency';
+import { EvmChains, getCurrencyHash } from '@requestnetwork/currency';
+import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
+import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
+import { getReceivableTokenIdForRequest } from './erc20-transferable-receivable';
+
+/** @constant MAX_ALLOWANCE set to the max uint256 value */
+export const MAX_ALLOWANCE = BigNumber.from(2).pow(256).sub(1);
 
 /**
  * Thrown when the library does not support a payment blockchain network.
@@ -30,9 +36,7 @@ export function getProvider(): providers.Web3Provider {
 
 /**
  * Utility to get a network provider, depending on the request's currency network.
- * Will throw an error if the network isn't mainnet or rinkeby
- *
- * @param request
+ * Will throw an error if the network isn't mainnet, rinkeby, or goerli
  */
 export function getNetworkProvider(request: ClientTypes.IRequestData): providers.Provider {
   return getDefaultProvider(request.currencyInfo.network);
@@ -63,60 +67,29 @@ export function getSigner(
 }
 
 /**
- * Utility to return the payment network extension of a Request.
- * @param request
+ * Utility to access payment-related information from a request.
+ * All data is taken from the request's payment extension, except the network that may be retrieved from the request's currency if needed.
  */
-export function getPaymentNetworkExtension(
-  request: ClientTypes.IRequestData,
-): ExtensionTypes.IState | undefined {
-  // eslint-disable-next-line
-  return Object.values(request.extensions).find(
-    (x) => x.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
-  );
-}
-
-/**
- * Utility to access the payment address, reference, and optional feeAmount and feeAddress of a Request.
- * @param request
- */
-export function getRequestPaymentValues(
-  request: ClientTypes.IRequestData,
-): {
+export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   paymentAddress: string;
-  paymentReference: string;
+  paymentReference?: string;
   feeAmount?: string;
   feeAddress?: string;
-  tokensAccepted?: string[];
+  expectedFlowRate?: string;
+  expectedStartDate?: string;
+  acceptedTokens?: string[];
   maxRateTimespan?: string;
-  network?: string;
+  network?: CurrencyTypes.ChainName;
   version: string;
 } {
   const extension = getPaymentNetworkExtension(request);
   if (!extension) {
     throw new Error('no payment network found');
   }
-  const {
-    paymentAddress,
-    salt,
-    feeAmount,
-    feeAddress,
-    tokensAccepted,
-    maxRateTimespan,
-    network,
-  } = extension.values;
-  const paymentReference = PaymentReferenceCalculator.calculate(
-    request.requestId,
-    salt,
-    paymentAddress,
-  );
   return {
-    paymentAddress,
-    paymentReference,
-    feeAmount,
-    feeAddress,
-    tokensAccepted,
-    maxRateTimespan,
-    network,
+    ...extension.values,
+    paymentReference: getPaymentReference(request),
+    network: extension.values.network ?? request.currencyInfo.network,
     version: extension.version,
   };
 }
@@ -129,7 +102,11 @@ export function getPaymentExtensionVersion(request: ClientTypes.IRequestData): s
   return extension.version;
 }
 
-const getProxyNetwork = (
+/**
+ * @param pn It contains the payment network extension
+ * @param currency It contains the currency information
+ */
+export const getProxyNetwork = (
   pn: ExtensionTypes.IState,
   currency: RequestLogicTypes.ICurrency,
 ): string => {
@@ -142,64 +119,102 @@ const getProxyNetwork = (
   throw new Error('Payment currency must have a network');
 };
 
-export const getProxyAddress = (
-  request: ClientTypes.IRequestData,
-  getDeploymentInformation: (network: string, version: string) => { address: string },
-): string => {
+/**
+ * @param request The request to pay
+ * @return An object that contains the payment network extension and the currency information
+ */
+export function getPnAndNetwork(request: ClientTypes.IRequestData): {
+  paymentNetwork: ExtensionTypes.IState<any>;
+  network: string;
+} {
   const pn = getPaymentNetworkExtension(request);
   if (!pn) {
     throw new Error('PaymentNetwork not found');
   }
-  const network = getProxyNetwork(pn, request.currencyInfo);
-  const deploymentInfo = getDeploymentInformation(network, pn.version);
+  return { paymentNetwork: pn, network: getProxyNetwork(pn, request.currencyInfo) };
+}
+
+/**
+ * @param request The request to pay
+ * @param getDeploymentInformation The function to get the proxy address
+ * @param version The version has to be set to get batch conversion proxy
+ */
+export const getProxyAddress = (
+  request: ClientTypes.IRequestData,
+  getDeploymentInformation: (
+    network: CurrencyTypes.EvmChainName,
+    version: string,
+  ) => { address: string } | null,
+  version?: string,
+): string => {
+  const { paymentNetwork, network } = getPnAndNetwork(request);
+  EvmChains.assertChainSupported(network);
+  const deploymentInfo = getDeploymentInformation(network, version || paymentNetwork.version);
   if (!deploymentInfo) {
-    throw new Error(`No deployment found for network ${network}, version ${pn.version}`);
+    throw new Error(
+      `No deployment found for network ${network}, version ${version || paymentNetwork.version}`,
+    );
   }
   return deploymentInfo.address;
 };
 
 const {
+  ERC777_STREAM,
   ERC20_PROXY_CONTRACT,
   ETH_INPUT_DATA,
   ETH_FEE_PROXY_CONTRACT,
   ERC20_FEE_PROXY_CONTRACT,
   ANY_TO_ERC20_PROXY,
   NATIVE_TOKEN,
-} = PaymentTypes.PAYMENT_NETWORK_ID;
+  ERC20_TRANSFERABLE_RECEIVABLE,
+} = ExtensionTypes.PAYMENT_NETWORK_ID;
 const currenciesMap: any = {
+  [ERC777_STREAM]: RequestLogicTypes.CURRENCY.ERC777,
   [ERC20_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
   [ERC20_FEE_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
   [ETH_INPUT_DATA]: RequestLogicTypes.CURRENCY.ETH,
   [ETH_FEE_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ETH,
   [NATIVE_TOKEN]: RequestLogicTypes.CURRENCY.ETH,
+  [ERC20_TRANSFERABLE_RECEIVABLE]: RequestLogicTypes.CURRENCY.ERC20,
 };
 
 /**
  * Utility to validate a request currency and payment details against a paymentNetwork.
- * @param request
- * @param paymentNetworkId
  */
 export function validateRequest(
   request: ClientTypes.IRequestData,
-  paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+  paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
 ): void {
-  const { feeAmount, feeAddress } = getRequestPaymentValues(request);
-  const extension = request.extensions[paymentNetworkId];
+  const { feeAmount, feeAddress, expectedFlowRate, expectedStartDate } =
+    getRequestPaymentValues(request);
+  let extension = request.extensions[paymentNetworkId];
+
+  // FIXME: updating the extension: not needed anymore when ETH_INPUT_DATA gets deprecated
+  if (paymentNetworkId === ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT && !extension) {
+    extension = request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA];
+  }
 
   // Compatibility of the request currency type with the payment network
   const expectedCurrencyType = currenciesMap[paymentNetworkId];
-  const validCurrencyType =
-    paymentNetworkId === PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
-      ? // Any currency type is valid with Any to ERC20 conversion
-        true
-      : expectedCurrencyType &&
-        request.currencyInfo.type === expectedCurrencyType &&
-        request.currencyInfo.network;
+  const validCurrencyType = [
+    ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+    ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN,
+    ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
+  ].includes(paymentNetworkId)
+    ? // Any currency type is valid with Any to ERC20 / ETH / Native conversion
+      true
+    : expectedCurrencyType &&
+      request.currencyInfo.type === expectedCurrencyType &&
+      request.currencyInfo.network;
 
   // ERC20 based payment networks are only valid if the request currency has a value
   const validCurrencyValue =
-    (paymentNetworkId !== ERC20_PROXY_CONTRACT && paymentNetworkId !== ERC20_FEE_PROXY_CONTRACT) ||
-    request.currencyInfo.value;
+    ![
+      ERC20_PROXY_CONTRACT,
+      ERC20_FEE_PROXY_CONTRACT,
+      ERC777_STREAM,
+      ERC20_TRANSFERABLE_RECEIVABLE,
+    ].includes(paymentNetworkId) || request.currencyInfo.value;
 
   // Payment network with fees should have both or none of fee address and fee amount
   const validFeeParams =
@@ -208,6 +223,16 @@ export function validateRequest(
 
   if (!validFeeParams) {
     throw new Error('Both fee address and fee amount have to be declared, or both left empty');
+  }
+
+  // Payment network with stream should have both or none of stream flow rate and stream start date
+  const validStreamParams =
+    paymentNetworkId !== ERC777_STREAM || (!!expectedFlowRate && !!expectedStartDate);
+
+  if (!validStreamParams) {
+    throw new Error(
+      'Both stream flow rate and stream start date have to be declared, or both left empty',
+    );
   }
 
   if (
@@ -231,7 +256,7 @@ export function validateErc20FeeProxyRequest(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
-  paymentNetwork: PaymentTypes.PAYMENT_NETWORK_ID = PaymentTypes.PAYMENT_NETWORK_ID
+  paymentNetwork: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
     .ERC20_FEE_PROXY_CONTRACT,
 ): void {
   validateRequest(request, paymentNetwork);
@@ -262,10 +287,9 @@ export function validateConversionFeeProxyRequest(
     request,
     amount,
     feeAmountOverride,
-    PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+    ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
   );
-  const { tokensAccepted } = getRequestPaymentValues(request);
-
+  const { acceptedTokens } = getRequestPaymentValues(request);
   const requestCurrencyHash = path[0];
   if (requestCurrencyHash.toLowerCase() !== getCurrencyHash(request.currencyInfo).toLowerCase()) {
     throw new Error(`The first entry of the path does not match the request currency`);
@@ -273,10 +297,58 @@ export function validateConversionFeeProxyRequest(
 
   const tokenAddress = path[path.length - 1];
   if (
-    tokensAccepted &&
-    !tokensAccepted?.map((t) => t.toLowerCase()).includes(tokenAddress.toLowerCase())
+    acceptedTokens &&
+    !acceptedTokens?.map((t) => t.toLowerCase()).includes(tokenAddress.toLowerCase())
   ) {
     throw new Error(`The token ${tokenAddress} is not accepted to pay this request`);
+  }
+}
+
+/**
+ * Validates the parameters for an ERC20 Transferable Receivable payment, esp. that token exists
+ * @param request to validate
+ * @param amount optionally, the custom amount to pay
+ * @param feeAmountOverride optionally, the custom fee amount
+ * @param signerOrProvider
+ */
+export async function validatePayERC20TransferableReceivable(
+  request: ClientTypes.IRequestData,
+  signerOrProvider: providers.Provider | Signer,
+  amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish,
+): Promise<void> {
+  const receivableTokenId = await getReceivableTokenIdForRequest(request, signerOrProvider);
+
+  if (receivableTokenId.isZero()) {
+    throw new Error(
+      'The receivable for this request has not been minted yet. Please check with the payee.',
+    );
+  }
+
+  validateERC20TransferableReceivable(request, amount, feeAmountOverride);
+}
+
+/**
+ * Validates the parameters for an ERC20 Transferable Receivable Payment or Mint.
+ * @param request to validate
+ * @param amount optionally, the custom amount to pay
+ * @param feeAmountOverride optionally, the custom fee amount
+ */
+export function validateERC20TransferableReceivable(
+  request: ClientTypes.IRequestData,
+  amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish,
+): void {
+  validateErc20FeeProxyRequest(
+    request,
+    amount,
+    feeAmountOverride,
+    ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE,
+  );
+
+  // Validate that there exists a payee
+  if (request.payee == null) {
+    throw new Error(`Expected a payee for this request`);
   }
 }
 
@@ -304,4 +376,47 @@ export function getAmountToPay(
     throw new Error('cannot pay a null amount');
   }
   return amountToPay;
+}
+
+/**
+ * Compare 2 payment networks type and version in request's extension
+ * and throw an exception if they are different
+ * @param pn The payment network extension
+ * @param request The request to pay
+ */
+export function comparePnTypeAndVersion(
+  pn: ExtensionTypes.IState | undefined,
+  request: ClientTypes.IRequestData,
+): void {
+  const extension = getPaymentNetworkExtension(request);
+  if (!extension) {
+    throw new Error('no payment network found');
+  }
+  if (!(pn?.type === extension.type && pn?.version === extension.version)) {
+    throw new Error(`Every payment network type and version must be identical`);
+  }
+}
+
+/**
+ * Revoke ERC20 approval of a token for a given `spenderAddress`
+ */
+export async function revokeErc20Approval(
+  spenderAddress: string,
+  paymentTokenAddress: string,
+  signerOrProvider: providers.Provider | Signer = getProvider(),
+): Promise<ContractTransaction> {
+  const erc20interface = ERC20__factory.connect(paymentTokenAddress, signerOrProvider).interface;
+  const encodedTx = erc20interface.encodeFunctionData('approve', [
+    spenderAddress,
+    BigNumber.from(0),
+  ]);
+
+  const preparedTx = {
+    data: encodedTx,
+    to: paymentTokenAddress,
+    value: 0,
+  };
+  const signer = getSigner(signerOrProvider);
+  const tx = await signer.sendTransaction(preparedTx);
+  return tx;
 }

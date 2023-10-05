@@ -1,26 +1,36 @@
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes, TypesUtils } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
-import { BalanceError } from './balance-error';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+  TypesUtils,
+} from '@requestnetwork/types';
+import { ICurrencyManager } from '@requestnetwork/currency';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { DeclarativePaymentDetectorBase } from './declarative';
+import { generate8randomBytes } from '@requestnetwork/utils';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
  */
 export abstract class ReferenceBasedDetector<
   TExtension extends ExtensionTypes.PnReferenceBased.IReferenceBased,
-  TPaymentEventParameters
+  TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters<string>,
 > extends DeclarativePaymentDetectorBase<
   TExtension,
   TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
 > {
   /**
-   * @param paymentNetworkId Example : PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
+   * @param paymentNetworkId Example : ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
    * @param extension The advanced logic payment network extension, reference based
+   * @param currencyManager The currency manager
    */
-
-  public constructor(paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
+  protected constructor(
+    paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
+    extension: TExtension,
+    protected readonly currencyManager: ICurrencyManager,
+  ) {
     super(paymentNetworkId, extension);
     if (!TypesUtils.isPaymentNetworkId(paymentNetworkId)) {
       throw new Error(
@@ -41,7 +51,7 @@ export abstract class ReferenceBasedDetector<
   ): Promise<ExtensionTypes.IAction> {
     // If no salt is given, generate one
     paymentNetworkCreationParameters.salt =
-      paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
+      paymentNetworkCreationParameters.salt || (await generate8randomBytes());
 
     return this.extension.createCreationAction({
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
@@ -81,26 +91,17 @@ export abstract class ReferenceBasedDetector<
   protected async getEvents(
     request: RequestLogicTypes.IRequest,
   ): Promise<
-    PaymentTypes.IPaymentNetworkEvent<
+    PaymentTypes.AllNetworkEvents<
       TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
-    >[]
+    >
   > {
     const paymentExtension = this.getPaymentExtension(request);
     const paymentChain = this.getPaymentChain(request);
 
-    const supportedNetworks = this.extension.supportedNetworks;
-    if (!supportedNetworks.includes(paymentChain)) {
-      throw new BalanceError(
-        `Payment network ${paymentChain} not supported by ${
-          this.paymentNetworkId
-        } payment detection. Supported networks: ${supportedNetworks.join(', ')}`,
-        PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-      );
-    }
     this.checkRequiredParameter(paymentExtension.values.salt, 'salt');
     this.checkRequiredParameter(paymentExtension.values.paymentAddress, 'paymentAddress');
 
-    const [paymentEvents, refundEvents] = await Promise.all([
+    const [paymentAndEscrowEvents, refundAndEscrowEvents] = await Promise.all([
       this.extractEvents(
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         paymentExtension.values.paymentAddress,
@@ -118,9 +119,16 @@ export abstract class ReferenceBasedDetector<
         paymentExtension,
       ),
     ]);
+    const paymentEvents = paymentAndEscrowEvents.paymentEvents;
+    const escrowEvents = paymentAndEscrowEvents.escrowEvents;
+    const refundEvents = refundAndEscrowEvents.paymentEvents;
 
     const declaredEvents = this.getDeclarativeEvents(request);
-    return [...declaredEvents, ...paymentEvents, ...refundEvents];
+    const allPaymentEvents = [...declaredEvents, ...paymentEvents, ...refundEvents];
+    return {
+      paymentEvents: allPaymentEvents,
+      escrowEvents: escrowEvents,
+    };
   }
 
   /**
@@ -139,17 +147,17 @@ export abstract class ReferenceBasedDetector<
     address: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: string,
+    paymentChain: CurrencyTypes.ChainName,
     paymentNetwork: TExtension extends ExtensionTypes.IExtension<infer X>
       ? ExtensionTypes.IState<X>
       : never,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[]>;
+  ): Promise<PaymentTypes.AllNetworkEvents<TPaymentEventParameters>>;
 
   /**
    * Get the network of the payment
    * @returns The network of payment
    */
-  protected getPaymentChain(request: RequestLogicTypes.IRequest): string {
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): CurrencyTypes.ChainName {
     const network = request.currency.network;
     if (!network) {
       throw Error(`request.currency.network must be defined for ${this.paymentNetworkId}`);

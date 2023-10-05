@@ -1,7 +1,8 @@
 import { PaymentTypes } from '@requestnetwork/types';
+import { IPaymentRetriever } from '../types';
 import { BigNumber, ethers } from 'ethers';
-import { getDefaultProvider } from '../provider';
 import { parseLogArgs } from '../utils';
+import { getDefaultProvider } from '@requestnetwork/utils';
 
 // The ERC20 proxy smart contract ABI fragment containing TransferWithReference event
 const erc20proxyContractAbiFragment = [
@@ -27,7 +28,8 @@ type TransferWithReferenceAndFeeArgs = TransferWithReferenceArgs & {
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
 export default class ProxyERC20InfoRetriever
-  implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ERC20PaymentNetworkEvent> {
+  implements IPaymentRetriever<PaymentTypes.ERC20PaymentNetworkEvent>
+{
   public contractProxy: ethers.Contract;
   public provider: ethers.providers.Provider;
 
@@ -52,7 +54,7 @@ export default class ProxyERC20InfoRetriever
     // Creates a local or default provider
     this.provider = getDefaultProvider(this.network);
 
-    // Setup the ERC20 proxy contract interface
+    // Set up the ERC20 proxy contract interface
     this.contractProxy = new ethers.Contract(
       this.proxyContractAddress,
       erc20proxyContractAbiFragment,
@@ -62,8 +64,12 @@ export default class ProxyERC20InfoRetriever
 
   /**
    * Retrieves transfer events for the current contract, address and network.
+   * @param isTransferable Whether or not the request is expected to be paid
+   * through a receivable proxy contract
    */
-  public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
+  public async getTransferEvents(
+    isTransferable = false,
+  ): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
     // Create a filter to find all the Transfer logs for the toAddress
     const filter = this.contractProxy.filters.TransferWithReference(
       null,
@@ -110,7 +116,7 @@ export default class ProxyERC20InfoRetriever
       .filter(
         ({ parsedLog }) =>
           parsedLog.tokenAddress.toLowerCase() === this.tokenContractAddress.toLowerCase() &&
-          parsedLog.to.toLowerCase() === this.toAddress.toLowerCase(),
+          (isTransferable || parsedLog.to.toLowerCase() === this.toAddress.toLowerCase()),
       )
       // Creates the balance events
       .map(async ({ parsedLog, blockNumber, transactionHash }) => ({
@@ -120,7 +126,7 @@ export default class ProxyERC20InfoRetriever
           block: blockNumber,
           feeAddress: parsedLog.feeAddress || undefined,
           feeAmount: parsedLog.feeAmount?.toString() || undefined,
-          to: this.toAddress,
+          to: parsedLog.to,
           txHash: transactionHash,
         },
         timestamp: (await this.provider.getBlock(blockNumber || 0)).timestamp,

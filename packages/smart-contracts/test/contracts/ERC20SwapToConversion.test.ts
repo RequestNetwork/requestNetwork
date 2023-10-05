@@ -2,16 +2,16 @@ import { ethers, network } from 'hardhat';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import {
-  TestERC20__factory,
-  TestERC20,
-  FakeSwapRouter__factory,
-  FakeSwapRouter,
   AggregatorMock__factory,
+  ChainlinkConversionPath,
   Erc20ConversionProxy,
   ERC20SwapToConversion,
-  ChainlinkConversionPath,
+  FakeSwapRouter,
+  FakeSwapRouter__factory,
+  TestERC20,
+  TestERC20__factory,
 } from '../../src/types';
 import {
   chainlinkConversionPath as chainlinkConvArtifact,
@@ -41,6 +41,7 @@ describe('contract: ERC20SwapToConversion', () => {
   let fakeSwapRouter: FakeSwapRouter;
   let chainlinkConversion: ChainlinkConversionPath;
   let defaultSwapRouterAddress: string;
+  let requestSwapFees = BigNumber.from(5);
 
   const fiatDecimal = BigNumber.from('100000000');
   const erc20Decimal = BigNumber.from('1000000000000000000');
@@ -48,11 +49,14 @@ describe('contract: ERC20SwapToConversion', () => {
   const erc20Liquidity = erc20Decimal.mul(100);
 
   before(async () => {
+    EvmChains.assertChainSupported(network.name);
     [, from, to, builder] = (await ethers.getSigners()).map((s) => s.address);
     [adminSigner, signer] = await ethers.getSigners();
     chainlinkConversion = chainlinkConvArtifact.connect(network.name, adminSigner);
     erc20ConversionProxy = erc20ConversionProxyArtifact.connect(network.name, adminSigner);
     swapConversionProxy = erc20SwapConversionArtifact.connect(network.name, adminSigner);
+    await swapConversionProxy.updateConversionPathAddress(chainlinkConversion.address);
+    await swapConversionProxy.updateRequestSwapFees(requestSwapFees);
   });
 
   beforeEach(async () => {
@@ -77,7 +81,10 @@ describe('contract: ERC20SwapToConversion', () => {
     defaultSwapRouterAddress = await swapConversionProxy.swapRouter();
     await swapConversionProxy.setRouter(fakeSwapRouter.address);
     await swapConversionProxy.approveRouterToSpend(spentErc20.address);
-    await swapConversionProxy.approvePaymentProxyToSpend(paymentNetworkErc20.address);
+    await swapConversionProxy.approvePaymentProxyToSpend(
+      paymentNetworkErc20.address,
+      erc20ConversionProxy.address,
+    );
     swapConversionProxy = await swapConversionProxy.connect(signer);
 
     // give payer some token
@@ -108,6 +115,7 @@ describe('contract: ERC20SwapToConversion', () => {
     // Simulate request payment for 10 (fiat) + 1 (fiat) fee, in paymentNetworkErc20
     await expect(
       swapConversionProxy.swapTransferWithReference(
+        erc20ConversionProxy.address,
         to,
         fiatDecimal.mul(10),
         erc20Decimal.mul(70),
@@ -116,7 +124,7 @@ describe('contract: ERC20SwapToConversion', () => {
         referenceExample,
         fiatDecimal.mul(1),
         builder,
-        exchangeRateOrigin + 100, // _uniswapDeadline
+        exchangeRateOrigin + 10000, // _uniswapDeadline. 100 -> 1000: Too low value may lead to error (network dependent)
         0, // _chainlinkMaxRateTimespan
       ),
     )
@@ -138,25 +146,39 @@ describe('contract: ERC20SwapToConversion', () => {
         ethers.utils.getAddress(builder),
       );
 
+    const requestSwapFeesAmountInPaymentNetworkErc20 = erc20Decimal
+      // Request amount to pay (10 + 1 (fee) USD)
+      .mul(11)
+      // USD to expected token ( * 3)
+      .mul(3)
+      // Compute the swap fees ( 0.5 %) - in expected token
+      .mul(requestSwapFees)
+      .div(1000);
+
+    // Compute the swap fees ( * 2) - in payent token
+    const requestSwapFeesAmountInSpentToken = requestSwapFeesAmountInPaymentNetworkErc20.mul(2);
+
     const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
     const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
     const finalPayerBalance = await spentErc20.balanceOf(from);
+
+    // 66 = (10 + 1) (USD) * 3 (ExpectedToken) * 2 (SpentToken)
+    expect(
+      initialFromBalance.sub(finalPayerBalance).toString(),
+      'payer balance is wrong',
+    ).to.equals(erc20Decimal.mul(66).add(requestSwapFeesAmountInSpentToken).toString());
     expect(finalBuilderBalance.toString(), 'builder balance is wrong').to.equals(
-      erc20Decimal.mul(3).toString(),
+      erc20Decimal.mul(3).add(requestSwapFeesAmountInPaymentNetworkErc20).toString(),
     );
     expect(finalIssuerBalance.toString(), 'issuer balance is wrong').to.equals(
       erc20Decimal.mul(30).toString(),
     );
-
-    expect(
-      initialFromBalance.sub(finalPayerBalance).toString(),
-      'payer balance is wrong',
-    ).to.equals(erc20Decimal.mul(66).toString());
   });
 
   it('does not pay anyone if I swap 0', async function () {
     await expect(
       swapConversionProxy.swapTransferWithReference(
+        erc20ConversionProxy.address,
         to,
         0,
         0,
@@ -165,7 +187,7 @@ describe('contract: ERC20SwapToConversion', () => {
         referenceExample,
         0,
         builder,
-        exchangeRateOrigin + 100, // _uniswapDeadline
+        exchangeRateOrigin + 10000, // _uniswapDeadline. 100 -> 1000: Too low value may lead to error (network dependent)
         0, // _chainlinkMaxRateTimespan
       ),
     )
@@ -196,6 +218,7 @@ describe('contract: ERC20SwapToConversion', () => {
   it('cannot swap with a too low maximum spent', async function () {
     await expect(
       swapConversionProxy.swapTransferWithReference(
+        erc20ConversionProxy.address,
         to,
         fiatDecimal.mul(10),
         erc20Decimal.mul(50), // Too low
@@ -204,7 +227,7 @@ describe('contract: ERC20SwapToConversion', () => {
         referenceExample,
         fiatDecimal.mul(1),
         builder,
-        exchangeRateOrigin + 100, // _uniswapDeadline
+        exchangeRateOrigin + 10000, // _uniswapDeadline. 100 -> 1000: Too low value may lead to error (network dependent)
         0, // _chainlinkMaxRateTimespan
       ),
     ).to.be.revertedWith('UniswapV2Router: EXCESSIVE_INPUT_AMOUNT');
@@ -214,6 +237,7 @@ describe('contract: ERC20SwapToConversion', () => {
   it('cannot swap with a past deadline', async function () {
     await expect(
       swapConversionProxy.swapTransferWithReference(
+        erc20ConversionProxy.address,
         to,
         fiatDecimal.mul(10),
         erc20Decimal.mul(50),
@@ -239,6 +263,7 @@ describe('contract: ERC20SwapToConversion', () => {
     ).to.be.true;
     await expect(
       swapConversionProxy.swapTransferWithReference(
+        erc20ConversionProxy.address,
         to,
         fiatDecimal.mul(tooHighAmount),
         initialFromBalance,
@@ -247,7 +272,7 @@ describe('contract: ERC20SwapToConversion', () => {
         referenceExample,
         fiatDecimal.mul(1),
         builder,
-        exchangeRateOrigin + 100, // _uniswapDeadline
+        exchangeRateOrigin + 10000, // _uniswapDeadline. 100 -> 1000: Too low value may lead to error (network dependent)
         0, // _chainlinkMaxRateTimespan
       ),
     ).to.be.revertedWith('UniswapV2Router: EXCESSIVE_INPUT_AMOUNT');
@@ -259,6 +284,7 @@ describe('contract: ERC20SwapToConversion', () => {
 
     await expect(
       swapConversionProxy.swapTransferWithReference(
+        erc20ConversionProxy.address,
         to,
         fiatDecimal.mul(10),
         erc20Decimal.mul(66),
@@ -272,5 +298,24 @@ describe('contract: ERC20SwapToConversion', () => {
       ),
     ).to.be.revertedWith('Could not transfer payment token from swapper-payer');
     await expectPayerBalanceUnchanged();
+  });
+
+  it('Should not swap with a bad proxy address', async function () {
+    // Simulate request payment for 10 (fiat) + 1 (fiat) fee, in paymentNetworkErc20
+    await expect(
+      swapConversionProxy.swapTransferWithReference(
+        chainlinkConversion.address, // random address that is not a conversion proxy
+        to,
+        fiatDecimal.mul(10),
+        erc20Decimal.mul(70),
+        [spentErc20.address, paymentNetworkErc20.address], // _uniswapPath
+        [USDhash, paymentNetworkErc20.address], // _chainlinkPath
+        referenceExample,
+        fiatDecimal.mul(1),
+        builder,
+        exchangeRateOrigin + 10000, // _uniswapDeadline. 100 -> 1000: Too low value may lead to error (network dependent)
+        0, // _chainlinkMaxRateTimespan
+      ),
+    ).to.be.revertedWith('Invalid payment proxy');
   });
 });

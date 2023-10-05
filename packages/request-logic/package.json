@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-logic",
-  "version": "0.26.9",
+  "version": "0.26.10",
   "publishConfig": {
     "access": "public"
   },
@@ -19,7 +19,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=16.0.0"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,32 +31,32 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -b",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.build.json",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "example": "ts-node specs/example/example.ts",
-    "lint": "eslint \"src/**/*.ts\"",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
     "test": "jest",
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.34.0",
-    "@requestnetwork/multi-format": "0.15.9",
-    "@requestnetwork/types": "0.35.0",
-    "@requestnetwork/utils": "0.35.0",
-    "semver": "5.6.0",
-    "tslib": "2.3.1"
+    "@requestnetwork/advanced-logic": "0.35.0",
+    "@requestnetwork/multi-format": "0.15.10",
+    "@requestnetwork/types": "0.36.0",
+    "@requestnetwork/utils": "0.36.0",
+    "semver": "7.5.2",
+    "tslib": "2.5.0"
   },
   "devDependencies": {
     "@types/jest": "26.0.13",
     "@types/semver": "7.3.4",
     "jest": "26.4.2",
     "nyc": "15.1.0",
-    "prettier": "2.2.1",
     "shx": "0.3.2",
     "source-map-support": "0.5.19",
     "ts-jest": "26.3.0",
-    "ts-node": "9.0.0",
-    "typescript": "4.4.4"
+    "ts-node": "10.9.1",
+    "typescript": "4.9.5"
   },
   "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }

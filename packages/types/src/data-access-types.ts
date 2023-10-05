@@ -1,13 +1,11 @@
 import { EventEmitter } from 'events';
+import * as StorageTypes from './storage-types';
 
 /** Data Access Layer */
-export interface IDataAccess {
+export interface IDataRead {
   initialize: () => Promise<void>;
-  persistTransaction: (
-    transactionData: ITransaction,
-    channelId: string,
-    topics?: string[],
-  ) => Promise<IReturnPersistTransaction>;
+  close: () => Promise<void>;
+
   getTransactionsByChannelId: (
     channelId: string,
     timestampBoundaries?: ITimestampBoundaries,
@@ -20,6 +18,20 @@ export interface IDataAccess {
     topics: string[],
     updatedBetween?: ITimestampBoundaries,
   ): Promise<IReturnGetChannelsByTopic>;
+}
+
+export interface IDataWrite {
+  initialize: () => Promise<void>;
+  close: () => Promise<void>;
+
+  persistTransaction: (
+    transactionData: ITransaction,
+    channelId: string,
+    topics?: string[],
+  ) => Promise<IReturnPersistTransaction>;
+}
+
+export interface IDataAccess extends IDataRead, IDataWrite {
   _getStatus(detailed?: boolean): Promise<IDataAccessStatus>;
 }
 
@@ -53,8 +65,7 @@ export interface ITimestampBoundaries {
   to?: number;
 }
 
-/** return interface for PersistTransaction  */
-export interface IReturnPersistTransaction extends EventEmitter {
+export type IReturnPersistTransactionRaw = {
   /** meta information */
   meta: {
     /** location of the persisted transaction */
@@ -62,11 +73,13 @@ export interface IReturnPersistTransaction extends EventEmitter {
     /** topics used to index the persisted transaction */
     topics: string[];
     /** meta-data from the layer below */
-    storageMeta?: any;
+    storageMeta?: StorageTypes.IEntryMetadata;
   };
   /** result of the execution */
   result: Record<string, never>;
-}
+};
+
+export type IReturnPersistTransaction = EventEmitter & IReturnPersistTransactionRaw;
 
 /** return interface for getTransactionsByChannelId */
 export interface IReturnGetTransactions {
@@ -75,7 +88,7 @@ export interface IReturnGetTransactions {
     /** location of the transactions (follow the position of the result.transactions) */
     transactionsStorageLocation: string[];
     /** meta-data from the layer below */
-    storageMeta?: any;
+    storageMeta?: StorageTypes.IEntryMetadata[];
   };
   /** result of the execution */
   result: { transactions: ITimestampedTransaction[] };
@@ -90,7 +103,7 @@ export interface IReturnGetChannelsByTopic {
       [key: string]: string[];
     };
     /** meta-data from the layer below */
-    storageMeta?: any;
+    storageMeta?: Record<string, StorageTypes.IEntryMetadata[] | undefined>;
   };
   /** result of the execution: the transactions grouped by channel id */
   result: { transactions: ITransactionsByChannelIds };

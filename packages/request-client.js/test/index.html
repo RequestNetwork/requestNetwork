@@ -45,18 +45,14 @@
       }
 
       (async () => {
-        const {
-          contentData,
-          paymentNetwork,
-          requestCreationHash,
-          signatureInfo,
-          topics,
-        } = getMockData();
+        const { contentData, paymentNetwork, requestCreationHash, signatureInfo, topics } =
+          getMockData();
 
         // Initialize the signature provider
-        const signatureProvider = new EthereumPrivateKeySignatureProvider.EthereumPrivateKeySignatureProvider(
-          signatureInfo,
-        );
+        const signatureProvider =
+          new EthereumPrivateKeySignatureProvider.EthereumPrivateKeySignatureProvider(
+            signatureInfo,
+          );
 
         // Initialize the library in local test mode
         const requestNetwork = new RequestNetwork.RequestNetwork({

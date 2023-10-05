@@ -1,35 +1,41 @@
-# See http://help.github.com/ignore-files/ for more about ignoring files.
-
-# compiled output
-dist
-
-# dependencies
-node_modules
-
-# Coverage
-coverage
-.nyc_output
-coverage.lcov
-
-# logs
-lerna-debug.log
-yarn-error.log
-
-# OS specific files
-.DS_Store
+# -----------------------
+# .prettierignore is a symbolic link to this files
+# do not create .gitignore files in subdirectories if you want its entries to be ignored by Prettier
+# -----------------------
 
 # local environment variables
 .env
 .env.*
 
-# stryker
-.stryker-tmp
+# yarn
+/.yarn/*
+!/.yarn/releases/
+!/.yarn/plugins/
 
-# typescript
+# logs
+lerna-debug.log
+yarn-error.log
+
+# dependencies
+/node_modules/
+/packages/*/node_modules/
+
+# compiled output
+/packages/*/dist/
 tsconfig.tsbuildinfo
+tsconfig.build.tsbuildinfo
 
-# ignore smart-contracts generated types
-packages/smart-contracts/types
-packages/smart-contracts/src/types
-# ignore thegraph generated types
-packages/payment-detection/src/thegraph/generated
+# coverage
+/packages/*/coverage/
+
+# payment-detection generated files
+/packages/payment-detection/src/thegraph/generated/
+
+# request-client.js generated files
+/packages/request-client.js/docs/
+
+# smart-contracts generated files
+/packages/smart-contracts/build/
+/packages/smart-contracts/cache/
+/packages/smart-contracts/types/
+/packages/smart-contracts/src/types/

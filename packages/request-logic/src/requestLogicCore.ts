@@ -1,5 +1,4 @@
 import { AdvancedLogicTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import Action from './action';
 import Request from './request';
 
@@ -9,6 +8,8 @@ import CancelAction from './actions/cancel';
 import CreateAction from './actions/create';
 import IncreaseExpectedAmountAction from './actions/increaseExpectedAmount';
 import ReduceExpectedAmountAction from './actions/reduceExpectedAmount';
+import AddStakeholdersAction from './actions/addStakeholders';
+import { deepCopy } from '@requestnetwork/utils';
 
 /**
  * Implementation of Request Logic Core
@@ -21,6 +22,7 @@ export default {
   formatCreate: CreateAction.format,
   formatIncreaseExpectedAmount: IncreaseExpectedAmountAction.format,
   formatReduceExpectedAmount: ReduceExpectedAmountAction.format,
+  formatAddStakeholders: AddStakeholdersAction.format,
   getRequestIdFromAction,
 };
 
@@ -45,7 +47,7 @@ function applyActionToRequest(
   }
 
   // we don't want to modify the original request state
-  const requestCopied: RequestLogicTypes.IRequest | null = request ? Utils.deepCopy(request) : null;
+  const requestCopied: RequestLogicTypes.IRequest | null = request ? deepCopy(request) : null;
 
   let requestAfterApply: RequestLogicTypes.IRequest | null = null;
 
@@ -82,6 +84,14 @@ function applyActionToRequest(
 
     if (action.data.name === RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT) {
       requestAfterApply = ReduceExpectedAmountAction.applyActionToRequest(
+        action,
+        timestamp,
+        requestCopied,
+      );
+    }
+
+    if (action.data.name === RequestLogicTypes.ACTION_NAME.ADD_STAKEHOLDERS) {
+      requestAfterApply = AddStakeholdersAction.applyActionToRequest(
         action,
         timestamp,
         requestCopied,

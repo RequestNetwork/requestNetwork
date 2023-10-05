@@ -1,16 +1,18 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import {
-  AdvancedLogicTypes,
+  CurrencyTypes,
   ExtensionTypes,
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import { ICurrencyManager } from '@requestnetwork/currency';
+import { EvmChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
 import { AnyToAnyDetector } from '../any-to-any-detector';
 import { makeGetDeploymentInformation } from '../utils';
+import { TheGraphConversionInfoRetriever } from '../thegraph/conversion-info-retriever';
+import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -19,6 +21,7 @@ interface IProxyContractVersion {
 
 const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
   ['0.1.0']: '0.1.0',
+  ['0.2.0']: '0.2.0',
 };
 
 /**
@@ -26,29 +29,30 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
  */
 export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
   ExtensionTypes.PnAnyToEth.IAnyToEth,
-  PaymentTypes.IETHPaymentEventParameters
+  PaymentTypes.IETHFeePaymentEventParameters
 > {
+  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor({
     advancedLogic,
     currencyManager,
-  }: {
-    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
-    currencyManager: ICurrencyManager;
-  }) {
+    getSubgraphClient,
+  }: ReferenceBasedDetectorOptions &
+    Pick<PaymentNetworkOptions<CurrencyTypes.EvmChainName>, 'getSubgraphClient'>) {
     super(
-      PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
+      ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
       advancedLogic.extensions.anyToEthProxy,
       currencyManager,
     );
+    this.getSubgraphClient = getSubgraphClient;
   }
 
   /**
    * Extracts payment events of an address matching an address and a payment reference
    *
-   * @param address Address to check
+   * @param toAddress Address to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param requestCurrency The request currency
    * @param paymentReference The reference to identify the payment
@@ -57,44 +61,63 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
    */
   protected async extractEvents(
     eventName: PaymentTypes.EVENTS_NAMES,
-    address: string | undefined,
+    toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: string,
+    paymentChain: CurrencyTypes.EvmChainName,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToEth.ICreationParameters>,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IETHPaymentEventParameters>[]> {
-    if (!address) {
-      return [];
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IETHPaymentEventParameters>> {
+    if (!toAddress) {
+      return {
+        paymentEvents: [],
+      };
     }
+
     const contractInfo = AnyToEthFeeProxyPaymentDetector.getDeploymentInformation(
       paymentChain,
       paymentNetwork.version,
     );
 
-    if (!contractInfo) {
-      throw Error('ETH conversion proxy contract not found');
-    }
-    const abi = SmartContracts.ethConversionArtifact.getContractAbi(contractInfo.contractVersion);
-
     const currency = this.currencyManager.fromStorageCurrency(requestCurrency);
     if (!currency) {
-      throw Error('requestCurrency not found in currency manager');
+      throw new UnsupportedCurrencyError(requestCurrency.value);
     }
 
-    const proxyInfoRetriever = new AnyToEthInfoRetriever(
+    const subgraphClient = this.getSubgraphClient(paymentChain);
+    if (subgraphClient) {
+      const infoRetriever = new TheGraphConversionInfoRetriever(
+        subgraphClient,
+        this.currencyManager,
+      );
+      return await infoRetriever.getTransferEvents({
+        paymentReference,
+        contractAddress: contractInfo.address,
+        toAddress,
+        eventName,
+        paymentChain,
+        maxRateTimespan: paymentNetwork.values?.maxRateTimespan,
+        requestCurrency: currency,
+      });
+    }
+
+    const abi = SmartContracts.ethConversionArtifact.getContractAbi(contractInfo.contractVersion);
+
+    const infoRetriever = new AnyToEthInfoRetriever(
       currency,
       paymentReference,
       contractInfo.address,
       contractInfo.creationBlockNumber,
       abi,
-      address,
+      toAddress,
       eventName,
       paymentChain,
       undefined,
       paymentNetwork.values?.maxRateTimespan,
     );
-
-    return await proxyInfoRetriever.getTransferEvents();
+    const paymentEvents = await infoRetriever.getTransferEvents();
+    return {
+      paymentEvents,
+    };
   }
 
   /**
@@ -104,11 +127,12 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
    * @param paymentNetwork the payment network
    * @returns The network of payment
    */
-  protected getPaymentChain(request: RequestLogicTypes.IRequest): string {
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): CurrencyTypes.EvmChainName {
     const network = this.getPaymentExtension(request).values.network;
     if (!network) {
       throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
     }
+    EvmChains.assertChainSupported(network);
     return network;
   }
 

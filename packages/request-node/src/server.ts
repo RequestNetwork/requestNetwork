@@ -1,33 +1,42 @@
 #!/usr/bin/env node
+import * as yargs from 'yargs';
 import { LogTypes } from '@requestnetwork/types';
-import { argv } from 'yargs';
 import * as config from './config';
-import Logger from './logger';
-import RequestNode from './requestNode';
+import { Logger } from './logger';
+import { RequestNode } from './requestNode';
 import withShutdown from 'http-shutdown';
+import { TheGraphRequestNode } from './thegraph-node';
 
+const argv = yargs.parseSync();
+
+const logLevel = config.getLogLevel();
+const logMode = config.getLogMode();
 // Initialize the node logger
-const { logLevel, logMode } = config.getLogConfig();
 const logger = new Logger(logLevel, logMode);
 
 const startNode = async (): Promise<void> => {
   const serverMessage = `Using config:
   Ethereum network id: ${config.getStorageNetworkId()}
-  Log Level: ${LogTypes.LogLevel[config.getLogConfig().logLevel]}
-  Log Mode: ${config.getLogConfig().logMode}
+  Log Level: ${LogTypes.LogLevel[logLevel]}
+  Log Mode: ${logMode}
   Web3 provider url: ${config.getStorageWeb3ProviderUrl()}
+  TheGraph url: ${config.getGraphNodeUrl()}
   IPFS host: ${config.getIpfsHost()}
   IPFS port: ${config.getIpfsPort()}
   IPFS protocol: ${config.getIpfsProtocol()}
   IPFS timeout: ${config.getIpfsTimeout()}
   Storage concurrency: ${config.getStorageConcurrency()}
   Initialization storage path: ${config.getInitializationStorageFilePath()}
+  Storage block confirmations: ${config.getBlockConfirmations()}
 `;
 
   logger.info(serverMessage);
 
   const port = config.getServerPort();
-  const requestNode = new RequestNode(logger);
+  const graphNodeUrl = config.getGraphNodeUrl();
+  const requestNode = graphNodeUrl
+    ? new TheGraphRequestNode(graphNodeUrl, logger)
+    : new RequestNode(logger);
   const server = withShutdown(
     requestNode.listen(port, () => {
       logger.info(`Listening on port ${port}`);
@@ -36,7 +45,7 @@ const startNode = async (): Promise<void> => {
   );
 
   process.on('SIGTERM', async () => {
-    requestNode.dataAccess.stopAutoSynchronization();
+    await requestNode.close();
     logger.info('Synchronization stopped');
     await new Promise((r) => server.shutdown(r));
     logger.info('Server stopped');

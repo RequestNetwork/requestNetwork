@@ -1,6 +1,11 @@
-import { CurrencyManager } from '@requestnetwork/currency';
-import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
+import { areEqualIdentities, deepCopy } from '@requestnetwork/utils';
 import DeclarativePaymentNetwork from './declarative';
 
 /**
@@ -8,30 +13,27 @@ import DeclarativePaymentNetwork from './declarative';
  * This module is called by the address based payment networks to avoid code redundancy
  */
 export default abstract class AddressBasedPaymentNetwork<
-  TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters
+  TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters,
 > extends DeclarativePaymentNetwork<TCreationParameters> {
-  public constructor(
-    public extensionId: ExtensionTypes.ID,
-    public currentVersion: string,
-    public supportedNetworks: string[],
-    public supportedCurrencyType: RequestLogicTypes.CURRENCY,
+  protected constructor(
+    extensionId: ExtensionTypes.PAYMENT_NETWORK_ID,
+    currentVersion: string,
+    public readonly supportedCurrencyType: RequestLogicTypes.CURRENCY,
   ) {
     super(extensionId, currentVersion);
     this.actions = {
       ...this.actions,
-      [ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS]: this.applyAddPaymentAddress.bind(
-        this,
-      ),
-      [ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS]: this.applyAddRefundAddress.bind(
-        this,
-      ),
+      [ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS]:
+        this.applyAddPaymentAddress.bind(this),
+      [ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS]:
+        this.applyAddRefundAddress.bind(this),
     };
   }
 
   /**
    * Creates the extensionsData for address based payment networks
    *
-   * @param extensions extensions parameters to create
+   * @param creationParameters extensions parameters to create
    *
    * @returns IExtensionCreationAction the extensionsData to be stored in the request
    */
@@ -60,7 +62,7 @@ export default abstract class AddressBasedPaymentNetwork<
   /**
    * Creates the extensionsData to add a payment address
    *
-   * @param extensions extensions parameters to create
+   * @param addPaymentAddressParameters extensions parameters to create
    *
    * @returns IAction the extensionsData to be stored in the request
    */
@@ -84,7 +86,7 @@ export default abstract class AddressBasedPaymentNetwork<
   /**
    * Creates the extensionsData to add a refund address
    *
-   * @param extensions extensions parameters to create
+   * @param addRefundAddressParameters extensions parameters to create
    *
    * @returns IAction the extensionsData to be stored in the request
    */
@@ -142,25 +144,11 @@ export default abstract class AddressBasedPaymentNetwork<
     };
   }
 
-  protected isValidAddress(address: string, networkName?: string): boolean {
-    if (networkName) {
-      return this.isValidAddressForNetwork(address, networkName);
-    }
-    return this.supportedNetworks.some((network) =>
-      this.isValidAddressForNetwork(address, network),
-    );
-  }
-
-  protected isValidAddressForNetwork(address: string, network: string): boolean {
+  protected isValidAddress(address: string): boolean {
     switch (this.supportedCurrencyType) {
-      case RequestLogicTypes.CURRENCY.BTC:
-        return this.isValidAddressForSymbolAndNetwork(
-          address,
-          network === 'testnet' ? 'BTC-testnet' : 'BTC',
-          network,
-        );
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
+      case RequestLogicTypes.CURRENCY.ERC777:
         return this.isValidAddressForSymbolAndNetwork(address, 'ETH', 'mainnet');
       default:
         throw new Error(
@@ -172,18 +160,18 @@ export default abstract class AddressBasedPaymentNetwork<
   protected isValidAddressForSymbolAndNetwork(
     address: string,
     symbol: string,
-    network: string,
+    network: CurrencyTypes.ChainName,
   ): boolean {
     const currencyManager = CurrencyManager.getDefault();
     const currency = currencyManager.from(symbol, network);
     if (!currency) {
-      throw new Error(`Currency not found in default manager: ${symbol} / ${network}`);
+      throw new UnsupportedCurrencyError({ value: symbol, network });
     }
-    return CurrencyManager.validateAddress(address, currency);
+    return currencyManager.validateAddress(address, currency);
   }
 
   /**
-   * Applies add payment address
+   * Applies the add payment address action
    *
    * @param extensionState previous state of the extension
    * @param extensionAction action to apply
@@ -201,7 +189,7 @@ export default abstract class AddressBasedPaymentNetwork<
   ): ExtensionTypes.IState {
     if (
       extensionAction.parameters.paymentAddress &&
-      !this.isValidAddress(extensionAction.parameters.paymentAddress, requestState.currency.network)
+      !this.isValidAddress(extensionAction.parameters.paymentAddress)
     ) {
       throw new InvalidPaymentAddressError(extensionAction.parameters.paymentAddress);
     }
@@ -211,11 +199,11 @@ export default abstract class AddressBasedPaymentNetwork<
     if (!requestState.payee) {
       throw Error(`The request must have a payee`);
     }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payee)) {
+    if (!areEqualIdentities(actionSigner, requestState.payee)) {
       throw Error(`The signer must be the payee`);
     }
 
-    const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
+    const copiedExtensionState: ExtensionTypes.IState = deepCopy(extensionState);
 
     // update payment address
     copiedExtensionState.values.paymentAddress = extensionAction.parameters.paymentAddress;
@@ -248,7 +236,7 @@ export default abstract class AddressBasedPaymentNetwork<
   ): ExtensionTypes.IState {
     if (
       extensionAction.parameters.refundAddress &&
-      !this.isValidAddress(extensionAction.parameters.refundAddress, requestState.currency.network)
+      !this.isValidAddress(extensionAction.parameters.refundAddress)
     ) {
       throw Error('refundAddress is not a valid address');
     }
@@ -258,11 +246,11 @@ export default abstract class AddressBasedPaymentNetwork<
     if (!requestState.payer) {
       throw Error(`The request must have a payer`);
     }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payer)) {
+    if (!areEqualIdentities(actionSigner, requestState.payer)) {
       throw Error(`The signer must be the payer`);
     }
 
-    const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
+    const copiedExtensionState: ExtensionTypes.IState = deepCopy(extensionState);
 
     // update refund address
     copiedExtensionState.values.refundAddress = extensionAction.parameters.refundAddress;
@@ -284,8 +272,12 @@ export default abstract class AddressBasedPaymentNetwork<
     if (request.currency.type !== this.supportedCurrencyType) {
       throw Error(`This extension can be used only on ${this.supportedCurrencyType} requests`);
     }
-    if (request.currency.network && !this.supportedNetworks.includes(request.currency.network)) {
-      throw new UnsupportedNetworkError(request.currency.network, this.supportedNetworks);
+    this.throwIfInvalidNetwork(request.currency.network);
+  }
+
+  protected throwIfInvalidNetwork(network?: string): asserts network is string {
+    if (!network) {
+      throw Error('network is required');
     }
   }
 }

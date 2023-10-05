@@ -2,12 +2,13 @@ import { constants, ContractTransaction, Signer, BigNumberish, providers, BigNum
 
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20FeeProxy__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
+import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
+import { EvmChains } from '@requestnetwork/currency';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
-  getPaymentNetworkExtension,
   getProvider,
   getRequestPaymentValues,
   getSigner,
@@ -18,7 +19,6 @@ import { IPreparedTransaction } from './prepared-transaction';
 
 /**
  * Processes a transaction to pay an ERC20 Request with fees.
- * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
@@ -26,7 +26,7 @@ import { IPreparedTransaction } from './prepared-transaction';
  */
 export async function payErc20FeeProxyRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
@@ -51,9 +51,8 @@ export function encodePayErc20FeeRequest(
   validateErc20FeeProxyRequest(request, amount, feeAmountOverride);
 
   const tokenAddress = request.currencyInfo.value;
-  const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
-    request,
-  );
+  const { paymentReference, paymentAddress, feeAddress, feeAmount } =
+    getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
   const proxyContract = ERC20FeeProxy__factory.createInterface();
@@ -72,7 +71,6 @@ export function encodePayErc20FeeRequest(
  * Return the EIP-681 format URL with the transaction to pay an ERC20
  * Warning: this EIP isn't widely used, be sure to test compatibility yourself.
  *
- * @param request
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
@@ -81,15 +79,11 @@ export function _getErc20FeeProxyPaymentUrl(
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
-  const {
-    paymentReference,
-    paymentAddress,
-    feeAddress,
-    feeAmount,
-    version,
-  } = getRequestPaymentValues(request);
-  const contractAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!, version);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
+  const { paymentReference, paymentAddress, feeAddress, feeAmount, version, network } =
+    getRequestPaymentValues(request);
+  EvmChains.assertChainSupported(network!);
+  const contractAddress = erc20FeeProxyArtifact.getAddress(network, version);
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = feeAmountOverride || BigNumber.from(feeAmount || 0);
   const parameters = `transferFromWithReferenceAndFee?address=${request.currencyInfo.value}&address=${paymentAddress}&uint256=${amountToPay}&bytes=${paymentReference}&uint256=${feeToPay}&address=${feeAddress}`;
@@ -97,7 +91,7 @@ export function _getErc20FeeProxyPaymentUrl(
 }
 
 /**
- * Prepate the transaction to pay a request through the ERC20 fee proxy contract, can be used with a Multisig contract.
+ * Prepare the transaction to pay a request through the ERC20 fee proxy contract, can be used with a Multisig contract.
  * @param request request to pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
@@ -110,9 +104,11 @@ export function prepareErc20FeeProxyPaymentTransaction(
 ): IPreparedTransaction {
   validateErc20FeeProxyRequest(request, amount, feeAmountOverride);
 
+  const { network } = request.currencyInfo;
+  EvmChains.assertChainSupported(network!);
   const encodedTx = encodePayErc20FeeRequest(request, amount, feeAmountOverride);
   const pn = getPaymentNetworkExtension(request);
-  const proxyAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!, pn?.version);
+  const proxyAddress = erc20FeeProxyArtifact.getAddress(network, pn?.version);
 
   return {
     data: encodedTx,

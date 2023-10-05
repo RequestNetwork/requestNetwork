@@ -1,5 +1,5 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
-import { StorageTypes } from '@requestnetwork/types';
+import { CurrencyTypes, StorageTypes } from '@requestnetwork/types';
 import EthereumBlocks from '../src/ethereum-blocks';
 import SmartContractManager from '../src/smart-contract-manager';
 
@@ -407,19 +407,23 @@ describe('SmartContractManager', () => {
 
   it('initializes smartcontract-manager with an invalid network should throw an error', () => {
     expect(() => new SmartContractManager(invalidNetworkWeb3Connection)).toThrowError(
-      `The network id ${invalidNetwork} doesn't exist`,
+      `Unsupported storage chain: ${invalidNetwork}`,
     );
   });
 
   it('getAddress in artifactsRequestHashStorageUtils with a invalid host network should throw an error', () => {
-    expect(() => SmartContracts.requestHashStorageArtifact.getAddress('nonexistent')).toThrowError(
-      'No deployment for network',
-    );
+    expect(() =>
+      SmartContracts.requestHashStorageArtifact.getAddress(
+        'nonexistent' as CurrencyTypes.EvmChainName,
+      ),
+    ).toThrowError('No deployment for network');
   });
 
   it('getAddress in artifactsRequestHashSubmitterUtils with a invalid host network should throw an error', () => {
     expect(() =>
-      SmartContracts.requestHashSubmitterArtifact.getAddress('nonexistent'),
+      SmartContracts.requestHashSubmitterArtifact.getAddress(
+        'nonexistent' as CurrencyTypes.EvmChainName,
+      ),
     ).toThrowError('No deployment for network');
   });
 

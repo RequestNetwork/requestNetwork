@@ -1,5 +1,5 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { addAmount, areEqualIdentities, deepCopy, isValidAmount } from '@requestnetwork/utils';
 import { AbstractExtension } from '../abstract-extension';
 
 const CURRENT_VERSION = '0.1.0';
@@ -8,27 +8,28 @@ const CURRENT_VERSION = '0.1.0';
  * Core of the declarative payment network
  */
 export default class DeclarativePaymentNetwork<
-  TCreationParameters extends ExtensionTypes.PnAnyDeclarative.ICreationParameters = ExtensionTypes.PnAnyDeclarative.ICreationParameters
+  TCreationParameters extends ExtensionTypes.PnAnyDeclarative.ICreationParameters = ExtensionTypes.PnAnyDeclarative.ICreationParameters,
 > extends AbstractExtension<TCreationParameters> {
   public constructor(
-    public extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
-    public currentVersion: string = CURRENT_VERSION,
+    public readonly extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes
+      .PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
+    public readonly currentVersion: string = CURRENT_VERSION,
   ) {
     super(ExtensionTypes.TYPE.PAYMENT_NETWORK, extensionId, currentVersion);
     this.actions = {
       ...this.actions,
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .ADD_PAYMENT_INSTRUCTION]: this.applyAddPaymentInstruction.bind(this),
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .ADD_REFUND_INSTRUCTION]: this.applyAddRefundInstruction.bind(this),
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .DECLARE_SENT_PAYMENT]: this.applyDeclareSentPayment.bind(this),
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .DECLARE_SENT_REFUND]: this.applyDeclareSentRefund.bind(this),
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .DECLARE_RECEIVED_PAYMENT]: this.applyDeclareReceivedPayment.bind(this),
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .DECLARE_RECEIVED_REFUND]: this.applyDeclareReceivedRefund.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION]:
+        this.applyAddPaymentInstruction.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION]:
+        this.applyAddRefundInstruction.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT]:
+        this.applyDeclareSentPayment.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND]:
+        this.applyDeclareSentRefund.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT]:
+        this.applyDeclareReceivedPayment.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND]:
+        this.applyDeclareReceivedRefund.bind(this),
       [ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE]: this.applyAddDelegate.bind(this),
     };
   }
@@ -186,7 +187,7 @@ export default class DeclarativePaymentNetwork<
    * @returns state of the extension created
    */
   protected applyCreation(
-    extensionAction: ExtensionTypes.IAction,
+    extensionAction: ExtensionTypes.IAction<TCreationParameters>,
     timestamp: number,
   ): ExtensionTypes.IState {
     const genericCreationAction = super.applyCreation(extensionAction, timestamp);
@@ -197,23 +198,25 @@ export default class DeclarativePaymentNetwork<
         {
           name: 'create',
           parameters: {
-            paymentInfo: extensionAction.parameters.paymentInfo,
-            refundInfo: extensionAction.parameters.refundInfo,
-            payeeDelegate: extensionAction.parameters.payeeDelegate,
-            payerDelegate: extensionAction.parameters.payerDelegate,
+            paymentInfo: extensionAction.parameters?.paymentInfo,
+            refundInfo: extensionAction.parameters?.refundInfo,
+            salt: extensionAction.parameters?.salt,
+            payeeDelegate: extensionAction.parameters?.payeeDelegate,
+            payerDelegate: extensionAction.parameters?.payerDelegate,
           },
           timestamp,
         },
       ],
       values: {
-        paymentInfo: extensionAction.parameters.paymentInfo,
+        paymentInfo: extensionAction.parameters?.paymentInfo,
+        refundInfo: extensionAction.parameters?.refundInfo,
+        salt: extensionAction.parameters?.salt,
+        payeeDelegate: extensionAction.parameters?.payeeDelegate,
+        payerDelegate: extensionAction.parameters?.payerDelegate,
         receivedPaymentAmount: '0',
         receivedRefundAmount: '0',
-        refundInfo: extensionAction.parameters.refundInfo,
         sentPaymentAmount: '0',
         sentRefundAmount: '0',
-        payeeDelegate: extensionAction.parameters.payeeDelegate,
-        payerDelegate: extensionAction.parameters.payerDelegate,
       },
     };
   }
@@ -236,14 +239,14 @@ export default class DeclarativePaymentNetwork<
     timestamp: number,
   ): ExtensionTypes.IState {
     this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYER);
-    if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
+    if (!isValidAmount(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
     }
 
-    const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
+    const copiedExtensionState: ExtensionTypes.IState = deepCopy(extensionState);
 
     // increment sentPaymentAmount
-    copiedExtensionState.values.sentPaymentAmount = Utils.amount.add(
+    copiedExtensionState.values.sentPaymentAmount = addAmount(
       copiedExtensionState.values.sentPaymentAmount,
       extensionAction.parameters.amount,
     );
@@ -282,14 +285,14 @@ export default class DeclarativePaymentNetwork<
     timestamp: number,
   ): ExtensionTypes.IState {
     this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYEE);
-    if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
+    if (!isValidAmount(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
     }
 
-    const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
+    const copiedExtensionState: ExtensionTypes.IState = deepCopy(extensionState);
 
     // increment sentRefundAmount
-    copiedExtensionState.values.sentRefundAmount = Utils.amount.add(
+    copiedExtensionState.values.sentRefundAmount = addAmount(
       copiedExtensionState.values.sentRefundAmount,
       extensionAction.parameters.amount,
     );
@@ -328,14 +331,14 @@ export default class DeclarativePaymentNetwork<
     timestamp: number,
   ): ExtensionTypes.IState {
     this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYEE);
-    if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
+    if (!isValidAmount(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
     }
 
-    const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
+    const copiedExtensionState: ExtensionTypes.IState = deepCopy(extensionState);
 
     // increment receivedPaymentAmount
-    copiedExtensionState.values.receivedPaymentAmount = Utils.amount.add(
+    copiedExtensionState.values.receivedPaymentAmount = addAmount(
       copiedExtensionState.values.receivedPaymentAmount,
       extensionAction.parameters.amount,
     );
@@ -374,14 +377,14 @@ export default class DeclarativePaymentNetwork<
     timestamp: number,
   ): ExtensionTypes.IState {
     this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYER);
-    if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
+    if (!isValidAmount(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
     }
 
-    const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
+    const copiedExtensionState: ExtensionTypes.IState = deepCopy(extensionState);
 
     // increment receivedRefundAmount
-    copiedExtensionState.values.receivedRefundAmount = Utils.amount.add(
+    copiedExtensionState.values.receivedRefundAmount = addAmount(
       copiedExtensionState.values.receivedRefundAmount,
       extensionAction.parameters.amount,
     );
@@ -424,7 +427,7 @@ export default class DeclarativePaymentNetwork<
     }
     this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYEE);
 
-    const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
+    const copiedExtensionState: ExtensionTypes.IState = deepCopy(extensionState);
 
     // assign paymentInfo
     copiedExtensionState.values.paymentInfo = extensionAction.parameters.paymentInfo;
@@ -460,9 +463,9 @@ export default class DeclarativePaymentNetwork<
     timestamp: number,
   ): ExtensionTypes.IState {
     let delegateStr: string;
-    if (Utils.identity.areEqual(actionSigner, requestState.payee)) {
+    if (areEqualIdentities(actionSigner, requestState.payee)) {
       delegateStr = 'payeeDelegate';
-    } else if (Utils.identity.areEqual(actionSigner, requestState.payer)) {
+    } else if (areEqualIdentities(actionSigner, requestState.payer)) {
       delegateStr = 'payerDelegate';
     } else {
       throw Error(`The signer must be the payee or the payer`);
@@ -472,7 +475,7 @@ export default class DeclarativePaymentNetwork<
       throw Error(`The ${delegateStr} is already assigned`);
     }
 
-    const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
+    const copiedExtensionState: ExtensionTypes.IState = deepCopy(extensionState);
 
     // assign payeeDelegate or payerDelegate
     copiedExtensionState.values[delegateStr] = extensionAction.parameters.delegate;
@@ -512,7 +515,7 @@ export default class DeclarativePaymentNetwork<
     }
     this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYER);
 
-    const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
+    const copiedExtensionState: ExtensionTypes.IState = deepCopy(extensionState);
 
     // assign refundInfo
     copiedExtensionState.values.refundInfo = extensionAction.parameters.refundInfo;
@@ -564,8 +567,8 @@ export default class DeclarativePaymentNetwork<
       throw Error(`The request must have a ${requestRoleStr}`);
     }
     if (
-      !Utils.identity.areEqual(actionSigner, requestRole) &&
-      !Utils.identity.areEqual(actionSigner, requestRoleDelegate)
+      !areEqualIdentities(actionSigner, requestRole) &&
+      !areEqualIdentities(actionSigner, requestRoleDelegate)
     ) {
       throw Error(`The signer must be the ${requestRoleStr} or the ${requestRoleStr}Delegate`);
     }

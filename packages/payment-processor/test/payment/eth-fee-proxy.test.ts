@@ -1,14 +1,12 @@
-import { Wallet, providers } from 'ethers';
-
+import { providers, Wallet } from 'ethers';
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
-  PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
-
+import { deepCopy } from '@requestnetwork/utils';
 import {
   encodePayEthFeeProxyRequest,
   payEthFeeProxyRequest,
@@ -44,9 +42,9 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -78,7 +76,7 @@ describe('getRequestPaymentValues', () => {
 
 describe('payEthFeeProxyRequest', () => {
   it('should throw an error if the request is not eth', async () => {
-    const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+    const request = deepCopy(validRequest) as ClientTypes.IRequestData;
     request.currencyInfo.type = RequestLogicTypes.CURRENCY.ERC20;
 
     await expect(payEthFeeProxyRequest(request, wallet)).rejects.toThrowError(
@@ -87,15 +85,15 @@ describe('payEthFeeProxyRequest', () => {
   });
 
   it('should throw an error if currencyInfo has no network', async () => {
-    const request = Utils.deepCopy(validRequest);
-    request.currencyInfo.network = '';
+    const request = deepCopy(validRequest);
+    request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
     await expect(payEthFeeProxyRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-fee-proxy-contract request',
     );
   });
 
   it('should throw an error if request has no extension', async () => {
-    const request = Utils.deepCopy(validRequest);
+    const request = deepCopy(validRequest);
     request.extensions = [] as any;
 
     await expect(payEthFeeProxyRequest(request, wallet)).rejects.toThrowError(
@@ -125,7 +123,7 @@ describe('payEthFeeProxyRequest', () => {
       balanceEthAfter
         .add(validRequest.expectedAmount)
         .add('2')
-        .add(confirmedTx.gasUsed?.mul(tx?.gasPrice ?? 1))
+        .add(confirmedTx.cumulativeGasUsed.mul(confirmedTx.effectiveGasPrice))
         .toString(),
     );
     expect(balanceFeeEthAfter.toString()).toBe(balanceFeeEthBefore.add('2').toString());

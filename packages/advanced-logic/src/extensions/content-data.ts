@@ -7,13 +7,10 @@ const CURRENT_VERSION = '0.1.0';
  * Implementation of the content data extension
  */
 export default class ContentDataExtension<
-  TCreationParameters extends ExtensionTypes.ContentData.ICreationParameters = ExtensionTypes.ContentData.ICreationParameters
+  TCreationParameters extends ExtensionTypes.ContentData.ICreationParameters = ExtensionTypes.ContentData.ICreationParameters,
 > extends AbstractExtension<TCreationParameters> {
-  public constructor(
-    public extensionId: ExtensionTypes.ID = ExtensionTypes.ID.CONTENT_DATA,
-    public currentVersion: string = CURRENT_VERSION,
-  ) {
-    super(ExtensionTypes.TYPE.CONTENT_DATA, extensionId, currentVersion);
+  public constructor() {
+    super(ExtensionTypes.TYPE.CONTENT_DATA, ExtensionTypes.ID.CONTENT_DATA, CURRENT_VERSION);
   }
 
   /**
@@ -40,7 +37,6 @@ export default class ContentDataExtension<
    * Applies a creation
    *
    * @param extensionAction action to apply
-   * @param timestamp
    *
    * @returns state of the extension created
    */

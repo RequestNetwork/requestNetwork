@@ -19,23 +19,39 @@ This extension does not ensure payment detection, only a consensus is made betwe
 As a payment network, this extension allows to deduce a payment `balance` for the request. (see
 [Interpretation](#Interpretation))
 
+### Delegates & Payment Reference
+
+Although it cannot be detected, the declarative payment network can be used with some automation, with declaration by oracles for instance.
+For this purpose, a `payeeDelegate` and `payerDelegate` can be specified. The `payeeDelegate` will be allowed to declare the payment on behalf of the payee; the `payerDelegate` can declare the payment was sent, with no impact on the balance.
+
+For automation, a payment reference can be computed, to be used in a bank transfer memo for instance.
+
+This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + info)))`:
+
+- `requestId` is the id of the request
+- `salt` is a random number with at least 8 bytes of randomness. It must be unique to each request
+- `info` is the JSON-stringified string of the `paymentInfo` for a payment, or `refundInfo` for a refund.
+- `lowercase()` transforms all characters to lowercase
+- `hash()` is a keccak256 hash function
+- `last8Bytes()` take the last 8 bytes
+
 ## Properties
 
-| Property                         | Type   | Description                                    | Requirement   |
-| -------------------------------- | ------ | ---------------------------------------------- | ------------- |
-| **id**                           | String | constant value: "pn-any-declarative"           | **Mandatory** |
-| **type**                         | String | constant value: "paymentNetwork"               | **Mandatory** |
-| **version**                      | String | constant value: "0.2.0"                        | **Mandatory** |
-| **events**                       | Array  | List of the actions performed by the extension | **Mandatory** |
-| **values**                       | Object |                                                |               |
-| **values.sentPaymentAmount**     | Amount | Amount of payment declared sent                | **Mandatory** |
-| **values.sentRefundAmount**      | Amount | Amount of refund declared sent                 | **Mandatory** |
-| **values.receivedPaymentAmount** | Amount | Amount of payment declared received            | **Mandatory** |
-| **values.receivedRefundAmount**  | Amount | Amount of refund declared received             | **Mandatory** |
-| **values.paymentInstruction**    | String | Instruction to make payments                   | Optional      |
-| **values.refundInstruction**     | String | Instruction to make refunds                    | Optional      |
-| **values.payeeDelegate**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the payee's delegate | Optional      |
-| **values.payerDelegate**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the payer's delegate | Optional      |
+| Property                         | Type                                                                                          | Description                                    | Requirement   |
+| -------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------- | ------------- |
+| **id**                           | String                                                                                        | constant value: "pn-any-declarative"           | **Mandatory** |
+| **type**                         | String                                                                                        | constant value: "paymentNetwork"               | **Mandatory** |
+| **version**                      | String                                                                                        | constant value: "0.2.0"                        | **Mandatory** |
+| **events**                       | Array                                                                                         | List of the actions performed by the extension | **Mandatory** |
+| **values**                       | Object                                                                                        |                                                |               |
+| **values.sentPaymentAmount**     | Amount                                                                                        | Amount of payment declared sent                | **Mandatory** |
+| **values.sentRefundAmount**      | Amount                                                                                        | Amount of refund declared sent                 | **Mandatory** |
+| **values.receivedPaymentAmount** | Amount                                                                                        | Amount of payment declared received            | **Mandatory** |
+| **values.receivedRefundAmount**  | Amount                                                                                        | Amount of refund declared received             | **Mandatory** |
+| **values.paymentInstruction**    | String                                                                                        | Instruction to make payments                   | Optional      |
+| **values.refundInstruction**     | String                                                                                        | Instruction to make refunds                    | Optional      |
+| **values.payeeDelegate**         | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the payee's delegate               | Optional      |
+| **values.payerDelegate**         | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the payer's delegate               | Optional      |
 
 ---
 
@@ -45,23 +61,24 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 
 #### Parameters
 
-|                                   | Type   | Description                          | Requirement   |
-| --------------------------------- | ------ | ------------------------------------ | ------------- |
-| **id**                            | String | constant value: "pn-any-declarative" | **Mandatory** |
-| **type**                          | String | constant value: "paymentNetwork"     | **Mandatory** |
-| **version**                       | String | constant value: "0.2.0"              | **Mandatory** |
-| **parameters**                    | Object |                                      |               |
-| **parameters.paymentInstruction** | String | Instruction to make payments         | Optional      |
-| **parameters.refundInstruction**  | String | Instruction to make refunds          | Optional      |
-| **parameters.payeeDelegate**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the payee's delegate | Optional      |
-| **parameters.payerDelegate**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the payer's delegate | Optional      |
+|                              | Type                                                                                          | Description                                          | Requirement   |
+| ---------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------------- |
+| **id**                       | String                                                                                        | constant value: "pn-any-declarative"                 | **Mandatory** |
+| **type**                     | String                                                                                        | constant value: "paymentNetwork"                     | **Mandatory** |
+| **version**                  | String                                                                                        | constant value: "0.2.0"                              | **Mandatory** |
+| **parameters**               | Object                                                                                        |                                                      |               |
+| **parameters.paymentInfo**   | String                                                                                        | Instruction to make payments (IBAN...)               | Optional      |
+| **parameters.refundInfo**    | String                                                                                        | Instruction to make refunds                          | Optional      |
+| **parameters.payeeDelegate** | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the payee's delegate                     | Optional      |
+| **parameters.payerDelegate** | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the payer's delegate                     | Optional      |
+| **parameters.salt**          | String                                                                                        | Salt for the request, if payment reference is needed | Optional      |
 
 #### Conditions
 
 This action is valid, if:
 
-- The `payeeDelegate` is given  The signer must be the `payee`
-- The `payerDelegate` is given  The signer must be the `payer`
+- The `payeeDelegate` is given The signer must be the `payee`
+- The `payerDelegate` is given The signer must be the `payer`
 
 #### Warnings
 
@@ -359,12 +376,12 @@ The 'addPaymentInstruction' event:
 
 ##### Parameters
 
-|                                   | Type   | Description                          | Requirement   |
-| --------------------------------- | ------ | ------------------------------------ | ------------- |
-| **id**                            | String | constant value: "pn-any-declarative" | **Mandatory** |
-| **action**                        | String | constant value: "addDelegate"  | **Mandatory** |
-| **parameters**                    | Object |                                      |               |
-| **parameters.delegate**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the delegate | **Mandatory**       |
+|                         | Type                                                                                          | Description                          | Requirement   |
+| ----------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------ | ------------- |
+| **id**                  | String                                                                                        | constant value: "pn-any-declarative" | **Mandatory** |
+| **action**              | String                                                                                        | constant value: "addDelegate"        | **Mandatory** |
+| **parameters**          | Object                                                                                        |                                      |               |
+| **parameters.delegate** | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the delegate             | **Mandatory** |
 
 ##### Conditions
 
@@ -382,20 +399,20 @@ None.
 
 An extension state is updated with the following properties:
 
-|  Property                     |  Value                                                      |
-| ----------------------------- | ----------------------------------------------------------- |
-| **values.payeeDelegate**      | `delegate` from parameters if signer is the `payee`, unchanged otherwise |
-| **values.payerDelegate**      | `delegate` from parameters if signer is the `payer`, unchanged otherwise    |
-| **events**                    | add an 'addDelegate' event (see below) at its end |
+|  Property                |  Value                                                                   |
+| ------------------------ | ------------------------------------------------------------------------ |
+| **values.payeeDelegate** | `delegate` from parameters if signer is the `payee`, unchanged otherwise |
+| **values.payerDelegate** | `delegate` from parameters if signer is the `payer`, unchanged otherwise |
+| **events**               | add an 'addDelegate' event (see below) at its end                        |
 
 The 'addDelegate' event:
 
-|  Property                         |  Value                               |
-| --------------------------------- | ------------------------------------ |
-| **name**                          | 'addDelegate'              |
-| **parameters**                    |                                      |
-| **parameters.payeeDelegate**      | `delegate` from parameters if signer is the `payee`, undefined otherwise |
-| **parameters.payerDelegate**      | `delegate` from parameters if signer is the `payer`, undefined otherwise    |
+|  Property                    |  Value                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------ |
+| **name**                     | 'addDelegate'                                                            |
+| **parameters**               |                                                                          |
+| **parameters.payeeDelegate** | `delegate` from parameters if signer is the `payee`, undefined otherwise |
+| **parameters.payerDelegate** | `delegate` from parameters if signer is the `payer`, undefined otherwise |
 
 ---
 

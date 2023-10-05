@@ -18,21 +18,21 @@ export const salt = 'ea3bc7caf64110ca';
 // actions
 export const actionAddPaymentAddress = {
   action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
   parameters: {
     paymentAddress,
   },
 };
 export const actionAddRefundAddress = {
   action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_REFUND_ADDRESS,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
   parameters: {
     refundAddress,
   },
 };
 export const actionAddFee = {
   action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
   parameters: {
     feeAddress,
     feeAmount,
@@ -42,7 +42,7 @@ export const actionAddFee = {
 // ---------------------------------------------------------------------
 // extensions states
 export const extensionStateWithPaymentAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT as string]: {
     events: [
       {
         name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
@@ -57,7 +57,7 @@ export const extensionStateWithPaymentAfterCreation = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentAddress,
@@ -67,7 +67,7 @@ export const extensionStateWithPaymentAfterCreation = {
 };
 
 export const extensionStateWithRefundAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT as string]: {
     events: [
       {
         name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
@@ -82,7 +82,7 @@ export const extensionStateWithRefundAfterCreation = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       refundAddress,
@@ -92,7 +92,7 @@ export const extensionStateWithRefundAfterCreation = {
 };
 
 export const extensionStateWithFeeAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT as string]: {
     events: [
       {
         name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
@@ -108,7 +108,7 @@ export const extensionStateWithFeeAfterCreation = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       feeAddress,

@@ -1,25 +1,21 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { getCurrentTimestampInSecond } from '@requestnetwork/utils';
 import { EventEmitter } from 'events';
 
-import EthereumStorage from '../src/ethereum-storage';
+import { EthereumStorage } from '../src/ethereum-storage';
+import { IpfsStorage } from '../src/ipfs-storage';
 import IpfsConnectionError from '../src/ipfs-connection-error';
 
 /* eslint-disable no-magic-numbers */
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const web3HttpProvider = require('web3-providers-http');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const web3Utils = require('web3-utils');
 
 const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
   host: 'localhost',
-  port: 5001,
-  protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
-  timeout: 1000,
-};
-
-const invalidHostIpfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
-  host: 'nonexistent',
   port: 5001,
   protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
   timeout: 1000,
@@ -39,6 +35,7 @@ const invalidHostWeb3Connection: StorageTypes.IWeb3Connection = {
   web3Provider: invalidHostNetworkProvider,
 };
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const web3Eth = require('web3-eth');
 const eth = new web3Eth(provider);
 
@@ -47,8 +44,6 @@ const contractHashSubmitter = new eth.Contract(
   SmartContracts.requestHashSubmitterArtifact.getAddress('private'),
 );
 const addressRequestHashSubmitter = contractHashSubmitter._address;
-
-let ethereumStorage: EthereumStorage;
 
 const content1 = 'this is a little test !';
 const hash1 = 'QmNXA5DyFZkdf4XkUT81nmJSo3nS2bL25x7YepxeoDa6tY';
@@ -119,13 +114,18 @@ const pastEventsMock = [
 ];
 /* eslint-disable  */
 const getPastEventsMock = () => pastEventsMock;
+const ipfsStorage = new IpfsStorage({ ipfsGatewayConnection });
 
 describe('EthereumStorage', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
   describe('initialize', () => {
     it('cannot use functions when not initialized', async () => {
-      const ethereumStorageNotInitialized: EthereumStorage = new EthereumStorage(
+      const ethereumStorageNotInitialized = new EthereumStorage(
         'localhost',
-        ipfsGatewayConnection,
+        ipfsStorage,
         web3Connection,
       );
       await expect(ethereumStorageNotInitialized.getData()).rejects.toThrowError(
@@ -139,34 +139,10 @@ describe('EthereumStorage', () => {
       );
     });
 
-    it('cannot initialize if ipfs node not reachable', async () => {
-      const ethereumStorageNotInitialized: EthereumStorage = new EthereumStorage(
-        'localhost',
-        invalidHostIpfsGatewayConnection,
-        web3Connection,
-      );
-      await expect(ethereumStorageNotInitialized.initialize()).rejects.toThrowError(
-        'IPFS node is not accessible or corrupted: Error: Ipfs id error: Error: getaddrinfo ENOTFOUND nonexistent',
-      );
-    });
-    it('cannot initialize if ipfs node not in the right network', async () => {
-      const ethereumStorageWithIpfsBootstrapNodesWrong: EthereumStorage = new EthereumStorage(
-        'localhost',
-        ipfsGatewayConnection,
-        web3Connection,
-      );
-      ethereumStorageWithIpfsBootstrapNodesWrong.ipfsManager.getBootstrapList = async () => [
-        'not findable node',
-      ];
-
-      await expect(ethereumStorageWithIpfsBootstrapNodesWrong.initialize()).rejects.toThrowError(
-        `The list of bootstrap node in the ipfs config don't match the expected bootstrap nodes`,
-      );
-    });
     it('cannot initialize if ethereum node not reachable', async () => {
-      const ethereumStorageNotInitialized: EthereumStorage = new EthereumStorage(
+      const ethereumStorageNotInitialized = new EthereumStorage(
         'localhost',
-        ipfsGatewayConnection,
+        ipfsStorage,
         invalidHostWeb3Connection,
       );
       await expect(ethereumStorageNotInitialized.initialize()).rejects.toThrowError(
@@ -175,9 +151,9 @@ describe('EthereumStorage', () => {
     });
 
     it('cannot initialize if ethereum node not listening', async () => {
-      const ethereumStorageNotInitialized: EthereumStorage = new EthereumStorage(
+      const ethereumStorageNotInitialized = new EthereumStorage(
         'localhost',
-        ipfsGatewayConnection,
+        ipfsStorage,
         web3Connection,
       );
 
@@ -187,10 +163,11 @@ describe('EthereumStorage', () => {
         'Ethereum node is not accessible: Error: The Web3 provider is not listening',
       );
     });
+
     it('cannot initialize if contracts are not deployed', async () => {
-      const ethereumStorageNotInitialized: EthereumStorage = new EthereumStorage(
+      const ethereumStorageNotInitialized = new EthereumStorage(
         'localhost',
-        ipfsGatewayConnection,
+        ipfsStorage,
         web3Connection,
       );
 
@@ -214,24 +191,28 @@ describe('EthereumStorage', () => {
   });
 
   describe('append/read/getData', () => {
+    let ethereumStorage: EthereumStorage;
     beforeEach(async () => {
-      ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
+      const ipfsStorage = new IpfsStorage({ ipfsGatewayConnection });
+
+      ethereumStorage = new EthereumStorage('localhost', ipfsStorage, web3Connection);
       await ethereumStorage.initialize();
 
       ethereumStorage.smartContractManager.requestHashStorage.getPastEvents = getPastEventsMock;
-      ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<StorageTypes.IEthereumMetadata> => {
-        return {
-          blockConfirmation: 10,
-          blockNumber: 10,
-          blockTimestamp: 1545816416,
-          cost: '110',
-          fee: '100',
-          gasFee: '10',
-          networkName: 'private',
-          smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-          transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
+      ethereumStorage.smartContractManager.addHashAndSizeToEthereum =
+        async (): Promise<StorageTypes.IEthereumMetadata> => {
+          return {
+            blockConfirmation: 10,
+            blockNumber: 10,
+            blockTimestamp: 1545816416,
+            cost: '110',
+            fee: '100',
+            gasFee: '10',
+            networkName: 'private',
+            smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+            transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
+          };
         };
-      };
     });
 
     it('cannot be initialized twice', async () => {
@@ -241,7 +222,7 @@ describe('EthereumStorage', () => {
     it('allows to append a file', async () => {
       jest.useFakeTimers('modern');
       jest.setSystemTime(0);
-      const timestamp = Utils.getCurrentTimestampInSecond();
+      const timestamp = getCurrentTimestampInSecond();
       const result = await ethereumStorage.append(content1);
 
       const resultExpected: StorageTypes.IAppendResult = Object.assign(new EventEmitter(), {
@@ -261,19 +242,11 @@ describe('EthereumStorage', () => {
       jest.useRealTimers();
     });
 
-    it('cannot append if ipfs add fail', async () => {
-      ethereumStorage.ipfsManager.add = () => {
-        throw Error('expected error');
-      };
-      await expect(ethereumStorage.append(content1)).rejects.toThrowError(
-        `Ipfs add request error: Error: expected error`,
-      );
-    });
-
     it('throws when append and addHashAndSizeToEthereum throws', (done) => {
-      ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<StorageTypes.IEthereumMetadata> => {
-        throw Error('fake error');
-      };
+      ethereumStorage.smartContractManager.addHashAndSizeToEthereum =
+        async (): Promise<StorageTypes.IEthereumMetadata> => {
+          throw Error('fake error');
+        };
 
       expect.assertions(1);
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -309,19 +282,20 @@ describe('EthereumStorage', () => {
 
       // Ethereum metadata is determined by the return data of addHashAndSizeToEthereum
       // We change the return data of this function to ensure the second call of append contain different metadata
-      ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<StorageTypes.IEthereumMetadata> => {
-        return {
-          blockConfirmation: 20,
-          blockNumber: 11,
-          blockTimestamp: 1545816416,
-          cost: '110',
-          fee: '1',
-          gasFee: '100',
-          networkName: 'private',
-          smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-          transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
+      ethereumStorage.smartContractManager.addHashAndSizeToEthereum =
+        async (): Promise<StorageTypes.IEthereumMetadata> => {
+          return {
+            blockConfirmation: 20,
+            blockNumber: 11,
+            blockTimestamp: 1545816416,
+            cost: '110',
+            fee: '1',
+            gasFee: '100',
+            networkName: 'private',
+            smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+            transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
+          };
         };
-      };
 
       const result2 = await ethereumStorage.append(content1);
 
@@ -361,21 +335,15 @@ describe('EthereumStorage', () => {
       expect(result.meta.ethereum?.blockTimestamp).toBeDefined();
     });
 
-    it('cannot read if ipfs read fail', async () => {
-      ethereumStorage.ipfsManager.read = () => {
+    it('cannot append if ipfs read fail', async () => {
+      jest.spyOn((ethereumStorage as any).ipfsStorage, 'read').mockImplementation(() => {
         throw Error('expected error');
-      };
+      });
       await ethereumStorage.append(content1);
-      await expect(ethereumStorage.read(hash1)).rejects.toThrowError(
-        `Ipfs read request error: Error: expected error`,
-      );
+      await expect(ethereumStorage.read(hash1)).rejects.toThrowError(`expected error`);
     });
 
     it('allows to retrieve all data id (even if pin fail)', async () => {
-      ethereumStorage.ipfsManager.pin = () => {
-        throw Error('expected error');
-      };
-
       // These contents have to be appended in order to check their size
       await ethereumStorage.append(content1);
       await ethereumStorage.append(content2);
@@ -499,25 +467,26 @@ describe('EthereumStorage', () => {
       // For this test, we don't want to use the ethereum metadata cache
       // We want to force the retrieval of metadata with getPastEvents function
       ethereumStorage.ethereumMetadataCache.saveDataIdMeta = async (_dataId, _meta) => {};
-      ethereumStorage.smartContractManager.getEntriesFromEthereum = async (): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> => {
-        return {
-          ethereumEntries: [
-            {
-              feesParameters: { contentSize: 1 },
-              hash: hash1,
-              meta: {
-                blockConfirmation: 1561192254600,
-                blockNumber: 1,
-                blockTimestamp: 1561191682,
-                networkName: 'private',
-                smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-                transactionHash: '0xa',
+      ethereumStorage.smartContractManager.getEntriesFromEthereum =
+        async (): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> => {
+          return {
+            ethereumEntries: [
+              {
+                feesParameters: { contentSize: 1 },
+                hash: hash1,
+                meta: {
+                  blockConfirmation: 1561192254600,
+                  blockNumber: 1,
+                  blockTimestamp: 1561191682,
+                  networkName: 'private',
+                  smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+                  transactionHash: '0xa',
+                },
               },
-            },
-          ],
-          lastTimestamp: 0,
+            ],
+            lastTimestamp: 0,
+          };
         };
-      };
 
       const result = await ethereumStorage.getData();
       expect(result.entries.length).toBe(0);
@@ -526,24 +495,6 @@ describe('EthereumStorage', () => {
     it('append and read with no parameter should throw an error', async () => {
       await expect(ethereumStorage.append('')).rejects.toThrowError('No content provided');
       await expect(ethereumStorage.read('')).rejects.toThrowError('No id provided');
-    });
-
-    it('append and read on an invalid ipfs gateway should throw an error', async () => {
-      await expect(
-        ethereumStorage.updateIpfsGateway(invalidHostIpfsGatewayConnection),
-      ).rejects.toThrowError(
-        'IPFS node is not accessible or corrupted: Error: Ipfs id error: Error: getaddrinfo ENOTFOUND nonexistent',
-      );
-    });
-
-    it('failed getContentLength from ipfs-manager in append and read functions should throw an error', async () => {
-      // To test this case, we create a mock for getContentLength of the ipfs manager that always throws an error
-      ethereumStorage.ipfsManager.getContentLength = async (_hash) => {
-        throw Error('Any error in getContentLength');
-      };
-      await expect(ethereumStorage.append(content1)).rejects.toThrowError(
-        'Ipfs get length request error',
-      );
     });
 
     it('append content with an invalid web3 connection should throw an error', async () => {
@@ -572,17 +523,18 @@ describe('EthereumStorage', () => {
       );
 
       // Test with no meta
-      ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> => {
-        return Promise.resolve({
-          ethereumEntries: [
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0xad',
-            } as StorageTypes.IEthereumEntry,
-          ],
-          lastTimestamp: 0,
-        });
-      };
+      ethereumStorage.smartContractManager.getEntriesFromEthereum =
+        (): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> => {
+          return Promise.resolve({
+            ethereumEntries: [
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0xad',
+              } as StorageTypes.IEthereumEntry,
+            ],
+            lastTimestamp: 0,
+          });
+        };
 
       await expect(ethereumStorage.getData()).rejects.toThrowError('The event log has no metadata');
     });
@@ -614,127 +566,105 @@ describe('EthereumStorage', () => {
       });
     });
 
-    it('allows to IPFS pin a list of hashes', async () => {
-      const spy = jest.fn().mockReturnValue(Promise.resolve(['']));
-      ethereumStorage.ipfsManager.pin = spy as (
-        hashes: string[],
-        overrideTimeout?: number | undefined,
-      ) => Promise<string[]>;
-
-      const pinConfig = {
-        delayBetweenCalls: 0,
-        maxSize: 100,
-        timeout: 1000,
-      };
-
-      let hashes = new Array(100).fill(hash1);
-
-      await ethereumStorage.pinDataToIPFS(hashes, pinConfig);
-
-      expect(spy).toHaveBeenCalledTimes(1);
-
-      hashes = new Array(200).fill(hash1);
-      await ethereumStorage.pinDataToIPFS(hashes, pinConfig);
-      expect(spy).toHaveBeenCalledTimes(3);
-    });
-
     it('allows to read hash on IPFS with retries', async () => {
       // Mock to test IPFS read retry
-      ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> => {
-        return Promise.resolve({
-          ethereumEntries: [
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0x0',
-              meta: {},
-            } as StorageTypes.IEthereumEntry,
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0x1',
-              meta: {},
-            } as StorageTypes.IEthereumEntry,
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0x2',
-              meta: {},
-            } as StorageTypes.IEthereumEntry,
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0x3',
-              meta: {},
-            } as StorageTypes.IEthereumEntry,
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0x4',
-              meta: {},
-            } as StorageTypes.IEthereumEntry,
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0x5',
-              meta: {},
-            } as StorageTypes.IEthereumEntry,
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0x6',
-              meta: {},
-            } as StorageTypes.IEthereumEntry,
-          ],
-          lastTimestamp: 0,
-        });
-      };
+      ethereumStorage.smartContractManager.getEntriesFromEthereum =
+        (): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> => {
+          return Promise.resolve({
+            ethereumEntries: [
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0x0',
+                meta: {},
+              } as StorageTypes.IEthereumEntry,
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0x1',
+                meta: {},
+              } as StorageTypes.IEthereumEntry,
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0x2',
+                meta: {},
+              } as StorageTypes.IEthereumEntry,
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0x3',
+                meta: {},
+              } as StorageTypes.IEthereumEntry,
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0x4',
+                meta: {},
+              } as StorageTypes.IEthereumEntry,
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0x5',
+                meta: {},
+              } as StorageTypes.IEthereumEntry,
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0x6',
+                meta: {},
+              } as StorageTypes.IEthereumEntry,
+            ],
+            lastTimestamp: 0,
+          });
+        };
 
       // Store how many time we tried to read a specific hash
       const hashTryCount: any = {};
 
       // This mock simulates ipfsManager.read() when we try to read the hash on IPFS differente times
-      ethereumStorage.ipfsManager.read = async (hash: string) => {
-        hashTryCount[hash] ? hashTryCount[hash]++ : (hashTryCount[hash] = 1);
+      jest
+        .spyOn((ethereumStorage as any).ipfsStorage, 'read')
+        .mockImplementation(async (hash: any) => {
+          hashTryCount[hash] ? hashTryCount[hash]++ : (hashTryCount[hash] = 1);
 
-        switch (hash) {
-          case '0x0':
-            throw new Error(`File size (1) exceeds maximum file size of 0`);
-          case '0x1':
-            throw new Error('Ipfs object get request response cannot be parsed into JSON format');
-          case '0x2':
-            throw new Error('Ipfs object get failed');
-          case '0x3':
-            return {
-              content: '0000',
-              ipfsSize: 20,
-            } as StorageTypes.IIpfsObject;
-          case '0x4':
-            if (hashTryCount[hash] < 2) {
-              throw new IpfsConnectionError('Timeout');
-            }
+          switch (hash) {
+            case '0x0':
+              throw new Error(`File size (1) exceeds maximum file size of 0`);
+            case '0x1':
+              throw new Error('Ipfs object get request response cannot be parsed into JSON format');
+            case '0x2':
+              throw new Error('Ipfs object get failed');
+            case '0x3':
+              return {
+                content: '0000',
+                ipfsSize: 20,
+              } as StorageTypes.IIpfsObject;
+            case '0x4':
+              if (hashTryCount[hash] < 2) {
+                throw new IpfsConnectionError('Timeout');
+              }
 
-            return {
-              content: '0000',
-              ipfsSize: 10,
-            } as StorageTypes.IIpfsObject;
-          case '0x5':
-            if (hashTryCount[hash] < 3) {
-              throw new IpfsConnectionError('Timeout');
-            }
+              return {
+                content: '0000',
+                ipfsSize: 10,
+              } as StorageTypes.IIpfsObject;
+            case '0x5':
+              if (hashTryCount[hash] < 3) {
+                throw new IpfsConnectionError('Timeout');
+              }
 
-            return {
-              content: '0000',
-              ipfsSize: 10,
-            } as StorageTypes.IIpfsObject;
-          case '0x6':
-            if (hashTryCount[hash] < 10) {
-              throw new IpfsConnectionError('Timeout');
-            }
+              return {
+                content: '0000',
+                ipfsSize: 10,
+              } as StorageTypes.IIpfsObject;
+            case '0x6':
+              if (hashTryCount[hash] < 10) {
+                throw new IpfsConnectionError('Timeout');
+              }
 
-            return {
-              content: '0000',
-              ipfsSize: 10,
-            } as StorageTypes.IIpfsObject;
-          default:
-            fail(`ipfsManager.read() unrocognized hash: ${hash}`);
-        }
-
-        throw Error('expected error');
-      };
+              return {
+                content: '0000',
+                ipfsSize: 10,
+              } as StorageTypes.IIpfsObject;
+            default:
+              fail(`ipfsManager.read() unrocognized hash: ${hash}`);
+          }
+          throw Error('expected error');
+        });
 
       await ethereumStorage.getData();
 
@@ -749,7 +679,6 @@ describe('EthereumStorage', () => {
         '0x6': 2,
       });
     });
-
     it('getData returns an empty array if no hash was found', async () => {
       ethereumStorage.smartContractManager.requestHashStorage.getPastEvents = () => [];
       const result = await ethereumStorage.getData({ from: 10000, to: 10001 });
@@ -760,13 +689,13 @@ describe('EthereumStorage', () => {
 
   describe('getIgnoredData', () => {
     it('cannot get ignored data if not initialized', async () => {
-      ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
+      const ethereumStorage = new EthereumStorage('localhost', ipfsStorage, web3Connection);
       await expect(ethereumStorage.getIgnoredData()).rejects.toThrowError(
         'Ethereum storage must be initialized',
       );
     });
     it('can get ignored data', async () => {
-      ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
+      const ethereumStorage = new EthereumStorage('localhost', ipfsStorage, web3Connection);
       await ethereumStorage.initialize();
 
       ethereumStorage.ignoredDataIds.getDataIdsToRetry = async (): Promise<
@@ -785,8 +714,8 @@ describe('EthereumStorage', () => {
         },
       ];
 
-      ethereumStorage.ipfsManager.read = jest.fn(
-        async (_hash: string): Promise<StorageTypes.IIpfsObject> => ({
+      jest.spyOn((ethereumStorage as any).ipfsStorage, 'read').mockImplementation(
+        async (): Promise<StorageTypes.IIpfsObject> => ({
           content: 'ok',
           ipfsLinks: [],
           ipfsSize: 2,
@@ -794,9 +723,7 @@ describe('EthereumStorage', () => {
       );
 
       const entries = await ethereumStorage.getIgnoredData();
-      // 'config wrong'
       expect(entries.length).toBe(1);
-      // 'config wrong'
       expect(entries[0]).toEqual({
         content: 'ok',
         id: 'hConnectionError',
@@ -814,7 +741,7 @@ describe('EthereumStorage', () => {
       });
     });
     it('can get ignored data even if empty', async () => {
-      ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
+      const ethereumStorage = new EthereumStorage('localhost', ipfsStorage, web3Connection);
       await ethereumStorage.initialize();
 
       const entries = await ethereumStorage.getIgnoredData();
@@ -825,17 +752,14 @@ describe('EthereumStorage', () => {
 
   describe('_getStatus()', () => {
     it('can get status', async () => {
-      ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
+      const ethereumStorage = new EthereumStorage('localhost', ipfsStorage, web3Connection);
       await ethereumStorage.initialize();
       await ethereumStorage.append(content1);
       await ethereumStorage.getData();
 
       const status = await ethereumStorage._getStatus();
-      // 'config wrong'
       expect(status.dataIds.count).toBeGreaterThanOrEqual(0);
-      // 'config wrong'
       expect(status.ignoredDataIds.count).toBeGreaterThanOrEqual(0);
-      // 'config wrong'
       expect(status.ethereum).toEqual({
         creationBlockNumberHashStorage: 0,
         currentProvider: 'http://localhost:8545',
@@ -846,8 +770,6 @@ describe('EthereumStorage', () => {
         networkName: 'private',
         retryDelay: undefined,
       });
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      // 'config wrong'
       expect(status.ipfs).toBeDefined();
     }, 10000);
   });

@@ -3,16 +3,17 @@ import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
 import {
-  TestERC20__factory,
-  TestERC20,
-  FakeSwapRouter__factory,
-  FakeSwapRouter,
-  BadERC20__factory,
   BadERC20,
-  ERC20SwapToPay,
+  BadERC20__factory,
   ERC20FeeProxy,
+  ERC20SwapToPay,
+  FakeSwapRouter,
+  FakeSwapRouter__factory,
+  TestERC20,
+  TestERC20__factory,
 } from '../../src/types';
 import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '../../src/lib';
+import { EvmChains } from '@requestnetwork/currency';
 
 use(solidity);
 
@@ -38,9 +39,9 @@ describe('contract: SwapToPay', () => {
   const erc20Liquidity = erc20Decimal.mul(100);
 
   before(async () => {
+    EvmChains.assertChainSupported(network.name);
     [, from, to, builder] = (await ethers.getSigners()).map((s) => s.address);
     [adminSigner, signer] = await ethers.getSigners();
-
     erc20FeeProxy = erc20FeeProxyArtifact.connect(network.name, adminSigner);
     testSwapToPay = erc20SwapToPayArtifact.connect(network.name, adminSigner);
   });
@@ -58,7 +59,13 @@ describe('contract: SwapToPay', () => {
     defaultSwapRouterAddress = await testSwapToPay.swapRouter();
     await testSwapToPay.setRouter(fakeSwapRouter.address);
     await testSwapToPay.approveRouterToSpend(spentErc20.address);
-    await testSwapToPay.approvePaymentProxyToSpend(paymentNetworkErc20.address);
+    await testSwapToPay.approvePaymentProxyToSpend(
+      paymentNetworkErc20.address,
+      erc20FeeProxy.address,
+    );
+
+    // Set the request swap fees to 0.5%
+    await testSwapToPay.updateRequestSwapFees(5);
     testSwapToPay = await testSwapToPay.connect(signer);
 
     await spentErc20.transfer(from, erc20Decimal.mul(600));
@@ -83,34 +90,45 @@ describe('contract: SwapToPay', () => {
     expect(finalFromBalance.toString()).to.equals(initialFromBalance.toString());
   };
 
-  it('swaps and pays the request', async function () {
+  it('swaps, pays the request and the fees', async function () {
     await expect(
+      /**
+       * - In requested token:
+       * Requested amount:  900
+       * Fee amount:        100
+       * Swap fee amount:   5
+       *
+       * - In payment token:
+       * MaxInputAmount = 2500 (1005 * 2 + margin)
+       */
       testSwapToPay.swapTransferWithReference(
+        erc20FeeProxy.address,
         to,
-        10,
-        // Here we spend 26 max, for 22 used in theory, to test that 4 is given back
-        26,
+        900,
+        2500,
         [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
-        1,
+        100,
         builder,
-        exchangeRateOrigin + 100,
+        exchangeRateOrigin + 10000, // _uniswapDeadline. 100 -> 1000: Too low value may lead to error (network dependent)
       ),
     )
       .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
       .withArgs(
         ethers.utils.getAddress(paymentNetworkErc20.address),
         to,
-        '10',
+        '900',
         ethers.utils.keccak256(referenceExample),
-        '1',
+        '100',
         ethers.utils.getAddress(builder),
       );
 
     const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
     const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
-    expect(finalBuilderBalance.toNumber()).to.equals(1);
-    expect(finalIssuerBalance.toNumber()).to.equals(10);
+
+    // The builder receives the request fees and the request swap fees
+    expect(finalBuilderBalance.toNumber()).to.equals(105);
+    expect(finalIssuerBalance.toNumber()).to.equals(900);
 
     // Test that the contract does not hold any fund after the transaction
     const finalContractPaymentBalance = await spentErc20.balanceOf(testSwapToPay.address);
@@ -122,6 +140,7 @@ describe('contract: SwapToPay', () => {
   it('does not pay anyone if I swap 0', async function () {
     await expect(
       testSwapToPay.swapTransferWithReference(
+        erc20FeeProxy.address,
         to,
         0,
         0,
@@ -129,7 +148,7 @@ describe('contract: SwapToPay', () => {
         referenceExample,
         0,
         builder,
-        exchangeRateOrigin + 100,
+        exchangeRateOrigin + 10000, // -> 1000 Or it can reverts to UniswapV2Router: EXPIRED (network dependent)
       ),
     )
       .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
@@ -151,6 +170,7 @@ describe('contract: SwapToPay', () => {
   it('cannot swap if too few payment tokens', async function () {
     await expect(
       testSwapToPay.swapTransferWithReference(
+        erc20FeeProxy.address,
         to,
         10,
         21, // Should be at least (10 + 1) * 2
@@ -158,15 +178,16 @@ describe('contract: SwapToPay', () => {
         referenceExample,
         1,
         builder,
-        exchangeRateOrigin + 15,
+        exchangeRateOrigin + 10000, // 15 -> 10000 Or it can reverts to UniswapV2Router: EXPIRED (network dependent)
       ),
-    ).to.be.reverted;
+    ).to.be.revertedWith('UniswapV2Router: EXCESSIVE_INPUT_AMOUNT');
     await expectFromBalanceUnchanged();
   });
 
   it('cannot swap with a past deadline', async function () {
     await expect(
       testSwapToPay.swapTransferWithReference(
+        erc20FeeProxy.address,
         to,
         10,
         22,
@@ -176,32 +197,40 @@ describe('contract: SwapToPay', () => {
         builder,
         exchangeRateOrigin - 15, // Past deadline
       ),
-    ).to.be.reverted;
+    ).to.be.revertedWith('UniswapV2Router: EXPIRED');
     await expectFromBalanceUnchanged();
   });
 
   it('cannot swap more tokens than liquidity', async function () {
-    const tooHighAmount = 100;
+    const tooHighAmount = erc20Decimal.mul(102);
 
     expect(erc20Liquidity.mul(2).lt(initialFromBalance), 'Test irrelevant with low balance').to.be
       .true;
-    expect(
-      erc20Liquidity.lt(erc20Decimal.mul(tooHighAmount).mul(2)),
-      'Test irrelevant with low amount',
-    ).to.be.true;
+    expect(erc20Liquidity.lt(tooHighAmount.mul(2)), 'Test irrelevant with low amount').to.be.true;
 
+    /**
+     * - In requested token:
+     * Requested amount:  100x
+     * Fee amount:        1x
+     * Swap fee amount:   ~1x
+     * --> 102 > Router requested token liquidity (100)
+     *
+     * - In payment token:
+     * MaxInputAmount = 210x (102 * 2 + margin)
+     */
     await expect(
       testSwapToPay.swapTransferWithReference(
+        erc20FeeProxy.address,
         to,
-        erc20Decimal.mul(tooHighAmount),
-        initialFromBalance,
+        tooHighAmount,
+        erc20Decimal.mul(210),
         [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
-        1000000,
+        erc20Decimal,
         builder,
-        exchangeRateOrigin + 15,
+        exchangeRateOrigin + 10000,
       ),
-    ).to.be.reverted;
+    ).to.be.revertedWith('Test cannot proceed, lack of tokens in fake swap contract');
     await expectFromBalanceUnchanged();
   });
 
@@ -213,6 +242,7 @@ describe('contract: SwapToPay', () => {
 
     await expect(
       testSwapToPay.swapTransferWithReference(
+        erc20FeeProxy.address,
         to,
         100,
         highAmount,
@@ -220,9 +250,9 @@ describe('contract: SwapToPay', () => {
         referenceExample,
         10,
         builder,
-        exchangeRateOrigin + 15,
+        exchangeRateOrigin + 10000,
       ),
-    ).to.be.reverted;
+    ).to.be.revertedWith('Could not transfer payment token from swapper-payer');
     await expectFromBalanceUnchanged();
   });
 
@@ -232,7 +262,9 @@ describe('contract: SwapToPay', () => {
       badERC20 = await new BadERC20__factory(adminSigner).deploy(1000, 'BadERC20', 'BAD', 8);
     });
     it('can approve bad ERC20 to be spent by the proxy', async () => {
-      await expect(testSwapToPay.approvePaymentProxyToSpend(badERC20.address))
+      await expect(
+        testSwapToPay.approvePaymentProxyToSpend(badERC20.address, erc20FeeProxy.address),
+      )
         .to.emit(badERC20, 'Approval')
         .withArgs(
           testSwapToPay.address,
@@ -265,6 +297,7 @@ describe('contract: SwapToPay', () => {
 
       await expect(
         testSwapToPay.swapTransferWithReference(
+          erc20FeeProxy.address,
           to,
           10,
           26,
@@ -272,7 +305,7 @@ describe('contract: SwapToPay', () => {
           referenceExample,
           1,
           builder,
-          exchangeRateOrigin + 100,
+          exchangeRateOrigin + 10000, // -> 10000 Or it can reverts to UniswapV2Router: EXPIRED (network dependent)
         ),
       )
         .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')

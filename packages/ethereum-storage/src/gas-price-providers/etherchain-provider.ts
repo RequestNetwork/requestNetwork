@@ -1,11 +1,10 @@
-import EthereumUtils from '../ethereum-utils';
-
 import { StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 
 import Axios from 'axios';
 
 import { BigNumber } from 'ethers';
+import { retry } from '@requestnetwork/utils';
+import { isGasPriceSafe } from '../ethereum-utils';
 
 // Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
 const ETHERCHAIN_REQUEST_MAX_RETRY = 3;
@@ -32,7 +31,7 @@ export default class EtherchainProvider implements StorageTypes.IGasPriceProvide
    * @returns Requested gas price
    */
   public async getGasPrice(type: StorageTypes.GasPriceType): Promise<BigNumber | null> {
-    const res = await Utils.retry(async () => Axios.get(this.providerUrl), {
+    const res = await retry(async () => Axios.get(this.providerUrl), {
       maxRetries: ETHERCHAIN_REQUEST_MAX_RETRY,
       retryDelay: ETHERCHAIN_REQUEST_RETRY_DELAY,
     })();
@@ -68,7 +67,7 @@ export default class EtherchainProvider implements StorageTypes.IGasPriceProvide
       ) * API_MULTIPLIER,
     );
 
-    if (!EthereumUtils.isGasPriceSafe(apiGasPrice)) {
+    if (!isGasPriceSafe(apiGasPrice)) {
       throw Error(`Etherchain provided gas price not safe to use: ${apiGasPrice}`);
     }
 

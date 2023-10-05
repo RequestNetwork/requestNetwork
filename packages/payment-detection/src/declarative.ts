@@ -4,17 +4,20 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import { PaymentDetectorBase } from './payment-detector-base';
+import { notNull } from '@requestnetwork/utils';
 
 /**
  * Handles payment detection for a declarative request, or derived.
  */
 export abstract class DeclarativePaymentDetectorBase<
   TExtension extends ExtensionTypes.PnAnyDeclarative.IAnyDeclarative,
-  TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters
+  TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters<unknown>,
 > extends PaymentDetectorBase<TExtension, TPaymentEventParameters> {
-  public constructor(_paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
+  protected constructor(
+    _paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
+    extension: TExtension,
+  ) {
     super(_paymentNetworkId, extension);
   }
 
@@ -31,6 +34,7 @@ export abstract class DeclarativePaymentDetectorBase<
     return this.extension.createCreationAction({
       paymentInfo: paymentNetworkCreationParameters.paymentInfo,
       refundInfo: paymentNetworkCreationParameters.refundInfo,
+      salt: paymentNetworkCreationParameters.salt,
     });
   }
 
@@ -180,7 +184,7 @@ export abstract class DeclarativePaymentDetectorBase<
         }
         return null;
       })
-      .filter(Utils.notNull);
+      .filter(notNull);
   }
 }
 
@@ -192,12 +196,14 @@ export class DeclarativePaymentDetector extends DeclarativePaymentDetectorBase<
   PaymentTypes.IDeclarativePaymentEventParameters
 > {
   constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    super(PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE, advancedLogic.extensions.declarative);
+    super(ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE, advancedLogic.extensions.declarative);
   }
 
   protected async getEvents(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IDeclarativePaymentEventParameters>[]> {
-    return this.getDeclarativeEvents(request);
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IDeclarativePaymentEventParameters>> {
+    return {
+      paymentEvents: this.getDeclarativeEvents(request),
+    };
   }
 }

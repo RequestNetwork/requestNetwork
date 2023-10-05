@@ -1,20 +1,21 @@
 import * as config from './config';
-import EthereumUtils from './ethereum-utils';
 import EtherchainProvider from './gas-price-providers/etherchain-provider';
 import EtherscanProvider from './gas-price-providers/etherscan-provider';
 import EthGasStationProvider from './gas-price-providers/ethgasstation-provider';
 
-import { LogTypes, StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 
 import { BigNumber } from 'ethers';
 import XDaiFixedProvider from './gas-price-providers/xdai-fixed-provider';
+import { GasDefinerProps } from './ethereum-storage-ethers';
+import { SimpleLogger } from '@requestnetwork/utils';
+import { getEthereumStorageNetworkIdFromName } from './ethereum-utils';
 
 /**
  * Determines the gas price to use depending on the used network
  * Polls gas price API providers if necessary
  */
-export default class GasPriceDefiner {
+export class GasPriceDefiner {
   private defaultProviders = [
     new EtherchainProvider(),
     new EthGasStationProvider(),
@@ -36,12 +37,19 @@ export default class GasPriceDefiner {
    */
   private logger: LogTypes.ILogger;
 
+  private readonly gasPriceMin: BigNumber | undefined;
+
   /**
    * Constructor
    * @param logger Logger instance
+   * @param gasPriceMin Minimum gas price to return
    */
-  public constructor(logger?: LogTypes.ILogger) {
-    this.logger = logger || new Utils.SimpleLogger();
+  public constructor({
+    logger,
+    gasPriceMin,
+  }: GasDefinerProps & { logger?: LogTypes.ILogger } = {}) {
+    this.logger = logger || new SimpleLogger();
+    this.gasPriceMin = gasPriceMin;
   }
 
   /**
@@ -53,17 +61,18 @@ export default class GasPriceDefiner {
    */
   public async getGasPrice(
     type: StorageTypes.GasPriceType,
-    networkName: string,
+    networkName: CurrencyTypes.EvmChainName,
   ): Promise<BigNumber> {
-    const network = EthereumUtils.getEthereumIdFromNetworkName(networkName);
+    const network = getEthereumStorageNetworkIdFromName(networkName);
     if (network) {
       const gasPriceArray = await this.pollProviders(type, network);
       if (gasPriceArray.length > 0) {
         // Get the highest gas price from the providers
-        return gasPriceArray.reduce(
+        const gasPrice = gasPriceArray.reduce(
           (currentMax, gasPrice) => (currentMax.gt(gasPrice) ? currentMax : gasPrice),
           BigNumber.from(0),
         );
+        return this.gasPriceMin && gasPrice.lt(this.gasPriceMin) ? this.gasPriceMin : gasPrice;
       } else {
         this.logger.warn('Cannot determine gas price: There is no available gas price provider', [
           'ethereum',

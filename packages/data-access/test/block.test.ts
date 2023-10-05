@@ -330,14 +330,10 @@ describe('block', () => {
       expect(txs).toEqual([transactionMock, transactionMock2]);
     });
     it('can getTransactionsByPositions on more than one transaction with array duplication', () => {
-      const txs = RequestDataAccessBlock.getTransactionsByPositions(blockWith2tx, [
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-      ]);
+      const txs = RequestDataAccessBlock.getTransactionsByPositions(
+        blockWith2tx,
+        [1, 1, 0, 1, 0, 0],
+      );
       // 'txs is wrong'
       expect(txs).toEqual([transactionMock, transactionMock2]);
     });

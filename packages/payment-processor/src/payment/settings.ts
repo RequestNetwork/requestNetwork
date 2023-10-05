@@ -1,7 +1,15 @@
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { BigNumberish } from 'ethers';
+import { BigNumber, BigNumberish } from 'ethers';
 import { ITransactionOverrides } from './transaction-overrides';
+
+/**
+ * Approval settings
+ */
+export interface IApprovalSettings {
+  /** The specific amount to approve. Defaults to maximum when left empty */
+  amount: BigNumber;
+}
 
 /**
  * Details required for a token swap
@@ -25,6 +33,8 @@ export interface IConversionSettings {
   maxToSpend?: BigNumberish;
   /** a currency manager to access currencies property, like decimals */
   currencyManager?: ICurrencyManager;
+  /** maximum time in seconds of how old chainlink rate can be used, default is zero for infinitely old */
+  maxRateAge?: number;
 }
 
 /**
@@ -42,4 +52,17 @@ export interface IRequestPaymentOptions {
   swap?: ISwapSettings;
   /** Used, and required, only for on chain conversion */
   conversion?: IConversionSettings;
+  /** Optional, enable to approve only specific amount of token. Defaults to MAX_ALLOWANCE if not set */
+  approval?: IApprovalSettings;
+
+  /** Optional, specifies if escrow is being used */
+  isEscrow?: boolean;
+
+  /** Used, and required, only for batch payment.
+   * Check the value of batchFeeAmountUSDLimit of the batch proxy deployed.
+   * Setting the value to true skips the USD fee limit, and reduces gas consumption.
+   */
+  skipFeeUSDLimit?: boolean;
+  /** Optional, only for batch payment to define the proxy to use. */
+  version?: string;
 }

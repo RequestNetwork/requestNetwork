@@ -12,7 +12,7 @@ const paymentReferenceMock = '01111111111111111111111111111111111111111111111111
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/proxy-info-retriever', () => {
   describe('on localhost', () => {
-    const paymentAddress = '0xf17f52151ebef6c7334fad080c5704d77216b732';
+    const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 
     it('can get the localhost balance of an address', async () => {
       const infoRetriever = new ProxyERC20InfoRetriever(
@@ -98,8 +98,7 @@ describe('api/erc20/proxy-info-retriever', () => {
             blockHash: '0x40496f2205f0c8d819c2cab683a5a7e0b20b49d3d891c8943780138670f184c7',
             transactionIndex: 0,
             address: feeProxyContractAddress,
-            data:
-              '0x0000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000627306090abab3a6e1400e9345bc60c78a8bef57000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef',
+            data: '0x0000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000627306090abab3a6e1400e9345bc60c78a8bef57000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef',
             topics: [
               '0x9f16cbcc523c67a60c450e5ffe4f3b7b6dbe772e7abcadb2686ce029a9a0a2b6',
               '0xa1801d1208f939d16ff239f43c66983c01b1f107994ff695f6a195be4137c796',
@@ -129,7 +128,7 @@ describe('api/erc20/proxy-info-retriever', () => {
 
       const parameters: PaymentTypes.IERC20FeePaymentEventParameters = event.parameters!;
 
-      expect(parameters.to).toBe('0x627306090abab3a6e1400e9345bc60c78a8bef57');
+      expect(parameters.to).toBe('0x627306090abaB3A6e1400e9345bC60c78a8BEf57');
       expect(typeof parameters.block).toBe('number');
       expect(typeof parameters.txHash).toBe('string');
       expect(parameters.feeAddress).toBe('0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef');

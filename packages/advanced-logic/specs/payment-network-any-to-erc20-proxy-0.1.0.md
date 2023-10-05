@@ -17,7 +17,6 @@ The contract also ensures that the `feeAmount` amount of the ERC20 transfer will
 - `address` is the payment address for payments, the refund address for refunds
 - `feeAmount` is the amount of the transfer that should be paid in fees
 - `feeAddress` is the address where the fee will be sent to
-- `conversion path` is a list of currency hashes to perform the conversion
 - `acceptedTokens` is the list of tokens addresses accepted for payments and refunds
 - `network` is the network of the tokens accepted for payments and refunds
 - `maxRateTimespan` is the time span maximum accepted between the payment and the rate timestamp
@@ -38,7 +37,7 @@ The contract contains one function called `transferFromWithReferenceAndFee` whic
 
 - `to` is the destination address for the tokens
 - `requestAmount` is the amount to be paid in the request currency
-- `path` is the conversion path from the request currency to the payment token (see `conversion path`)
+- `path` is the conversion path from the request currency to the payment token, as provided by oracles
 - `paymentReference` is the reference data used to track the transfer (see `paymentReference`)
 - `feeAmount` is the amount of fees to be paid in the request currency
 - `feeAddress` is the destination address for the fee
@@ -313,7 +312,7 @@ None.
 An event is added to the extension state events array:
 
 |  Property              |  Value                                   |
-| ---------------------- | -----------------------------------------|
+| ---------------------- | ---------------------------------------- |
 | **name**               | Constant value: "declareReceivedPayment" |
 | **parameters**         |                                          |
 | **parameters.amount**  | `amount` from parameters                 |
@@ -335,7 +334,6 @@ An event is added to the extension state events array:
 | **parameters.txHash**  | String | The transaction hash for documentation and metadata           | Optional      |
 | **parameters.network** | String | The network of the transaction for documentation and metadata | Optional      |
 
-
 ### Conditions
 
 This action is valid, if:
@@ -351,14 +349,14 @@ None.
 
 An event is added to the extension state events array:
 
-|  Property              |  Value                                   |
-| ---------------------- | -----------------------------------------|
-| **name**               | Constant value: "declareReceivedRefund"  |
-| **parameters**         |                                          |
-| **parameters.amount**  | `amount` from parameters                 |
-| **parameters.note**    | `note` from parameters                   |
-| **parameters.txHash**  | `txHash` from parameters or undefined    |
-| **parameters.network** | `network` from parameters or undefined   |
+|  Property              |  Value                                  |
+| ---------------------- | --------------------------------------- |
+| **name**               | Constant value: "declareReceivedRefund" |
+| **parameters**         |                                         |
+| **parameters.amount**  | `amount` from parameters                |
+| **parameters.note**    | `note` from parameters                  |
+| **parameters.txHash**  | `txHash` from parameters or undefined   |
+| **parameters.network** | `network` from parameters or undefined  |
 
 ---
 

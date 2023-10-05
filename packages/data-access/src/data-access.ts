@@ -1,6 +1,6 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy, getCurrentTimestampInSecond, SimpleLogger, unique } from '@requestnetwork/utils';
 
 import * as Bluebird from 'bluebird';
 import { EventEmitter } from 'events';
@@ -37,6 +37,11 @@ export interface IDataAccessOptions {
    * Index of the ignored location with the reason
    */
   ignoredLocationIndex: IgnoredLocationIndex;
+
+  /**
+   * Specifies whether to start the synchronization on initialization
+   */
+  autoStartSynchronization: boolean;
 }
 
 const emptyChannelsWithTopics: DataAccessTypes.IReturnGetChannelsByTopic = {
@@ -52,8 +57,7 @@ const emptyChannelsWithTopics: DataAccessTypes.IReturnGetChannelsByTopic = {
  */
 export default class DataAccess implements DataAccessTypes.IDataAccess {
   // Transaction index, that allows storing and retrieving transactions by channel or topic, with time boundaries.
-  // public for test purpose
-  public transactionIndex: DataAccessTypes.ITransactionIndex;
+  private transactionIndex: DataAccessTypes.ITransactionIndex;
 
   // boolean to store the initialization state
   protected isInitialized = false;
@@ -65,6 +69,11 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   // The function used to synchronize with the storage should be called periodically
   // This object allows to handle the periodical call of the function
   private synchronizationTimer: IntervalTimer;
+
+  /**
+   * Specifies whether to start the synchronization on initialization
+   */
+  private autoStartSynchronization: boolean;
 
   // Timestamp of the last synchronization
   //
@@ -83,21 +92,28 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * Constructor DataAccess interface
    *
    * @param IStorage storage storage object
-   * @param options
    */
   public constructor(storage: StorageTypes.IStorage, options?: Partial<IDataAccessOptions>) {
     const defaultOptions: IDataAccessOptions = {
       ignoredLocationIndex: new IgnoredLocationIndex(),
-      logger: new Utils.SimpleLogger(),
+      logger: new SimpleLogger(),
       synchronizationIntervalTime: DEFAULT_INTERVAL_TIME,
       transactionIndex: new TransactionIndex(),
+      autoStartSynchronization: false,
     };
-    const { ignoredLocationIndex, logger, synchronizationIntervalTime, transactionIndex } = {
+    const {
+      ignoredLocationIndex,
+      logger,
+      synchronizationIntervalTime,
+      transactionIndex,
+      autoStartSynchronization,
+    } = {
       ...defaultOptions,
       ...options,
     };
     this.storage = storage;
     this.lastSyncStorageTimestamp = 0;
+    this.autoStartSynchronization = autoStartSynchronization;
     this.synchronizationTimer = new IntervalTimer(
       () => this.synchronizeNewDataIds(),
       synchronizationIntervalTime,
@@ -124,7 +140,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // if transaction index already has data, then sync from the last available timestamp
     const lastSynced = await this.transactionIndex.getLastTransactionTimestamp();
-    const now = Utils.getCurrentTimestampInSecond();
+    const now = getCurrentTimestampInSecond();
 
     // initialize the dataId topic with the previous block
     const allDataWithMeta = await this.storage.getData(
@@ -144,6 +160,14 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     await this.pushLocationsWithTopics(allDataWithMeta.entries);
 
     this.isInitialized = true;
+
+    if (this.autoStartSynchronization) {
+      this.startAutoSynchronization();
+    }
+  }
+
+  public async close(): Promise<void> {
+    await this.stopAutoSynchronization();
   }
 
   /**
@@ -203,7 +227,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
           resultAppendConfirmed.meta.timestamp,
         );
 
-        const resultAfterConfirmation = {
+        const resultAfterConfirmation: DataAccessTypes.IReturnPersistTransactionRaw = {
           meta: {
             storageMeta: resultAppendConfirmed.meta,
             topics,
@@ -257,7 +281,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     const transactionsAndMetaPerBlocks: Array<{
       transactions: DataAccessTypes.ITimestampedTransaction[];
       transactionsStorageLocation: string[];
-      storageMeta: string[];
+      storageMeta: StorageTypes.IEntryMetadata[];
     }> =
       // for all the blocks found
       blockWithMetaList.map((blockAndMeta) => {
@@ -279,7 +303,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     return transactionsAndMetaPerBlocks.reduce(
       (accumulator: DataAccessTypes.IReturnGetTransactions, elem) => ({
         meta: {
-          storageMeta: accumulator.meta.storageMeta.concat(elem.storageMeta),
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          storageMeta: accumulator.meta.storageMeta!.concat(elem.storageMeta),
           transactionsStorageLocation: accumulator.meta.transactionsStorageLocation.concat(
             elem.transactionsStorageLocation,
           ),
@@ -334,7 +359,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         channelIdAndTransactions.transactionsWithMeta.meta.transactionsStorageLocation;
 
       // Adds the meta of the channel
-      finalResult.meta.storageMeta[id] =
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      finalResult.meta.storageMeta![id] =
         channelIdAndTransactions.transactionsWithMeta.meta.storageMeta;
 
       // Adds the transaction of the channel
@@ -342,7 +368,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         channelIdAndTransactions.transactionsWithMeta.result.transactions;
 
       return finalResult;
-    }, Utils.deepCopy(emptyChannelsWithTopics));
+    }, deepCopy(emptyChannelsWithTopics));
   }
 
   /**
@@ -385,7 +411,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         channelIdAndTransactions.transactionsWithMeta.meta.transactionsStorageLocation;
 
       // Adds the meta of the channel
-      finalResult.meta.storageMeta[id] =
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      finalResult.meta.storageMeta![id] =
         channelIdAndTransactions.transactionsWithMeta.meta.storageMeta;
 
       // Adds the transaction of the channel
@@ -393,7 +420,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         channelIdAndTransactions.transactionsWithMeta.result.transactions;
 
       return finalResult;
-    }, Utils.deepCopy(emptyChannelsWithTopics));
+    }, deepCopy(emptyChannelsWithTopics));
   }
 
   /**
@@ -401,7 +428,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    */
   public async synchronizeNewDataIds(): Promise<void> {
     this.checkInitialized();
-    const synchronizationTo = Utils.getCurrentTimestampInSecond();
+    const synchronizationTo = getCurrentTimestampInSecond();
 
     // We increment lastSyncStorageTimestamp because the data located at lastSyncStorageTimestamp
     // 0 means it's the first synchronization
@@ -439,8 +466,10 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   /**
    * Stop to synchronize with the storage automatically
    */
-  public stopAutoSynchronization(): void {
-    this.synchronizationTimer.stop();
+  public async stopAutoSynchronization(): Promise<void> {
+    if (this.synchronizationTimer.isStarted) {
+      await this.synchronizationTimer.stop();
+    }
   }
 
   /**
@@ -558,12 +587,12 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   ): {
     transactions: DataAccessTypes.ITimestampedTransaction[];
     transactionsStorageLocation: string[];
-    storageMeta: string[];
+    storageMeta: StorageTypes.IEntryMetadata[];
   } {
     // Gets the transaction from the positions
     const transactions: DataAccessTypes.ITimestampedTransaction[] =
       // first remove de duplicates
-      Utils.unique(transactionPositions).uniqueItems.map(
+      unique(transactionPositions).uniqueItems.map(
         // Get the transaction from their position and add the timestamp
         (position: number) => ({
           state:
@@ -579,7 +608,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     const transactionsStorageLocation = Array(transactions.length).fill(location);
 
     // Gets the list of storage meta of the transactions found
-    const storageMeta = Array(transactions.length).fill(meta);
+    const storageMeta = transactions.map(() => meta);
 
     return { transactions, transactionsStorageLocation, storageMeta };
   }

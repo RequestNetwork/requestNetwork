@@ -38,7 +38,7 @@ The `TransferWithReference` event is emitted when the tokens are transfered. Thi
 [See smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ERC20Proxy.sol)
 
 | Network | Contract Address                           |
-|---------|--------------------------------------------|
+| ------- | ------------------------------------------ |
 | Mainnet | 0x5f821c20947ff9be22e823edc5b3c709b33121b3 |
 | Rinkeby | 0x162edb802fae75b9ee4288345735008ba51a4ec9 |
 
@@ -51,10 +51,9 @@ The `TransferWithReference` event is emitted when the tokens are transfered. Thi
 | **version**               | String | constant value: "0.1.0"                        | **Mandatory** |
 | **events**                | Array  | List of the actions performed by the extension | **Mandatory** |
 | **values**                | Object |                                                |               |
-| **values.salt**           | String | Salt for the request                           | **Mandatory**      |
+| **values.salt**           | String | Salt for the request                           | **Mandatory** |
 | **values.paymentAddress** | String | Ethereum address for the payment               | Optional      |
 | **values.refundAddress**  | String | Ethereum address for the refund                | Optional      |
-
 
 Note: to use the Rinkeby testnet, create a request with `currency.network` as `rinkeby`.
 
@@ -67,7 +66,7 @@ Note: to use the Rinkeby testnet, create a request with `currency.network` as `r
 #### Parameters
 
 |                               | Type   | Description                               | Requirement   |
-| ----------------------------- | ------ | --------------------------------          | ------------- |
+| ----------------------------- | ------ | ----------------------------------------- | ------------- |
 | **id**                        | String | Constant value: "pn-erc20-proxy-contract" | **Mandatory** |
 | **type**                      | String | Constant value: "paymentNetwork"          | **Mandatory** |
 | **version**                   | String | Constant value: "0.1.0"                   | **Mandatory** |
@@ -75,7 +74,6 @@ Note: to use the Rinkeby testnet, create a request with `currency.network` as `r
 | **parameters.salt**           | String | Salt for the request                      | **Mandatory** |
 | **parameters.paymentAddress** | String | Ethereum address for the payment          | Optional      |
 | **parameters.refundAddress**  | String | Ethereum address for the refund           | Optional      |
-
 
 #### Conditions
 
@@ -129,7 +127,7 @@ the 'create' event:
 ##### Parameters
 
 |                               | Type   | Description                               | Requirement   |
-| ----------------------------- | ------ | -----------------------------------       | ------------- |
+| ----------------------------- | ------ | ----------------------------------------- | ------------- |
 | **id**                        | String | Constant value: "pn-erc20-proxy-contract" | **Mandatory** |
 | **action**                    | String | Constant value: "addPaymentAddress"       | **Mandatory** |
 | **parameters**                | Object |                                           |               |
@@ -151,10 +149,10 @@ None.
 
 An extension state is updated with the following properties:
 
-|  Property                  |  Value                                               |
-| -------------------------- | ---------------------------------------------------- |
-| **values.paymentAddress**  | `paymentAddress` from parameters                     |
-| **events**                 | Add an 'paymentAddress' event (see below) at its end |
+|  Property                 |  Value                                               |
+| ------------------------- | ---------------------------------------------------- |
+| **values.paymentAddress** | `paymentAddress` from parameters                     |
+| **events**                | Add an 'paymentAddress' event (see below) at its end |
 
 the 'addPaymentAddress' event:
 
@@ -169,7 +167,7 @@ the 'addPaymentAddress' event:
 ##### Parameters
 
 |                              | Type   | Description                               | Requirement   |
-| ---------------------------- | ------ | ----------------------------------        | ------------- |
+| ---------------------------- | ------ | ----------------------------------------- | ------------- |
 | **id**                       | String | Constant value: "pn-erc20-proxy-contract" | **Mandatory** |
 | **action**                   | String | Constant value: "addRefundAddress"        | **Mandatory** |
 | **parameters**               | Object |                                           |               |
@@ -211,11 +209,13 @@ The 'addRefundAddress' event:
 The proxy contract address is determined by the `request.currency.network` (see (table)[#Contract] with proxy contract addresses).
 
 Any `TransferWithReference` events emitted from the proxy contract with the following arguments are considered as a payment:
+
 - `tokenAddress` `===` `request.currency.value`
 - `to` `===` `paymentAddress`
 - `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + payment address)))`
 
 Any `TransferWithReference` events emitted from the proxy contract with the following arguments are considered as a refund:
+
 - `tokenAddress` `===` `request.currency.value`
 - `to` `===` `refundAddress`
 - `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + refund address)))`

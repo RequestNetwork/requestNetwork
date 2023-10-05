@@ -1,18 +1,22 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
-import { LogTypes, StorageTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 import * as Bluebird from 'bluebird';
 import * as config from './config';
 import EthereumBlocks from './ethereum-blocks';
-import EthereumUtils from './ethereum-utils';
-import GasPriceDefiner from './gas-price-definer';
+import { GasPriceDefiner } from './gas-price-definer';
+import { BigNumber } from 'ethers';
+import {
+  flatten2DimensionsArray,
+  retry,
+  SimpleLogger,
+  timeoutPromise,
+} from '@requestnetwork/utils';
+import { getEthereumStorageNetworkNameFromId } from './ethereum-utils';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const web3Eth = require('web3-eth');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const web3Utils = require('web3-utils');
-
-import { BigNumber } from 'ethers';
 
 // Maximum number of attempt to create ethereum metadata when transaction to add hash and size to Ethereum is confirmed
 // 23 is the number of call of the transaction's confirmation event function
@@ -46,7 +50,7 @@ export default class SmartContractManager {
    */
   public maxConcurrency: number;
 
-  protected networkName = '';
+  protected networkName: CurrencyTypes.EvmChainName = 'private';
   protected hashStorageAddress: string;
   protected hashSubmitterAddress: string;
 
@@ -74,6 +78,11 @@ export default class SmartContractManager {
   private retryDelay: number | undefined;
 
   /**
+   * Handler to get gas price
+   */
+  private readonly gasPriceDefiner: GasPriceDefiner;
+
+  /**
    * Constructor
    * @param web3Connection Object to connect to the Ethereum network
    * @param [options.getLastBlockNumberDelay] the minimum delay to wait between fetches of lastBlockNumber
@@ -87,18 +96,20 @@ export default class SmartContractManager {
       logger,
       maxRetries,
       retryDelay,
+      gasPriceMin,
     }: {
       maxConcurrency: number;
       logger?: LogTypes.ILogger;
       getLastBlockNumberDelay?: number;
       maxRetries?: number;
       retryDelay?: number;
+      gasPriceMin?: BigNumber;
     } = {
       maxConcurrency: Number.MAX_SAFE_INTEGER,
     },
   ) {
     this.maxConcurrency = maxConcurrency;
-    this.logger = logger || new Utils.SimpleLogger();
+    this.logger = logger || new SimpleLogger();
 
     this.maxRetries = maxRetries;
     this.retryDelay = retryDelay;
@@ -122,12 +133,7 @@ export default class SmartContractManager {
     this.networkName =
       typeof web3Connection.networkId === 'undefined'
         ? config.getDefaultEthereumNetwork()
-        : EthereumUtils.getEthereumNetworkNameFromId(web3Connection.networkId);
-
-    // If networkName is undefined, it means the network doesn't exist
-    if (typeof this.networkName === 'undefined') {
-      throw Error(`The network id ${web3Connection.networkId} doesn't exist`);
-    }
+        : getEthereumStorageNetworkNameFromId(web3Connection.networkId);
 
     this.hashStorageAddress = SmartContracts.requestHashStorageArtifact.getAddress(
       this.networkName,
@@ -160,6 +166,8 @@ export default class SmartContractManager {
       getLastBlockNumberDelay,
       this.logger,
     );
+
+    this.gasPriceDefiner = new GasPriceDefiner({ logger, gasPriceMin });
   }
 
   /**
@@ -226,7 +234,7 @@ export default class SmartContractManager {
   public async getMainAccount(): Promise<string> {
     // Get the accounts on the provider
     // Throws an error if timeout is reached
-    const accounts = await Utils.timeoutPromise<string[]>(
+    const accounts = await timeoutPromise<string[]>(
       this.eth.getAccounts(),
       this.timeout,
       'Web3 getAccounts connection timeout',
@@ -254,12 +262,9 @@ export default class SmartContractManager {
     // Get the account for the transaction
     const account = await this.getMainAccount();
 
-    // Handler to get gas price
-    const gasPriceDefiner = new GasPriceDefiner();
-
     // Get the fee from the size of the content
     // Throws an error if timeout is reached
-    const fee = await Utils.timeoutPromise<string>(
+    const fee = await timeoutPromise<string>(
       this.requestHashSubmitter.methods.getFeesAmount(feesParameters.contentSize).call(),
       this.timeout,
       'Web3 getFeesAmount connection timeout',
@@ -272,7 +277,7 @@ export default class SmartContractManager {
     // Otherwise, we use default value from config
     const gasPriceToUse =
       gasPrice ||
-      (await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.FAST, this.networkName));
+      (await this.gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.FAST, this.networkName));
 
     // parse the fees parameters to hex bytes
     const feesParametersAsBytes = web3Utils.padLeft(
@@ -323,7 +328,7 @@ export default class SmartContractManager {
             }
 
             // Get the new gas price for the transaction
-            const newGasPrice = await gasPriceDefiner.getGasPrice(
+            const newGasPrice = await this.gasPriceDefiner.getGasPrice(
               StorageTypes.GasPriceType.FAST,
               this.networkName,
             );
@@ -526,9 +531,9 @@ export default class SmartContractManager {
     // If getPastEvents doesn't throw, we can return the returned events from the function
     let events: any;
     try {
-      events = await Utils.retry(
+      events = await retry(
         (args) =>
-          Utils.timeoutPromise(
+          timeoutPromise(
             this.requestHashStorage.getPastEvents(args),
             this.timeout,
             'Web3 getPastEvents connection timeout',
@@ -558,7 +563,7 @@ export default class SmartContractManager {
         );
 
         return Promise.all([eventsFirstHalfPromise, eventsSecondHalfPromise])
-          .then((halves) => Utils.flatten2DimensionsArray(halves))
+          .then((halves) => flatten2DimensionsArray(halves))
           .catch((err) => {
             throw err;
           });

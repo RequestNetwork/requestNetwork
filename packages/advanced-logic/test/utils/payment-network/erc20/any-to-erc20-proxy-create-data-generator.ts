@@ -18,7 +18,7 @@ export const salt = 'ea3bc7caf64110ca';
 // actions
 export const actionCreationFull = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
   parameters: {
     feeAddress,
     feeAmount,
@@ -26,44 +26,44 @@ export const actionCreationFull = {
     refundAddress,
     salt,
     acceptedTokens: [tokenAddress],
-    network
+    network,
   },
   version: '0.1.0',
 };
 export const actionCreationOnlyPayment = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
   parameters: {
     paymentAddress,
     acceptedTokens: [tokenAddress],
-    network
+    network,
   },
   version: '0.1.0',
 };
 export const actionCreationOnlyRefund = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
   parameters: {
     refundAddress,
     acceptedTokens: [tokenAddress],
-    network
+    network,
   },
   version: '0.1.0',
 };
 export const actionCreationOnlyFee = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
   parameters: {
     feeAddress,
     feeAmount,
     acceptedTokens: [tokenAddress],
-    network
+    network,
   },
   version: '0.1.0',
 };
 export const actionCreationEmpty = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
   parameters: {},
   version: '0.1.0',
 };
@@ -71,7 +71,7 @@ export const actionCreationEmpty = {
 // ---------------------------------------------------------------------
 // extensions states
 export const extensionFullState = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY as string]: {
     events: [
       {
         name: 'create',
@@ -88,7 +88,7 @@ export const extensionFullState = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       feeAddress,
@@ -102,17 +102,17 @@ export const extensionFullState = {
       payeeDelegate: undefined,
       payerDelegate: undefined,
       paymentInfo: undefined,
-      receivedPaymentAmount: "0",
-      receivedRefundAmount: "0",
+      receivedPaymentAmount: '0',
+      receivedRefundAmount: '0',
       refundInfo: undefined,
-      sentPaymentAmount: "0",
-      sentRefundAmount: "0",
+      sentPaymentAmount: '0',
+      sentRefundAmount: '0',
     },
     version: '0.1.0',
   },
 };
 export const extensionStateCreatedEmpty = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY as string]: {
     events: [
       {
         name: 'create',
@@ -120,9 +120,42 @@ export const extensionStateCreatedEmpty = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
-    values: {},
+    values: {
+      receivedPaymentAmount: '0',
+    },
+    version: '0.1.0',
+  },
+};
+export const extensionStateDeclareReceivedPayment = {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY as string]: {
+    events: [
+      {
+        name: 'create',
+        parameters: {},
+        timestamp: arbitraryTimestamp,
+      },
+      {
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
+        from: {
+          type: 'ethereumAddress',
+          value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
+        },
+        parameters: {
+          amount: '123400000000000000',
+          txHash: 'somehash',
+          note: 'this is your payment',
+          network: 'matic',
+        },
+        timestamp: arbitraryTimestamp,
+      },
+    ],
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      receivedPaymentAmount: '123400000000000000',
+    },
     version: '0.1.0',
   },
 };

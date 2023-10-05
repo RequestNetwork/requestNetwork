@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/integration-test",
-  "version": "0.28.0",
+  "version": "0.29.0",
   "private": true,
   "description": "Integration tests for the request system.",
   "keywords": [
@@ -17,7 +17,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=16.0.0"
   },
   "directories": {
     "test": "test"
@@ -26,43 +26,45 @@
     "test"
   ],
   "scripts": {
-    "build": "tsc -b",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.build.json",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint \"test/**/*.ts\"",
     "test": "run-s test:node test:layers",
-    "test:scheduled": "run-s test:erc20 test:btc",
+    "test:scheduled": "run-s test:erc20 test:any test:erc777 test:eth test:btc ",
     "test:layers": "jest test/layers.test.ts  --forceExit",
     "test:node": "jest test/node-client.test.ts --forceExit",
+    "test:any": "jest test/scheduled/any*.test.ts --forceExit",
+    "test:eth": "jest test/scheduled/eth*.test.ts --forceExit",
     "test:erc20": "jest test/scheduled/erc20*.test.ts --forceExit",
+    "test:erc777": "jest test/scheduled/erc777*.test.ts --forceExit",
     "test:btc": "jest test/scheduled/btc.test.ts --forceExit"
   },
   "devDependencies": {
     "@openzeppelin/test-helpers": "0.5.6",
-    "@requestnetwork/advanced-logic": "0.34.0",
-    "@requestnetwork/currency": "0.8.0",
-    "@requestnetwork/data-access": "0.26.0",
-    "@requestnetwork/epk-decryption": "0.3.33",
-    "@requestnetwork/epk-signature": "0.5.34",
-    "@requestnetwork/ethereum-storage": "0.26.0",
-    "@requestnetwork/multi-format": "0.15.9",
-    "@requestnetwork/payment-detection": "0.35.0",
-    "@requestnetwork/payment-processor": "0.37.0",
-    "@requestnetwork/request-client.js": "0.39.0",
-    "@requestnetwork/request-logic": "0.26.9",
-    "@requestnetwork/transaction-manager": "0.26.9",
-    "@requestnetwork/types": "0.35.0",
-    "@requestnetwork/utils": "0.35.0",
+    "@requestnetwork/advanced-logic": "0.35.0",
+    "@requestnetwork/currency": "0.9.0",
+    "@requestnetwork/data-access": "0.27.0",
+    "@requestnetwork/epk-decryption": "0.3.34",
+    "@requestnetwork/epk-signature": "0.5.35",
+    "@requestnetwork/ethereum-storage": "0.27.0",
+    "@requestnetwork/multi-format": "0.15.10",
+    "@requestnetwork/payment-detection": "0.36.0",
+    "@requestnetwork/payment-processor": "0.38.0",
+    "@requestnetwork/request-client.js": "0.40.0",
+    "@requestnetwork/request-logic": "0.26.10",
+    "@requestnetwork/transaction-manager": "0.27.0",
+    "@requestnetwork/types": "0.36.0",
+    "@requestnetwork/utils": "0.36.0",
     "@truffle/hdwallet-provider": "1.2.3",
     "@types/jest": "26.0.13",
-    "@types/node": "14.14.16",
+    "@types/node": "16.11.7",
     "ethers": "5.5.1",
     "jest": "26.4.2",
     "npm-run-all": "4.1.5",
-    "prettier": "2.2.1",
     "ts-jest": "26.3.0",
-    "ts-node": "9.0.0",
-    "tslib": "2.3.1",
-    "typescript": "4.4.4",
+    "ts-node": "10.9.1",
+    "tslib": "2.5.0",
+    "typescript": "4.9.5",
     "web3-eth": "1.3.6"
   }
 }

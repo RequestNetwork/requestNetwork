@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/toolbox",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "description": "Toolbox for Request Network.",
   "keywords": [
@@ -17,7 +17,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=16.0.0"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,33 +31,39 @@
     "request-toolbox": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc -b",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
-    "lint": "eslint \"src/**/*.ts\"",
+    "build": "tsc -b tsconfig.build.json",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
     "prepare": "yarn run build",
     "cli": "cross-env NODE_ENV=development ts-node src/cli.ts",
-    "chainlinkPath": "yarn cli listAggregators",
-    "currencyHash": "yarn cli currencyHash"
+    "chainlinkPath": "yarn -s cli listAggregators",
+    "currencyHash": "yarn cli currencyHash",
+    "referenceCalculator": "yarn cli referenceCalculator"
   },
   "dependencies": {
-    "@requestnetwork/currency": "0.8.0",
-    "@requestnetwork/epk-signature": "0.5.34",
-    "@requestnetwork/payment-detection": "0.35.0",
-    "@requestnetwork/request-client.js": "0.39.0",
-    "@requestnetwork/smart-contracts": "0.28.0",
-    "@requestnetwork/types": "0.35.0",
-    "axios": "0.21.1",
+    "@requestnetwork/currency": "0.9.0",
+    "@requestnetwork/epk-signature": "0.5.35",
+    "@requestnetwork/ethereum-storage": "0.27.0",
+    "@requestnetwork/payment-detection": "0.36.0",
+    "@requestnetwork/request-client.js": "0.40.0",
+    "@requestnetwork/smart-contracts": "0.29.0",
+    "@requestnetwork/types": "0.36.0",
+    "@requestnetwork/utils": "0.36.0",
+    "axios": "0.27.2",
+    "bluebird": "3.7.2",
     "ethers": "5.5.1",
-    "tslib": "2.3.1",
-    "yargs": "16.2.0"
+    "inquirer": "8.2.0",
+    "lodash": "4.17.21",
+    "tslib": "2.5.0",
+    "yargs": "17.6.2"
   },
   "devDependencies": {
-    "@types/yargs": "16.0.1",
+    "@types/inquirer": "8.1.3",
+    "@types/yargs": "17.0.14",
     "cross-env": "7.0.2",
-    "husky": "4.3.0",
-    "prettier": "2.2.1",
     "shx": "0.3.2",
-    "ts-node": "9.0.0",
-    "typescript": "4.4.4"
+    "ts-node": "10.9.1",
+    "typescript": "4.9.5"
   }
 }

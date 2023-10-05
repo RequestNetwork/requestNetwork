@@ -1,7 +1,8 @@
-import { RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
 import addressValidator from 'multicoin-address-validator';
 import { getSupportedERC20Tokens } from './erc20';
+import { getSupportedERC777Tokens } from './erc777';
 import { getHash } from './getHash';
 import iso4217 from './iso4217';
 import { nativeCurrencies } from './native';
@@ -14,9 +15,11 @@ import {
   LegacyTokenMap,
   NativeCurrencyType,
 } from './types';
+import { defaultConversionPairs, AggregatorsMap, getPath } from './conversion-aggregators';
 import { isValidNearAddress } from './currency-utils';
+import { NearChains } from './chains';
 
-const { BTC, ERC20, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
+const { BTC, ERC20, ERC777, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 
 /**
  * Handles a list of currencies and provide features to retrieve them, as well as convert to/from storage format
@@ -24,15 +27,18 @@ const { BTC, ERC20, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta> {
   private readonly knownCurrencies: CurrencyDefinition<TMeta>[];
   private readonly legacyTokens: LegacyTokenMap;
+  private readonly conversionPairs: AggregatorsMap;
 
   /**
    *
    * @param inputCurrencies The list of currencies known by the Manager.
    * @param legacyTokens A mapping of legacy currency name or network name, in the format { "chainName": {"TOKEN": ["NEW_TOKEN","NEW_CHAIN"]}}
+   * @param conversionPairs A mapping of possible conversions by network (network => currencyFrom => currencyTo => cost)
    */
   constructor(
     inputCurrencies: (CurrencyInput & { id?: string; meta?: TMeta })[],
     legacyTokens?: LegacyTokenMap,
+    conversionPairs?: AggregatorsMap,
   ) {
     this.knownCurrencies = [];
     for (const input of inputCurrencies) {
@@ -43,6 +49,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       this.knownCurrencies.push(currency);
     }
     this.legacyTokens = legacyTokens || CurrencyManager.getDefaultLegacyTokens();
+    this.conversionPairs = conversionPairs || CurrencyManager.getDefaultConversionPairs();
   }
 
   /**
@@ -53,7 +60,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    */
   from(
     currencyIdentifier: string | undefined,
-    network?: string,
+    network?: CurrencyTypes.ChainName,
   ): CurrencyDefinition<TMeta> | undefined {
     if (!currencyIdentifier) {
       return;
@@ -64,7 +71,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
 
     const parts = currencyIdentifier.split('-');
     const currencyFromSymbol =
-      this.fromSymbol(parts[0], network || parts[1]) ||
+      this.fromSymbol(parts[0], network || (parts[1] as CurrencyTypes.ChainName)) ||
       // try without splitting the symbol to support currencies like ETH-rinkeby
       this.fromSymbol(currencyIdentifier, network);
 
@@ -84,12 +91,15 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
 
   /**
    * Gets a supported currency from its address and network.
-   * If more than 1 currencies are found, undefined is returned
+   * If more than one currency are found, undefined is returned
    */
   fromAddress(address: string, network?: string): CurrencyDefinition<TMeta> | undefined {
     address = utils.getAddress(address);
     const matches = this.knownCurrencies.filter(
-      (x) => x.type === ERC20 && x.address === address && (!network || x.network === network),
+      (x) =>
+        (x.type === ERC20 || x.type === ERC777) &&
+        x.address === address &&
+        (!network || x.network === network),
     );
     if (matches.length > 1) {
       const networks = matches.map((x) => (x as ERC20Currency).network).join(', ');
@@ -104,9 +114,12 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   /**
    * Gets a supported currency from its symbol and network.
    */
-  fromSymbol(symbol: string, network?: string): CurrencyDefinition<TMeta> | undefined {
+  fromSymbol(
+    symbol: string,
+    network?: CurrencyTypes.ChainName,
+  ): CurrencyDefinition<TMeta> | undefined {
     symbol = symbol?.toUpperCase();
-    network = network?.toLowerCase();
+    network = network?.toLowerCase() as CurrencyTypes.ChainName | undefined;
 
     const legacy = network ? this.legacyTokens[network]?.[symbol] : undefined;
     if (legacy) {
@@ -120,6 +133,13 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     );
   }
 
+  fromHash(hash: string, network?: string): CurrencyDefinition<TMeta> | undefined {
+    return this.knownCurrencies.find(
+      (x) =>
+        x.hash.toLowerCase() === hash.toLowerCase() &&
+        ((x.type === ISO4217 && !network) || ('network' in x && x.network === network) || !network),
+    );
+  }
   /**
    * Retrieves a currency given its storage format (ICurrency)
    */
@@ -134,7 +154,9 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     return this.knownCurrencies.find(
       (x) =>
         x.type === currency.type &&
-        ((x.type === ERC20 && currency.value === x.address && x.network === networkOrDefault) ||
+        (((x.type === ERC20 || x.type === ERC777) &&
+          currency.value === x.address &&
+          x.network === networkOrDefault) ||
           ((x.type === ETH || x.type === BTC) && x.network === networkOrDefault) ||
           (x.symbol === currency.value && !currency.network)),
     );
@@ -150,6 +172,25 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     return this.knownCurrencies.find((x) => x.type === type && x.network === network);
   }
 
+  getConversionPath(
+    from: Pick<CurrencyDefinition, 'hash'>,
+    to: Pick<CurrencyDefinition, 'hash'>,
+    network: CurrencyTypes.ChainName,
+  ): string[] | null {
+    try {
+      return getPath(from, to, network, this.conversionPairs);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  supportsConversion(
+    currency: Pick<CurrencyDefinition, 'hash'>,
+    network: CurrencyTypes.ChainName,
+  ): boolean {
+    return !!this.conversionPairs[network]?.[currency.hash.toLowerCase()];
+  }
+
   /**
    * Adds computed parameters to a CurrencyInput
    */
@@ -159,6 +200,11 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     meta,
     ...input
   }: CurrencyInput & { id?: string; hash?: string; meta?: TMeta }): CurrencyDefinition<TMeta> {
+    if ('address' in input) {
+      if (input.address.startsWith('0x') && input.address.length === 42) {
+        input.address = utils.getAddress(input.address);
+      }
+    }
     return {
       id: id || CurrencyManager.currencyId(input),
       hash: hash || getHash(CurrencyManager.toStorageCurrency(input)),
@@ -180,7 +226,8 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   static toStorageCurrency(currency: CurrencyInput): StorageCurrency {
     return {
       type: currency.type,
-      value: currency.type === ERC20 ? currency.address : currency.symbol,
+      value:
+        currency.type === ERC20 || currency.type === ERC777 ? currency.address : currency.symbol,
       network: currency.type === ISO4217 ? undefined : currency.network,
     };
   }
@@ -189,23 +236,20 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * Validates an address for a given currency.
    * Throws if the currency is an ISO4217 currency.
    */
-  static validateAddress(address: string, currency: CurrencyInput): boolean {
+  validateAddress(address: string, currency: CurrencyInput | StorageCurrency): boolean {
+    if (currency.type === RequestLogicTypes.CURRENCY.ISO4217) {
+      throw new Error(`Could not validate an address for an ISO4217 currency`);
+    }
     switch (currency.type) {
-      case RequestLogicTypes.CURRENCY.ISO4217:
-        throw new Error(`Could not validate an address for an ISO4217 currency`);
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
-        switch (currency.symbol) {
-          case 'NEAR':
-          case 'NEAR-testnet':
-            return isValidNearAddress(address, currency.network);
-          default:
-            // we don't pass a third argument to the validate method here
-            // because there is no difference between testnet and prod
-            // for the ethereum validator, see:
-            // https://github.com/christsim/multicoin-address-validator/blob/f8f3626f441c0d53fdc3b89678629dc1d33c0546/src/ethereum_validator.js
-            return addressValidator.validate(address, 'ETH');
+      case RequestLogicTypes.CURRENCY.ERC777:
+        if (NearChains.isChainSupported(currency.network)) {
+          return isValidNearAddress(address, currency.network);
+        } else if (currency.network === 'tron' || currency.network === 'solana') {
+          return addressValidator.validate(address, currency.network);
         }
+        return addressValidator.validate(address, 'ETH');
       case RequestLogicTypes.CURRENCY.BTC:
         return addressValidator.validate(
           address,
@@ -218,15 +262,29 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   }
 
   /**
+   * Validate the correctness of a Storage Currency
+   */
+  validateCurrency(currency: StorageCurrency): boolean {
+    if (
+      currency.type === RequestLogicTypes.CURRENCY.ISO4217 ||
+      currency.type === RequestLogicTypes.CURRENCY.ETH ||
+      currency.type === RequestLogicTypes.CURRENCY.BTC
+    )
+      return true;
+    return this.validateAddress(currency.value, currency);
+  }
+
+  /**
    * Returns the list of currencies supported by Request out of the box
    * Contains:
    * - ISO currencies
    * - ERC20 currencies from Metamask/contract-metadata + some additional tokens
+   * - ERC777 SuperTokens managed by SuperFluid
    * - ETH, & some EVM-compatible chains native tokens
    * - NEAR, YEL, ZIL, BTC
    * - ETH-rinkeby, FAU-rinkeby, CTBK-rinkeby
    */
-  static getDefaultList(): CurrencyDefinition[] {
+  static getDefaultList<TMeta = unknown>(): CurrencyDefinition<TMeta>[] {
     const isoCurrencies: CurrencyInput[] = iso4217.map((cc) => ({
       decimals: cc.digits,
       name: cc.currency,
@@ -240,11 +298,15 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     const erc20Tokens = getSupportedERC20Tokens();
     const erc20Currencies: CurrencyInput[] = erc20Tokens.map((x) => ({ ...x, type: ERC20 }));
 
+    const erc777Tokens = getSupportedERC777Tokens();
+    const erc777Currencies: CurrencyInput[] = erc777Tokens.map((x) => ({ ...x, type: ERC777 }));
+
     return isoCurrencies
       .concat(erc20Currencies)
+      .concat(erc777Currencies)
       .concat(eth)
       .concat(btc)
-      .map(CurrencyManager.fromInput);
+      .map(CurrencyManager.fromInput<TMeta>);
   }
 
   /**
@@ -256,6 +318,10 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
         NEAR: ['NEAR', 'aurora'],
       },
     };
+  }
+
+  static getDefaultConversionPairs(): AggregatorsMap {
+    return defaultConversionPairs;
   }
 
   /**

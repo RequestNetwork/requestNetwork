@@ -1,5 +1,11 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { CurrencyInput, CurrencyDefinition, CurrencyManager } from '../src';
+import {
+  CurrencyInput,
+  CurrencyDefinition,
+  CurrencyManager,
+  ERC20Currency,
+  StorageCurrency,
+} from '../src';
 
 const testCasesPerNetwork: Record<string, Record<string, Partial<CurrencyDefinition>>> = {
   mainnet: {
@@ -62,6 +68,26 @@ const testCasesPerNetwork: Record<string, Record<string, Partial<CurrencyDefinit
       symbol: 'FAU',
       network: 'rinkeby',
     },
+    'fDAIx-rinkeby': {
+      address: '0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90',
+      decimals: 18,
+      symbol: 'fDAIx',
+      network: 'rinkeby',
+    },
+  },
+  moonbeam: {
+    'USDC-multichain-moonbeam': {
+      address: '0x818ec0A7Fe18Ff94269904fCED6AE3DaE6d6dC0b',
+      decimals: 6,
+      symbol: 'USDC-multichain',
+      network: 'moonbeam',
+    },
+    'USDC-wormhole-moonbeam': {
+      address: '0x931715FEE2d06333043d11F658C8CE934aC61D0c',
+      decimals: 6,
+      symbol: 'USDC-wormhole',
+      network: 'moonbeam',
+    },
   },
   bitcoin: {
     BTC: { symbol: 'BTC' },
@@ -91,7 +117,7 @@ describe('CurrencyManager', () => {
 
     it('can instantiate a currency manager based on a currency list', () => {
       const list: CurrencyInput[] = [
-        { type: RequestLogicTypes.CURRENCY.ETH, decimals: 18, network: 'anything', symbol: 'ANY' },
+        { type: RequestLogicTypes.CURRENCY.ETH, decimals: 18, network: 'mainnet', symbol: 'ANY' },
       ];
       currencyManager = new CurrencyManager(list);
       expect(currencyManager.from('ANY')).toBeDefined();
@@ -102,6 +128,30 @@ describe('CurrencyManager', () => {
       const dai = CurrencyManager.getDefaultList().find((x) => x.id === 'DAI-mainnet')!;
       const list: CurrencyInput[] = [dai, dai, dai, dai];
       expect(() => new CurrencyManager(list)).toThrowError('Duplicate found: DAI-mainnet');
+    });
+
+    it('fixes wrong ERC20 address case', () => {
+      const currencyManager = new CurrencyManager([
+        {
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          symbol: 'FAKE',
+          address: '0x38cf23c52bb4b13f051aec09580a2de845a7fa35',
+          decimals: 18,
+          network: 'private',
+        },
+      ]);
+      const fake = currencyManager.from('FAKE') as ERC20Currency;
+      // right case
+      expect(fake.address).toBe('0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35');
+
+      // it can match it from right case or wrong
+
+      expect(currencyManager.fromAddress('0x38cf23c52bb4b13f051aec09580a2de845a7fa35')?.id).toBe(
+        'FAKE-private',
+      );
+      expect(currencyManager.fromAddress('0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35')?.id).toBe(
+        'FAKE-private',
+      );
     });
   });
 
@@ -255,7 +305,7 @@ describe('CurrencyManager', () => {
     });
 
     describe('fromStorageCurrency', () => {
-      it('can access a token from its storage format', () => {
+      it('can access a ERC20 token from its storage format', () => {
         expect(
           currencyManager.fromStorageCurrency({
             type: RequestLogicTypes.CURRENCY.ERC20,
@@ -269,6 +319,16 @@ describe('CurrencyManager', () => {
             network: 'mainnet',
           }),
         ).toMatchObject({ id: 'DAI-mainnet' });
+      });
+
+      it('can access a ERC777 token from its storage format', () => {
+        expect(
+          currencyManager.fromStorageCurrency({
+            type: RequestLogicTypes.CURRENCY.ERC777,
+            value: '0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90',
+            network: 'rinkeby',
+          }),
+        ).toMatchObject({ id: 'fDAIx-rinkeby' });
       });
 
       it('can access native tokens from storage format', () => {
@@ -416,6 +476,7 @@ describe('CurrencyManager', () => {
     const nearAddresses: Record<string, string> = {
       aurora: 'requestnetwork.near',
       'aurora-testnet': 'requestnetwork.testnet',
+      'near-testnet': 'requestnetwork.testnet',
     };
 
     const eip55Addresses: string[] = [
@@ -449,6 +510,13 @@ describe('CurrencyManager', () => {
           network: 'aurora-testnet',
         },
       },
+      near: {
+        'NEAR-testnet': {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          symbol: 'NEAR-testnet',
+          network: 'near-testnet',
+        },
+      },
     };
 
     const testValidateAddressForCurrency = (
@@ -459,7 +527,7 @@ describe('CurrencyManager', () => {
       if (!currency) {
         throw new Error('currency is undefined');
       }
-      const result = CurrencyManager.validateAddress(address, currency);
+      const result = currencyManager.validateAddress(address, currency);
       expect(result).toBe(expectedResult);
     };
 
@@ -476,6 +544,7 @@ describe('CurrencyManager', () => {
               switch (currency.type) {
                 case RequestLogicTypes.CURRENCY.ETH:
                 case RequestLogicTypes.CURRENCY.ERC20:
+                case RequestLogicTypes.CURRENCY.ERC777:
                   switch (currency.symbol) {
                     case 'NEAR':
                     case 'NEAR-testnet':
@@ -521,10 +590,123 @@ describe('CurrencyManager', () => {
           it(`should throw for ${currencyTemplate.symbol} currency`, () => {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const currency = currencyManager.from(currencyTemplate.symbol)!;
-            expect(() => CurrencyManager.validateAddress('anyAddress', currency)).toThrow();
+            expect(() => currencyManager.validateAddress('anyAddress', currency)).toThrow();
           });
         });
       });
+    });
+  });
+
+  describe('Validate currencies', () => {
+    describe('Valid cases', () => {
+      const currencies: { currency: StorageCurrency; label: string }[] = [
+        {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ISO4217,
+            value: 'FIAT',
+          },
+          label: 'ISO4217 Currency',
+        },
+        {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+            network: 'matic',
+          },
+          label: 'native currency',
+        },
+        {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.BTC,
+            value: 'BTC',
+            network: 'mainnet',
+          },
+          label: 'Bitcoin currency',
+        },
+        {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ERC20,
+            value: '0x52908400098527886E0F7030069857D2E4169EE7',
+            network: 'optimism',
+          },
+          label: 'ERC20 Currency - evm',
+        },
+        {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ERC20,
+            value: 'usdc.near',
+            network: 'aurora',
+          },
+          label: 'ERC20 currency - near',
+        },
+        {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ERC777,
+            value: '0x52908400098527886E0F7030069857D2E4169EE7',
+            network: 'avalanche',
+          },
+          label: 'ERC777 currency',
+        },
+      ];
+      it.each(currencies)('Should validate $label', ({ currency }) => {
+        const result = currencyManager.validateCurrency(currency);
+        expect(result).toBe(true);
+      });
+    });
+
+    describe('Invalid cases', () => {
+      const currencies: { currency: StorageCurrency; label: string }[] = [
+        {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ERC20,
+            value: 'invalid',
+            network: 'optimism',
+          },
+          label: 'ERC20 Currency - evm',
+        },
+        {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ERC20,
+            value: 'invalid',
+            network: 'aurora',
+          },
+          label: 'ERC20 currency - near',
+        },
+        {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ERC777,
+            value: 'invalid',
+            network: 'avalanche',
+          },
+          label: 'ERC777 currency',
+        },
+      ];
+      it.each(currencies)('Should not validate an invalid $label', ({ currency }) => {
+        const result = currencyManager.validateCurrency(currency);
+        expect(result).toBe(false);
+      });
+    });
+  });
+
+  describe('Conversion paths', () => {
+    let eur: CurrencyDefinition, usd: CurrencyDefinition, dai: CurrencyDefinition;
+    beforeEach(() => {
+      eur = currencyManager.from('EUR')!;
+      usd = currencyManager.from('USD')!;
+      dai = currencyManager.from('DAI')!;
+    });
+
+    it('has a default conversion path', () => {
+      const path = currencyManager.getConversionPath(eur, dai, 'mainnet');
+      expect(path).toMatchObject([eur.hash, usd.hash, dai.hash.toLowerCase()]);
+    });
+
+    it('can override the default conversion path', () => {
+      const manager = new CurrencyManager(CurrencyManager.getDefaultList(), undefined, {
+        mainnet: { [eur.hash]: { [dai.hash.toLocaleLowerCase()]: 1 } },
+      });
+      const path = manager.getConversionPath(eur, dai, 'mainnet');
+      expect(path).toMatchObject([eur.hash, dai.hash.toLowerCase()]);
     });
   });
 });

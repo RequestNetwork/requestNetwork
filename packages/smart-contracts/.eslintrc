@@ -1,0 +1,8 @@
+{
+  "ignorePatterns": [
+    "/cache/",
+    "/types/",
+    // FIXME: artifacts index.ts should be linted
+    "/src/lib/artifacts/**/index.ts"
+  ]
+}

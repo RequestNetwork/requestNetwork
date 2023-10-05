@@ -2,12 +2,12 @@ import { Wallet, BigNumber, providers } from 'ethers';
 
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
-  PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 import {
   encodePayEthProxyRequest,
@@ -45,9 +45,9 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,
@@ -77,7 +77,7 @@ describe('getRequestPaymentValues', () => {
 
 describe('payEthProxyRequest', () => {
   it('should throw an error if the request is not erc20', async () => {
-    const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+    const request = deepCopy(validRequest) as ClientTypes.IRequestData;
     request.currencyInfo.type = RequestLogicTypes.CURRENCY.ERC20;
 
     await expect(payEthProxyRequest(request, wallet)).rejects.toThrowError(
@@ -86,15 +86,15 @@ describe('payEthProxyRequest', () => {
   });
 
   it('should throw an error if currencyInfo has no network', async () => {
-    const request = Utils.deepCopy(validRequest);
-    request.currencyInfo.network = '';
+    const request = deepCopy(validRequest);
+    request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
     await expect(payEthProxyRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );
   });
 
   it('should throw an error if request has no extension', async () => {
-    const request = Utils.deepCopy(validRequest);
+    const request = deepCopy(validRequest);
     request.extensions = [] as any;
 
     await expect(payEthProxyRequest(request, wallet)).rejects.toThrowError(
@@ -110,8 +110,7 @@ describe('payEthProxyRequest', () => {
       gasPrice: '20000000000',
     });
     expect(spy).toHaveBeenCalledWith({
-      data:
-        '0xeb7d8df3000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
+      data: '0xeb7d8df3000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
       gasPrice: '20000000000',
       to: '0xf204a4Ef082f5c04bB89F7D5E6568B796096735a',
       value: BigNumber.from('0x64'),
@@ -136,7 +135,7 @@ describe('payEthProxyRequest', () => {
     expect(balanceEthBefore.toString()).toBe(
       balanceEthAfter
         .add(validRequest.expectedAmount)
-        .add(confirmedTx.gasUsed?.mul(tx?.gasPrice ?? 1))
+        .add(confirmedTx.cumulativeGasUsed.mul(confirmedTx.effectiveGasPrice))
         .toString(),
     );
   });
@@ -155,8 +154,8 @@ describe('prepareEthProxyPaymentTransaction', () => {
     const valid010Request = {
       ...validRequest,
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
-          ...validRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA],
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+          ...validRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA],
           version: '0.1.0',
         },
       },
@@ -164,8 +163,8 @@ describe('prepareEthProxyPaymentTransaction', () => {
     const valid020Request = {
       ...validRequest,
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
-          ...validRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA],
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+          ...validRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA],
           version: '0.2.0',
         },
       },

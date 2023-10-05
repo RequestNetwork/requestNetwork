@@ -10,16 +10,37 @@ export const erc20EscrowToPayArtifact = new ContractArtifact<ERC20EscrowToPay>(
       abi: ABI_0_1_0,
       deployment: {
         private: {
-          address: '0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154',
+          address: '0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae',
           creationBlockNumber: 0,
         },
         mainnet: {
-          address: '',
-          creationBlockNumber: 0,
+          address: '0x7DfD5955a1Ed6Bf74ccF8e24FF53E0a9A7e9F477',
+          creationBlockNumber: 15146972,
         },
         rinkeby: {
-          address: '0x8230e703B1c4467A4543422b2cC3284133B9AB5e',
-          creationBlockNumber: 9669613,
+          address: '0x2b487A3251aCC34ae95E4f5aA7fdcD2C7447B42e',
+          creationBlockNumber: 11028247,
+        },
+        goerli: {
+          address: '0xd2777001fD7D89331D8E87eC439f78079179322b',
+          creationBlockNumber: 7230322,
+        },
+        matic: {
+          address: '0x937Db37ffb67083242fbC6AdD472146bF10E01ec',
+          creationBlockNumber: 30751595,
+        },
+        fuse: {
+          address: '0x4BA012eae4d64da79Bd6bcdBa366803fCe701A4C',
+          creationBlockNumber: 18086337,
+        },
+        // Address changed due to contract metadata change since last deployment
+        optimism: {
+          address: '0x26d4912fA5aC84F185843E19eeEdcc47f4Cc9F1a',
+          creationBlockNumber: 35498500,
+        },
+        moonbeam: {
+          address: '0x26d4912fA5aC84F185843E19eeEdcc47f4Cc9F1a',
+          creationBlockNumber: 2415523,
         },
       },
     },
