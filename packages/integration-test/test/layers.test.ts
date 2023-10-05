@@ -317,7 +317,7 @@ describe('Request system', () => {
     expect(request).toBeDefined();
   });
 
-  fit('can create requests and get them fromIdentity and with time boundaries', async () => {
+  it('can create requests and get them fromIdentity and with time boundaries', async () => {
     // create request
     const request1CreationHash: RequestLogicTypes.ICreateParameters = {
       currency: {
