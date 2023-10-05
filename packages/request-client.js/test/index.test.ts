@@ -1641,7 +1641,7 @@ describe('request-client.js', () => {
     });
   });
 
-  it('Can create ERC20 declarative requests with non-evm currency', async () => {
+  it('Can create ERC20 declarative requests with non-evm currency - near', async () => {
     const testErc20TokenAddress = 'usdc.near';
     const requestNetwork = new RequestNetwork({
       signatureProvider: TestData.fakeSignatureProvider,
@@ -1656,6 +1656,50 @@ describe('request-client.js', () => {
     const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
       currency: {
         network: 'aurora',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: testErc20TokenAddress,
+      },
+    });
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo,
+      signer: TestData.payee.identity,
+    });
+
+    await new Promise((resolve): any => setTimeout(resolve, 150));
+    let data = await request.refresh();
+
+    expect(data).toBeDefined();
+    expect(data.balance?.balance).toBe('0');
+    expect(data.balance?.events.length).toBe(0);
+    expect(data.meta).toBeDefined();
+    expect(data.currency).toBe('unknown');
+
+    expect(data.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE].values).toEqual({
+      receivedPaymentAmount: '0',
+      receivedRefundAmount: '0',
+      sentPaymentAmount: '0',
+      sentRefundAmount: '0',
+    });
+    expect(data.expectedAmount).toBe(requestParameters.expectedAmount);
+  });
+
+  it('Can create ERC20 declarative requests with non-evm currency - solana', async () => {
+    const testErc20TokenAddress = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+    const requestNetwork = new RequestNetwork({
+      signatureProvider: TestData.fakeSignatureProvider,
+      useMockStorage: true,
+    });
+
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
+      parameters: {},
+    };
+
+    const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+      currency: {
+        network: 'solana',
         type: RequestLogicTypes.CURRENCY.ERC20,
         value: testErc20TokenAddress,
       },
