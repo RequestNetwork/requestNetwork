@@ -279,7 +279,10 @@ export const getSignerAndGasFees = async (
   const signer = new hre.ethers.Wallet(hre.config.xdeploy.signer).connect(provider);
 
   const txOverrides = (await isEip1559Supported(provider))
-    ? await suggestFeesEip1559(provider)()
+    ? await estimateGasFees({
+        logger: console,
+        suggestFees: suggestFeesEip1559(provider),
+      });
     : {};
 
   return {
