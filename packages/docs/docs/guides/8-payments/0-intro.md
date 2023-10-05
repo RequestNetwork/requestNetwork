@@ -71,7 +71,7 @@ We need a way to query events by paymentReference, as this is the way we can ret
 
 ### Get notified of events sent by the proxy
 
-What is the preferred way to be notified of new interesting events ?
+What is the preferred way to be notified of new interesting events? How long does it take for a block to become finalized or to be considered as finalized?
 
 ### Get details of the events
 
