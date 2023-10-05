@@ -20,6 +20,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
   SignatureTypes,
+  StorageTypes,
 } from '@requestnetwork/types';
 import { providers, Wallet } from 'ethers';
 
@@ -221,80 +222,53 @@ describe('Request system', () => {
     expect(request).toBeDefined();
   });
 
-  // it('can create a request with cache', async () => {
-  //   const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
-  //     host: 'localhost',
-  //     port: 5001,
-  //     protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
-  //     timeout: 10000,
-  //   };
-  //   const web3Connection: StorageTypes.IWeb3Connection = {
-  //     networkId: StorageTypes.EthereumNetwork.PRIVATE,
-  //     web3Provider: provider,
-  //   };
-  //   const ipfsStorage = new IpfsStorage({ ipfsGatewayConnection });
-  //   const ethereumStorage = new EthereumStorage('localhost', ipfsStorage, web3Connection);
+  it('can create a request with cache', async () => {
+    const contentDataExtensionData = advancedLogic.extensions.contentData.createCreationAction({
+      content: { this: 'could', be: 'an', invoice: true },
+    });
 
-  //   // Data access setup
-  //   dataAccess = new DataAccess(ethereumStorage);
-  //   await dataAccess.initialize();
+    const payer = {
+      type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+      value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
+    };
 
-  //   // Transaction manager setup
-  //   const transactionManager = new TransactionManager(dataAccess, decryptionProvider);
+    const requestCreationHash: RequestLogicTypes.ICreateParameters = {
+      currency: {
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      },
+      expectedAmount: '100000000000',
+      extensionsData: [contentDataExtensionData],
+      payee: payeeIdentity,
+      payer,
+    };
 
-  //   // Advanced Logic setup
-  //   advancedLogic = new AdvancedLogic();
+    const topics = [payeeIdentity, payer];
 
-  //   // Logic setup
-  //   requestLogic = new RequestLogic(transactionManager, signatureProvider, advancedLogic);
+    const resultCreation = await requestLogic.createRequest(
+      requestCreationHash,
+      payeeIdentity,
+      topics,
+    );
 
-  //   const contentDataExtensionData = advancedLogic.extensions.contentData.createCreationAction({
-  //     content: { this: 'could', be: 'an', invoice: true },
-  //   });
+    expect(resultCreation).toBeDefined();
+    expect(
+      resultCreation.meta.transactionManagerMeta.dataAccessMeta.storageMeta.storageType,
+    ).toEqual(StorageTypes.StorageSystemType.LOCAL);
 
-  //   const payer = {
-  //     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-  //     value: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
-  //   };
+    // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
+    const requestIdLength = 66;
+    expect(resultCreation.result.requestId.length).toEqual(requestIdLength);
 
-  //   const requestCreationHash: RequestLogicTypes.ICreateParameters = {
-  //     currency: {
-  //       type: RequestLogicTypes.CURRENCY.ETH,
-  //       value: 'ETH',
-  //     },
-  //     expectedAmount: '100000000000',
-  //     extensionsData: [contentDataExtensionData],
-  //     payee: payeeIdentity,
-  //     payer,
-  //   };
+    await new Promise((r) => resultCreation.on('confirmed', r));
 
-  //   const topics = [payeeIdentity, payer];
+    const request = await requestLogic.getRequestFromId(resultCreation.result.requestId);
+    expect(request).toBeDefined();
 
-  //   const resultCreation = await requestLogic.createRequest(
-  //     requestCreationHash,
-  //     payeeIdentity,
-  //     topics,
-  //   );
-
-  //   expect(resultCreation).toBeDefined();
-  //   expect(
-  //     resultCreation.meta.transactionManagerMeta.dataAccessMeta.storageMeta.storageType,
-  //   ).toEqual(StorageTypes.StorageSystemType.LOCAL);
-
-  //   // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
-  //   const requestIdLength = 66;
-  //   expect(resultCreation.result.requestId.length).toEqual(requestIdLength);
-
-  //   // wait a bit
-  //   // eslint-disable-next-line no-magic-numbers
-  //   await new Promise((r: any): any => setTimeout(r, 2000));
-
-  //   const request = await requestLogic.getRequestFromId(resultCreation.result.requestId);
-  //   expect(request).toBeDefined();
-  //   expect(request.meta.transactionManagerMeta.dataAccessMeta.storageMeta[0].storageType).toEqual(
-  //     StorageTypes.StorageSystemType.ETHEREUM_IPFS,
-  //   );
-  // });
+    expect(request.meta.transactionManagerMeta.dataAccessMeta.storageMeta[0].storageType).toEqual(
+      StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+    );
+  });
 
   it('can create a request BTC with payment network', async () => {
     const contentDataExtensionData = advancedLogic.extensions.contentData.createCreationAction({
@@ -343,7 +317,7 @@ describe('Request system', () => {
     expect(request).toBeDefined();
   });
 
-  it('can create requests and get them fromIdentity and with time boundaries', async () => {
+  fit('can create requests and get them fromIdentity and with time boundaries', async () => {
     // create request
     const request1CreationHash: RequestLogicTypes.ICreateParameters = {
       currency: {
@@ -416,8 +390,8 @@ describe('Request system', () => {
     expect(fromTopic.result.requests.length).toEqual(2);
     let request1 = fromTopic.result.requests[0];
     const request2 = fromTopic.result.requests[1];
-    // expect(request1.request!.requestId).toEqual(requestId1);
-    // expect(request2.request!.requestId).toEqual(requestId2);
+    expect(request1.request!.requestId).toEqual(requestId1);
+    expect(request2.request!.requestId).toEqual(requestId2);
 
     const fromTopicSecondSearch = await requestLogic.getRequestsByTopic(topics1[0], {
       from: timestampReduce1,
