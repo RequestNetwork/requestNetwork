@@ -30,7 +30,7 @@ This is needed ONLY for one of these cases:
 [Cf. the specifications for the Ethreum-based ERC20 proxy with fee](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/advanced-logic/specs/payment-network-erc20-fee-proxy-contract-0.1.0.md)
 
 The code should be strictly equivalent to [the Ethereum version](https://etherscan.io/address/0x370de27fdb7d1ff1e1baa7d11c5820a324cf623c#code).
-You can find several other payment contracts on our Github: https://github.com/RequestNetwork/requestNetwork/tree/master/packages/smart-contracts/test/contracts
+You can find several other payment contracts on our [Github repository](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/smart-contracts/src/contracts).
 
 The exact details of the payments should be retrievable in an event sent by the contract as follow:
 
