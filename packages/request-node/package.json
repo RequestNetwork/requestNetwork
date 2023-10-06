@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-node",
-  "version": "0.27.0",
+  "version": "0.28.0",
   "publishConfig": {
     "access": "public"
   },
@@ -42,12 +42,12 @@
   },
   "dependencies": {
     "@ethersproject/experimental": "5.5.0",
-    "@requestnetwork/data-access": "0.27.0",
-    "@requestnetwork/ethereum-storage": "0.27.0",
-    "@requestnetwork/smart-contracts": "0.29.0",
-    "@requestnetwork/thegraph-data-access": "0.35.1",
-    "@requestnetwork/types": "0.36.0",
-    "@requestnetwork/utils": "0.36.0",
+    "@requestnetwork/data-access": "0.28.0",
+    "@requestnetwork/ethereum-storage": "0.28.0",
+    "@requestnetwork/smart-contracts": "0.30.0",
+    "@requestnetwork/thegraph-data-access": "0.35.2",
+    "@requestnetwork/types": "0.37.0",
+    "@requestnetwork/utils": "0.37.0",
     "@truffle/hdwallet-provider": "1.2.3",
     "chalk": "4.1.0",
     "cors": "2.8.5",
