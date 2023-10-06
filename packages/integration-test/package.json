@@ -51,7 +51,7 @@
     "@requestnetwork/payment-processor": "0.39.0",
     "@requestnetwork/request-client.js": "0.41.0",
     "@requestnetwork/request-logic": "0.27.0",
-    "@requestnetwork/thegraph-data-access": "0.35.1",
+    "@requestnetwork/thegraph-data-access": "0.35.2",
     "@requestnetwork/transaction-manager": "0.28.0",
     "@requestnetwork/types": "0.37.0",
     "@requestnetwork/utils": "0.37.0",
