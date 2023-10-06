@@ -8,7 +8,7 @@ import {
   isEip1559Supported,
   getCeloProvider,
   getDefaultProvider,
-  normalizeGasFee,
+  normalizeGasFees,
 } from '@requestnetwork/utils';
 import { CurrencyTypes } from '@requestnetwork/types';
 import { suggestFeesEip1559 } from '../fee-suggestion';
@@ -284,7 +284,7 @@ export const getSignerAndGasFees = async (
   const signer = new hre.ethers.Wallet(hre.config.xdeploy.signer).connect(provider);
 
   const txOverrides = (await isEip1559Supported(provider))
-    ? await normalizeGasFee({
+    ? await normalizeGasFees({
         logger: console,
         suggestFees: suggestFeesEip1559(provider),
       })
