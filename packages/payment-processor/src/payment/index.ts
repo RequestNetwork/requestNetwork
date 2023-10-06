@@ -5,7 +5,6 @@ import { ClientTypes, ExtensionTypes, TypesUtils } from '@requestnetwork/types';
 import { getBtcPaymentUrl } from './btc-address-based';
 import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
 import { payErc20Request } from './erc20';
-import { payErc777StreamRequest } from './erc777-stream';
 import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
 import { payEthFeeProxyRequest } from './eth-fee-proxy';
 import { ITransactionOverrides } from './transaction-overrides';
@@ -99,8 +98,9 @@ export async function payRequest(
     case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT:
     case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE:
       return payErc20Request(request, signer, amount, undefined, overrides);
-    case ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM:
-      return payErc777StreamRequest(request, signer);
+    case ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM: {
+      throw new Error(`${ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM} not supported`);
+    }
     case ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY: {
       if (!paymentSettings) {
         throw new Error('Missing payment settings for a payment with conversion');
