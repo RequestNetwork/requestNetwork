@@ -40,7 +40,6 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@rainbow-me/fee-suggestions": "2.1.0",
     "@requestnetwork/types": "0.36.0",
     "eccrypto": "1.1.6",
     "ethers": "5.5.1",

@@ -15,7 +15,7 @@ import * as SignatureTypes from './signature-types';
 import * as StorageTypes from './storage-types';
 import * as TransactionTypes from './transaction-types';
 import * as TypesUtils from './utils';
-import * as Events from './events';
+import * as FeeTypes from './fees-types';
 
 export {
   AdvancedLogicTypes,
@@ -35,5 +35,5 @@ export {
   StorageTypes,
   TransactionTypes,
   TypesUtils,
-  Events,
+  FeeTypes,
 };

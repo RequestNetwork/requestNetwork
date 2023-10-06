@@ -25,7 +25,10 @@ export const runUpdate = async <T extends 'updateAggregator' | 'updateAggregator
     // TS hack to fix params type
     const neverParams = params as [never, never, never];
 
-    const gasPriceDefiner = new GasFeeDefiner({ provider: contract.provider as any });
+    const gasPriceDefiner = new GasFeeDefiner({
+      provider: contract.provider as any,
+      logger: console,
+    });
     let txOverrides: Overrides;
 
     try {

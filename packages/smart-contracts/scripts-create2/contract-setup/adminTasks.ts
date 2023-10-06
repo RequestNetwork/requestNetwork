@@ -5,12 +5,13 @@ import { BigNumber, Overrides, Wallet } from 'ethers';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import { parseUnits } from 'ethers/lib/utils';
 import {
-  estimateGasFees,
   isEip1559Supported,
   getCeloProvider,
   getDefaultProvider,
+  normalizeGasFees,
 } from '@requestnetwork/utils';
 import { CurrencyTypes } from '@requestnetwork/types';
+import { suggestFeesEip1559 } from '../fee-suggestion';
 
 // Swap Fees: set to 5 for 0.5%
 const REQUEST_SWAP_FEES = 0;
@@ -283,7 +284,10 @@ export const getSignerAndGasFees = async (
   const signer = new hre.ethers.Wallet(hre.config.xdeploy.signer).connect(provider);
 
   const txOverrides = (await isEip1559Supported(provider))
-    ? await estimateGasFees({ logger: console, provider })
+    ? await normalizeGasFees({
+        logger: console,
+        suggestFees: suggestFeesEip1559(provider),
+      })
     : {};
 
   return {
