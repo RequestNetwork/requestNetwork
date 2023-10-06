@@ -1,6 +1,6 @@
 import { suggestFees } from '@rainbow-me/fee-suggestions';
 import { BigNumber, providers, constants } from 'ethers';
-import { estimateGasFees } from '@requestnetwork/utils';
+import { normalizeGasFees } from '@requestnetwork/utils';
 import { FeeTypes, LogTypes } from '@requestnetwork/types';
 import { GasDefinerProps } from './ethereum-storage-ethers';
 
@@ -20,7 +20,7 @@ export class GasFeeDefiner {
   }
 
   public async getGasFees(): Promise<FeeTypes.EstimatedGasFees> {
-    return estimateGasFees({
+    return normalizeGasFees({
       logger: this.logger,
       gasPriceMin: this.gasPriceMin,
       suggestFees: async () => {

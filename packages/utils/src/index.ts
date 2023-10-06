@@ -30,7 +30,7 @@ export {
 
 export { decrypt, encrypt, getIdentityFromEncryptionParams } from './encryption';
 
-export { estimateGasFees } from './estimate-gas-fees';
+export { normalizeGasFees } from './normalize-gas-fees';
 
 export {
   areEqualIdentities,

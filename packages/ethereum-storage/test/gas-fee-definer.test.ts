@@ -107,7 +107,7 @@ describe('Gas fee estimation', () => {
     const estimation = await gasFeeDefiner.getGasFees();
     expect(estimation).toStrictEqual({});
     expect(loggerMock.error).toHaveBeenCalledWith(
-      'estimateGasFees error: Error: Error: ema was undefined',
+      'normalizeGasFees error: Error: Error: ema was undefined',
     );
   });
 });

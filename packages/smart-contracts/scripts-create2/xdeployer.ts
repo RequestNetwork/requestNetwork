@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironmentExtended, IDeploymentParams, IDeploymentResult
 import { requestDeployer } from '../src/lib';
 import { Overrides } from 'ethers';
 import {
-  estimateGasFees,
+  normalizeGasFees,
   getCeloProvider,
   getDefaultProvider,
   isEip1559Supported,
@@ -80,7 +80,7 @@ export const xdeploy = async (
     let txOverrides: Overrides = {};
 
     if (await isEip1559Supported(provider, console)) {
-      txOverrides = await estimateGasFees({
+      txOverrides = await normalizeGasFees({
         logger: console,
         suggestFees: suggestFeesEip1559(provider),
       });
