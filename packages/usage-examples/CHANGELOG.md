@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.24.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/usage-examples@0.23.0...@requestnetwork/usage-examples@0.24.0) (2023-10-06)
+
+### Bug Fixes
+
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+
+### Features
+
+- add `addStakeholders` ([#1025](https://github.com/RequestNetwork/requestNetwork/issues/1025)) ([5e00068](https://github.com/RequestNetwork/requestNetwork/commit/5e000689d25581ec93a0489be6e728dbe9e913c9))
+
 ## [0.23.10](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/usage-examples@0.23.0...@requestnetwork/usage-examples@0.23.10) (2022-11-04)
 
 ### Bug Fixes

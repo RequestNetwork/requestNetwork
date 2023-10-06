@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/payment-processor",
-  "version": "0.38.0",
+  "version": "0.39.0",
   "publishConfig": {
     "access": "public"
   },
@@ -40,11 +40,11 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "4.7.3",
-    "@requestnetwork/currency": "0.9.0",
-    "@requestnetwork/payment-detection": "0.36.0",
-    "@requestnetwork/smart-contracts": "0.29.0",
-    "@requestnetwork/types": "0.36.0",
-    "@requestnetwork/utils": "0.36.0",
+    "@requestnetwork/currency": "0.10.0",
+    "@requestnetwork/payment-detection": "0.37.0",
+    "@requestnetwork/smart-contracts": "0.30.0",
+    "@requestnetwork/types": "0.37.0",
+    "@requestnetwork/utils": "0.37.0",
     "@superfluid-finance/sdk-core": "0.5.0",
     "ethers": "5.5.1",
     "near-api-js": "2.1.4",

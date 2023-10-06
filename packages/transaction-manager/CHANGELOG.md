@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.28.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/transaction-manager@0.26.0...@requestnetwork/transaction-manager@0.28.0) (2023-10-06)
+
+### Bug Fixes
+
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+
+### Features
+
+- add `addStakeholders` ([#1025](https://github.com/RequestNetwork/requestNetwork/issues/1025)) ([5e00068](https://github.com/RequestNetwork/requestNetwork/commit/5e000689d25581ec93a0489be6e728dbe9e913c9))
+- add declarative payment network for erc20 ([#635](https://github.com/RequestNetwork/requestNetwork/issues/635)) ([ecf4a9d](https://github.com/RequestNetwork/requestNetwork/commit/ecf4a9d5515d5eea59e017b9aaf89c133421d71b)), closes [#631](https://github.com/RequestNetwork/requestNetwork/issues/631) [#633](https://github.com/RequestNetwork/requestNetwork/issues/633) [#636](https://github.com/RequestNetwork/requestNetwork/issues/636) [#637](https://github.com/RequestNetwork/requestNetwork/issues/637) [#638](https://github.com/RequestNetwork/requestNetwork/issues/638) [#550](https://github.com/RequestNetwork/requestNetwork/issues/550)
+
 # [0.27.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/transaction-manager@0.26.0...@requestnetwork/transaction-manager@0.27.0) (2022-11-04)
 
 ### Bug Fixes
