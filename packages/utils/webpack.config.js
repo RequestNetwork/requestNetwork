@@ -9,38 +9,18 @@ const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack
 
 module.exports = {
   entry: {
-    'requestnetwork.min': './src/index.ts',
-  },
-  externals: {
-    viem: 'viem',
+    'utils.min': './src/index.ts',
   },
   mode: 'production',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
     libraryTarget: 'umd',
-    library: 'RequestNetwork',
+    library: 'Utils',
     umdNamedDefine: true,
   },
   resolve: {
     extensions: ['.ts', '.js', '.json'],
-    alias: {
-      // Dedup packages
-      //'ethereumjs-util': path.resolve(__dirname, '../../node_modules/ethereumjs-util'),
-      'bn.js': path.resolve(__dirname, '../../node_modules/bn.js'),
-      '@scure/bip39/wordlists/korean.js': '@scure/bip39/wordlists/english.js',
-      '@scure/bip39/wordlists/japanese.js': '@scure/bip39/wordlists/english.js',
-      '@scure/bip39/wordlists/french.js': '@scure/bip39/wordlists/english.js',
-      '@scure/bip39/wordlists/italian.js': '@scure/bip39/wordlists/english.js',
-      '@scure/bip39/wordlists/czech.js': '@scure/bip39/wordlists/english.js',
-      '@scure/bip39/wordlists/spanish.js': '@scure/bip39/wordlists/english.js',
-      '@scure/bip39/wordlists/traditional-chinese.js': '@scure/bip39/wordlists/english.js',
-      '@scure/bip39/wordlists/simplified-chinese.js': '@scure/bip39/wordlists/english.js',
-    },
-    fallback: {
-      crypto: require.resolve('crypto-browserify'),
-      stream: require.resolve('stream-browserify'),
-    },
   },
   devtool: 'source-map',
   optimization: {

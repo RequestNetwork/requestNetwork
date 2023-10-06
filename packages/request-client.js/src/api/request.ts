@@ -1,9 +1,5 @@
 import { EventEmitter } from 'events';
 import {
-  DeclarativePaymentDetector,
-  EscrowERC20InfoRetriever,
-} from '@requestnetwork/payment-detection';
-import {
   CurrencyTypes,
   EncryptionTypes,
   IdentityTypes,
@@ -14,7 +10,6 @@ import { ICurrencyManager } from '@requestnetwork/currency';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import localUtils from './utils';
-import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
 import { deepCopy } from '@requestnetwork/utils';
 
 /**
@@ -422,7 +417,7 @@ export default class Request {
     }
 
     // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareSentPayment
-    const declarativePaymentNetwork = this.paymentNetwork as DeclarativePaymentDetector;
+    const declarativePaymentNetwork = this.paymentNetwork as any;
 
     if (!declarativePaymentNetwork.createExtensionsDataForDeclareSentPayment) {
       throw new Error('Cannot declare sent payment without declarative payment network');
@@ -475,7 +470,7 @@ export default class Request {
     }
 
     // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareSentRefund
-    const declarativePaymentNetwork = this.paymentNetwork as DeclarativePaymentDetector;
+    const declarativePaymentNetwork = this.paymentNetwork as any;
 
     if (!declarativePaymentNetwork.createExtensionsDataForDeclareSentRefund) {
       throw new Error('Cannot declare sent refund without declarative payment network');
@@ -528,7 +523,7 @@ export default class Request {
     }
 
     // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareReceivedPayment
-    const declarativePaymentNetwork = this.paymentNetwork as DeclarativePaymentDetector;
+    const declarativePaymentNetwork = this.paymentNetwork as any;
 
     if (!declarativePaymentNetwork.createExtensionsDataForDeclareReceivedPayment) {
       throw new Error('Cannot declare received payment without declarative payment network');
@@ -581,7 +576,7 @@ export default class Request {
     }
 
     // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareReceivedRefund
-    const declarativePaymentNetwork = this.paymentNetwork as DeclarativePaymentDetector;
+    const declarativePaymentNetwork = this.paymentNetwork as any;
 
     if (!declarativePaymentNetwork.createExtensionsDataForDeclareReceivedRefund) {
       throw new Error('Cannot declare received refund without declarative payment network');
@@ -628,7 +623,7 @@ export default class Request {
     }
 
     // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareReceivedRefund
-    const declarativePaymentNetwork = this.paymentNetwork as DeclarativePaymentDetector;
+    const declarativePaymentNetwork = this.paymentNetwork as any;
 
     if (!declarativePaymentNetwork.createExtensionsDataForAddDelegate) {
       throw new Error('Cannot declare delegate without declarative payment network');
@@ -708,19 +703,10 @@ export default class Request {
   }
 
   public async getEscrowData(
-    paymentReference: string,
-    network: CurrencyTypes.EvmChainName,
+    _paymentReference: string,
+    _network: CurrencyTypes.EvmChainName,
   ): Promise<PaymentTypes.EscrowChainData> {
-    const escrowContractAddress = erc20EscrowToPayArtifact.getAddress(network);
-    const escrowInfoRetriever = new EscrowERC20InfoRetriever(
-      paymentReference,
-      escrowContractAddress,
-      0,
-      '',
-      '',
-      network,
-    );
-    return await escrowInfoRetriever.getEscrowRequestMapping();
+    return {} as any
   }
 
   /**

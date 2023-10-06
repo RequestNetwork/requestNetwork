@@ -182,7 +182,7 @@ function compressPublicKey(publicKey: Buffer): Uint8Array {
  * Split an encrypted string to ECIES params
  * inspired from https://github.com/pubkey/eth-crypto/blob/master/src/ecDecrypt-with-private-key.js
  */
-const eciesSplit = (str: string): Ecies => {
+const eciesSplit = (str: string) => {
   const buf = Buffer.from(str, 'hex');
 
   const ephemPublicKeyStr = buf.toString('hex', 16, 49);

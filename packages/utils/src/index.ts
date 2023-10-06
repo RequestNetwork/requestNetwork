@@ -63,5 +63,4 @@ export {
   notNull,
 } from './utils';
 
-export { publicClientToProvider } from "./ethers"
 export { axios } from "./axios"

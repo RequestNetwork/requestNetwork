@@ -1,5 +1,4 @@
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
-import { PaymentNetworkFactory, PaymentNetworkOptions } from '@requestnetwork/payment-detection';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
@@ -28,7 +27,6 @@ import localUtils from './utils';
  * Entry point of the request-client.js library. Create requests, get requests, manipulate requests.
  */
 export default class RequestNetwork {
-  public paymentNetworkFactory: PaymentNetworkFactory;
   public supportedIdentities: IdentityTypes.TYPE[] = supportedIdentities;
 
   private requestLogic: RequestLogicTypes.IRequestLogic;
@@ -49,24 +47,18 @@ export default class RequestNetwork {
     signatureProvider,
     decryptionProvider,
     currencyManager,
-    paymentOptions,
   }: {
     dataAccess: DataAccessTypes.IDataAccess;
     signatureProvider?: SignatureProviderTypes.ISignatureProvider;
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
     currencyManager?: ICurrencyManager;
-    paymentOptions?: Partial<PaymentNetworkOptions>;
   }) {
     this.currencyManager = currencyManager || CurrencyManager.getDefault();
     this.advancedLogic = new AdvancedLogic(this.currencyManager);
     this.transaction = new TransactionManager(dataAccess, decryptionProvider);
     this.requestLogic = new RequestLogic(this.transaction, signatureProvider, this.advancedLogic);
     this.contentData = new ContentDataExtension(this.advancedLogic);
-    this.paymentNetworkFactory = new PaymentNetworkFactory(
-      this.advancedLogic,
-      this.currencyManager,
-      paymentOptions,
-    );
+
   }
 
   /**
@@ -189,16 +181,10 @@ export default class RequestNetwork {
       throw new Error(localUtils.formatGetRequestFromIdError(requestAndMeta));
     }
 
-    // get the request state. If the creation is not confirmed yet, get the pending state (useful for the payment network)
-    const requestState: RequestLogicTypes.IRequest = requestAndMeta.result.request
-      ? requestAndMeta.result.request
-      : (requestAndMeta.result.pending as RequestLogicTypes.IRequest);
-    const paymentNetwork = this.paymentNetworkFactory.getPaymentNetworkFromRequest(requestState);
 
     // create the request object
     const request = new Request(requestId, this.requestLogic, this.currencyManager, {
       contentDataExtension: this.contentData,
-      paymentNetwork,
       skipPaymentDetection: options?.disablePaymentDetection,
       disableEvents: options?.disableEvents,
     });
@@ -276,8 +262,6 @@ export default class RequestNetwork {
           ? requestFromLogic.request
           : (requestFromLogic.pending as RequestLogicTypes.IRequest);
 
-        const paymentNetwork =
-          this.paymentNetworkFactory.getPaymentNetworkFromRequest(requestState);
 
         // create the request object
         const request = new Request(
@@ -286,7 +270,6 @@ export default class RequestNetwork {
           this.currencyManager,
           {
             contentDataExtension: this.contentData,
-            paymentNetwork,
             skipPaymentDetection: options?.disablePaymentDetection,
             disableEvents: options?.disableEvents,
           },
@@ -329,8 +312,6 @@ export default class RequestNetwork {
           ? requestFromLogic.request
           : (requestFromLogic.pending as RequestLogicTypes.IRequest);
 
-        const paymentNetwork =
-          this.paymentNetworkFactory.getPaymentNetworkFromRequest(requestState);
 
         // create the request object
         const request = new Request(
@@ -339,7 +320,6 @@ export default class RequestNetwork {
           this.currencyManager,
           {
             contentDataExtension: this.contentData,
-            paymentNetwork,
             skipPaymentDetection: options?.disablePaymentDetection,
             disableEvents: options?.disableEvents,
           },
@@ -397,25 +377,6 @@ export default class RequestNetwork {
     const copiedRequestParameters = deepCopy(requestParameters);
     copiedRequestParameters.extensionsData = [];
 
-    const detectionChain =
-      parameters?.paymentNetwork?.parameters && 'network' in parameters.paymentNetwork.parameters
-        ? parameters.paymentNetwork.parameters.network ?? requestParameters.currency.network
-        : requestParameters.currency.network;
-
-    const paymentNetwork = parameters.paymentNetwork
-      ? this.paymentNetworkFactory.createPaymentNetwork(
-          parameters.paymentNetwork.id,
-          requestParameters.currency.type,
-          detectionChain,
-        )
-      : null;
-
-    if (paymentNetwork) {
-      // create the extensions data for the payment network
-      copiedRequestParameters.extensionsData.push(
-        await paymentNetwork.createExtensionsDataForCreation(parameters.paymentNetwork?.parameters),
-      );
-    }
 
     if (contentData) {
       // create the extensions data for the content data
@@ -436,6 +397,6 @@ export default class RequestNetwork {
       copiedRequestParameters.extensionsData.push(...requestParameters.extensionsData);
     }
 
-    return { requestParameters: copiedRequestParameters, topics, paymentNetwork };
+    return { requestParameters: copiedRequestParameters, topics, paymentNetwork: null };
   }
 }

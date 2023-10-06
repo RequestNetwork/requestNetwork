@@ -45,17 +45,13 @@
   "dependencies": {
     "@requestnetwork/advanced-logic": "0.38.0",
     "@requestnetwork/currency": "0.12.0",
-    "@requestnetwork/data-access": "0.30.0",
     "@requestnetwork/data-format": "0.13.0",
     "@requestnetwork/epk-signature": "0.5.38",
     "@requestnetwork/multi-format": "0.15.13",
-    "@requestnetwork/payment-detection": "0.39.0",
     "@requestnetwork/request-logic": "0.29.0",
-    "@requestnetwork/smart-contracts": "0.32.0",
     "@requestnetwork/transaction-manager": "0.30.0",
     "@requestnetwork/types": "0.39.0",
     "@requestnetwork/utils": "0.39.0",
-    "ethers": "5.5.1",
     "qs": "6.11.2",
     "tslib": "2.5.0"
   },

@@ -1,0 +1,684 @@
+Statistical profiling result from isolate-0x595fb40-20817-v8.log, (1793 ticks, 0 unaccounted, 0 excluded).
+
+ [Shared libraries]:
+   ticks  total  nonlib   name
+   1444   80.5%          /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+     53    3.0%          /lib/x86_64-linux-gnu/libc-2.31.so
+      3    0.2%          /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.28
+      2    0.1%          [vdso]
+
+ [JavaScript]:
+   ticks  total  nonlib   name
+     10    0.6%    3.4%  LazyCompile: *resolve node:path:1091:10
+      5    0.3%    1.7%  LazyCompile: *normalizeString node:path:66:25
+      2    0.1%    0.7%  LazyCompile: *Module._findPath node:internal/modules/cjs/loader:584:28
+      2    0.1%    0.7%  Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1    0.1%    0.3%  RegExp: \.*[\][<>]
+      1    0.1%    0.3%  LazyCompile: *validateString node:internal/validators:160:24
+      1    0.1%    0.3%  LazyCompile: *basename node:path:1305:11
+      1    0.1%    0.3%  LazyCompile: *Module._resolveLookupPaths node:internal/modules/cjs/loader:787:38
+      1    0.1%    0.3%  LazyCompile: *Module._nodeModulePaths node:internal/modules/cjs/loader:749:37
+      1    0.1%    0.3%  LazyCompile: *Module._load node:internal/modules/cjs/loader:888:24
+      1    0.1%    0.3%  Function: ^trySelfParentPath node:internal/modules/cjs/loader:512:27
+      1    0.1%    0.3%  Function: ^realpathSync node:fs:2577:22
+      1    0.1%    0.3%  Function: ^readFileSync node:fs:468:22
+      1    0.1%    0.3%  Function: ^makeRequireFunction node:internal/modules/cjs/helpers:72:29
+      1    0.1%    0.3%  Function: ^isAbsolute node:path:1155:13
+      1    0.1%    0.3%  Function: ^allocate node:buffer:450:18
+      1    0.1%    0.3%  Function: ^Module.load node:internal/modules/cjs/loader:1107:33
+      1    0.1%    0.3%  Function: ^Module._nodeModulePaths node:internal/modules/cjs/loader:749:37
+
+ [C++]:
+   ticks  total  nonlib   name
+    143    8.0%   49.1%  __write
+     28    1.6%    9.6%  _IO_fwrite
+     19    1.1%    6.5%  syscall
+     12    0.7%    4.1%  _IO_file_xsputn
+     10    0.6%    3.4%  std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)
+      9    0.5%    3.1%  __libc_malloc
+      6    0.3%    2.1%  std::ostream::sentry::sentry(std::ostream&)
+      6    0.3%    2.1%  __mprotect
+      4    0.2%    1.4%  std::ostream& std::ostream::_M_insert<long>(long)
+      4    0.2%    1.4%  __pthread_cond_wait
+      4    0.2%    1.4%  __GI___pthread_mutex_unlock
+      2    0.1%    0.7%  __pthread_cond_signal
+      2    0.1%    0.7%  __mmap
+      1    0.1%    0.3%  std::ostream::operator<<(int)
+      1    0.1%    0.3%  std::ostream::flush()
+      1    0.1%    0.3%  std::__cxx11::basic_ostringstream<char, std::char_traits<char>, std::allocator<char> >::basic_ostringstream(std::_Ios_Openmode)
+      1    0.1%    0.3%  operator new(unsigned long)
+      1    0.1%    0.3%  do_futex_wait.constprop.0
+      1    0.1%    0.3%  __madvise
+      1    0.1%    0.3%  __lll_lock_wait
+      1    0.1%    0.3%  _IO_file_sync
+      1    0.1%    0.3%  _IO_fflush
+
+ [Summary]:
+   ticks  total  nonlib   name
+     33    1.8%   11.3%  JavaScript
+    258   14.4%   88.7%  C++
+     38    2.1%   13.1%  GC
+   1502   83.8%          Shared libraries
+
+ [C++ entry points]:
+   ticks    cpp   total   name
+    132   57.1%    7.4%  __write
+     27   11.7%    1.5%  _IO_fwrite
+     19    8.2%    1.1%  syscall
+     12    5.2%    0.7%  _IO_file_xsputn
+     10    4.3%    0.6%  std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)
+      9    3.9%    0.5%  __libc_malloc
+      5    2.2%    0.3%  std::ostream::sentry::sentry(std::ostream&)
+      5    2.2%    0.3%  __mprotect
+      4    1.7%    0.2%  std::ostream& std::ostream::_M_insert<long>(long)
+      1    0.4%    0.1%  std::ostream::operator<<(int)
+      1    0.4%    0.1%  std::ostream::flush()
+      1    0.4%    0.1%  std::__cxx11::basic_ostringstream<char, std::char_traits<char>, std::allocator<char> >::basic_ostringstream(std::_Ios_Openmode)
+      1    0.4%    0.1%  operator new(unsigned long)
+      1    0.4%    0.1%  __madvise
+      1    0.4%    0.1%  __GI___pthread_mutex_unlock
+      1    0.4%    0.1%  _IO_file_sync
+      1    0.4%    0.1%  _IO_fflush
+
+ [Bottom up (heavy) profile]:
+  Note: percentage shows a share of a particular caller in the total
+  amount of its parent calls.
+  Callers occupying less than 1.0% are not shown.
+
+   ticks parent  name
+   1444   80.5%  /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+   1175   81.4%    /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+    754   64.2%      Function: ^internalCompileFunction node:internal/vm:31:33
+    736   97.6%        Function: ^wrapSafe node:internal/modules/cjs/loader:1154:18
+    733   99.6%          Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+    717   97.8%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+     16    2.2%            LazyCompile: ~Module._extensions..js node:internal/modules/cjs/loader:1265:37
+     18    2.4%        LazyCompile: ~wrapSafe node:internal/modules/cjs/loader:1154:18
+     18  100.0%          LazyCompile: ~Module._compile node:internal/modules/cjs/loader:1210:37
+     18  100.0%            LazyCompile: ~Module._extensions..js node:internal/modules/cjs/loader:1265:37
+     50    4.3%      /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      8   16.0%        Function: ^readPackage node:internal/modules/cjs/loader:364:21
+      7   87.5%          Function: ^readPackageScope node:internal/modules/cjs/loader:406:26
+      5   71.4%            Function: ^trySelf node:internal/modules/cjs/loader:526:17
+      2   28.6%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1   12.5%          LazyCompile: ~tryPackage node:internal/modules/cjs/loader:423:20
+      1  100.0%            Function: ^Module._findPath node:internal/modules/cjs/loader:584:28
+      3    6.0%        LazyCompile: ~resolvePackageTargetString node:internal/modules/esm/resolve:413:36
+      3  100.0%          LazyCompile: ~resolvePackageTarget node:internal/modules/esm/resolve:520:30
+      3  100.0%            LazyCompile: ~resolvePackageTarget node:internal/modules/esm/resolve:520:30
+      3    6.0%        Function: ^Module.load node:internal/modules/cjs/loader:1107:33
+      3  100.0%          Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      3  100.0%            Function: ^Module.require node:internal/modules/cjs/loader:1135:36
+      2    4.0%        LazyCompile: *realpathSync node:fs:2577:22
+      2  100.0%          LazyCompile: *Module._findPath node:internal/modules/cjs/loader:584:28
+      2  100.0%            Function: ^Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      2    4.0%        Function: ^Module node:internal/modules/cjs/loader:225:16
+      2  100.0%          Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      1   50.0%            LazyCompile: *Module.require node:internal/modules/cjs/loader:1135:36
+      1   50.0%            Function: ^Module.require node:internal/modules/cjs/loader:1135:36
+      2    4.0%        Function: ^FastBuffer node:internal/buffer:960:14
+      2  100.0%          Function: ^createUnsafeBuffer node:internal/buffer:1061:28
+      2  100.0%            Function: ^allocate node:buffer:450:18
+      1    2.0%        LazyCompile: ~toString /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/node_modules/cliui/build/index.cjs:82:13
+      1  100.0%          LazyCompile: ~P.n.help /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:15514
+      1  100.0%            LazyCompile: ~P.n.showHelp /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:20024
+      1    2.0%        LazyCompile: ~stringWidth /home/benji/dev/RequestNetwork/requestNetwork/node_modules/string-width/index.js:6:21
+      1  100.0%          LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:15033
+      1  100.0%            /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      1    2.0%        LazyCompile: ~populateMaps /home/benji/dev/RequestNetwork/requestNetwork/node_modules/mime-types/index.js:154:23
+      1  100.0%          Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/mime-types/index.js:1:1
+      1  100.0%            Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1    2.0%        LazyCompile: ~createTable /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/json-wallets/node_modules/@ethersproject/strings/lib/idna.js:15:21
+      1  100.0%          Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/json-wallets/node_modules/@ethersproject/strings/lib/idna.js:1:1
+      1  100.0%            Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1    2.0%        LazyCompile: ~createRangeTable /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/web/node_modules/@ethersproject/strings/lib/idna.js:28:26
+      1  100.0%          Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/web/node_modules/@ethersproject/strings/lib/idna.js:1:1
+      1  100.0%            Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1    2.0%        LazyCompile: ~createRangeTable /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/strings/lib/idna.js:28:26
+      1  100.0%          Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/strings/lib/idna.js:1:1
+      1  100.0%            Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1    2.0%        LazyCompile: ~applyLayoutDSL /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/node_modules/cliui/build/index.cjs:45:19
+      1  100.0%          LazyCompile: ~div /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/node_modules/cliui/build/index.cjs:25:8
+      1  100.0%            LazyCompile: ~P.n.help /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:15514
+      1    2.0%        LazyCompile: ~_checkNormalize /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/properties/node_modules/@ethersproject/logger/lib/index.js:10:25
+      1  100.0%          Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/properties/node_modules/@ethersproject/logger/lib/index.js:1:1
+      1  100.0%            Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1    2.0%        LazyCompile: ~P.n.help /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:15514
+      1  100.0%          LazyCompile: ~P.n.showHelp /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:20024
+      1  100.0%            LazyCompile: ~showHelp /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:42204
+      1    2.0%        LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:18693
+      1  100.0%          /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      1  100.0%            LazyCompile: ~P.n.help /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:15514
+      1    2.0%        LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:1155
+      1  100.0%          /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      1  100.0%            LazyCompile: ~o /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:937
+      1    2.0%        LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/lodash/lodash.js:17077:47
+      1  100.0%          Function: ^<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/lodash/lodash.js:4959:22
+      1  100.0%            LazyCompile: ~baseForOwn /home/benji/dev/RequestNetwork/requestNetwork/node_modules/lodash/lodash.js:3031:24
+      1    2.0%        LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/wordlists/node_modules/@ethersproject/strings/lib/idna.js:30:41
+      1  100.0%          /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      1  100.0%            LazyCompile: ~createRangeTable /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/wordlists/node_modules/@ethersproject/strings/lib/idna.js:28:26
+      1    2.0%        LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/abi/node_modules/@ethersproject/strings/lib/idna.js:21:38
+      1  100.0%          /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      1  100.0%            LazyCompile: ~createTable /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/abi/node_modules/@ethersproject/strings/lib/idna.js:15:21
+      1    2.0%        LazyCompile: *internalCompileFunction node:internal/vm:31:33
+      1  100.0%          Function: ^wrapSafe node:internal/modules/cjs/loader:1154:18
+      1  100.0%            Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1    2.0%        LazyCompile: *Module._findPath node:internal/modules/cjs/loader:584:28
+      1  100.0%          Function: ^Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      1  100.0%            Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      1    2.0%        Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/ws/lib/websocket.js:1:1
+      1  100.0%          Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1  100.0%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1    2.0%        Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@scure/bip39/wordlists/traditional-chinese.js:1:1
+      1  100.0%          Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1  100.0%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1    2.0%        Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@scure/bip39/wordlists/simplified-chinese.js:1:1
+      1  100.0%          Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1  100.0%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1    2.0%        Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@scure/bip39/wordlists/japanese.js:1:1
+      1  100.0%          Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1  100.0%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1    2.0%        Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@scure/bip32/node_modules/@noble/hashes/utils.js:1:1
+      1  100.0%          Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1  100.0%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1    2.0%        Function: ^wrapSafe node:internal/modules/cjs/loader:1154:18
+      1  100.0%          Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1  100.0%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1    2.0%        Function: ^stat node:internal/modules/cjs/loader:180:14
+      1  100.0%          LazyCompile: ~Module._findPath node:internal/modules/cjs/loader:584:28
+      1  100.0%            LazyCompile: ~Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      1    2.0%        Function: ^splitRoot node:fs:2533:33
+      1  100.0%          LazyCompile: *realpathSync node:fs:2577:22
+      1  100.0%            Function: ^toRealPath node:internal/modules/cjs/loader:478:20
+      1    2.0%        Function: ^resolve node:path:1091:10
+      1  100.0%          Function: ^readPackage node:internal/modules/cjs/loader:364:21
+      1  100.0%            Function: ^readPackageScope node:internal/modules/cjs/loader:406:26
+      1    2.0%        Function: ^realpathSync node:fs:2577:22
+      1  100.0%          Function: ^toRealPath node:internal/modules/cjs/loader:478:20
+      1  100.0%            Function: ^tryFile node:internal/modules/cjs/loader:469:17
+      1    2.0%        Function: ^readPackageScope node:internal/modules/cjs/loader:406:26
+      1  100.0%          Function: ^trySelf node:internal/modules/cjs/loader:526:17
+      1  100.0%            Function: ^Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      1    2.0%        Function: ^getOwn node:internal/bootstrap/loaders:189:16
+      1  100.0%          Function: ^syncExports node:internal/bootstrap/loaders:308:14
+      1  100.0%            LazyCompile: ~<anonymous> node:internal/bootstrap/loaders:294:15
+      1    2.0%        Function: ^<anonymous> node:internal/modules/cjs/loader:1:1
+      1  100.0%          Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      1  100.0%            LazyCompile: ~initializeCJSLoader node:internal/process/pre_execution:547:29
+      1    2.0%        Function: ^<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:1155
+      1  100.0%          /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      1  100.0%            Function: ^o /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:937
+     39    3.3%      Function: ^compileForInternalLoader node:internal/bootstrap/loaders:320:27
+     27   69.2%        Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      5   18.5%          Function: ~<anonymous> node:http:1:1
+      5  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:320:27
+      4   14.8%          Function: ~<anonymous> node:tls:1:1
+      4  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:320:27
+      3   11.1%          Function: ~<anonymous> node:_http_client:1:1
+      3  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:320:27
+      2    7.4%          LazyCompile: ~lazyWebCrypto node:crypto:125:23
+      2  100.0%            LazyCompile: ~get node:crypto:369:8
+      2    7.4%          Function: ~<anonymous> node:internal/child_process:1:1
+      2  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:320:27
+      2    7.4%          Function: ~<anonymous> node:child_process:1:1
+      2  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:320:27
+      2    7.4%          Function: ~<anonymous> node:assert:1:1
+      2  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:320:27
+      1    3.7%          LazyCompile: ~lazyLoadStreams node:fs:3010:25
+      1  100.0%            LazyCompile: ~get ReadStream node:fs:3155:17
+      1    3.7%          LazyCompile: ~createWritableStdioStream node:internal/bootstrap/switches/is_main_thread:45:35
+      1  100.0%            LazyCompile: ~getStderr node:internal/bootstrap/switches/is_main_thread:168:19
+      1    3.7%          Function: ~<anonymous> node:readline:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:320:27
+      1    3.7%          Function: ~<anonymous> node:https:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:320:27
+      1    3.7%          Function: ~<anonymous> node:_tls_wrap:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:320:27
+      1    3.7%          Function: ~<anonymous> node:_tls_common:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:320:27
+      1    3.7%          Function: ~<anonymous> node:_http_common:1:1
+      1  100.0%            Function: ^compileForInternalLoader node:internal/bootstrap/loaders:320:27
+      9   23.1%        Function: ^compileForPublicLoader node:internal/bootstrap/loaders:265:25
+      9  100.0%          Function: ^loadBuiltinModule node:internal/modules/cjs/helpers:52:27
+      9  100.0%            Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      2    5.1%        LazyCompile: ~compileForPublicLoader node:internal/bootstrap/loaders:265:25
+      2  100.0%          LazyCompile: ~loadBuiltinModule node:internal/modules/cjs/helpers:52:27
+      2  100.0%            LazyCompile: ~Module._load node:internal/modules/cjs/loader:888:24
+      1    2.6%        LazyCompile: *internalCompileFunction node:internal/vm:31:33
+      1  100.0%          Function: ^wrapSafe node:internal/modules/cjs/loader:1154:18
+      1  100.0%            Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+     28    2.4%      Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      4   14.3%        Function: ~<anonymous> node:internal/modules/esm/loader:1:1
+      4  100.0%          Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      4  100.0%            Function: ~<anonymous> node:internal/process/esm_loader:1:1
+      4   14.3%        Function: ~<anonymous> node:internal/modules/esm/fetch_module:1:1
+      4  100.0%          Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      4  100.0%            Function: ~<anonymous> node:internal/modules/esm/get_format:1:1
+      4   14.3%        Function: ~<anonymous> node:internal/fs/promises:1:1
+      4  100.0%          Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      4  100.0%            Function: ~<anonymous> node:internal/modules/esm/load:1:1
+      3   10.7%        LazyCompile: ~initializeCJSLoader node:internal/process/pre_execution:547:29
+      3  100.0%          LazyCompile: ~setupUserModules node:internal/process/pre_execution:125:26
+      3  100.0%            LazyCompile: ~prepareExecution node:internal/process/pre_execution:55:26
+      2    7.1%        Function: ~<anonymous> node:internal/process/esm_loader:1:1
+      2  100.0%          Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      2  100.0%            Function: ~<anonymous> node:internal/modules/cjs/loader:1:1
+      2    7.1%        Function: ~<anonymous> node:internal/modules/esm/load:1:1
+      2  100.0%          Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      2  100.0%            Function: ~<anonymous> node:internal/modules/esm/loader:1:1
+      1    3.6%        LazyCompile: ~setupFetch node:internal/process/pre_execution:225:20
+      1  100.0%          LazyCompile: ~prepareExecution node:internal/process/pre_execution:55:26
+      1  100.0%            LazyCompile: ~prepareMainThreadExecution node:internal/process/pre_execution:39:36
+      1    3.6%        Function: ~<anonymous> node:internal/source_map/source_map_cache:1:1
+      1  100.0%          Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      1  100.0%            LazyCompile: ~initializeSourceMapsHandlers node:internal/process/pre_execution:586:38
+      1    3.6%        Function: ~<anonymous> node:internal/readline/interface:1:1
+      1  100.0%          Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      1  100.0%            Function: ~<anonymous> node:internal/fs/promises:1:1
+      1    3.6%        Function: ~<anonymous> node:internal/modules/esm/resolve:1:1
+      1  100.0%          Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      1  100.0%            Function: ~<anonymous> node:internal/modules/esm/loader:1:1
+      1    3.6%        Function: ~<anonymous> node:internal/modules/esm/module_map:1:1
+      1  100.0%          Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      1  100.0%            Function: ~<anonymous> node:internal/modules/esm/loader:1:1
+      1    3.6%        Function: ~<anonymous> node:internal/modules/cjs/loader:1:1
+      1  100.0%          Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      1  100.0%            LazyCompile: ~initializeCJSLoader node:internal/process/pre_execution:547:29
+      1    3.6%        Function: ~<anonymous> node:internal/dns/utils:1:1
+      1  100.0%          Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      1  100.0%            LazyCompile: ~prepareExecution node:internal/process/pre_execution:55:26
+      1    3.6%        Function: ~<anonymous> node:internal/blocklist:1:1
+      1  100.0%          Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      1  100.0%            LazyCompile: ~get BlockList node:net:2321:16
+      1    3.6%        Function: ^internalCompileFunction node:internal/vm:31:33
+      1  100.0%          Function: ^wrapSafe node:internal/modules/cjs/loader:1154:18
+      1  100.0%            Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+     14    1.2%      Function: ^stat node:internal/modules/cjs/loader:180:14
+      7   50.0%        Function: ^tryFile node:internal/modules/cjs/loader:469:17
+      6   85.7%          Function: ^tryExtensions node:internal/modules/cjs/loader:485:23
+      6  100.0%            Function: ^Module._findPath node:internal/modules/cjs/loader:584:28
+      1   14.3%          Function: ^tryPackage node:internal/modules/cjs/loader:423:20
+      1  100.0%            Function: ^Module._findPath node:internal/modules/cjs/loader:584:28
+      7   50.0%        Function: ^Module._findPath node:internal/modules/cjs/loader:584:28
+      6   85.7%          Function: ^Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      6  100.0%            Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      1   14.3%          LazyCompile: ~Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      1  100.0%            LazyCompile: ~Module._load node:internal/modules/cjs/loader:888:24
+     14    1.2%      Function: ^Module._load node:internal/modules/cjs/loader:888:24
+     10   71.4%        Function: ^Module.require node:internal/modules/cjs/loader:1135:36
+     10  100.0%          Function: ^require node:internal/modules/cjs/helpers:117:31
+      1   10.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/packages/types/dist/index.js:1:1
+      1   10.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/packages/toolbox/node_modules/rxjs/dist/cjs/index.js:1:1
+      1   10.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/viem/dist/cjs/clients/decorators/test.js:1:1
+      1   10.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/lodash/isTypedArray.js:1:1
+      1   10.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/lodash/isArrayLike.js:1:1
+      1   10.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/lodash/clone.js:1:1
+      1   10.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/lodash/_baseGetTag.js:1:1
+      1   10.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/hash.js/lib/hash/sha/224.js:1:1
+      1   10.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/providers/lib/base-provider.js:1:1
+      1   10.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/abi/node_modules/@ethersproject/constants/lib/index.js:1:1
+      4   28.6%        LazyCompile: *Module.require node:internal/modules/cjs/loader:1135:36
+      4  100.0%          Function: ^require node:internal/modules/cjs/helpers:117:31
+      1   25.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/packages/toolbox/dist/commands/transaction/utils.js:1:1
+      1   25.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/packages/currency/dist/conversion-aggregators.js:1:1
+      1   25.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/packages/currency/dist/chains/evm/index.js:1:1
+      1   25.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/packages/advanced-logic/dist/extensions/payment-network/any-to-native.js:1:1
+     12    1.0%      LazyCompile: ~internalCompileFunction node:internal/vm:31:33
+     12  100.0%        LazyCompile: ~wrapSafe node:internal/modules/cjs/loader:1154:18
+     12  100.0%          LazyCompile: ~Module._compile node:internal/modules/cjs/loader:1210:37
+     12  100.0%            LazyCompile: ~Module._extensions..js node:internal/modules/cjs/loader:1265:37
+     12    1.0%      Function: ^readSync node:fs:708:18
+      8   66.7%        Function: ^tryReadSync node:fs:447:21
+      8  100.0%          Function: ^readFileSync node:fs:468:22
+      7   87.5%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1   12.5%            LazyCompile: ~Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      4   33.3%        LazyCompile: *readFileSync node:fs:468:22
+      2   50.0%          Function: ^Module._extensions..json node:internal/modules/cjs/loader:1315:39
+      2  100.0%            LazyCompile: *Module._load node:internal/modules/cjs/loader:888:24
+      2   50.0%          Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      2  100.0%            Function: ^Module.load node:internal/modules/cjs/loader:1107:33
+     26    1.8%    LazyCompile: *internalCompileFunction node:internal/vm:31:33
+     26  100.0%      Function: ^wrapSafe node:internal/modules/cjs/loader:1154:18
+     26  100.0%        Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+     26  100.0%          Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+     26  100.0%            Function: ^Module.load node:internal/modules/cjs/loader:1107:33
+     24    1.7%    LazyCompile: *realpathSync node:fs:2577:22
+     18   75.0%      Function: ^toRealPath node:internal/modules/cjs/loader:478:20
+     14   77.8%        Function: ^tryFile node:internal/modules/cjs/loader:469:17
+      8   57.1%          Function: ^tryExtensions node:internal/modules/cjs/loader:485:23
+      8  100.0%            Function: ^Module._findPath node:internal/modules/cjs/loader:584:28
+      5   35.7%          Function: ^tryPackage node:internal/modules/cjs/loader:423:20
+      4   80.0%            Function: ^Module._findPath node:internal/modules/cjs/loader:584:28
+      1   20.0%            LazyCompile: *Module._findPath node:internal/modules/cjs/loader:584:28
+      1    7.1%          Function: ^finalizeEsmResolution node:internal/modules/cjs/loader:1083:31
+      1  100.0%            LazyCompile: *Module._findPath node:internal/modules/cjs/loader:584:28
+      4   22.2%        LazyCompile: *Module._findPath node:internal/modules/cjs/loader:584:28
+      4  100.0%          Function: ^Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      4  100.0%            Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      6   25.0%      LazyCompile: *Module._findPath node:internal/modules/cjs/loader:584:28
+      6  100.0%        Function: ^Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      5   83.3%          Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      4   80.0%            Function: ^Module.require node:internal/modules/cjs/loader:1135:36
+      1   20.0%            LazyCompile: *Module.require node:internal/modules/cjs/loader:1135:36
+      1   16.7%          LazyCompile: *Module._load node:internal/modules/cjs/loader:888:24
+      1  100.0%            LazyCompile: *Module.require node:internal/modules/cjs/loader:1135:36
+     16    1.1%    LazyCompile: *Module._compile node:internal/modules/cjs/loader:1210:37
+     16  100.0%      Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+     16  100.0%        Function: ^Module.load node:internal/modules/cjs/loader:1107:33
+     16  100.0%          Function: ^Module._load node:internal/modules/cjs/loader:888:24
+     16  100.0%            LazyCompile: *Module.require node:internal/modules/cjs/loader:1135:36
+
+    143    8.0%  __write
+    104   72.7%    /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      4    3.8%      /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      1   25.0%        LazyCompile: ~getCallerFile /home/benji/dev/RequestNetwork/requestNetwork/node_modules/get-caller-file/index.js:6:40
+      1  100.0%          LazyCompile: ~commandDir /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:32797
+      1  100.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/packages/toolbox/dist/cli.js:1:1
+      1   25.0%        LazyCompile: ~applyEnvVars /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs-parser/build/index.cjs:674:30
+      1  100.0%          LazyCompile: ~parse /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs-parser/build/index.cjs:108:10
+      1  100.0%            LazyCompile: ~yargsParser.detailed /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs-parser/build/index.cjs:1043:33
+      1   25.0%        LazyCompile: ~P.n.help /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:15514
+      1  100.0%          LazyCompile: ~P.n.showHelp /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:20024
+      1  100.0%            LazyCompile: ~showHelp /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:42204
+      1   25.0%        LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:50245
+      1  100.0%          LazyCompile: ~Xt /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:28448
+      1  100.0%            LazyCompile: ~fe.Yargs /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:61285
+      3    2.9%      LazyCompile: ~prepareExecution node:internal/process/pre_execution:55:26
+      3  100.0%        LazyCompile: ~prepareMainThreadExecution node:internal/process/pre_execution:39:36
+      3  100.0%          Function: ~<anonymous> node:internal/main/run_main_module:1:1
+      3    2.9%      Function: ^<anonymous> node:internal/validators:438:42
+      3  100.0%        Function: ^internalCompileFunction node:internal/vm:31:33
+      3  100.0%          Function: ^wrapSafe node:internal/modules/cjs/loader:1154:18
+      3  100.0%            Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      2    1.9%      LazyCompile: ~module.exports /home/benji/dev/RequestNetwork/requestNetwork/node_modules/bluebird/js/release/promise.js:2:26
+      2  100.0%        Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/bluebird/js/release/bluebird.js:1:1
+      2  100.0%          Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      2  100.0%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      2    1.9%      LazyCompile: ~generateHolderClass /home/benji/dev/RequestNetwork/requestNetwork/node_modules/bluebird/js/release/join.js:27:39
+      2  100.0%        LazyCompile: ~module.exports /home/benji/dev/RequestNetwork/requestNetwork/node_modules/bluebird/js/release/join.js:3:9
+      2  100.0%          LazyCompile: ~module.exports /home/benji/dev/RequestNetwork/requestNetwork/node_modules/bluebird/js/release/promise.js:2:26
+      2  100.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/bluebird/js/release/bluebird.js:1:1
+      2    1.9%      LazyCompile: ~createWritableStdioStream node:internal/bootstrap/switches/is_main_thread:45:35
+      2  100.0%        LazyCompile: ~getStderr node:internal/bootstrap/switches/is_main_thread:168:19
+      2  100.0%          LazyCompile: ~refresh node:internal/util/colors:25:10
+      2  100.0%            Function: ~<anonymous> node:internal/util/colors:1:1
+     20   14.0%    LazyCompile: *internalCompileFunction node:internal/vm:31:33
+     20  100.0%      Function: ^wrapSafe node:internal/modules/cjs/loader:1154:18
+     20  100.0%        Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+     20  100.0%          Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+     20  100.0%            Function: ^Module.load node:internal/modules/cjs/loader:1107:33
+      8    5.6%    LazyCompile: *Module._compile node:internal/modules/cjs/loader:1210:37
+      8  100.0%      Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      8  100.0%        Function: ^Module.load node:internal/modules/cjs/loader:1107:33
+      8  100.0%          Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      8  100.0%            LazyCompile: *Module.require node:internal/modules/cjs/loader:1135:36
+
+     53    3.0%  /lib/x86_64-linux-gnu/libc-2.31.so
+     46   86.8%    /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      9   19.6%      /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      3   33.3%        Function: ^readPackage node:internal/modules/cjs/loader:364:21
+      2   66.7%          Function: ^readPackageScope node:internal/modules/cjs/loader:406:26
+      2  100.0%            Function: ^trySelf node:internal/modules/cjs/loader:526:17
+      1   33.3%          Function: ^tryPackage node:internal/modules/cjs/loader:423:20
+      1  100.0%            Function: ^Module._findPath node:internal/modules/cjs/loader:584:28
+      1   11.1%        LazyCompile: ~stringWidth /home/benji/dev/RequestNetwork/requestNetwork/node_modules/string-width/index.js:6:21
+      1  100.0%          LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:15033
+      1  100.0%            /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      1   11.1%        LazyCompile: ~_checkNormalize /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/base64/node_modules/@ethersproject/logger/lib/index.js:10:25
+      1  100.0%          Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/base64/node_modules/@ethersproject/logger/lib/index.js:1:1
+      1  100.0%            Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1   11.1%        LazyCompile: ~P.n.help /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:15514
+      1  100.0%          LazyCompile: ~P.n.showHelp /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:20024
+      1  100.0%            LazyCompile: ~showHelp /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:42204
+      1   11.1%        LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/web/node_modules/@ethersproject/strings/lib/idna.js:21:38
+      1  100.0%          /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      1  100.0%            LazyCompile: ~createTable /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/web/node_modules/@ethersproject/strings/lib/idna.js:15:21
+      1   11.1%        Function: ^internalCompileFunction node:internal/vm:31:33
+      1  100.0%          Function: ^wrapSafe node:internal/modules/cjs/loader:1154:18
+      1  100.0%            Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1   11.1%        Function: ^<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:1155
+      1  100.0%          /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      1  100.0%            LazyCompile: ~o /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:937
+      3    6.5%      LazyCompile: *realpathSync node:fs:2577:22
+      3  100.0%        LazyCompile: *Module._findPath node:internal/modules/cjs/loader:584:28
+      3  100.0%          Function: ^Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      3  100.0%            Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      3    6.5%      Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      2   66.7%        Function: ^Module.require node:internal/modules/cjs/loader:1135:36
+      2  100.0%          Function: ^require node:internal/modules/cjs/helpers:117:31
+      1   50.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/packages/toolbox/node_modules/rxjs/dist/cjs/internal/operators/combineLatestWith.js:1:1
+      1   50.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/signal-exit/index.js:1:1
+      1   33.3%        LazyCompile: *Module.require node:internal/modules/cjs/loader:1135:36
+      1  100.0%          Function: ^require node:internal/modules/cjs/helpers:117:31
+      1  100.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/packages/currency/dist/chains/evm/index.js:1:1
+      2    4.3%      LazyCompile: ~toRealPath node:internal/modules/cjs/loader:478:20
+      2  100.0%        LazyCompile: ~Module._findPath node:internal/modules/cjs/loader:584:28
+      2  100.0%          LazyCompile: ~resolveMainPath node:internal/modules/run_main:15:25
+      2  100.0%            LazyCompile: ~executeUserEntryPoint node:internal/modules/run_main:79:31
+      2    4.3%      LazyCompile: *resolve node:path:1091:10
+      2  100.0%        Function: ^readPackage node:internal/modules/cjs/loader:364:21
+      2  100.0%          Function: ^readPackageScope node:internal/modules/cjs/loader:406:26
+      1   50.0%            Function: ^trySelf node:internal/modules/cjs/loader:526:17
+      1   50.0%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      2    4.3%      LazyCompile: *readPackage node:internal/modules/cjs/loader:364:21
+      2  100.0%        LazyCompile: *readPackageScope node:internal/modules/cjs/loader:406:26
+      1   50.0%          Function: ^trySelf node:internal/modules/cjs/loader:526:17
+      1  100.0%            Function: ^Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      1   50.0%          Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1  100.0%            Function: ^Module.load node:internal/modules/cjs/loader:1107:33
+      2    4.3%      Function: ^Module._findPath node:internal/modules/cjs/loader:584:28
+      2  100.0%        Function: ^Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      2  100.0%          Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      2  100.0%            Function: ^Module.require node:internal/modules/cjs/loader:1135:36
+      1    2.2%      LazyCompile: ~setupTraceCategoryState node:internal/process/pre_execution:379:33
+      1  100.0%        LazyCompile: ~prepareExecution node:internal/process/pre_execution:55:26
+      1  100.0%          LazyCompile: ~prepareMainThreadExecution node:internal/process/pre_execution:39:36
+      1  100.0%            Function: ~<anonymous> node:internal/main/run_main_module:1:1
+      1    2.2%      LazyCompile: ~resolvePackageTargetString node:internal/modules/esm/resolve:413:36
+      1  100.0%        Function: ^resolvePackageTarget node:internal/modules/esm/resolve:520:30
+      1  100.0%          Function: ^resolvePackageTarget node:internal/modules/esm/resolve:520:30
+      1  100.0%            Function: ^packageExportsResolve node:internal/modules/esm/resolve:626:31
+      1    2.2%      LazyCompile: ~realpathSync node:fs:2577:22
+      1  100.0%        LazyCompile: ~toRealPath node:internal/modules/cjs/loader:478:20
+      1  100.0%          LazyCompile: ~Module._findPath node:internal/modules/cjs/loader:584:28
+      1  100.0%            LazyCompile: ~resolveMainPath node:internal/modules/run_main:15:25
+      1    2.2%      LazyCompile: ~prepareStackTrace node:internal/errors:89:27
+      1  100.0%        /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      1  100.0%          LazyCompile: ~getCallerFile /home/benji/dev/RequestNetwork/requestNetwork/node_modules/get-caller-file/index.js:6:40
+      1  100.0%            LazyCompile: ~commandDir /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:32797
+      1    2.2%      LazyCompile: ~prepareExecution node:internal/process/pre_execution:55:26
+      1  100.0%        LazyCompile: ~prepareMainThreadExecution node:internal/process/pre_execution:39:36
+      1  100.0%          Function: ~<anonymous> node:internal/main/run_main_module:1:1
+      1    2.2%      LazyCompile: ~patchProcessObject node:internal/process/pre_execution:139:28
+      1  100.0%        LazyCompile: ~prepareExecution node:internal/process/pre_execution:55:26
+      1  100.0%          LazyCompile: ~prepareMainThreadExecution node:internal/process/pre_execution:39:36
+      1  100.0%            Function: ~<anonymous> node:internal/main/run_main_module:1:1
+      1    2.2%      LazyCompile: ~nextTick node:internal/process/task_queues:103:18
+      1  100.0%        LazyCompile: ~onwrite node:internal/streams/writable:428:17
+      1  100.0%          LazyCompile: ~afterWriteDispatched node:internal/stream_base_commons:155:30
+      1  100.0%            LazyCompile: ~writeGeneric node:internal/stream_base_commons:147:22
+      1    2.2%      LazyCompile: ~assembleStyles /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ansi-styles/index.js:61:24
+      1  100.0%        LazyCompile: ~Module.load node:internal/modules/cjs/loader:1107:33
+      1  100.0%          LazyCompile: ~Module._load node:internal/modules/cjs/loader:888:24
+      1  100.0%            Function: ^Module.require node:internal/modules/cjs/loader:1135:36
+      1    2.2%      LazyCompile: ~__n /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/node_modules/y18n/build/index.cjs:48:8
+      1  100.0%        LazyCompile: ~nonOptionCount /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:51228
+      1  100.0%          LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:59292
+      1  100.0%            LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:49158
+      1    2.2%      LazyCompile: ~SHA256 /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@noble/curves/node_modules/@noble/hashes/sha256.js:32:16
+      1  100.0%        LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@noble/curves/node_modules/@noble/hashes/sha256.js:125:50
+      1  100.0%          LazyCompile: ~wrapConstructor /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@noble/curves/node_modules/@noble/hashes/utils.js:133:25
+      1  100.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@noble/curves/node_modules/@noble/hashes/sha256.js:1:1
+      1    2.2%      LazyCompile: ~FixedNumber.fromValue /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/hdnode/node_modules/@ethersproject/bignumber/lib/fixednumber.js:295:38
+      1  100.0%        LazyCompile: ~FixedNumber.from /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/hdnode/node_modules/@ethersproject/bignumber/lib/fixednumber.js:345:33
+      1  100.0%          Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/hdnode/node_modules/@ethersproject/bignumber/lib/fixednumber.js:1:1
+      1  100.0%            Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1    2.2%      LazyCompile: ~Duplex node:internal/streams/duplex:54:16
+      1  100.0%        LazyCompile: ~Socket node:net:366:16
+      1  100.0%          LazyCompile: ~WriteStream node:tty:84:21
+      1  100.0%            LazyCompile: ~createWritableStdioStream node:internal/bootstrap/switches/is_main_thread:45:35
+      1    2.2%      LazyCompile: ~BigNumber.lt /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@ethersproject/bignumber/lib/bignumber.js:130:39
+      1  100.0%        LazyCompile: ~formatFixed /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@ethersproject/bignumber/lib/fixednumber.js:37:21
+      1  100.0%          LazyCompile: ~FixedNumber.fromValue /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@ethersproject/bignumber/lib/fixednumber.js:295:38
+      1  100.0%            LazyCompile: ~FixedNumber.from /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@ethersproject/bignumber/lib/fixednumber.js:345:33
+      1    2.2%      LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/viem/node_modules/@noble/hashes/sha3.js:191:78
+      1  100.0%        LazyCompile: ~wrapConstructor /home/benji/dev/RequestNetwork/requestNetwork/node_modules/viem/node_modules/@noble/hashes/utils.js:133:25
+      1  100.0%          LazyCompile: ~gen /home/benji/dev/RequestNetwork/requestNetwork/node_modules/viem/node_modules/@noble/hashes/sha3.js:191:13
+      1  100.0%            Function: ^<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/viem/node_modules/@noble/hashes/sha3.js:1:1
+      1    2.2%      LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/hdnode/node_modules/@ethersproject/strings/lib/idna.js:30:41
+      1  100.0%        /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      1  100.0%          LazyCompile: ~createRangeTable /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/hdnode/node_modules/@ethersproject/strings/lib/idna.js:28:26
+      1  100.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/hdnode/node_modules/@ethersproject/strings/lib/idna.js:1:1
+      1    2.2%      LazyCompile: *Module._load node:internal/modules/cjs/loader:888:24
+      1  100.0%        LazyCompile: *Module.require node:internal/modules/cjs/loader:1135:36
+      1  100.0%          Function: ^require node:internal/modules/cjs/helpers:117:31
+      1  100.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/packages/payment-detection/dist/btc/default-providers/blockchain-info.js:1:1
+      1    2.2%      LazyCompile: *Module._findPath node:internal/modules/cjs/loader:584:28
+      1  100.0%        Function: ^Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      1  100.0%          Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      1  100.0%            Function: ^Module.require node:internal/modules/cjs/loader:1135:36
+      1    2.2%      Function: ~<anonymous> node:internal/modules/esm/fetch_module:1:1
+      1  100.0%        Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      1  100.0%          Function: ~<anonymous> node:internal/modules/esm/get_format:1:1
+      1  100.0%            Function: ^requireBuiltin node:internal/bootstrap/loaders:357:24
+      1    2.2%      Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/packages/utils/node_modules/@noble/curves/secp256k1.js:209:33
+      1  100.0%        Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/packages/utils/node_modules/@noble/curves/secp256k1.js:1:1
+      1  100.0%          Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1  100.0%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1    2.2%      Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/packages/toolbox/node_modules/rxjs/dist/cjs/internal/scheduler/QueueScheduler.js:20:32
+      1  100.0%        Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/packages/toolbox/node_modules/rxjs/dist/cjs/internal/scheduler/QueueScheduler.js:1:1
+      1  100.0%          Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1  100.0%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1    2.2%      Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/packages/multi-format/dist/encryption/encryption-format.js:1:1
+      1  100.0%        LazyCompile: *Module._compile node:internal/modules/cjs/loader:1210:37
+      1  100.0%          Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1  100.0%            Function: ^Module.load node:internal/modules/cjs/loader:1107:33
+      1    2.2%      Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/hash/node_modules/@ethersproject/strings/lib/idna.js:1:1
+      1  100.0%        Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1  100.0%          Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1  100.0%            Function: ^Module.load node:internal/modules/cjs/loader:1107:33
+      1    2.2%      Function: ^readPackage node:internal/modules/cjs/loader:364:21
+      1  100.0%        Function: ^resolveExports node:internal/modules/cjs/loader:557:24
+      1  100.0%          Function: ^Module._findPath node:internal/modules/cjs/loader:584:28
+      1  100.0%            Function: ^Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      3    5.7%    LazyCompile: *internalCompileFunction node:internal/vm:31:33
+      3  100.0%      Function: ^wrapSafe node:internal/modules/cjs/loader:1154:18
+      3  100.0%        Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      3  100.0%          Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      3  100.0%            Function: ^Module.load node:internal/modules/cjs/loader:1107:33
+      2    3.8%    LazyCompile: *Module._compile node:internal/modules/cjs/loader:1210:37
+      2  100.0%      Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      2  100.0%        Function: ^Module.load node:internal/modules/cjs/loader:1107:33
+      2  100.0%          Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      2  100.0%            LazyCompile: *Module.require node:internal/modules/cjs/loader:1135:36
+
+     28    1.6%  _IO_fwrite
+     15   53.6%    /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      2   13.3%      LazyCompile: ~patchProcessObject node:internal/process/pre_execution:139:28
+      2  100.0%        LazyCompile: ~prepareExecution node:internal/process/pre_execution:55:26
+      2  100.0%          LazyCompile: ~prepareMainThreadExecution node:internal/process/pre_execution:39:36
+      2  100.0%            Function: ~<anonymous> node:internal/main/run_main_module:1:1
+      1    6.7%      LazyCompile: ~realpathSync node:fs:2577:22
+      1  100.0%        LazyCompile: ~toRealPath node:internal/modules/cjs/loader:478:20
+      1  100.0%          LazyCompile: ~Module._findPath node:internal/modules/cjs/loader:584:28
+      1  100.0%            LazyCompile: ~resolveMainPath node:internal/modules/run_main:15:25
+      1    6.7%      LazyCompile: ~parseName /home/benji/dev/RequestNetwork/requestNetwork/node_modules/graphql/language/parser.js:97:40
+      1  100.0%        LazyCompile: ~parseField /home/benji/dev/RequestNetwork/requestNetwork/node_modules/graphql/language/parser.js:293:42
+      1  100.0%          LazyCompile: ~parseSelection /home/benji/dev/RequestNetwork/requestNetwork/node_modules/graphql/language/parser.js:283:50
+      1  100.0%            LazyCompile: ~many /home/benji/dev/RequestNetwork/requestNetwork/node_modules/graphql/language/parser.js:1518:30
+      1    6.7%      LazyCompile: ~normalize /home/benji/dev/RequestNetwork/requestNetwork/node_modules/graphql-tag/lib/graphql-tag.umd.js:11:23
+      1  100.0%        LazyCompile: ~parseDocument /home/benji/dev/RequestNetwork/requestNetwork/node_modules/graphql-tag/lib/graphql-tag.umd.js:66:27
+      1  100.0%          LazyCompile: ~gql /home/benji/dev/RequestNetwork/requestNetwork/node_modules/graphql-tag/lib/graphql-tag.umd.js:79:17
+      1  100.0%            Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/packages/payment-detection/dist/thegraph/generated/graphql.js:1:1
+      1    6.7%      LazyCompile: ~nextTick node:internal/process/task_queues:103:18
+      1  100.0%        LazyCompile: ~onwrite node:internal/streams/writable:428:17
+      1  100.0%          LazyCompile: ~afterWriteDispatched node:internal/stream_base_commons:155:30
+      1  100.0%            LazyCompile: ~writeGeneric node:internal/stream_base_commons:147:22
+      1    6.7%      LazyCompile: ~createWritableStdioStream node:internal/bootstrap/switches/is_main_thread:45:35
+      1  100.0%        LazyCompile: ~getStderr node:internal/bootstrap/switches/is_main_thread:168:19
+      1  100.0%          LazyCompile: ~refresh node:internal/util/colors:25:10
+      1  100.0%            Function: ~<anonymous> node:internal/util/colors:1:1
+      1    6.7%      LazyCompile: ~createInstance /home/benji/dev/RequestNetwork/requestNetwork/node_modules/axios/lib/axios.js:15:24
+      1  100.0%        Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/axios/lib/axios.js:1:1
+      1  100.0%          Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1  100.0%            Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1    6.7%      LazyCompile: ~assertEncoding node:internal/fs/utils:155:24
+      1  100.0%        LazyCompile: ~getOptions node:internal/fs/utils:320:20
+      1  100.0%          LazyCompile: ~readFileSync node:fs:468:22
+      1  100.0%            LazyCompile: ~Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1    6.7%      LazyCompile: ~__n /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/node_modules/y18n/build/index.cjs:48:8
+      1  100.0%        LazyCompile: ~nonOptionCount /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:51228
+      1  100.0%          LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:59292
+      1  100.0%            LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/yargs/build/index.cjs:1:49158
+      1    6.7%      LazyCompile: ~__extends /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@ethersproject/wordlists/lib/lang-es.js:9:21
+      1  100.0%        Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@ethersproject/wordlists/lib/lang-es.js:65:38
+      1  100.0%          Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@ethersproject/wordlists/lib/lang-es.js:1:1
+      1  100.0%            Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1    6.7%      LazyCompile: ~Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1  100.0%        LazyCompile: ~Module.load node:internal/modules/cjs/loader:1107:33
+      1  100.0%          LazyCompile: ~Module._load node:internal/modules/cjs/loader:888:24
+      1  100.0%            LazyCompile: ~executeUserEntryPoint node:internal/modules/run_main:79:31
+      1    6.7%      LazyCompile: ~BigNumber.mod /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/constants/node_modules/@ethersproject/bignumber/lib/bignumber.js:74:40
+      1  100.0%        LazyCompile: ~formatFixed /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/constants/node_modules/@ethersproject/bignumber/lib/fixednumber.js:37:21
+      1  100.0%          LazyCompile: ~FixedNumber.fromValue /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/constants/node_modules/@ethersproject/bignumber/lib/fixednumber.js:295:38
+      1  100.0%            LazyCompile: ~FixedNumber.from /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/constants/node_modules/@ethersproject/bignumber/lib/fixednumber.js:345:33
+      1    6.7%      LazyCompile: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@scure/bip39/node_modules/@noble/hashes/sha512.js:30:7
+      1  100.0%        /home/benji/.asdf/installs/nodejs/18.18.0/bin/node
+      1  100.0%          Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/@scure/bip39/node_modules/@noble/hashes/sha512.js:1:1
+      1  100.0%            Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1    6.7%      Function: ~<anonymous> /home/benji/dev/RequestNetwork/requestNetwork/node_modules/ethers/node_modules/@ethersproject/hdnode/node_modules/@ethersproject/wordlists/lib/lang-it.js:1:1
+      1  100.0%        Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      1  100.0%          Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1  100.0%            Function: ^Module.load node:internal/modules/cjs/loader:1107:33
+      9   32.1%    LazyCompile: *internalCompileFunction node:internal/vm:31:33
+      9  100.0%      Function: ^wrapSafe node:internal/modules/cjs/loader:1154:18
+      9  100.0%        Function: ^Module._compile node:internal/modules/cjs/loader:1210:37
+      9  100.0%          Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      9  100.0%            Function: ^Module.load node:internal/modules/cjs/loader:1107:33
+      3   10.7%    LazyCompile: *Module._compile node:internal/modules/cjs/loader:1210:37
+      3  100.0%      Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      3  100.0%        Function: ^Module.load node:internal/modules/cjs/loader:1107:33
+      3  100.0%          Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      3  100.0%            LazyCompile: *Module.require node:internal/modules/cjs/loader:1135:36
+
+     19    1.1%  syscall
+      7   36.8%    LazyCompile: *realpathSync node:fs:2577:22
+      5   71.4%      Function: ^toRealPath node:internal/modules/cjs/loader:478:20
+      4   80.0%        Function: ^tryFile node:internal/modules/cjs/loader:469:17
+      4  100.0%          Function: ^tryExtensions node:internal/modules/cjs/loader:485:23
+      3   75.0%            Function: ^Module._findPath node:internal/modules/cjs/loader:584:28
+      1   25.0%            Function: ^tryPackage node:internal/modules/cjs/loader:423:20
+      1   20.0%        Function: ^Module._findPath node:internal/modules/cjs/loader:584:28
+      1  100.0%          Function: ^Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      1  100.0%            Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      2   28.6%      LazyCompile: *Module._findPath node:internal/modules/cjs/loader:584:28
+      2  100.0%        Function: ^Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      1   50.0%          LazyCompile: *Module._load node:internal/modules/cjs/loader:888:24
+      1  100.0%            LazyCompile: *Module.require node:internal/modules/cjs/loader:1135:36
+      1   50.0%          Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      1  100.0%            Function: ^Module.require node:internal/modules/cjs/loader:1135:36
+      6   31.6%    LazyCompile: *Module._findPath node:internal/modules/cjs/loader:584:28
+      6  100.0%      Function: ^Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      5   83.3%        Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      5  100.0%          Function: ^Module.require node:internal/modules/cjs/loader:1135:36
+      5  100.0%            Function: ^require node:internal/modules/cjs/helpers:117:31
+      1   16.7%        LazyCompile: *Module._load node:internal/modules/cjs/loader:888:24
+      1  100.0%          LazyCompile: *Module.require node:internal/modules/cjs/loader:1135:36
+      1  100.0%            Function: ^require node:internal/modules/cjs/helpers:117:31
+      5   26.3%    LazyCompile: *stat node:internal/modules/cjs/loader:180:14
+      4   80.0%      Function: ^Module._findPath node:internal/modules/cjs/loader:584:28
+      4  100.0%        Function: ^Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      4  100.0%          Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      3   75.0%            LazyCompile: *Module.require node:internal/modules/cjs/loader:1135:36
+      1   25.0%            Function: ^Module.require node:internal/modules/cjs/loader:1135:36
+      1   20.0%      Function: ^tryFile node:internal/modules/cjs/loader:469:17
+      1  100.0%        Function: ^tryExtensions node:internal/modules/cjs/loader:485:23
+      1  100.0%          Function: ^Module._findPath node:internal/modules/cjs/loader:584:28
+      1  100.0%            Function: ^Module._resolveFilename node:internal/modules/cjs/loader:986:35
+      1    5.3%    LazyCompile: *readFileSync node:fs:468:22
+      1  100.0%      Function: ^Module._extensions..js node:internal/modules/cjs/loader:1265:37
+      1  100.0%        Function: ^Module.load node:internal/modules/cjs/loader:1107:33
+      1  100.0%          Function: ^Module._load node:internal/modules/cjs/loader:888:24
+      1  100.0%            LazyCompile: *Module.require node:internal/modules/cjs/loader:1135:36
+

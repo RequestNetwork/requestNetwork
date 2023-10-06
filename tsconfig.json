@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2020",
+    "target": "ES2019",
     "module": "commonjs",
     "importHelpers": true,
     "composite": true,
@@ -13,6 +13,6 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "useUnknownInCatchVariables": false,
-    "lib": ["es2019"]
+    "lib": ["es2019", "ES2020.BigInt"]
   }
 }

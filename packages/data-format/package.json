@@ -41,7 +41,6 @@
   },
   "dependencies": {
     "ajv": "6.12.4",
-    "ethers": "5.5.1",
     "tslib": "2.5.0"
   },
   "devDependencies": {

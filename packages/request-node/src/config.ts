@@ -1,6 +1,5 @@
 import * as yargs from 'yargs';
 import { config } from 'dotenv';
-import { BigNumber } from 'ethers';
 
 import { LogTypes } from '@requestnetwork/types';
 
@@ -94,13 +93,13 @@ export const getGraphNodeUrl = makeOption(
   defaultValues.storage.thegraph.nodeUrl,
 );
 
-export function getGasPriceMin(): BigNumber | undefined {
+export function getGasPriceMin(): bigint | undefined {
   const gasPriceMin = getOption(
     'gasPriceMin',
     'GAS_PRICE_MIN',
     defaultValues.storage.ethereum.gasPriceMin,
   );
-  return gasPriceMin ? BigNumber.from(gasPriceMin) : undefined;
+  return gasPriceMin ? BigInt(gasPriceMin) : undefined;
 }
 
 export function getGasPriceMax(): BigNumber | undefined {

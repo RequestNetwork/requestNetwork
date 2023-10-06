@@ -1,21 +1,5 @@
-import * as metamaskContractMap from '@metamask/contract-metadata';
 import { TokenMap } from '../../types';
 
-// These interfaces are declared here because they should be used only in this context
-// A Token description from the eth-contract-metadata list
-interface IMetamaskTokenDescription {
-  name: string;
-  logo?: string;
-  erc20: boolean;
-  symbol: string;
-  decimals: number;
-  address?: string;
-}
-
-// The map containing all the ITokenDescription objects
-interface IMetamaskTokenMap {
-  [address: string]: IMetamaskTokenDescription;
-}
 
 export const extraERC20Tokens = {
   // INDA
@@ -75,18 +59,5 @@ export const extraERC20Tokens = {
 
 // Merge metamask contracts list with our own
 export const supportedMainnetERC20: TokenMap = {
-  ...Object.entries(metamaskContractMap as IMetamaskTokenMap)
-    .filter(([, val]) => val.erc20)
-    .reduce(
-      (prev, [key, val]) => ({
-        ...prev,
-        [key]: {
-          name: val.name,
-          symbol: val.symbol,
-          decimals: val.decimals,
-        },
-      }),
-      {},
-    ),
   ...extraERC20Tokens,
 };

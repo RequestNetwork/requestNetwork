@@ -2,7 +2,6 @@ import { IdentityTypes, SignatureProviderTypes, SignatureTypes } from '@requestn
 
 import { areEqualIdentities, normalize, recoverSigner } from '@requestnetwork/utils';
 
-import { providers } from 'ethers';
 
 /**
  * Implementation of the web3 signature provider
@@ -15,11 +14,11 @@ export default class Web3SignatureProvider implements SignatureProviderTypes.ISi
   public supportedIdentityTypes: IdentityTypes.TYPE[] = [IdentityTypes.TYPE.ETHEREUM_ADDRESS];
 
   /** public for test purpose */
-  public web3Provider: providers.Web3Provider;
+  public web3Provider: any;
 
   public constructor(web3Provider: any) {
     try {
-      this.web3Provider = new providers.Web3Provider(web3Provider);
+      this.web3Provider = web3Provider;
     } catch (error) {
       throw Error(`Can't initialize Web3Provider ${error}`);
     }
