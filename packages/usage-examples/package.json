@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/usage-examples",
-  "version": "0.23.10",
+  "version": "0.24.0",
   "private": true,
   "description": "Usage examples of Request Network.",
   "keywords": [
@@ -28,16 +28,16 @@
     "prepare": "yarn run build"
   },
   "dependencies": {
-    "@requestnetwork/data-access": "0.27.0",
-    "@requestnetwork/epk-decryption": "0.3.34",
-    "@requestnetwork/epk-signature": "0.5.35",
-    "@requestnetwork/multi-format": "0.15.10",
-    "@requestnetwork/payment-processor": "0.38.0",
-    "@requestnetwork/request-client.js": "0.40.0",
-    "@requestnetwork/request-logic": "0.26.10",
-    "@requestnetwork/transaction-manager": "0.27.0",
-    "@requestnetwork/types": "0.36.0",
-    "@requestnetwork/utils": "0.36.0",
+    "@requestnetwork/data-access": "0.28.0",
+    "@requestnetwork/epk-decryption": "0.3.35",
+    "@requestnetwork/epk-signature": "0.5.36",
+    "@requestnetwork/multi-format": "0.15.11",
+    "@requestnetwork/payment-processor": "0.39.0",
+    "@requestnetwork/request-client.js": "0.41.0",
+    "@requestnetwork/request-logic": "0.27.0",
+    "@requestnetwork/transaction-manager": "0.28.0",
+    "@requestnetwork/types": "0.37.0",
+    "@requestnetwork/utils": "0.37.0",
     "ethers": "5.5.1",
     "tslib": "2.5.0"
   },

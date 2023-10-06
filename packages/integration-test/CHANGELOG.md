@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.30.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/integration-test@0.27.0...@requestnetwork/integration-test@0.30.0) (2023-10-06)
+
+### Bug Fixes
+
+- **integration-tests:** unskip tests ([#1107](https://github.com/RequestNetwork/requestNetwork/issues/1107)) ([af5c902](https://github.com/RequestNetwork/requestNetwork/commit/af5c90292376a4c841d621e22b12c38d2c61efb6))
+- balance of detected payments for declared extensions ([#646](https://github.com/RequestNetwork/requestNetwork/issues/646)) ([f0d5492](https://github.com/RequestNetwork/requestNetwork/commit/f0d5492dc612a5be8e8cf2d63f8a9689b53fd18e))
+- detection conversion currency check ([#1090](https://github.com/RequestNetwork/requestNetwork/issues/1090)) ([22d94d5](https://github.com/RequestNetwork/requestNetwork/commit/22d94d50d4336bc6572c0ed3166c0f0cdcde9d6d))
+- fixed failing test, added expected payment event ([#854](https://github.com/RequestNetwork/requestNetwork/issues/854)) ([2544afa](https://github.com/RequestNetwork/requestNetwork/commit/2544afa946f08bd285eed729f25cb4cb48647bff))
+- fixing scheduled tests ([#798](https://github.com/RequestNetwork/requestNetwork/issues/798)) ([332e3ab](https://github.com/RequestNetwork/requestNetwork/commit/332e3abb9564ad0a8d508eb51a3e5817c90cc004))
+- getDataIdMeta heavy load ([#613](https://github.com/RequestNetwork/requestNetwork/issues/613)) ([fa8bf9e](https://github.com/RequestNetwork/requestNetwork/commit/fa8bf9e77a98d27ad6e21a8118995e6930a99407))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+
+### Features
+
+- add delegate in request client ([#541](https://github.com/RequestNetwork/requestNetwork/issues/541)) ([253b308](https://github.com/RequestNetwork/requestNetwork/commit/253b30847f261840508a14cabf5dea93bb7c5dba))
+- Currency Manager ([#571](https://github.com/RequestNetwork/requestNetwork/issues/571)) ([3a68ad3](https://github.com/RequestNetwork/requestNetwork/commit/3a68ad31fc049e13f0f6dac4759b08c06b33416b))
+- currencyManager manages conversion paths ([#699](https://github.com/RequestNetwork/requestNetwork/issues/699)) ([7f6e1d1](https://github.com/RequestNetwork/requestNetwork/commit/7f6e1d1a6a06e5666ad7c784e5ab14a7b6f400a1))
+- ERC20FeeProxy on Near testnet ([#1086](https://github.com/RequestNetwork/requestNetwork/issues/1086)) ([6ac8c28](https://github.com/RequestNetwork/requestNetwork/commit/6ac8c287b8838af93e9384bc30352b334dba116a))
+- ERC20TransferableReceivable payment network ([#1033](https://github.com/RequestNetwork/requestNetwork/issues/1033)) ([cfea8a3](https://github.com/RequestNetwork/requestNetwork/commit/cfea8a31e39ba4315b8ffc9971cbb3155be2dde1))
+- escrow detector class ([#773](https://github.com/RequestNetwork/requestNetwork/issues/773)) ([c4c2276](https://github.com/RequestNetwork/requestNetwork/commit/c4c22765df68a6438e4a0e9bc3d6255e844da791))
+- Eth native payments detection from TheGraph ([#656](https://github.com/RequestNetwork/requestNetwork/issues/656)) ([b492a38](https://github.com/RequestNetwork/requestNetwork/commit/b492a38c390d24596fe20903fdaa259e9ceee60b))
+- Near detection with autobahn ([#576](https://github.com/RequestNetwork/requestNetwork/issues/576)) ([86e0145](https://github.com/RequestNetwork/requestNetwork/commit/86e01459a6b32dacfa778434226f374f7668786c))
+- payment detection for ethereum fee proxy ([#585](https://github.com/RequestNetwork/requestNetwork/issues/585)) ([c78803f](https://github.com/RequestNetwork/requestNetwork/commit/c78803fb1333917b843db935df0114a50e294f5f))
+- Payment network any-to-eth in the payment processor ([#610](https://github.com/RequestNetwork/requestNetwork/issues/610)) ([a7c12ac](https://github.com/RequestNetwork/requestNetwork/commit/a7c12ac3c28dd6b4f144f10bad1223ed5c48d02e))
+- payment-detection with TheGraph ([#519](https://github.com/RequestNetwork/requestNetwork/issues/519)) ([c068b88](https://github.com/RequestNetwork/requestNetwork/commit/c068b88786111558a84cdff941bc60dd04f6034a))
+- pn to smart-contract version mapping ([#649](https://github.com/RequestNetwork/requestNetwork/issues/649)) ([d45ab85](https://github.com/RequestNetwork/requestNetwork/commit/d45ab85c2c47b8d7325fef78965ad94272250598))
+- Start of SuperFluid integration ([#671](https://github.com/RequestNetwork/requestNetwork/issues/671)) ([ab828ce](https://github.com/RequestNetwork/requestNetwork/commit/ab828ce44f99023a8b8825b5cef0b09c8d019a5f))
+- SuperFluid advanced logic ([#797](https://github.com/RequestNetwork/requestNetwork/issues/797)) ([de5ef06](https://github.com/RequestNetwork/requestNetwork/commit/de5ef06e50a7950d49d35dfe318c01190a6a91e5))
+- **request-node:** TheGraph as data access ([#717](https://github.com/RequestNetwork/requestNetwork/issues/717)) ([651e77f](https://github.com/RequestNetwork/requestNetwork/commit/651e77f5fbb1f1c18d01381a8e439029e1d61f30))
+
 # [0.29.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/integration-test@0.27.0...@requestnetwork/integration-test@0.29.0) (2022-11-04)
 
 ### Bug Fixes

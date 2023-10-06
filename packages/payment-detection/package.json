@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/payment-detection",
-  "version": "0.36.0",
+  "version": "0.37.0",
   "publishConfig": {
     "access": "public"
   },
@@ -41,10 +41,10 @@
     "codegen": "graphql-codegen --config codegen.yml ; graphql-codegen --config codegen-superfluid.yml; graphql-codegen --config codegen-near.yml"
   },
   "dependencies": {
-    "@requestnetwork/currency": "0.9.0",
-    "@requestnetwork/smart-contracts": "0.29.0",
-    "@requestnetwork/types": "0.36.0",
-    "@requestnetwork/utils": "0.36.0",
+    "@requestnetwork/currency": "0.10.0",
+    "@requestnetwork/smart-contracts": "0.30.0",
+    "@requestnetwork/types": "0.37.0",
+    "@requestnetwork/utils": "0.37.0",
     "axios": "0.27.2",
     "ethers": "5.5.1",
     "graphql": "15.5.1",
@@ -62,7 +62,7 @@
     "@graphql-codegen/typescript-operations": "1.18.0",
     "@graphql-codegen/typescript-resolvers": "1.19.2",
     "@jridgewell/gen-mapping": "0.3.2",
-    "@requestnetwork/advanced-logic": "0.35.0",
+    "@requestnetwork/advanced-logic": "0.36.0",
     "@types/jest": "26.0.13",
     "@types/lodash": "4.14.161",
     "jest": "26.4.2",

@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.35](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/epk-decryption@0.3.24...@requestnetwork/epk-decryption@0.3.35) (2023-10-06)
+
+### Bug Fixes
+
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- webpack ts-loader build conf ([#779](https://github.com/RequestNetwork/requestNetwork/issues/779)) ([4288234](https://github.com/RequestNetwork/requestNetwork/commit/4288234726248ebabdc6d01e0fb3c6222e41f58a))
+
 ## [0.3.34](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/epk-decryption@0.3.24...@requestnetwork/epk-decryption@0.3.34) (2022-11-04)
 
 ### Bug Fixes
