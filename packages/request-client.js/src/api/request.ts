@@ -164,6 +164,7 @@ export default class Request {
   public async accept(
     signerIdentity: IdentityTypes.IIdentity,
     refundInformation?: any,
+    topics: any[] = [],
   ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
     if (refundInformation) {
@@ -179,7 +180,7 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    const acceptResult = await this.requestLogic.acceptRequest(parameters, signerIdentity, true);
+    const acceptResult = await this.requestLogic.acceptRequest(parameters, signerIdentity, true, topics);
 
     return this.handleRequestDataEvents(acceptResult);
   }
