@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.27.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.26.0...@requestnetwork/request-logic@0.27.0) (2023-10-06)
+
+### Bug Fixes
+
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+
+### Features
+
+- add `addStakeholders` ([#1025](https://github.com/RequestNetwork/requestNetwork/issues/1025)) ([5e00068](https://github.com/RequestNetwork/requestNetwork/commit/5e000689d25581ec93a0489be6e728dbe9e913c9))
+- ERC20FeeProxy on Near testnet ([#1086](https://github.com/RequestNetwork/requestNetwork/issues/1086)) ([6ac8c28](https://github.com/RequestNetwork/requestNetwork/commit/6ac8c287b8838af93e9384bc30352b334dba116a))
+
 ## [0.26.10](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.26.0...@requestnetwork/request-logic@0.26.10) (2022-11-04)
 
 ### Bug Fixes

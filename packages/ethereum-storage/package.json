@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/ethereum-storage",
-  "version": "0.27.0",
+  "version": "0.28.0",
   "publishConfig": {
     "access": "public"
   },
@@ -40,10 +40,11 @@
     "init-ipfs": "node scripts/init-ipfs.js"
   },
   "dependencies": {
-    "@requestnetwork/currency": "0.9.0",
-    "@requestnetwork/smart-contracts": "0.29.0",
-    "@requestnetwork/types": "0.36.0",
-    "@requestnetwork/utils": "0.36.0",
+    "@rainbow-me/fee-suggestions": "2.1.0",
+    "@requestnetwork/currency": "0.10.0",
+    "@requestnetwork/smart-contracts": "0.30.0",
+    "@requestnetwork/types": "0.37.0",
+    "@requestnetwork/utils": "0.37.0",
     "axios": "0.27.2",
     "bluebird": "3.7.2",
     "ethers": "5.5.1",

@@ -246,7 +246,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       case RequestLogicTypes.CURRENCY.ERC777:
         if (NearChains.isChainSupported(currency.network)) {
           return isValidNearAddress(address, currency.network);
-        } else if (currency.network === 'tron') {
+        } else if (currency.network === 'tron' || currency.network === 'solana') {
           return addressValidator.validate(address, currency.network);
         }
         return addressValidator.validate(address, 'ETH');

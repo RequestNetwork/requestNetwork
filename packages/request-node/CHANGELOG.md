@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.28.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-node@0.23.0...@requestnetwork/request-node@0.28.0) (2023-10-06)
+
+### Bug Fixes
+
+- **ethereum-storage:** OldNonce error, wait for 1 confirmation when submitting hashes ([#1078](https://github.com/RequestNetwork/requestNetwork/issues/1078)) ([35f2ede](https://github.com/RequestNetwork/requestNetwork/commit/35f2edee22fbc68c06abc7c455e8d58e9c7717b1))
+- **graph node:** graphql query name ([#864](https://github.com/RequestNetwork/requestNetwork/issues/864)) ([5ea56a4](https://github.com/RequestNetwork/requestNetwork/commit/5ea56a4ddf0e0c68ce8043a4e0c39ddf31209876))
+- **integration-tests:** unskip tests ([#1107](https://github.com/RequestNetwork/requestNetwork/issues/1107)) ([af5c902](https://github.com/RequestNetwork/requestNetwork/commit/af5c90292376a4c841d621e22b12c38d2c61efb6))
+- **request node:** typo in config ([#999](https://github.com/RequestNetwork/requestNetwork/issues/999)) ([cd7666f](https://github.com/RequestNetwork/requestNetwork/commit/cd7666f6ce314034322e87306bedc5e38156a1a1))
+- **request node:** wrong network name for mainnet ([#952](https://github.com/RequestNetwork/requestNetwork/issues/952)) ([ddab4e4](https://github.com/RequestNetwork/requestNetwork/commit/ddab4e492fdd2b8880981e844d250d7f39e3a606))
+- **request-node:** log config ([#1125](https://github.com/RequestNetwork/requestNetwork/issues/1125)) ([9775de8](https://github.com/RequestNetwork/requestNetwork/commit/9775de8f0ef597d399506bcd3cac73f40d019e74))
+- remove provider assertion ([#861](https://github.com/RequestNetwork/requestNetwork/issues/861)) ([5e12b74](https://github.com/RequestNetwork/requestNetwork/commit/5e12b74a7226b4060e29109bf9935a1c905a18dd))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- **request-node:** eth_feeHistory missing parameters ([#764](https://github.com/RequestNetwork/requestNetwork/issues/764)) ([b941252](https://github.com/RequestNetwork/requestNetwork/commit/b941252a1da0f3252cc5405be9a1fb19580790ee))
+- **request-node:** maxFeePerGas calculation ([#766](https://github.com/RequestNetwork/requestNetwork/issues/766)) ([12b4227](https://github.com/RequestNetwork/requestNetwork/commit/12b4227cfd5b7b3dea64c1952e40d77d9e9ae8d6))
+- **thegraph:** zero timestamp ([#757](https://github.com/RequestNetwork/requestNetwork/issues/757)) ([8246f6f](https://github.com/RequestNetwork/requestNetwork/commit/8246f6fd52478c3a80d2c1a740c3330eb840a1e7))
+- getDataIdMeta heavy load ([#613](https://github.com/RequestNetwork/requestNetwork/issues/613)) ([fa8bf9e](https://github.com/RequestNetwork/requestNetwork/commit/fa8bf9e77a98d27ad6e21a8118995e6930a99407))
+
+### Features
+
+- **ethereum-storage:** add minimum gas price option ([#997](https://github.com/RequestNetwork/requestNetwork/issues/997)) ([121aeaa](https://github.com/RequestNetwork/requestNetwork/commit/121aeaaed4c8f65a57b9f20a1cf1e31d75e09d3f))
+- **ipfs-manager:** adapt RPC usage with POST methods ([#871](https://github.com/RequestNetwork/requestNetwork/issues/871)) ([9b99d72](https://github.com/RequestNetwork/requestNetwork/commit/9b99d726512320999b94d8635772ceadc773f6ca))
+- **request-node:** allow ws connection ([#691](https://github.com/RequestNetwork/requestNetwork/issues/691)) ([2c879a6](https://github.com/RequestNetwork/requestNetwork/commit/2c879a60c907e77accb4a99e0d1facaa46cd6001))
+- **request-node:** TheGraph as data access ([#717](https://github.com/RequestNetwork/requestNetwork/issues/717)) ([651e77f](https://github.com/RequestNetwork/requestNetwork/commit/651e77f5fbb1f1c18d01381a8e439029e1d61f30))
+- **toolbox:** troubleshooting utilities ([#995](https://github.com/RequestNetwork/requestNetwork/issues/995)) ([1818e08](https://github.com/RequestNetwork/requestNetwork/commit/1818e080fee237aec3ba411e15bc864e82adaf7c))
+- graceful shutdown of request-node ([#463](https://github.com/RequestNetwork/requestNetwork/issues/463)) ([ba5b7c2](https://github.com/RequestNetwork/requestNetwork/commit/ba5b7c257d65996c971dedf71ac6fa1ea44ec891))
+- split data-access read and write for TheGraph ([#875](https://github.com/RequestNetwork/requestNetwork/issues/875)) ([8fdf34d](https://github.com/RequestNetwork/requestNetwork/commit/8fdf34d280a5c277125fa431d74976be69768d38))
+
 # [0.27.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-node@0.23.0...@requestnetwork/request-node@0.27.0) (2022-11-04)
 
 ### Bug Fixes
