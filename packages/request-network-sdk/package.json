@@ -5,6 +5,10 @@
     "access": "public"
   },
   "description": "Requet Network SDK Library",
+  "keywords": [
+    "requestnetwork",
+    "request-network-sdk"
+  ],
   "engines": {
     "node": ">=16.0.0"
   },
