@@ -1,0 +1,42 @@
+{
+  "name": "@requestnetwork/request-network-sdk",
+  "version": "1.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Requet Network SDK Library",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "lib": "src"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
+  },
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-network-sdk.js#readme",
+  "bugs": {
+    "url": "https://github.com/RequestNetwork/requestNetwork/issues"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@requestnetwork/epk-decryption": "^0.3.36-next.1933",
+    "@requestnetwork/epk-signature": "^0.5.37-next.1933",
+    "@requestnetwork/payment-processor": "^0.39.1-next.1933",
+    "@requestnetwork/request-client.js": "^0.41.1-next.1933",
+    "@requestnetwork/web3-signature": "^0.4.38-next.1933",
+    "@requestnetwork/types": "^0.37.0",
+    "@requestnetwork/utils": "^0.37.0",
+    "@requestnetwork/currency": "^0.10.0",
+    "@requestnetwork/smart-contracts": "^0.30.0"
+  }
+}
