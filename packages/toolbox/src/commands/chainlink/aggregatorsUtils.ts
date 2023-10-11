@@ -2,23 +2,11 @@ import { AggregatorsMap, CurrencyInput, CurrencyManager } from '@requestnetwork/
 import axios from 'axios';
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-type Proxy = {
-  pair: string;
-  deviationThreshold: number;
-  heartbeat: string;
-  decimals: number;
-  proxy: string;
-};
-type Network = {
+type Feed = {
   name: string;
-  url: string;
-  proxies: Proxy[];
+  proxyAddress: string;
 };
 
-type Feed = {
-  title: string;
-  networks: Network[];
-};
 export type Aggregator = {
   name: string;
   input: string;
@@ -29,35 +17,34 @@ export type Aggregator = {
 const feedMap: Partial<
   Record<CurrencyTypes.EvmChainName, [chainKey: string, networkName: string]>
 > = {
-  mainnet: ['ethereum', 'Ethereum Mainnet'],
-  goerli: ['ethereum', 'Goerli Testnet'],
-  rinkeby: ['ethereum', 'Rinkeby Testnet'],
-  fantom: ['fantom', 'Fantom Mainnet'],
-  matic: ['polygon', 'Polygon Mainnet'],
-  xdai: ['gnosis-chain', 'Gnosis Chain Mainnet'],
-  bsc: ['bnb-chain', 'BNB Chain Mainnet'],
-  avalanche: ['avalanche', 'Avalanche Mainnet'],
-  optimism: ['optimism', 'Optimism Mainnet'],
-  'arbitrum-one': ['arbitrum', 'Arbitrum Mainnet'],
-  moonbeam: ['moonbeam', 'Moonbeam Mainnet'],
+  mainnet: ['mainnet', 'Ethereum Mainnet'],
+  goerli: ['goerli', 'Goerli Testnet'],
+  fantom: ['fantom-mainnet', 'Fantom Mainnet'],
+  matic: ['matic-mainnet', 'Polygon Mainnet'],
+  xdai: ['xdai-mainnet', 'Gnosis Chain Mainnet'],
+  bsc: ['bsc-mainnet', 'BNB Chain Mainnet'],
+  avalanche: ['avalanche-mainnet', 'Avalanche Mainnet'],
+  optimism: ['ethereum-mainnet-optimism-1', 'Optimism Mainnet'],
+  'arbitrum-one': ['ethereum-mainnet-arbitrum-1', 'Arbitrum Mainnet'],
+  moonbeam: ['polkadot-mainnet-moonbeam', 'Moonbeam Mainnet'],
 };
 
-export const getAllAggregators = async (network: CurrencyTypes.EvmChainName): Promise<Proxy[]> => {
+export const getAllAggregators = async (network: CurrencyTypes.EvmChainName): Promise<Feed[]> => {
   const [feedName, networkName] = feedMap[network] || [];
   if (!feedName || !networkName) {
     throw new Error(
       `network ${network} not supported by feed provider. Is it supported by Chainlink?`,
     );
   }
-  const { data } = await axios.get<Record<string, Feed>>(
-    'https://cl-docs-addresses.web.app/addresses.json',
+
+  const { data: feeds } = await axios.get<Feed[]>(
+    `https://reference-data-directory.vercel.app/feeds-${feedName}.json`,
   );
 
-  const proxies = data[feedName].networks.find((x) => x.name === networkName)?.proxies;
-  if (!proxies) {
+  if (!feeds) {
     throw new Error(`not proxies for feed ${feedName} > ${networkName}`);
   }
-  return proxies;
+  return feeds;
 };
 
 export const getAvailableAggregators = async (
@@ -66,11 +53,11 @@ export const getAvailableAggregators = async (
   pairs?: string[],
   listAll?: boolean,
 ): Promise<Aggregator[]> => {
-  const proxies = await getAllAggregators(network);
+  const feeds = await getAllAggregators(network);
 
   const missingAggregators: Aggregator[] = [];
-  for (const proxy of proxies) {
-    const [from, to] = proxy.pair.split(' / ');
+  for (const feed of feeds) {
+    const [from, to] = feed.name.split(' / ');
     const fromCurrency = cm.from(from, network) || cm.from(from);
     const toCurrency = cm.from(to, network) || cm.from(to);
     if (pairs && !pairs.includes(`${from}-${to}`.toLowerCase())) {
@@ -86,10 +73,10 @@ export const getAvailableAggregators = async (
       (listAll || !cm.getConversionPath(fromCurrency, toCurrency, network))
     ) {
       missingAggregators.push({
-        name: proxy.pair,
+        name: feed.name,
         input: fromCurrency.hash,
         output: toCurrency.hash,
-        aggregator: proxy.proxy,
+        aggregator: feed.proxyAddress,
       });
     }
   }

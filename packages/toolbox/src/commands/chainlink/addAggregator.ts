@@ -79,9 +79,9 @@ export const handler = async (args: Options): Promise<void> => {
   }
   if (!aggregator.startsWith('0x')) {
     const aggregators = await getAllAggregators(network);
-    const newAggregator = aggregators.find((x) => x.pair === aggregator);
+    const newAggregator = aggregators.find((x) => x.name === aggregator);
     assert(newAggregator, `aggregator ${aggregator} not found`);
-    aggregator = newAggregator.proxy;
+    aggregator = newAggregator?.proxyAddress;
   }
   assert(aggregator);
   await runUpdate('updateAggregator', [input, output, aggregator], args);
