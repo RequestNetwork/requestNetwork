@@ -113,16 +113,16 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
       { value: fee },
     );
 
-    const ethBlock = await this.provider.getBlock(tx.blockNumber || -1);
+    const ethBlock = await this.provider.getBlock(tx.blockNumber ?? -1);
 
     // create the storage meta from the transaction receipt
     const storageMeta: StorageTypes.IEthereumMetadata = {
       blockConfirmation: tx.confirmations,
-      blockNumber: tx.blockNumber || -1,
+      blockNumber: tx.blockNumber ?? -1,
       blockTimestamp: ethBlock.timestamp,
       fee: fee.toString(),
       networkName: this.networkName,
-      smartContractAddress: tx.to || '',
+      smartContractAddress: tx.to ?? '',
       transactionHash: tx.hash,
     };
 
