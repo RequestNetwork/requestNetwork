@@ -149,8 +149,12 @@ export class ERC20FeeProxyPaymentDetector<
           `Could not get a TheGraph-based info retriever for chain ${paymentChain} and RPC-based info retrievers are only compatible with EVM chains.`,
         );
       }
+
+      console.log("###############################")
+      console.log('0x'+paymentReference?.slice(-16))
+      console.log("###############################")
       const proxyInfoRetriever = new ProxyInfoRetriever(
-        paymentReference,
+        paymentReference?.slice(-16),
         proxyContractAddress,
         proxyCreationBlockNumber,
         requestCurrency.value,

@@ -10,7 +10,6 @@ import {
 import { EvmChains, getCurrencyHash } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
-import { getReceivableTokenIdForRequest } from './erc20-transferable-receivable';
 
 /** @constant MAX_ALLOWANCE set to the max uint256 value */
 export const MAX_ALLOWANCE = BigNumber.from(2).pow(256).sub(1);
@@ -70,7 +69,7 @@ export function getSigner(
  * Utility to access payment-related information from a request.
  * All data is taken from the request's payment extension, except the network that may be retrieved from the request's currency if needed.
  */
-export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
+export async function getRequestPaymentValues(request: ClientTypes.IRequestData): Promise<{
   paymentAddress: string;
   paymentReference?: string;
   feeAmount?: string;
@@ -81,14 +80,14 @@ export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   maxRateTimespan?: string;
   network?: CurrencyTypes.ChainName;
   version: string;
-} {
+}> {
   const extension = getPaymentNetworkExtension(request);
   if (!extension) {
     throw new Error('no payment network found');
   }
   return {
     ...extension.values,
-    paymentReference: getPaymentReference(request),
+    paymentReference: await getPaymentReference(request),
     network: extension.values.network ?? request.currencyInfo.network,
     version: extension.version,
   };
@@ -181,12 +180,12 @@ const currenciesMap: any = {
 /**
  * Utility to validate a request currency and payment details against a paymentNetwork.
  */
-export function validateRequest(
+export async function validateRequest(
   request: ClientTypes.IRequestData,
   paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
-): void {
+): Promise<void> {
   const { feeAmount, feeAddress, expectedFlowRate, expectedStartDate } =
-    getRequestPaymentValues(request);
+    await getRequestPaymentValues(request);
   let extension = request.extensions[paymentNetworkId];
 
   // FIXME: updating the extension: not needed anymore when ETH_INPUT_DATA gets deprecated
@@ -252,16 +251,16 @@ export function validateRequest(
  * @param feeAmountOverride optionally, the custom fee amount
  * @param paymentNetwork defaults to ERC20 Fee Proxy contract
  */
-export function validateErc20FeeProxyRequest(
+export async function validateErc20FeeProxyRequest(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
   paymentNetwork: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
     .ERC20_FEE_PROXY_CONTRACT,
-): void {
+): Promise<void> {
   validateRequest(request, paymentNetwork);
 
-  const { feeAmount } = getRequestPaymentValues(request);
+  const { feeAmount } = await getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
 
@@ -277,19 +276,19 @@ export function validateErc20FeeProxyRequest(
  * @param amount optionally, the custom amount to pay
  * @param feeAmountOverride optionally, the custom fee amount
  */
-export function validateConversionFeeProxyRequest(
+export async function validateConversionFeeProxyRequest(
   request: ClientTypes.IRequestData,
   path: string[],
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
-): void {
+): Promise<void> {
   validateErc20FeeProxyRequest(
     request,
     amount,
     feeAmountOverride,
     ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
   );
-  const { acceptedTokens } = getRequestPaymentValues(request);
+  const { acceptedTokens } = await getRequestPaymentValues(request);
   const requestCurrencyHash = path[0];
   if (requestCurrencyHash.toLowerCase() !== getCurrencyHash(request.currencyInfo).toLowerCase()) {
     throw new Error(`The first entry of the path does not match the request currency`);
@@ -304,29 +303,6 @@ export function validateConversionFeeProxyRequest(
   }
 }
 
-/**
- * Validates the parameters for an ERC20 Transferable Receivable payment, esp. that token exists
- * @param request to validate
- * @param amount optionally, the custom amount to pay
- * @param feeAmountOverride optionally, the custom fee amount
- * @param signerOrProvider
- */
-export async function validatePayERC20TransferableReceivable(
-  request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Provider | Signer,
-  amount?: BigNumberish,
-  feeAmountOverride?: BigNumberish,
-): Promise<void> {
-  const receivableTokenId = await getReceivableTokenIdForRequest(request, signerOrProvider);
-
-  if (receivableTokenId.isZero()) {
-    throw new Error(
-      'The receivable for this request has not been minted yet. Please check with the payee.',
-    );
-  }
-
-  validateERC20TransferableReceivable(request, amount, feeAmountOverride);
-}
 
 /**
  * Validates the parameters for an ERC20 Transferable Receivable Payment or Mint.

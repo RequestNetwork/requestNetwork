@@ -5,9 +5,7 @@ import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { _getErc20FeeProxyPaymentUrl, payErc20FeeProxyRequest } from './erc20-fee-proxy';
-import { ISwapSettings, swapErc20FeeProxyRequest } from './swap-erc20-fee-proxy';
 import { _getErc20ProxyPaymentUrl, payErc20ProxyRequest } from './erc20-proxy';
-import { payErc20TransferableReceivableRequest } from './erc20-transferable-receivable';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
@@ -34,7 +32,7 @@ export async function payErc20Request(
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
-  swapSettings?: ISwapSettings,
+  swapSettings?: any,
 ): Promise<ContractTransaction> {
   const id = getPaymentNetworkExtension(request)?.id;
   if (swapSettings && id !== ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT) {
@@ -43,25 +41,8 @@ export async function payErc20Request(
   if (id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT) {
     return payErc20ProxyRequest(request, signerOrProvider, amount, overrides);
   }
-  if (id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE) {
-    return payErc20TransferableReceivableRequest(
-      request,
-      signerOrProvider,
-      amount,
-      feeAmount,
-      overrides,
-    );
-  }
   if (id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT) {
-    if (swapSettings) {
-      return swapErc20FeeProxyRequest(request, signerOrProvider, swapSettings, {
-        amount,
-        feeAmount,
-        overrides,
-      });
-    } else {
-      return payErc20FeeProxyRequest(request, signerOrProvider, amount, feeAmount, overrides);
-    }
+     return payErc20FeeProxyRequest(request, signerOrProvider, amount, feeAmount, overrides);
   }
   throw new Error('Not a supported ERC20 proxy payment network request');
 }
@@ -266,10 +247,10 @@ export async function getAnyErc20Balance(
  *
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
-export function _getErc20PaymentUrl(
+export async function _getErc20PaymentUrl(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
-): string {
+): Promise<string> {
   const id = getPaymentNetworkExtension(request)?.id;
   if (id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT) {
     return _getErc20ProxyPaymentUrl(request, amount);

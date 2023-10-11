@@ -2,26 +2,17 @@ import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 
 
 import { ClientTypes, ExtensionTypes, TypesUtils } from '@requestnetwork/types';
 
-import { getBtcPaymentUrl } from './btc-address-based';
 import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
 import { payErc20Request } from './erc20';
-import { payErc777StreamRequest } from './erc777-stream';
-import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
-import { payEthFeeProxyRequest } from './eth-fee-proxy';
 import { ITransactionOverrides } from './transaction-overrides';
 import { getNetworkProvider, getProvider, getSigner } from './utils';
-import { ISwapSettings } from './swap-erc20-fee-proxy';
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { payAnyToErc20ProxyRequest } from './any-to-erc20-proxy';
-import { payAnyToEthProxyRequest } from './any-to-eth-proxy';
 import { WalletConnection } from 'near-api-js';
-import { isNearAccountSolvent } from './utils-near';
 import { ICurrencyManager, NearChains } from '@requestnetwork/currency';
 import { encodeRequestErc20Approval } from './encoder-approval';
 import { encodeRequestPayment } from './encoder-payment';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IRequestPaymentOptions } from './settings';
-export { INearTransactionCallback } from './utils-near';
 
 export const noConversionNetworks = [
   ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
@@ -89,7 +80,7 @@ export async function payRequest(
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   overrides?: ITransactionOverrides,
-  paymentSettings?: IConversionPaymentSettings,
+  _paymentSettings?: IConversionPaymentSettings,
 ): Promise<ContractTransaction> {
   throwIfNotWeb3(request);
   const signer = getSigner(signerOrProvider);
@@ -99,38 +90,6 @@ export async function payRequest(
     case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT:
     case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE:
       return payErc20Request(request, signer, amount, undefined, overrides);
-    case ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM:
-      return payErc777StreamRequest(request, signer);
-    case ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY: {
-      if (!paymentSettings) {
-        throw new Error('Missing payment settings for a payment with conversion');
-      }
-      return payAnyToErc20ProxyRequest(
-        request,
-        signer,
-        paymentSettings,
-        amount,
-        undefined,
-        overrides,
-      );
-    }
-    case ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY: {
-      if (!paymentSettings) {
-        throw new Error('Missing payment settings for a payment with conversion');
-      }
-      return payAnyToEthProxyRequest(
-        request,
-        signer,
-        paymentSettings,
-        amount,
-        undefined,
-        overrides,
-      );
-    }
-    case ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA:
-      return payEthInputDataRequest(request, signer, amount, overrides);
-    case ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT:
-      return payEthFeeProxyRequest(request, signer, amount, undefined, overrides);
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
   }
@@ -153,7 +112,7 @@ export async function encodeRequestApprovalAndPayment(
   if (approvalTx) {
     preparedTransactions.push(approvalTx);
   }
-  preparedTransactions.push(encodeRequestPayment(request, signerOrProvider, options));
+  preparedTransactions.push(await encodeRequestPayment(request, signerOrProvider, options));
   return preparedTransactions;
 }
 
@@ -171,7 +130,7 @@ export async function encodeRequestApprovalAndPayment(
  */
 export async function swapToPayRequest(
   request: ClientTypes.IRequestData,
-  swapSettings: ISwapSettings,
+  swapSettings: any,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   overrides?: ITransactionOverrides,
@@ -247,7 +206,7 @@ export async function isSolvent(
 ): Promise<boolean> {
   // Near case
   if (NearChains.isChainSupported(currency.network) && providerOptions?.nearWalletConnection) {
-    return isNearAccountSolvent(amount, providerOptions.nearWalletConnection, currency);
+    return false; //isNearAccountSolvent(amount, providerOptions.nearWalletConnection, currency);
   }
   // Main case (EVM)
   if (!providerOptions?.provider) {
@@ -315,17 +274,12 @@ export function canSwapToPay(request: ClientTypes.IRequestData): boolean {
  * @param request the request to pay
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
-export function _getPaymentUrl(request: ClientTypes.IRequestData, amount?: BigNumberish): string {
+export async function _getPaymentUrl(request: ClientTypes.IRequestData, amount?: BigNumberish): Promise<string> {
   const paymentNetwork = getPaymentNetwork(request);
   switch (paymentNetwork) {
     case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT:
     case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT:
       return _getErc20PaymentUrl(request, amount);
-    case ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA:
-      return _getEthPaymentUrl(request, amount);
-    case ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED:
-    case ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED:
-      return getBtcPaymentUrl(request, amount);
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
   }

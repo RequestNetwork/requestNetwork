@@ -27,7 +27,7 @@ export async function payErc20ProxyRequest(
   amount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const { data, to, value } = prepareErc20ProxyPaymentTransaction(request, amount);
+  const { data, to, value } = await prepareErc20ProxyPaymentTransaction(request, amount);
   const signer = getSigner(signerOrProvider);
   return signer.sendTransaction({ data, to, value, ...overrides });
 }
@@ -38,14 +38,14 @@ export async function payErc20ProxyRequest(
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
-export function encodePayErc20Request(
+export async function encodePayErc20Request(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
-): string {
+): Promise<string> {
   validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
   const tokenAddress = request.currencyInfo.value;
 
-  const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
+  const { paymentReference, paymentAddress } = await getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, amount);
 
   const proxyContract = ERC20Proxy__factory.createInterface();
@@ -63,12 +63,12 @@ export function encodePayErc20Request(
  *
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
-export function _getErc20ProxyPaymentUrl(
+export async function _getErc20ProxyPaymentUrl(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
-): string {
+): Promise<string> {
   validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
-  const { paymentAddress, paymentReference } = getRequestPaymentValues(request);
+  const { paymentAddress, paymentReference } = await getRequestPaymentValues(request);
   const contractAddress = getProxyAddress(
     request,
     Erc20PaymentNetwork.ERC20ProxyPaymentDetector.getDeploymentInformation,
@@ -84,14 +84,14 @@ export function _getErc20ProxyPaymentUrl(
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
-export function prepareErc20ProxyPaymentTransaction(
+export async function prepareErc20ProxyPaymentTransaction(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
-): IPreparedTransaction {
+): Promise<IPreparedTransaction> {
   validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
 
   return {
-    data: encodePayErc20Request(request, amount),
+    data: await encodePayErc20Request(request, amount),
     to: getProxyAddress(
       request,
       Erc20PaymentNetwork.ERC20ProxyPaymentDetector.getDeploymentInformation,

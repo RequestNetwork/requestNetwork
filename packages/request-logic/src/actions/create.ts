@@ -114,6 +114,7 @@ async function createRequest(
   const request: RequestLogicTypes.IRequest = deepCopy(action.data.parameters);
   request.extensions = {};
   request.requestId = Action.getRequestId(action);
+  request.requestIdCircom = await Action.getRequestIdCircom(action)
   request.version = Action.getVersionFromAction(action);
   request.events = [generateEvent(action, timestamp, signer)];
 

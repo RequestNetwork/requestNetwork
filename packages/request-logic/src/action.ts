@@ -4,6 +4,7 @@ import * as Semver from 'semver';
 import Role from './role';
 import Version from './version';
 import { normalizeKeccak256Hash, recoverSigner } from '@requestnetwork/utils';
+import { computeRequestIdCircom  } from './circom/zkproof';
 
 /**
  * Function to manage Request logic action (object that will be interpreted to create or modify a request)
@@ -11,6 +12,7 @@ import { normalizeKeccak256Hash, recoverSigner } from '@requestnetwork/utils';
 export default {
   createAction,
   getRequestId,
+  getRequestIdCircom,
   getRoleInAction,
   getRoleInUnsignedAction,
   getSignerIdentityFromAction,
@@ -93,6 +95,16 @@ function getRequestId(action: RequestLogicTypes.IAction): RequestLogicTypes.Requ
   }
   return action.data.parameters.requestId;
 }
+
+async function getRequestIdCircom(action: RequestLogicTypes.IAction): Promise<RequestLogicTypes.RequestIdCircom> {
+  // if a creation we need to compute the hash
+  if (action.data.name === RequestLogicTypes.ACTION_NAME.CREATE) {
+    const idBuff = await computeRequestIdCircom(action.data.parameters);
+    return Buffer.from(idBuff).toString('hex');
+  }
+  return action.data.parameters.requestIdCircom;
+}
+
 
 /**
  * Function to check if an action is supported

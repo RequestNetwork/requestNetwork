@@ -45,6 +45,9 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment):
     const { address: ERC20FeeProxyAddress } = await deployOne(args, hre, 'ERC20FeeProxy');
     console.log('ERC20FeeProxy Contract deployed: ' + ERC20FeeProxyAddress);
 
+    await testERC20Instance.approve(ERC20FeeProxyAddress, "1000000000000000000000000000000");
+
+
     // Deploy the BadERC20 contract
     const { address: BadERC20Address } = await deployOne(args, hre, 'BadERC20', {
       constructorArguments: [1000, 'BadERC20', 'BAD', 8],

@@ -11,7 +11,12 @@ import {
 
 const PUBKEY_POSITION_FROM_END_IN_EDDSA_HEX = -128;
 
-export default async function generateProof(
+export {
+    generateProof,
+    computeRequestIdCircom
+}
+
+async function generateProof(
     name: string, 
     parameters: RequestLogicTypes.ICreateParameters | RequestLogicTypes.IAcceptParameters,
     signatureProvider: SignatureProviderTypes.ISignatureProvider,
@@ -31,13 +36,93 @@ export default async function generateProof(
     const { proof, publicSignals } = await snarkjs.groth16.fullProve(
         inputs,
         // TODO relative path
-        `/home/vincent/Documents/request/requestNetwork/packages/request-logic/src/circom/${name}.wasm`,
-        `/home/vincent/Documents/request/requestNetwork/packages/request-logic/src/circom/${name}_final.zkey`
+        `/home/vincent/Documents/request/vrolland-requestNetwork/packages/request-logic/src/circom/${name}.wasm`,
+        `/home/vincent/Documents/request/vrolland-requestNetwork/packages/request-logic/src/circom/${name}_final.zkey`
     );
 
     return { proof, publicSignals };
 }
   
+async function computeRequestIdCircom(
+    requestParameters: RequestLogicTypes.ICreateParameters) 
+    : Promise<RequestLogicTypes.RequestIdCircom> {
+
+    const poseidon = await circomlibjs.buildPoseidon();
+    const F = poseidon.F;
+
+    const pn = requestParameters.extensionsData?.find(e => e.id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
+    if(!pn) {
+        throw Error(`Implemented only for ${ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT}`);
+    }
+    // const contentData = requestParameters.extensionsData?.find(e => e.id === ExtensionTypes.OTHER_ID.CONTENT_DATA);
+    // TODO
+    const contentDataHash = 0;
+    // if(contentData) {
+    //     contentDataHash = await poseidon(contentData.)
+    // }
+
+    const salt = '0x'+pn.parameters.salt;
+    const chainId = 1; // TODO FROM pn.version or currency
+    const currencyHash = "0x6b175474e89094c44da98b954eedeac495271d0f"; // requestParameters.currency.value
+    const nonce = requestParameters.nonce || 0;
+
+    const requestInputs =
+    [
+        F.toObject(Buffer.from(requestParameters.payer!.value, 'hex')),
+        requestParameters.expectedAmount,
+        currencyHash, // TODO better
+        requestParameters.timestamp,
+        nonce,
+        contentDataHash,
+    ];
+    const paymentNetworkInputs = 
+    [
+        salt,
+        chainId,
+        pn.parameters.feeAddress,
+        pn.parameters.feeAmount,
+        pn.parameters.paymentAddress,
+        0, 
+        0,
+        0,
+    ];
+
+
+    const leavesPN = await Promise.all(paymentNetworkInputs.map(async (v,i) => poseidon([i, v, 1])));
+    const level2PN = await Promise.all([
+        poseidon(leavesPN.slice(0,2)),
+        poseidon(leavesPN.slice(2,4)),
+        poseidon(leavesPN.slice(4,6)),
+        poseidon(leavesPN.slice(6,8)),
+    ]);
+    const level1PN = await Promise.all([
+        poseidon(level2PN.slice(0,2)),
+        poseidon(level2PN.slice(2,4)),
+    ]);
+    const rootPN = await poseidon(level1PN);
+
+
+    const leavesRequest = await Promise.all(
+        [F.toObject(Buffer.from(requestParameters.payee!.value, 'hex'))]
+            .concat(requestInputs)
+            .concat(F.toObject(rootPN))
+            .map(async (v,i) => poseidon([i, v, 1])));
+
+    const level2Request = await Promise.all([
+        poseidon(leavesRequest.slice(0,2)),
+        poseidon(leavesRequest.slice(2,4)),
+        poseidon(leavesRequest.slice(4,6)),
+        poseidon(leavesRequest.slice(6,8)),
+    ]);
+    const level1Request = await Promise.all([
+        poseidon(level2Request.slice(0,2)),
+        poseidon(level2Request.slice(2,4)),
+    ]);
+    const treeRoot = await poseidon(level1Request);
+
+    return treeRoot;
+} 
+
 async function createInputs(
     requestParameters: RequestLogicTypes.ICreateParameters,
     signatureProvider: SignatureProviderTypes.ISignatureProvider,
@@ -85,36 +170,38 @@ async function createInputs(
     ];
     
     // Compute tree root
-    const leavesPN = await Promise.all(paymentNetworkInputs.map(async (v,i) => poseidon([i, v, 1])));
-    const level2PN = await Promise.all([
-        poseidon(leavesPN.slice(0,2)),
-        poseidon(leavesPN.slice(2,4)),
-        poseidon(leavesPN.slice(4,6)),
-        poseidon(leavesPN.slice(6,8)),
-    ]);
-    const level1PN = await Promise.all([
-        poseidon(level2PN.slice(0,2)),
-        poseidon(level2PN.slice(2,4)),
-    ]);
-    const rootPN = await poseidon(level1PN);
+    // const leavesPN = await Promise.all(paymentNetworkInputs.map(async (v,i) => poseidon([i, v, 1])));
+    // const level2PN = await Promise.all([
+    //     poseidon(leavesPN.slice(0,2)),
+    //     poseidon(leavesPN.slice(2,4)),
+    //     poseidon(leavesPN.slice(4,6)),
+    //     poseidon(leavesPN.slice(6,8)),
+    // ]);
+    // const level1PN = await Promise.all([
+    //     poseidon(level2PN.slice(0,2)),
+    //     poseidon(level2PN.slice(2,4)),
+    // ]);
+    // const rootPN = await poseidon(level1PN);
 
-    const leavesRequest = await Promise.all(
-        [F.toObject(Buffer.from(requestParameters.payee!.value, 'hex'))]
-            .concat(requestInputs)
-            .concat(F.toObject(rootPN))
-            .map(async (v,i) => poseidon([i, v, 1])));
+    // const leavesRequest = await Promise.all(
+    //     [F.toObject(Buffer.from(requestParameters.payee!.value, 'hex'))]
+    //         .concat(requestInputs)
+    //         .concat(F.toObject(rootPN))
+    //         .map(async (v,i) => poseidon([i, v, 1])));
 
-    const level2Request = await Promise.all([
-        poseidon(leavesRequest.slice(0,2)),
-        poseidon(leavesRequest.slice(2,4)),
-        poseidon(leavesRequest.slice(4,6)),
-        poseidon(leavesRequest.slice(6,8)),
-    ]);
-    const level1Request = await Promise.all([
-        poseidon(level2Request.slice(0,2)),
-        poseidon(level2Request.slice(2,4)),
-    ]);
-    const treeRoot = await poseidon(level1Request);
+    // const level2Request = await Promise.all([
+    //     poseidon(leavesRequest.slice(0,2)),
+    //     poseidon(leavesRequest.slice(2,4)),
+    //     poseidon(leavesRequest.slice(4,6)),
+    //     poseidon(leavesRequest.slice(6,8)),
+    // ]);
+    // const level1Request = await Promise.all([
+    //     poseidon(level2Request.slice(0,2)),
+    //     poseidon(level2Request.slice(2,4)),
+    // ]);
+    // const treeRoot = await poseidon(level1Request);
+    const treeRoot = await computeRequestIdCircom(requestParameters);
+
     // console.log({treeRoot});
     //  const signature = eddsa.signPoseidon(payeePriv, treeRoot);
     // sign: (data: any, signer: Identity.IIdentity) => Promise<Signature.ISignedData>;

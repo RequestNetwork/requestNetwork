@@ -140,6 +140,7 @@ export interface IRequest {
   version: string;
   /** request identifier */
   requestId: RequestId;
+  requestIdCircom: RequestIdCircom;
   /** identity of the request creator (the one who initiates it) */
   creator: Identity.IIdentity;
   currency: ICurrency;
@@ -175,6 +176,7 @@ export type Amount = number | string;
 
 /** RequestId */
 export type RequestId = string;
+export type RequestIdCircom = string;
 
 /** Configuration for the versioning */
 export interface IVersionSupportConfig {

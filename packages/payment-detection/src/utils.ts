@@ -155,22 +155,22 @@ const getInfo = (
 };
 
 /** Gets a payment (or refund) reference for any type of Request */
-export function getPaymentReference(
-  request: Pick<RequestLogicTypes.IRequest, 'extensions' | 'requestId'>,
+export async function getPaymentReference(
+  request: Pick<RequestLogicTypes.IRequest, 'extensions' | 'requestIdCircom'>,
   event: PaymentTypes.EVENTS_NAMES = PaymentTypes.EVENTS_NAMES.PAYMENT,
-): string | undefined {
+): Promise<string | undefined> {
   const extension = getPaymentNetworkExtension<PaymentParameters>(request);
   if (!extension) {
     throw new Error('no payment network found');
   }
-  const requestId = request.requestId;
+  const requestId = request.requestIdCircom;
   const salt = extension.values.salt;
   if (!salt) return;
 
   const info = getInfo(extension.values, event);
   if (!info) return;
 
-  return PaymentReferenceCalculator.calculate(requestId, salt, info);
+  return PaymentReferenceCalculator.calculatePoseidon(requestId, salt, info);
 }
 
 /**

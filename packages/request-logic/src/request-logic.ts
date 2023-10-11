@@ -12,7 +12,7 @@ import {
 import RequestLogicCore from './requestLogicCore';
 import { normalizeKeccak256Hash, notNull, uniqueByProperty } from '@requestnetwork/utils';
 
-import generateProof from './circom/zkproof';
+import { generateProof } from './circom/zkproof';
 
 /**
  * Implementation of Request Logic

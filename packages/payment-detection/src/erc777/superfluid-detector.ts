@@ -126,7 +126,7 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
    * @param request The request we need payment reference for
    * @returns The payment reference
    */
-  protected getPaymentReference(request: RequestLogicTypes.IRequest): string {
+  protected async getPaymentReference(request: RequestLogicTypes.IRequest): Promise<string> {
     const { paymentAddress, salt } = this.getPaymentExtension(request).values;
     this.checkRequiredParameter(paymentAddress, 'paymentAddress');
     this.checkRequiredParameter(salt, 'salt');

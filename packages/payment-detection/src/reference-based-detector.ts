@@ -105,7 +105,7 @@ export abstract class ReferenceBasedDetector<
       this.extractEvents(
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         paymentExtension.values.paymentAddress,
-        this.getPaymentReference(request),
+        await this.getPaymentReference(request),
         request.currency,
         paymentChain,
         paymentExtension,
@@ -165,10 +165,10 @@ export abstract class ReferenceBasedDetector<
     return network;
   }
 
-  protected getPaymentReference(request: RequestLogicTypes.IRequest): string {
+  protected async getPaymentReference(request: RequestLogicTypes.IRequest): Promise<string> {
     const { paymentAddress, salt } = this.getPaymentExtension(request).values;
     this.checkRequiredParameter(paymentAddress, 'paymentAddress');
     this.checkRequiredParameter(salt, 'salt');
-    return PaymentReferenceCalculator.calculate(request.requestId, salt, paymentAddress);
+    return PaymentReferenceCalculator.calculatePoseidon(request.requestIdCircom, salt, paymentAddress);
   }
 }
