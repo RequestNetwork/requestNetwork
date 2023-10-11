@@ -57,32 +57,35 @@ export const builder = (): yargs.Argv<Options> =>
   });
 
 export const handler = async (args: Options): Promise<void> => {
-  let { input, output, aggregator } = args;
+  const { input, output, aggregator: aggregatorArg } = args;
   const { network, list } = args;
 
-  const currencyManager = await getCurrencyManager(list);
-
   EvmChains.assertChainSupported(network);
+  const currencyManager = await getCurrencyManager(list);
   const inputCcy = currencyManager.from(input, network) || currencyManager.from(input);
   const outputCcy = currencyManager.from(output, network) || currencyManager.from(output);
 
-  if (!input.startsWith('0x')) {
+  let inputAddress = input;
+  if (!inputAddress.startsWith('0x')) {
     assert(inputCcy, `input ${input} not found`);
-    input = inputCcy.hash;
+    inputAddress = inputCcy.hash;
   }
-  if (!output.startsWith('0x')) {
+
+  let outputAddress = input;
+  if (!outputAddress.startsWith('0x')) {
     assert(outputCcy, `output ${output} not found`);
-    output = outputCcy.hash;
+    outputAddress = outputCcy.hash;
   }
-  if (!aggregator) {
-    aggregator = `${inputCcy?.symbol} / ${outputCcy?.symbol}`;
-  }
-  if (!aggregator.startsWith('0x')) {
+
+  const aggregator = aggregatorArg || `${inputCcy?.symbol} / ${outputCcy?.symbol}`;
+  let aggregatorAddress = aggregator;
+  if (!aggregatorAddress.startsWith('0x')) {
     const aggregators = await getAllAggregators(network);
     const newAggregator = aggregators.find((x) => x.name === aggregator);
     assert(newAggregator, `aggregator ${aggregator} not found`);
-    aggregator = newAggregator?.proxyAddress;
+    aggregatorAddress = newAggregator?.proxyAddress;
   }
-  assert(aggregator);
-  await runUpdate('updateAggregator', [input, output, aggregator], args);
+  assert(aggregatorAddress);
+
+  await runUpdate('updateAggregator', [inputAddress, outputAddress, aggregatorAddress], args);
 };
