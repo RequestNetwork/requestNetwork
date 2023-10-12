@@ -1,6 +1,7 @@
 {
   "name": "@requestnetwork/request-network-sdk",
   "version": "1.0.0",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },
@@ -21,7 +22,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -b tsconfig.build.json"
+    "build": "tsc -b tsconfig.build.json --verbose",
+    "clean": "rm -rf dist tsconfig.build.ts*"
   },
   "repository": {
     "type": "git",
@@ -33,14 +35,10 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@requestnetwork/epk-decryption": "^0.3.36-next.1933",
-    "@requestnetwork/epk-signature": "^0.5.37-next.1933",
-    "@requestnetwork/payment-processor": "^0.39.1-next.1933",
-    "@requestnetwork/request-client.js": "^0.41.1-next.1933",
-    "@requestnetwork/web3-signature": "^0.4.38-next.1933",
-    "@requestnetwork/types": "^0.37.0",
-    "@requestnetwork/utils": "^0.37.0",
-    "@requestnetwork/currency": "^0.10.0",
-    "@requestnetwork/smart-contracts": "^0.30.0"
+    "@requestnetwork/epk-decryption": "^0.3.5",
+    "@requestnetwork/epk-signature": "^0.5.36",
+    "@requestnetwork/payment-processor": "^0.39.0",
+    "@requestnetwork/request-client.js": "^0.41.0",
+    "@requestnetwork/web3-signature": "^0.4.37"
   }
 }
