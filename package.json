@@ -15,7 +15,7 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "build": "lerna --loglevel=debug run build",
+    "build": "lerna run build",
     "clean": "lerna run clean",
     "build:tsc": "tsc -b packages/**/tsconfig.build.json",
     "lint": "eslint . --fix --quiet",
