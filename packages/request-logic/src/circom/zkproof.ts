@@ -19,8 +19,9 @@ export {
 async function generateProof(
     name: string, 
     parameters: RequestLogicTypes.ICreateParameters | RequestLogicTypes.IAcceptParameters,
-    signatureProvider: SignatureProviderTypes.ISignatureProvider,
-    requestState: RequestLogicTypes.IRequest | null
+    signatureProvider?: SignatureProviderTypes.ISignatureProvider,
+    requestState?: RequestLogicTypes.IRequest | null,
+    amountPaid?: RequestLogicTypes.Amount, // TODO surcharge here is bad
 ) : Promise<any> { 
     let inputs;
     
@@ -28,6 +29,8 @@ async function generateProof(
         inputs= await createInputs(parameters as RequestLogicTypes.ICreateParameters, signatureProvider);
     } else if (name === 'accept') {
         inputs= await acceptInputs(signatureProvider, requestState);
+    } else if (name === 'checkBalanceErc20FeeProxy') {
+        inputs= await checkBalanceErc20FeeProxyInputs(requestState, amountPaid);
     } else {
         throw Error('Not implemented')
     }
@@ -44,7 +47,7 @@ async function generateProof(
 }
   
 async function computeRequestIdCircom(
-    requestParameters: RequestLogicTypes.ICreateParameters) 
+    requestParameters: RequestLogicTypes.ICreateParameters | RequestLogicTypes.IRequest) 
     : Promise<RequestLogicTypes.RequestIdCircom> {
 
     const poseidon = await circomlibjs.buildPoseidon();
@@ -68,6 +71,7 @@ async function computeRequestIdCircom(
 
     const requestInputs =
     [
+        F.toObject(Buffer.from(requestParameters.payee!.value, 'hex')),
         F.toObject(Buffer.from(requestParameters.payer!.value, 'hex')),
         requestParameters.expectedAmount,
         currencyHash, // TODO better
@@ -102,9 +106,7 @@ async function computeRequestIdCircom(
     const rootPN = await poseidon(level1PN);
 
 
-    const leavesRequest = await Promise.all(
-        [F.toObject(Buffer.from(requestParameters.payee!.value, 'hex'))]
-            .concat(requestInputs)
+    const leavesRequest = await Promise.all(requestInputs
             .concat(F.toObject(rootPN))
             .map(async (v,i) => poseidon([i, v, 1])));
 
@@ -125,8 +127,12 @@ async function computeRequestIdCircom(
 
 async function createInputs(
     requestParameters: RequestLogicTypes.ICreateParameters,
-    signatureProvider: SignatureProviderTypes.ISignatureProvider,
+    signatureProvider?: SignatureProviderTypes.ISignatureProvider,
 ) : Promise<any> {
+    if(!signatureProvider) {
+        throw Error('must have a signatureProvider');
+    }
+
     const poseidon = await circomlibjs.buildPoseidon();
     const F = poseidon.F;
     const eddsa = await circomlibjs.buildEddsa();
@@ -168,43 +174,9 @@ async function createInputs(
         0,
         0,
     ];
-    
-    // Compute tree root
-    // const leavesPN = await Promise.all(paymentNetworkInputs.map(async (v,i) => poseidon([i, v, 1])));
-    // const level2PN = await Promise.all([
-    //     poseidon(leavesPN.slice(0,2)),
-    //     poseidon(leavesPN.slice(2,4)),
-    //     poseidon(leavesPN.slice(4,6)),
-    //     poseidon(leavesPN.slice(6,8)),
-    // ]);
-    // const level1PN = await Promise.all([
-    //     poseidon(level2PN.slice(0,2)),
-    //     poseidon(level2PN.slice(2,4)),
-    // ]);
-    // const rootPN = await poseidon(level1PN);
 
-    // const leavesRequest = await Promise.all(
-    //     [F.toObject(Buffer.from(requestParameters.payee!.value, 'hex'))]
-    //         .concat(requestInputs)
-    //         .concat(F.toObject(rootPN))
-    //         .map(async (v,i) => poseidon([i, v, 1])));
-
-    // const level2Request = await Promise.all([
-    //     poseidon(leavesRequest.slice(0,2)),
-    //     poseidon(leavesRequest.slice(2,4)),
-    //     poseidon(leavesRequest.slice(4,6)),
-    //     poseidon(leavesRequest.slice(6,8)),
-    // ]);
-    // const level1Request = await Promise.all([
-    //     poseidon(level2Request.slice(0,2)),
-    //     poseidon(level2Request.slice(2,4)),
-    // ]);
-    // const treeRoot = await poseidon(level1Request);
     const treeRoot = await computeRequestIdCircom(requestParameters);
 
-    // console.log({treeRoot});
-    //  const signature = eddsa.signPoseidon(payeePriv, treeRoot);
-    // sign: (data: any, signer: Identity.IIdentity) => Promise<Signature.ISignedData>;
     if(!requestParameters.payee || requestParameters.payee.type !== IdentityTypes.TYPE.POSEIDON_ADDRESS) {
         throw Error("Payee must be given and POSEIDON itdentity"); // TODO
     }
@@ -266,13 +238,17 @@ async function createInputs(
 
 
 async function acceptInputs(
-    signatureProvider: SignatureProviderTypes.ISignatureProvider,
-    requestState: RequestLogicTypes.IRequest | null
+    signatureProvider?: SignatureProviderTypes.ISignatureProvider,
+    requestState?: RequestLogicTypes.IRequest | null
 ) : Promise<any> {
     const poseidon = await circomlibjs.buildPoseidon();
     const F = poseidon.F;
     const eddsa = await circomlibjs.buildEddsa();
 
+
+    if(!signatureProvider) {
+        throw Error('must have a signatureProvider');
+    }
     if(!requestState) {
         throw Error('request must have a state');
     }
@@ -354,7 +330,6 @@ async function acceptInputs(
     ]);
     const treeRoot = await poseidon(level1Request);
 
-
     const h0 = leavesRequest[0];
     const hB = level2Request[1];
     const hCD = level1Request[1];
@@ -390,6 +365,75 @@ async function acceptInputs(
     return inputs;
 }
 
+async function checkBalanceErc20FeeProxyInputs(
+    requestState?: RequestLogicTypes.IRequest | null,
+    amountPaid?: RequestLogicTypes.Amount, // TODO Balance (take in account refunds)
+) : Promise<any> {
+    const poseidon = await circomlibjs.buildPoseidon();
+    const F = poseidon.F;
+
+    if(!requestState) {
+        throw Error('request must have a state');
+    }
+    if(!amountPaid) {
+        throw Error('amountPaid must be given');
+    }
+
+    if(!requestState.payee || requestState.payee.type !== IdentityTypes.TYPE.POSEIDON_ADDRESS) {
+        throw Error("Payee must be given and POSEIDON itdentity"); // TODO
+    }
+    if(!requestState.payer || requestState.payer.type !== IdentityTypes.TYPE.POSEIDON_ADDRESS) {
+        throw Error("Payer must be given and POSEIDON itdentity"); // TODO
+    }
+
+
+    const pn = requestState.extensionsData?.find(e => e.id === ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
+    if(!pn) {
+        throw Error(`Implemented only for ${ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT}`);
+    }
+        // const contentData = requestState.extensionsData?.find(e => e.id === ExtensionTypes.OTHER_ID.CONTENT_DATA);
+    // TODO
+    const contentDataHash = 0;
+    // if(contentData) {
+    //     contentDataHash = await poseidon(contentData.)
+    // }
+
+
+    const salt = '0x'+pn.parameters.salt;
+    const chainId = 1; // TODO FROM pn.version or currency
+    const currencyHash = "0x6b175474e89094c44da98b954eedeac495271d0f"; // TODO: requestParameters.currency.value && CHECK IT !
+    const nonce = requestState.nonce || 0;
+
+    const requestInputs =
+    [
+        F.toObject(Buffer.from(requestState.payee!.value, 'hex')),
+        F.toObject(Buffer.from(requestState.payer!.value, 'hex')),
+        requestState.expectedAmount,
+        currencyHash, // TODO better
+        requestState.timestamp,
+        nonce,
+        contentDataHash,
+    ];
+    const paymentNetworkInputs = 
+    [
+        salt,
+        chainId,
+        pn.parameters.feeAddress,
+        pn.parameters.feeAmount,
+        pn.parameters.paymentAddress,
+        0, 
+        0,
+        0,
+    ];
+
+    const inputs = {
+        requestInputs,
+        paymentNetworkInputs,
+        amountPaid,
+    };
+
+    return inputs;
+}
 
 
 

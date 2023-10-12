@@ -35,9 +35,6 @@ async function calculatePoseidon(requestId: string, salt: string, address: strin
         BigInt(address),
     ]);
 
-    console.log("###############################")
-    console.log({requestId, salt, address, hashBuff: Buffer.from(hashBuff).toString('hex')})
-    console.log("###############################")
     return Buffer.from(hashBuff).toString('hex');
   }
   

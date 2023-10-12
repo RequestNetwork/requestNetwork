@@ -150,9 +150,6 @@ export class ERC20FeeProxyPaymentDetector<
         );
       }
 
-      console.log("###############################")
-      console.log('0x'+paymentReference?.slice(-16))
-      console.log("###############################")
       const proxyInfoRetriever = new ProxyInfoRetriever(
         paymentReference?.slice(-16),
         proxyContractAddress,

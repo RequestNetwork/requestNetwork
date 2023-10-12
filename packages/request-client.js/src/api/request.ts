@@ -785,4 +785,12 @@ export default class Request {
   public disablePaymentDetection(): void {
     this.skipPaymentDetection = true;
   }
+
+
+  public async getPaymentProof(): Promise<any> {
+    if(this.balance?.balance || this.balance?.balance === "0") {
+      return this.requestLogic.getPaymentProof(this.requestId, this.balance?.balance);
+    }
+    return null;
+  }
 }

@@ -117,7 +117,7 @@ const createParams: RequestNetwork.Types.ICreateRequestParameters = {
 
   // await request3.waitForConfirmation();
   
-  console.log(request1.getData());
+  // console.log(request1.getData());
   // console.log(request2.getData().state);
   // console.log(request3.getData().state);
 
@@ -126,7 +126,7 @@ const createParams: RequestNetwork.Types.ICreateRequestParameters = {
   // await request2.accept(payerIdentity);
   // await request3.accept(payerIdentity);
   
-  console.log(request1.getData().state);
+  // console.log(request1.getData().state);
   // console.log(request2.getData().state);
   // console.log(request3.getData().proofs);
 
@@ -135,9 +135,22 @@ const createParams: RequestNetwork.Types.ICreateRequestParameters = {
   // console.log({paymentReq1});
   await paymentReq1.wait();
 
-  
+  console.log('#####################');
   console.log(await request1.refresh());
-  
+
+  console.log('#####################');
+  console.log(request1.getData().proofs);
+  const reqProofs = request1.getData().proofs;
+
+  const proofs = {
+    requestid: request1.requestId,
+    requestErc20FeeProxy: reqProofs[0],
+    accept: reqProofs[1],
+    checkBalanceErc20FeeProxy: await request1.getPaymentProof()
+  }
+
+  console.log('######### JSON PROOFS ############');
+  console.log(JSON.stringify(proofs))
 
   // const waitAccept3 = await new Promise(resolve => {
   //   console.log("wait accept 3")

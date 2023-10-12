@@ -383,6 +383,21 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     return this.computeMultipleRequestFromChannels(getChannelsResult);
   }
 
+
+  // TODO: NOT SUPPOSED TO BE IN REQUEST LOGIC I WOULD SAY
+  public async getPaymentProof(
+    requestId: RequestLogicTypes.RequestId,
+    amountPaid: RequestLogicTypes.Amount,
+  ): Promise<any> {
+    // TODO: this is a shortcut to get state (avoid dealing with pending state)
+    const { confirmedRequestState } = await this.computeRequestFromRequestId(
+      requestId,
+    );
+
+    return generateProof('checkBalanceErc20FeeProxy', {requestId}, undefined, confirmedRequestState, amountPaid);
+  }
+
+
   /**
    * Creates the creation action and the requestId of a request
    *

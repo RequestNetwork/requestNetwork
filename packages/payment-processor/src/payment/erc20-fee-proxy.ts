@@ -57,15 +57,6 @@ export async function encodePayErc20FeeRequest(
   const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
   const proxyContract = ERC20FeeProxy__factory.createInterface();
 
-  console.log("#######################################################");
-  console.log("#######################################################");
-  console.log("#######################################################");
-  console.log(paymentReference);
-  console.log(paymentReference?.slice(-16));
-  console.log("0x7157f6ce9085a520");
-  console.log("#######################################################");
-  console.log("#######################################################");
-
   return proxyContract.encodeFunctionData('transferFromWithReferenceAndFee', [
     tokenAddress,
     paymentAddress,

@@ -64,6 +64,10 @@ export interface IRequestLogic {
     topics: any[],
     updatedBetween?: ITimestampBoundaries,
   ) => Promise<IReturnGetRequestsByTopic>;
+  getPaymentProof: (
+    requestId: RequestId,
+    amountPaid: Amount,
+  ) => Promise<any>;
 }
 
 /** Restrict research to two timestamp */
