@@ -22,14 +22,14 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -b tsconfig.build.json --verbose",
+    "build": "tsc -b tsconfig.build.json",
     "clean": "rm -rf dist tsconfig.build.ts*"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
   },
-  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-network-sdk.js#readme",
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-network-sdk#readme",
   "bugs": {
     "url": "https://github.com/RequestNetwork/requestNetwork/issues"
   },
