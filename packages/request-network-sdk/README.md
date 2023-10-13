@@ -1,7 +1,7 @@
 # @requestnetwork/request-network-sdk
 
 `@requestnetwork/request-network-sdk` is a ES6 typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
-This package allows you to interact with the Request blockchain through [Request nodes](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-node). This client side library uses Request nodes as servers, connected in HTTP. See the Request node documentation for more details on their API.
+This package lets you to interact with the Request Network through [Request Nodes](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-node). This client-side library uses Request Nodes as its backend, connected in HTTP. See the [Request Nodes's API documentation](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-node) for more details.
 
 ## Installation
 
