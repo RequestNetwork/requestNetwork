@@ -5,7 +5,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "description": "Requet Network SDK Library",
+  "description": "Requet Network SDK Library.",
   "keywords": [
     "requestnetwork",
     "request-network-sdk"
@@ -13,6 +13,7 @@
   "engines": {
     "node": ">=16.0.0"
   },
+  "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "directories": {
@@ -33,12 +34,11 @@
   "bugs": {
     "url": "https://github.com/RequestNetwork/requestNetwork/issues"
   },
-  "license": "MIT",
   "dependencies": {
-    "@requestnetwork/epk-decryption": "^0.3.35",
-    "@requestnetwork/epk-signature": "^0.5.36",
-    "@requestnetwork/payment-processor": "^0.39.0",
-    "@requestnetwork/request-client.js": "^0.41.0",
-    "@requestnetwork/web3-signature": "^0.4.37"
+    "@requestnetwork/epk-decryption": "0.3.35",
+    "@requestnetwork/epk-signature": "0.5.36",
+    "@requestnetwork/payment-processor": "0.39.0",
+    "@requestnetwork/request-client.js": "0.41.0",
+    "@requestnetwork/web3-signature": "0.4.37"
   }
 }
