@@ -3,6 +3,13 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "module": "ES6"
+    "module": "ES6",
+    "references": [
+      { "path": "../epk-decryption/tsconfig.build.json" },
+      { "path": "../epk-signature/tsconfig.build.json" },
+      { "path": "../payment-processor/tsconfig.build.json" },
+      { "path": "../request-client.js/tsconfig.build.json" },
+      { "path": "../web3-signature/tsconfig.build.json" }
+    ]
   }
 }
