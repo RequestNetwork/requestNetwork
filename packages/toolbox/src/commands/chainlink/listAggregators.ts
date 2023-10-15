@@ -18,7 +18,7 @@ export const builder = (): yargs.Argv<IOptions> =>
     maxRange: {
       demand: false,
       type: 'number',
-      desc: 'The maximum number of blocks to query in parallel. Defaults to 5000',
+      desc: 'The maximum number of blocks to query in parallel. Defaults to 1,000,000',
     },
   });
 export const handler = listAggregators;
