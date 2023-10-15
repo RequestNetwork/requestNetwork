@@ -73,6 +73,7 @@
     "@types/node": "16.11.7",
     "@types/supertest": "2.0.10",
     "@types/yargs": "17.0.14",
+    "eslint-plugin-monorepo": "0.3.2",
     "jest": "26.4.2",
     "shx": "0.3.2",
     "source-map-support": "0.5.19",

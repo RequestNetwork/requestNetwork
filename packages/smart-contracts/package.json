@@ -73,6 +73,7 @@
     "axios": "0.27.2",
     "chai": "4.3.4",
     "dotenv": "10.0.0",
+    "eslint-plugin-monorepo": "0.3.2",
     "ethereum-waffle": "3.4.0",
     "ethers": "5.5.1",
     "ganache-cli": "6.12.0",

@@ -67,6 +67,7 @@
     "@types/keyv": "3.1.1",
     "@types/node": "16.11.7",
     "axios-mock-adapter": "1.19.0",
+    "eslint-plugin-monorepo": "0.3.2",
     "jest": "26.4.2",
     "nyc": "15.1.0",
     "shx": "0.3.2",

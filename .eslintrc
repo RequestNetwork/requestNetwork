@@ -6,13 +6,14 @@
     "sourceType": "module"
   },
   "extends": ["eslint:recommended", "prettier"],
-  "plugins": ["jsdoc", "import", "prefer-arrow"],
+  "plugins": ["jsdoc", "import", "prefer-arrow", "monorepo"],
   "rules": {
     "arrow-parens": ["off", "always"],
     "curly": ["error", "all"],
     "complexity": "error",
     "eqeqeq": ["error", "smart"],
-    "import/no-extraneous-dependencies": "error"
+    "import/no-extraneous-dependencies": "error",
+    "monorepo/no-relative-import": "error"
   },
   "ignorePatterns": [
     "/packages/*/dist/",
