@@ -41,6 +41,7 @@
     "eslint-config-prettier": "8.1.0",
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-jsdoc": "32.3.0",
+    "eslint-plugin-monorepo": "0.3.2",
     "eslint-plugin-prefer-arrow": "1.2.3",
     "husky": "8.0.1",
     "lerna": "3.22.1",
