@@ -45,7 +45,6 @@
   },
   "devDependencies": {
     "@types/jest": "26.0.13",
-    "eslint-plugin-monorepo": "0.3.2",
     "jest": "26.4.2",
     "nyc": "15.1.0",
     "shx": "0.3.2",

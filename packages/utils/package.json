@@ -49,7 +49,6 @@
   "devDependencies": {
     "@types/eccrypto": "1.1.2",
     "@types/jest": "26.0.13",
-    "eslint-plugin-monorepo": "0.3.2",
     "jest": "26.4.2",
     "shx": "0.3.2",
     "source-map-support": "0.5.19",

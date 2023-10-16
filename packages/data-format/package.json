@@ -46,7 +46,6 @@
   },
   "devDependencies": {
     "@types/node": "16.11.7",
-    "eslint-plugin-monorepo": "0.3.2",
     "nyc": "15.1.0",
     "rimraf": "3.0.2",
     "shx": "0.3.2",
