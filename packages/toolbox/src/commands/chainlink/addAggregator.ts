@@ -71,7 +71,7 @@ export const handler = async (args: Options): Promise<void> => {
     inputAddress = inputCcy.hash;
   }
 
-  let outputAddress = input;
+  let outputAddress = output;
   if (!outputAddress.startsWith('0x')) {
     assert(outputCcy, `output ${output} not found`);
     outputAddress = outputCcy.hash;
