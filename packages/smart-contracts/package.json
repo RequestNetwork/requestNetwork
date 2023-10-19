@@ -1,7 +1,7 @@
 {
   "name": "@requestnetwork/smart-contracts",
   "version": "0.30.0",
-  "type": "module",
+  "type": "commonjs",
   "publishConfig": {
     "access": "public"
   },
