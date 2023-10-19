@@ -11,7 +11,7 @@ import {
   payerIdentity,
   privateErc20Address,
   requestNetwork,
-} from './fixtures';
+} from './fixtures.js';
 
 const erc20ProxyAddressedBased = new Erc20PaymentNetwork.ERC20ProxyPaymentDetector({
   advancedLogic: mockAdvancedLogic,

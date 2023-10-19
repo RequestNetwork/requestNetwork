@@ -5,7 +5,7 @@ import {
   updateChainlinkConversionPath,
   updateRequestSwapFees,
   updateSwapRouter,
-} from './adminTasks';
+} from './adminTasks.js';
 import { EvmChains } from '@requestnetwork/currency';
 
 /**

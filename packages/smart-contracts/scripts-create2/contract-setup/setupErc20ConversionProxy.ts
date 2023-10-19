@@ -4,7 +4,7 @@ import {
   getSignerAndGasFees,
   updateChainlinkConversionPath,
   updatePaymentFeeProxyAddress,
-} from './adminTasks';
+} from './adminTasks.js';
 import { EvmChains } from '@requestnetwork/currency';
 
 const ERC20ConversionVersion = '0.1.2';

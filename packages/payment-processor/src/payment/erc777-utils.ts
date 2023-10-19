@@ -9,7 +9,7 @@ import {
   validateRequest,
   MAX_ALLOWANCE,
   getRequestPaymentValues,
-} from './utils';
+} from './utils.js';
 import { getSuperFluidFramework } from './erc777-stream.js';
 import { checkErc20Allowance, encodeApproveAnyErc20, getAnyErc20Balance } from './erc20/index.js';
 import { IPreparedTransaction } from './prepared-transaction.js';

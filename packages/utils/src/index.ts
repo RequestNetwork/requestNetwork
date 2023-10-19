@@ -26,7 +26,7 @@ export {
   last20bytesOfNormalizedKeccak256Hash,
   normalize,
   normalizeKeccak256Hash,
-} from './crypto';
+} from './crypto.js';
 
 export { decrypt, encrypt, getIdentityFromEncryptionParams } from './encryption.js';
 
@@ -37,7 +37,7 @@ export {
   identityHasError,
   normalizeIdentityValue,
   supportedIdentities,
-} from './identity';
+} from './identity.js';
 
 export {
   setProviderFactory,
@@ -46,7 +46,7 @@ export {
   getDefaultProvider,
   getCeloProvider,
   networkRpcs,
-} from './providers';
+} from './providers.js';
 
 export { retry } from './retry.js';
 
@@ -64,4 +64,4 @@ export {
   unique,
   uniqueByProperty,
   notNull,
-} from './utils';
+} from './utils.js';

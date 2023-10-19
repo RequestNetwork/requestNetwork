@@ -2,7 +2,7 @@ import { PnReferenceBased, IAction } from '../extension-types.js';
 export {
   IAddPaymentAddressParameters,
   IAddRefundAddressParameters,
-} from './pn-any-reference-based-types';
+} from './pn-any-reference-based-types.js';
 
 /** Fee reference-based payment network extension interface */
 export interface IFeeReferenceBased<TCreationParameters = ICreationParameters>

@@ -12,7 +12,7 @@ import {
   getRequestPaymentValues,
   getSigner,
   validateConversionFeeProxyRequest,
-} from './utils';
+} from './utils.js';
 import { CurrencyManager, EvmChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { IRequestPaymentOptions } from './settings.js';
 import { IPreparedTransaction } from './prepared-transaction.js';

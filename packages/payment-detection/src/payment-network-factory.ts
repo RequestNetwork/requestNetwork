@@ -11,7 +11,7 @@ import {
   IPaymentNetworkModuleByType,
   ISupportedPaymentNetworkByCurrency,
   PaymentNetworkOptions,
-} from './types';
+} from './types.js';
 import { BtcMainnetAddressBasedDetector, BtcTestnetAddressBasedDetector } from './btc.js';
 import { DeclarativePaymentDetector } from './declarative.js';
 import {
@@ -19,7 +19,7 @@ import {
   ERC20FeeProxyPaymentDetector,
   ERC20ProxyPaymentDetector,
   ERC20TransferableReceivablePaymentDetector,
-} from './erc20';
+} from './erc20.js';
 import { SuperFluidPaymentDetector } from './erc777/superfluid-detector.js';
 import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth.js';
 import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any.js';

@@ -4,7 +4,7 @@ import {
   ERC777CurrencyInput,
   ISO4217CurrencyInput,
   NativeCurrencyInput,
-} from './types';
+} from './types.js';
 import { RequestLogicTypes } from '@requestnetwork/types';
 
 /**

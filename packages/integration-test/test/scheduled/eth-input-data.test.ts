@@ -14,7 +14,7 @@ import {
   payerIdentity,
   privateErc20Address,
   requestNetwork,
-} from './fixtures';
+} from './fixtures.js';
 import { createMockNativeTokenRequest } from '../utils.js';
 
 const ethInputContract = new EthInputDataPaymentDetector({

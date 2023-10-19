@@ -6,12 +6,12 @@ import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/
 import {
   hasErc20ApprovalForProxyConversion,
   prepareApproveErc20ForProxyConversion,
-} from './conversion-erc20';
+} from './conversion-erc20.js';
 import { hasApprovalErc20ForSwapToPay, prepareApprovalErc20ForSwapToPay } from './swap-erc20.js';
 import {
   hasErc20ApprovalForSwapWithConversion,
   prepareApprovalErc20ForSwapWithConversionToPay,
-} from './swap-conversion-erc20';
+} from './swap-conversion-erc20.js';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
 /**

@@ -11,7 +11,7 @@ import {
   payerIdentity,
   privateErc20Address,
   requestNetwork,
-} from './fixtures';
+} from './fixtures.js';
 import { createMockErc20FeeRequest } from '../utils.js';
 
 const pnFactory = new PaymentNetworkFactory(mockAdvancedLogic, CurrencyManager.getDefault());

@@ -14,7 +14,7 @@ import {
   getSigner,
   validateErc20FeeProxyRequest,
   validateRequest,
-} from './utils';
+} from './utils.js';
 import { IPreparedTransaction } from './prepared-transaction.js';
 
 /**

@@ -20,7 +20,7 @@ import {
   padAmountForChainlink,
   parseLogArgs,
   unpadAmountFromChainlink,
-} from './utils';
+} from './utils.js';
 import {
   NearConversionNativeTokenPaymentDetector,
   NearNativeTokenPaymentDetector,

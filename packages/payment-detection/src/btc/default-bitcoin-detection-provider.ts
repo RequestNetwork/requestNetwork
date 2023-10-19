@@ -5,7 +5,7 @@ import {
   BlockStreamInfoProvider,
   BlockcypherComProvider,
   ChainSoProvider,
-} from './default-providers';
+} from './default-providers.js';
 
 /**
  * The default Bitcoin detection provider give access to the bitcoin blockchain through several external API's

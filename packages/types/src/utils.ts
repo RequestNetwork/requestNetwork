@@ -3,7 +3,7 @@ import {
   ICreationParameters,
   IOriginalRequestCreationParameters,
   ISubsequentRequestCreationParameters,
-} from './extensions/pn-any-stream-reference-based-types';
+} from './extensions/pn-any-stream-reference-based-types.js';
 
 /**
  * Types a value like ExtensionType into a paymentNetworkID enum element if possible

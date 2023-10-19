@@ -24,7 +24,7 @@ import {
   getRequestPaymentValues,
   validateERC20TransferableReceivable,
   validatePayERC20TransferableReceivable,
-} from './utils';
+} from './utils.js';
 import { IPreparedTransaction } from './prepared-transaction.js';
 
 // The ERC20 receivable smart contract ABI fragment

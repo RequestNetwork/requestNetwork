@@ -8,7 +8,7 @@ import {
   validateRequest,
   getAmountToPay,
   getPaymentExtensionVersion,
-} from './utils';
+} from './utils.js';
 import { INearTransactionCallback, processNearPaymentWithConversion } from './utils-near.js';
 import { IConversionPaymentSettings } from '.';
 import { CurrencyManager, NearChains, UnsupportedCurrencyError } from '@requestnetwork/currency';

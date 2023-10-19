@@ -9,7 +9,7 @@ import {
   INearTransactionCallback,
   isReceiverReady,
   processNearFungiblePayment,
-} from './utils-near';
+} from './utils-near.js';
 import { NearChains } from '@requestnetwork/currency';
 
 /**

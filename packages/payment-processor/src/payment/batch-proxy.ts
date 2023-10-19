@@ -11,7 +11,7 @@ import {
   getRequestPaymentValues,
   getSigner,
   validateErc20FeeProxyRequest,
-} from './utils';
+} from './utils.js';
 import { validateEthFeeProxyRequest } from './eth-fee-proxy.js';
 import { IPreparedTransaction } from './prepared-transaction.js';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20/index.js';

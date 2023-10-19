@@ -6,7 +6,7 @@ import {
   updateBatchPaymentFeeAmountUSDLimit,
   updateBatchPaymentFees,
   updateNativeAndUSDAddress,
-} from './adminTasks';
+} from './adminTasks.js';
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 

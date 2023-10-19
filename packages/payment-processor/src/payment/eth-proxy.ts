@@ -10,7 +10,7 @@ import {
   getRequestPaymentValues,
   getSigner,
   validateRequest,
-} from './utils';
+} from './utils.js';
 import { IPreparedTransaction } from './prepared-transaction.js';
 
 /**

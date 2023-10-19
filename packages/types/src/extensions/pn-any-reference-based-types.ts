@@ -4,7 +4,7 @@ export {
   ACTION,
   IAddPaymentAddressParameters,
   IAddRefundAddressParameters,
-} from './pn-any-address-based-types';
+} from './pn-any-address-based-types.js';
 
 /** Manager of the extension */
 export type IReferenceBased<TCreationParameters = ICreationParameters> =

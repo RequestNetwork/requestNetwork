@@ -9,7 +9,7 @@ import {
   getRequestPaymentValues,
   getSigner,
   validateRequest,
-} from './utils';
+} from './utils.js';
 import { ITransactionOverrides } from './transaction-overrides.js';
 import { encodeApproveAnyErc20 } from './erc20/index.js';
 import { IPreparedTransaction } from './prepared-transaction.js';

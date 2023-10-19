@@ -12,7 +12,7 @@ import {
   getRequestPaymentValues,
   getSigner,
   validateErc20FeeProxyRequest,
-} from './utils';
+} from './utils.js';
 import { IPreparedTransaction } from './prepared-transaction.js';
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { EvmChains } from '@requestnetwork/currency';

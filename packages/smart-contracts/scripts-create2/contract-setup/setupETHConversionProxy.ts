@@ -7,7 +7,7 @@ import {
   updateChainlinkConversionPath,
   updateNativeTokenHash,
   updatePaymentFeeProxyAddress,
-} from './adminTasks';
+} from './adminTasks.js';
 
 /**
  * Updates the values of the chainlinkConversionPath and EthFeeProxy addresses if needed

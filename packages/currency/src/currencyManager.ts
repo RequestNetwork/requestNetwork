@@ -14,7 +14,7 @@ import {
   ICurrencyManager,
   LegacyTokenMap,
   NativeCurrencyType,
-} from './types';
+} from './types.js';
 import { defaultConversionPairs, AggregatorsMap, getPath } from './conversion-aggregators.js';
 import { isValidNearAddress } from './currency-utils.js';
 import { NearChains } from './chains/index.js';

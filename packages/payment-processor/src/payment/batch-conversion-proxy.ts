@@ -19,7 +19,7 @@ import {
   getSigner,
   MAX_ALLOWANCE,
   validateErc20FeeProxyRequest,
-} from './utils';
+} from './utils.js';
 import {
   padAmountForChainlink,
   getPaymentNetworkExtension,

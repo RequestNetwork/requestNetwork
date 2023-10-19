@@ -17,7 +17,7 @@ import {
   getRequestPaymentValues,
   getSigner,
   validateConversionFeeProxyRequest,
-} from './utils';
+} from './utils.js';
 import { padAmountForChainlink } from '@requestnetwork/payment-detection';
 import { IPreparedTransaction } from './prepared-transaction.js';
 import { IConversionPaymentSettings } from './index.js';
