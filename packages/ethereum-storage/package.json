@@ -49,7 +49,7 @@
     "bluebird": "3.7.2",
     "ethers": "5.5.1",
     "form-data": "3.0.0",
-    "ipfs-unixfs": "6.0.7",
+    "ipfs-unixfs": "11.1.0",
     "keyv": "4.0.3",
     "qs": "6.10.3",
     "shelljs": "0.8.5",
