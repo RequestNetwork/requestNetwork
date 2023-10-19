@@ -70,7 +70,7 @@
     "@types/chai": "4.2.21",
     "@types/mocha": "8.2.3",
     "@types/node": "16.11.7",
-    "axios": "0.27.2",
+    "axios": "1.5.1",
     "chai": "4.3.4",
     "dotenv": "16.3.1",
     "ethereum-waffle": "3.4.0",
