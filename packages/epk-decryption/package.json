@@ -1,6 +1,7 @@
 {
   "name": "@requestnetwork/epk-decryption",
   "version": "0.3.35",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },

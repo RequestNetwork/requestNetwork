@@ -1,6 +1,7 @@
 {
   "name": "@requestnetwork/request-client.js",
   "version": "0.41.0",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },

@@ -1,6 +1,7 @@
 {
   "name": "@requestnetwork/epk-signature",
   "version": "0.5.36",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },

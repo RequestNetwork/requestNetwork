@@ -1,6 +1,7 @@
 {
   "name": "@requestnetwork/data-access",
   "version": "0.28.0",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },

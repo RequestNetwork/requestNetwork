@@ -1,6 +1,7 @@
 {
   "name": "@requestnetwork/thegraph-data-access",
   "version": "0.35.2",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },

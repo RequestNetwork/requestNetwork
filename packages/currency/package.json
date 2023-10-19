@@ -1,6 +1,7 @@
 {
   "name": "@requestnetwork/currency",
   "version": "0.10.0",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },

@@ -1,6 +1,7 @@
 {
   "name": "@requestnetwork/integration-test",
   "version": "0.30.0",
+  "type": "module",
   "private": true,
   "description": "Integration tests for the request system.",
   "keywords": [

@@ -1,6 +1,7 @@
 {
   "name": "@requestnetwork/multi-format",
   "version": "0.15.11",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },
