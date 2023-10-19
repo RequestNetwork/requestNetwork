@@ -6,7 +6,7 @@ import {
   getEthereumStorageNetworkIdFromName,
   getEthereumStorageNetworkNameFromId,
   isGasPriceSafe,
-} from '../src/ethereum-utils';
+} from '../src/ethereum-utils.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 

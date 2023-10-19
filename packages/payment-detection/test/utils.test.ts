@@ -6,7 +6,7 @@ import {
   calculateEscrowState,
   getPaymentReference,
   formatAddress,
-} from '../src';
+} from '../src.js';
 
 describe('conversion: padding amounts for Chainlink', () => {
   const currencyManager = CurrencyManager.getDefault();

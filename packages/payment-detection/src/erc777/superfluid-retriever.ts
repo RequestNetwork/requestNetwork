@@ -4,7 +4,7 @@ import {
   getTheGraphSuperfluidClient,
   TheGraphSuperfluidClient,
   TheGraphClientOptions,
-} from '../thegraph/superfluid';
+} from '../thegraph/superfluid.js';
 import { getCurrentTimestampInSecond } from '@requestnetwork/utils';
 import { BigNumber } from 'ethers';
 

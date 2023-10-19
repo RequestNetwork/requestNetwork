@@ -8,7 +8,7 @@ import {
   payRequest,
   swapToPayRequest,
   isSolvent,
-} from '../../src/payment';
+} from '../../src/payment.js';
 import { payNearInputDataRequest } from '../../src/payment/near-input-data.js';
 import * as btcModule from '../../src/payment/btc-address-based.js';
 import * as erc777Module from '../../src/payment/erc777-stream.js';

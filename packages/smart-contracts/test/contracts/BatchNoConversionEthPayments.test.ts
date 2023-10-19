@@ -7,7 +7,7 @@ import {
   BatchNoConversionPayments__factory,
   ERC20FeeProxy__factory,
   ChainlinkConversionPath,
-} from '../../src/types';
+} from '../../src/types.js';
 import { EthereumFeeProxy, BatchNoConversionPayments } from '../../src/types.js';
 import { chainlinkConversionPath } from '../../src/lib.js';
 import { HttpNetworkConfig } from 'hardhat/types';

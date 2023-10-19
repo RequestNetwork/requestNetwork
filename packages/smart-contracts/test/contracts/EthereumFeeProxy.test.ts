@@ -8,7 +8,7 @@ import {
   EtherPaymentFallback__factory,
   GnosisSafeProxy,
   GnosisSafeProxy__factory,
-} from '../../src/types';
+} from '../../src/types.js';
 import { ethereumFeeProxyArtifact } from '../../src/lib/.js';
 import { HttpNetworkConfig } from 'hardhat/types';
 import { EvmChains } from '@requestnetwork/currency';

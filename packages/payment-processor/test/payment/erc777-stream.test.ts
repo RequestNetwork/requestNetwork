@@ -16,7 +16,7 @@ import {
   makeErc777OneOffPayment,
   payErc777StreamRequest,
   RESOLVER_ADDRESS,
-} from '../../src/payment/erc777-stream';
+} from '../../src/payment/erc777-stream.js';
 import { getRequestPaymentValues } from '../../src/payment/utils.js';
 import { wrapUnderlyingToken } from '../../src/payment/erc777-utils.js';
 const daiABI = require('../abis/fDAIABI');

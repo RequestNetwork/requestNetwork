@@ -3,7 +3,7 @@ import {
   chainlinkConversionPath as chainlinkConversionPathArtifact,
   ContractArtifact,
   erc20SwapToPayArtifact,
-} from '../src/lib';
+} from '../src/lib.js';
 import { deployERC20ConversionProxy, deployEthConversionProxy } from './conversion-proxy';
 import { DeploymentResult, deployOne } from './deploy-one';
 import { uniswapV2RouterAddresses, jumpToNonce } from './utils';

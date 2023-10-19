@@ -7,7 +7,7 @@ import {
   timeoutPromise,
   unique,
   uniqueByProperty,
-} from '../src';
+} from '../src.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Utils', () => {

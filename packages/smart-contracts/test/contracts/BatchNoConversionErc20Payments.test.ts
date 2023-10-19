@@ -10,7 +10,7 @@ import {
   EthereumFeeProxy__factory,
   TestERC20,
   TestERC20__factory,
-} from '../../src/types';
+} from '../../src/types.js';
 import { chainlinkConversionPath } from '../../src/lib.js';
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { RequestDetail } from 'types/dist/payment-types';

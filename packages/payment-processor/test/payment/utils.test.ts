@@ -5,7 +5,7 @@ import {
   getNetworkProvider,
   getProvider,
   getSigner,
-} from '../../src/payment/utils';
+} from '../../src/payment/utils.js';
 
 describe('getAmountToPay', () => {
   it('returns the expectedAmount if balance is 0', () => {

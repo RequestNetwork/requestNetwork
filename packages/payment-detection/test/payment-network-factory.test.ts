@@ -5,7 +5,7 @@ import {
   DeclarativePaymentDetector,
   EthInputDataPaymentDetector,
   PaymentNetworkFactory,
-} from '../src';
+} from '../src.js';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { ERC20FeeProxyPaymentDetector } from '../src/erc20/fee-proxy-contract.js';
 

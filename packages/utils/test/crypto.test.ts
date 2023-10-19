@@ -5,7 +5,7 @@ import {
   last20bytesOfNormalizedKeccak256Hash,
   normalize,
   normalizeKeccak256Hash,
-} from '../src';
+} from '../src.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Utils/crypto', () => {

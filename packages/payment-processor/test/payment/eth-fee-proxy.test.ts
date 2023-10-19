@@ -10,7 +10,7 @@ import { deepCopy } from '@requestnetwork/utils';
 import {
   encodePayEthFeeProxyRequest,
   payEthFeeProxyRequest,
-} from '../../src/payment/eth-fee-proxy';
+} from '../../src/payment/eth-fee-proxy.js';
 import { getRequestPaymentValues } from '../../src/payment/utils.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */

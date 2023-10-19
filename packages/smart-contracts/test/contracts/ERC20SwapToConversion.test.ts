@@ -12,12 +12,12 @@ import {
   FakeSwapRouter__factory,
   TestERC20,
   TestERC20__factory,
-} from '../../src/types';
+} from '../../src/types.js';
 import {
   chainlinkConversionPath as chainlinkConvArtifact,
   erc20ConversionProxy as erc20ConversionProxyArtifact,
   erc20SwapConversionArtifact,
-} from '../../src/lib';
+} from '../../src/lib.js';
 
 use(solidity);
 

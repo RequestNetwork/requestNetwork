@@ -10,7 +10,7 @@ import {
   IApprovalSettings,
   IConversionSettings,
   IRequestPaymentOptions,
-} from '../../src/payment/settings';
+} from '../../src/payment/settings.js';
 import { currencyManager } from './shared.js';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { MAX_ALLOWANCE } from '../../src/payment/utils.js';

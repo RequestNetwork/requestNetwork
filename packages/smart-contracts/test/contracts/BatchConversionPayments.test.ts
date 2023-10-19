@@ -9,7 +9,7 @@ import {
   TestERC20__factory,
   BatchConversionPayments__factory,
   BatchConversionPayments,
-} from '../../src/types';
+} from '../../src/types.js';
 import { PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, ContractTransaction, Signer } from 'ethers';
 import { expect } from 'chai';
@@ -23,7 +23,7 @@ import {
   DAI_USD_RATE,
   EUR_USD_RATE,
   PRECISION_RATE,
-} from '../../scripts/test-deploy_chainlink_contract';
+} from '../../scripts/test-deploy_chainlink_contract.js';
 
 const BATCH_PAYMENT_NETWORK_ID = PaymentTypes.BATCH_PAYMENT_NETWORK_ID;
 

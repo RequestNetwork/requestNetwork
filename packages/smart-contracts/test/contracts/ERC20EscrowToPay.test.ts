@@ -20,7 +20,7 @@ import {
   ERC20FeeProxy__factory,
   ERC20FeeProxy,
   ERC20EscrowToPay,
-} from '../../src/types';
+} from '../../src/types.js';
 
 use(solidity);
 

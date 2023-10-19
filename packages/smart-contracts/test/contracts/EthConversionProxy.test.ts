@@ -11,7 +11,7 @@ import {
   GnosisSafeProxy,
   EtherPaymentFallback__factory,
   GnosisSafeProxy__factory,
-} from '../../src/types';
+} from '../../src/types.js';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';

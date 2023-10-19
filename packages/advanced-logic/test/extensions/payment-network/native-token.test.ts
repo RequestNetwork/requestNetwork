@@ -3,12 +3,12 @@ import NearNativePaymentNetwork from '../../../src/extensions/payment-network/ne
 import {
   arbitrarySalt,
   requestStateNoExtensions,
-} from '../../utils/payment-network/any/generator-data-create';
+} from '../../utils/payment-network/any/generator-data-create.js';
 import {
   actionCreationWithNativeTokenPayment,
   extensionStateWithNativeTokenPaymentAndRefund,
   extensionStateWithPaymentAddressAdded,
-} from '../../utils/payment-network/mocked_native_data';
+} from '../../utils/payment-network/mocked_native_data.js';
 import { AdvancedLogic } from '../../../src.js';
 import { arbitraryTimestamp, payeeRaw } from '../../utils/test-data-generator.js';
 import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';

@@ -10,7 +10,7 @@ import PaymentReferenceCalculator from '../../src/payment-reference-calculator.j
 import {
   NearConversionInfoRetriever,
   NearConversionNativeTokenPaymentDetector,
-} from '../../src/near';
+} from '../../src/near.js';
 import { deepCopy } from 'ethers/lib/utils';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { TheGraphClient } from '../../src.js';

@@ -4,7 +4,7 @@ export {
   IAddPaymentAddressParameters,
   IAddRefundAddressParameters,
   IAddFeeParameters,
-} from './pn-any-fee-reference-based-types';
+} from './pn-any-fee-reference-based-types.js';
 
 /** Conversion reference-based payment network extension interface */
 export type IConversionReferenceBased<TCreationParameters = ICreationParameters> =

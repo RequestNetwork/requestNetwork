@@ -10,7 +10,7 @@ import {
   encodeRequestPayment,
   encodeRequestPaymentWithStream,
   prepareCloseStreamTransaction,
-} from '../../src';
+} from '../../src.js';
 import { getProxyAddress, MAX_ALLOWANCE } from '../../src/payment/utils.js';
 import {
   AnyToERC20PaymentDetector,

@@ -10,7 +10,7 @@ import {
   approveErc20ForProxyConversionIfNeeded,
   IConversionPaymentSettings,
   payAnyToErc20ProxyRequest,
-} from '../../src';
+} from '../../src.js';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { currencyManager } from './shared.js';
 import { UnsupportedCurrencyError } from '@requestnetwork/currency';

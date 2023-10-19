@@ -16,7 +16,7 @@ import {
   getReceivableTokenIdForRequest,
   mintErc20TransferableReceivable,
   payErc20TransferableReceivableRequest,
-} from '../../src/payment/erc20-transferable-receivable';
+} from '../../src/payment/erc20-transferable-receivable.js';
 import { getProxyAddress } from '../../src/payment/utils.js';
 
 /* eslint-disable no-magic-numbers */

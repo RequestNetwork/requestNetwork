@@ -14,7 +14,7 @@ import {
   IConversionPaymentSettings,
   payBatchConversionProxyRequest,
   prepareBatchConversionPaymentTransaction,
-} from '../../src';
+} from '../../src.js';
 import { deepCopy } from '@requestnetwork/utils';
 import { revokeErc20Approval } from '@requestnetwork/payment-processor/src/payment/utils';
 import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts';
