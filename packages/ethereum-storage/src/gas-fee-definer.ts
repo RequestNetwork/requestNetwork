@@ -2,7 +2,7 @@ import { suggestFees } from '@rainbow-me/fee-suggestions';
 import { BigNumber, providers, constants } from 'ethers';
 import { normalizeGasFees } from '@requestnetwork/utils';
 import { FeeTypes, LogTypes } from '@requestnetwork/types';
-import { GasDefinerProps } from './ethereum-storage-ethers';
+import { GasDefinerProps } from './ethereum-storage-ethers.js';
 
 export class GasFeeDefiner {
   private readonly logger: LogTypes.ILogger;

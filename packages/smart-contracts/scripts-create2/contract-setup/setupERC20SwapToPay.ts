@@ -1,7 +1,7 @@
 import { EvmChains } from '@requestnetwork/currency';
 import { erc20SwapToPayArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
-import { getSignerAndGasFees, updateRequestSwapFees, updateSwapRouter } from './adminTasks';
+import { getSignerAndGasFees, updateRequestSwapFees, updateSwapRouter } from './adminTasks.js';
 
 /**
  * Once deployed, setup the values of the ERC20SwapToPay contract

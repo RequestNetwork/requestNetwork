@@ -1,4 +1,4 @@
-import { HardhatRuntimeEnvironmentExtended } from './types';
+import { HardhatRuntimeEnvironmentExtended } from './types.js';
 import { getCeloProvider, getDefaultProvider } from '@requestnetwork/utils';
 
 export const checkCreate2Deployer = async (

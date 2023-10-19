@@ -1,7 +1,7 @@
 import { LogTypes } from '@requestnetwork/types';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import ConfirmedTransactionStore from './confirmedTransactionStore';
+import ConfirmedTransactionStore from './confirmedTransactionStore.js';
 
 export default class getConfirmedTransactionHandler {
   constructor(private logger: LogTypes.ILogger, private store: ConfirmedTransactionStore) {

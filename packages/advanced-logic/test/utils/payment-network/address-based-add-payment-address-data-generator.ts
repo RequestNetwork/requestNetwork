@@ -1,4 +1,4 @@
-import * as TestDataCreate from './address-based-data-generator';
+import * as TestDataCreate from './address-based-data-generator.js';
 
 import * as TestData from '../test-data-generator';
 

@@ -1,8 +1,8 @@
 import { CurrencyTypes } from '@requestnetwork/types';
 import { Chain } from '../../types';
 
-import * as TronDefinition from './data/tron';
-import * as SolanaDefinition from './data/solana';
+import * as TronDefinition from './data/tron.js';
+import * as SolanaDefinition from './data/solana.js';
 
 export type DeclarativeChain = Chain;
 

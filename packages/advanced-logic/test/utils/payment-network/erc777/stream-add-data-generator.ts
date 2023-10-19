@@ -1,4 +1,4 @@
-import * as TestDataCreate from './stream-create-data-generator';
+import * as TestDataCreate from './stream-create-data-generator.js';
 
 import * as TestData from '../../test-data-generator';
 

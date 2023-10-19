@@ -13,7 +13,7 @@ import { ERC20, ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { swapToPayAnyToErc20Request } from '../../src/payment/swap-any-to-erc20';
 import { IConversionSettings } from '../../src/payment/settings';
 
-import { currencyManager } from './shared';
+import { currencyManager } from './shared.js';
 import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 /* eslint-disable no-magic-numbers */

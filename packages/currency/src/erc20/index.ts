@@ -1,5 +1,5 @@
 import { ERC20Currency, TokenMap } from '../types';
-import { supportedNetworks } from './chains';
+import { supportedNetworks } from './chains.js';
 import { CurrencyTypes } from '@requestnetwork/types';
 
 /**

@@ -1,6 +1,6 @@
-import { create2ContractDeploymentList } from './utils';
-import { HardhatRuntimeEnvironmentExtended } from './types';
-import { setupContract } from './contract-setup/setups';
+import { create2ContractDeploymentList } from './utils.js';
+import { HardhatRuntimeEnvironmentExtended } from './types.js';
+import { setupContract } from './contract-setup/setups.js';
 
 /**
  * Update the contract latest version registered in the artifacts.

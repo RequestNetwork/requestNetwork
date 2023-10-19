@@ -13,7 +13,7 @@ import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { chainlinkConversionPath } from '../../src/lib';
-import { localERC20AlphaArtifact } from './localArtifacts';
+import { localERC20AlphaArtifact } from './localArtifacts.js';
 
 use(solidity);
 

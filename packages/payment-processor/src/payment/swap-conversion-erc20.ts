@@ -3,10 +3,10 @@ import { ContractTransaction, providers, Signer, BigNumberish, BigNumber } from 
 import { erc20SwapConversionArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
-import { ITransactionOverrides } from './transaction-overrides';
-import { getProvider, getSigner } from './utils';
-import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
-import { IPreparedTransaction } from './prepared-transaction';
+import { ITransactionOverrides } from './transaction-overrides.js';
+import { getProvider, getSigner } from './utils.js';
+import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20.js';
+import { IPreparedTransaction } from './prepared-transaction.js';
 
 /**
  * Processes the approval transaction of a given payment ERC20 to be spent by the swap router,

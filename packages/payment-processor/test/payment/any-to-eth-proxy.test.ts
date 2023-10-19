@@ -7,7 +7,7 @@ import {
 } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
 import { IConversionPaymentSettings, payAnyToEthProxyRequest } from '../../src';
-import { currencyManager } from './shared';
+import { currencyManager } from './shared.js';
 
 const paymentSettings: IConversionPaymentSettings = {
   maxToSpend: '2500000000000000',

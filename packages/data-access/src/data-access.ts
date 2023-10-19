@@ -5,10 +5,10 @@ import { deepCopy, getCurrentTimestampInSecond, SimpleLogger, unique } from '@re
 import Bluebird from 'bluebird';
 import { EventEmitter } from 'events';
 
-import Block from './block';
-import IgnoredLocationIndex from './ignored-location';
-import IntervalTimer from './interval-timer';
-import TransactionIndex from './transaction-index';
+import Block from './block.js';
+import IgnoredLocationIndex from './ignored-location.js';
+import IntervalTimer from './interval-timer.js';
+import TransactionIndex from './transaction-index/index.js';
 
 // Default interval time for auto synchronization
 const DEFAULT_INTERVAL_TIME = 10000;

@@ -1,5 +1,5 @@
-import * as HashTypes from './multi-format/hash-types';
-import * as PlainTypes from './multi-format/plain-types';
+import * as HashTypes from './multi-format/hash-types.js';
+import * as PlainTypes from './multi-format/plain-types.js';
 
 export { HashTypes, PlainTypes };
 

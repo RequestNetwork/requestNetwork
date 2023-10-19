@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import * as yargs from 'yargs';
 import { LogTypes } from '@requestnetwork/types';
-import * as config from './config';
-import { Logger } from './logger';
-import { RequestNode } from './requestNode';
+import * as config from './config.js';
+import { Logger } from './logger.js';
+import { RequestNode } from './requestNode.js';
 import withShutdown from 'http-shutdown';
-import { TheGraphRequestNode } from './thegraph-node';
+import { TheGraphRequestNode } from './thegraph-node.js';
 
 const argv = yargs.parseSync();
 

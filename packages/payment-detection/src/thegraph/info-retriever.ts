@@ -3,7 +3,7 @@ import { ICurrencyManager } from '@requestnetwork/currency';
 import { utils } from 'ethers';
 import { pick, mapValues } from 'lodash';
 import type { TheGraphClient } from '.';
-import type { EscrowEventResultFragment, PaymentEventResultFragment } from './generated/graphql';
+import type { EscrowEventResultFragment, PaymentEventResultFragment } from './generated/graphql.js';
 import { formatAddress, unpadAmountFromChainlink } from '../utils';
 import { TransferEventsParams, ITheGraphBaseInfoRetriever } from '../types';
 

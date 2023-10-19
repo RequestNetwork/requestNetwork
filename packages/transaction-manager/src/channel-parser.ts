@@ -1,6 +1,6 @@
 import { DecryptionProviderTypes, EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
 
-import TransactionsParser from './transactions-parser';
+import TransactionsParser from './transactions-parser.js';
 
 /**
  * Class to parse channels from a list of transactions and their channel id

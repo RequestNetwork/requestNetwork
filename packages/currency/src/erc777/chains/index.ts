@@ -1,4 +1,4 @@
-import { supportedRinkebyERC777 } from './rinkeby';
+import { supportedRinkebyERC777 } from './rinkeby.js';
 import { TokenMap } from '../../types';
 import { CurrencyTypes } from '@requestnetwork/types';
 

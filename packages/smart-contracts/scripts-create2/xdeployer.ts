@@ -1,4 +1,8 @@
-import { HardhatRuntimeEnvironmentExtended, IDeploymentParams, IDeploymentResult } from './types';
+import {
+  HardhatRuntimeEnvironmentExtended,
+  IDeploymentParams,
+  IDeploymentResult,
+} from './types.js';
 import { requestDeployer } from '../src/lib';
 import { Overrides } from 'ethers';
 import {
@@ -7,7 +11,7 @@ import {
   getDefaultProvider,
   isEip1559Supported,
 } from '@requestnetwork/utils';
-import { suggestFeesEip1559 } from './fee-suggestion';
+import { suggestFeesEip1559 } from './fee-suggestion.js';
 
 const ZERO_ETH_INPUT = 0;
 

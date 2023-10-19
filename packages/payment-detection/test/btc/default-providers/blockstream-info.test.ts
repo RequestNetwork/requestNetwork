@@ -2,7 +2,7 @@ import { PaymentTypes } from '@requestnetwork/types';
 
 import { BlockStreamInfoProvider } from '../../../src/btc/default-providers/blockstream-info';
 
-import * as BlockstreamData from './blockstream-info-data';
+import * as BlockstreamData from './blockstream-info-data.js';
 
 // Most of the tests are done as integration tests in ../index.test.ts
 /* eslint-disable @typescript-eslint/no-unused-expressions */

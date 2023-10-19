@@ -15,7 +15,7 @@ import {
   ecRecover,
   ecSign,
 } from './crypto/ec-utils';
-import { deepSort } from './utils';
+import { deepSort } from './utils.js';
 
 /**
  * manages crypto functions

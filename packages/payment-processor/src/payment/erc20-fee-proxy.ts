@@ -6,7 +6,7 @@ import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 import { EvmChains } from '@requestnetwork/currency';
 
-import { ITransactionOverrides } from './transaction-overrides';
+import { ITransactionOverrides } from './transaction-overrides.js';
 import {
   getAmountToPay,
   getProvider,
@@ -15,7 +15,7 @@ import {
   validateErc20FeeProxyRequest,
   validateRequest,
 } from './utils';
-import { IPreparedTransaction } from './prepared-transaction';
+import { IPreparedTransaction } from './prepared-transaction.js';
 
 /**
  * Processes a transaction to pay an ERC20 Request with fees.

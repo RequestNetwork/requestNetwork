@@ -2,25 +2,25 @@ import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 
 
 import { ClientTypes, ExtensionTypes, TypesUtils } from '@requestnetwork/types';
 
-import { getBtcPaymentUrl } from './btc-address-based';
-import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
-import { payErc20Request } from './erc20';
-import { payErc777StreamRequest } from './erc777-stream';
-import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
-import { payEthFeeProxyRequest } from './eth-fee-proxy';
-import { ITransactionOverrides } from './transaction-overrides';
-import { getNetworkProvider, getProvider, getSigner } from './utils';
-import { ISwapSettings } from './swap-erc20-fee-proxy';
+import { getBtcPaymentUrl } from './btc-address-based.js';
+import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20.js';
+import { payErc20Request } from './erc20.js';
+import { payErc777StreamRequest } from './erc777-stream.js';
+import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data.js';
+import { payEthFeeProxyRequest } from './eth-fee-proxy.js';
+import { ITransactionOverrides } from './transaction-overrides.js';
+import { getNetworkProvider, getProvider, getSigner } from './utils.js';
+import { ISwapSettings } from './swap-erc20-fee-proxy.js';
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { payAnyToErc20ProxyRequest } from './any-to-erc20-proxy';
-import { payAnyToEthProxyRequest } from './any-to-eth-proxy';
+import { payAnyToErc20ProxyRequest } from './any-to-erc20-proxy.js';
+import { payAnyToEthProxyRequest } from './any-to-eth-proxy.js';
 import { WalletConnection } from 'near-api-js';
-import { isNearAccountSolvent } from './utils-near';
+import { isNearAccountSolvent } from './utils-near.js';
 import { ICurrencyManager, NearChains } from '@requestnetwork/currency';
-import { encodeRequestErc20Approval } from './encoder-approval';
-import { encodeRequestPayment } from './encoder-payment';
-import { IPreparedTransaction } from './prepared-transaction';
-import { IRequestPaymentOptions } from './settings';
+import { encodeRequestErc20Approval } from './encoder-approval.js';
+import { encodeRequestPayment } from './encoder-payment.js';
+import { IPreparedTransaction } from './prepared-transaction.js';
+import { IRequestPaymentOptions } from './settings.js';
 export { INearTransactionCallback } from './utils-near';
 
 export const noConversionNetworks = [

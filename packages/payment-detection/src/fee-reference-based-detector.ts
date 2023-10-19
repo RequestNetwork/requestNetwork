@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers';
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import { ReferenceBasedDetector } from './reference-based-detector';
+import { ReferenceBasedDetector } from './reference-based-detector.js';
 import { generate8randomBytes } from '@requestnetwork/utils';
 
 /**

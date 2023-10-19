@@ -4,7 +4,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Erc20InfoRetriever from './address-based-info-retriever';
+import Erc20InfoRetriever from './address-based-info-retriever.js';
 
 import { PaymentDetectorBase } from '../payment-detector-base';
 

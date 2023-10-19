@@ -6,7 +6,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import { EthProxyInfoRetriever } from './proxy-info-retriever';
+import { EthProxyInfoRetriever } from './proxy-info-retriever.js';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
 import { TheGraphInfoRetriever } from '../thegraph';

@@ -4,7 +4,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { PaymentDetectorBase } from './payment-detector-base';
+import { PaymentDetectorBase } from './payment-detector-base.js';
 import { notNull } from '@requestnetwork/utils';
 
 /**

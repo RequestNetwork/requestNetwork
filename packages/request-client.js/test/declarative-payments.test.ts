@@ -11,7 +11,7 @@ import { ethers } from 'ethers';
 
 import AxiosMockAdapter from 'axios-mock-adapter';
 import { RequestNetwork } from '../src/index';
-import * as TestData from './data-test';
+import * as TestData from './data-test.js';
 
 import {
   PaymentReferenceCalculator,

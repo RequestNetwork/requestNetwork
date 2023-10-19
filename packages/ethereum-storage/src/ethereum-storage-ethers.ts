@@ -3,9 +3,9 @@ import { BigNumber, ContractReceipt, providers, Signer } from 'ethers';
 import TypedEmitter from 'typed-emitter';
 import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
-import { EthereumTransactionSubmitter } from './ethereum-tx-submitter';
+import { EthereumTransactionSubmitter } from './ethereum-tx-submitter.js';
 import { getCurrentTimestampInSecond, SimpleLogger } from '@requestnetwork/utils';
-import { getDefaultEthereumBlockConfirmations } from './config';
+import { getDefaultEthereumBlockConfirmations } from './config.js';
 
 export type GasDefinerProps = {
   gasPriceMin?: BigNumber;

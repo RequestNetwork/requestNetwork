@@ -1,5 +1,5 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { isString } from './utils';
+import { isString } from './utils.js';
 
 import { BigNumber } from 'ethers';
 

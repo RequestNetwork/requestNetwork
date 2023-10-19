@@ -12,7 +12,7 @@ import {
   payAnyToErc20ProxyRequest,
 } from '../../src';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
-import { currencyManager } from './shared';
+import { currencyManager } from './shared.js';
 import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { getProxyAddress, MAX_ALLOWANCE, revokeErc20Approval } from '../../src/payment/utils';

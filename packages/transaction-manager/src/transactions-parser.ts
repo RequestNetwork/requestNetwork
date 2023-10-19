@@ -6,8 +6,8 @@ import {
   TransactionTypes,
 } from '@requestnetwork/types';
 
-import ClearTransaction from './clear-transaction';
-import EncryptedTransaction from './encrypted-transaction';
+import ClearTransaction from './clear-transaction.js';
+import EncryptedTransaction from './encrypted-transaction.js';
 
 /**
  * Class to parse transactions

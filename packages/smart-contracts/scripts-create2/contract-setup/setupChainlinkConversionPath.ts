@@ -2,7 +2,7 @@ import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { chainlinkConversionPath } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
-import { getSignerAndGasFees, updateNativeTokenHash } from './adminTasks';
+import { getSignerAndGasFees, updateNativeTokenHash } from './adminTasks.js';
 
 /**
  * Setup the chainlinkConversionPath values once deployed

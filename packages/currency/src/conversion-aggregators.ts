@@ -1,5 +1,5 @@
 import GRAPH from 'node-dijkstra';
-import { CurrencyDefinition } from './types';
+import { CurrencyDefinition } from './types.js';
 
 import privateAggregator from './aggregators/private.json';
 import mainnetAggregator from './aggregators/mainnet.json';

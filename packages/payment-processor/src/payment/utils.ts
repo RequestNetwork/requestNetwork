@@ -10,7 +10,7 @@ import {
 import { EvmChains, getCurrencyHash } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
-import { getReceivableTokenIdForRequest } from './erc20-transferable-receivable';
+import { getReceivableTokenIdForRequest } from './erc20-transferable-receivable.js';
 
 /** @constant MAX_ALLOWANCE set to the max uint256 value */
 export const MAX_ALLOWANCE = BigNumber.from(2).pow(256).sub(1);

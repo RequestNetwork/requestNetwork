@@ -1,6 +1,6 @@
-import { FeeReferenceBasedPaymentNetwork } from './fee-reference-based';
+import { FeeReferenceBasedPaymentNetwork } from './fee-reference-based.js';
 import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { InvalidPaymentAddressError, UnsupportedNetworkError } from './address-based';
+import { InvalidPaymentAddressError, UnsupportedNetworkError } from './address-based.js';
 
 export default abstract class AnyToNativeTokenPaymentNetwork extends FeeReferenceBasedPaymentNetwork {
   protected constructor(

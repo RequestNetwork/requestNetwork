@@ -3,7 +3,7 @@ import { PaymentNetworkFactory } from '@requestnetwork/payment-detection';
 import { CurrencyTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { Types, Utils } from '@requestnetwork/request-client.js';
 
-import { mockAdvancedLogic } from './mocks';
+import { mockAdvancedLogic } from './mocks.js';
 import {
   erc20requestCreationHash,
   localErc20PaymentNetworkParams,

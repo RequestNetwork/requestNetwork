@@ -6,7 +6,7 @@ import {
   erc20ConversionProxy as erc20ConversionProxyArtifact,
   ethConversionArtifact,
 } from '../src/lib';
-import { deployOne } from './deploy-one';
+import { deployOne } from './deploy-one.js';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 

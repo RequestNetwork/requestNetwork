@@ -3,14 +3,14 @@ import {
   initPaymentDetectionApiKeys,
   setProviderFactory,
 } from '@requestnetwork/utils';
-import { PaymentNetworkFactory } from './payment-network-factory';
-import PaymentReferenceCalculator from './payment-reference-calculator';
-import * as BtcPaymentNetwork from './btc';
-import { DeclarativePaymentDetector } from './declarative';
-import * as Erc20PaymentNetwork from './erc20';
-import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
-import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
-import { getTheGraphClient, getTheGraphNearClient } from './thegraph';
+import { PaymentNetworkFactory } from './payment-network-factory.js';
+import PaymentReferenceCalculator from './payment-reference-calculator.js';
+import * as BtcPaymentNetwork from './btc.js';
+import { DeclarativePaymentDetector } from './declarative.js';
+import * as Erc20PaymentNetwork from './erc20.js';
+import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any.js';
+import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth.js';
+import { getTheGraphClient, getTheGraphNearClient } from './thegraph.js';
 import {
   calculateEscrowState,
   formatAddress,
@@ -21,13 +21,16 @@ import {
   parseLogArgs,
   unpadAmountFromChainlink,
 } from './utils';
-import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetector } from './near';
-import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
-import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
-import { EscrowERC20InfoRetriever } from './erc20/escrow-info-retriever';
-import { SuperFluidInfoRetriever } from './erc777/superfluid-retriever';
-import { PaymentNetworkOptions } from './types';
-import { ERC20TransferableReceivablePaymentDetector } from './erc20';
+import {
+  NearConversionNativeTokenPaymentDetector,
+  NearNativeTokenPaymentDetector,
+} from './near.js';
+import { FeeReferenceBasedDetector } from './fee-reference-based-detector.js';
+import { SuperFluidPaymentDetector } from './erc777/superfluid-detector.js';
+import { EscrowERC20InfoRetriever } from './erc20/escrow-info-retriever.js';
+import { SuperFluidInfoRetriever } from './erc777/superfluid-retriever.js';
+import { PaymentNetworkOptions } from './types.js';
+import { ERC20TransferableReceivablePaymentDetector } from './erc20.js';
 
 export type { TheGraphClient } from './thegraph';
 

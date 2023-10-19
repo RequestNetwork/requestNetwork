@@ -1,5 +1,5 @@
-import * as Encryption from './encryption-types';
-import * as Identity from './identity-types';
+import * as Encryption from './encryption-types.js';
+import * as Identity from './identity-types.js';
 
 /** Decryption provider interface */
 export interface IDecryptionProvider {

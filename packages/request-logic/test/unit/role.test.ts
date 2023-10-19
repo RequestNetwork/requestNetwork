@@ -1,7 +1,7 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import Role from '../../src/role';
 
-import * as TestData from './utils/test-data-generator';
+import * as TestData from './utils/test-data-generator.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Role', () => {

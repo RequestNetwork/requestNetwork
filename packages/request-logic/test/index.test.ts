@@ -4,7 +4,7 @@ import MultiFormat from '@requestnetwork/multi-format';
 import { AdvancedLogicTypes, RequestLogicTypes, TransactionTypes } from '@requestnetwork/types';
 
 import { RequestLogic } from '../src/index';
-import * as TestData from './unit/utils/test-data-generator';
+import * as TestData from './unit/utils/test-data-generator.js';
 
 import Version from '../src/version';
 import { normalizeKeccak256Hash, sign } from '@requestnetwork/utils';

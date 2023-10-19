@@ -5,14 +5,14 @@ import { Server } from 'http';
 import express, { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { Store } from 'keyv';
-import { getCustomHeaders } from './config';
-import ConfirmedTransactionStore from './request/confirmedTransactionStore';
-import GetConfirmedTransactionHandler from './request/getConfirmedTransactionHandler';
-import GetTransactionsByChannelIdHandler from './request/getTransactionsByChannelId';
-import PersistTransactionHandler from './request/persistTransaction';
-import GetChannelsByTopicHandler from './request/getChannelsByTopic';
-import GetStatusHandler from './request/getStatus';
-import IpfsAddHandler from './request/ipfsAdd';
+import { getCustomHeaders } from './config.js';
+import ConfirmedTransactionStore from './request/confirmedTransactionStore.js';
+import GetConfirmedTransactionHandler from './request/getConfirmedTransactionHandler.js';
+import GetTransactionsByChannelIdHandler from './request/getTransactionsByChannelId.js';
+import PersistTransactionHandler from './request/persistTransaction.js';
+import GetChannelsByTopicHandler from './request/getChannelsByTopic.js';
+import GetStatusHandler from './request/getStatus.js';
+import IpfsAddHandler from './request/ipfsAdd.js';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');

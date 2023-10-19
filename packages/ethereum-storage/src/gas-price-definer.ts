@@ -1,15 +1,15 @@
-import * as config from './config';
-import EtherchainProvider from './gas-price-providers/etherchain-provider';
-import EtherscanProvider from './gas-price-providers/etherscan-provider';
-import EthGasStationProvider from './gas-price-providers/ethgasstation-provider';
+import * as config from './config.js';
+import EtherchainProvider from './gas-price-providers/etherchain-provider.js';
+import EtherscanProvider from './gas-price-providers/etherscan-provider.js';
+import EthGasStationProvider from './gas-price-providers/ethgasstation-provider.js';
 
 import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 
 import { BigNumber } from 'ethers';
-import XDaiFixedProvider from './gas-price-providers/xdai-fixed-provider';
-import { GasDefinerProps } from './ethereum-storage-ethers';
+import XDaiFixedProvider from './gas-price-providers/xdai-fixed-provider.js';
+import { GasDefinerProps } from './ethereum-storage-ethers.js';
 import { SimpleLogger } from '@requestnetwork/utils';
-import { getEthereumStorageNetworkIdFromName } from './ethereum-utils';
+import { getEthereumStorageNetworkIdFromName } from './ethereum-utils.js';
 
 /**
  * Determines the gas price to use depending on the used network

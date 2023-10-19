@@ -1,6 +1,6 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
 
-import SerializableMultiFormat from './serializable-multi-format';
+import SerializableMultiFormat from './serializable-multi-format.js';
 
 /**
  * Class to group multi-formats to make the code more maintainable (see index.ts)

@@ -19,7 +19,7 @@ import {
   EthFeeProxyPaymentDetector,
   EthInputDataPaymentDetector,
 } from '@requestnetwork/payment-detection';
-import { currencyManager } from './shared';
+import { currencyManager } from './shared.js';
 import {
   erc20SwapConversionArtifact,
   erc20SwapToPayArtifact,

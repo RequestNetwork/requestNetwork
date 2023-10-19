@@ -1,7 +1,7 @@
 import { ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
-import { AnyToAnyDetector } from './any-to-any-detector';
-import { NativeDetectorOptions } from './types';
+import { AnyToAnyDetector } from './any-to-any-detector.js';
+import { NativeDetectorOptions } from './types.js';
 
 /**
  * Handle payment detection for native token payment with conversion

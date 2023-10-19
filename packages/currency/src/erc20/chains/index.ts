@@ -1,18 +1,18 @@
 import { TokenMap } from '../../types';
 import { CurrencyTypes } from '@requestnetwork/types';
 
-import { supportedAvalancheERC20 } from './avalanche';
-import { supportedBSCERC20 } from './bsc';
-import { supportedBSCTestERC20 } from './bsctest';
-import { supportedCeloERC20 } from './celo';
-import { supportedFantomERC20 } from './fantom';
-import { supportedGoerliERC20 } from './goerli';
-import { supportedMainnetERC20 } from './mainnet';
-import { supportedMaticERC20 } from './matic';
-import { supportedMoonbeamERC20 } from './moonbeam';
-import { supportedOptimismERC20 } from './optimism';
-import { supportedRinkebyERC20 } from './rinkeby';
-import { supportedXDAIERC20 } from './xdai';
+import { supportedAvalancheERC20 } from './avalanche.js';
+import { supportedBSCERC20 } from './bsc.js';
+import { supportedBSCTestERC20 } from './bsctest.js';
+import { supportedCeloERC20 } from './celo.js';
+import { supportedFantomERC20 } from './fantom.js';
+import { supportedGoerliERC20 } from './goerli.js';
+import { supportedMainnetERC20 } from './mainnet.js';
+import { supportedMaticERC20 } from './matic.js';
+import { supportedMoonbeamERC20 } from './moonbeam.js';
+import { supportedOptimismERC20 } from './optimism.js';
+import { supportedRinkebyERC20 } from './rinkeby.js';
+import { supportedXDAIERC20 } from './xdai.js';
 
 export const supportedNetworks: Partial<Record<CurrencyTypes.EvmChainName, TokenMap>> = {
   celo: supportedCeloERC20,

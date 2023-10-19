@@ -1,5 +1,5 @@
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { NamedNativeCurrency } from './types';
+import { NamedNativeCurrency } from './types.js';
 
 type NativeEthCurrency = NamedNativeCurrency & {
   network: CurrencyTypes.EvmChainName | CurrencyTypes.NearChainName;

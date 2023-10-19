@@ -4,7 +4,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { NearInfoRetriever } from './retrievers/near-info-retriever';
+import { NearInfoRetriever } from './retrievers/near-info-retriever.js';
 import { NativeTokenPaymentDetector } from '../native-token-detector';
 import { NetworkNotSupported } from '../balance-error';
 import { NativeDetectorOptions } from '../types';

@@ -12,25 +12,25 @@ import {
   isSameChain,
 } from '@requestnetwork/currency';
 
-import ContentData from './extensions/content-data';
-import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
-import AddressBasedTestnetBtc from './extensions/payment-network/bitcoin/testnet-address-based';
-import Declarative from './extensions/payment-network/declarative';
-import AddressBasedErc20 from './extensions/payment-network/erc20/address-based';
-import FeeProxyContractErc20 from './extensions/payment-network/erc20/fee-proxy-contract';
-import ProxyContractErc20 from './extensions/payment-network/erc20/proxy-contract';
-import Erc777Stream from './extensions/payment-network/erc777/stream';
-import FeeProxyContractEth from './extensions/payment-network/ethereum/fee-proxy-contract';
-import EthereumInputData from './extensions/payment-network/ethereum/input-data';
-import NearNative from './extensions/payment-network/near/near-native';
-import NearTestnetNative from './extensions/payment-network/near/near-testnet-native';
-import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
-import AnyToEthProxy from './extensions/payment-network/any-to-eth-proxy';
-import AnyToNear from './extensions/payment-network/near/any-to-near';
-import AnyToNearTestnet from './extensions/payment-network/near/any-to-near-testnet';
-import NativeToken from './extensions/payment-network/native-token';
-import AnyToNative from './extensions/payment-network/any-to-native';
-import Erc20TransferableReceivablePaymentNetwork from './extensions/payment-network/erc20/transferable-receivable';
+import ContentData from './extensions/content-data.js';
+import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based.js';
+import AddressBasedTestnetBtc from './extensions/payment-network/bitcoin/testnet-address-based.js';
+import Declarative from './extensions/payment-network/declarative.js';
+import AddressBasedErc20 from './extensions/payment-network/erc20/address-based.js';
+import FeeProxyContractErc20 from './extensions/payment-network/erc20/fee-proxy-contract.js';
+import ProxyContractErc20 from './extensions/payment-network/erc20/proxy-contract.js';
+import Erc777Stream from './extensions/payment-network/erc777/stream.js';
+import FeeProxyContractEth from './extensions/payment-network/ethereum/fee-proxy-contract.js';
+import EthereumInputData from './extensions/payment-network/ethereum/input-data.js';
+import NearNative from './extensions/payment-network/near/near-native.js';
+import NearTestnetNative from './extensions/payment-network/near/near-testnet-native.js';
+import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy.js';
+import AnyToEthProxy from './extensions/payment-network/any-to-eth-proxy.js';
+import AnyToNear from './extensions/payment-network/near/any-to-near.js';
+import AnyToNearTestnet from './extensions/payment-network/near/any-to-near-testnet.js';
+import NativeToken from './extensions/payment-network/native-token.js';
+import AnyToNative from './extensions/payment-network/any-to-native.js';
+import Erc20TransferableReceivablePaymentNetwork from './extensions/payment-network/erc20/transferable-receivable.js';
 
 /**
  * Module to manage Advanced logic extensions

@@ -7,7 +7,7 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { SuperFluidPaymentDetector } from '../../src/erc777/superfluid-detector';
-import { genTransferEventsByMonth } from './mocks';
+import { genTransferEventsByMonth } from './mocks.js';
 import { mockAdvancedLogicBase } from '../utils';
 
 let superfluidPaymentDetector: SuperFluidPaymentDetector;

@@ -1,8 +1,8 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@requestnetwork/types';
 import * as Semver from 'semver';
-import Role from './role';
-import Version from './version';
+import Role from './role.js';
+import Version from './version.js';
 import { normalizeKeccak256Hash, recoverSigner } from '@requestnetwork/utils';
 
 /**

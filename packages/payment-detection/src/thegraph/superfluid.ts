@@ -1,5 +1,5 @@
 import { GraphQLClient } from 'graphql-request';
-import { getSdk } from './generated/graphql-superfluid';
+import { getSdk } from './generated/graphql-superfluid.js';
 
 const BASE_URL = `https://api.thegraph.com`;
 const NETWORK_TO_URL: Record<string, string> = {

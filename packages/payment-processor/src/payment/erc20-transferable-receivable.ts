@@ -15,7 +15,7 @@ import {
 import { ERC20TransferableReceivable__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes } from '@requestnetwork/types';
 
-import { ITransactionOverrides } from './transaction-overrides';
+import { ITransactionOverrides } from './transaction-overrides.js';
 import {
   getAmountToPay,
   getProxyAddress,
@@ -25,7 +25,7 @@ import {
   validateERC20TransferableReceivable,
   validatePayERC20TransferableReceivable,
 } from './utils';
-import { IPreparedTransaction } from './prepared-transaction';
+import { IPreparedTransaction } from './prepared-transaction.js';
 
 // The ERC20 receivable smart contract ABI fragment
 const erc20TransferableReceivableContractAbiFragment = [

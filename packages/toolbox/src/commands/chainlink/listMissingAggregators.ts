@@ -1,5 +1,5 @@
 import * as yargs from 'yargs';
-import { getAvailableAggregators, getCurrencyManager } from './aggregatorsUtils';
+import { getAvailableAggregators, getCurrencyManager } from './aggregatorsUtils.js';
 import { EvmChains } from '@requestnetwork/currency';
 
 type Options = {

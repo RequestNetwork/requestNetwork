@@ -20,9 +20,9 @@ import {
   UnsupportedCurrencyError,
 } from '@requestnetwork/currency';
 import * as Types from '../types';
-import ContentDataExtension from './content-data-extension';
-import Request from './request';
-import localUtils from './utils';
+import ContentDataExtension from './content-data-extension.js';
+import Request from './request.js';
+import localUtils from './utils.js';
 
 /**
  * Entry point of the request-client.js library. Create requests, get requests, manipulate requests.

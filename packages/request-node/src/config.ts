@@ -1,6 +1,6 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import * as yargs from 'yargs';
-import { LogMode } from './logger';
+import { LogMode } from './logger.js';
 import { config } from 'dotenv';
 import { BigNumber } from 'ethers';
 

@@ -2,7 +2,7 @@ import { ContractTransaction, Signer, BigNumberish, providers } from 'ethers';
 
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
-import { ITransactionOverrides } from './transaction-overrides';
+import { ITransactionOverrides } from './transaction-overrides.js';
 import {
   getAmountToPay,
   getProvider,
@@ -10,7 +10,7 @@ import {
   getSigner,
   validateRequest,
 } from './utils';
-import { IPreparedTransaction } from './prepared-transaction';
+import { IPreparedTransaction } from './prepared-transaction.js';
 
 /**
  * processes the transaction to pay an ETH request.

@@ -1,5 +1,5 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { DefaultBitcoinDetectionProvider } from './default-bitcoin-detection-provider';
+import { DefaultBitcoinDetectionProvider } from './default-bitcoin-detection-provider.js';
 import { PaymentDetectorBase } from '../payment-detector-base';
 
 /**

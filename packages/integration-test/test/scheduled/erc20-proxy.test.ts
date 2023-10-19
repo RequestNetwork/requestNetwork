@@ -1,7 +1,7 @@
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import { mockAdvancedLogic } from './mocks';
+import { mockAdvancedLogic } from './mocks.js';
 import { Types, Utils } from '@requestnetwork/request-client.js';
 import { CurrencyManager } from '@requestnetwork/currency';
 import {

@@ -1,10 +1,10 @@
 import Bluebird from 'bluebird';
 
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
-import { getMaxIpfsReadRetry } from './config';
+import { getMaxIpfsReadRetry } from './config.js';
 
-import IgnoredDataIds from './ignored-dataIds';
-import IpfsConnectionError from './ipfs-connection-error';
+import IgnoredDataIds from './ignored-dataIds.js';
+import IpfsConnectionError from './ipfs-connection-error.js';
 
 /**
  * Verify the hashes are present on IPFS for the corresponding ethereum entry

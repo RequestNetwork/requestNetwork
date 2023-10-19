@@ -2,7 +2,7 @@ import { ClientTypes, DataAccessTypes } from '@requestnetwork/types';
 import axios, { AxiosRequestConfig } from 'axios';
 
 import { EventEmitter } from 'events';
-import httpConfigDefaults from './http-config-defaults';
+import httpConfigDefaults from './http-config-defaults.js';
 import { normalizeKeccak256Hash, retry } from '@requestnetwork/utils';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires

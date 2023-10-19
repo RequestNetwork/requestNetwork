@@ -9,7 +9,7 @@ import {
 import { encodeRequestErc20ApprovalIfNeeded, IPreparedTransaction } from '../../src';
 import { getProxyAddress, MAX_ALLOWANCE, revokeErc20Approval } from '../../src/payment/utils';
 import { AnyToERC20PaymentDetector, Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
-import { currencyManager } from './shared';
+import { currencyManager } from './shared.js';
 import {
   erc20SwapConversionArtifact,
   erc20SwapToPayArtifact,

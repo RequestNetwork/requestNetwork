@@ -3,9 +3,9 @@ import { providers, Wallet } from 'ethers';
 import { NonceManager } from '@ethersproject/experimental';
 import { LogTypes } from '@requestnetwork/types';
 
-import { RequestNodeBase } from './requestNodeBase';
-import * as config from './config';
-import { getIpfsStorage } from './storageUtils';
+import { RequestNodeBase } from './requestNodeBase.js';
+import * as config from './config.js';
+import { getIpfsStorage } from './storageUtils.js';
 import { TheGraphDataAccess } from '@requestnetwork/thegraph-data-access';
 import {
   EthereumStorageEthers,

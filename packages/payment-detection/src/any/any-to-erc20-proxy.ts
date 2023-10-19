@@ -6,7 +6,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { ERC20FeeProxyPaymentDetectorBase } from '../erc20/fee-proxy-contract';
-import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy';
+import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy.js';
 import { TheGraphConversionInfoRetriever } from '../thegraph/conversion-info-retriever';
 import { makeGetDeploymentInformation } from '../utils';
 import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';

@@ -3,8 +3,8 @@ import { DataAccessTypes } from '@requestnetwork/types';
 import Bluebird from 'bluebird';
 import Keyv from 'keyv';
 
-import LocationByTopic from './location-by-topic';
-import TimestampByLocation from './timestamp-by-location';
+import LocationByTopic from './location-by-topic.js';
+import TimestampByLocation from './timestamp-by-location.js';
 
 /**
  * An in-memory implementation of the transaction index.

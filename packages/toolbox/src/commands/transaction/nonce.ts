@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import * as yargs from 'yargs';
 import { InferArgs } from '../../types';
-import { getProvider, getWallet } from './utils';
+import { getProvider, getWallet } from './utils.js';
 
 export const command = 'nonce';
 export const describe = 'Gets a wallet nonce';

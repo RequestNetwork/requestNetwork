@@ -3,7 +3,7 @@ import * as qs from 'qs';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 
-import { getDefaultIpfs, getIpfsErrorHandlingConfig } from './config';
+import { getDefaultIpfs, getIpfsErrorHandlingConfig } from './config.js';
 import * as FormData from 'form-data';
 import { retry, SimpleLogger } from '@requestnetwork/utils';
 

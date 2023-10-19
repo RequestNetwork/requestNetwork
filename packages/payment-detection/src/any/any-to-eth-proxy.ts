@@ -8,7 +8,7 @@ import {
 
 import { EvmChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
 
-import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
+import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy.js';
 import { AnyToAnyDetector } from '../any-to-any-detector';
 import { makeGetDeploymentInformation } from '../utils';
 import { TheGraphConversionInfoRetriever } from '../thegraph/conversion-info-retriever';

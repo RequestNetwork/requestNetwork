@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import * as Encryption from './encryption-types';
+import * as Encryption from './encryption-types.js';
 
 /** Transaction Manager interface */
 export interface ITransactionManager {

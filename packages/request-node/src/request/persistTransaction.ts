@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { getPersistTransactionTimeout } from '../config';
 
-import ConfirmedTransactionStore from './confirmedTransactionStore';
+import ConfirmedTransactionStore from './confirmedTransactionStore.js';
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 /**

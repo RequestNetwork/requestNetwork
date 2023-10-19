@@ -1,5 +1,5 @@
 import { BigNumber, FixedNumber } from 'ethers';
-import { Invoice, InvoiceItem } from './types';
+import { Invoice, InvoiceItem } from './types.js';
 
 export const getInvoiceTotal = (invoice: Invoice): BigNumber => {
   return invoice.invoiceItems.reduce(

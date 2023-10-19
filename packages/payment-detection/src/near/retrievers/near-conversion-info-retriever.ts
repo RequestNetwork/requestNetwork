@@ -1,6 +1,6 @@
 import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
 import { CurrencyDefinition } from '@requestnetwork/currency';
-import { NearInfoRetriever, NearPaymentEvent } from './near-info-retriever';
+import { NearInfoRetriever, NearPaymentEvent } from './near-info-retriever.js';
 import { TheGraphClient } from '../../thegraph';
 
 export type TransferEventsParams = {

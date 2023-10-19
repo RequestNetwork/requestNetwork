@@ -9,7 +9,7 @@ import {
   SignatureProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
-import RequestLogicCore from './requestLogicCore';
+import RequestLogicCore from './requestLogicCore.js';
 import { normalizeKeccak256Hash, notNull, uniqueByProperty } from '@requestnetwork/utils';
 
 /**

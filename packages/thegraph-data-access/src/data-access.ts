@@ -7,9 +7,9 @@ import { getCurrentTimestampInSecond, retry, SimpleLogger } from '@requestnetwor
 import { Block, CombinedDataAccess } from '@requestnetwork/data-access';
 import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 
-import { Transaction } from './queries';
-import { SubgraphClient } from './subgraph-client';
-import { PendingStore } from './pending-store';
+import { Transaction } from './queries.js';
+import { SubgraphClient } from './subgraph-client.js';
+import { PendingStore } from './pending-store.js';
 import { RequestInit } from 'graphql-request/dist/types.dom';
 
 type TheGraphDataAccessBaseOptions = {

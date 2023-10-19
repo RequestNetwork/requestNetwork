@@ -1,5 +1,5 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { deployOne } from './deploy-one';
+import { deployOne } from './deploy-one.js';
 
 export default async function deploy(
   args: {

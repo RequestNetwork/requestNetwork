@@ -16,7 +16,7 @@ import { expect } from 'chai';
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { chainlinkConversionPath } from '../../src/lib';
 import { FAU_USD_RATE } from '../../scripts/test-deploy-batch-conversion-deployment';
-import { localERC20AlphaArtifact, secondLocalERC20AlphaArtifact } from './localArtifacts';
+import { localERC20AlphaArtifact, secondLocalERC20AlphaArtifact } from './localArtifacts.js';
 import { deepCopy } from '@requestnetwork/utils';
 import { HttpNetworkConfig } from 'hardhat/types';
 import {

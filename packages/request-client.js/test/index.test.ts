@@ -14,11 +14,11 @@ import { BigNumber, ethers } from 'ethers';
 
 import AxiosMockAdapter from 'axios-mock-adapter';
 import { Request, RequestNetwork, RequestNetworkBase } from '../src/index';
-import * as TestData from './data-test';
-import * as TestDataRealBTC from './data-test-real-btc';
+import * as TestData from './data-test.js';
+import * as TestDataRealBTC from './data-test-real-btc.js';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
-import EtherscanProviderMock from './etherscan-mock';
+import EtherscanProviderMock from './etherscan-mock.js';
 import httpConfigDefaults from '../src/http-config-defaults';
 import { IRequestDataWithEvents } from '../src/types';
 import HttpMetaMaskDataAccess from '../src/http-metamask-data-access';

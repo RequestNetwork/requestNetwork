@@ -1,10 +1,10 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
 
-import encryptionFormats from './encryption/encryption-format';
-import GroupMultiFormat from './group-multi-format';
-import hashFormat from './hash/hash-format';
-import identityFormat from './identity/identity-format';
-import plainFormat from './plain/plain-format';
+import encryptionFormats from './encryption/encryption-format.js';
+import GroupMultiFormat from './group-multi-format.js';
+import hashFormat from './hash/hash-format.js';
+import identityFormat from './identity/identity-format.js';
+import plainFormat from './plain/plain-format.js';
 
 /** Serializes and deserializes any multi-format supported */
 export default {

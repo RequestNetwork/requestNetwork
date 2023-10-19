@@ -4,7 +4,7 @@ import { WalletConnection } from 'near-api-js';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
-import { getRequestPaymentValues, validateRequest, getAmountToPay } from './utils';
+import { getRequestPaymentValues, validateRequest, getAmountToPay } from './utils.js';
 import {
   INearTransactionCallback,
   isReceiverReady,

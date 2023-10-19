@@ -1,9 +1,9 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { utils } from 'ethers';
-import { TheGraphClient } from './client';
-import { TheGraphInfoRetriever } from './info-retriever';
-import type { PaymentEventResultFragment } from './generated/graphql';
+import { TheGraphClient } from './client.js';
+import { TheGraphInfoRetriever } from './info-retriever.js';
+import type { PaymentEventResultFragment } from './generated/graphql.js';
 import { ConversionTransferEventsParams } from '../types';
 
 /**

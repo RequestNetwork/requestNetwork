@@ -1,7 +1,7 @@
 import { EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
 import TransactionsFactory from '../../src/transactions-factory';
 import TransactionsParser from '../../src/transactions-parser';
-import * as TestData from './utils/test-data';
+import * as TestData from './utils/test-data.js';
 
 let transactionParser: TransactionsParser;
 

@@ -1,7 +1,7 @@
-import { computeCreate2DeploymentAddress } from './compute-one-address';
-import { getConstructorArgs } from './constructor-args';
-import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './types';
-import { create2ContractDeploymentList } from './utils';
+import { computeCreate2DeploymentAddress } from './compute-one-address.js';
+import { getConstructorArgs } from './constructor-args.js';
+import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './types.js';
+import { create2ContractDeploymentList } from './utils.js';
 import { EvmChains } from '@requestnetwork/currency';
 
 export const verifyOne = async (

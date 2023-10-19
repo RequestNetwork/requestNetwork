@@ -1,6 +1,6 @@
 import GroupMultiFormat from '../group-multi-format';
 
-import EthereumAddressFormat from './ethereum-address-format';
+import EthereumAddressFormat from './ethereum-address-format.js';
 
 // group all the multi-format concerning identities
 const group = new GroupMultiFormat([new EthereumAddressFormat()]);

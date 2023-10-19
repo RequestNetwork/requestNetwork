@@ -1,6 +1,6 @@
 import HttpDataAccess from '../src/http-data-access';
 import MockAdapter from 'axios-mock-adapter';
-import * as TestData from './data-test';
+import * as TestData from './data-test.js';
 
 let mockAxios: MockAdapter;
 

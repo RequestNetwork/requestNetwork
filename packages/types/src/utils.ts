@@ -1,4 +1,4 @@
-import * as ExtensionTypes from './extension-types';
+import * as ExtensionTypes from './extension-types.js';
 import {
   ICreationParameters,
   IOriginalRequestCreationParameters,

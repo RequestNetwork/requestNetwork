@@ -1,4 +1,4 @@
-import * as TestDataCreate from './generator-data-create';
+import * as TestDataCreate from './generator-data-create.js';
 
 import * as TestData from '../../test-data-generator';
 

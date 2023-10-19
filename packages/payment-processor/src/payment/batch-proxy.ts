@@ -3,7 +3,7 @@ import { batchPaymentsArtifact } from '@requestnetwork/smart-contracts';
 import { BatchPayments__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes } from '@requestnetwork/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
-import { ITransactionOverrides } from './transaction-overrides';
+import { ITransactionOverrides } from './transaction-overrides.js';
 import {
   comparePnTypeAndVersion,
   getAmountToPay,
@@ -12,9 +12,9 @@ import {
   getSigner,
   validateErc20FeeProxyRequest,
 } from './utils';
-import { validateEthFeeProxyRequest } from './eth-fee-proxy';
-import { IPreparedTransaction } from './prepared-transaction';
-import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
+import { validateEthFeeProxyRequest } from './eth-fee-proxy.js';
+import { IPreparedTransaction } from './prepared-transaction.js';
+import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20.js';
 import { EvmChains } from '@requestnetwork/currency';
 
 /**

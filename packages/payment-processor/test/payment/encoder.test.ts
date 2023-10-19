@@ -11,7 +11,7 @@ import {
   IConversionSettings,
   IRequestPaymentOptions,
 } from '../../src/payment/settings';
-import { currencyManager } from './shared';
+import { currencyManager } from './shared.js';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { MAX_ALLOWANCE } from '../../src/payment/utils';
 

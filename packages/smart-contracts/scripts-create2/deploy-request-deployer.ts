@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { HardhatRuntimeEnvironmentExtended } from './types';
-import { verifyOne } from './verify';
+import { HardhatRuntimeEnvironmentExtended } from './types.js';
+import { verifyOne } from './verify.js';
 
 // Deploys, set up the contracts
 export async function deployDeployer(hre: HardhatRuntimeEnvironment): Promise<void> {

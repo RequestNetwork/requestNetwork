@@ -10,9 +10,9 @@ import {
   getSigner,
   validateRequest,
 } from './utils';
-import { ITransactionOverrides } from './transaction-overrides';
-import { encodeApproveAnyErc20 } from './erc20';
-import { IPreparedTransaction } from './prepared-transaction';
+import { ITransactionOverrides } from './transaction-overrides.js';
+import { encodeApproveAnyErc20 } from './erc20.js';
+import { IPreparedTransaction } from './prepared-transaction.js';
 import { EvmChains } from '@requestnetwork/currency';
 
 /**

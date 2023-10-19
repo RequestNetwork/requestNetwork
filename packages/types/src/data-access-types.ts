@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import * as StorageTypes from './storage-types';
+import * as StorageTypes from './storage-types.js';
 
 /** Data Access Layer */
 export interface IDataRead {

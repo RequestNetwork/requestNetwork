@@ -4,11 +4,11 @@ import {
   ExtensionTypes,
   PaymentTypes,
 } from '@requestnetwork/types';
-import { PaymentDetectorBase } from './payment-detector-base';
-import { GetDeploymentInformation } from './utils';
+import { PaymentDetectorBase } from './payment-detector-base.js';
+import { GetDeploymentInformation } from './utils.js';
 import type { CurrencyDefinition, ICurrencyManager } from '@requestnetwork/currency';
 import type { providers } from 'ethers';
-import type { TheGraphClient } from './thegraph';
+import type { TheGraphClient } from './thegraph.js';
 
 export interface ContractBasedDetector {
   getDeploymentInformation: GetDeploymentInformation<false>;

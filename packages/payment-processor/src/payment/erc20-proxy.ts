@@ -4,7 +4,7 @@ import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { ERC20Proxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
-import { ITransactionOverrides } from './transaction-overrides';
+import { ITransactionOverrides } from './transaction-overrides.js';
 import {
   getAmountToPay,
   getProxyAddress,
@@ -13,7 +13,7 @@ import {
   getSigner,
   validateRequest,
 } from './utils';
-import { IPreparedTransaction } from './prepared-transaction';
+import { IPreparedTransaction } from './prepared-transaction.js';
 
 /**
  * Processes a transaction to pay an ERC20 Request.

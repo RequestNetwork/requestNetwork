@@ -5,7 +5,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { NearChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
-import { NearConversionInfoRetriever } from './retrievers/near-conversion-info-retriever';
+import { NearConversionInfoRetriever } from './retrievers/near-conversion-info-retriever.js';
 import { AnyToNativeDetector } from '../any-to-native-detector';
 import { NetworkNotSupported } from '../balance-error';
 import { NativeDetectorOptions } from '../types';

@@ -1,6 +1,6 @@
 import * as yargs from 'yargs';
-import { runUpdate } from './contractUtils';
-import { getAllAggregators, getCurrencyManager } from './aggregatorsUtils';
+import { runUpdate } from './contractUtils.js';
+import { getAllAggregators, getCurrencyManager } from './aggregatorsUtils.js';
 import assert from 'assert';
 import { EvmChains } from '@requestnetwork/currency';
 

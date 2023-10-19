@@ -1,4 +1,4 @@
-import * as PnAnyToAnyConversion from './pn-any-to-any-conversion-types';
+import * as PnAnyToAnyConversion from './pn-any-to-any-conversion-types.js';
 import { EvmChainName } from '../currency-types';
 
 /** Any to ERC20 reference-based payment network extension interface */

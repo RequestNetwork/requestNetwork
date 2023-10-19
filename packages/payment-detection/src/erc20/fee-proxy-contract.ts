@@ -12,9 +12,9 @@ import {
   NearChains,
   isSameChain,
 } from '@requestnetwork/currency';
-import ProxyInfoRetriever from './proxy-info-retriever';
+import ProxyInfoRetriever from './proxy-info-retriever.js';
 
-import { loadCurrencyFromContract } from './currency';
+import { loadCurrencyFromContract } from './currency.js';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
 import { TheGraphClient, TheGraphInfoRetriever } from '../thegraph';

@@ -1,13 +1,13 @@
-import { IRequestPaymentOptions } from './settings';
-import { IPreparedTransaction } from './prepared-transaction';
+import { IRequestPaymentOptions } from './settings.js';
+import { IPreparedTransaction } from './prepared-transaction.js';
 import { providers, BigNumber } from 'ethers';
-import { hasErc20Approval, prepareApproveErc20 } from './erc20';
+import { hasErc20Approval, prepareApproveErc20 } from './erc20.js';
 import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import {
   hasErc20ApprovalForProxyConversion,
   prepareApproveErc20ForProxyConversion,
 } from './conversion-erc20';
-import { hasApprovalErc20ForSwapToPay, prepareApprovalErc20ForSwapToPay } from './swap-erc20';
+import { hasApprovalErc20ForSwapToPay, prepareApprovalErc20ForSwapToPay } from './swap-erc20.js';
 import {
   hasErc20ApprovalForSwapWithConversion,
   prepareApprovalErc20ForSwapWithConversionToPay,

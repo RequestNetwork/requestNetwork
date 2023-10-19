@@ -1,6 +1,6 @@
-import * as Identity from './identity-types';
-import * as Payment from './payment-types';
-import * as RequestLogic from './request-logic-types';
+import * as Identity from './identity-types.js';
+import * as Payment from './payment-types.js';
+import * as RequestLogic from './request-logic-types.js';
 
 /** Restrict research between two timestamp */
 export interface ITimestampBoundaries {

@@ -5,8 +5,8 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { EthInputDataInfoRetriever } from './info-retriever';
-import { EthProxyInfoRetriever } from './proxy-info-retriever';
+import { EthInputDataInfoRetriever } from './info-retriever.js';
+import { EthProxyInfoRetriever } from './proxy-info-retriever.js';
 import { ReferenceBasedDetector } from '../reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
 import { TheGraphInfoRetriever } from '../thegraph';

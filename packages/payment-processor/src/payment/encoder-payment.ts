@@ -1,18 +1,18 @@
-import { IRequestPaymentOptions } from './settings';
-import { IPreparedTransaction } from './prepared-transaction';
+import { IRequestPaymentOptions } from './settings.js';
+import { IPreparedTransaction } from './prepared-transaction.js';
 import { providers } from 'ethers';
 import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
-import { prepareErc20ProxyPaymentTransaction } from './erc20-proxy';
-import { prepareErc20FeeProxyPaymentTransaction } from './erc20-fee-proxy';
-import { prepareAnyToErc20ProxyPaymentTransaction } from './any-to-erc20-proxy';
-import { prepareSwapToPayErc20FeeRequest } from './swap-erc20-fee-proxy';
-import { prepareSwapToPayAnyToErc20Request } from './swap-any-to-erc20';
-import { prepareEthProxyPaymentTransaction } from './eth-proxy';
-import { prepareEthFeeProxyPaymentTransaction } from './eth-fee-proxy';
-import { prepareAnyToEthProxyPaymentTransaction } from './any-to-eth-proxy';
+import { prepareErc20ProxyPaymentTransaction } from './erc20-proxy.js';
+import { prepareErc20FeeProxyPaymentTransaction } from './erc20-fee-proxy.js';
+import { prepareAnyToErc20ProxyPaymentTransaction } from './any-to-erc20-proxy.js';
+import { prepareSwapToPayErc20FeeRequest } from './swap-erc20-fee-proxy.js';
+import { prepareSwapToPayAnyToErc20Request } from './swap-any-to-erc20.js';
+import { prepareEthProxyPaymentTransaction } from './eth-proxy.js';
+import { prepareEthFeeProxyPaymentTransaction } from './eth-fee-proxy.js';
+import { prepareAnyToEthProxyPaymentTransaction } from './any-to-eth-proxy.js';
 import { IConversionPaymentSettings } from '.';
-import { prepareErc777StreamPaymentTransaction } from './erc777-stream';
+import { prepareErc777StreamPaymentTransaction } from './erc777-stream.js';
 
 /**
  * Encodes a transaction to pay a Request in generic way. ERC777 stream excepted.

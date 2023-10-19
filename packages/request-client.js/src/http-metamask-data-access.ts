@@ -4,7 +4,7 @@ import { ClientTypes, CurrencyTypes, DataAccessTypes, StorageTypes } from '@requ
 import axios, { AxiosRequestConfig } from 'axios';
 import { ethers } from 'ethers';
 import { EventEmitter } from 'events';
-import HttpDataAccess from './http-data-access';
+import HttpDataAccess from './http-data-access.js';
 import { retry } from '@requestnetwork/utils';
 
 /**

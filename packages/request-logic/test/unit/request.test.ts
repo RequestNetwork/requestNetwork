@@ -1,7 +1,7 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 
 import Request from '../../src/request';
-import * as TestData from './utils/test-data-generator';
+import * as TestData from './utils/test-data-generator.js';
 
 import Version from '../../src/version';
 const CURRENT_VERSION = Version.currentVersion;

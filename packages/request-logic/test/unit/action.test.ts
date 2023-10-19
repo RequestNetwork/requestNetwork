@@ -12,7 +12,7 @@ import CreateAction from '../../src/actions/create';
 import Version from '../../src/version';
 const CURRENT_VERSION = Version.currentVersion;
 
-import * as TestData from './utils/test-data-generator';
+import * as TestData from './utils/test-data-generator.js';
 
 const randomUnsignedAction = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,

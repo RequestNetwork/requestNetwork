@@ -5,7 +5,7 @@ import {
 import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 
-import { mockAdvancedLogic } from './mocks';
+import { mockAdvancedLogic } from './mocks.js';
 import { Types, Utils } from '@requestnetwork/request-client.js';
 import {
   ethInputDataCreationHash,

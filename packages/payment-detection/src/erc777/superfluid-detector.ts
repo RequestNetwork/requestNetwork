@@ -4,7 +4,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { SuperFluidInfoRetriever } from './superfluid-retriever';
+import { SuperFluidInfoRetriever } from './superfluid-retriever.js';
 import { ReferenceBasedDetector } from '../reference-based-detector';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import { BigNumber } from 'ethers';

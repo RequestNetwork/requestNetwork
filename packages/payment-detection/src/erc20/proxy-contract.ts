@@ -5,7 +5,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
-import ProxyInfoRetriever from './proxy-info-retriever';
+import ProxyInfoRetriever from './proxy-info-retriever.js';
 import { TheGraphInfoRetriever } from '../thegraph';
 import { makeGetDeploymentInformation } from '../utils';
 import { ReferenceBasedDetector } from '../reference-based-detector';

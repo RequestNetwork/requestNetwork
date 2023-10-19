@@ -12,8 +12,8 @@ import {
 } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import * as Types from '../types';
-import ContentDataExtension from './content-data-extension';
-import localUtils from './utils';
+import ContentDataExtension from './content-data-extension.js';
+import localUtils from './utils.js';
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
 import { deepCopy } from '@requestnetwork/utils';
 

@@ -10,7 +10,7 @@ import { erc20TransferableReceivableArtifact } from '@requestnetwork/smart-contr
 import { makeGetDeploymentInformation } from '../utils';
 import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
-import ProxyERC20InfoRetriever from './proxy-info-retriever';
+import ProxyERC20InfoRetriever from './proxy-info-retriever.js';
 
 const ERC20_TRANSFERABLE_RECEIVABLE_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
