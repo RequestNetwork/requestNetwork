@@ -1,6 +1,6 @@
 import { DataAccessTypes } from '@requestnetwork/types';
 
-import * as Keyv from 'keyv';
+import Keyv from 'keyv';
 import { flatten2DimensionsArray, unique } from '@requestnetwork/utils';
 
 // Serialize function used for keyv to serialize a Set data structure into a string

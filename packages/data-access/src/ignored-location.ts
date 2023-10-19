@@ -1,4 +1,4 @@
-import * as Keyv from 'keyv';
+import Keyv from 'keyv';
 
 /**
  * Interface for reason from location

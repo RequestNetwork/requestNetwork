@@ -1,6 +1,6 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
-import * as Bluebird from 'bluebird';
+import Bluebird from 'bluebird';
 import * as config from './config';
 import EthereumBlocks from './ethereum-blocks';
 import { GasPriceDefiner } from './gas-price-definer';

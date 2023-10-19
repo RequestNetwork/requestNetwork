@@ -1,7 +1,7 @@
 import { DataAccessTypes } from '@requestnetwork/types';
 
-import * as Bluebird from 'bluebird';
-import * as Keyv from 'keyv';
+import Bluebird from 'bluebird';
+import Keyv from 'keyv';
 
 import LocationByTopic from './location-by-topic';
 import TimestampByLocation from './timestamp-by-location';

@@ -2,7 +2,7 @@ import MultiFormat from '@requestnetwork/multi-format';
 import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 import { deepCopy, getCurrentTimestampInSecond, SimpleLogger, unique } from '@requestnetwork/utils';
 
-import * as Bluebird from 'bluebird';
+import Bluebird from 'bluebird';
 import { EventEmitter } from 'events';
 
 import Block from './block';

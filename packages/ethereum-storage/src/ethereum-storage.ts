@@ -1,5 +1,5 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
-import * as Bluebird from 'bluebird';
+import Bluebird from 'bluebird';
 import { EventEmitter } from 'events';
 import { getMaxConcurrency } from './config';
 
@@ -8,7 +8,7 @@ import EthereumMetadataCache from './ethereum-metadata-cache';
 import IgnoredDataIds from './ignored-dataIds';
 import SmartContractManager from './smart-contract-manager';
 
-import * as Keyv from 'keyv';
+import Keyv from 'keyv';
 import { BigNumber } from 'ethers';
 import { getCurrentTimestampInSecond, SimpleLogger } from '@requestnetwork/utils';
 

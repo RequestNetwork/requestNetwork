@@ -1,4 +1,4 @@
-import * as Bluebird from 'bluebird';
+import Bluebird from 'bluebird';
 
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { getMaxIpfsReadRetry } from './config';
