@@ -1,1 +1,1 @@
-export { default as TransactionManager } from './transaction-manager';
+export { default as TransactionManager } from './transaction-manager.js';

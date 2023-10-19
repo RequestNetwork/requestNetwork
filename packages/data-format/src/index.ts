@@ -54,4 +54,4 @@ export default {
 // using `exports` as introduced in Node 12.7.0 (https://nodejs.org/api/packages.html#packages_subpath_exports)
 // but typescript doesn't currently support this (https://github.com/microsoft/TypeScript/issues/33079)
 // NB: compatibilty with browser would need to be tested.
-export * from './format/rnf_invoice';
+export * from './format/rnf_invoice/index.js';

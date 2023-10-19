@@ -32,7 +32,7 @@ import { SuperFluidInfoRetriever } from './erc777/superfluid-retriever.js';
 import { PaymentNetworkOptions } from './types.js';
 import { ERC20TransferableReceivablePaymentDetector } from './erc20/index.js';
 
-export type { TheGraphClient } from './thegraph';
+export type { TheGraphClient } from './thegraph.js';
 
 export {
   PaymentNetworkFactory,

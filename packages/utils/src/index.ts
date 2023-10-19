@@ -2,11 +2,11 @@
  * Collection of general purpose utility function
  */
 
-export { addAmount, isValidAmount, reduceAmount } from './amount';
+export { addAmount, isValidAmount, reduceAmount } from './amount.js';
 
-export { minBigNumber, maxBigNumber } from './bignumber';
+export { minBigNumber, maxBigNumber } from './bignumber.js';
 
-export { cachedThrottle } from './cached-throttle';
+export { cachedThrottle } from './cached-throttle.js';
 
 export {
   decryptWithAes256cbc,
@@ -28,9 +28,9 @@ export {
   normalizeKeccak256Hash,
 } from './crypto';
 
-export { decrypt, encrypt, getIdentityFromEncryptionParams } from './encryption';
+export { decrypt, encrypt, getIdentityFromEncryptionParams } from './encryption.js';
 
-export { normalizeGasFees } from './normalize-gas-fees';
+export { normalizeGasFees } from './normalize-gas-fees.js';
 
 export {
   areEqualIdentities,
@@ -48,11 +48,11 @@ export {
   networkRpcs,
 } from './providers';
 
-export { retry } from './retry';
+export { retry } from './retry.js';
 
-export { getIdentityFromSignatureParams, recoverSigner, sign } from './signature';
+export { getIdentityFromSignatureParams, recoverSigner, sign } from './signature.js';
 
-export { SimpleLogger } from './simple-logger';
+export { SimpleLogger } from './simple-logger.js';
 
 export {
   deepCopy,
