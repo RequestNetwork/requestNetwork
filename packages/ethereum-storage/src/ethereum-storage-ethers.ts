@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { BigNumber, ContractReceipt, providers, Signer } from 'ethers';
-import TypedEmitter from 'typed-emitter';
+import { TypedEmitter } from 'tiny-typed-emitter';
 import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { EthereumTransactionSubmitter } from './ethereum-tx-submitter.js';

@@ -47,7 +47,7 @@
     "ethers": "5.5.1",
     "graphql-request": "3.4.0",
     "tslib": "2.5.0",
-    "typed-emitter": "1.4.0"
+    "tiny-typed-emitter": "2.1.0"
   },
   "devDependencies": {
     "@types/jest": "26.0.13",

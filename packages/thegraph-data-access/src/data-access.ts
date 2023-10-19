@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import TypedEmitter from 'typed-emitter';
+import { TypedEmitter } from 'tiny-typed-emitter';
 
 import { BigNumber } from 'ethers';
 
