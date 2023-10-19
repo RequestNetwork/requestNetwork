@@ -4,9 +4,9 @@ import {
   ContractArtifact,
   erc20SwapToPayArtifact,
 } from '../src/lib';
-import { deployERC20ConversionProxy, deployEthConversionProxy } from './conversion-proxy.js';
-import { DeploymentResult, deployOne } from './deploy-one.js';
-import { uniswapV2RouterAddresses, jumpToNonce } from './utils.js';
+import { deployERC20ConversionProxy, deployEthConversionProxy } from './conversion-proxy';
+import { DeploymentResult, deployOne } from './deploy-one';
+import { uniswapV2RouterAddresses, jumpToNonce } from './utils';
 import { Contract } from 'ethers';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module

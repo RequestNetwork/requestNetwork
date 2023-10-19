@@ -1,10 +1,10 @@
 import { HardhatRuntimeEnvironmentExtended } from '../types';
-import { setupETHConversionProxy } from './setupETHConversionProxy.js';
-import { setupBatchConversionPayments } from './setupBatchConversionPayments.js';
-import { setupERC20SwapToConversion } from './setupERC20SwapToConversion.js';
-import { setupERC20SwapToPay } from './setupERC20SwapToPay.js';
-import { setupChainlinkConversionPath } from './setupChainlinkConversionPath.js';
-import { setupErc20ConversionProxy } from './setupErc20ConversionProxy.js';
+import { setupETHConversionProxy } from './setupETHConversionProxy';
+import { setupBatchConversionPayments } from './setupBatchConversionPayments';
+import { setupERC20SwapToConversion } from './setupERC20SwapToConversion';
+import { setupERC20SwapToPay } from './setupERC20SwapToPay';
+import { setupChainlinkConversionPath } from './setupChainlinkConversionPath';
+import { setupErc20ConversionProxy } from './setupErc20ConversionProxy';
 
 /**
  * Administrate the specified contract at the specified address

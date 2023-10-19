@@ -1,7 +1,7 @@
-import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './types.js';
+import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './types';
 import { requestDeployer } from '../src/lib';
-import { create2ContractDeploymentList } from './utils.js';
-import { getConstructorArgs } from './constructor-args.js';
+import { create2ContractDeploymentList } from './utils';
+import { getConstructorArgs } from './constructor-args';
 import { EvmChains } from '@requestnetwork/currency';
 
 // Deploys, set up the contracts

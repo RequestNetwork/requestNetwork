@@ -1,6 +1,6 @@
 import '@nomiclabs/hardhat-ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { deployOne } from './deploy-one.js';
+import { deployOne } from './deploy-one';
 
 import {
   batchConversionPaymentsArtifact,
@@ -12,9 +12,9 @@ import {
   ethereumFeeProxyArtifact,
 } from '../src/lib';
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
-import { deployAddressChecking } from './utils.js';
+import { deployAddressChecking } from './utils';
 import { BigNumber } from 'ethers';
-import { PRECISION_RATE } from './test-deploy_chainlink_contract.js';
+import { PRECISION_RATE } from './test-deploy_chainlink_contract';
 
 export const FAU_USD_RATE = BigNumber.from(201 * PRECISION_RATE).div(100);
 

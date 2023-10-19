@@ -1,12 +1,12 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import deployRequest from './test-deploy-request-storage.js';
-import deployPayment from './test-deploy-main-payments.js';
-import deployConversion from './test-deploy_chainlink_contract.js';
-import { deployEscrow } from './test-deploy-escrow-deployment.js';
-import { deployBatchPayment } from './test-deploy-batch-erc-eth-deployment.js';
-import { deploySuperFluid } from './test-deploy-superfluid.js';
-import { deployBatchConversionPayment } from './test-deploy-batch-conversion-deployment.js';
-import { deployERC20TransferableReceivable } from './test-deploy-erc20-transferable-receivable.js';
+import deployRequest from './test-deploy-request-storage';
+import deployPayment from './test-deploy-main-payments';
+import deployConversion from './test-deploy_chainlink_contract';
+import { deployEscrow } from './test-deploy-escrow-deployment';
+import { deployBatchPayment } from './test-deploy-batch-erc-eth-deployment';
+import { deploySuperFluid } from './test-deploy-superfluid';
+import { deployBatchConversionPayment } from './test-deploy-batch-conversion-deployment';
+import { deployERC20TransferableReceivable } from './test-deploy-erc20-transferable-receivable';
 
 // Deploys, set up the contracts
 export default async function deploy(_args: any, hre: HardhatRuntimeEnvironment): Promise<any> {

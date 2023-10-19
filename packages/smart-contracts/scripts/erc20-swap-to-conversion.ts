@@ -3,8 +3,8 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 // @ts-ignore Cannot find module
 import { ERC20SwapToConversion } from '../src/types/ERC20SwapToConversion';
 import { erc20SwapConversionArtifact } from '../src/lib';
-import { DeploymentResult, deployOne } from './deploy-one.js';
-import { uniswapV2RouterAddresses } from './utils.js';
+import { DeploymentResult, deployOne } from './deploy-one';
+import { uniswapV2RouterAddresses } from './utils';
 
 const contractName = 'ERC20SwapToConversion';
 

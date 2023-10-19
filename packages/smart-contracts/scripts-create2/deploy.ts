@@ -1,9 +1,9 @@
-import { create2ContractDeploymentList, isContractDeployed } from './utils.js';
-import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './types.js';
-import { xdeploy } from './xdeployer.js';
-import { getConstructorArgs } from './constructor-args.js';
+import { create2ContractDeploymentList, isContractDeployed } from './utils';
+import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './types';
+import { xdeploy } from './xdeployer';
+import { getConstructorArgs } from './constructor-args';
 import { EvmChains } from '@requestnetwork/currency';
-import { setupContract } from './contract-setup/setups.js';
+import { setupContract } from './contract-setup/setups';
 
 /**
  * Deploy a contract on the networks specified in the hardhat config.

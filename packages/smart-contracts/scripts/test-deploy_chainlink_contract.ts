@@ -1,9 +1,9 @@
 import '@nomiclabs/hardhat-ethers';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { deployERC20ConversionProxy, deployEthConversionProxy } from './conversion-proxy.js';
-import { deploySwapConversion } from './erc20-swap-to-conversion.js';
-import { deployOne } from './deploy-one.js';
+import { deployERC20ConversionProxy, deployEthConversionProxy } from './conversion-proxy';
+import { deploySwapConversion } from './erc20-swap-to-conversion';
+import { deployOne } from './deploy-one';
 import { BigNumber } from 'ethers';
 
 export const PRECISION_RATE = 100_000_000;

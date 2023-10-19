@@ -1,4 +1,4 @@
-import { HardhatRuntimeEnvironmentExtended } from './types.js';
+import { HardhatRuntimeEnvironmentExtended } from './types';
 import * as artifacts from '../src/lib/artifacts';
 import { ContractArtifact } from '../src/lib';
 import { Contract } from 'ethers';

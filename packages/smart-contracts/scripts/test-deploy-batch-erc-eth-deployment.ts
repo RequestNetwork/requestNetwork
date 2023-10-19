@@ -3,7 +3,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { deployOne } from '../scripts/deploy-one';
 
 import { batchPaymentsArtifact } from '../src/lib';
-import { deployAddressChecking } from './utils.js';
+import { deployAddressChecking } from './utils';
 import { EvmChains } from '@requestnetwork/currency';
 
 // Deploys, set up the contracts

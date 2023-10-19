@@ -11,7 +11,7 @@ import {
   getDefaultProvider,
   isEip1559Supported,
 } from '@requestnetwork/utils';
-import { suggestFeesEip1559 } from './fee-suggestion.js';
+import { suggestFeesEip1559 } from './fee-suggestion';
 
 const ZERO_ETH_INPUT = 0;
 
