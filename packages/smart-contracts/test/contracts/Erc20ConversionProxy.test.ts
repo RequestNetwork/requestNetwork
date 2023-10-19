@@ -7,13 +7,13 @@ import {
   ERC20FeeProxy__factory,
   TestERC20,
   TestERC20__factory,
-} from '../../src/types.js';
+} from '../../src/types';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
-import { chainlinkConversionPath } from '../../src/lib.js';
-import { localERC20AlphaArtifact } from './localArtifacts.js';
+import { chainlinkConversionPath } from '../../src/lib';
+import { localERC20AlphaArtifact } from './localArtifacts';
 
 use(solidity);
 

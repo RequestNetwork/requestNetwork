@@ -1,7 +1,7 @@
 import '@nomiclabs/hardhat-ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { Contract } from 'ethers';
-import { ContractArtifact } from '../src/lib.js';
+import { ContractArtifact } from '../src/lib';
 import { EvmChains } from '@requestnetwork/currency';
 
 export interface DeploymentResult<TContract extends Contract | unknown = Contract> {

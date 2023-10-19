@@ -11,8 +11,8 @@ import {
   FakeSwapRouter__factory,
   TestERC20,
   TestERC20__factory,
-} from '../../src/types.js';
-import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '../../src/lib.js';
+} from '../../src/types';
+import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '../../src/lib';
 import { EvmChains } from '@requestnetwork/currency';
 
 use(solidity);

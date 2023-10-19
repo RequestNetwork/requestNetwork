@@ -1,8 +1,8 @@
-import { ContractArtifact } from '../../ContractArtifact.js';
+import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
 // @ts-ignore Cannot find module
-import type { ERC20EscrowToPay } from '../../../types/ERC2EscrowToPay.js';
+import type { ERC20EscrowToPay } from '../../../types/ERC2EscrowToPay';
 
 export const erc20EscrowToPayArtifact = new ContractArtifact<ERC20EscrowToPay>(
   {

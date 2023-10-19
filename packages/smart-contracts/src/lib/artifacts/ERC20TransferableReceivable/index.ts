@@ -1,9 +1,9 @@
-import { ContractArtifact } from '../../ContractArtifact.js';
+import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
 import { abi as ABI_0_2_0 } from './0.2.0.json';
 // @ts-ignore Cannot find module
-import type { ERC20TransferableReceivable } from '../../../types/ERC20TransferableReceivable.js';
+import type { ERC20TransferableReceivable } from '../../../types/ERC20TransferableReceivable';
 
 export const erc20TransferableReceivableArtifact =
   new ContractArtifact<ERC20TransferableReceivable>(

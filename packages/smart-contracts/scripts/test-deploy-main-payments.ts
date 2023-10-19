@@ -1,6 +1,6 @@
 import '@nomiclabs/hardhat-ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { deployOne } from '../scripts/deploy-one.js';
+import { deployOne } from '../scripts/deploy-one';
 
 // Deploys, set up the contracts
 export default async function deploy(args: any, hre: HardhatRuntimeEnvironment): Promise<any> {

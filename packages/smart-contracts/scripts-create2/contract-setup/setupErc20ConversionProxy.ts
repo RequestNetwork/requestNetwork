@@ -1,10 +1,10 @@
-import { erc20ConversionProxy } from '../../src/lib.js';
-import { HardhatRuntimeEnvironmentExtended } from '../types.js';
+import { erc20ConversionProxy } from '../../src/lib';
+import { HardhatRuntimeEnvironmentExtended } from '../types';
 import {
   getSignerAndGasFees,
   updateChainlinkConversionPath,
   updatePaymentFeeProxyAddress,
-} from './adminTasks.js';
+} from './adminTasks';
 import { EvmChains } from '@requestnetwork/currency';
 
 const ERC20ConversionVersion = '0.1.2';

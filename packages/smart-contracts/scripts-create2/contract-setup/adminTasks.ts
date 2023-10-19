@@ -1,8 +1,8 @@
-import { chainlinkConversionPath } from '../../src/lib.js';
-import { uniswapV2RouterAddresses } from '../../scripts/utils.js';
-import * as artifacts from '../../src/lib.js';
+import { chainlinkConversionPath } from '../../src/lib';
+import { uniswapV2RouterAddresses } from '../../scripts/utils';
+import * as artifacts from '../../src/lib';
 import { BigNumber, Overrides, Wallet } from 'ethers';
-import { HardhatRuntimeEnvironmentExtended } from '../types.js';
+import { HardhatRuntimeEnvironmentExtended } from '../types';
 import { parseUnits } from 'ethers/lib/utils';
 import {
   isEip1559Supported,
@@ -11,7 +11,7 @@ import {
   normalizeGasFees,
 } from '@requestnetwork/utils';
 import { CurrencyTypes } from '@requestnetwork/types';
-import { suggestFeesEip1559 } from '../fee-suggestion.js';
+import { suggestFeesEip1559 } from '../fee-suggestion';
 
 // Swap Fees: set to 5 for 0.5%
 const REQUEST_SWAP_FEES = 0;

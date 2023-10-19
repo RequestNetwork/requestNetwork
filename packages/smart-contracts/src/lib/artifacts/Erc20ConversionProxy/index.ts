@@ -1,9 +1,9 @@
-import { ContractArtifact } from '../../ContractArtifact.js';
+import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
 import { abi as ABI_0_1_1 } from './0.1.1.json';
 // @ts-ignore Cannot find module
-import type { Erc20ConversionProxy } from '../../../types/Erc20ConversionProxy.js';
+import type { Erc20ConversionProxy } from '../../../types/Erc20ConversionProxy';
 
 export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
   {

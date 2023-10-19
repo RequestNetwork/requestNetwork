@@ -1,5 +1,5 @@
 import { Contract } from 'ethers';
-import * as artifacts from '../src/lib.js';
+import * as artifacts from '../src/lib';
 import { EvmChains } from '@requestnetwork/currency';
 
 /**

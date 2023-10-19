@@ -1,9 +1,5 @@
-import {
-  HardhatRuntimeEnvironmentExtended,
-  IDeploymentParams,
-  IDeploymentResult,
-} from './types.js';
-import { requestDeployer } from '../src/lib.js';
+import { HardhatRuntimeEnvironmentExtended, IDeploymentParams, IDeploymentResult } from './types';
+import { requestDeployer } from '../src/lib';
 import { Overrides } from 'ethers';
 import {
   normalizeGasFees,

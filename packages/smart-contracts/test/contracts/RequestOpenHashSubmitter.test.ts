@@ -8,7 +8,7 @@ import {
   RequestHashStorage,
   RequestOpenHashSubmitter__factory,
   RequestOpenHashSubmitter,
-} from '../../src/types.js';
+} from '../../src/types';
 import { HttpNetworkConfig } from 'hardhat/types';
 
 use(solidity);

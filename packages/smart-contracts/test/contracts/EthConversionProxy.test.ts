@@ -11,12 +11,12 @@ import {
   GnosisSafeProxy,
   EtherPaymentFallback__factory,
   GnosisSafeProxy__factory,
-} from '../../src/types.js';
+} from '../../src/types';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
-import { chainlinkConversionPath } from '../../src/lib.js';
+import { chainlinkConversionPath } from '../../src/lib';
 import { HttpNetworkConfig } from 'hardhat/types';
 
 use(solidity);

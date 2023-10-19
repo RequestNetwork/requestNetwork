@@ -1,13 +1,13 @@
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { ethConversionArtifact } from '../../src/lib.js';
-import { HardhatRuntimeEnvironmentExtended } from '../types.js';
+import { ethConversionArtifact } from '../../src/lib';
+import { HardhatRuntimeEnvironmentExtended } from '../types';
 import {
   getSignerAndGasFees,
   updateChainlinkConversionPath,
   updateNativeTokenHash,
   updatePaymentFeeProxyAddress,
-} from './adminTasks.js';
+} from './adminTasks';
 
 /**
  * Updates the values of the chainlinkConversionPath and EthFeeProxy addresses if needed

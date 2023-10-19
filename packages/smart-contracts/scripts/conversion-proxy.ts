@@ -1,11 +1,11 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module
-import { Erc20ConversionProxy } from '../src/types/Erc20ConversionProxy.js';
+import { Erc20ConversionProxy } from '../src/types/Erc20ConversionProxy';
 import {
   erc20ConversionProxy as erc20ConversionProxyArtifact,
   ethConversionArtifact,
-} from '../src/lib.js';
+} from '../src/lib';
 import { deployOne } from './deploy-one';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';

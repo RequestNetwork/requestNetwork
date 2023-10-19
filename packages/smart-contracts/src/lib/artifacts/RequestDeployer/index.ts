@@ -1,8 +1,8 @@
-import { ContractArtifact } from '../../ContractArtifact.js';
+import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
 // @ts-ignore Cannot find module
-import type { RequestDeployer } from '../../../types/RequestDeployer.js';
+import type { RequestDeployer } from '../../../types/RequestDeployer';
 
 export const requestDeployer = new ContractArtifact<RequestDeployer>(
   {

@@ -1,12 +1,12 @@
-import { batchConversionPaymentsArtifact } from '../../src/lib.js';
-import { HardhatRuntimeEnvironmentExtended } from '../types.js';
+import { batchConversionPaymentsArtifact } from '../../src/lib';
+import { HardhatRuntimeEnvironmentExtended } from '../types';
 import {
   getSignerAndGasFees,
   updateBatchConversionProxy,
   updateBatchPaymentFeeAmountUSDLimit,
   updateBatchPaymentFees,
   updateNativeAndUSDAddress,
-} from './adminTasks.js';
+} from './adminTasks';
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 

@@ -8,7 +8,7 @@ import {
   ERC20Revert__factory,
   ERC20False__factory,
   TestERC20__factory,
-} from '../../types.js';
+} from '../../types';
 import { Contract, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';

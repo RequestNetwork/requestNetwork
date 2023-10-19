@@ -3,21 +3,21 @@ import {
   chainlinkConversionPath as chainlinkConversionPathArtifact,
   ContractArtifact,
   erc20SwapToPayArtifact,
-} from '../src/lib.js';
+} from '../src/lib';
 import { deployERC20ConversionProxy, deployEthConversionProxy } from './conversion-proxy';
 import { DeploymentResult, deployOne } from './deploy-one';
 import { uniswapV2RouterAddresses, jumpToNonce } from './utils';
 import { Contract } from 'ethers';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module
-import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath.js';
+import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module
-import { EthConversionProxy } from '../src/types/EthConversionProxy.js';
+import { EthConversionProxy } from '../src/types/EthConversionProxy';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { HardhatRuntimeEnvironmentExtended } from '../scripts-create2/types.js';
-import { computeCreate2DeploymentAddress } from '../scripts-create2/compute-one-address.js';
+import { HardhatRuntimeEnvironmentExtended } from '../scripts-create2/types';
+import { computeCreate2DeploymentAddress } from '../scripts-create2/compute-one-address';
 
 /**
  * Script ensuring all payment contracts are deployed and usable on a live chain.

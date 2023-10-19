@@ -9,21 +9,21 @@ import {
   TestERC20__factory,
   BatchConversionPayments__factory,
   BatchConversionPayments,
-} from '../../src/types.js';
+} from '../../src/types';
 import { PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, ContractTransaction, Signer } from 'ethers';
 import { expect } from 'chai';
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
-import { chainlinkConversionPath } from '../../src/lib.js';
-import { FAU_USD_RATE } from '../../scripts/test-deploy-batch-conversion-deployment.js';
-import { localERC20AlphaArtifact, secondLocalERC20AlphaArtifact } from './localArtifacts.js';
+import { chainlinkConversionPath } from '../../src/lib';
+import { FAU_USD_RATE } from '../../scripts/test-deploy-batch-conversion-deployment';
+import { localERC20AlphaArtifact, secondLocalERC20AlphaArtifact } from './localArtifacts';
 import { deepCopy } from '@requestnetwork/utils';
 import { HttpNetworkConfig } from 'hardhat/types';
 import {
   DAI_USD_RATE,
   EUR_USD_RATE,
   PRECISION_RATE,
-} from '../../scripts/test-deploy_chainlink_contract.js';
+} from '../../scripts/test-deploy_chainlink_contract';
 
 const BATCH_PAYMENT_NETWORK_ID = PaymentTypes.BATCH_PAYMENT_NETWORK_ID;
 

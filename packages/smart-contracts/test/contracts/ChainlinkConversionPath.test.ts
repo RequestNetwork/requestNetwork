@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { ethers, network } from 'hardhat';
 import '@nomiclabs/hardhat-ethers';
-import { chainlinkConversionPath as chainlinkConvArtifact } from '../../src/lib.js';
-import { ChainlinkConversionPath } from '../../src/types.js';
-import { localERC20AlphaArtifact, localUSDTArtifact } from './localArtifacts.js';
+import { chainlinkConversionPath as chainlinkConvArtifact } from '../../src/lib';
+import { ChainlinkConversionPath } from '../../src/types';
+import { localERC20AlphaArtifact, localUSDTArtifact } from './localArtifacts';
 
 const address0 = '0x0000000000000000000000000000000000000000';
 const address1 = '0x1111111111111111111111111111111111111111';

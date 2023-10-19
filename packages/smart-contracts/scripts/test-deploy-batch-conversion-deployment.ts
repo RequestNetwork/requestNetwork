@@ -10,7 +10,7 @@ import {
   erc20FeeProxyArtifact,
   ethConversionArtifact,
   ethereumFeeProxyArtifact,
-} from '../src/lib.js';
+} from '../src/lib';
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { deployAddressChecking } from './utils';
 import { BigNumber } from 'ethers';

@@ -1,8 +1,8 @@
-import { ContractArtifact } from '../../ContractArtifact.js';
+import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
 // @ts-ignore Cannot find module
-import type { EthereumFeeProxy } from '../../../types/EthereumFeeProxy.js';
+import type { EthereumFeeProxy } from '../../../types/EthereumFeeProxy';
 
 export const ethereumFeeProxyArtifact = new ContractArtifact<EthereumFeeProxy>(
   {

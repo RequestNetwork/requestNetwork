@@ -1,4 +1,4 @@
-import { HardhatRuntimeEnvironmentExtended } from '../types.js';
+import { HardhatRuntimeEnvironmentExtended } from '../types';
 import { setupETHConversionProxy } from './setupETHConversionProxy';
 import { setupBatchConversionPayments } from './setupBatchConversionPayments';
 import { setupERC20SwapToConversion } from './setupERC20SwapToConversion';

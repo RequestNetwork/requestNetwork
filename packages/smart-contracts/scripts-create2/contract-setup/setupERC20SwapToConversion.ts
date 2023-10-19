@@ -1,11 +1,11 @@
-import { erc20SwapConversionArtifact } from '../../src/lib.js';
-import { HardhatRuntimeEnvironmentExtended } from '../types.js';
+import { erc20SwapConversionArtifact } from '../../src/lib';
+import { HardhatRuntimeEnvironmentExtended } from '../types';
 import {
   getSignerAndGasFees,
   updateChainlinkConversionPath,
   updateRequestSwapFees,
   updateSwapRouter,
-} from './adminTasks.js';
+} from './adminTasks';
 import { EvmChains } from '@requestnetwork/currency';
 
 /**

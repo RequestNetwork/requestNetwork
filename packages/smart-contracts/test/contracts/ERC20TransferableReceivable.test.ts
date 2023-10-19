@@ -9,7 +9,7 @@ import {
   ERC20TransferableReceivable,
   ERC20FeeProxy,
   ERC20FeeProxy__factory,
-} from '../../src/types.js';
+} from '../../src/types';
 import { BigNumber as BN } from 'ethers';
 
 const BASE_DECIMAL = BN.from(10).pow(BN.from(18));
