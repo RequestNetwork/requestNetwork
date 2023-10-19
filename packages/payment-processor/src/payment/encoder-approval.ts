@@ -1,7 +1,7 @@
 import { IRequestPaymentOptions } from './settings.js';
 import { IPreparedTransaction } from './prepared-transaction.js';
 import { providers, BigNumber } from 'ethers';
-import { hasErc20Approval, prepareApproveErc20 } from './erc20.js';
+import { hasErc20Approval, prepareApproveErc20 } from './erc20/index.js';
 import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import {
   hasErc20ApprovalForProxyConversion,

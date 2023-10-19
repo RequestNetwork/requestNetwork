@@ -27,7 +27,7 @@ import {
 import { IPreparedTransaction } from './prepared-transaction.js';
 import { EnrichedRequest, IConversionPaymentSettings } from './index.js';
 import { checkRequestAndGetPathAndCurrency } from './any-to-erc20-proxy.js';
-import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20.js';
+import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20/index.js';
 import { IState } from 'types/dist/extension-types';
 import { CurrencyDefinition, ICurrencyManager } from '@requestnetwork/currency';
 import { IConversionSettings, IRequestPaymentOptions } from './settings.js';

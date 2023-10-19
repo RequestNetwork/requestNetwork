@@ -5,7 +5,7 @@ import { ClientTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides.js';
 import { getProvider, getSigner } from './utils.js';
-import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20.js';
+import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20/index.js';
 import { IPreparedTransaction } from './prepared-transaction.js';
 import { EvmChains } from '@requestnetwork/currency';
 

@@ -3,8 +3,8 @@ import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 
 import { ClientTypes, ExtensionTypes, TypesUtils } from '@requestnetwork/types';
 
 import { getBtcPaymentUrl } from './btc-address-based.js';
-import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20.js';
-import { payErc20Request } from './erc20.js';
+import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20/index.js';
+import { payErc20Request } from './erc20/index.js';
 import { payErc777StreamRequest } from './erc777-stream.js';
 import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data.js';
 import { payEthFeeProxyRequest } from './eth-fee-proxy.js';

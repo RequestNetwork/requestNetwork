@@ -14,7 +14,7 @@ import {
 } from './utils';
 import { validateEthFeeProxyRequest } from './eth-fee-proxy.js';
 import { IPreparedTransaction } from './prepared-transaction.js';
-import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20.js';
+import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20/index.js';
 import { EvmChains } from '@requestnetwork/currency';
 
 /**
