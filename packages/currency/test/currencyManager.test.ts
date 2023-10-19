@@ -5,7 +5,7 @@ import {
   CurrencyManager,
   ERC20Currency,
   StorageCurrency,
-} from '../src.js';
+} from '../src/index.js';
 
 const testCasesPerNetwork: Record<string, Record<string, Partial<CurrencyDefinition>>> = {
   mainnet: {

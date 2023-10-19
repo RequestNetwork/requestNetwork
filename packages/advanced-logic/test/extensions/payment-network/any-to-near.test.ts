@@ -6,7 +6,7 @@ import {
   extensionStateAnyToNativeWithPaymentAddressAdded,
   extensionStateAnyToNativeWithFeeAdded,
 } from '../../utils/payment-network/any/generator-data-create.js';
-import { AdvancedLogic } from '../../../src.js';
+import { AdvancedLogic } from '../../../src/index.js';
 import { arbitraryTimestamp, payeeRaw, payerRaw } from '../../utils/test-data-generator.js';
 import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import AnyToNearPaymentNetwork from '../../../src/extensions/payment-network/near/any-to-near.js';

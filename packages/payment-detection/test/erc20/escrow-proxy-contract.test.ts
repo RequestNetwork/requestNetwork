@@ -6,7 +6,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { Erc20PaymentNetwork } from '../../src.js';
+import { Erc20PaymentNetwork } from '../../src/index.js';
 import { mockAdvancedLogicBase } from '../utils.js';
 
 let erc20FeeProxyDetector: Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector;

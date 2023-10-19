@@ -5,7 +5,7 @@ import {
   encryptWithAes256gcm,
   random32Bytes,
   unique,
-} from '../../src.js';
+} from '../../src/index.js';
 
 const anyData = 'this is any data!';
 const arbitraryKey = '12345678901234567890123456789012';

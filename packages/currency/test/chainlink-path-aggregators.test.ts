@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { AggregatorsMap, getPath } from '../src/conversion-aggregators.js';
-import { CurrencyManager } from '../src.js';
+import { CurrencyManager } from '../src/index.js';
 const currencyManager = CurrencyManager.getDefault();
 const USD = currencyManager.from('USD')!;
 const EUR = currencyManager.from('EUR')!;

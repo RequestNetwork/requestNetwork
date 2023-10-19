@@ -5,7 +5,7 @@ import * as DataERC20FeeCreate from '../../../utils/payment-network/erc20/fee-pr
 import * as DataNearERC20FeeCreate from '../../../utils/payment-network/erc20/near-fee-proxy-contract.js';
 import * as TestData from '../../../utils/test-data-generator.js';
 import { deepCopy } from '@requestnetwork/utils';
-import { AdvancedLogic } from '../../../../src.js';
+import { AdvancedLogic } from '../../../../src/index.js';
 
 const advancedLogic = new AdvancedLogic();
 const erc20FeeProxyContract = advancedLogic.getFeeProxyContractErc20ForNetwork();

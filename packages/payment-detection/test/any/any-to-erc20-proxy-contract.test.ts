@@ -9,7 +9,7 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
-import { AnyToERC20PaymentDetector, getTheGraphClient } from '../../src.js';
+import { AnyToERC20PaymentDetector, getTheGraphClient } from '../../src/index.js';
 import { mocked } from 'ts-jest/utils';
 import { mockAdvancedLogicBase } from '../utils.js';
 

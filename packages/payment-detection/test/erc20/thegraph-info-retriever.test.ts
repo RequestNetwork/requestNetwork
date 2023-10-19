@@ -4,7 +4,7 @@ import PaymentReferenceCalculator from '../../src/payment-reference-calculator.j
 import { utils } from 'ethers';
 import { PaymentTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { hashReference } from '../../src.js';
+import { hashReference } from '../../src/index.js';
 
 const paymentsMockData = {
   ['0xc6e23a20c0a1933acc8e30247b5d1e2215796c1f' as string]: [

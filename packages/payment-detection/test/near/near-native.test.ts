@@ -5,7 +5,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { PaymentNetworkFactory, TheGraphClient } from '../../src.js';
+import { PaymentNetworkFactory, TheGraphClient } from '../../src/index.js';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator.js';
 import { NearInfoRetriever, NearNativeTokenPaymentDetector } from '../../src/near.js';
 import { deepCopy } from 'ethers/lib/utils';

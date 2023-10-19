@@ -11,7 +11,7 @@ import { Escrow } from '../../src/.js';
 import { getRequestPaymentValues, getSigner } from '../../src/payment/utils.js';
 
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
-import { getErc20Balance } from '../../src.js';
+import { getErc20Balance } from '../../src/index.js';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */

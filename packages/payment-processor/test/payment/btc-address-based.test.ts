@@ -7,7 +7,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import { getBtcPaymentUrl } from '../../src.js';
+import { getBtcPaymentUrl } from '../../src/index.js';
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */
 

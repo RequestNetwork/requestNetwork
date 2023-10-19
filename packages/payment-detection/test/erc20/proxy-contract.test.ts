@@ -7,7 +7,7 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20ProxyPaymentDetector } from '../../src/erc20.js';
-import { getTheGraphClient } from '../../src.js';
+import { getTheGraphClient } from '../../src/index.js';
 import { mockAdvancedLogicBase } from '../utils.js';
 
 let erc20ProxyContract: ERC20ProxyPaymentDetector;

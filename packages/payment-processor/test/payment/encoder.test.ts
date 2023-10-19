@@ -5,7 +5,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { encodeRequestApprovalAndPayment } from '../../src.js';
+import { encodeRequestApprovalAndPayment } from '../../src/index.js';
 import {
   IApprovalSettings,
   IConversionSettings,

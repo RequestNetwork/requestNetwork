@@ -14,7 +14,7 @@ import {
   getErc20Balance,
   ISwapSettings,
   swapErc20FeeProxyRequest,
-} from '../../src.js';
+} from '../../src/index.js';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
 import { revokeErc20Approval } from '../../src/payment/utils.js';

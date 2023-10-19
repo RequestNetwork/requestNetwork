@@ -1,4 +1,4 @@
-import { CurrencyManager } from '../src.js';
+import { CurrencyManager } from '../src/index.js';
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 const currencyManager = new CurrencyManager([

@@ -13,7 +13,7 @@ import {
 } from '../../src/near.js';
 import { deepCopy } from 'ethers/lib/utils';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
-import { TheGraphClient } from '../../src.js';
+import { TheGraphClient } from '../../src/index.js';
 
 jest.mock('graphql-request');
 const currencyManager = CurrencyManager.getDefault();

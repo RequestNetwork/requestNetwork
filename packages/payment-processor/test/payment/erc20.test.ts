@@ -12,7 +12,7 @@ import {
   checkErc20Allowance,
   getErc20Balance,
   hasErc20Approval,
-} from '../../src.js';
+} from '../../src/index.js';
 import { getProxyAddress, revokeErc20Approval } from '../../src/payment/utils.js';
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 

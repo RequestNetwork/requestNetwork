@@ -9,7 +9,7 @@ import {
   extensionStateWithNativeTokenPaymentAndRefund,
   extensionStateWithPaymentAddressAdded,
 } from '../../utils/payment-network/mocked_native_data.js';
-import { AdvancedLogic } from '../../../src.js';
+import { AdvancedLogic } from '../../../src/index.js';
 import { arbitraryTimestamp, payeeRaw } from '../../utils/test-data-generator.js';
 import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import NearTestnetNativeNativePaymentNetwork from '../../../src/extensions/payment-network/near/near-testnet-native.js';

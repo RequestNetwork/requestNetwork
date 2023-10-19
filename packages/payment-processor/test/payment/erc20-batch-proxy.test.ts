@@ -15,7 +15,7 @@ import {
   getErc20Balance,
   payBatchProxyRequest,
   prepareBatchPaymentTransaction,
-} from '../../src.js';
+} from '../../src/index.js';
 import { getRequestPaymentValues } from '../../src/payment/utils.js';
 import { CurrencyTypes } from '@requestnetwork/types/src';
 

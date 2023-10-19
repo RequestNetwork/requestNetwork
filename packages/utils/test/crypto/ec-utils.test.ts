@@ -5,7 +5,7 @@ import {
   ecSign,
   getAddressFromPrivateKey,
   getAddressFromPublicKey,
-} from '../../src.js';
+} from '../../src/index.js';
 
 const rawId = {
   address: '0x818B6337657A23F58581715Fc610577292e521D0',

@@ -1,5 +1,5 @@
 import { LogTypes } from '@requestnetwork/types';
-import { SimpleLogger } from '../src.js';
+import { SimpleLogger } from '../src/index.js';
 
 const LogLevel = LogTypes.LogLevel;
 

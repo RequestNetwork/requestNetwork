@@ -6,7 +6,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { encodeRequestErc20ApprovalIfNeeded, IPreparedTransaction } from '../../src.js';
+import { encodeRequestErc20ApprovalIfNeeded, IPreparedTransaction } from '../../src/index.js';
 import { getProxyAddress, MAX_ALLOWANCE, revokeErc20Approval } from '../../src/payment/utils.js';
 import { AnyToERC20PaymentDetector, Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { currencyManager } from './shared.js';
