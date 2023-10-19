@@ -2,7 +2,7 @@ export { EthereumStorage } from './ethereum-storage.js';
 export {
   getEthereumStorageNetworkNameFromId,
   getEthereumStorageNetworkIdFromName,
-} from './ethereum-utils';
+} from './ethereum-utils.js';
 export { EthereumStorageEthers } from './ethereum-storage-ethers.js';
 export { EthereumTransactionSubmitter } from './ethereum-tx-submitter.js';
 export { GasPriceDefiner } from './gas-price-definer.js';
