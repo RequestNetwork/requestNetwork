@@ -6,9 +6,9 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { ERC20ProxyPaymentDetector } from '../../src/erc20';
-import { getTheGraphClient } from '../../src';
-import { mockAdvancedLogicBase } from '../utils';
+import { ERC20ProxyPaymentDetector } from '../../src/erc20.js';
+import { getTheGraphClient } from '../../src.js';
+import { mockAdvancedLogicBase } from '../utils.js';
 
 let erc20ProxyContract: ERC20ProxyPaymentDetector;
 

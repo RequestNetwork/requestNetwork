@@ -1,6 +1,6 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
 
-import SerializableMultiFormat from '../serializable-multi-format';
+import SerializableMultiFormat from '../serializable-multi-format.js';
 
 /**
  * Class to serialize and deserialize multi-format plain text

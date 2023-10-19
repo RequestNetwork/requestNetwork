@@ -1,5 +1,5 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { BlockchainInfoProvider } from '../../../src/btc/default-providers/blockchain-info';
+import { BlockchainInfoProvider } from '../../../src/btc/default-providers/blockchain-info.js';
 
 import * as BlockchainInfoData from './blockchain-info-data.js';
 

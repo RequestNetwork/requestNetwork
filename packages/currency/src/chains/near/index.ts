@@ -1,5 +1,5 @@
 import { CurrencyTypes } from '@requestnetwork/types';
-import { Chain } from '../../types';
+import { Chain } from '../../types.js';
 
 import * as NearDefinition from './data/near.js';
 import * as NearTestnetDefinition from './data/near-testnet.js';

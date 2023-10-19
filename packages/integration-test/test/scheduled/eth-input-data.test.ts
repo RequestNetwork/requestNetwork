@@ -15,7 +15,7 @@ import {
   privateErc20Address,
   requestNetwork,
 } from './fixtures';
-import { createMockNativeTokenRequest } from '../utils';
+import { createMockNativeTokenRequest } from '../utils.js';
 
 const ethInputContract = new EthInputDataPaymentDetector({
   advancedLogic: mockAdvancedLogic,

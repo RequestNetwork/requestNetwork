@@ -1,4 +1,4 @@
-import { PnReferenceBased, IAction } from '../extension-types';
+import { PnReferenceBased, IAction } from '../extension-types.js';
 export {
   IAddPaymentAddressParameters,
   IAddRefundAddressParameters,

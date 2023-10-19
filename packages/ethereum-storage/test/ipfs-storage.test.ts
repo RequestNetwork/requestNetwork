@@ -1,5 +1,5 @@
 import { StorageTypes } from '@requestnetwork/types';
-import { IpfsStorage } from '../src/ipfs-storage';
+import { IpfsStorage } from '../src/ipfs-storage.js';
 
 const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
   host: 'localhost',

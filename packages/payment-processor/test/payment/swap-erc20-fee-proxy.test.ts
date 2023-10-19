@@ -17,7 +17,7 @@ import {
 } from '../../src';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
-import { revokeErc20Approval } from '../../src/payment/utils';
+import { revokeErc20Approval } from '../../src/payment/utils.js';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */

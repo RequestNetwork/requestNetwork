@@ -2,8 +2,8 @@ import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { RequestNodeBase } from '../../src/requestNodeBase';
-import { TheGraphRequestNode } from '../../src/thegraph-node';
+import { RequestNodeBase } from '../../src/requestNodeBase.js';
+import { TheGraphRequestNode } from '../../src/thegraph-node.js';
 import * as core from 'express-serve-static-core';
 
 const subgraphUrl = 'http://localhost:8000/subgraphs/name/RequestNetwork/request-storage';

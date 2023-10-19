@@ -1,5 +1,5 @@
 import { IdentityTypes } from '@requestnetwork/types';
-import { areEqualIdentities, normalizeIdentityValue } from '../src';
+import { areEqualIdentities, normalizeIdentityValue } from '../src.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Identity', () => {

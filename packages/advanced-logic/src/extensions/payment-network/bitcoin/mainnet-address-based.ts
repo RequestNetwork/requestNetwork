@@ -1,5 +1,5 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import AddressBasedPaymentNetwork from '../address-based';
+import AddressBasedPaymentNetwork from '../address-based.js';
 
 const CURRENT_VERSION = '0.1.0';
 const BITCOIN_NETWORK = 'mainnet';

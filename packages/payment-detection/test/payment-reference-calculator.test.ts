@@ -1,4 +1,4 @@
-import PaymentReferenceCalculator from '../src/payment-reference-calculator';
+import PaymentReferenceCalculator from '../src/payment-reference-calculator.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/eth/payment-reference-calculator', () => {

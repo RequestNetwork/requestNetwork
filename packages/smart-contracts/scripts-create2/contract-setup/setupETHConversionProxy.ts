@@ -1,7 +1,7 @@
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { ethConversionArtifact } from '../../src/lib';
-import { HardhatRuntimeEnvironmentExtended } from '../types';
+import { ethConversionArtifact } from '../../src/lib.js';
+import { HardhatRuntimeEnvironmentExtended } from '../types.js';
 import {
   getSignerAndGasFees,
   updateChainlinkConversionPath,

@@ -16,7 +16,7 @@ import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
-import { chainlinkConversionPath } from '../../src/lib';
+import { chainlinkConversionPath } from '../../src/lib.js';
 import { HttpNetworkConfig } from 'hardhat/types';
 
 use(solidity);

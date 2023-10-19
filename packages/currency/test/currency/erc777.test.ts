@@ -1,4 +1,4 @@
-import { getSupportedERC777Tokens } from '../../src/erc777';
+import { getSupportedERC777Tokens } from '../../src/erc777.js';
 import { utils } from 'ethers';
 
 describe('erc777', () => {

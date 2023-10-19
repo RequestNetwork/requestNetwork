@@ -1,8 +1,8 @@
-import MainnetBitcoinAddressBasedPN from '../../../../src/extensions/payment-network/bitcoin/mainnet-address-based';
+import MainnetBitcoinAddressBasedPN from '../../../../src/extensions/payment-network/bitcoin/mainnet-address-based.js';
 import { deepCopy } from '@requestnetwork/utils';
-import * as DataBTCAddPaymentAddress from '../../../utils/payment-network/bitcoin/generator-data-add-payment-address';
-import * as DataBTCCreate from '../../../utils/payment-network/bitcoin/generator-data-create';
-import * as TestData from '../../../utils/test-data-generator';
+import * as DataBTCAddPaymentAddress from '../../../utils/payment-network/bitcoin/generator-data-add-payment-address.js';
+import * as DataBTCCreate from '../../../utils/payment-network/bitcoin/generator-data-create.js';
+import * as TestData from '../../../utils/test-data-generator.js';
 
 const mainnetBitcoinAddressBasedPN = new MainnetBitcoinAddressBasedPN();
 

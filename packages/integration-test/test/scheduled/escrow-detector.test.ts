@@ -1,6 +1,6 @@
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { createMockErc20FeeRequest } from '../utils';
+import { createMockErc20FeeRequest } from '../utils.js';
 import { mockAdvancedLogic } from './mocks.js';
 
 const feeProxyDetector = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({

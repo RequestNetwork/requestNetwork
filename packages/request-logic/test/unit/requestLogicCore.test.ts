@@ -8,12 +8,12 @@ import {
 } from '@requestnetwork/types';
 import { deepCopy, normalizeKeccak256Hash } from '@requestnetwork/utils';
 
-import Version from '../../src/version';
+import Version from '../../src/version.js';
 const CURRENT_VERSION = Version.currentVersion;
 
 import * as TestData from './utils/test-data-generator.js';
 
-import RequestLogicCore from '../../src/requestLogicCore';
+import RequestLogicCore from '../../src/requestLogicCore.js';
 
 const fakeAdvancedLogic = {
   applyActionToExtensions: (

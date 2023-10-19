@@ -1,7 +1,7 @@
 import { DataAccessTypes, LogTypes } from '@requestnetwork/types';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import * as config from '../config';
+import * as config from '../config.js';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');

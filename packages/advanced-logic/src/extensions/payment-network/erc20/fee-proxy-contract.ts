@@ -1,7 +1,7 @@
 import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { NearChains, isSameChain } from '@requestnetwork/currency';
-import { UnsupportedNetworkError } from '../address-based';
-import { FeeReferenceBasedPaymentNetwork } from '../fee-reference-based';
+import { UnsupportedNetworkError } from '../address-based.js';
+import { FeeReferenceBasedPaymentNetwork } from '../fee-reference-based.js';
 
 const EVM_CURRENT_VERSION = '0.2.0';
 const NEAR_CURRENT_VERSION = 'NEAR-0.1.0';

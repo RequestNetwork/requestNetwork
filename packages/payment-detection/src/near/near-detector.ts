@@ -5,9 +5,9 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { NearInfoRetriever } from './retrievers/near-info-retriever.js';
-import { NativeTokenPaymentDetector } from '../native-token-detector';
-import { NetworkNotSupported } from '../balance-error';
-import { NativeDetectorOptions } from '../types';
+import { NativeTokenPaymentDetector } from '../native-token-detector.js';
+import { NetworkNotSupported } from '../balance-error.js';
+import { NativeDetectorOptions } from '../types.js';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {

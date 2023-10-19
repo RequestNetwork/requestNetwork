@@ -11,13 +11,13 @@ import { deepCopy } from '@requestnetwork/utils';
 import { Erc20PaymentNetwork, PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import { ERC20TransferableReceivable__factory } from '@requestnetwork/smart-contracts/types';
 
-import { approveErc20, getErc20Balance } from '../../src/payment/erc20';
+import { approveErc20, getErc20Balance } from '../../src/payment/erc20.js';
 import {
   getReceivableTokenIdForRequest,
   mintErc20TransferableReceivable,
   payErc20TransferableReceivableRequest,
 } from '../../src/payment/erc20-transferable-receivable';
-import { getProxyAddress } from '../../src/payment/utils';
+import { getProxyAddress } from '../../src/payment/utils.js';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */

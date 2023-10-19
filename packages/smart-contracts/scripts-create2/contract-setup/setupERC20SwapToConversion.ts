@@ -1,5 +1,5 @@
-import { erc20SwapConversionArtifact } from '../../src/lib';
-import { HardhatRuntimeEnvironmentExtended } from '../types';
+import { erc20SwapConversionArtifact } from '../../src/lib.js';
+import { HardhatRuntimeEnvironmentExtended } from '../types.js';
 import {
   getSignerAndGasFees,
   updateChainlinkConversionPath,

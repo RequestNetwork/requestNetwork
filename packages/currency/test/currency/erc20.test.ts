@@ -1,6 +1,6 @@
-import { getSupportedERC20Tokens } from '../../src/erc20';
+import { getSupportedERC20Tokens } from '../../src/erc20.js';
 import * as metamaskContractMap from '@metamask/contract-metadata';
-import { extraERC20Tokens } from '../../src/erc20/chains/mainnet';
+import { extraERC20Tokens } from '../../src/erc20/chains/mainnet.js';
 import { utils } from 'ethers';
 
 describe('erc20', () => {

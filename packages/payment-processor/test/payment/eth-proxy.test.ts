@@ -14,7 +14,7 @@ import {
   payEthProxyRequest,
   prepareEthProxyPaymentTransaction,
 } from '../../src/payment/eth-proxy';
-import { getRequestPaymentValues } from '../../src/payment/utils';
+import { getRequestPaymentValues } from '../../src/payment/utils.js';
 import { ethereumProxyArtifact } from '@requestnetwork/smart-contracts';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */

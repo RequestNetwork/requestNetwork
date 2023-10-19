@@ -3,10 +3,10 @@ import { EventEmitter } from 'events';
 import MultiFormat from '@requestnetwork/multi-format';
 import { AdvancedLogicTypes, RequestLogicTypes, TransactionTypes } from '@requestnetwork/types';
 
-import { RequestLogic } from '../src/index';
+import { RequestLogic } from '../src/index.js';
 import * as TestData from './unit/utils/test-data-generator.js';
 
-import Version from '../src/version';
+import Version from '../src/version.js';
 import { normalizeKeccak256Hash, sign } from '@requestnetwork/utils';
 
 const CURRENT_VERSION = Version.currentVersion;

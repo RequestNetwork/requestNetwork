@@ -1,6 +1,6 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
 
-import HexadecimalSerializableMultiFormat from '../hexadecimal-serializable-multi-format';
+import HexadecimalSerializableMultiFormat from '../hexadecimal-serializable-multi-format.js';
 
 /**
  * Class to serialize and deserialize multi-format AES-256-CBC encrypted data

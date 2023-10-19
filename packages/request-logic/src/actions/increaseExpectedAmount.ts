@@ -1,8 +1,8 @@
 import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@requestnetwork/types';
 
-import Action from '../action';
-import Request from '../request';
-import Version from '../version';
+import Action from '../action.js';
+import Request from '../request.js';
+import Version from '../version.js';
 import { addAmount, deepCopy, isValidAmount } from '@requestnetwork/utils';
 
 /**

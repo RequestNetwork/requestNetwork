@@ -1,4 +1,4 @@
-import { TokenMap } from '../../types';
+import { TokenMap } from '../../types.js';
 
 // List of the supported bsctest network tokens
 export const supportedBSCTestERC20: TokenMap = {

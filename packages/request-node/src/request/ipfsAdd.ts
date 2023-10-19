@@ -3,7 +3,7 @@ import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { Request, Response } from 'express';
 
 import { StatusCodes } from 'http-status-codes';
-import { getPersistTransactionTimeout } from '../config';
+import { getPersistTransactionTimeout } from '../config.js';
 
 /**
  * Handles ipfsAdd of data-access layer.

@@ -6,9 +6,9 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { getTheGraphClient } from '../../src/thegraph';
-import { EthInputDataPaymentDetector } from '../../src/eth/input-data';
-import { mockAdvancedLogicBase } from '../utils';
+import { getTheGraphClient } from '../../src/thegraph.js';
+import { EthInputDataPaymentDetector } from '../../src/eth/input-data.js';
+import { mockAdvancedLogicBase } from '../utils.js';
 
 jest.mock('../../src/thegraph/client');
 const theGraphClientMock = mocked(getTheGraphClient(''));

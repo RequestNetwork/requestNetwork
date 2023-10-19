@@ -1,5 +1,5 @@
 import * as yargs from 'yargs';
-import { IOptions, listAggregators } from '../../chainlinkConversionPathTools';
+import { IOptions, listAggregators } from '../../chainlinkConversionPathTools.js';
 
 export const command = 'listAggregators [network]';
 export const describe = 'Helper for on-chain conversion administration';

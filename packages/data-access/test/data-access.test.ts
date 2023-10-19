@@ -2,9 +2,9 @@ import { EventEmitter } from 'events';
 
 import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 
-import RequestDataAccessBlock from '../src/block';
-import DataAccess from '../src/data-access';
-import TransactionIndex from '../src/transaction-index';
+import RequestDataAccessBlock from '../src/block.js';
+import DataAccess from '../src/data-access.js';
+import TransactionIndex from '../src/transaction-index.js';
 
 // We use this function to flush the call stack
 // If we don't use this function, the fake timer will be increased before the interval function being called

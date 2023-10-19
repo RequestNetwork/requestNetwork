@@ -5,15 +5,15 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyDefinition, CurrencyManager } from '@requestnetwork/currency';
-import { PaymentNetworkFactory } from '../../src/payment-network-factory';
-import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
+import { PaymentNetworkFactory } from '../../src/payment-network-factory.js';
+import PaymentReferenceCalculator from '../../src/payment-reference-calculator.js';
 import {
   NearConversionInfoRetriever,
   NearConversionNativeTokenPaymentDetector,
 } from '../../src/near';
 import { deepCopy } from 'ethers/lib/utils';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
-import { TheGraphClient } from '../../src';
+import { TheGraphClient } from '../../src.js';
 
 jest.mock('graphql-request');
 const currencyManager = CurrencyManager.getDefault();

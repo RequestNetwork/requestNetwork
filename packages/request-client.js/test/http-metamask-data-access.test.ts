@@ -2,7 +2,7 @@ import { DataAccessTypes, TransactionTypes } from '@requestnetwork/types';
 
 import { Block } from '@requestnetwork/data-access';
 
-import HttpMetamaskDataAccess from '../src/http-metamask-data-access';
+import HttpMetamaskDataAccess from '../src/http-metamask-data-access.js';
 
 // create a block and add the transaction in it
 let block1: DataAccessTypes.IBlock = Block.pushTransaction(

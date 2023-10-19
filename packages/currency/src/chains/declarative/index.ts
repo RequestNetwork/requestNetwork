@@ -1,5 +1,5 @@
 import { CurrencyTypes } from '@requestnetwork/types';
-import { Chain } from '../../types';
+import { Chain } from '../../types.js';
 
 import * as TronDefinition from './data/tron.js';
 import * as SolanaDefinition from './data/solana.js';

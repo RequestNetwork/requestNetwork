@@ -1,4 +1,4 @@
-import { ERC777Currency, TokenMap } from '../types';
+import { ERC777Currency, TokenMap } from '../types.js';
 import { supportedNetworks } from './chains/index.js';
 import { CurrencyTypes } from '@requestnetwork/types';
 

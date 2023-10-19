@@ -1,6 +1,6 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { DefaultBitcoinDetectionProvider } from './default-bitcoin-detection-provider.js';
-import { PaymentDetectorBase } from '../payment-detector-base';
+import { PaymentDetectorBase } from '../payment-detector-base.js';
 
 /**
  * Handle payment networks with BTC based address extension

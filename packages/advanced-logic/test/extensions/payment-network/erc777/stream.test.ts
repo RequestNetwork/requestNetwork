@@ -1,11 +1,11 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
 
-import Erc777StreamPaymentNetwork from '../../../../src/extensions/payment-network/erc777/stream';
+import Erc777StreamPaymentNetwork from '../../../../src/extensions/payment-network/erc777/stream.js';
 
-import * as DataERC777StreamAddData from '../../../utils/payment-network/erc777/stream-add-data-generator';
-import * as DataERC777StreamCreate from '../../../utils/payment-network/erc777/stream-create-data-generator';
-import * as TestData from '../../../utils/test-data-generator';
+import * as DataERC777StreamAddData from '../../../utils/payment-network/erc777/stream-add-data-generator.js';
+import * as DataERC777StreamCreate from '../../../utils/payment-network/erc777/stream-create-data-generator.js';
+import * as TestData from '../../../utils/test-data-generator.js';
 
 const erc777StreamPaymentNetwork = new Erc777StreamPaymentNetwork();
 

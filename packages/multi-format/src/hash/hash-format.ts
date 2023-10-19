@@ -1,4 +1,4 @@
-import GroupMultiFormat from '../group-multi-format';
+import GroupMultiFormat from '../group-multi-format.js';
 import Keccak256 from './keccak256-format.js';
 
 // group all the multi-format concerning the hashing

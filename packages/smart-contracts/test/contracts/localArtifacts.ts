@@ -1,5 +1,5 @@
-import { ContractArtifact } from '../..';
-import { ERC20Alpha, TestERC20 } from '../../src/types';
+import { ContractArtifact } from '../...js';
+import { ERC20Alpha, TestERC20 } from '../../src/types.js';
 
 export const localERC20AlphaArtifact = new ContractArtifact<ERC20Alpha>(
   {

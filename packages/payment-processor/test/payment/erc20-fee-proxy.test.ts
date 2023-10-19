@@ -17,7 +17,7 @@ import {
   payErc20FeeProxyRequest,
   prepareErc20FeeProxyPaymentTransaction,
 } from '../../src';
-import { getRequestPaymentValues } from '../../src/payment/utils';
+import { getRequestPaymentValues } from '../../src/payment/utils.js';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */

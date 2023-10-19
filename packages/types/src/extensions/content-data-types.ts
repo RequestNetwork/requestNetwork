@@ -1,4 +1,4 @@
-import * as Extension from '../extension-types';
+import * as Extension from '../extension-types.js';
 
 /** Manager of the extension */
 export interface IContentData extends Extension.IExtension<ICreationParameters> {

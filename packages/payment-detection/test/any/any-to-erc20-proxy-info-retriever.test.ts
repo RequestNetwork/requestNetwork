@@ -2,7 +2,7 @@
 /* eslint-disable no-magic-numbers */
 import { PaymentTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { AnyToErc20InfoRetriever } from '../../src/any/retrievers/any-to-erc20-proxy';
+import { AnyToErc20InfoRetriever } from '../../src/any/retrievers/any-to-erc20-proxy.js';
 import { ethers } from 'ethers';
 import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 

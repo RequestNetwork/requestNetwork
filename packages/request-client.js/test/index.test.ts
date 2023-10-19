@@ -13,17 +13,17 @@ import { decrypt, random32Bytes } from '@requestnetwork/utils';
 import { BigNumber, ethers } from 'ethers';
 
 import AxiosMockAdapter from 'axios-mock-adapter';
-import { Request, RequestNetwork, RequestNetworkBase } from '../src/index';
+import { Request, RequestNetwork, RequestNetworkBase } from '../src/index.js';
 import * as TestData from './data-test.js';
 import * as TestDataRealBTC from './data-test-real-btc.js';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import EtherscanProviderMock from './etherscan-mock.js';
-import httpConfigDefaults from '../src/http-config-defaults';
-import { IRequestDataWithEvents } from '../src/types';
-import HttpMetaMaskDataAccess from '../src/http-metamask-data-access';
-import MockDataAccess from '../src/mock-data-access';
-import MockStorage from '../src/mock-storage';
+import httpConfigDefaults from '../src/http-config-defaults.js';
+import { IRequestDataWithEvents } from '../src/types.js';
+import HttpMetaMaskDataAccess from '../src/http-metamask-data-access.js';
+import MockDataAccess from '../src/mock-data-access.js';
+import MockStorage from '../src/mock-storage.js';
 import * as RequestLogic from '@requestnetwork/types/src/request-logic-types';
 
 const packageJson = require('../package.json');

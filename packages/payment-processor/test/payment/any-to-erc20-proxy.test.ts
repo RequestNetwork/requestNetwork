@@ -15,7 +15,7 @@ import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { currencyManager } from './shared.js';
 import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
-import { getProxyAddress, MAX_ALLOWANCE, revokeErc20Approval } from '../../src/payment/utils';
+import { getProxyAddress, MAX_ALLOWANCE, revokeErc20Approval } from '../../src/payment/utils.js';
 
 // Cf. ERC20Alpha in TestERC20.sol
 const erc20ContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';

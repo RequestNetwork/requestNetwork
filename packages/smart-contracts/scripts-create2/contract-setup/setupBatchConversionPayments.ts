@@ -1,5 +1,5 @@
-import { batchConversionPaymentsArtifact } from '../../src/lib';
-import { HardhatRuntimeEnvironmentExtended } from '../types';
+import { batchConversionPaymentsArtifact } from '../../src/lib.js';
+import { HardhatRuntimeEnvironmentExtended } from '../types.js';
 import {
   getSignerAndGasFees,
   updateBatchConversionProxy,

@@ -1,7 +1,7 @@
 /* eslint-disable no-magic-numbers */
 
 import { StorageTypes } from '@requestnetwork/types';
-import EtherchainProvider from '../../src/gas-price-providers/etherchain-provider';
+import EtherchainProvider from '../../src/gas-price-providers/etherchain-provider.js';
 
 import axios from 'axios';
 

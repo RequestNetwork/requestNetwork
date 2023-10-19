@@ -6,14 +6,14 @@ import {
   extensionStateAnyToNativeWithPaymentAddressAdded,
   extensionStateAnyToNativeWithFeeAdded,
 } from '../../utils/payment-network/any/generator-data-create';
-import { AdvancedLogic } from '../../../src';
-import { arbitraryTimestamp, payeeRaw, payerRaw } from '../../utils/test-data-generator';
+import { AdvancedLogic } from '../../../src.js';
+import { arbitraryTimestamp, payeeRaw, payerRaw } from '../../utils/test-data-generator.js';
 import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import AnyToNearPaymentNetwork from '../../../src/extensions/payment-network/near/any-to-near';
-import AnyToNativeTokenPaymentNetwork from '../../../src/extensions/payment-network/any-to-native';
+import AnyToNearPaymentNetwork from '../../../src/extensions/payment-network/near/any-to-near.js';
+import AnyToNativeTokenPaymentNetwork from '../../../src/extensions/payment-network/any-to-native.js';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { deepCopy } from '@requestnetwork/utils';
-import AnyToNearTestnetPaymentNetwork from '../../../src/extensions/payment-network/near/any-to-near-testnet';
+import AnyToNearTestnetPaymentNetwork from '../../../src/extensions/payment-network/near/any-to-near-testnet.js';
 
 const salt = arbitrarySalt;
 const currencyManager = CurrencyManager.getDefault();

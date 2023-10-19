@@ -1,7 +1,7 @@
 import { CurrencyManager } from '@requestnetwork/currency';
-import { TheGraphClient, TheGraphInfoRetriever } from '../../src/thegraph';
-import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
-import { ERC20TransferableReceivablePaymentDetector } from '../../src/erc20';
+import { TheGraphClient, TheGraphInfoRetriever } from '../../src/thegraph.js';
+import PaymentReferenceCalculator from '../../src/payment-reference-calculator.js';
+import { ERC20TransferableReceivablePaymentDetector } from '../../src/erc20.js';
 import {
   AdvancedLogicTypes,
   CurrencyTypes,
@@ -10,8 +10,8 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { mockAdvancedLogicBase } from '../utils';
-import ProxyERC20InfoRetriever from '../../src/erc20/proxy-info-retriever';
+import { mockAdvancedLogicBase } from '../utils.js';
+import ProxyERC20InfoRetriever from '../../src/erc20/proxy-info-retriever.js';
 import { ethers, utils } from 'ethers';
 
 let erc20TransferableReceivable: ERC20TransferableReceivablePaymentDetector;

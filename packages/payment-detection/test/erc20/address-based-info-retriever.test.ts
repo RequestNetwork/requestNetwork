@@ -1,7 +1,7 @@
 /* eslint-disable no-invalid-this */
 /* eslint-disable no-magic-numbers */
 import { PaymentTypes } from '@requestnetwork/types';
-import ERC20InfoRetriever from '../../src/erc20/address-based-info-retriever';
+import ERC20InfoRetriever from '../../src/erc20/address-based-info-retriever.js';
 
 const erc20LocalhostContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 

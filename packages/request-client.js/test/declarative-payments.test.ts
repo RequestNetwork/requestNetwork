@@ -10,7 +10,7 @@ import {
 import { ethers } from 'ethers';
 
 import AxiosMockAdapter from 'axios-mock-adapter';
-import { RequestNetwork } from '../src/index';
+import { RequestNetwork } from '../src/index.js';
 import * as TestData from './data-test.js';
 
 import {
@@ -18,7 +18,7 @@ import {
   getPaymentReference,
   getPaymentNetworkExtension,
 } from '@requestnetwork/payment-detection';
-import { IRequestDataWithEvents } from '../src/types';
+import { IRequestDataWithEvents } from '../src/types.js';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { sign } from '@requestnetwork/utils';
 

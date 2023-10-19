@@ -1,5 +1,5 @@
 import { StorageTypes } from '@requestnetwork/types';
-import IgnoredDataIds from '../src/ignored-dataIds';
+import IgnoredDataIds from '../src/ignored-dataIds.js';
 
 const entry: StorageTypes.IEthereumEntry = {
   error: {

@@ -1,5 +1,5 @@
-import { PnAddressBased } from '../extension-types';
-import { ChainName } from '../currency-types';
+import { PnAddressBased } from '../extension-types.js';
+import { ChainName } from '../currency-types.js';
 export {
   ACTION,
   IAddPaymentAddressParameters,

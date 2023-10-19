@@ -1,4 +1,4 @@
-import { TokenMap } from '../../types';
+import { TokenMap } from '../../types.js';
 
 // List of the supported rinkeby ERC777 tokens
 export const supportedRinkebyERC777: TokenMap = {

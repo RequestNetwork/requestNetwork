@@ -1,5 +1,5 @@
 import { ethers } from 'hardhat';
-import { BytesUtilsMock__factory } from '../../src/types';
+import { BytesUtilsMock__factory } from '../../src/types.js';
 import { expect, use } from 'chai';
 import { Contract } from 'ethers';
 import { solidity } from 'ethereum-waffle';

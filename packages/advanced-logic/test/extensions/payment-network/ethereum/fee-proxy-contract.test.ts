@@ -1,10 +1,10 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import EthereumFeeProxyContract from '../../../../src/extensions/payment-network/ethereum/fee-proxy-contract';
+import EthereumFeeProxyContract from '../../../../src/extensions/payment-network/ethereum/fee-proxy-contract.js';
 
-import * as DataEthFeeAddData from '../../../utils/payment-network/ethereum/fee-proxy-contract-add-data-generator';
-import * as DataEthFeeCreate from '../../../utils/payment-network/ethereum/fee-proxy-contract-create-data-generator';
-import * as TestData from '../../../utils/test-data-generator';
+import * as DataEthFeeAddData from '../../../utils/payment-network/ethereum/fee-proxy-contract-add-data-generator.js';
+import * as DataEthFeeCreate from '../../../utils/payment-network/ethereum/fee-proxy-contract-create-data-generator.js';
+import * as TestData from '../../../utils/test-data-generator.js';
 import { deepCopy } from '@requestnetwork/utils';
 
 const ethFeeProxyContract = new EthereumFeeProxyContract();

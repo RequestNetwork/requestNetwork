@@ -1,5 +1,5 @@
 import * as PnAnyToAnyConversion from './pn-any-to-any-conversion-types.js';
-import { EvmChainName } from '../currency-types';
+import { EvmChainName } from '../currency-types.js';
 
 /** Any to ERC20 reference-based payment network extension interface */
 export type IAnyToERC20 = PnAnyToAnyConversion.IConversionReferenceBased<ICreationParameters>;

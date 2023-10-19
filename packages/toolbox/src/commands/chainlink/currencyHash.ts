@@ -1,4 +1,4 @@
-import { IOptions, showCurrencyHash } from '../../chainlinkConversionPathTools';
+import { IOptions, showCurrencyHash } from '../../chainlinkConversionPathTools.js';
 import * as yargs from 'yargs';
 
 export const command = 'currencyHash <currencyCode>';

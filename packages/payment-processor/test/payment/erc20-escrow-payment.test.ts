@@ -7,11 +7,11 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
-import { Escrow } from '../../src/';
-import { getRequestPaymentValues, getSigner } from '../../src/payment/utils';
+import { Escrow } from '../../src/.js';
+import { getRequestPaymentValues, getSigner } from '../../src/payment/utils.js';
 
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
-import { getErc20Balance } from '../../src';
+import { getErc20Balance } from '../../src.js';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */

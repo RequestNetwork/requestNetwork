@@ -1,4 +1,4 @@
-import { TokenMap } from '../../types';
+import { TokenMap } from '../../types.js';
 
 // List of the supported matic network tokens
 export const supportedMaticERC20: TokenMap = {

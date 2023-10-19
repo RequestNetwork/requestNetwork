@@ -5,7 +5,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import AnyToNativeTokenPaymentNetwork from '../any-to-native';
+import AnyToNativeTokenPaymentNetwork from '../any-to-native.js';
 
 const CURRENT_VERSION = '0.1.0';
 

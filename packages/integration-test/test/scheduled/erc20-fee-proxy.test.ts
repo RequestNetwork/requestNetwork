@@ -12,7 +12,7 @@ import {
   privateErc20Address,
   requestNetwork,
 } from './fixtures';
-import { createMockErc20FeeRequest } from '../utils';
+import { createMockErc20FeeRequest } from '../utils.js';
 
 const pnFactory = new PaymentNetworkFactory(mockAdvancedLogic, CurrencyManager.getDefault());
 

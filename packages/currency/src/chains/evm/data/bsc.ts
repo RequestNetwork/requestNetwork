@@ -1,5 +1,5 @@
-import { TokenMap } from '../../../types';
-import { supportedBSCERC20 } from '../../../erc20/chains/bsc';
+import { TokenMap } from '../../../types.js';
+import { supportedBSCERC20 } from '../../../erc20/chains/bsc.js';
 
 export const chainId = 56;
 export const currencies: TokenMap = {

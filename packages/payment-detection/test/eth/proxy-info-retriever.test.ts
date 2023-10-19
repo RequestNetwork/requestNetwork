@@ -1,7 +1,7 @@
 /* eslint-disable no-invalid-this */
 /* eslint-disable no-magic-numbers */
 import { PaymentTypes } from '@requestnetwork/types';
-import { EthProxyInfoRetriever } from '../../src/eth/proxy-info-retriever';
+import { EthProxyInfoRetriever } from '../../src/eth/proxy-info-retriever.js';
 
 const proxyContractAddress = '0xf204a4ef082f5c04bb89f7d5e6568b796096735a';
 const paymentReferenceMock = '01111111111111111111111111111111111111111111111111';

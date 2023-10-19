@@ -11,7 +11,7 @@ import {
   encodeRequestPaymentWithStream,
   prepareCloseStreamTransaction,
 } from '../../src';
-import { getProxyAddress, MAX_ALLOWANCE } from '../../src/payment/utils';
+import { getProxyAddress, MAX_ALLOWANCE } from '../../src/payment/utils.js';
 import {
   AnyToERC20PaymentDetector,
   AnyToEthFeeProxyPaymentDetector,
@@ -24,7 +24,7 @@ import {
   erc20SwapConversionArtifact,
   erc20SwapToPayArtifact,
 } from '@requestnetwork/smart-contracts';
-import { IConversionSettings } from '../../src/payment/settings';
+import { IConversionSettings } from '../../src/payment/settings.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */

@@ -1,4 +1,4 @@
-import { ChainsAbstract } from '../ChainsAbstract';
+import { ChainsAbstract } from '../ChainsAbstract.js';
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { BtcChain, chains } from './index.js';
 

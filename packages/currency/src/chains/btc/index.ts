@@ -1,5 +1,5 @@
 import { CurrencyTypes } from '@requestnetwork/types';
-import { Chain } from '../../types';
+import { Chain } from '../../types.js';
 
 import * as MainnetDefinition from './data/mainnet.js';
 import * as TestnetDefinition from './data/testnet.js';

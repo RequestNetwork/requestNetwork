@@ -1,5 +1,5 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { FlowUpdatedEvent, SentEvent } from '../thegraph/generated/graphql-superfluid';
+import { FlowUpdatedEvent, SentEvent } from '../thegraph/generated/graphql-superfluid.js';
 import {
   getTheGraphSuperfluidClient,
   TheGraphSuperfluidClient,

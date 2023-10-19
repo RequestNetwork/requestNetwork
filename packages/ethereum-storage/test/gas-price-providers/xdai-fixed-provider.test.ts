@@ -1,6 +1,6 @@
 import { StorageTypes } from '@requestnetwork/types';
 import { BigNumber } from 'ethers';
-import XDaiFixedProvider from '../../src/gas-price-providers/xdai-fixed-provider';
+import XDaiFixedProvider from '../../src/gas-price-providers/xdai-fixed-provider.js';
 
 describe('XDaiFixedProvider', () => {
   describe('getGasPrice', () => {

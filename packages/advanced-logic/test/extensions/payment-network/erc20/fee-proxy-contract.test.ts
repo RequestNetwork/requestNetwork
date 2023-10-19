@@ -1,11 +1,11 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import * as DataERC20FeeAddData from '../../../utils/payment-network/erc20/fee-proxy-contract-add-data-generator';
-import * as DataERC20FeeCreate from '../../../utils/payment-network/erc20/fee-proxy-contract-create-data-generator';
-import * as DataNearERC20FeeCreate from '../../../utils/payment-network/erc20/near-fee-proxy-contract';
-import * as TestData from '../../../utils/test-data-generator';
+import * as DataERC20FeeAddData from '../../../utils/payment-network/erc20/fee-proxy-contract-add-data-generator.js';
+import * as DataERC20FeeCreate from '../../../utils/payment-network/erc20/fee-proxy-contract-create-data-generator.js';
+import * as DataNearERC20FeeCreate from '../../../utils/payment-network/erc20/near-fee-proxy-contract.js';
+import * as TestData from '../../../utils/test-data-generator.js';
 import { deepCopy } from '@requestnetwork/utils';
-import { AdvancedLogic } from '../../../../src';
+import { AdvancedLogic } from '../../../../src.js';
 
 const advancedLogic = new AdvancedLogic();
 const erc20FeeProxyContract = advancedLogic.getFeeProxyContractErc20ForNetwork();

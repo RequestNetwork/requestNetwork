@@ -1,4 +1,4 @@
-import { TokenMap } from '../../types';
+import { TokenMap } from '../../types.js';
 
 // List of the supported celo network tokens
 export const supportedCeloERC20: TokenMap = {

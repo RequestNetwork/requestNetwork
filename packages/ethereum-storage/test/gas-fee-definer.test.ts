@@ -1,4 +1,4 @@
-import { GasFeeDefiner } from '../src/gas-fee-definer';
+import { GasFeeDefiner } from '../src/gas-fee-definer.js';
 import { BigNumber, providers, Wallet } from 'ethers';
 
 jest.setTimeout(10000);

@@ -3,7 +3,7 @@ import { CurrencyTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/
 import { CurrencyManager } from '@requestnetwork/currency';
 
 import { mockAdvancedLogic } from './mocks.js';
-import { createMockConversionEthTokenRequest } from '../utils';
+import { createMockConversionEthTokenRequest } from '../utils.js';
 
 const pnFactory = new PaymentNetworkFactory(mockAdvancedLogic, CurrencyManager.getDefault());
 

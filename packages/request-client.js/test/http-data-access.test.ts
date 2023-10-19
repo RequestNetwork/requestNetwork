@@ -1,4 +1,4 @@
-import HttpDataAccess from '../src/http-data-access';
+import HttpDataAccess from '../src/http-data-access.js';
 import MockAdapter from 'axios-mock-adapter';
 import * as TestData from './data-test.js';
 

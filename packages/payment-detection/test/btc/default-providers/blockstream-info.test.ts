@@ -1,6 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 
-import { BlockStreamInfoProvider } from '../../../src/btc/default-providers/blockstream-info';
+import { BlockStreamInfoProvider } from '../../../src/btc/default-providers/blockstream-info.js';
 
 import * as BlockstreamData from './blockstream-info-data.js';
 

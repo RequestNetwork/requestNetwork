@@ -1,7 +1,7 @@
 import '@nomiclabs/hardhat-ethers';
 import { Signer } from 'ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { deployOne } from '../scripts/deploy-one';
+import { deployOne } from '../scripts/deploy-one.js';
 
 // Deploys, set up the contracts
 export async function deployEscrow(hre: HardhatRuntimeEnvironment): Promise<void> {

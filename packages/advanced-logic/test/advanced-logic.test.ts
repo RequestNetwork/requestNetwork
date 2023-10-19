@@ -6,7 +6,7 @@ import * as DataTestnetBTCCreate from './utils/payment-network/bitcoin/testnet-g
 
 import { deepCopy } from '@requestnetwork/utils';
 
-import { AdvancedLogic } from '../src/index';
+import { AdvancedLogic } from '../src/index.js';
 
 import * as TestData from './utils/test-data-generator.js';
 

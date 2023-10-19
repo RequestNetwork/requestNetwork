@@ -8,8 +8,8 @@ import {
   ERC20FeeProxy__factory,
   ChainlinkConversionPath,
 } from '../../src/types';
-import { EthereumFeeProxy, BatchNoConversionPayments } from '../../src/types';
-import { chainlinkConversionPath } from '../../src/lib';
+import { EthereumFeeProxy, BatchNoConversionPayments } from '../../src/types.js';
+import { chainlinkConversionPath } from '../../src/lib.js';
 import { HttpNetworkConfig } from 'hardhat/types';
 import { PaymentTypes } from 'types/dist';
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';

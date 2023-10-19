@@ -4,8 +4,8 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { ERC20AddressBasedPaymentDetector } from '../../src/erc20';
-import { mockAdvancedLogicBase } from '../utils';
+import { ERC20AddressBasedPaymentDetector } from '../../src/erc20.js';
+import { mockAdvancedLogicBase } from '../utils.js';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { CurrencyManager } from '@requestnetwork/currency';
 

@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
-import { RequestNode } from '../src/requestNode';
-import { RequestNodeBase } from '../src/requestNodeBase';
+import { RequestNode } from '../src/requestNode.js';
+import { RequestNodeBase } from '../src/requestNodeBase.js';
 
 const channelId = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab';
 const anotherChannelId = '01bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbc';

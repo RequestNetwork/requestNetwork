@@ -1,5 +1,5 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { BlockcypherComProvider } from '../../../src/btc/default-providers/blockcypher-com';
+import { BlockcypherComProvider } from '../../../src/btc/default-providers/blockcypher-com.js';
 
 import * as BlockCypherComData from './blockcypher-com-data.js';
 

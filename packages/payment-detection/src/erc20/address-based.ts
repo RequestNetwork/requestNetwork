@@ -6,7 +6,7 @@ import {
 } from '@requestnetwork/types';
 import Erc20InfoRetriever from './address-based-info-retriever.js';
 
-import { PaymentDetectorBase } from '../payment-detector-base';
+import { PaymentDetectorBase } from '../payment-detector-base.js';
 
 /**
  * Handle payment networks with ERC20 based address extension

@@ -6,7 +6,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
-import { IConversionPaymentSettings, payAnyToEthProxyRequest } from '../../src';
+import { IConversionPaymentSettings, payAnyToEthProxyRequest } from '../../src.js';
 import { currencyManager } from './shared.js';
 
 const paymentSettings: IConversionPaymentSettings = {

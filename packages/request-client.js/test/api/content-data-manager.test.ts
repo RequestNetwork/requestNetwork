@@ -1,6 +1,6 @@
 import { AdvancedLogicTypes } from '@requestnetwork/types';
 
-import ContentDataExtension from '../../src/api/content-data-extension';
+import ContentDataExtension from '../../src/api/content-data-extension.js';
 
 import * as TestData from './data-for-content-data-extension.js';
 import { IAdvancedLogicExtensions } from '@requestnetwork/types/src/advanced-logic-types';

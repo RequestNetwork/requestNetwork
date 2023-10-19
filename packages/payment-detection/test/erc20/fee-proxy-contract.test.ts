@@ -7,8 +7,8 @@ import {
   CurrencyTypes,
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { ERC20FeeProxyPaymentDetector } from '../../src/erc20/fee-proxy-contract';
-import { mockAdvancedLogicBase } from '../utils';
+import { ERC20FeeProxyPaymentDetector } from '../../src/erc20/fee-proxy-contract.js';
+import { mockAdvancedLogicBase } from '../utils.js';
 
 let erc20FeeProxyContract: ERC20FeeProxyPaymentDetector<CurrencyTypes.VMChainName>;
 

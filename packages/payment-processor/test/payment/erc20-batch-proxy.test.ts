@@ -16,7 +16,7 @@ import {
   payBatchProxyRequest,
   prepareBatchPaymentTransaction,
 } from '../../src';
-import { getRequestPaymentValues } from '../../src/payment/utils';
+import { getRequestPaymentValues } from '../../src/payment/utils.js';
 import { CurrencyTypes } from '@requestnetwork/types/src';
 
 /* eslint-disable no-magic-numbers */

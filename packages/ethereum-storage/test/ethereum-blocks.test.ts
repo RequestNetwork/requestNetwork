@@ -1,4 +1,4 @@
-import EthereumBlocks from '../src/ethereum-blocks';
+import EthereumBlocks from '../src/ethereum-blocks.js';
 
 /* eslint-disable no-magic-numbers */
 const mockBlocksEthereum = [

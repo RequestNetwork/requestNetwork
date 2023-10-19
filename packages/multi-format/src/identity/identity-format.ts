@@ -1,4 +1,4 @@
-import GroupMultiFormat from '../group-multi-format';
+import GroupMultiFormat from '../group-multi-format.js';
 
 import EthereumAddressFormat from './ethereum-address-format.js';
 

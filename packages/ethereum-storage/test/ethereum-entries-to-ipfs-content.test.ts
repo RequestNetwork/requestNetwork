@@ -1,9 +1,9 @@
 import { StorageTypes } from '@requestnetwork/types';
 import { SimpleLogger } from '@requestnetwork/utils';
 
-import ethereumEntriesToIpfsContent from '../src/ethereum-entries-to-ipfs-content';
-import IgnoredDataIndex from '../src/ignored-dataIds';
-import IpfsConnectionError from '../src/ipfs-connection-error';
+import ethereumEntriesToIpfsContent from '../src/ethereum-entries-to-ipfs-content.js';
+import IgnoredDataIndex from '../src/ignored-dataIds.js';
+import IpfsConnectionError from '../src/ipfs-connection-error.js';
 
 /* eslint-disable no-magic-numbers */
 

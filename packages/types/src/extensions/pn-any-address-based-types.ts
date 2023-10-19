@@ -1,5 +1,5 @@
-// import * as Extension from '../extension-types';
-import { PnAnyDeclarative, IAction } from '../extension-types';
+// import * as Extension from '../extension-types.js';
+import { PnAnyDeclarative, IAction } from '../extension-types.js';
 
 /** Manager of the extension */
 export interface IAddressBased<ICreationParameters>

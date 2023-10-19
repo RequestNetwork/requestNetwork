@@ -10,14 +10,14 @@ import { uniswapV2RouterAddresses, jumpToNonce } from './utils';
 import { Contract } from 'ethers';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module
-import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath';
+import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath.js';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module
-import { EthConversionProxy } from '../src/types/EthConversionProxy';
+import { EthConversionProxy } from '../src/types/EthConversionProxy.js';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { HardhatRuntimeEnvironmentExtended } from '../scripts-create2/types';
-import { computeCreate2DeploymentAddress } from '../scripts-create2/compute-one-address';
+import { HardhatRuntimeEnvironmentExtended } from '../scripts-create2/types.js';
+import { computeCreate2DeploymentAddress } from '../scripts-create2/compute-one-address.js';
 
 /**
  * Script ensuring all payment contracts are deployed and usable on a live chain.

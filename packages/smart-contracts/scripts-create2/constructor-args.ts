@@ -1,4 +1,4 @@
-import * as artifacts from '../src/lib';
+import * as artifacts from '../src/lib.js';
 import { CurrencyTypes } from '@requestnetwork/types';
 
 const getAdminWalletAddress = (contract: string): string => {

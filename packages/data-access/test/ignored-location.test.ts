@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/await-thenable */
 /* eslint-disable no-magic-numbers */
 
-import IgnoredLocation from '../src/ignored-location';
+import IgnoredLocation from '../src/ignored-location.js';
 
 const arbitraryDataId1 = 'dataId1';
 const arbitraryDataId2 = 'dataId2';

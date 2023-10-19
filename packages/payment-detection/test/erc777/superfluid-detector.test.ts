@@ -6,9 +6,9 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { SuperFluidPaymentDetector } from '../../src/erc777/superfluid-detector';
+import { SuperFluidPaymentDetector } from '../../src/erc777/superfluid-detector.js';
 import { genTransferEventsByMonth } from './mocks.js';
-import { mockAdvancedLogicBase } from '../utils';
+import { mockAdvancedLogicBase } from '../utils.js';
 
 let superfluidPaymentDetector: SuperFluidPaymentDetector;
 

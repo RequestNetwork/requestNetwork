@@ -3,12 +3,12 @@ import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
-import CreateAction from '../../../src/actions/create';
+import CreateAction from '../../../src/actions/create.js';
 
-import Version from '../../../src/version';
+import Version from '../../../src/version.js';
 const CURRENT_VERSION = Version.currentVersion;
 
-import * as TestData from '../utils/test-data-generator';
+import * as TestData from '../utils/test-data-generator.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('CreateAction', () => {

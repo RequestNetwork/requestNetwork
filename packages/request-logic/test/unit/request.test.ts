@@ -1,9 +1,9 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 
-import Request from '../../src/request';
+import Request from '../../src/request.js';
 import * as TestData from './utils/test-data-generator.js';
 
-import Version from '../../src/version';
+import Version from '../../src/version.js';
 const CURRENT_VERSION = Version.currentVersion;
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */

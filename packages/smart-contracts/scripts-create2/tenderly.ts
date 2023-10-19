@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironmentExtended } from './types';
-import * as artifacts from '../src/lib/artifacts';
-import { ContractArtifact } from '../src/lib';
+import * as artifacts from '../src/lib/artifacts.js';
+import { ContractArtifact } from '../src/lib.js';
 import { Contract } from 'ethers';
 import * as console from 'console';
 import axios from 'axios';

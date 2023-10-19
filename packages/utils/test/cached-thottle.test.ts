@@ -1,5 +1,5 @@
 /* eslint-disable no-magic-numbers */
-import { cachedThrottle } from '../src';
+import { cachedThrottle } from '../src.js';
 
 describe('Cached Throttle', () => {
   it('throttles a function', async () => {

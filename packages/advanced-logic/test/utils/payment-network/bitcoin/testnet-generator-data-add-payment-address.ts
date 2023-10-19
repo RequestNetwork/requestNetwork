@@ -1,6 +1,6 @@
 import * as TestDataCreate from './generator-data-create.js';
 
-import * as TestData from '../../test-data-generator';
+import * as TestData from '../../test-data-generator.js';
 
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 

@@ -9,7 +9,7 @@ import {
   GnosisSafeProxy,
   GnosisSafeProxy__factory,
 } from '../../src/types';
-import { ethereumProxyArtifact } from '../../src/lib/';
+import { ethereumProxyArtifact } from '../../src/lib/.js';
 import { HttpNetworkConfig } from 'hardhat/types';
 import { EvmChains } from '@requestnetwork/currency';
 

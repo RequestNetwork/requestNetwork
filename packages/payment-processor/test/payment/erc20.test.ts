@@ -13,7 +13,7 @@ import {
   getErc20Balance,
   hasErc20Approval,
 } from '../../src';
-import { getProxyAddress, revokeErc20Approval } from '../../src/payment/utils';
+import { getProxyAddress, revokeErc20Approval } from '../../src/payment/utils.js';
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */

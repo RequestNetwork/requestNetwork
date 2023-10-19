@@ -1,5 +1,5 @@
-import { SuperFluidInfoRetriever } from '../../src/erc777/superfluid-retriever';
-import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
+import { SuperFluidInfoRetriever } from '../../src/erc777/superfluid-retriever.js';
+import PaymentReferenceCalculator from '../../src/payment-reference-calculator.js';
 import { PaymentTypes } from '@requestnetwork/types';
 import { GraphQLClient } from 'graphql-request';
 import { mocked } from 'ts-jest/utils';

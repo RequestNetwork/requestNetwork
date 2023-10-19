@@ -1,5 +1,5 @@
 import { providers } from 'ethers';
-import { getDefaultProvider, initPaymentDetectionApiKeys, setProviderFactory } from '../src';
+import { getDefaultProvider, initPaymentDetectionApiKeys, setProviderFactory } from '../src.js';
 
 describe('getDefaultProvider', () => {
   afterEach(() => {

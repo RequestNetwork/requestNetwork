@@ -1,7 +1,7 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import { EncryptionTypes } from '@requestnetwork/types';
 
-import EncryptedTransaction from '../../src/encrypted-transaction';
+import EncryptedTransaction from '../../src/encrypted-transaction.js';
 import { encrypt, normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 const data = '{ "what": "ever", "it": "is,", "this": "must", "work": true }';

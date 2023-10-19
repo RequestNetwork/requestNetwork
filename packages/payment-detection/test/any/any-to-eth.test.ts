@@ -2,8 +2,8 @@ import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { StaticJsonRpcProvider } from '@ethersproject/providers';
-import { AnyToEthFeeProxyPaymentDetector } from '../../src/any';
-import { getTheGraphClient } from '../../src/thegraph';
+import { AnyToEthFeeProxyPaymentDetector } from '../../src/any.js';
+import { getTheGraphClient } from '../../src/thegraph.js';
 import { mocked } from 'ts-jest/utils';
 
 const getLogs = jest.spyOn(StaticJsonRpcProvider.prototype, 'getLogs');

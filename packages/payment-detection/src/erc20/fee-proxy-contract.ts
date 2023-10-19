@@ -15,12 +15,12 @@ import {
 import ProxyInfoRetriever from './proxy-info-retriever.js';
 
 import { loadCurrencyFromContract } from './currency.js';
-import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
-import { makeGetDeploymentInformation } from '../utils';
-import { TheGraphClient, TheGraphInfoRetriever } from '../thegraph';
-import { ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
-import { NearInfoRetriever } from '../near';
-import { NetworkNotSupported } from '../balance-error';
+import { FeeReferenceBasedDetector } from '../fee-reference-based-detector.js';
+import { makeGetDeploymentInformation } from '../utils.js';
+import { TheGraphClient, TheGraphInfoRetriever } from '../thegraph.js';
+import { ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types.js';
+import { NearInfoRetriever } from '../near.js';
+import { NetworkNotSupported } from '../balance-error.js';
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',

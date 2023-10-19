@@ -19,7 +19,7 @@ import {
   ICurrencyManager,
   UnsupportedCurrencyError,
 } from '@requestnetwork/currency';
-import * as Types from '../types';
+import * as Types from '../types.js';
 import ContentDataExtension from './content-data-extension.js';
 import Request from './request.js';
 import localUtils from './utils.js';

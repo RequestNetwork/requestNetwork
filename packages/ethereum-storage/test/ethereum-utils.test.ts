@@ -1,5 +1,5 @@
 import { StorageTypes } from '@requestnetwork/types';
-import { getSafeGasPriceLimit } from '../src/config';
+import { getSafeGasPriceLimit } from '../src/config.js';
 
 import { BigNumber } from 'ethers';
 import {

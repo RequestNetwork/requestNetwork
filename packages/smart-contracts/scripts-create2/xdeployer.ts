@@ -3,7 +3,7 @@ import {
   IDeploymentParams,
   IDeploymentResult,
 } from './types.js';
-import { requestDeployer } from '../src/lib';
+import { requestDeployer } from '../src/lib.js';
 import { Overrides } from 'ethers';
 import {
   normalizeGasFees,

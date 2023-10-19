@@ -7,10 +7,14 @@ import {
 } from '@requestnetwork/types';
 
 import { EthProxyInfoRetriever } from './proxy-info-retriever.js';
-import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
-import { makeGetDeploymentInformation } from '../utils';
-import { TheGraphInfoRetriever } from '../thegraph';
-import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
+import { FeeReferenceBasedDetector } from '../fee-reference-based-detector.js';
+import { makeGetDeploymentInformation } from '../utils.js';
+import { TheGraphInfoRetriever } from '../thegraph.js';
+import {
+  PaymentNetworkOptions,
+  ReferenceBasedDetectorOptions,
+  TGetSubGraphClient,
+} from '../types.js';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {

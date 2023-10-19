@@ -12,7 +12,7 @@ import {
   TestERC20,
   TestERC20__factory,
 } from '../../src/types';
-import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '../../src/lib';
+import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '../../src/lib.js';
 import { EvmChains } from '@requestnetwork/currency';
 
 use(solidity);

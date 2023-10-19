@@ -1,5 +1,5 @@
-import { PnFeeReferenceBased } from '../extension-types';
-import { ChainName } from '../currency-types';
+import { PnFeeReferenceBased } from '../extension-types.js';
+import { ChainName } from '../currency-types.js';
 export {
   IAddPaymentAddressParameters,
   IAddRefundAddressParameters,

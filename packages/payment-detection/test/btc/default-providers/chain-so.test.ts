@@ -1,6 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 
-import { ChainSoProvider } from '../../../src/btc/default-providers/chain-so';
+import { ChainSoProvider } from '../../../src/btc/default-providers/chain-so.js';
 
 import * as ChainSoData from './chain-so-data.js';
 

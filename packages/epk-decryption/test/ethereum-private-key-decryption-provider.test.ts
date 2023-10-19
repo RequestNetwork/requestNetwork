@@ -1,6 +1,6 @@
 import { EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
 
-import EthereumPrivateKeyDecryptionProvider from '../src/ethereum-private-key-decryption-provider';
+import EthereumPrivateKeyDecryptionProvider from '../src/ethereum-private-key-decryption-provider.js';
 import { encrypt } from '@requestnetwork/utils';
 
 export const id1Raw = {

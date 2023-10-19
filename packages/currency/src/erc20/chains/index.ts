@@ -1,4 +1,4 @@
-import { TokenMap } from '../../types';
+import { TokenMap } from '../../types.js';
 import { CurrencyTypes } from '@requestnetwork/types';
 
 import { supportedAvalancheERC20 } from './avalanche.js';

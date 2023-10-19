@@ -1,5 +1,5 @@
-import { erc20ConversionProxy } from '../../src/lib';
-import { HardhatRuntimeEnvironmentExtended } from '../types';
+import { erc20ConversionProxy } from '../../src/lib.js';
+import { HardhatRuntimeEnvironmentExtended } from '../types.js';
 import {
   getSignerAndGasFees,
   updateChainlinkConversionPath,

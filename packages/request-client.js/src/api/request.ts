@@ -11,7 +11,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import * as Types from '../types';
+import * as Types from '../types.js';
 import ContentDataExtension from './content-data-extension.js';
 import localUtils from './utils.js';
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';

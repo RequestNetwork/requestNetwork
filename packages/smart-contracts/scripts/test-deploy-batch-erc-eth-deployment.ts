@@ -1,8 +1,8 @@
 import '@nomiclabs/hardhat-ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { deployOne } from '../scripts/deploy-one';
+import { deployOne } from '../scripts/deploy-one.js';
 
-import { batchPaymentsArtifact } from '../src/lib';
+import { batchPaymentsArtifact } from '../src/lib.js';
 import { deployAddressChecking } from './utils';
 import { EvmChains } from '@requestnetwork/currency';
 

@@ -3,8 +3,8 @@
 
 import { DataAccessTypes } from '@requestnetwork/types';
 
-import TransactionIndex from '../src/transaction-index/index';
-import TimestampByLocation from '../src/transaction-index/timestamp-by-location';
+import TransactionIndex from '../src/transaction-index/index.js';
+import TimestampByLocation from '../src/transaction-index/timestamp-by-location.js';
 
 const testBlock: DataAccessTypes.IBlockHeader = {
   channelIds: { 'request-1': [1] },

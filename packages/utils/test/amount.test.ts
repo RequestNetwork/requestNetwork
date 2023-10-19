@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers';
 
-import { addAmount, isValidAmount, reduceAmount } from '../src';
+import { addAmount, isValidAmount, reduceAmount } from '../src.js';
 
 const magicIntegerSmall = 10000;
 const magicIntegerBig = 1000000000000000000000000000000;

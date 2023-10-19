@@ -1,6 +1,6 @@
 import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
 
-import EthereumPrivateKeySignatureProvider from '../src/ethereum-private-key-signature-provider';
+import EthereumPrivateKeySignatureProvider from '../src/ethereum-private-key-signature-provider.js';
 import { ecSign, normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 const id1Raw = {

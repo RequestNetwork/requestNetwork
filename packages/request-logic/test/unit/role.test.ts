@@ -1,5 +1,5 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
-import Role from '../../src/role';
+import Role from '../../src/role.js';
 
 import * as TestData from './utils/test-data-generator.js';
 

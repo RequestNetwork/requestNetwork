@@ -1,6 +1,6 @@
-import { Chain, NamedNativeCurrency, TokenMap } from '../types';
+import { Chain, NamedNativeCurrency, TokenMap } from '../types.js';
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { nativeCurrencies } from '../native';
+import { nativeCurrencies } from '../native.js';
 
 export abstract class ChainsAbstract<
   CHAIN_NAME extends CurrencyTypes.ChainName,

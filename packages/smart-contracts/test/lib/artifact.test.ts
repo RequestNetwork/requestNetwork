@@ -1,6 +1,6 @@
 import { BigNumber, providers } from 'ethers';
-import { RequestOpenHashSubmitter } from '../../src/types';
-import { erc20FeeProxyArtifact, erc20ProxyArtifact } from '../../src/lib';
+import { RequestOpenHashSubmitter } from '../../src/types.js';
+import { erc20FeeProxyArtifact, erc20ProxyArtifact } from '../../src/lib.js';
 import { CurrencyTypes } from '@requestnetwork/types';
 
 describe('Artifact', () => {

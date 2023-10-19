@@ -9,12 +9,12 @@ import {
   swapToPayRequest,
   isSolvent,
 } from '../../src/payment';
-import { payNearInputDataRequest } from '../../src/payment/near-input-data';
-import * as btcModule from '../../src/payment/btc-address-based';
-import * as erc777Module from '../../src/payment/erc777-stream';
-import * as erc20Module from '../../src/payment/erc20';
-import * as ethModule from '../../src/payment/eth-input-data';
-import * as nearUtils from '../../src/payment/utils-near';
+import { payNearInputDataRequest } from '../../src/payment/near-input-data.js';
+import * as btcModule from '../../src/payment/btc-address-based.js';
+import * as erc777Module from '../../src/payment/erc777-stream.js';
+import * as erc20Module from '../../src/payment/erc20.js';
+import * as ethModule from '../../src/payment/eth-input-data.js';
+import * as nearUtils from '../../src/payment/utils-near.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */
