@@ -13,7 +13,6 @@ import { computeCreate2DeploymentAddressesFromList } from './scripts-create2/com
 import { VerifyCreate2FromList } from './scripts-create2/verify';
 import { deployWithCreate2FromList } from './scripts-create2/deploy';
 import { NUMBER_ERRORS } from './scripts/utils';
-import { networkRpcs } from '@requestnetwork/utils';
 import { tenderlyImportAll } from './scripts-create2/tenderly';
 import { updateContractsFromList } from './scripts-create2/update-contracts-setup';
 
@@ -46,7 +45,26 @@ const requestDeployer = process.env.REQUEST_DEPLOYER_LIVE
   ? LIVE_DEPLOYER_ADDRESS
   : LOCAL_DEPLOYER_ADDRESS;
 
-const url = (network: string): string => process.env.WEB3_PROVIDER_URL || networkRpcs[network];
+/**
+ * Define default URLs for networks supported by Request payment detection but not by ethers' Infura Provider
+ */
+const networkRpcs: Record<string, string> = {
+  matic: 'https://polygon-rpc.com/',
+  fantom: 'https://rpc.ftm.tools',
+  fuse: 'https://rpc.fuse.io',
+  bsctest: 'https://data-seed-prebsc-1-s1.binance.org:8545',
+  bsc: 'https://bsc-dataseed1.binance.org/',
+  xdai: 'https://rpc.ankr.com/gnosis',
+  celo: 'https://forno.celo.org',
+  'arbitrum-rinkeby': 'https://rinkeby.arbitrum.io/rpc',
+  'arbitrum-one': 'https://arb1.arbitrum.io/rpc',
+  avalanche: 'https://api.avax.network/ext/bc/C/rpc',
+  optimism: 'https://mainnet.optimism.io',
+  moonbeam: 'https://moonbeam.public.blastapi.io',
+  tombchain: 'https://rpc.tombchain.com/',
+  mantle: 'https://rpc.mantle.xyz/',
+  'mantle-testnet': 'https://rpc.testnet.mantle.xyz/',
+};
 
 export default {
   solidity: '0.8.9',
@@ -82,77 +100,77 @@ export default {
       accounts,
     },
     matic: {
-      url: url('matic'),
+      url: process.env.WEB3_PROVIDER_URL || networkRpcs['matic'],
       chainId: 137,
       accounts,
     },
     celo: {
-      url: url('celo'),
+      url: process.env.WEB3_PROVIDER_URL || networkRpcs['celo'],
       chainId: 42220,
       accounts,
     },
     bsctest: {
-      url: url('bsctest'),
+      url: process.env.WEB3_PROVIDER_URL || networkRpcs['bsctest'],
       chainId: 97,
       accounts,
     },
     bsc: {
-      url: url('bsc'),
+      url: process.env.WEB3_PROVIDER_URL || networkRpcs['bsc'],
       chainId: 56,
       accounts,
     },
     xdai: {
-      url: url('xdai'),
+      url: process.env.WEB3_PROVIDER_URL || networkRpcs['xdai'],
       chainId: 100,
       accounts,
     },
     fuse: {
-      url: url('fuse'),
+      url: process.env.WEB3_PROVIDER_URL || networkRpcs['fuse'],
       chainId: 122,
       accounts,
     },
     fantom: {
-      url: url('fantom'),
+      url: process.env.WEB3_PROVIDER_URL || networkRpcs['fantom'],
       chainId: 250,
       accounts,
     },
     'arbitrum-one': {
-      url: url('arbitrum-one'),
+      url: process.env.WEB3_PROVIDER_URL || networkRpcs['arbitrum-one'],
       chainId: 42161,
       accounts,
     },
     'arbitrum-rinkeby': {
-      url: url('arbitrum-rinkeby'),
+      url: process.env.WEB3_PROVIDER_URL || networkRpcs['arbitrum-rinkeby'],
       chainId: 421611,
       accounts,
     },
     avalanche: {
-      url: url('avalanche'),
+      url: process.env.WEB3_PROVIDER_URL || networkRpcs['avalanche'],
       chainId: 43114,
       accounts,
     },
     optimism: {
-      url: url('optimism'),
+      url: process.env.WEB3_PROVIDER_URL || networkRpcs['optimism'],
       chainId: 10,
       accounts,
     },
     moonbeam: {
-      url: url('moonbeam'),
+      url: process.env.WEB3_PROVIDER_URL || networkRpcs['moonbeam'],
       chainId: 1284,
       accounts,
     },
     tombchain: {
-      url: url('tombchain'),
+      url: process.env.WEB3_PROVIDER_URL || networkRpcs['tombchain'],
       chainId: 6969,
       accounts,
     },
     mantle: {
-      url: url('mantle'),
+      url: process.env.WEB3_PROVIDER_URL || networkRpcs['mantle'],
       chainId: 5000,
       accounts,
     },
     'mantle-testnet': {
-      url: url('mantle-testnet'),
+      url: process.env.WEB3_PROVIDER_URL || networkRpcs['mantle-testnet'],
       chainId: 5001,
       accounts,
     },
