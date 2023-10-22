@@ -2,7 +2,6 @@ import { computeCreate2DeploymentAddress } from './compute-one-address';
 import { getConstructorArgs } from './constructor-args';
 import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './types';
 import { create2ContractDeploymentList } from './utils';
-import { EvmChains } from '@requestnetwork/currency';
 
 export const verifyOne = async (
   contractAddress: string,
@@ -49,6 +48,8 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
           case 'BatchConversionPayments':
           case 'ERC20TransferableReceivable': {
             const network = hre.config.xdeploy.networks[0];
+            // import ES Module in CommonJS
+            const { EvmChains } = await import('@requestnetwork/currency');
             EvmChains.assertChainSupported(network);
             const constructorArgs = getConstructorArgs(contract, network);
             address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);

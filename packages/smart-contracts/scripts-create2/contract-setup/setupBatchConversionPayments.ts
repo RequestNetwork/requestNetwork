@@ -7,8 +7,7 @@ import {
   updateBatchPaymentFees,
   updateNativeAndUSDAddress,
 } from './adminTasks';
-import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
-import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { EvmChainName } from '../../src/types';
 
 /**
  * Updates the values of the batch fees of the BatchConversionPayments contract, if needed.
@@ -25,10 +24,14 @@ export const setupBatchConversionPayments = async ({
 }): Promise<void> => {
   // Setup contract parameters
 
+  // import ES Module in CommonJS
+  const { CurrencyManager, EvmChains } = await import('@requestnetwork/currency');
+  const { RequestLogicTypes } = await import('@requestnetwork/types');
+
   // constants related to chainlink and conversion rate
   const currencyManager = CurrencyManager.getDefault();
 
-  const setUpActions = async (network: CurrencyTypes.EvmChainName) => {
+  const setUpActions = async (network: EvmChainName) => {
     console.log(`Setup BatchConversionPayments on ${network}`);
 
     if (!contractAddress) {

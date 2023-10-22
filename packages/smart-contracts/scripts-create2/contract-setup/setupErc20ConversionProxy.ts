@@ -5,7 +5,6 @@ import {
   updateChainlinkConversionPath,
   updatePaymentFeeProxyAddress,
 } from './adminTasks';
-import { EvmChains } from '@requestnetwork/currency';
 
 const ERC20ConversionVersion = '0.1.2';
 
@@ -22,6 +21,9 @@ export const setupErc20ConversionProxy = async ({
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
 }): Promise<void> => {
+  // import ES Module in CommonJS
+  const { EvmChains } = await import('@requestnetwork/currency');
+
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network) => {
       try {

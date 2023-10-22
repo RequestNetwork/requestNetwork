@@ -11,7 +11,6 @@ import {
   ethConversionArtifact,
   ethereumFeeProxyArtifact,
 } from '../src/lib';
-import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 import { deployAddressChecking } from './utils';
 import { BigNumber } from 'ethers';
 import { PRECISION_RATE } from './test-deploy_chainlink_contract';
@@ -26,6 +25,8 @@ export async function deployBatchConversionPayment(
   try {
     console.log('Deploy BatchConversionPayments');
     const chain = hre.network.name;
+    // import ES Module in CommonJS
+    const { CurrencyManager, EvmChains } = await import('@requestnetwork/currency');
     EvmChains.assertChainSupported(chain);
     const _ERC20FeeProxyAddress = erc20FeeProxyArtifact.getAddress('private');
     const _EthereumFeeProxyAddress = ethereumFeeProxyArtifact.getAddress('private');

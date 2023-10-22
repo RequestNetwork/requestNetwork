@@ -1,5 +1,3 @@
-import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
-import { RequestLogicTypes } from '@requestnetwork/types';
 import { ethConversionArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import {
@@ -25,7 +23,10 @@ export const setupETHConversionProxy = async ({
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network) => {
       try {
-        EvmChains.assertChainSupported(network);
+        // import ES Module in CommonJS
+        const { CurrencyManager } = await import('@requestnetwork/currency');
+        const { RequestLogicTypes } = await import('@requestnetwork/types');
+        Currency.EvmChains.assertChainSupported(network);
         if (!contractAddress) {
           contractAddress = ethConversionArtifact.getAddress(network);
         }

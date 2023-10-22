@@ -1,12 +1,6 @@
 import { HardhatRuntimeEnvironmentExtended, IDeploymentParams, IDeploymentResult } from './types';
 import { requestDeployer } from '../src/lib';
 import { Overrides } from 'ethers';
-import {
-  normalizeGasFees,
-  getCeloProvider,
-  getDefaultProvider,
-  isEip1559Supported,
-} from '@requestnetwork/utils';
 import { suggestFeesEip1559 } from './fee-suggestion';
 
 const ZERO_ETH_INPUT = 0;
@@ -46,6 +40,9 @@ export const xdeploy = async (
     initcode = await Contract.getDeployTransaction();
   }
 
+  // import ES Module in CommonJS
+  const { getCeloProvider, getDefaultProvider, isEip1559Supported, normalizeGasFees } =
+    await import('@requestnetwork/utils');
   for (const network of hre.config.xdeploy.networks) {
     console.log(`... on ${network}`);
     let provider;

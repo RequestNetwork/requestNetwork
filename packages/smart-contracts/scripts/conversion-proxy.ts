@@ -7,8 +7,6 @@ import {
   ethConversionArtifact,
 } from '../src/lib';
 import { deployOne } from './deploy-one';
-import { CurrencyManager } from '@requestnetwork/currency';
-import { RequestLogicTypes } from '@requestnetwork/types';
 
 export async function deployERC20ConversionProxy(
   args: {
@@ -72,6 +70,10 @@ export async function deployEthConversionProxy(
 
   // The private native token hash is the same as on mainnet
   const nativeTokenNetwork = hre.network.name === 'private' ? 'mainnet' : hre.network.name;
+
+  // import ES Module in CommonJS
+  const { CurrencyManager } = await import('@requestnetwork/currency');
+  const { RequestLogicTypes } = await import('@requestnetwork/types');
   const nativeTokenHash = CurrencyManager.getDefault().getNativeCurrency(
     RequestLogicTypes.CURRENCY.ETH,
     nativeTokenNetwork,
