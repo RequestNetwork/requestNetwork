@@ -1,18 +1,18 @@
-import NativeTokenPaymentNetwork from '../../../src/extensions/payment-network/native-token';
-import NearNativePaymentNetwork from '../../../src/extensions/payment-network/near/near-native';
+import NativeTokenPaymentNetwork from '../../../src/extensions/payment-network/native-token.js';
+import NearNativePaymentNetwork from '../../../src/extensions/payment-network/near/near-native.js';
 import {
   arbitrarySalt,
   requestStateNoExtensions,
-} from '../../utils/payment-network/any/generator-data-create';
+} from '../../utils/payment-network/any/generator-data-create.js';
 import {
   actionCreationWithNativeTokenPayment,
   extensionStateWithNativeTokenPaymentAndRefund,
   extensionStateWithPaymentAddressAdded,
-} from '../../utils/payment-network/mocked_native_data';
-import { AdvancedLogic } from '../../../src';
-import { arbitraryTimestamp, payeeRaw } from '../../utils/test-data-generator';
+} from '../../utils/payment-network/mocked_native_data.js';
+import { AdvancedLogic } from '../../../src/index.js';
+import { arbitraryTimestamp, payeeRaw } from '../../utils/test-data-generator.js';
 import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import NearTestnetNativeNativePaymentNetwork from '../../../src/extensions/payment-network/near/near-testnet-native';
+import NearTestnetNativeNativePaymentNetwork from '../../../src/extensions/payment-network/near/near-testnet-native.js';
 
 const salt = arbitrarySalt;
 

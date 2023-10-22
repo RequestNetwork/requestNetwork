@@ -1,21 +1,21 @@
-import * as AdvancedLogicTypes from './advanced-logic-types';
-import * as ClientTypes from './client-types';
-import * as CurrencyTypes from './currency-types';
-import * as DataAccessTypes from './data-access-types';
-import * as DecryptionProviderTypes from './decryption-provider-types';
-import * as EncryptionTypes from './encryption-types';
-import * as ExtensionTypes from './extension-types';
-import * as IdentityTypes from './identity-types';
-import * as LogTypes from './logger-types';
-import * as MultiFormatTypes from './multi-format-types';
-import * as PaymentTypes from './payment-types';
-import * as RequestLogicTypes from './request-logic-types';
-import * as SignatureProviderTypes from './signature-provider-types';
-import * as SignatureTypes from './signature-types';
-import * as StorageTypes from './storage-types';
-import * as TransactionTypes from './transaction-types';
-import * as TypesUtils from './utils';
-import * as FeeTypes from './fees-types';
+import * as AdvancedLogicTypes from './advanced-logic-types.js';
+import * as ClientTypes from './client-types.js';
+import * as CurrencyTypes from './currency-types.js';
+import * as DataAccessTypes from './data-access-types.js';
+import * as DecryptionProviderTypes from './decryption-provider-types.js';
+import * as EncryptionTypes from './encryption-types.js';
+import * as ExtensionTypes from './extension-types.js';
+import * as IdentityTypes from './identity-types.js';
+import * as LogTypes from './logger-types.js';
+import * as MultiFormatTypes from './multi-format-types.js';
+import * as PaymentTypes from './payment-types.js';
+import * as RequestLogicTypes from './request-logic-types.js';
+import * as SignatureProviderTypes from './signature-provider-types.js';
+import * as SignatureTypes from './signature-types.js';
+import * as StorageTypes from './storage-types.js';
+import * as TransactionTypes from './transaction-types.js';
+import * as TypesUtils from './utils.js';
+import * as FeeTypes from './fees-types.js';
 
 export {
   AdvancedLogicTypes,

@@ -1,7 +1,7 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
 import { PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, ethers } from 'ethers';
-import { parseLogArgs, unpadAmountFromChainlink } from '../../utils';
+import { parseLogArgs, unpadAmountFromChainlink } from '../../utils.js';
 import type { JsonFragment } from '@ethersproject/abi';
 import { getDefaultProvider } from '@requestnetwork/utils';
 

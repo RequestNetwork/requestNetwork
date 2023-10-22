@@ -8,7 +8,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { ITransactionOverrides } from './transaction-overrides';
+import { ITransactionOverrides } from './transaction-overrides.js';
 import {
   comparePnTypeAndVersion,
   getAmountToPay,
@@ -19,18 +19,18 @@ import {
   getSigner,
   MAX_ALLOWANCE,
   validateErc20FeeProxyRequest,
-} from './utils';
+} from './utils.js';
 import {
   padAmountForChainlink,
   getPaymentNetworkExtension,
 } from '@requestnetwork/payment-detection';
-import { IPreparedTransaction } from './prepared-transaction';
-import { EnrichedRequest, IConversionPaymentSettings } from './index';
-import { checkRequestAndGetPathAndCurrency } from './any-to-erc20-proxy';
-import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
+import { IPreparedTransaction } from './prepared-transaction.js';
+import { EnrichedRequest, IConversionPaymentSettings } from './index.js';
+import { checkRequestAndGetPathAndCurrency } from './any-to-erc20-proxy.js';
+import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20/index.js';
 import { IState } from 'types/dist/extension-types';
 import { CurrencyDefinition, ICurrencyManager } from '@requestnetwork/currency';
-import { IConversionSettings, IRequestPaymentOptions } from './settings';
+import { IConversionSettings, IRequestPaymentOptions } from './settings.js';
 
 const CURRENCY = RequestLogicTypes.CURRENCY;
 

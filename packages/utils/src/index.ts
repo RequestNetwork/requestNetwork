@@ -2,11 +2,11 @@
  * Collection of general purpose utility function
  */
 
-export { addAmount, isValidAmount, reduceAmount } from './amount';
+export { addAmount, isValidAmount, reduceAmount } from './amount.js';
 
-export { minBigNumber, maxBigNumber } from './bignumber';
+export { minBigNumber, maxBigNumber } from './bignumber.js';
 
-export { cachedThrottle } from './cached-throttle';
+export { cachedThrottle } from './cached-throttle.js';
 
 export {
   decryptWithAes256cbc,
@@ -26,18 +26,18 @@ export {
   last20bytesOfNormalizedKeccak256Hash,
   normalize,
   normalizeKeccak256Hash,
-} from './crypto';
+} from './crypto.js';
 
-export { decrypt, encrypt, getIdentityFromEncryptionParams } from './encryption';
+export { decrypt, encrypt, getIdentityFromEncryptionParams } from './encryption.js';
 
-export { normalizeGasFees } from './normalize-gas-fees';
+export { normalizeGasFees } from './normalize-gas-fees.js';
 
 export {
   areEqualIdentities,
   identityHasError,
   normalizeIdentityValue,
   supportedIdentities,
-} from './identity';
+} from './identity.js';
 
 export {
   setProviderFactory,
@@ -46,13 +46,13 @@ export {
   getDefaultProvider,
   getCeloProvider,
   networkRpcs,
-} from './providers';
+} from './providers.js';
 
-export { retry } from './retry';
+export { retry } from './retry.js';
 
-export { getIdentityFromSignatureParams, recoverSigner, sign } from './signature';
+export { getIdentityFromSignatureParams, recoverSigner, sign } from './signature.js';
 
-export { SimpleLogger } from './simple-logger';
+export { SimpleLogger } from './simple-logger.js';
 
 export {
   deepCopy,
@@ -64,4 +64,4 @@ export {
   unique,
   uniqueByProperty,
   notNull,
-} from './utils';
+} from './utils.js';

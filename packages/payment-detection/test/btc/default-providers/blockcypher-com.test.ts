@@ -1,7 +1,7 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { BlockcypherComProvider } from '../../../src/btc/default-providers/blockcypher-com';
+import { BlockcypherComProvider } from '../../../src/btc/default-providers/blockcypher-com.js';
 
-import * as BlockCypherComData from './blockcypher-com-data';
+import * as BlockCypherComData from './blockcypher-com-data.js';
 
 // Most of the tests are done as integration tests in ../index.test.ts
 /* eslint-disable @typescript-eslint/no-unused-expressions */

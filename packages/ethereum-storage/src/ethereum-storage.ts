@@ -1,14 +1,14 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
-import * as Bluebird from 'bluebird';
+import Bluebird from 'bluebird';
 import { EventEmitter } from 'events';
-import { getMaxConcurrency } from './config';
+import { getMaxConcurrency } from './config.js';
 
-import ethereumEntriesToIpfsContent from './ethereum-entries-to-ipfs-content';
-import EthereumMetadataCache from './ethereum-metadata-cache';
-import IgnoredDataIds from './ignored-dataIds';
-import SmartContractManager from './smart-contract-manager';
+import ethereumEntriesToIpfsContent from './ethereum-entries-to-ipfs-content.js';
+import EthereumMetadataCache from './ethereum-metadata-cache.js';
+import IgnoredDataIds from './ignored-dataIds.js';
+import SmartContractManager from './smart-contract-manager.js';
 
-import * as Keyv from 'keyv';
+import Keyv from 'keyv';
 import { BigNumber } from 'ethers';
 import { getCurrentTimestampInSecond, SimpleLogger } from '@requestnetwork/utils';
 

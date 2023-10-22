@@ -6,7 +6,7 @@ import {
   getAddressFromPrivateKey,
   normalize,
   normalizeKeccak256Hash,
-} from './crypto';
+} from './crypto.js';
 
 /**
  * Function to manage Request Logic Signature

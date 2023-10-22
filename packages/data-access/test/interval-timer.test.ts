@@ -1,6 +1,6 @@
 import { LogTypes } from '@requestnetwork/types';
 
-import IntervalTimer from '../src/interval-timer';
+import IntervalTimer from '../src/interval-timer.js';
 
 let intervalTimer: IntervalTimer;
 

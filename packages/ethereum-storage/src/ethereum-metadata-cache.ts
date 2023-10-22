@@ -1,6 +1,6 @@
 import { StorageTypes } from '@requestnetwork/types';
 
-import * as Keyv from 'keyv';
+import Keyv from 'keyv';
 
 /**
  * Allows to save and retrieve ethereum metadata associated to a data id

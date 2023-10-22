@@ -1,4 +1,4 @@
-import { normalizeKeccak256Hash } from './crypto';
+import { normalizeKeccak256Hash } from './crypto.js';
 
 /**
  * Collection of general purpose utility function

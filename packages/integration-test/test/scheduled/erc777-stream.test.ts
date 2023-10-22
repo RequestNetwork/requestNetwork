@@ -8,7 +8,7 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 
-import { mockAdvancedLogic } from './mocks';
+import { mockAdvancedLogic } from './mocks.js';
 
 const createMockRequest = ({
   network,

@@ -1,4 +1,3 @@
-import { EvmChains } from '@requestnetwork/currency';
 import { erc20SwapToPayArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import { getSignerAndGasFees, updateRequestSwapFees, updateSwapRouter } from './adminTasks';
@@ -16,6 +15,8 @@ export const setupERC20SwapToPay = async ({
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
 }): Promise<void> => {
+  // import ES Module in CommonJS
+  const { EvmChains } = await import('@requestnetwork/currency');
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network) => {
       try {

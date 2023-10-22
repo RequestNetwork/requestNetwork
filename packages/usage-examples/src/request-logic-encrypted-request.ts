@@ -13,7 +13,7 @@ import {
   TransactionTypes,
 } from '@requestnetwork/types';
 
-import MockStorage from './mock/mock-storage';
+import MockStorage from './mock/mock-storage.js';
 
 const createParams = {
   currency: {

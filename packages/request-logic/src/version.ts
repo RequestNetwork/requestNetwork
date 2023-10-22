@@ -1,6 +1,6 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import * as Semver from 'semver';
-import Config from './config';
+import Config from './config.js';
 
 /**
  * Function to manage Request versions specification supported by this implementation

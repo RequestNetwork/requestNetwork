@@ -5,10 +5,10 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { NearChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
-import { NearConversionInfoRetriever } from './retrievers/near-conversion-info-retriever';
-import { AnyToNativeDetector } from '../any-to-native-detector';
-import { NetworkNotSupported } from '../balance-error';
-import { NativeDetectorOptions } from '../types';
+import { NearConversionInfoRetriever } from './retrievers/near-conversion-info-retriever.js';
+import { AnyToNativeDetector } from '../any-to-native-detector.js';
+import { NetworkNotSupported } from '../balance-error.js';
+import { NativeDetectorOptions } from '../types.js';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {

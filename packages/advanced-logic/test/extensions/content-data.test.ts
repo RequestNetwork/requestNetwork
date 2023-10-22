@@ -1,9 +1,9 @@
 import { ExtensionTypes } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
 
-import ContentData from '../../src/extensions/content-data';
+import ContentData from '../../src/extensions/content-data.js';
 
-import * as TestData from '../utils/test-data-generator';
+import * as TestData from '../utils/test-data-generator.js';
 
 const contentData = new ContentData();
 

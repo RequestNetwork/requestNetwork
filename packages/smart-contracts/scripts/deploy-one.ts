@@ -2,7 +2,6 @@ import '@nomiclabs/hardhat-ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { Contract } from 'ethers';
 import { ContractArtifact } from '../src/lib';
-import { EvmChains } from '@requestnetwork/currency';
 
 export interface DeploymentResult<TContract extends Contract | unknown = Contract> {
   address: string;
@@ -61,6 +60,8 @@ export async function deployOne<TContract extends Contract>(
   if (options?.artifact) {
     try {
       const chain = hre.network.name;
+      // import ES Module in CommonJS
+      const { EvmChains } = await import('@requestnetwork/currency');
       EvmChains.assertChainSupported(chain);
       address = options.artifact.getAddress(chain, options.version);
       const action = args.force ? '(forcing deployment)' : '(skipping)';

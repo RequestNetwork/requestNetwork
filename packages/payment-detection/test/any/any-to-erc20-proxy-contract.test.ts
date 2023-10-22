@@ -9,9 +9,9 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
-import { AnyToERC20PaymentDetector, getTheGraphClient } from '../../src';
+import { AnyToERC20PaymentDetector, getTheGraphClient } from '../../src/index.js';
 import { mocked } from 'ts-jest/utils';
-import { mockAdvancedLogicBase } from '../utils';
+import { mockAdvancedLogicBase } from '../utils.js';
 
 jest.mock('../../src/thegraph/client');
 const theGraphClientMock = mocked(getTheGraphClient(''));

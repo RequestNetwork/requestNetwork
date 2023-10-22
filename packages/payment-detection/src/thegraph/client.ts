@@ -2,8 +2,8 @@
 import { CurrencyTypes } from '@requestnetwork/types';
 import { NearChains } from '@requestnetwork/currency';
 import { GraphQLClient } from 'graphql-request';
-import { getSdk } from './generated/graphql';
-import { getSdk as getNearSdk } from './generated/graphql-near';
+import { getSdk } from './generated/graphql.js';
+import { getSdk as getNearSdk } from './generated/graphql-near.js';
 
 const HOSTED_THE_GRAPH_URL =
   'https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-';

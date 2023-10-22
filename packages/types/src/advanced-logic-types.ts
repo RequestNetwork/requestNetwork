@@ -1,7 +1,7 @@
-import * as Extension from './extension-types';
-import * as Identity from './identity-types';
-import * as RequestLogic from './request-logic-types';
-import { ChainName } from './currency-types';
+import * as Extension from './extension-types.js';
+import * as Identity from './identity-types.js';
+import * as RequestLogic from './request-logic-types.js';
+import { ChainName } from './currency-types.js';
 
 /** Advanced Logic extensions */
 export interface IAdvancedLogicExtensions {

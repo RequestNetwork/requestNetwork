@@ -1,10 +1,10 @@
-import PnAnyDeclarative from '../../../src/extensions/payment-network/declarative';
+import PnAnyDeclarative from '../../../src/extensions/payment-network/declarative.js';
 
 import { deepCopy } from '@requestnetwork/utils';
 import { ExtensionTypes } from '@requestnetwork/types';
 
-import * as TestDataDeclarative from '../../utils/payment-network/any/generator-data-create';
-import * as TestData from '../../utils/test-data-generator';
+import * as TestDataDeclarative from '../../utils/payment-network/any/generator-data-create.js';
+import * as TestData from '../../utils/test-data-generator.js';
 
 const pnAnyDeclarative = new PnAnyDeclarative();
 

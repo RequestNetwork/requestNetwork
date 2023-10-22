@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber';
-import { maxBigNumber, minBigNumber } from '../src';
+import { maxBigNumber, minBigNumber } from '../src/index.js';
 
 describe('min', () => {
   it('returns the min of 2 big numbers', () => {

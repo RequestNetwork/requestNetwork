@@ -7,7 +7,7 @@ import {
 } from '@requestnetwork/types';
 
 import { sign } from '@requestnetwork/utils';
-import Version from '../../../src/version';
+import Version from '../../../src/version.js';
 const CURRENT_VERSION = Version.currentVersion;
 
 // payee id

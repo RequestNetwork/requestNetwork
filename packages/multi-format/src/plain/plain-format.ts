@@ -1,5 +1,5 @@
-import GroupMultiFormat from '../group-multi-format';
-import PlainText from './plain-text-format';
+import GroupMultiFormat from '../group-multi-format.js';
+import PlainText from './plain-text-format.js';
 
 // group all the multi-format concerning plain data
 const group = new GroupMultiFormat([new PlainText()]);

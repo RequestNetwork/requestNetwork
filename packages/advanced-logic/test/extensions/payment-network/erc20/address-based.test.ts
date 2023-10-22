@@ -1,8 +1,8 @@
-import Erc20AddressBasedPaymentNetwork from '../../../../src/extensions/payment-network/erc20/address-based';
+import Erc20AddressBasedPaymentNetwork from '../../../../src/extensions/payment-network/erc20/address-based.js';
 
-import * as DataERC20AddPaymentAddress from '../../../utils/payment-network/erc20/address-based-add-payment-address-data-generator';
-import * as DataERC20Create from '../../../utils/payment-network/erc20/address-based-create-data-generator';
-import * as TestData from '../../../utils/test-data-generator';
+import * as DataERC20AddPaymentAddress from '../../../utils/payment-network/erc20/address-based-add-payment-address-data-generator.js';
+import * as DataERC20Create from '../../../utils/payment-network/erc20/address-based-create-data-generator.js';
+import * as TestData from '../../../utils/test-data-generator.js';
 import { deepCopy } from '@requestnetwork/utils';
 
 const erc20AddressBasedPaymentNetwork = new Erc20AddressBasedPaymentNetwork();

@@ -1,6 +1,7 @@
 {
   "name": "@requestnetwork/transaction-manager",
   "version": "0.28.0",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },

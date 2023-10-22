@@ -1,7 +1,7 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { IPaymentRetriever } from '../types';
+import { IPaymentRetriever } from '../types.js';
 import { BigNumber, ethers } from 'ethers';
-import { parseLogArgs } from '../utils';
+import { parseLogArgs } from '../utils.js';
 import { getDefaultProvider } from '@requestnetwork/utils';
 
 // The ERC20 proxy smart contract ABI fragment containing TransferWithReference event

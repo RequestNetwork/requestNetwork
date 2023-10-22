@@ -1,5 +1,5 @@
 import { CurrencyTypes, ExtensionTypes } from '@requestnetwork/types';
-import NativeTokenPaymentNetwork from '../native-token';
+import NativeTokenPaymentNetwork from '../native-token.js';
 
 const CURRENT_VERSION = '0.2.0';
 

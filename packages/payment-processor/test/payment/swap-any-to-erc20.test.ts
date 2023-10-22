@@ -8,12 +8,12 @@ import {
 } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
 
-import { approveErc20ForSwapWithConversionIfNeeded } from '../../src/payment/swap-conversion-erc20';
+import { approveErc20ForSwapWithConversionIfNeeded } from '../../src/payment/swap-conversion-erc20.js';
 import { ERC20, ERC20__factory } from '@requestnetwork/smart-contracts/types';
-import { swapToPayAnyToErc20Request } from '../../src/payment/swap-any-to-erc20';
-import { IConversionSettings } from '../../src/payment/settings';
+import { swapToPayAnyToErc20Request } from '../../src/payment/swap-any-to-erc20.js';
+import { IConversionSettings } from '../../src/payment/settings.js';
 
-import { currencyManager } from './shared';
+import { currencyManager } from './shared.js';
 import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 /* eslint-disable no-magic-numbers */

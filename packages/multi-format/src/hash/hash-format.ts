@@ -1,5 +1,5 @@
-import GroupMultiFormat from '../group-multi-format';
-import Keccak256 from './keccak256-format';
+import GroupMultiFormat from '../group-multi-format.js';
+import Keccak256 from './keccak256-format.js';
 
 // group all the multi-format concerning the hashing
 const group = new GroupMultiFormat([new Keccak256()]);

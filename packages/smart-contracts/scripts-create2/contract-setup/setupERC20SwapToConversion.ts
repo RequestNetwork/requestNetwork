@@ -6,7 +6,6 @@ import {
   updateRequestSwapFees,
   updateSwapRouter,
 } from './adminTasks';
-import { EvmChains } from '@requestnetwork/currency';
 
 /**
  * Updates the values of the chainlinkConversionPath and swap router of the ERC20SwapToConversion contract
@@ -21,6 +20,8 @@ export const setupERC20SwapToConversion = async ({
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
 }): Promise<void> => {
+  // import ES Module in CommonJS
+  const { EvmChains } = await import('@requestnetwork/currency');
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network) => {
       try {

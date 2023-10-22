@@ -1,5 +1,5 @@
 import { StorageTypes } from '@requestnetwork/types';
-import IpfsManager from '../src/ipfs-manager';
+import IpfsManager from '../src/ipfs-manager.js';
 import { AxiosInstance } from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 

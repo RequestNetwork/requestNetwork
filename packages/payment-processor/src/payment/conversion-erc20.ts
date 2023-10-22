@@ -3,10 +3,10 @@ import { ContractTransaction, Signer, BigNumberish, providers, BigNumber } from 
 import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { ClientTypes } from '@requestnetwork/types';
 
-import { ITransactionOverrides } from './transaction-overrides';
-import { getProvider, getSigner, getProxyAddress } from './utils';
-import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
-import { IPreparedTransaction } from './prepared-transaction';
+import { ITransactionOverrides } from './transaction-overrides.js';
+import { getProvider, getSigner, getProxyAddress } from './utils.js';
+import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20/index.js';
+import { IPreparedTransaction } from './prepared-transaction.js';
 
 /**
  * Processes the approval transaction of a given payment ERC20 to be spent by the conversion proxy,

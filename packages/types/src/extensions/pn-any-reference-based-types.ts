@@ -1,10 +1,10 @@
-import { PnAddressBased } from '../extension-types';
-import { ChainName } from '../currency-types';
+import { PnAddressBased } from '../extension-types.js';
+import { ChainName } from '../currency-types.js';
 export {
   ACTION,
   IAddPaymentAddressParameters,
   IAddRefundAddressParameters,
-} from './pn-any-address-based-types';
+} from './pn-any-address-based-types.js';
 
 /** Manager of the extension */
 export type IReferenceBased<TCreationParameters = ICreationParameters> =

@@ -1,7 +1,7 @@
 import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@requestnetwork/types';
 import * as Semver from 'semver';
-import Action from '../action';
-import Version from '../version';
+import Action from '../action.js';
+import Version from '../version.js';
 import {
   deepCopy,
   getCurrentTimestampInSecond,

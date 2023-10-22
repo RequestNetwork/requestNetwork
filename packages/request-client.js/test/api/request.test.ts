@@ -8,7 +8,7 @@ import {
 
 import { EventEmitter } from 'events';
 
-import Request from '../../src/api/request';
+import Request from '../../src/api/request.js';
 
 const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
   async createRequest(): Promise<any> {

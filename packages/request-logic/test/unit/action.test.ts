@@ -7,12 +7,12 @@ import {
 } from '@requestnetwork/types';
 import { deepCopy, normalizeKeccak256Hash } from '@requestnetwork/utils';
 
-import Action from '../../src/action';
-import CreateAction from '../../src/actions/create';
-import Version from '../../src/version';
+import Action from '../../src/action.js';
+import CreateAction from '../../src/actions/create.js';
+import Version from '../../src/version.js';
 const CURRENT_VERSION = Version.currentVersion;
 
-import * as TestData from './utils/test-data-generator';
+import * as TestData from './utils/test-data-generator.js';
 
 const randomUnsignedAction = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,

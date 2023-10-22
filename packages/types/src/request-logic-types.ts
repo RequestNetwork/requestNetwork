@@ -1,11 +1,11 @@
 import { EventEmitter } from 'events';
 
-import * as Encryption from './encryption-types';
-import * as Extension from './extension-types';
-import * as Identity from './identity-types';
-import * as Signature from './signature-types';
-import * as Transaction from './transaction-types';
-import { CurrencyTypes } from './index';
+import * as Encryption from './encryption-types.js';
+import * as Extension from './extension-types.js';
+import * as Identity from './identity-types.js';
+import * as Signature from './signature-types.js';
+import * as Transaction from './transaction-types.js';
+import { CurrencyTypes } from './index.js';
 
 /** Request Logic layer */
 export interface IRequestLogic {

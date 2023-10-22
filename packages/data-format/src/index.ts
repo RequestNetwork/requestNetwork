@@ -1,7 +1,7 @@
-import * as AJV from 'ajv';
+import AJV from 'ajv';
 import * as jsonSchema from 'ajv/lib/refs/json-schema-draft-06.json';
 import * as schemaAddress from './format/address.json';
-import formats from './format';
+import formats from './format/index.js';
 
 export default {
   /**
@@ -54,4 +54,4 @@ export default {
 // using `exports` as introduced in Node 12.7.0 (https://nodejs.org/api/packages.html#packages_subpath_exports)
 // but typescript doesn't currently support this (https://github.com/microsoft/TypeScript/issues/33079)
 // NB: compatibilty with browser would need to be tested.
-export * from './format/rnf_invoice';
+export * from './format/rnf_invoice/index.js';

@@ -1,6 +1,6 @@
-import { IIdentity } from '../identity-types';
-import * as Extension from '../extension-types';
-import * as RequestLogicTypes from '../request-logic-types';
+import { IIdentity } from '../identity-types.js';
+import * as Extension from '../extension-types.js';
+import * as RequestLogicTypes from '../request-logic-types.js';
 
 /** Manager of the extension */
 export interface IAnyDeclarative<TCreationParameters = ICreationParameters>

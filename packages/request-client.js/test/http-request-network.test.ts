@@ -1,6 +1,6 @@
 import MockAdapter from 'axios-mock-adapter';
-import * as TestData from './data-test';
-import HttpRequestNetwork from '../src/http-request-network';
+import * as TestData from './data-test.js';
+import HttpRequestNetwork from '../src/http-request-network.js';
 
 let mockAxios: MockAdapter;
 

@@ -3,7 +3,7 @@ import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
 import { ClientTypes } from '@requestnetwork/types';
 
-import { getAmountToPay } from './utils';
+import { getAmountToPay } from './utils.js';
 
 /**
  * Returns the BIP21 payment URL based on the Request's value

@@ -1,9 +1,9 @@
 import { LogTypes, MultiFormatTypes, DataAccessTypes } from '@requestnetwork/types';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { getPersistTransactionTimeout } from '../config';
+import { getPersistTransactionTimeout } from '../config.js';
 
-import ConfirmedTransactionStore from './confirmedTransactionStore';
+import ConfirmedTransactionStore from './confirmedTransactionStore.js';
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 /**

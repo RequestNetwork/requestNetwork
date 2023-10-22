@@ -1,5 +1,5 @@
 import { ExtensionTypes } from '@requestnetwork/types';
-import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
+import { FeeReferenceBasedDetector } from './fee-reference-based-detector.js';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { generate8randomBytes } from '@requestnetwork/utils';
 

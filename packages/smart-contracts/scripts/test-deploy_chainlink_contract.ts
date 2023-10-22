@@ -1,5 +1,4 @@
 import '@nomiclabs/hardhat-ethers';
-import { CurrencyManager } from '@requestnetwork/currency';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { deployERC20ConversionProxy, deployEthConversionProxy } from './conversion-proxy';
 import { deploySwapConversion } from './erc20-swap-to-conversion';
@@ -31,6 +30,9 @@ export default async function deploy(
     constructorArguments: [USDT_ETH_RATE, 18, 60],
   });
   const { address: USDT_fake_address } = await deployOne(args, hre, 'UsdtFake');
+
+  // import ES Module in CommonJS
+  const { CurrencyManager } = await import('@requestnetwork/currency');
 
   const currencyManager = CurrencyManager.getDefault();
   // all these addresses are for test purposes

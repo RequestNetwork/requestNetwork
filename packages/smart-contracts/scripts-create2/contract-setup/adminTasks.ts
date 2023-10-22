@@ -4,14 +4,8 @@ import * as artifacts from '../../src/lib';
 import { BigNumber, Overrides, Wallet } from 'ethers';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import { parseUnits } from 'ethers/lib/utils';
-import {
-  isEip1559Supported,
-  getCeloProvider,
-  getDefaultProvider,
-  normalizeGasFees,
-} from '@requestnetwork/utils';
-import { CurrencyTypes } from '@requestnetwork/types';
 import { suggestFeesEip1559 } from '../fee-suggestion';
+import { EvmChainName } from '../../src/types';
 
 // Swap Fees: set to 5 for 0.5%
 const REQUEST_SWAP_FEES = 0;
@@ -31,7 +25,7 @@ const BATCH_FEE_AMOUNT_USD_LIMIT = parseUnits('150', 8);
  */
 export const updateChainlinkConversionPath = async (
   contract: any,
-  network: CurrencyTypes.EvmChainName,
+  network: EvmChainName,
   txOverrides: Overrides,
   version?: string,
 ): Promise<void> => {
@@ -51,7 +45,7 @@ export const updateChainlinkConversionPath = async (
 
 export const updateSwapRouter = async (
   contract: any,
-  network: string,
+  network: EvmChainName,
   txOverrides: Overrides,
 ): Promise<void> => {
   const currentSwapRouter = await contract.swapRouter();
@@ -123,7 +117,7 @@ export const updateBatchPaymentFeeAmountUSDLimit = async (
  */
 export const updatePaymentFeeProxyAddress = async (
   contract: any,
-  network: CurrencyTypes.EvmChainName,
+  network: EvmChainName,
   txOverrides: Overrides,
   proxyType: 'native' | 'erc20',
   version?: string,
@@ -156,7 +150,7 @@ export const updatePaymentFeeProxyAddress = async (
  */
 export const updateBatchConversionProxy = async (
   contract: any,
-  network: CurrencyTypes.EvmChainName,
+  network: EvmChainName,
   txOverrides: Overrides,
   proxyName:
     | 'native'
@@ -275,6 +269,9 @@ export const getSignerAndGasFees = async (
     maxPriorityFeePerGas?: BigNumber;
   };
 }> => {
+  // import ES Module in CommonJS
+  const { getCeloProvider, getDefaultProvider, isEip1559Supported, normalizeGasFees } =
+    await import('@requestnetwork/utils');
   let provider;
   if (network === 'celo') {
     provider = getCeloProvider();

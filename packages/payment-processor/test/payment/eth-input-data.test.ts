@@ -9,8 +9,8 @@ import {
 } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
 
-import { _getEthPaymentUrl, payEthInputDataRequest } from '../../src/payment/eth-input-data';
-import { getRequestPaymentValues } from '../../src/payment/utils';
+import { _getEthPaymentUrl, payEthInputDataRequest } from '../../src/payment/eth-input-data.js';
+import { getRequestPaymentValues } from '../../src/payment/utils.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */

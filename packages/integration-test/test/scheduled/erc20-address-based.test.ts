@@ -4,8 +4,8 @@ import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import ERC20AddressBasedInfoRetriever from '@requestnetwork/payment-detection/src/erc20/address-based-info-retriever';
 
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { account, tokens } from './erc20-mainnet-test-data';
-import { mockAdvancedLogic } from './mocks';
+import { account, tokens } from './erc20-mainnet-test-data.js';
+import { mockAdvancedLogic } from './mocks.js';
 
 describe('ERC20 Address Based detection test-suite', () => {
   describe('check mainnet payment detection', () => {

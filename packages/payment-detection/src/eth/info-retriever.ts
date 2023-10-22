@@ -1,6 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { IPaymentRetriever } from '../types';
-import { MultichainExplorerApiProvider } from './multichainExplorerApiProvider';
+import { IPaymentRetriever } from '../types.js';
+import { MultichainExplorerApiProvider } from './multichainExplorerApiProvider.js';
 
 /**
  * Gets a list of transfer events for an address and payment reference

@@ -6,15 +6,15 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { encodeRequestErc20ApprovalIfNeeded, IPreparedTransaction } from '../../src';
-import { getProxyAddress, MAX_ALLOWANCE, revokeErc20Approval } from '../../src/payment/utils';
+import { encodeRequestErc20ApprovalIfNeeded, IPreparedTransaction } from '../../src/index.js';
+import { getProxyAddress, MAX_ALLOWANCE, revokeErc20Approval } from '../../src/payment/utils.js';
 import { AnyToERC20PaymentDetector, Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
-import { currencyManager } from './shared';
+import { currencyManager } from './shared.js';
 import {
   erc20SwapConversionArtifact,
   erc20SwapToPayArtifact,
 } from '@requestnetwork/smart-contracts';
-import { IConversionSettings } from '../../src/payment/settings';
+import { IConversionSettings } from '../../src/payment/settings.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */

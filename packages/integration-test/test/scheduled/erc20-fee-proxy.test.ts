@@ -3,7 +3,7 @@ import { PaymentNetworkFactory } from '@requestnetwork/payment-detection';
 import { CurrencyTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { Types, Utils } from '@requestnetwork/request-client.js';
 
-import { mockAdvancedLogic } from './mocks';
+import { mockAdvancedLogic } from './mocks.js';
 import {
   erc20requestCreationHash,
   localErc20PaymentNetworkParams,
@@ -11,8 +11,8 @@ import {
   payerIdentity,
   privateErc20Address,
   requestNetwork,
-} from './fixtures';
-import { createMockErc20FeeRequest } from '../utils';
+} from './fixtures.js';
+import { createMockErc20FeeRequest } from '../utils.js';
 
 const pnFactory = new PaymentNetworkFactory(mockAdvancedLogic, CurrencyManager.getDefault());
 

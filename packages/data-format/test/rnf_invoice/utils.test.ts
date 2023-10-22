@@ -2,7 +2,7 @@ import {
   getInvoiceTotal,
   getInvoiceTotalWithoutTax,
   getInvoiceTaxTotal,
-} from '../../src/format/rnf_invoice';
+} from '../../src/format/rnf_invoice.js';
 
 const baseInvoiceItem = {
   name: 'test 1',

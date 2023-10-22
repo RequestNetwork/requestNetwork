@@ -4,7 +4,7 @@ import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '@requestnetwork/s
 import { ERC20SwapToPay__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes } from '@requestnetwork/types';
 
-import { ITransactionOverrides } from './transaction-overrides';
+import { ITransactionOverrides } from './transaction-overrides.js';
 import {
   getAmountToPay,
   getProvider,
@@ -12,8 +12,8 @@ import {
   getRequestPaymentValues,
   getSigner,
   validateErc20FeeProxyRequest,
-} from './utils';
-import { IPreparedTransaction } from './prepared-transaction';
+} from './utils.js';
+import { IPreparedTransaction } from './prepared-transaction.js';
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { EvmChains } from '@requestnetwork/currency';
 

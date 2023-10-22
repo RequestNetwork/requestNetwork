@@ -7,7 +7,7 @@ import {
   SignatureTypes,
 } from '@requestnetwork/types';
 
-import RequestLogic from '../../src/requestLogicCore';
+import RequestLogic from '../../src/requestLogicCore.js';
 import { sign } from '@requestnetwork/utils';
 
 async function foo(): Promise<void> {

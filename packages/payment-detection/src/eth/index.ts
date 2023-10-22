@@ -1,2 +1,2 @@
-export { EthInputDataPaymentDetector } from './input-data';
-export { EthFeeProxyPaymentDetector } from './fee-proxy-detector';
+export { EthInputDataPaymentDetector } from './input-data.js';
+export { EthFeeProxyPaymentDetector } from './fee-proxy-detector.js';

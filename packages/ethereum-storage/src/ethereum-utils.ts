@@ -1,5 +1,5 @@
 import { CurrencyTypes, StorageTypes } from '@requestnetwork/types';
-import * as config from './config';
+import * as config from './config.js';
 
 import { BigNumber } from 'ethers';
 import { EvmChains } from '@requestnetwork/currency';

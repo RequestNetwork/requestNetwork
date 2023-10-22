@@ -1,5 +1,5 @@
 import MultiFormat from '@requestnetwork/multi-format';
-import ClearTransaction from '../../src/clear-transaction';
+import ClearTransaction from '../../src/clear-transaction.js';
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 const data = '{ "what": "ever", "it": "is,", "this": "must", "work": true }';

@@ -1,6 +1,6 @@
 import { BigNumber, constants } from 'ethers';
 
-import { maxBigNumber } from './index';
+import { maxBigNumber } from './index.js';
 import { LogTypes, FeeTypes } from '@requestnetwork/types';
 
 /**

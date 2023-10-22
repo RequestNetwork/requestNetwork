@@ -1,8 +1,8 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
 import { BigNumber, ethers } from 'ethers';
-import { IEventRetriever } from '../types';
-import { makeGetDeploymentInformation, parseLogArgs } from '../utils';
+import { IEventRetriever } from '../types.js';
+import { makeGetDeploymentInformation, parseLogArgs } from '../utils.js';
 import { getDefaultProvider } from '@requestnetwork/utils';
 
 const ESCROW_CONTRACT_ADDRESS_MAP = {

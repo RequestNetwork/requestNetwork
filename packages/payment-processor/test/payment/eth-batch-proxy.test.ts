@@ -9,8 +9,8 @@ import {
 } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
 
-import { payBatchProxyRequest, encodePayBatchRequest } from '../../src/payment/batch-proxy';
-import { getRequestPaymentValues } from '../../src/payment/utils';
+import { payBatchProxyRequest, encodePayBatchRequest } from '../../src/payment/batch-proxy.js';
+import { getRequestPaymentValues } from '../../src/payment/utils.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */

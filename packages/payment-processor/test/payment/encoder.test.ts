@@ -5,15 +5,15 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { encodeRequestApprovalAndPayment } from '../../src';
+import { encodeRequestApprovalAndPayment } from '../../src/index.js';
 import {
   IApprovalSettings,
   IConversionSettings,
   IRequestPaymentOptions,
-} from '../../src/payment/settings';
-import { currencyManager } from './shared';
+} from '../../src/payment/settings.js';
+import { currencyManager } from './shared.js';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
-import { MAX_ALLOWANCE } from '../../src/payment/utils';
+import { MAX_ALLOWANCE } from '../../src/payment/utils.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */

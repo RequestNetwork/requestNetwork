@@ -1,4 +1,4 @@
-import { TokenMap } from '../../types';
+import { TokenMap } from '../../types.js';
 
 // List of the supported goerli ERC20 tokens
 export const supportedGoerliERC20: TokenMap = {

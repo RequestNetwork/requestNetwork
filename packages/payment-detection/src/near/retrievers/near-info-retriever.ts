@@ -1,5 +1,5 @@
 import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
-import { TheGraphClient } from '../../thegraph';
+import { TheGraphClient } from '../../thegraph.js';
 import { GetNearPaymentsQuery } from 'payment-detection/src/thegraph/generated/graphql-near';
 import { ITheGraphBaseInfoRetriever } from 'payment-detection/src/types';
 

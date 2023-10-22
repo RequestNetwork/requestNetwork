@@ -9,7 +9,7 @@ import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { Erc20ConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import { ITransactionOverrides } from './transaction-overrides';
+import { ITransactionOverrides } from './transaction-overrides.js';
 import {
   getAmountToPay,
   getProxyAddress,
@@ -17,10 +17,10 @@ import {
   getRequestPaymentValues,
   getSigner,
   validateConversionFeeProxyRequest,
-} from './utils';
+} from './utils.js';
 import { padAmountForChainlink } from '@requestnetwork/payment-detection';
-import { IPreparedTransaction } from './prepared-transaction';
-import { IConversionPaymentSettings } from './index';
+import { IPreparedTransaction } from './prepared-transaction.js';
+import { IConversionPaymentSettings } from './index.js';
 
 /**
  * Processes a transaction to pay a request with an ERC20 currency that is different from the request currency (eg. fiat).

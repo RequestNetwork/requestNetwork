@@ -1,7 +1,7 @@
 /* eslint-disable no-magic-numbers */
 
 import { StorageTypes } from '@requestnetwork/types';
-import EthGasStationProvider from '../../src/gas-price-providers/ethgasstation-provider';
+import EthGasStationProvider from '../../src/gas-price-providers/ethgasstation-provider.js';
 
 import Axios from 'axios';
 

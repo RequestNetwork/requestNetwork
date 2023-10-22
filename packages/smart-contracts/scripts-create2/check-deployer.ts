@@ -1,5 +1,4 @@
 import { HardhatRuntimeEnvironmentExtended } from './types';
-import { getCeloProvider, getDefaultProvider } from '@requestnetwork/utils';
 
 export const checkCreate2Deployer = async (
   hre: HardhatRuntimeEnvironmentExtended,
@@ -13,6 +12,8 @@ export const checkCreate2Deployer = async (
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network: string) => {
       let provider;
+      // import ES Module in CommonJS
+      const { getCeloProvider, getDefaultProvider } = await import('@requestnetwork/utils');
       if (network === 'celo') {
         provider = getCeloProvider();
       } else {

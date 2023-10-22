@@ -4,8 +4,7 @@ import { ContractArtifact } from '../src/lib';
 import { Contract } from 'ethers';
 import * as console from 'console';
 import axios from 'axios';
-import { EvmChains } from '@requestnetwork/currency';
-import { CurrencyTypes } from '@requestnetwork/types';
+import { EvmChainName } from '../src/types';
 
 const getTenderlyAxiosInstance = (hre: HardhatRuntimeEnvironmentExtended) => {
   return axios.create({
@@ -22,7 +21,7 @@ const capitalizeFirstLetter = (string: string) => string.charAt(0).toUpperCase()
  * Chains supported by Tenderly.
  * Supported testnet chains are commented out.
  */
-const supportedTenderlyChains: CurrencyTypes.EvmChainName[] = [
+const supportedTenderlyChains: EvmChainName[] = [
   'arbitrum-one',
   'arbitrum-rinkeby',
   'avalanche',
@@ -34,7 +33,6 @@ const supportedTenderlyChains: CurrencyTypes.EvmChainName[] = [
   'moonbeam',
   'mumbai',
   'optimism',
-  'rinkeby',
   'xdai',
 ];
 
@@ -45,6 +43,8 @@ const getTenderlyContractId = (c: TenderlyContract) =>
 
 export const tenderlyImportAll = async (hre: HardhatRuntimeEnvironmentExtended): Promise<void> => {
   try {
+    // import ES Module in CommonJS
+    const { EvmChains } = await import('@requestnetwork/currency');
     const { username, project } = hre.config.tenderly;
     const contracts: Record<string, { name: string } & TenderlyContract> = {};
     const mainnetContracts: Set<string> = new Set();

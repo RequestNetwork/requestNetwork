@@ -11,10 +11,15 @@ import {
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
-import { getNetworkProvider, getProvider, getRequestPaymentValues, validateRequest } from './utils';
+import {
+  getNetworkProvider,
+  getProvider,
+  getRequestPaymentValues,
+  validateRequest,
+} from './utils.js';
 import { Framework } from '@superfluid-finance/sdk-core';
-import { IPreparedTransaction } from './prepared-transaction';
-import { ITransactionOverrides } from './transaction-overrides';
+import { IPreparedTransaction } from './prepared-transaction.js';
+import { ITransactionOverrides } from './transaction-overrides.js';
 import * as erc777Artefact from '@openzeppelin/contracts/build/contracts/IERC777.json';
 
 export const RESOLVER_ADDRESS = '0x913bbCFea2f347a24cfCA441d483E7CBAc8De3Db';

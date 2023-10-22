@@ -1,6 +1,6 @@
-import { ChainsAbstract } from '../ChainsAbstract';
+import { ChainsAbstract } from '../ChainsAbstract.js';
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { DeclarativeChain, chains } from './index';
+import { DeclarativeChain, chains } from './index.js';
 
 class DeclarativeChains extends ChainsAbstract<
   CurrencyTypes.DeclarativeChainName,

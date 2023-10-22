@@ -1,11 +1,11 @@
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
 import addressValidator from 'multicoin-address-validator';
-import { getSupportedERC20Tokens } from './erc20';
-import { getSupportedERC777Tokens } from './erc777';
-import { getHash } from './getHash';
-import iso4217 from './iso4217';
-import { nativeCurrencies } from './native';
+import { getSupportedERC20Tokens } from './erc20/index.js';
+import { getSupportedERC777Tokens } from './erc777/index.js';
+import { getHash } from './getHash.js';
+import iso4217 from './iso4217.js';
+import { nativeCurrencies } from './native.js';
 import {
   StorageCurrency,
   CurrencyDefinition,
@@ -14,10 +14,10 @@ import {
   ICurrencyManager,
   LegacyTokenMap,
   NativeCurrencyType,
-} from './types';
-import { defaultConversionPairs, AggregatorsMap, getPath } from './conversion-aggregators';
-import { isValidNearAddress } from './currency-utils';
-import { NearChains } from './chains';
+} from './types.js';
+import { defaultConversionPairs, AggregatorsMap, getPath } from './conversion-aggregators.js';
+import { isValidNearAddress } from './currency-utils.js';
+import { NearChains } from './chains/index.js';
 
 const { BTC, ERC20, ERC777, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 

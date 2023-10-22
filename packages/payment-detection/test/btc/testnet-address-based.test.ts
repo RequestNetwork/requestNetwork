@@ -1,7 +1,7 @@
 import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import { BtcTestnetAddressBasedDetector } from '../../src/btc/testnet-address-based';
-import { mockAdvancedLogicBase } from '../utils';
+import { BtcTestnetAddressBasedDetector } from '../../src/btc/testnet-address-based.js';
+import { mockAdvancedLogicBase } from '../utils.js';
 
 let btcAddressedBased: BtcTestnetAddressBasedDetector;
 

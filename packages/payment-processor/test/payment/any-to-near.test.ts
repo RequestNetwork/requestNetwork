@@ -1,8 +1,8 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 
-import { IConversionPaymentSettings, payNearConversionRequest } from '../../src';
-import * as nearUtils from '../../src/payment/utils-near';
+import { IConversionPaymentSettings, payNearConversionRequest } from '../../src/index.js';
+import * as nearUtils from '../../src/payment/utils-near.js';
 import { deepCopy } from '@requestnetwork/utils';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */

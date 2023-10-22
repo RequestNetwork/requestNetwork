@@ -1,9 +1,9 @@
 import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
 
-import Action from '../action';
-import Request from '../request';
-import Version from '../version';
+import Action from '../action.js';
+import Request from '../request.js';
+import Version from '../version.js';
 
 /**
  * Implementation of the action add stakeholder from request logic specification

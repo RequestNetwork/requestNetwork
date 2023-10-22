@@ -1,5 +1,5 @@
-import * as Identity from './identity-types';
-import * as Signature from './signature-types';
+import * as Identity from './identity-types.js';
+import * as Signature from './signature-types.js';
 
 /** Signature provider interface */
 export interface ISignatureProvider {

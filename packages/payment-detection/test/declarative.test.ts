@@ -6,8 +6,8 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import { DeclarativePaymentDetector } from '../src/declarative';
-import { mockAdvancedLogicBase } from './utils';
+import { DeclarativePaymentDetector } from '../src/declarative.js';
+import { mockAdvancedLogicBase } from './utils.js';
 
 let declarative: DeclarativePaymentDetector;
 

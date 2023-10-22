@@ -1,9 +1,9 @@
-import { PnReferenceBased } from '../extension-types';
+import { PnReferenceBased } from '../extension-types.js';
 export {
   ACTION,
   IAddPaymentAddressParameters,
   IAddRefundAddressParameters,
-} from './pn-any-reference-based-types';
+} from './pn-any-reference-based-types.js';
 
 /** Parameters for the creation action */
 export type ICreationParameters =

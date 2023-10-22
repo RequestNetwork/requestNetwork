@@ -1,6 +1,6 @@
 import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
 
-import Web3SignatureProvider from '../src/web3-signature-provider';
+import Web3SignatureProvider from '../src/web3-signature-provider.js';
 
 import { ecSign, normalizeKeccak256Hash } from '@requestnetwork/utils';
 

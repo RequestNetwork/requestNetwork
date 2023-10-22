@@ -1,7 +1,7 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { BlockchainInfoProvider } from '../../../src/btc/default-providers/blockchain-info';
+import { BlockchainInfoProvider } from '../../../src/btc/default-providers/blockchain-info.js';
 
-import * as BlockchainInfoData from './blockchain-info-data';
+import * as BlockchainInfoData from './blockchain-info-data.js';
 
 // Most of the tests are done as integration tests in ../index.test.ts
 /* eslint-disable @typescript-eslint/no-unused-expressions */

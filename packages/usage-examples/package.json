@@ -1,6 +1,7 @@
 {
   "name": "@requestnetwork/usage-examples",
   "version": "0.24.0",
+  "type": "module",
   "private": true,
   "description": "Usage examples of Request Network.",
   "keywords": [

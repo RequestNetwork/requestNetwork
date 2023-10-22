@@ -5,11 +5,15 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { ERC20FeeProxyPaymentDetectorBase } from '../erc20/fee-proxy-contract';
-import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy';
-import { TheGraphConversionInfoRetriever } from '../thegraph/conversion-info-retriever';
-import { makeGetDeploymentInformation } from '../utils';
-import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
+import { ERC20FeeProxyPaymentDetectorBase } from '../erc20/fee-proxy-contract.js';
+import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy.js';
+import { TheGraphConversionInfoRetriever } from '../thegraph/conversion-info-retriever.js';
+import { makeGetDeploymentInformation } from '../utils.js';
+import {
+  PaymentNetworkOptions,
+  ReferenceBasedDetectorOptions,
+  TGetSubGraphClient,
+} from '../types.js';
 import { generate8randomBytes } from '@requestnetwork/utils';
 import { EvmChains } from '@requestnetwork/currency';
 

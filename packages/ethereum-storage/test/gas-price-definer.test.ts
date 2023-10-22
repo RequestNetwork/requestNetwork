@@ -1,9 +1,9 @@
 /* eslint-disable no-magic-numbers */
 
 import { StorageTypes } from '@requestnetwork/types';
-import { GasPriceDefiner, getEthereumStorageNetworkNameFromId } from '../src';
+import { GasPriceDefiner, getEthereumStorageNetworkNameFromId } from '../src/index.js';
 
-import * as config from '../src/config';
+import * as config from '../src/config.js';
 
 import { BigNumber } from 'ethers';
 

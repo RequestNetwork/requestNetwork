@@ -6,7 +6,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { areEqualIdentities, deepCopy } from '@requestnetwork/utils';
-import DeclarativePaymentNetwork from './declarative';
+import DeclarativePaymentNetwork from './declarative.js';
 
 /**
  * Core of the address based payment networks

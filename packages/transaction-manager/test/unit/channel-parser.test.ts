@@ -1,8 +1,8 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import { TransactionTypes } from '@requestnetwork/types';
-import ChannelParser from '../../src/channel-parser';
-import TransactionsFactory from '../../src/transactions-factory';
-import * as TestData from './utils/test-data';
+import ChannelParser from '../../src/channel-parser.js';
+import TransactionsFactory from '../../src/transactions-factory.js';
+import * as TestData from './utils/test-data.js';
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 let channelParser: ChannelParser;

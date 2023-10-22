@@ -1,6 +1,7 @@
 {
   "name": "@requestnetwork/web3-signature",
   "version": "0.4.37",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },
@@ -31,7 +32,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "run-s build:commonjs build:umd",
+    "build": "run-s build:commonjs",
     "build:commonjs": "tsc -b tsconfig.build.json",
     "build:umd": "webpack",
     "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",

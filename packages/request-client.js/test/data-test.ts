@@ -11,7 +11,7 @@ import {
 import { normalizeKeccak256Hash, sign } from '@requestnetwork/utils';
 import AxiosMockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
-import { Types } from '../src';
+import { Types } from '../src/index.js';
 
 export const arbitraryTimestamp = 1549953337;
 

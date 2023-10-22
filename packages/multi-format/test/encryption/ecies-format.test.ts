@@ -1,6 +1,6 @@
 import { EncryptionTypes, MultiFormatTypes } from '@requestnetwork/types';
 
-import EciesFormat from '../../src/encryption/ecies-format';
+import EciesFormat from '../../src/encryption/ecies-format.js';
 let eciesFormat: EciesFormat;
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */

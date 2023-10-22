@@ -1,6 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { EthInputDataInfoRetriever } from '../../src/eth/info-retriever';
-import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
+import { EthInputDataInfoRetriever } from '../../src/eth/info-retriever.js';
+import PaymentReferenceCalculator from '../../src/payment-reference-calculator.js';
 
 describe('api/eth/info-retriever', () => {
   // In this test, we're looking this transaction:

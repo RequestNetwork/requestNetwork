@@ -1,5 +1,5 @@
 import { DataAccessTypes } from '@requestnetwork/types';
-import RequestDataAccessBlock from '../src/block';
+import RequestDataAccessBlock from '../src/block.js';
 
 const CURRENT_VERSION = '0.1.0';
 const transactionDataMock1String = JSON.stringify({

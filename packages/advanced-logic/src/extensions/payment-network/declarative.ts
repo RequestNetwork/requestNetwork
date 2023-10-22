@@ -1,6 +1,6 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { addAmount, areEqualIdentities, deepCopy, isValidAmount } from '@requestnetwork/utils';
-import { AbstractExtension } from '../abstract-extension';
+import { AbstractExtension } from '../abstract-extension.js';
 
 const CURRENT_VERSION = '0.1.0';
 

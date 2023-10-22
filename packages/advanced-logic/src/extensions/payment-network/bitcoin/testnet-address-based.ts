@@ -1,4 +1,4 @@
-import BitcoinAddressBasedPaymentNetwork from './mainnet-address-based';
+import BitcoinAddressBasedPaymentNetwork from './mainnet-address-based.js';
 import { ExtensionTypes } from '@requestnetwork/types';
 
 const BITCOIN_NETWORK = 'testnet';

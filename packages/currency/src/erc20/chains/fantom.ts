@@ -1,4 +1,4 @@
-import { TokenMap } from '../../types';
+import { TokenMap } from '../../types.js';
 
 export const supportedFantomERC20: TokenMap = {
   '0xD3b71117E6C1558c1553305b44988cd944e97300': {

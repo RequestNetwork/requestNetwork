@@ -5,11 +5,11 @@ import { EventEmitter } from 'events';
 
 import { DataAccessTypes, EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
 
-import { TransactionManager } from '../src/index';
-import TransactionsFactory from '../src/transactions-factory';
-import TransactionsParser from '../src/transactions-parser';
+import { TransactionManager } from '../src/index.js';
+import TransactionsFactory from '../src/transactions-factory.js';
+import TransactionsParser from '../src/transactions-parser.js';
 
-import * as TestData from './unit/utils/test-data';
+import * as TestData from './unit/utils/test-data.js';
 
 const extraTopics = ['topic1', 'topic2'];
 const fakeTxHash = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';

@@ -1,6 +1,6 @@
-import BtcChains from './btc/BtcChains';
-import EvmChains from './evm/EvmChains';
-import NearChains from './near/NearChains';
+import BtcChains from './btc/BtcChains.js';
+import EvmChains from './evm/EvmChains.js';
+import NearChains from './near/NearChains.js';
 
 // Returns true if both chains are equal or aliases
 export const isSameChain = (chain1: string, chain2: string): boolean => {

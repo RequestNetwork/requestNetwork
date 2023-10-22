@@ -1,5 +1,5 @@
 import { ICurrencyManager } from '@requestnetwork/currency';
-import AnyToNearPaymentNetwork from './any-to-near';
+import AnyToNearPaymentNetwork from './any-to-near.js';
 
 export default class AnyToNearTestnetPaymentNetwork extends AnyToNearPaymentNetwork {
   public constructor(currencyManager: ICurrencyManager) {

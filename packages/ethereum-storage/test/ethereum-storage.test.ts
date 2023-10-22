@@ -3,9 +3,9 @@ import { StorageTypes } from '@requestnetwork/types';
 import { getCurrentTimestampInSecond } from '@requestnetwork/utils';
 import { EventEmitter } from 'events';
 
-import { EthereumStorage } from '../src/ethereum-storage';
-import { IpfsStorage } from '../src/ipfs-storage';
-import IpfsConnectionError from '../src/ipfs-connection-error';
+import { EthereumStorage } from '../src/ethereum-storage.js';
+import { IpfsStorage } from '../src/ipfs-storage.js';
+import IpfsConnectionError from '../src/ipfs-connection-error.js';
 
 /* eslint-disable no-magic-numbers */
 

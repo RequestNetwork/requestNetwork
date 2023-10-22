@@ -1,5 +1,5 @@
 import { StorageTypes } from '@requestnetwork/types';
-import EthereumMetadataCache from '../src/ethereum-metadata-cache';
+import EthereumMetadataCache from '../src/ethereum-metadata-cache.js';
 
 let metadataCache: EthereumMetadataCache;
 

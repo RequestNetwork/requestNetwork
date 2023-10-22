@@ -11,21 +11,24 @@ import {
   IPaymentNetworkModuleByType,
   ISupportedPaymentNetworkByCurrency,
   PaymentNetworkOptions,
-} from './types';
-import { BtcMainnetAddressBasedDetector, BtcTestnetAddressBasedDetector } from './btc';
-import { DeclarativePaymentDetector } from './declarative';
+} from './types.js';
+import { BtcMainnetAddressBasedDetector, BtcTestnetAddressBasedDetector } from './btc.js';
+import { DeclarativePaymentDetector } from './declarative.js';
 import {
   ERC20AddressBasedPaymentDetector,
   ERC20FeeProxyPaymentDetector,
   ERC20ProxyPaymentDetector,
   ERC20TransferableReceivablePaymentDetector,
-} from './erc20';
-import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
-import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
-import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
-import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetector } from './near';
-import { getPaymentNetworkExtension } from './utils';
-import { defaultGetTheGraphClient } from './thegraph';
+} from './erc20.js';
+import { SuperFluidPaymentDetector } from './erc777/superfluid-detector.js';
+import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth.js';
+import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any.js';
+import {
+  NearConversionNativeTokenPaymentDetector,
+  NearNativeTokenPaymentDetector,
+} from './near.js';
+import { getPaymentNetworkExtension } from './utils.js';
+import { defaultGetTheGraphClient } from './thegraph.js';
 import { getDefaultProvider } from 'ethers';
 
 const PN_ID = ExtensionTypes.PAYMENT_NETWORK_ID;

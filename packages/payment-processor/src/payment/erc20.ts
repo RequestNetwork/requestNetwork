@@ -4,12 +4,12 @@ import { Erc20PaymentNetwork, getPaymentNetworkExtension } from '@requestnetwork
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
-import { _getErc20FeeProxyPaymentUrl, payErc20FeeProxyRequest } from './erc20-fee-proxy';
-import { ISwapSettings, swapErc20FeeProxyRequest } from './swap-erc20-fee-proxy';
-import { _getErc20ProxyPaymentUrl, payErc20ProxyRequest } from './erc20-proxy';
-import { payErc20TransferableReceivableRequest } from './erc20-transferable-receivable';
+import { _getErc20FeeProxyPaymentUrl, payErc20FeeProxyRequest } from './erc20-fee-proxy.js';
+import { ISwapSettings, swapErc20FeeProxyRequest } from './swap-erc20-fee-proxy.js';
+import { _getErc20ProxyPaymentUrl, payErc20ProxyRequest } from './erc20-proxy.js';
+import { payErc20TransferableReceivableRequest } from './erc20-transferable-receivable.js';
 
-import { ITransactionOverrides } from './transaction-overrides';
+import { ITransactionOverrides } from './transaction-overrides.js';
 import {
   getNetworkProvider,
   getProvider,
@@ -17,8 +17,8 @@ import {
   getSigner,
   MAX_ALLOWANCE,
   validateRequest,
-} from './utils';
-import { IPreparedTransaction } from './prepared-transaction';
+} from './utils.js';
+import { IPreparedTransaction } from './prepared-transaction.js';
 
 /**
  * Processes a transaction to pay an ERC20 Request.

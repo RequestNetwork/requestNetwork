@@ -1,8 +1,8 @@
 import { PaymentTypes } from '@requestnetwork/types';
 
-import { ChainSoProvider } from '../../../src/btc/default-providers/chain-so';
+import { ChainSoProvider } from '../../../src/btc/default-providers/chain-so.js';
 
-import * as ChainSoData from './chain-so-data';
+import * as ChainSoData from './chain-so-data.js';
 
 // Most of the tests are done as integration tests in ../index.test.ts
 /* eslint-disable @typescript-eslint/no-unused-expressions */

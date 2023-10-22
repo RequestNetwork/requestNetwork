@@ -2,8 +2,8 @@ import { ContractTransaction, providers, utils } from 'ethers';
 import { LogTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
-import { SubmitterProps } from './ethereum-storage-ethers';
-import { GasFeeDefiner } from './gas-fee-definer';
+import { SubmitterProps } from './ethereum-storage-ethers.js';
+import { GasFeeDefiner } from './gas-fee-definer.js';
 import { SimpleLogger, isEip1559Supported } from '@requestnetwork/utils';
 
 /**

@@ -1,10 +1,10 @@
 import { ExtensionTypes, RequestLogicTypes, IdentityTypes } from '@requestnetwork/types';
 
-import Erc20ProxyContract from '../../../../src/extensions/payment-network/erc20/proxy-contract';
+import Erc20ProxyContract from '../../../../src/extensions/payment-network/erc20/proxy-contract.js';
 
-import * as DataERC20AddPaymentAddress from '../../../utils/payment-network/erc20/proxy-contract-add-payment-address-data-generator';
-import * as DataERC20Create from '../../../utils/payment-network/erc20/proxy-contract-create-data-generator';
-import * as TestData from '../../../utils/test-data-generator';
+import * as DataERC20AddPaymentAddress from '../../../utils/payment-network/erc20/proxy-contract-add-payment-address-data-generator.js';
+import * as DataERC20Create from '../../../utils/payment-network/erc20/proxy-contract-create-data-generator.js';
+import * as TestData from '../../../utils/test-data-generator.js';
 import { deepCopy } from '@requestnetwork/utils';
 
 const erc20ProxyContract = new Erc20ProxyContract();

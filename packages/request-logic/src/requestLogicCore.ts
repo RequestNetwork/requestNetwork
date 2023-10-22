@@ -1,14 +1,14 @@
 import { AdvancedLogicTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Action from './action';
-import Request from './request';
+import Action from './action.js';
+import Request from './request.js';
 
-import AcceptAction from './actions/accept';
-import AddExtensionsData from './actions/addExtensionsData';
-import CancelAction from './actions/cancel';
-import CreateAction from './actions/create';
-import IncreaseExpectedAmountAction from './actions/increaseExpectedAmount';
-import ReduceExpectedAmountAction from './actions/reduceExpectedAmount';
-import AddStakeholdersAction from './actions/addStakeholders';
+import AcceptAction from './actions/accept.js';
+import AddExtensionsData from './actions/addExtensionsData.js';
+import CancelAction from './actions/cancel.js';
+import CreateAction from './actions/create.js';
+import IncreaseExpectedAmountAction from './actions/increaseExpectedAmount.js';
+import ReduceExpectedAmountAction from './actions/reduceExpectedAmount.js';
+import AddStakeholdersAction from './actions/addStakeholders.js';
 import { deepCopy } from '@requestnetwork/utils';
 
 /**

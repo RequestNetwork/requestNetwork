@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import type { TheGraphClient } from '../client';
+import type { TheGraphClient } from '../client.js';
 export const theGraphClient: TheGraphClient = {
   GetLastSyncedBlock: jest.fn(),
   GetPaymentsAndEscrowState: jest.fn(),

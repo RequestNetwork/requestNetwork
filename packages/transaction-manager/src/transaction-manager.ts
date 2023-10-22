@@ -9,8 +9,8 @@ import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 import { EventEmitter } from 'events';
 
-import ChannelParser from './channel-parser';
-import TransactionsFactory from './transactions-factory';
+import ChannelParser from './channel-parser.js';
+import TransactionsFactory from './transactions-factory.js';
 
 /**
  * Implementation of TransactionManager layer without encryption

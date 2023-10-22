@@ -1,11 +1,11 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import { DataAccessTypes, SignatureTypes, TransactionTypes } from '@requestnetwork/types';
 
-import RequestNetwork from '../../src/api/request-network';
+import RequestNetwork from '../../src/api/request-network.js';
 
-import Request from '../../src/api/request';
+import Request from '../../src/api/request.js';
 
-import * as TestData from '../data-test';
+import * as TestData from '../data-test.js';
 import { normalizeKeccak256Hash, sign } from '@requestnetwork/utils';
 
 const mockDataAccess: DataAccessTypes.IDataAccess = {

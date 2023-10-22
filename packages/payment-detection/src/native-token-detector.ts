@@ -1,7 +1,7 @@
 import { CurrencyTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
-import { ReferenceBasedDetector } from './reference-based-detector';
-import { NativeDetectorOptions } from './types';
+import { ReferenceBasedDetector } from './reference-based-detector.js';
+import { NativeDetectorOptions } from './types.js';
 
 /**
  * Handle payment detection for native token payment

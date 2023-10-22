@@ -4,7 +4,7 @@ import {
   UnsupportedCurrencyError,
 } from '@requestnetwork/currency';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Erc20FeeProxyPaymentNetwork from './erc20/fee-proxy-contract';
+import Erc20FeeProxyPaymentNetwork from './erc20/fee-proxy-contract.js';
 
 const CURRENT_VERSION = '0.1.0';
 

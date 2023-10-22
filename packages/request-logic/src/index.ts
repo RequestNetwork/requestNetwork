@@ -1,1 +1,1 @@
-export { default as RequestLogic } from './request-logic';
+export { default as RequestLogic } from './request-logic.js';

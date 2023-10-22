@@ -1,4 +1,4 @@
-import { retry } from '../src';
+import { retry } from '../src/index.js';
 
 class TestClass {
   private value = 'private';

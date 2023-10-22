@@ -7,7 +7,7 @@ import {
   GetTransactionsByHashQuery,
   Meta,
   TransactionsBody,
-} from './queries';
+} from './queries.js';
 import { RequestInit } from 'graphql-request/dist/types.dom';
 
 // Max Int value (as supported by grapqhl types)

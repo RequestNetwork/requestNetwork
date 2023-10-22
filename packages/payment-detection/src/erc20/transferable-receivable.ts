@@ -5,12 +5,16 @@ import {
   CurrencyTypes,
 } from '@requestnetwork/types';
 
-import { TheGraphInfoRetriever } from '../thegraph';
+import { TheGraphInfoRetriever } from '../thegraph.js';
 import { erc20TransferableReceivableArtifact } from '@requestnetwork/smart-contracts';
-import { makeGetDeploymentInformation } from '../utils';
-import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
-import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
-import ProxyERC20InfoRetriever from './proxy-info-retriever';
+import { makeGetDeploymentInformation } from '../utils.js';
+import {
+  PaymentNetworkOptions,
+  ReferenceBasedDetectorOptions,
+  TGetSubGraphClient,
+} from '../types.js';
+import { FeeReferenceBasedDetector } from '../fee-reference-based-detector.js';
+import ProxyERC20InfoRetriever from './proxy-info-retriever.js';
 
 const ERC20_TRANSFERABLE_RECEIVABLE_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',

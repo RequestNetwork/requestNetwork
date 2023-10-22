@@ -4,7 +4,7 @@ import {
   BalanceError,
   ExtensionMissingRequiredValue,
   getBalanceErrorObject,
-} from './balance-error';
+} from './balance-error.js';
 
 export abstract class PaymentDetectorBase<
   TExtension extends ExtensionTypes.IExtension,

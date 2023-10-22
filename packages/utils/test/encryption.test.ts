@@ -1,5 +1,5 @@
 import { EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
-import { getIdentityFromEncryptionParams, encrypt, decrypt } from '../src';
+import { getIdentityFromEncryptionParams, encrypt, decrypt } from '../src/index.js';
 
 const otherIdRaw = {
   address: '0x818B6337657A23F58581715Fc610577292e521D0',

@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable no-console */
 
-import { InferArgs } from '../../types';
+import { InferArgs } from '../../types.js';
 import yargs from 'yargs';
-import { getWallet } from './utils';
+import { getWallet } from './utils.js';
 import { providers, utils } from 'ethers';
 
 export const command = 'transaction retry <txHash>';

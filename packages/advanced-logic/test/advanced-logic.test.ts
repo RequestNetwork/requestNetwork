@@ -1,14 +1,14 @@
 import { AdvancedLogicTypes, ExtensionTypes } from '@requestnetwork/types';
 
-import * as DataBTCCreate from './utils/payment-network/bitcoin/generator-data-create';
-import * as DataDeclarativeCreate from './utils/payment-network/any/generator-data-create';
-import * as DataTestnetBTCCreate from './utils/payment-network/bitcoin/testnet-generator-data-create';
+import * as DataBTCCreate from './utils/payment-network/bitcoin/generator-data-create.js';
+import * as DataDeclarativeCreate from './utils/payment-network/any/generator-data-create.js';
+import * as DataTestnetBTCCreate from './utils/payment-network/bitcoin/testnet-generator-data-create.js';
 
 import { deepCopy } from '@requestnetwork/utils';
 
-import { AdvancedLogic } from '../src/index';
+import { AdvancedLogic } from '../src/index.js';
 
-import * as TestData from './utils/test-data-generator';
+import * as TestData from './utils/test-data-generator.js';
 
 let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 

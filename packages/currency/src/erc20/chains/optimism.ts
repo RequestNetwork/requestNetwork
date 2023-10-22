@@ -1,4 +1,4 @@
-import { TokenMap } from '../../types';
+import { TokenMap } from '../../types.js';
 
 // List of the supported bsc network tokens
 export const supportedOptimismERC20: TokenMap = {

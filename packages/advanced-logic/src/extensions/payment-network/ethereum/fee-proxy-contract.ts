@@ -1,5 +1,5 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { FeeReferenceBasedPaymentNetwork } from '../fee-reference-based';
+import { FeeReferenceBasedPaymentNetwork } from '../fee-reference-based.js';
 
 const CURRENT_VERSION = '0.2.0';
 

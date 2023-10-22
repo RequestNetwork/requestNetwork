@@ -1,6 +1,6 @@
 import { AdvancedLogicTypes, PaymentTypes, ExtensionTypes } from '@requestnetwork/types';
 
-import { BtcAddressBasedDetector } from './address-based';
+import { BtcAddressBasedDetector } from './address-based.js';
 
 const TESTNET_BITCOIN_NETWORK_ID = 3;
 

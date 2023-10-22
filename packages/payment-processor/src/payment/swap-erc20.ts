@@ -3,10 +3,10 @@ import { BigNumber, BigNumberish, ContractTransaction, providers, Signer } from 
 import { erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes } from '@requestnetwork/types';
 
-import { ITransactionOverrides } from './transaction-overrides';
-import { getProvider, getSigner } from './utils';
-import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
-import { IPreparedTransaction } from './prepared-transaction';
+import { ITransactionOverrides } from './transaction-overrides.js';
+import { getProvider, getSigner } from './utils.js';
+import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20/index.js';
+import { IPreparedTransaction } from './prepared-transaction.js';
 import { EvmChains } from '@requestnetwork/currency';
 
 /**

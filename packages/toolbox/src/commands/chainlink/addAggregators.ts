@@ -1,7 +1,7 @@
 import * as yargs from 'yargs';
 import inquirer from 'inquirer';
-import { runUpdate } from './contractUtils';
-import { Aggregator, getAvailableAggregators, getCurrencyManager } from './aggregatorsUtils';
+import { runUpdate } from './contractUtils.js';
+import { Aggregator, getAvailableAggregators, getCurrencyManager } from './aggregatorsUtils.js';
 import { conversionSupportedNetworks, EvmChains } from '@requestnetwork/currency';
 
 type Options = {

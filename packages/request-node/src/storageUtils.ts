@@ -1,6 +1,6 @@
 import { EthereumStorage, IpfsStorage } from '@requestnetwork/ethereum-storage';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
-import * as config from './config';
+import * as config from './config.js';
 
 import Keyv from 'keyv';
 import KeyvFile from 'keyv-file';

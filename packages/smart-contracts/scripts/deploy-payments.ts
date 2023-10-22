@@ -14,8 +14,6 @@ import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module
 import { EthConversionProxy } from '../src/types/EthConversionProxy';
-import { CurrencyManager } from '@requestnetwork/currency';
-import { RequestLogicTypes } from '@requestnetwork/types';
 import { HardhatRuntimeEnvironmentExtended } from '../scripts-create2/types';
 import { computeCreate2DeploymentAddress } from '../scripts-create2/compute-one-address';
 
@@ -70,6 +68,9 @@ export async function deployAllPaymentContracts(
 
     // #region NATIVE TOKEN
     const nativeTokenNetwork = hre.network.name === 'private' ? 'mainnet' : hre.network.name;
+    // import ES Module in CommonJS
+    const { CurrencyManager } = await import('@requestnetwork/currency');
+    const { RequestLogicTypes } = await import('@requestnetwork/types');
     const nativeTokenHash = CurrencyManager.getDefault().getNativeCurrency(
       RequestLogicTypes.CURRENCY.ETH,
       nativeTokenNetwork,

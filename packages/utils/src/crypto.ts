@@ -6,7 +6,7 @@ import {
   encryptWithAes256cbc,
   encryptWithAes256gcm,
   random32Bytes,
-} from './crypto/crypto-wrapper';
+} from './crypto/crypto-wrapper.js';
 import {
   ecDecrypt,
   ecEncrypt,
@@ -14,8 +14,8 @@ import {
   getAddressFromPublicKey,
   ecRecover,
   ecSign,
-} from './crypto/ec-utils';
-import { deepSort } from './utils';
+} from './crypto/ec-utils.js';
+import { deepSort } from './utils.js';
 
 /**
  * manages crypto functions

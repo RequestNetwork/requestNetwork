@@ -2,7 +2,6 @@ import { create2ContractDeploymentList, isContractDeployed } from './utils';
 import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './types';
 import { xdeploy } from './xdeployer';
 import { getConstructorArgs } from './constructor-args';
-import { EvmChains } from '@requestnetwork/currency';
 import { setupContract } from './contract-setup/setups';
 
 /**
@@ -21,14 +20,16 @@ export const deployOneWithCreate2 = async (
   }
   // Deploy the contract on several network through xdeployer
   const deploymentResult = await xdeploy(deploymentParams, hre);
-  hre.config.xdeploy.networks.forEach((network, i) => {
+  hre.config.xdeploy.networks.forEach(async (network, i) => {
     if (deploymentResult[i].deployed) {
       console.log(`${deploymentParams.contract} successfully deployed:`);
       console.log(`         On network:        ${network}`);
       console.log(`         At address:        ${deploymentResult[i].address}`);
       console.log(`         At block:          ${deploymentResult[i].receipt.blockNumber}`);
     } else {
-      if (isContractDeployed(deploymentParams.contract, network, deploymentResult[i].address)) {
+      if (
+        await isContractDeployed(deploymentParams.contract, network, deploymentResult[i].address)
+      ) {
         console.log(`${deploymentParams.contract} already deployed:`);
         console.log(`         On network:        ${network}`);
         console.log(`         At address:        ${deploymentResult[i].address}`);
@@ -55,6 +56,8 @@ export const deployWithCreate2FromList = async (
 ): Promise<void> => {
   for (const contract of create2ContractDeploymentList) {
     const network = hre.config.xdeploy.networks[0];
+    // import ES Module in CommonJS
+    const { EvmChains } = await import('@requestnetwork/currency');
     EvmChains.assertChainSupported(network);
     const constructorArgs = getConstructorArgs(contract, network);
     const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);

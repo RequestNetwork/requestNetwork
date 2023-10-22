@@ -1,7 +1,7 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { CurrencyTypes, StorageTypes } from '@requestnetwork/types';
-import EthereumBlocks from '../src/ethereum-blocks';
-import SmartContractManager from '../src/smart-contract-manager';
+import EthereumBlocks from '../src/ethereum-blocks.js';
+import SmartContractManager from '../src/smart-contract-manager.js';
 
 /* eslint-disable no-magic-numbers */
 

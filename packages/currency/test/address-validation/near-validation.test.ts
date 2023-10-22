@@ -1,4 +1,4 @@
-import { isValidNearAddress } from '../../src/currency-utils';
+import { isValidNearAddress } from '../../src/currency-utils.js';
 
 const validNearAccount = 'testaccount.near';
 const validNearHexAccount = 'f336b7833496cdcae230463c3daff7b2fe187a93be8df5b1326ce7a595033163';

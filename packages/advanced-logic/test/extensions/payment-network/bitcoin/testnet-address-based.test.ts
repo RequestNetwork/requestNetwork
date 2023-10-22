@@ -1,8 +1,8 @@
-import TestnetBitcoinAddressBasedPN from '../../../../src/extensions/payment-network/bitcoin/testnet-address-based';
+import TestnetBitcoinAddressBasedPN from '../../../../src/extensions/payment-network/bitcoin/testnet-address-based.js';
 import { deepCopy } from '@requestnetwork/utils';
-import * as DataBTCAddPaymentAddress from '../../../utils/payment-network/bitcoin/testnet-generator-data-add-payment-address';
-import * as DataBTCCreate from '../../../utils/payment-network/bitcoin/testnet-generator-data-create';
-import * as TestData from '../../../utils/test-data-generator';
+import * as DataBTCAddPaymentAddress from '../../../utils/payment-network/bitcoin/testnet-generator-data-add-payment-address.js';
+import * as DataBTCCreate from '../../../utils/payment-network/bitcoin/testnet-generator-data-create.js';
+import * as TestData from '../../../utils/test-data-generator.js';
 
 const testnetBitcoinAddressBasedPN = new TestnetBitcoinAddressBasedPN();
 

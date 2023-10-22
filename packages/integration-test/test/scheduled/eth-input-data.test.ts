@@ -5,7 +5,7 @@ import {
 import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 
-import { mockAdvancedLogic } from './mocks';
+import { mockAdvancedLogic } from './mocks.js';
 import { Types, Utils } from '@requestnetwork/request-client.js';
 import {
   ethInputDataCreationHash,
@@ -14,8 +14,8 @@ import {
   payerIdentity,
   privateErc20Address,
   requestNetwork,
-} from './fixtures';
-import { createMockNativeTokenRequest } from '../utils';
+} from './fixtures.js';
+import { createMockNativeTokenRequest } from '../utils.js';
 
 const ethInputContract = new EthInputDataPaymentDetector({
   advancedLogic: mockAdvancedLogic,

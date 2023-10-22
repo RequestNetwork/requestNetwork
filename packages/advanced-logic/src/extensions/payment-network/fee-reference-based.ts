@@ -1,5 +1,5 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-import ReferenceBasedPaymentNetwork from './reference-based';
+import ReferenceBasedPaymentNetwork from './reference-based.js';
 import { areEqualIdentities, deepCopy, isValidAmount } from '@requestnetwork/utils';
 
 /**

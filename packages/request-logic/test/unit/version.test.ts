@@ -1,5 +1,5 @@
-import Config from '../../src/config';
-import Version from '../../src/version';
+import Config from '../../src/config.js';
+import Version from '../../src/version.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('version', () => {

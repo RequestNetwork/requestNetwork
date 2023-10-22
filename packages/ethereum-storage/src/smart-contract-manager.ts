@@ -1,9 +1,9 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
-import * as Bluebird from 'bluebird';
-import * as config from './config';
-import EthereumBlocks from './ethereum-blocks';
-import { GasPriceDefiner } from './gas-price-definer';
+import Bluebird from 'bluebird';
+import * as config from './config.js';
+import EthereumBlocks from './ethereum-blocks.js';
+import { GasPriceDefiner } from './gas-price-definer.js';
 import { BigNumber } from 'ethers';
 import {
   flatten2DimensionsArray,
@@ -11,7 +11,7 @@ import {
   SimpleLogger,
   timeoutPromise,
 } from '@requestnetwork/utils';
-import { getEthereumStorageNetworkNameFromId } from './ethereum-utils';
+import { getEthereumStorageNetworkNameFromId } from './ethereum-utils.js';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const web3Eth = require('web3-eth');

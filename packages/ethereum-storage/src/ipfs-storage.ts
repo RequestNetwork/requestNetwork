@@ -1,7 +1,7 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 
-import { getIpfsExpectedBootstrapNodes, getPinRequestConfig } from './config';
-import IpfsManager from './ipfs-manager';
+import { getIpfsExpectedBootstrapNodes, getPinRequestConfig } from './config.js';
+import IpfsManager from './ipfs-manager.js';
 import { SimpleLogger } from '@requestnetwork/utils';
 
 export type IpfsStorageProps = {

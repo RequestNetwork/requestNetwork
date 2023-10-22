@@ -1,11 +1,11 @@
 import { IdentityTypes, RequestLogicTypes, SignatureTypes } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
-import IncreaseExpectedAmountAction from '../../../src/actions/increaseExpectedAmount';
+import IncreaseExpectedAmountAction from '../../../src/actions/increaseExpectedAmount.js';
 
-import Version from '../../../src/version';
+import Version from '../../../src/version.js';
 const CURRENT_VERSION = Version.currentVersion;
 
-import * as TestData from '../utils/test-data-generator';
+import * as TestData from '../utils/test-data-generator.js';
 
 const requestIdMock = '011c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8';
 

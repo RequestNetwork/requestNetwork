@@ -1,9 +1,9 @@
-import { SuperFluidInfoRetriever } from '../../src/erc777/superfluid-retriever';
-import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
+import { SuperFluidInfoRetriever } from '../../src/erc777/superfluid-retriever.js';
+import PaymentReferenceCalculator from '../../src/payment-reference-calculator.js';
 import { PaymentTypes } from '@requestnetwork/types';
 import { GraphQLClient } from 'graphql-request';
 import { mocked } from 'ts-jest/utils';
-import { mockSuperfluidSubgraph } from './mocks';
+import { mockSuperfluidSubgraph } from './mocks.js';
 
 jest.mock('graphql-request');
 const graphql = mocked(GraphQLClient.prototype);

@@ -2,8 +2,8 @@ import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 
-import * as nearUtils from '../../src/payment/utils-near';
-import { payNearFungibleRequest } from '../../src/payment/near-fungible';
+import * as nearUtils from '../../src/payment/utils-near.js';
+import { payNearFungibleRequest } from '../../src/payment/near-fungible.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */

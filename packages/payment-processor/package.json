@@ -1,6 +1,7 @@
 {
   "name": "@requestnetwork/payment-processor",
   "version": "0.39.0",
+  "type": "module",
   "publishConfig": {
     "access": "public"
   },

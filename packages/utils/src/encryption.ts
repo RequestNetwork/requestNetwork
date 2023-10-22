@@ -7,7 +7,7 @@ import {
   encryptWithAes256cbc,
   encryptWithAes256gcm,
   getAddressFromPublicKey,
-} from './index';
+} from './index.js';
 
 /**
  * Functions to manage encryption

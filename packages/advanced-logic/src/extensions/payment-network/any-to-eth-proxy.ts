@@ -1,6 +1,6 @@
 import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import EthereumFeeProxyPaymentNetwork from './ethereum/fee-proxy-contract';
+import EthereumFeeProxyPaymentNetwork from './ethereum/fee-proxy-contract.js';
 
 const CURRENT_VERSION = '0.2.0';
 

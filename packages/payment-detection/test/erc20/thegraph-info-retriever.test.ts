@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import { TheGraphClient, TheGraphInfoRetriever } from '../../src/thegraph';
-import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
+import { TheGraphClient, TheGraphInfoRetriever } from '../../src/thegraph.js';
+import PaymentReferenceCalculator from '../../src/payment-reference-calculator.js';
 import { utils } from 'ethers';
 import { PaymentTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { hashReference } from '../../src';
+import { hashReference } from '../../src/index.js';
 
 const paymentsMockData = {
   ['0xc6e23a20c0a1933acc8e30247b5d1e2215796c1f' as string]: [

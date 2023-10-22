@@ -1,6 +1,6 @@
 import { DataAccessTypes } from '@requestnetwork/types';
 
-import * as Keyv from 'keyv';
+import Keyv from 'keyv';
 
 /**
  * Class used to store the block's timestamp indexed by location

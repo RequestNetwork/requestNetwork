@@ -1,7 +1,7 @@
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { BigNumber, BigNumberish } from 'ethers';
-import { ITransactionOverrides } from './transaction-overrides';
+import { ITransactionOverrides } from './transaction-overrides.js';
 
 /**
  * Approval settings

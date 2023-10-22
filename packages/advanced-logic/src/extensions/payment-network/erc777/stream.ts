@@ -1,5 +1,5 @@
 import { ExtensionTypes, RequestLogicTypes, TypesUtils } from '@requestnetwork/types';
-import ReferenceBasedPaymentNetwork from '../reference-based';
+import ReferenceBasedPaymentNetwork from '../reference-based.js';
 import { isValidAmount } from '@requestnetwork/utils';
 const CURRENT_VERSION = '0.1.0';
 

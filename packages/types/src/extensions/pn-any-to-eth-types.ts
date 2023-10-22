@@ -1,4 +1,4 @@
-import * as PnAnyToAnyConversion from './pn-any-to-any-conversion-types';
+import * as PnAnyToAnyConversion from './pn-any-to-any-conversion-types.js';
 
 /** Any to ETH reference-based payment network extension interface */
 export type IAnyToEth = PnAnyToAnyConversion.IConversionReferenceBased;

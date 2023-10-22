@@ -1,6 +1,6 @@
 import { StorageTypes } from '@requestnetwork/types';
 
-import MockStorage from '../src/mock-storage';
+import MockStorage from '../src/mock-storage.js';
 
 describe('mock-storage', () => {
   it('can append data', async () => {

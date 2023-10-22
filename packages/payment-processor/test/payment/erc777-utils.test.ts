@@ -14,8 +14,8 @@ import {
   getUnderlyingTokenBalanceOf,
   unwrapSuperToken,
   wrapUnderlyingToken,
-} from '../../src/payment/erc777-utils';
-import { getErc20Balance } from '../../src/payment/erc20';
+} from '../../src/payment/erc777-utils.js';
+import { getErc20Balance } from '../../src/payment/erc20.js';
 const daiABI = require('../abis/fDAIABI');
 
 /* eslint-disable no-magic-numbers */

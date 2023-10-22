@@ -1,10 +1,10 @@
-import { PnFeeReferenceBased } from '../extension-types';
-import { ChainName } from '../currency-types';
+import { PnFeeReferenceBased } from '../extension-types.js';
+import { ChainName } from '../currency-types.js';
 export {
   IAddPaymentAddressParameters,
   IAddRefundAddressParameters,
   IAddFeeParameters,
-} from './pn-any-fee-reference-based-types';
+} from './pn-any-fee-reference-based-types.js';
 
 /** Conversion reference-based payment network extension interface */
 export type IConversionReferenceBased<TCreationParameters = ICreationParameters> =

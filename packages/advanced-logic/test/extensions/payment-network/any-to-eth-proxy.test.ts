@@ -2,10 +2,10 @@ import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwor
 import { deepCopy } from '@requestnetwork/utils';
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 
-import AnyToEthProxy from '../../../src/extensions/payment-network/any-to-eth-proxy';
-import * as DataConversionETHFeeAddData from '../../utils/payment-network/ethereum/any-to-eth-proxy-add-data-generator';
-import * as DataConversionETHFeeCreate from '../../utils/payment-network/ethereum/any-to-eth-proxy-create-data-generator';
-import * as TestData from '../../utils/test-data-generator';
+import AnyToEthProxy from '../../../src/extensions/payment-network/any-to-eth-proxy.js';
+import * as DataConversionETHFeeAddData from '../../utils/payment-network/ethereum/any-to-eth-proxy-add-data-generator.js';
+import * as DataConversionETHFeeCreate from '../../utils/payment-network/ethereum/any-to-eth-proxy-create-data-generator.js';
+import * as TestData from '../../utils/test-data-generator.js';
 
 const anyToEthProxy = new AnyToEthProxy(CurrencyManager.getDefault());
 

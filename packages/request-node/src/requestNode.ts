@@ -3,10 +3,10 @@ import { LogTypes } from '@requestnetwork/types';
 
 import KeyvFile from 'keyv-file';
 
-import { getInitializationStorageFilePath, getMnemonic } from './config';
-import { getEthereumStorage, getIpfsStorage } from './storageUtils';
+import { getInitializationStorageFilePath, getMnemonic } from './config.js';
+import { getEthereumStorage, getIpfsStorage } from './storageUtils.js';
 
-import { RequestNodeBase } from './requestNodeBase';
+import { RequestNodeBase } from './requestNodeBase.js';
 import { SimpleLogger } from '@requestnetwork/utils';
 
 export class RequestNode extends RequestNodeBase {

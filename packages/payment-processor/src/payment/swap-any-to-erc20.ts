@@ -12,12 +12,12 @@ import {
   getRequestPaymentValues,
   getSigner,
   validateConversionFeeProxyRequest,
-} from './utils';
+} from './utils.js';
 import { CurrencyManager, EvmChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
-import { IRequestPaymentOptions } from './settings';
-import { IPreparedTransaction } from './prepared-transaction';
+import { IRequestPaymentOptions } from './settings.js';
+import { IPreparedTransaction } from './prepared-transaction.js';
 
-export { ISwapSettings } from './swap-erc20-fee-proxy';
+export { ISwapSettings } from './swap-erc20-fee-proxy.js';
 
 /**
  * Processes a transaction to swap tokens and pay an ERC20 Request through a proxy with fees.

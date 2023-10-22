@@ -1,4 +1,4 @@
-import LocationByTopic from '../src/transaction-index/location-by-topic';
+import LocationByTopic from '../src/transaction-index/location-by-topic.js';
 
 const arbitraryId1 = 'id1';
 const arbitraryId2 = 'id2';

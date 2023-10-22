@@ -4,11 +4,11 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { SuperFluidInfoRetriever } from './superfluid-retriever';
-import { ReferenceBasedDetector } from '../reference-based-detector';
-import PaymentReferenceCalculator from '../payment-reference-calculator';
+import { SuperFluidInfoRetriever } from './superfluid-retriever.js';
+import { ReferenceBasedDetector } from '../reference-based-detector.js';
+import PaymentReferenceCalculator from '../payment-reference-calculator.js';
 import { BigNumber } from 'ethers';
-import { ReferenceBasedDetectorOptions } from '../types';
+import { ReferenceBasedDetectorOptions } from '../types.js';
 /**
  * Handle payment networks with ERC777 Superfluid streaming extension
  */

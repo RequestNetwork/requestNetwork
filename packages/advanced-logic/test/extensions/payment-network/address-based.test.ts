@@ -1,6 +1,6 @@
 import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import AddressBasedPaymentNetwork from '../../../src/extensions/payment-network/address-based';
+import AddressBasedPaymentNetwork from '../../../src/extensions/payment-network/address-based.js';
 
 describe('extensions/payment-network/address-based', () => {
   it('address validation should throw when using unsupported currency type', () => {

@@ -1,11 +1,11 @@
 import { IdentityTypes, RequestLogicTypes, SignatureTypes } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
-import AddExtensionsDataAction from '../../../src/actions/addExtensionsData';
+import AddExtensionsDataAction from '../../../src/actions/addExtensionsData.js';
 
-import Version from '../../../src/version';
+import Version from '../../../src/version.js';
 const CURRENT_VERSION = Version.currentVersion;
 
-import * as TestData from '../utils/test-data-generator';
+import * as TestData from '../utils/test-data-generator.js';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('actions/addExtensionsData', () => {

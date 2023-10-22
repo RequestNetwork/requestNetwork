@@ -1,9 +1,9 @@
-import { IIdentity } from './identity-types';
-import * as RequestLogic from './request-logic-types';
-import * as ExtensionTypes from './extension-types';
-import { ICreationParameters } from './extensions/pn-any-declarative-types';
-import { ICreationParameters as ICreationParametersAnyToAny } from './extensions/pn-any-to-any-conversion-types';
-import { EvmChainName } from './currency-types';
+import { IIdentity } from './identity-types.js';
+import * as RequestLogic from './request-logic-types.js';
+import * as ExtensionTypes from './extension-types.js';
+import { ICreationParameters } from './extensions/pn-any-declarative-types.js';
+import { ICreationParameters as ICreationParametersAnyToAny } from './extensions/pn-any-to-any-conversion-types.js';
+import { EvmChainName } from './currency-types.js';
 
 /** Interface for payment network extensions state and interpretation */
 export interface IPaymentNetwork<

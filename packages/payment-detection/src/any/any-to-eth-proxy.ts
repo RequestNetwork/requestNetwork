@@ -8,11 +8,15 @@ import {
 
 import { EvmChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
 
-import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
-import { AnyToAnyDetector } from '../any-to-any-detector';
-import { makeGetDeploymentInformation } from '../utils';
-import { TheGraphConversionInfoRetriever } from '../thegraph/conversion-info-retriever';
-import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
+import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy.js';
+import { AnyToAnyDetector } from '../any-to-any-detector.js';
+import { makeGetDeploymentInformation } from '../utils.js';
+import { TheGraphConversionInfoRetriever } from '../thegraph/conversion-info-retriever.js';
+import {
+  PaymentNetworkOptions,
+  ReferenceBasedDetectorOptions,
+  TGetSubGraphClient,
+} from '../types.js';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {

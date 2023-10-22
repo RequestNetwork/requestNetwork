@@ -1,4 +1,4 @@
-import { EvmChains, NearChains, isSameChain } from '../src/index';
+import { EvmChains, NearChains, isSameChain } from '../src/index.js';
 
 describe('isSameChain', () => {
   it('Should return true for 2 identical EVMs', () => {

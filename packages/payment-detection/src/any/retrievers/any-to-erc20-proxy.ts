@@ -1,4 +1,4 @@
-import { ConversionInfoRetriever } from './any-to-any-proxy';
+import { ConversionInfoRetriever } from './any-to-any-proxy.js';
 import { ethers } from 'ethers';
 
 /**

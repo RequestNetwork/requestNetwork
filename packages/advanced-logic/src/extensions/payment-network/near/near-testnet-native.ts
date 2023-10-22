@@ -1,4 +1,4 @@
-import NearNativePaymentNetwork from './near-native';
+import NearNativePaymentNetwork from './near-native.js';
 
 /**
  * Implementation of the payment network to pay in Near on testnet based on input data.

@@ -1,13 +1,13 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { BtcMainnetAddressBasedDetector } from '../src/btc';
+import { BtcMainnetAddressBasedDetector } from '../src/btc.js';
 import {
   DeclarativePaymentDetector,
   EthInputDataPaymentDetector,
   PaymentNetworkFactory,
-} from '../src';
+} from '../src/index.js';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
-import { ERC20FeeProxyPaymentDetector } from '../src/erc20/fee-proxy-contract';
+import { ERC20FeeProxyPaymentDetector } from '../src/erc20/fee-proxy-contract.js';
 
 const currencyManager = CurrencyManager.getDefault();
 const advancedLogic = new AdvancedLogic(currencyManager);

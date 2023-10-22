@@ -3,9 +3,9 @@ import { ICurrencyManager } from '@requestnetwork/currency';
 import { utils } from 'ethers';
 import { pick, mapValues } from 'lodash';
 import type { TheGraphClient } from '.';
-import type { EscrowEventResultFragment, PaymentEventResultFragment } from './generated/graphql';
-import { formatAddress, unpadAmountFromChainlink } from '../utils';
-import { TransferEventsParams, ITheGraphBaseInfoRetriever } from '../types';
+import type { EscrowEventResultFragment, PaymentEventResultFragment } from './generated/graphql.js';
+import { formatAddress, unpadAmountFromChainlink } from '../utils.js';
+import { TransferEventsParams, ITheGraphBaseInfoRetriever } from '../types.js';
 
 /**
  * TheGraph info retriever for payments without conversion on EVMs

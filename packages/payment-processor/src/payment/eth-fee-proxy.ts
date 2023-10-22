@@ -4,7 +4,7 @@ import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { EthFeeProxyPaymentDetector } from '@requestnetwork/payment-detection';
 import { EthereumFeeProxy__factory } from '@requestnetwork/smart-contracts/types';
 
-import { ITransactionOverrides } from './transaction-overrides';
+import { ITransactionOverrides } from './transaction-overrides.js';
 import {
   getAmountToPay,
   getProxyAddress,
@@ -12,8 +12,8 @@ import {
   getRequestPaymentValues,
   getSigner,
   validateRequest,
-} from './utils';
-import { IPreparedTransaction } from './prepared-transaction';
+} from './utils.js';
+import { IPreparedTransaction } from './prepared-transaction.js';
 
 /**
  * Processes a transaction to pay an ETH Request with fees.

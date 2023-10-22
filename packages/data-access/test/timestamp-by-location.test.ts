@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/await-thenable */
 /* eslint-disable no-magic-numbers */
 
-import TimestampByLocationTransactionIndex from '../src/transaction-index/timestamp-by-location';
+import TimestampByLocationTransactionIndex from '../src/transaction-index/timestamp-by-location.js';
 
 const arbitraryDataId1 = 'dataId1';
 

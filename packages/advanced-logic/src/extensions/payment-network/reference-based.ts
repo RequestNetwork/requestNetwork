@@ -1,5 +1,5 @@
 import { ExtensionTypes } from '@requestnetwork/types';
-import AddressBasedPaymentNetwork from './address-based';
+import AddressBasedPaymentNetwork from './address-based.js';
 
 // Regex for "at least 16 hexadecimal numbers". Used to validate the salt
 const eightHexRegex = /[0-9a-f]{16,}/;

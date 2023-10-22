@@ -1,7 +1,7 @@
 import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { InvalidPaymentAddressError, UnsupportedNetworkError } from './address-based';
+import { InvalidPaymentAddressError, UnsupportedNetworkError } from './address-based.js';
 
-import ReferenceBasedPaymentNetwork from './reference-based';
+import ReferenceBasedPaymentNetwork from './reference-based.js';
 
 /**
  * Implementation of the payment network to pay in ETH based on input data.

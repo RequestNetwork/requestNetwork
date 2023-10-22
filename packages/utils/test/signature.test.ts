@@ -4,7 +4,7 @@ import {
   normalizeKeccak256Hash,
   recoverSigner,
   sign,
-} from '../src';
+} from '../src/index.js';
 
 const otherIdRaw = {
   address: '0x818B6337657A23F58581715Fc610577292e521D0',

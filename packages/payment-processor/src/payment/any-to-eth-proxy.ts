@@ -5,12 +5,12 @@ import { AnyToEthFeeProxyPaymentDetector } from '@requestnetwork/payment-detecti
 import { EthConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import { ITransactionOverrides } from './transaction-overrides';
-import { getAmountToPay, getProvider, getRequestPaymentValues, getSigner } from './utils';
+import { ITransactionOverrides } from './transaction-overrides.js';
+import { getAmountToPay, getProvider, getRequestPaymentValues, getSigner } from './utils.js';
 import { padAmountForChainlink } from '@requestnetwork/payment-detection';
-import { IPreparedTransaction } from './prepared-transaction';
-import { IConversionPaymentSettings } from './index';
-import { getProxyAddress } from './utils';
+import { IPreparedTransaction } from './prepared-transaction.js';
+import { IConversionPaymentSettings } from './index.js';
+import { getProxyAddress } from './utils.js';
 
 /**
  * Processes a transaction to pay a request with a native token when the request is denominated in another currency

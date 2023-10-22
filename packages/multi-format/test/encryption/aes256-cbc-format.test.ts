@@ -1,6 +1,6 @@
 import { EncryptionTypes, MultiFormatTypes } from '@requestnetwork/types';
 
-import Aes256CbcFormat from '../../src/encryption/aes256-cbc-format';
+import Aes256CbcFormat from '../../src/encryption/aes256-cbc-format.js';
 let aes256CbcFormat: Aes256CbcFormat;
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */

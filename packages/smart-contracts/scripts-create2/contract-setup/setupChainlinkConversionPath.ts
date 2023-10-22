@@ -1,5 +1,3 @@
-import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
-import { RequestLogicTypes } from '@requestnetwork/types';
 import { chainlinkConversionPath } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import { getSignerAndGasFees, updateNativeTokenHash } from './adminTasks';
@@ -17,6 +15,10 @@ export const setupChainlinkConversionPath = async ({
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
 }): Promise<void> => {
+  // import ES Module in CommonJS
+  const { CurrencyManager, EvmChains } = await import('@requestnetwork/currency');
+  const { RequestLogicTypes } = await import('@requestnetwork/types');
+
   // Setup contract parameters
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network) => {

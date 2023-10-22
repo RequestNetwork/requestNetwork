@@ -1,10 +1,10 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { FlowUpdatedEvent, SentEvent } from '../thegraph/generated/graphql-superfluid';
+import { FlowUpdatedEvent, SentEvent } from '../thegraph/generated/graphql-superfluid.js';
 import {
   getTheGraphSuperfluidClient,
   TheGraphSuperfluidClient,
   TheGraphClientOptions,
-} from '../thegraph/superfluid';
+} from '../thegraph/superfluid.js';
 import { getCurrentTimestampInSecond } from '@requestnetwork/utils';
 import { BigNumber } from 'ethers';
 

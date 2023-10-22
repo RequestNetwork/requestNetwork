@@ -1,6 +1,6 @@
 import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import Role from './role';
+import Role from './role.js';
 import { isValidAmount } from '@requestnetwork/utils';
 
 /**

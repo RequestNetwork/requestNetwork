@@ -22,7 +22,7 @@ import {
   payerIdentity,
   requestNetwork,
   signatureProvider,
-} from './scheduled/fixtures';
+} from './scheduled/fixtures.js';
 import { getCurrentTimestampInSecond, normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';

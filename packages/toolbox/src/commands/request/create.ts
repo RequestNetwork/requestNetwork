@@ -1,4 +1,4 @@
-import CreateRequest from '../../create-request';
+import CreateRequest from '../../create-request.js';
 
 export const command = 'request create [amount]';
 export const describe = 'Create a test request';

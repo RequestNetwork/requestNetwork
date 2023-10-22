@@ -13,8 +13,8 @@ import {
   encodePayEthProxyRequest,
   payEthProxyRequest,
   prepareEthProxyPaymentTransaction,
-} from '../../src/payment/eth-proxy';
-import { getRequestPaymentValues } from '../../src/payment/utils';
+} from '../../src/payment/eth-proxy.js';
+import { getRequestPaymentValues } from '../../src/payment/utils.js';
 import { ethereumProxyArtifact } from '@requestnetwork/smart-contracts';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
