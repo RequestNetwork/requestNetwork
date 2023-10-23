@@ -235,7 +235,7 @@ function getRequestDetailWithoutConversion(
   isNative ? validateEthFeeProxyRequest(request) : validateErc20FeeProxyRequest(request);
 
   const currencyManager =
-    enrichedRequest.paymentSettings.currencyManager || CurrencyManager.getDefault();
+    enrichedRequest.paymentSettings?.currencyManager || CurrencyManager.getDefault();
   const tokenAddress = isNative
     ? currencyManager.getNativeCurrency(
         RequestLogicTypes.CURRENCY.ETH,
