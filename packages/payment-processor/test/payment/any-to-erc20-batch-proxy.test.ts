@@ -8,7 +8,6 @@ import {
 } from '@requestnetwork/types';
 import {
   approveErc20BatchConversionIfNeeded,
-  EnrichedRequest,
   getBatchConversionProxyAddress,
   getErc20Balance,
   IConversionPaymentSettings,
@@ -19,8 +18,8 @@ import { deepCopy } from '@requestnetwork/utils';
 import { revokeErc20Approval } from '@requestnetwork/payment-processor/src/payment/utils';
 import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts';
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
-import { IRequestPaymentOptions } from 'payment-processor/src/settings';
 import { CurrencyTypes } from '@requestnetwork/types/src';
+import { EnrichedRequest, IRequestPaymentOptions } from 'payment-processor/src/types';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
