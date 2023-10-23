@@ -1,7 +1,8 @@
 import { ICurrencyManager } from '@requestnetwork/currency';
-import { RequestLogicTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { BigNumber, BigNumberish } from 'ethers';
-import { ITransactionOverrides } from './transaction-overrides';
+import { IConversionPaymentSettings } from './payment';
+import { ITransactionOverrides } from './payment/transaction-overrides';
 
 /**
  * Approval settings
@@ -65,4 +66,24 @@ export interface IRequestPaymentOptions {
   skipFeeUSDLimit?: boolean;
   /** Optional, only for batch payment to define the proxy to use. */
   version?: string;
+}
+
+export type BatchPaymentNetworks =
+  | ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
+  | ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY
+  | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
+  | ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT;
+
+/**
+ * Input of batch conversion payment processor
+ * It contains requests, paymentSettings, amount and feeAmount.
+ * Currently, these requests must have the same PN, version, and batchFee
+ * @dev next step: paymentNetworkId could get more values options to pay Native tokens.
+ */
+export interface EnrichedRequest {
+  paymentNetworkId: BatchPaymentNetworks;
+  request: ClientTypes.IRequestData;
+  paymentSettings: IConversionPaymentSettings;
+  amount?: BigNumberish;
+  feeAmount?: BigNumberish;
 }

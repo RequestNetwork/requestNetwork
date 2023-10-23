@@ -14,7 +14,7 @@ import {
   erc20SwapConversionArtifact,
   erc20SwapToPayArtifact,
 } from '@requestnetwork/smart-contracts';
-import { IConversionSettings } from '../../src/payment/settings';
+import { IConversionSettings } from '../../src/types';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */

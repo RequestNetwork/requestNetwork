@@ -19,7 +19,7 @@ import { deepCopy } from '@requestnetwork/utils';
 import { revokeErc20Approval } from '@requestnetwork/payment-processor/src/payment/utils';
 import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts';
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
-import { IRequestPaymentOptions } from 'payment-processor/src/payment/settings';
+import { IRequestPaymentOptions } from 'payment-processor/src/settings';
 import { CurrencyTypes } from '@requestnetwork/types/src';
 
 /* eslint-disable no-magic-numbers */

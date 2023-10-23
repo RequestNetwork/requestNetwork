@@ -6,11 +6,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { encodeRequestApprovalAndPayment } from '../../src';
-import {
-  IApprovalSettings,
-  IConversionSettings,
-  IRequestPaymentOptions,
-} from '../../src/payment/settings';
+import { IApprovalSettings, IConversionSettings, IRequestPaymentOptions } from '../../src/types';
 import { currencyManager } from './shared';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { MAX_ALLOWANCE } from '../../src/payment/utils';

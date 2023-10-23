@@ -20,7 +20,7 @@ import { ICurrencyManager, NearChains } from '@requestnetwork/currency';
 import { encodeRequestErc20Approval } from './encoder-approval';
 import { encodeRequestPayment } from './encoder-payment';
 import { IPreparedTransaction } from './prepared-transaction';
-import { IRequestPaymentOptions } from './settings';
+import { IRequestPaymentOptions } from '../types';
 export { INearTransactionCallback } from './utils-near';
 
 export const noConversionNetworks = [
@@ -338,19 +338,3 @@ const throwIfNotWeb3 = (request: ClientTypes.IRequestData) => {
     throw new UnsupportedPaymentChain(request.currencyInfo.network);
   }
 };
-
-/**
- * Input of batch conversion payment processor
- * It contains requests, paymentSettings, amount and feeAmount.
- * Currently, these requests must have the same PN, version, and batchFee
- * @dev next step: paymentNetworkId could get more values options to pay Native tokens.
- */
-export interface EnrichedRequest {
-  paymentNetworkId:
-    | ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
-    | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT;
-  request: ClientTypes.IRequestData;
-  paymentSettings: IConversionPaymentSettings;
-  amount?: BigNumberish;
-  feeAmount?: BigNumberish;
-}
