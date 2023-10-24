@@ -82,7 +82,7 @@ export async function deployBatchConversionPayment(
     await batchConversion
       .connect(owner)
       .setNativeAndUSDAddress(
-        currencyManager.fromSymbol('ETH')!.hash,
+        currencyManager.fromSymbol('ETH-private')!.hash,
         currencyManager.fromSymbol('USD')!.hash,
       );
     await batchConversion.connect(owner).setBatchFeeAmountUSDLimit(150 * 1e8); // 150$
