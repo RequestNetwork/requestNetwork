@@ -197,7 +197,7 @@ describe('swap-erc20-fee-proxy', () => {
 
       // Swap and pay
       const tx = await swapErc20FeeProxyRequest(validRequest, wallet, {
-        deadline: Date.now() + 10000,
+        deadline: Date.now() + 1000000,
         maxInputAmount: 206,
         path: [alphaErc20Address, erc20ContractAddress],
       });

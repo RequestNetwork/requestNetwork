@@ -18,6 +18,7 @@ import {
   getRequestPaymentValues,
   getSigner,
   MAX_ALLOWANCE,
+  validateConversionFeeProxyRequest,
   validateErc20FeeProxyRequest,
 } from './utils';
 import {
@@ -271,17 +272,24 @@ function getRequestDetailWithConversion(
   enrichedRequest: EnrichedRequest,
   isNative: boolean,
 ): PaymentTypes.RequestDetail {
+  const { request, paymentSettings } = enrichedRequest;
   const { path, requestCurrency } = (
     isNative ? getConversionPathForEthRequest : getConversionPathForErc20Request
-  )(enrichedRequest.request, enrichedRequest.paymentSettings);
+  )(request, paymentSettings);
 
-  const { paymentReference, paymentAddress, feeAmount, maxRateTimespan } = getRequestPaymentValues(
-    enrichedRequest.request,
-  );
+  isNative
+    ? validateEthFeeProxyRequest(
+        request,
+        undefined,
+        undefined,
+        ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
+      )
+    : validateConversionFeeProxyRequest(request, path);
 
-  const requestAmount = BigNumber.from(enrichedRequest.request.expectedAmount).sub(
-    enrichedRequest.request.balance?.balance || 0,
-  );
+  const { paymentReference, paymentAddress, feeAmount, maxRateTimespan } =
+    getRequestPaymentValues(request);
+
+  const requestAmount = BigNumber.from(request.expectedAmount).sub(request.balance?.balance || 0);
 
   const padRequestAmount = padAmountForChainlink(requestAmount, requestCurrency);
   const padFeeAmount = padAmountForChainlink(feeAmount || 0, requestCurrency);
@@ -291,7 +299,7 @@ function getRequestDetailWithConversion(
     path: path,
     paymentReference: `0x${paymentReference}`,
     feeAmount: padFeeAmount.toString(),
-    maxToSpend: enrichedRequest.paymentSettings.maxToSpend.toString(),
+    maxToSpend: paymentSettings.maxToSpend.toString(),
     maxRateTimespan: maxRateTimespan || '0',
   };
 }
