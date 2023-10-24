@@ -69,7 +69,7 @@ const conversionPaymentSettings: IConversionPaymentSettings = {
 
 const ethConversionPaymentSettings: IConversionPaymentSettings = {
   currency: nativeCurrency,
-  maxToSpend: '1000000000000000000000',
+  maxToSpend: '200000000000000000000',
   currencyManager: currencyManager,
 };
 
