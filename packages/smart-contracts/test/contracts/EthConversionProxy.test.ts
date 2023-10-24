@@ -32,7 +32,7 @@ describe('contract: EthConversionProxy', () => {
 
   const currencyManager = CurrencyManager.getDefault();
 
-  const ETH_hash = currencyManager.fromSymbol('ETH')!.hash;
+  const ETH_hash = currencyManager.fromSymbol('ETH-private')!.hash;
   const USD_hash = currencyManager.fromSymbol('USD')!.hash;
   const EUR_hash = currencyManager.fromSymbol('EUR')!.hash;
 
