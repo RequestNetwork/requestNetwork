@@ -58,7 +58,7 @@ export function encodePayAnyToEthProxyRequest(
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): string {
-  const { path, requestCurrency } = checkRequestAndGetPathAndCurrency(request, paymentSettings);
+  const { path, requestCurrency } = getConversionPathForEthRequest(request, paymentSettings);
 
   const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan } =
     getRequestPaymentValues(request);
@@ -101,7 +101,7 @@ export function prepareAnyToEthProxyPaymentTransaction(
   };
 }
 
-export function checkRequestAndGetPathAndCurrency(
+export function getConversionPathForEthRequest(
   request: ClientTypes.IRequestData,
   paymentSettings: IConversionPaymentSettings,
 ): { path: string[]; requestCurrency: CurrencyDefinition<unknown> } {

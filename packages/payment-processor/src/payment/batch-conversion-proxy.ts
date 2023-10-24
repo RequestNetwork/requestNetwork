@@ -26,7 +26,7 @@ import {
 } from '@requestnetwork/payment-detection';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IConversionPaymentSettings } from './index';
-import { checkRequestAndGetPathAndCurrency as getERC20PathAndCurrency } from './any-to-erc20-proxy';
+import { getConversionPathForErc20Request } from './any-to-erc20-proxy';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 import { IState } from 'types/dist/extension-types';
 import { CurrencyDefinition, CurrencyManager, ICurrencyManager } from '@requestnetwork/currency';
@@ -37,7 +37,7 @@ import {
   IRequestPaymentOptions,
 } from '../types';
 import { validateEthFeeProxyRequest } from './eth-fee-proxy';
-import { checkRequestAndGetPathAndCurrency as getETHPathAndCurrency } from './any-to-eth-proxy';
+import { getConversionPathForEthRequest } from './any-to-eth-proxy';
 
 const CURRENCY = RequestLogicTypes.CURRENCY;
 
@@ -198,7 +198,7 @@ function encodePayBatchConversionRequest(
 
   /**
    * The native with conversion payment inputs must be the last element.
-   * See BatchConversionPayment batchPayments method
+   * See BatchConversionPayment batchPayments method in @requestnetwork/smart-contracts
    */
   const metaDetails = Object.entries(requestDetails)
     .map(([pn, details]) => ({
@@ -271,10 +271,9 @@ function getRequestDetailWithConversion(
   enrichedRequest: EnrichedRequest,
   isNative: boolean,
 ): PaymentTypes.RequestDetail {
-  const { path, requestCurrency } = (isNative ? getETHPathAndCurrency : getERC20PathAndCurrency)(
-    enrichedRequest.request,
-    enrichedRequest.paymentSettings,
-  );
+  const { path, requestCurrency } = (
+    isNative ? getConversionPathForEthRequest : getConversionPathForErc20Request
+  )(enrichedRequest.request, enrichedRequest.paymentSettings);
 
   const { paymentReference, paymentAddress, feeAmount, maxRateTimespan } = getRequestPaymentValues(
     enrichedRequest.request,
