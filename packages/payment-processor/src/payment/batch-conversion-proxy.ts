@@ -122,19 +122,18 @@ const pnToBatchId: Record<BatchPaymentNetworks, PaymentTypes.BATCH_PAYMENT_NETWO
 };
 
 const computeRequestDetails = ({
-  paymentNetwork,
   enrichedRequest,
   extension,
 }: {
-  paymentNetwork: BatchPaymentNetworks;
   enrichedRequest: EnrichedRequest;
   extension: IState<any> | undefined;
 }) => {
-  const allowedCurrencies = pnToAllowedCurrencies[paymentNetwork];
-  const detailsBuilder = pnToDetailsBuilder[paymentNetwork];
+  const paymentNetworkId = enrichedRequest.paymentNetworkId;
+  const allowedCurrencies = pnToAllowedCurrencies[paymentNetworkId];
+  const detailsBuilder = pnToDetailsBuilder[paymentNetworkId];
   const isNative =
-    paymentNetwork === ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY ||
-    paymentNetwork === ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT;
+    paymentNetworkId === ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY ||
+    paymentNetworkId === ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT;
 
   extension = extension ?? getPaymentNetworkExtension(enrichedRequest.request);
 
@@ -186,7 +185,6 @@ function encodePayBatchConversionRequest(
   for (const enrichedRequest of enrichedRequests) {
     const request = enrichedRequest.request;
     const { input, extension } = computeRequestDetails({
-      paymentNetwork: enrichedRequest.paymentNetworkId,
       enrichedRequest,
       extension: requestExtensions[enrichedRequest.paymentNetworkId],
     });
@@ -206,6 +204,7 @@ function encodePayBatchConversionRequest(
       paymentNetworkId: pnToBatchId[pn as BatchPaymentNetworks],
       requestDetails: details,
     }))
+    .filter((details) => details.requestDetails.length > 0)
     .sort((a, b) => a.paymentNetworkId - b.paymentNetworkId);
 
   const pathsToUSD = getUSDPathsForFeeLimit(
