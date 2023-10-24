@@ -26,7 +26,7 @@ import {
 } from '@requestnetwork/payment-detection';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IConversionPaymentSettings } from './index';
-import { checkRequestAndGetPathAndCurrency } from './any-to-erc20-proxy';
+import { checkRequestAndGetPathAndCurrency as getERC20PathAndCurrency } from './any-to-erc20-proxy';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 import { IState } from 'types/dist/extension-types';
 import { CurrencyDefinition, CurrencyManager, ICurrencyManager } from '@requestnetwork/currency';
@@ -37,6 +37,7 @@ import {
   IRequestPaymentOptions,
 } from '../types';
 import { validateEthFeeProxyRequest } from './eth-fee-proxy';
+import { checkRequestAndGetPathAndCurrency as getETHPathAndCurrency } from './any-to-eth-proxy';
 
 const CURRENCY = RequestLogicTypes.CURRENCY;
 
@@ -196,7 +197,7 @@ function encodePayBatchConversionRequest(
   }
 
   /**
-   * The native with conversion payment inputs must be at the last element.
+   * The native with conversion payment inputs must be the last element.
    * See BatchConversionPayment batchPayments method
    */
   const metaDetails = Object.entries(requestDetails)
@@ -207,11 +208,16 @@ function encodePayBatchConversionRequest(
     .filter((details) => details.requestDetails.length > 0)
     .sort((a, b) => a.paymentNetworkId - b.paymentNetworkId);
 
+  const hasNativePayment =
+    requestDetails['pn-any-to-eth-proxy'].length > 0 ||
+    requestDetails['pn-eth-fee-proxy-contract'].length > 0;
+
   const pathsToUSD = getUSDPathsForFeeLimit(
     [...metaDetails.map((details) => details.requestDetails).flat()],
     network,
     skipFeeUSDLimit,
     conversion.currencyManager,
+    hasNativePayment,
   );
 
   const proxyContract = BatchConversionPayments__factory.createInterface();
@@ -263,8 +269,9 @@ function getRequestDetailWithoutConversion(
  */
 function getRequestDetailWithConversion(
   enrichedRequest: EnrichedRequest,
+  isNative: boolean,
 ): PaymentTypes.RequestDetail {
-  const { path, requestCurrency } = checkRequestAndGetPathAndCurrency(
+  const { path, requestCurrency } = (isNative ? getETHPathAndCurrency : getERC20PathAndCurrency)(
     enrichedRequest.request,
     enrichedRequest.paymentSettings,
   );
@@ -318,11 +325,24 @@ function getUSDPathsForFeeLimit(
   network: string,
   skipFeeUSDLimit: boolean,
   currencyManager: ICurrencyManager<unknown>,
+  hasNativePayment: boolean,
 ): string[][] {
   if (skipFeeUSDLimit) return [];
 
   const USDCurrency = currencyManager.fromSymbol('USD');
   if (!USDCurrency) throw 'Cannot find the USD currency information';
+
+  // Native to USD conversion path
+  let nativeConversionPath: string[] = [];
+  if (hasNativePayment) {
+    const nativeCurrencyHash = currencyManager.getNativeCurrency(
+      RequestLogicTypes.CURRENCY.ETH,
+      network,
+    )?.hash;
+    if (!nativeCurrencyHash) throw 'Cannot find the Native currency information';
+    nativeConversionPath =
+      currencyManager.getConversionPath({ hash: nativeCurrencyHash }, USDCurrency, network) || [];
+  }
 
   // get a list of unique token addresses
   const tokenAddresses = requestDetails
@@ -335,9 +355,10 @@ function getUSDPathsForFeeLimit(
     .filter((value): value is CurrencyDefinition => !!value);
 
   // get all the conversion paths to USD when it exists and return it
-  return tokenCurrencies
+  const path = tokenCurrencies
     .map((t) => currencyManager.getConversionPath(t, USDCurrency, network))
     .filter((value): value is string[] => !!value);
+  return hasNativePayment ? path.concat([nativeConversionPath]) : path;
 }
 
 /**
