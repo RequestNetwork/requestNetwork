@@ -366,6 +366,7 @@ describe('batch-proxy', () => {
               feeAddress,
               feeAmount: feeAmount,
               paymentAddress: paymentAddress,
+              network: 'private',
               salt: 'salt',
             },
             version: '0.1.0',

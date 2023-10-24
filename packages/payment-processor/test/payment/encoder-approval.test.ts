@@ -158,7 +158,7 @@ const validRequestERC20ConversionProxy: ClientTypes.IRequestData = {
 
 const validRequestEthProxy: ClientTypes.IRequestData = {
   ...baseValidRequest,
-  currency: 'ETH',
+  currency: 'ETH-private',
   currencyInfo: {
     network: 'private',
     type: RequestLogicTypes.CURRENCY.ETH,
@@ -181,7 +181,7 @@ const validRequestEthProxy: ClientTypes.IRequestData = {
 
 const validRequestEthFeeProxy: ClientTypes.IRequestData = {
   ...baseValidRequest,
-  currency: 'ETH',
+  currency: 'ETH-private',
   currencyInfo: {
     network: 'private',
     type: RequestLogicTypes.CURRENCY.ETH,
