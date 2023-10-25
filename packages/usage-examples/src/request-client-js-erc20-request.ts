@@ -65,7 +65,7 @@ requestNetwork
   .createRequest(createParams)
   .then((request) => {
     console.log('clear request:');
-    console.log(request.requestId);
+    console.log(request);
     request
       .waitForConfirmation()
       .then((confirmedRequest) => {
