@@ -355,6 +355,7 @@ describe('Request system', () => {
       },
       timestamp: getCurrentTimestampInSecond(),
     };
+    await new Promise((r) => resultCreation1.on('confirmed', r));
     const resultCreation2 = await requestLogic.createRequest(
       request2CreationHash,
       payeeIdentity,
@@ -367,7 +368,7 @@ describe('Request system', () => {
       deltaAmount: '10000000000',
       requestId: requestId1,
     };
-    await new Promise((r) => resultCreation1.on('confirmed', r));
+
     await new Promise((r) => resultCreation2.on('confirmed', r));
 
     const resultReduce1 = await requestLogic.reduceExpectedAmountRequest(
