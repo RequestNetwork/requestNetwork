@@ -55,7 +55,7 @@
     "@requestnetwork/transaction-manager": "0.28.0",
     "@requestnetwork/types": "0.37.0",
     "@requestnetwork/utils": "0.37.0",
-    "@types/jest": "26.0.13",
+    "@types/jest": "29.5.6",
     "@types/node": "16.11.7",
     "ethers": "5.5.1",
     "jest": "29.5.0",

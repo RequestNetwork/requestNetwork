@@ -54,7 +54,7 @@
     "yargs": "17.6.2"
   },
   "devDependencies": {
-    "@types/jest": "26.0.13",
+    "@types/jest": "29.5.6",
     "@types/node": "16.11.7",
     "axios-mock-adapter": "1.19.0",
     "jest": "29.5.0",
