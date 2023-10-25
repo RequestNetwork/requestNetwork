@@ -9,8 +9,8 @@ import { AxiosRequestConfig } from 'axios';
 import { PaymentNetworkOptions } from '@requestnetwork/payment-detection';
 import RequestNetwork from './api/request-network';
 import HttpDataAccess from './http-data-access';
-import MockDataAccess from './mock-data-access';
-import MockStorage from './mock-storage';
+import { MockDataAccess } from '@requestnetwork/data-access';
+import { MockStorage } from './mock-storage';
 
 /**
  * Exposes RequestNetwork module configured to use http-data-access.

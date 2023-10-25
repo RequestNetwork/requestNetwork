@@ -1,15 +1,21 @@
-import { ContractTransaction, providers, utils } from 'ethers';
-import { LogTypes } from '@requestnetwork/types';
+import { BigNumber, ContractTransaction, providers, Signer, utils } from 'ethers';
+import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
-import { SubmitterProps } from './ethereum-storage-ethers';
 import { GasFeeDefiner } from './gas-fee-definer';
 import { SimpleLogger, isEip1559Supported } from '@requestnetwork/utils';
+
+export type SubmitterProps = {
+  signer: Signer;
+  gasPriceMin?: BigNumber;
+  network: CurrencyTypes.EvmChainName;
+  logger?: LogTypes.ILogger;
+};
 
 /**
  * Handles the submission of a hash on the request HashSubmitter contract
  */
-export class EthereumTransactionSubmitter {
+export class EthereumTransactionSubmitter implements StorageTypes.ITransactionSubmitter {
   private readonly logger: LogTypes.ILogger;
   private enableEip1559 = true;
   private readonly hashSubmitter: RequestOpenHashSubmitter;

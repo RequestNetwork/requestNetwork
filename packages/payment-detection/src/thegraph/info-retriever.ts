@@ -2,7 +2,7 @@ import { PaymentTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { utils } from 'ethers';
 import { pick, mapValues } from 'lodash';
-import type { TheGraphClient } from '.';
+import type { TheGraphClient } from './client';
 import type { EscrowEventResultFragment, PaymentEventResultFragment } from './generated/graphql';
 import { formatAddress, unpadAmountFromChainlink } from '../utils';
 import { TransferEventsParams, ITheGraphBaseInfoRetriever } from '../types';

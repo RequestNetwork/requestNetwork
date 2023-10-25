@@ -1,18 +1,44 @@
-import { EventEmitter } from 'events';
-
 import { BigNumber } from 'ethers';
+import { ConfirmationEventEmitter } from './events';
+
+export type IIndexedTransaction = {
+  hash: string;
+  channelId: string;
+  data?: string;
+  encryptedData?: string;
+  encryptionMethod?: string;
+  keys?: Record<string, string>;
+  blockNumber: number;
+  blockTimestamp: number;
+  transactionHash: string;
+  smartContractAddress: string;
+  topics: string[];
+  size: string;
+};
+
+export interface ITransactionSubmitter {
+  initialize: () => Promise<void>;
+  submit(ipfsHash: string, ipfsSize: number): Promise<any>;
+  hashSubmitterAddress?: string;
+  network?: string;
+  creationBlockNumber?: number;
+}
 
 export interface IStorageWrite {
   initialize: () => Promise<void>;
   append: (data: string) => Promise<IAppendResult>;
 }
 
+export type IGetTransactionsResponse = {
+  transactions: IIndexedTransaction[];
+  blockNumber: number;
+};
+
 export interface IStorageRead {
   initialize: () => Promise<void>;
   read: (dataId: string) => Promise<IEntry>;
   readMany: (dataIds: string[]) => Promise<IEntry[]>;
   getData: (options?: ITimestampBoundaries) => Promise<IEntriesWithLastTimestamp>;
-  getIgnoredData: () => Promise<IEntry[]>;
 }
 
 /** Interface of the storage */
@@ -20,13 +46,21 @@ export interface IStorage extends IStorageRead, IStorageWrite {
   _getStatus: (detailed?: boolean) => Promise<any>;
 }
 
+export interface IIndexer {
+  initialize(): Promise<void>;
+  getTransactionsByStorageLocation(hash: string): Promise<IGetTransactionsResponse>;
+  getTransactionsByChannelId(
+    channel: string,
+    updatedBetween?: ITimestampBoundaries,
+  ): Promise<IGetTransactionsResponse>;
+  getTransactionsByTopics(topics: string[]): Promise<IGetTransactionsResponse>;
+}
+
 export type IIpfsConfig = {
   delayBetweenRetries?: number;
-  host: string;
+  url: string;
   id: string;
   maxRetries?: number;
-  port: number;
-  protocol: string;
   timeout?: number;
 };
 
@@ -34,7 +68,6 @@ export interface IIpfsStorage {
   initialize: () => Promise<void>;
   ipfsAdd: (data: string) => Promise<IIpfsMeta>;
   read(hash: string, maxSize?: number, retries?: number): Promise<IIpfsObject>;
-  pinDataToIPFS(hashes: string[], config?: IPinRequestConfiguration): Promise<void>;
   getConfig(): Promise<IIpfsConfig>;
 }
 
@@ -55,7 +88,8 @@ export interface IEntry extends IWithMeta<IEntryMetadata> {
   content: string;
 }
 
-export type IAppendResult = EventEmitter & IEntry;
+export type AppendResultEmitter = ConfirmationEventEmitter<IEntry>;
+export type IAppendResult = IEntry & AppendResultEmitter;
 
 /** A list of entries with the last timestamp these entries were fetched from */
 export interface IEntriesWithLastTimestamp {
@@ -156,24 +190,10 @@ export interface IWeb3Connection {
   timeout?: number;
 }
 
-/** Information to connect to an IPFS gateway */
-export interface IIpfsGatewayConnection {
-  host: string;
-  port: number;
-  protocol: IpfsGatewayProtocol;
-  timeout: number;
-}
-
 /** two blocks number */
 export interface IBlockNumbersInterval {
   blockAfter: number;
   blockBefore: number;
-}
-
-/** Protocol to connect to ipfs */
-export enum IpfsGatewayProtocol {
-  HTTP = 'http',
-  HTTPS = 'https',
 }
 
 /** Storage type for now only ethereum + ipfs available */

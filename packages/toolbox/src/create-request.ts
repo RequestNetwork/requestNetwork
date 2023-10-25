@@ -35,8 +35,8 @@ function createTestRequest(
 
   const requestCreationHash: Types.RequestLogic.ICreateParameters = {
     currency: {
-      type: Types.RequestLogic.CURRENCY.BTC,
-      value: 'BTC',
+      type: Types.RequestLogic.CURRENCY.ISO4217,
+      value: 'EUR',
     },
     expectedAmount,
     payee: payeeIdentity,

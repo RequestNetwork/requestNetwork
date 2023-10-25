@@ -87,7 +87,7 @@ export const GetChannelsByTopicsQuery = gql`
       orderBy: blockTimestamp
       orderDirection: asc
     ) {
-      ...TransactionsBody
+      channelId
     }
   }
 `;

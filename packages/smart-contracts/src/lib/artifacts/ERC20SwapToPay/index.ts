@@ -3,7 +3,7 @@ import { ContractArtifact } from '../../ContractArtifact';
 import { abi as ABI_0_1_0 } from './0.1.0.json';
 import { abi as ABI_0_2_0 } from './0.2.0.json';
 // @ts-ignore Cannot find module
-import type { ERC20SwapToPay } from '../../../types/ERC20SwapToPay';
+import type { ERC20SwapToPay } from '../../../types';
 
 export const erc20SwapToPayArtifact = new ContractArtifact<ERC20SwapToPay>(
   {

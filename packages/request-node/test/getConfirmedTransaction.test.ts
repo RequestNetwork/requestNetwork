@@ -1,22 +1,24 @@
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
+import { getRequestNode } from '../src/server';
 import { RequestNode } from '../src/requestNode';
-import { RequestNodeBase } from '../src/requestNodeBase';
+import { providers } from 'ethers';
 
 const channelId = '010aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 const transactionData = { data: 'this is sample data for a transaction' };
 const transactionHash = normalizeKeccak256Hash(transactionData).value;
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
 
-let requestNodeInstance: RequestNodeBase;
+let requestNodeInstance: RequestNode;
 let server: any;
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('getConfirmedTransaction', () => {
   beforeAll(async () => {
-    requestNodeInstance = new RequestNode();
+    requestNodeInstance = getRequestNode();
     await requestNodeInstance.initialize();
 
     server = (requestNodeInstance as any).express;
@@ -40,6 +42,9 @@ describe('getConfirmedTransaction', () => {
       .set('Accept', 'application/json')
       .expect(StatusCodes.NOT_FOUND);
 
+    // mining is required for TheGraph to index data
+    await provider.send('evm_mine', []);
+
     let serverResponse: request.Response | undefined;
     // retry mechanism to account for ganache delay
     for (let i = 0; i < 10; i++) {
@@ -60,7 +65,7 @@ describe('getConfirmedTransaction', () => {
     expect(serverResponse!.body.result).toMatchObject({});
     // 'getConfirmedTransaction request meta'
     expect(serverResponse!.body.meta.storageMeta.state).toBe('confirmed');
-  }, 11000);
+  }, 30000);
 
   it('responds with status 422 to requests with no value', async () => {
     await request(server)
