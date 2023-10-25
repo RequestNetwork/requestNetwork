@@ -31,6 +31,7 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
       });
     };
 
+    console.log(hre.config);
     let address: string;
     for (const contract of create2ContractDeploymentList) {
       try {
@@ -52,6 +53,12 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
             EvmChains.assertChainSupported(network);
             const constructorArgs = getConstructorArgs(contract, network);
             address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
+
+            console.log({
+              network,
+              address,
+              constructorArgs,
+            });
             await verifyOne(address, { contract, constructorArgs }, hre);
             break;
           }

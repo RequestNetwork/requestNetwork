@@ -14,6 +14,7 @@ const networks: Record<string, ethers.providers.Network> = {
   tombchain: { chainId: 6969, name: 'tombchain' },
   mantle: { chainId: 5000, name: 'mantle' },
   'mantle-testnet': { chainId: 5001, name: 'mantle-testnet' },
+  core: { chainId: 1116, name: 'core' },
 };
 
 /**

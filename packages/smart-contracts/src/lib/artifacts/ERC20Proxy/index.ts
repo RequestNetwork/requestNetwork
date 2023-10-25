@@ -29,6 +29,10 @@ export const erc20ProxyArtifact = new ContractArtifact<ERC20Proxy>(
           address: '0x88Ecc15fDC2985A7926171B938BB2Cd808A5ba40',
           creationBlockNumber: 16210085,
         },
+        core: {
+          address: '0x88Ecc15fDC2985A7926171B938BB2Cd808A5ba40',
+          creationBlockNumber: 8317448,
+        },
       },
     },
   },
