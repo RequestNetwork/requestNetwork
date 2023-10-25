@@ -10,7 +10,7 @@ const fakeConsole = Object.assign({}, console, {
   warn: jest.fn(),
 });
 
-jest.useFakeTimers('modern');
+jest.useFakeTimers();
 // eslint-disable-next-line no-magic-numbers
 const now = new Date(1599641831325);
 jest.setSystemTime(now);

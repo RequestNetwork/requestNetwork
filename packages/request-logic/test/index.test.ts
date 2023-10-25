@@ -172,7 +172,7 @@ describe('index', () => {
     });
 
     it('can createRequest if persist emit error', async () => {
-      jest.useFakeTimers('modern');
+      jest.useFakeTimers();
       const fakeTransactionManagerEmittingError = Object.assign({}, fakeTransactionManager);
       fakeTransactionManagerEmittingError.persistTransaction = jest.fn((): any => {
         const fakeTransactionManagerWithEvent = Object.assign(
@@ -341,7 +341,7 @@ describe('index', () => {
     });
 
     it('can createEncryptedRequest if persist emit error', async () => {
-      jest.useFakeTimers('modern');
+      jest.useFakeTimers();
       const fakeTransactionManagerEmittingError = Object.assign({}, fakeTransactionManager);
       fakeTransactionManagerEmittingError.persistTransaction = jest.fn((): any => {
         const fakeTransactionManagerWithEvent = Object.assign(

@@ -94,7 +94,7 @@ describe('Utils', () => {
   });
 
   it('getCurrentTimestampInSecond()', () => {
-    jest.useFakeTimers('modern');
+    jest.useFakeTimers();
 
     const time = Math.floor(Date.now() / 1000);
     // 'getCurrentTimestampInSecond() error'
@@ -246,7 +246,7 @@ describe('Utils', () => {
 
   describe('timeoutPromise', () => {
     beforeEach(async () => {
-      jest.useFakeTimers('modern');
+      jest.useFakeTimers();
     });
 
     afterEach(async () => {
