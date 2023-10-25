@@ -3,15 +3,12 @@ import { CurrencyManager } from '@requestnetwork/currency';
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { StaticJsonRpcProvider } from '@ethersproject/providers';
 import { AnyToEthFeeProxyPaymentDetector } from '../../src/any';
-import { TheGraphClient } from '../../src/thegraph';
+import { getTheGraphClient } from '../../src/thegraph';
 
 const getLogs = jest.spyOn(StaticJsonRpcProvider.prototype, 'getLogs');
 
 jest.mock('../../src/thegraph/client');
-const theGraphClientMock = {
-  GetAnyToNativePayments: jest.fn(),
-} as jest.MockedObjectDeep<TheGraphClient>;
-
+const theGraphClientMock = jest.mocked(getTheGraphClient(''));
 describe('Any to ETH payment detection', () => {
   const mockRequest: RequestLogicTypes.IRequest = {
     creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },

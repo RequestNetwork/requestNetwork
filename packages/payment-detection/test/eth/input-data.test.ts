@@ -10,7 +10,7 @@ import { EthInputDataPaymentDetector } from '../../src/eth/input-data';
 import { mockAdvancedLogicBase } from '../utils';
 
 jest.mock('../../src/thegraph/client');
-const theGraphClientMock = {} as jest.MockedObjectDeep<TheGraphClient>;
+const theGraphClientMock = jest.mocked(getTheGraphClient(''));
 
 let ethInputData: EthInputDataPaymentDetector;
 
