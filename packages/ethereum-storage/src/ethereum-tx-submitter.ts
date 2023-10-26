@@ -1,31 +1,34 @@
-import { BigNumber, ContractTransaction, providers, Signer, utils } from 'ethers';
-import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
-import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
-import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
-import { GasFeeDefiner } from './gas-fee-definer';
+import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { SimpleLogger, isEip1559Supported } from '@requestnetwork/utils';
-
+import {
+  Chain,
+  ChainContract,
+  Client,
+  parseAbi,
+  getContract,
+  padHex,
+  SimulateContractReturnType,
+  GetContractReturnType,
+  isHash,
+  TransactionReceipt,
+} from 'viem';
+import {
+  estimateFeesPerGas,
+  simulateContract,
+  waitForTransactionReceipt,
+  writeContract,
+} from 'viem/actions';
 export type SubmitterProps = {
-  signer: Signer;
-  /**
-   * The minimum value for maxPriorityFeePerGas and maxFeePerGas.
-   * The default is zero.
-   */
-  gasPriceMin?: BigNumber;
-  /**
-   * The maximum value for maxFeePerGas.
-   * There is no limit if no value is set.
-   */
-  gasPriceMax?: BigNumber;
-  /**
-   * A multiplier for the computed maxFeePerGas.
-   * The default is 100, which does not change the value (100 is equal to x1, 200 is equal to x2).
-   */
-  gasPriceMultiplier?: number;
-  network: CurrencyTypes.EvmChainName;
+  client: Client;
+  chain: Chain;
   logger?: LogTypes.ILogger;
   debugProvider?: boolean;
 };
+
+const abi = parseAbi([
+  'function submitHash(string _hash, bytes _feesParameters) payable',
+  'function getFeesAmount(uint256 _contentSize) view returns (uint256)',
+]);
 
 /**
  * Handles the submission of a hash on the request HashSubmitter contract
@@ -33,38 +36,25 @@ export type SubmitterProps = {
 export class EthereumTransactionSubmitter implements StorageTypes.ITransactionSubmitter {
   private readonly logger: LogTypes.ILogger;
   private enableEip1559 = true;
-  private readonly hashSubmitter: RequestOpenHashSubmitter;
-  private readonly provider: providers.JsonRpcProvider;
-  private readonly gasFeeDefiner: GasFeeDefiner;
+  private hashSubmitter: GetContractReturnType<typeof abi, Client, Client>;
+  private readonly chain: Chain;
+  private readonly client: Client;
 
-  constructor({
-    network,
-    signer,
-    logger,
-    gasPriceMin,
-    gasPriceMax,
-    gasPriceMultiplier,
-    debugProvider,
-  }: SubmitterProps) {
+  constructor({ chain, client, logger }: SubmitterProps) {
     this.logger = logger || new SimpleLogger();
-    const provider = signer.provider as providers.JsonRpcProvider;
-    this.provider = provider;
-    this.hashSubmitter = requestHashSubmitterArtifact.connect(
-      network,
-      signer,
-    ) as RequestOpenHashSubmitter; // type mismatch with ethers.
-    this.gasFeeDefiner = new GasFeeDefiner({
-      provider,
-      gasPriceMin,
-      gasPriceMax,
-      gasPriceMultiplier,
-      logger: this.logger,
-    });
-    if (debugProvider) {
-      this.provider.on('debug', (event) => {
-        this.logger.debug('JsonRpcProvider debug event', event);
-      });
+    this.chain = chain;
+    this.client = client;
+
+    const hashSubmitter = this.chain.contracts?.hashSubmitter as ChainContract;
+    if (!hashSubmitter || !hashSubmitter.address) {
+      throw new Error(`hashSubmitter not found for ${this.chain.name}`);
     }
+    this.hashSubmitter = getContract({
+      abi,
+      address: hashSubmitter.address,
+      walletClient: this.client,
+      publicClient: this.client,
+    });
   }
 
   get hashSubmitterAddress(): string {
@@ -72,25 +62,40 @@ export class EthereumTransactionSubmitter implements StorageTypes.ITransactionSu
   }
 
   async initialize(): Promise<void> {
-    this.enableEip1559 = await isEip1559Supported(this.provider, this.logger);
+    this.enableEip1559 = await isEip1559Supported(this.client, this.logger);
   }
 
   /** Submits an IPFS hash, with fees according to `ipfsSize`  */
-  async submit(ipfsHash: string, ipfsSize: number): Promise<ContractTransaction> {
-    const preparedTransaction = await this.prepareSubmit(ipfsHash, ipfsSize);
-    return await this.hashSubmitter.signer.sendTransaction(preparedTransaction);
+  async submit(ipfsHash: string, ipfsSize: number): Promise<string> {
+    const simulation = await this.prepareSubmit(ipfsHash, ipfsSize);
+    return await writeContract(this.client, simulation.request);
+  }
+
+  async confirmTransaction(hash: string, confirmations: number): Promise<TransactionReceipt> {
+    if (!isHash(hash)) {
+      throw new Error('invalid hash');
+    }
+    return await waitForTransactionReceipt(this.client, { hash, confirmations });
   }
 
   /** Encodes the submission of an IPFS hash, with fees according to `ipfsSize` */
-  async prepareSubmit(ipfsHash: string, ipfsSize: number): Promise<providers.TransactionRequest> {
-    const fee = await this.hashSubmitter.getFeesAmount(ipfsSize);
-    const gasFees = this.enableEip1559 ? await this.gasFeeDefiner.getGasFees() : {};
+  async prepareSubmit(
+    ipfsHash: string,
+    ipfsSize: number,
+  ): Promise<SimulateContractReturnType<typeof abi, 'submitHash'>> {
+    const gasParams = await estimateFeesPerGas(this.client, {
+      chain: this.chain,
+      type: this.enableEip1559 ? 'eip1559' : 'legacy',
+    });
+    const fee = await this.hashSubmitter.read.getFeesAmount([BigInt(ipfsSize)]);
+    const simulation = await simulateContract(this.client, {
+      ...gasParams,
+      ...this.hashSubmitter,
+      functionName: 'submitHash',
+      args: [ipfsHash, padHex(`0x${ipfsSize}`)],
+      value: fee,
+    });
 
-    const tx = this.hashSubmitter.interface.encodeFunctionData('submitHash', [
-      ipfsHash,
-      utils.hexZeroPad(utils.hexlify(ipfsSize), 32),
-    ]);
-
-    return { to: this.hashSubmitter.address, data: tx, value: fee, ...gasFees };
+    return simulation;
   }
 }

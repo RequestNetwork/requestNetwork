@@ -1,6 +1,7 @@
 import { LogTypes } from '@requestnetwork/types';
 
-import { Client, createPublicClient, defineChain, http, toHex, trim } from 'viem';
+import { Client, createPublicClient, defineChain, http } from 'viem';
+import { getFeeHistory } from 'viem/actions';
 import * as chains from 'viem/chains';
 
 type ProviderFactory = (network: string | undefined) => Client;
@@ -121,8 +122,27 @@ const chainNameMap: Record<string, keyof typeof chains> = {
   mumbai: 'polygonMumbai',
 };
 
+const tombchain: chains.Chain = defineChain({
+  id: 6969,
+  name: 'tombchain',
+  network: 'tombchain',
+  nativeCurrency: {
+    name: 'TOMB',
+    symbol: 'TOMB',
+    decimals: 18,
+  },
+  rpcUrls: {
+    public: { http: ['https://rpc.tombchain.com'] },
+    default: { http: ['https://rpc.tombchain.com'] },
+  },
+});
+
+const allChains: chains.Chain[] = Object.values(chains as unknown as chains.Chain[]).concat(
+  tombchain,
+);
+
 function defaultGetChain(name: string) {
-  for (const chain of Object.values(chains)) {
+  for (const chain of allChains) {
     if (chain.name === name || chain.name === chainNameMap[name]) {
       return chain;
     }
@@ -183,10 +203,7 @@ const getDefaultProvider = (network?: string): Client => {
 
 const isEip1559Supported = async (client: Client, logger?: LogTypes.ILogger): Promise<boolean> => {
   try {
-    await client.request({
-      method: 'eth_feeHistory',
-      params: [trim(toHex(1)), 'latest', []],
-    });
+    await getFeeHistory(client, { blockCount: 1, rewardPercentiles: [75] });
     return true;
   } catch (e) {
     logger &&

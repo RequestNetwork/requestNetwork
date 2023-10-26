@@ -19,10 +19,6 @@ const defaultValues = {
     ethereum: {
       networkId: 0,
       web3ProviderUrl: 'http://localhost:8545',
-      gasPriceMin: '1000000000', // 1 gwei per gas
-      gasPriceMax: '10000000000000', // 10,000 gwei per gas
-      // multiply by 2 the estimated max fee per gas to accomadate for volatility
-      gasPriceMultiplier: 200,
       blockConfirmations: 2,
     },
     ipfs: {
@@ -91,30 +87,6 @@ export const getGraphNodeUrl = makeOption(
   'graphNodeUrl',
   'GRAPH_NODE_URL',
   defaultValues.storage.thegraph.nodeUrl,
-);
-
-export function getGasPriceMin(): bigint | undefined {
-  const gasPriceMin = getOption(
-    'gasPriceMin',
-    'GAS_PRICE_MIN',
-    defaultValues.storage.ethereum.gasPriceMin,
-  );
-  return gasPriceMin ? BigInt(gasPriceMin) : undefined;
-}
-
-export function getGasPriceMax(): BigNumber | undefined {
-  const gasPriceMax = getOption(
-    'gasPriceMax',
-    'GAS_PRICE_MAX',
-    defaultValues.storage.ethereum.gasPriceMax,
-  );
-  return gasPriceMax ? BigNumber.from(gasPriceMax) : undefined;
-}
-
-export const getGasPriceMultiplier = makeOption(
-  'gasPriceMultiplier',
-  'GAS_PRICE_MULTIPLIER',
-  defaultValues.storage.ethereum.gasPriceMultiplier,
 );
 
 /**

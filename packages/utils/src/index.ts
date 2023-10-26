@@ -30,8 +30,6 @@ export {
 
 export { decrypt, encrypt, getIdentityFromEncryptionParams } from './encryption';
 
-export { normalizeGasFees } from './normalize-gas-fees';
-
 export {
   areEqualIdentities,
   identityHasError,
@@ -39,11 +37,7 @@ export {
   supportedIdentities,
 } from './identity';
 
-export {
-  setProviderFactory,
-  isEip1559Supported,
-  getDefaultProvider,
-} from './providers';
+export { setProviderFactory, isEip1559Supported, getDefaultProvider } from './providers';
 
 export { retry } from './retry';
 
@@ -63,4 +57,4 @@ export {
   notNull,
 } from './utils';
 
-export { axios } from "./axios"
+export { axios } from './axios';

@@ -15,9 +15,15 @@ export type IIndexedTransaction = {
   size: string;
 };
 
+export type TransactionReceipt = {
+  transactionHash: string;
+  blockNumber: bigint;
+};
+
 export interface ITransactionSubmitter {
   initialize: () => Promise<void>;
-  submit(ipfsHash: string, ipfsSize: number): Promise<any>;
+  submit(ipfsHash: string, ipfsSize: number): Promise<string>;
+  confirmTransaction(hash: string, confirmations: number): Promise<TransactionReceipt>;
   hashSubmitterAddress?: string;
   network?: string;
   creationBlockNumber?: number;

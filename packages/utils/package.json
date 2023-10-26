@@ -40,11 +40,11 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@noble/curves": "^1.1.0",
+    "@noble/curves": "^1.2.0",
     "@requestnetwork/types": "0.39.0",
     "@toruslabs/eccrypto": "4.0.0",
     "tslib": "2.5.0",
-    "viem": "^1.0.7"
+    "viem": "1.17.1"
   },
   "devDependencies": {
     "@types/jest": "29.5.6",

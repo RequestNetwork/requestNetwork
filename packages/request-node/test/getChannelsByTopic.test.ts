@@ -3,7 +3,9 @@ import { getRequestNode } from '../src/server';
 import request from 'supertest';
 import { RequestNode } from '../src/requestNode';
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
-import { providers } from 'ethers';
+import { createTestClient, http } from 'viem';
+
+const provider = createTestClient({ mode: 'ganache', transport: http() });
 
 // enable re-running these tests on local environment by having a different channel ID each time.
 const time = Date.now();
@@ -99,12 +101,11 @@ describe('getChannelsByTopic', () => {
     );
 
     // confirm the transactions for clean shutdown
-    const provider = new providers.JsonRpcProvider();
     const confirm = (txData: unknown) => {
       const transactionHash = normalizeKeccak256Hash(txData).value;
       return new Promise<void>((r) => {
         const i = setInterval(async () => {
-          await provider.send('evm_mine', []);
+          await provider.mine({ blocks: 1 });
           const res = await request(server)
             .get('/getConfirmedTransaction')
             .query({ transactionHash });

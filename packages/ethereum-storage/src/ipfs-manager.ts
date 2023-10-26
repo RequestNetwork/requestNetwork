@@ -10,8 +10,8 @@ type IpfsPaths = {
   id: string;
   add: { Hash: string };
   'object/get':
-  | { Type: 'error'; Message: string }
-  | { Type: undefined; Data: string; Links: string[] };
+    | { Type: 'error'; Message: string }
+    | { Type: undefined; Data: string; Links: string[] };
   'object/stat': { DataSize: number };
   'pin/add': { Pins: string[] };
   'bootstrap/list': { Peers: string[] };

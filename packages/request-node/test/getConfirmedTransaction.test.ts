@@ -3,13 +3,13 @@ import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 import { getRequestNode } from '../src/server';
 import { RequestNode } from '../src/requestNode';
-import { providers } from 'ethers';
+import { createTestClient, http } from 'viem';
 
 const channelId = '010aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 const transactionData = { data: `this is sample data for a transaction ${Date.now()}` };
 const transactionHash = normalizeKeccak256Hash(transactionData).value;
-const provider = new providers.JsonRpcProvider('http://localhost:8545');
+const provider = createTestClient({ mode: 'ganache', transport: http() });
 
 let requestNodeInstance: RequestNode;
 let server: any;
@@ -42,7 +42,7 @@ describe('getConfirmedTransaction', () => {
       .expect(StatusCodes.NOT_FOUND);
 
     // mining is required for TheGraph to index data
-    await provider.send('evm_mine', []);
+    await provider.mine({ blocks: 1 });
 
     let serverResponse: request.Response | undefined;
     // retry mechanism to account for ganache delay

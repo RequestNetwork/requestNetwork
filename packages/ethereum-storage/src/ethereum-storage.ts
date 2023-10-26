@@ -1,5 +1,4 @@
 import { EventEmitter } from 'events';
-import { providers } from 'ethers';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { getCurrentTimestampInSecond, SimpleLogger } from '@requestnetwork/utils';
 import { getDefaultEthereumBlockConfirmations } from './config';
@@ -34,39 +33,44 @@ export class EthereumStorage implements StorageTypes.IStorageWrite {
   async append(content: string): Promise<StorageTypes.IAppendResult> {
     const { ipfsHash, ipfsSize } = await this.ipfsStorage.ipfsAdd(content);
 
-    const tx = await this.txSubmitter.submit(ipfsHash, ipfsSize);
+    const hash = await this.txSubmitter.submit(ipfsHash, ipfsSize);
 
     const eventEmitter = new EventEmitter() as StorageTypes.AppendResultEmitter;
+    const ethereum: StorageTypes.IEthereumMetadata = {
+      transactionHash: hash,
+      blockConfirmation: 0,
+      blockNumber: -1,
+      // wrong value, but this metadata will not be used, as it's in Pending state
+      blockTimestamp: -1,
+      networkName: this.txSubmitter.network || '',
+      smartContractAddress: this.txSubmitter.hashSubmitterAddress || '',
+    };
     const result: StorageTypes.IEntry = {
       id: ipfsHash,
       content,
       meta: {
         ipfs: { size: ipfsSize },
         local: { location: ipfsHash },
-        ethereum: {
-          nonce: tx.nonce,
-          transactionHash: tx.hash,
-          blockConfirmation: tx.confirmations,
-          blockNumber: Number(tx.blockNumber),
-          // wrong value, but this metadata will not be used, as it's in Pending state
-          blockTimestamp: -1,
-          networkName: this.txSubmitter.network || '',
-          smartContractAddress: this.txSubmitter.hashSubmitterAddress || '',
-        },
+        ethereum,
         state: StorageTypes.ContentState.PENDING,
         storageType: StorageTypes.StorageSystemType.LOCAL,
         timestamp: getCurrentTimestampInSecond(),
       },
     };
 
-    this.logger.debug(`TX ${tx.hash} submitted, waiting for confirmation...`);
+    this.logger.debug(`TX ${hash} submitted, waiting for confirmation...`);
 
-    void tx
-      .wait(this.blockConfirmations || getDefaultEthereumBlockConfirmations())
-      .then((receipt: providers.TransactionReceipt) => {
+    void this.txSubmitter
+      .confirmTransaction(hash, this.blockConfirmations || getDefaultEthereumBlockConfirmations())
+      .then((receipt) => {
         this.logger.debug(
           `TX ${receipt.transactionHash} confirmed at block ${receipt.blockNumber}`,
         );
+        result.meta.ethereum = {
+          ...ethereum,
+          blockNumber: Number(receipt.blockNumber),
+          transactionHash: receipt.transactionHash,
+        };
         eventEmitter.emit('confirmed', result);
       })
       .catch((e: Error) => eventEmitter.emit('error', e));

@@ -8,6 +8,7 @@ import ConfirmedTransactionStore from './request/confirmedTransactionStore';
 import { EvmChains } from '@requestnetwork/currency';
 import { getEthereumStorageNetworkNameFromId } from '@requestnetwork/ethereum-storage';
 import { SubgraphClient } from '@requestnetwork/thegraph-data-access';
+import { getChain } from './chain';
 
 // Initialize the node logger
 const logger = new Logger(config.getLogLevel(), config.getLogMode());
@@ -22,9 +23,9 @@ const getNetwork = () => {
 };
 
 export const getRequestNode = (): RequestNode => {
-  const network = getNetwork();
   const storage = getDataStorage(logger);
-  const dataAccess = getDataAccess(network, storage, logger);
+  const chain = getChain();
+  const dataAccess = getDataAccess(chain, storage, logger);
 
   // we access the subgraph client directly, not through the data access,
   // because this feature is specific to RN use with Request Node. Without a node,
