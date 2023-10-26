@@ -36,9 +36,7 @@ export default class GetStatusHandler {
     }
 
     try {
-      const dataAccessStatus = await this.dataAccess._getStatus(
-        Boolean(clientRequest.query.detailed),
-      );
+      const dataAccessStatus = await this.dataAccess._getStatus();
       let providerUrl = '';
 
       // let's extract only the hostname to hide any token or sensible key
@@ -52,24 +50,17 @@ export default class GetStatusHandler {
       const status = {
         dataAccess: dataAccessStatus,
         node: {
-          customHeaders: config.getCustomHeaders(),
           ethereum: {
-            concurrency: config.getStorageConcurrency(),
-            lastBlockNumberDelay: config.getLastBlockNumberDelay(),
             networkId: config.getStorageNetworkId(),
             providerUrl,
-            retryDelay: config.getEthereumRetryDelay(),
             blockConfirmations: config.getBlockConfirmations(),
           },
           ipfs: {
-            host: config.getIpfsHost(),
-            port: config.getIpfsPort(),
-            protocol: config.getIpfsProtocol(),
+            url: config.getIpfsUrl(),
             timeout: config.getIpfsTimeout(),
           },
           persistTransactionTimeout: config.getPersistTransactionTimeout(),
           port: config.getServerPort(),
-          serverExternalUrl: config.getServerExternalUrl(),
           version: packageJson.version,
         },
       };

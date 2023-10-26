@@ -1,12 +1,15 @@
 import { getCurrentTimestampInSecond } from '@requestnetwork/utils';
 
-const web3Eth = require('web3-eth');
-
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
-import { DataAccess } from '@requestnetwork/data-access';
 import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
-import { EthereumStorage, IpfsStorage } from '@requestnetwork/ethereum-storage';
+import { TheGraphDataAccess } from '@requestnetwork/thegraph-data-access';
+import { PendingStore } from '@requestnetwork/data-access';
+import {
+  EthereumStorage,
+  EthereumTransactionSubmitter,
+  IpfsStorage,
+} from '@requestnetwork/ethereum-storage';
 import MultiFormat from '@requestnetwork/multi-format';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
@@ -19,10 +22,11 @@ import {
   SignatureTypes,
   StorageTypes,
 } from '@requestnetwork/types';
+import { providers, Wallet } from 'ethers';
 
 let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 let requestLogic: RequestLogicTypes.IRequestLogic;
-let provider: any;
+let provider: providers.JsonRpcProvider;
 let payeeSignatureInfo: SignatureTypes.ISignatureParameters;
 let payeeIdentity: IdentityTypes.IIdentity;
 let encryptionDataPayee: any;
@@ -34,45 +38,35 @@ let signatureProvider: any;
 
 let dataAccess: DataAccessTypes.IDataAccess;
 
-const { time } = require('@openzeppelin/test-helpers');
-
-let nbBlocks = 0;
-let testsFinished = false;
 const interval = setInterval(async () => {
-  await time.advanceBlock();
-  if (testsFinished) {
-    nbBlocks++;
-  }
+  await provider.send('evm_mine', []);
   // eslint-disable-next-line no-magic-numbers
-  if (nbBlocks > 25) {
-    clearInterval(interval);
-  }
-  // eslint-disable-next-line no-magic-numbers
-}, 1000);
+}, 200);
 
 afterAll(() => {
-  testsFinished = true;
+  clearInterval(interval);
 });
+
+const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
+
+jest.setTimeout(60_000);
 
 describe('Request system', () => {
   beforeEach(async () => {
     // Storage setup
-    provider = new web3Eth.providers.HttpProvider('http://localhost:8545');
-    const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
-      host: 'localhost',
-      port: 5001,
-      protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
-      timeout: 10000,
-    };
-    const web3Connection: StorageTypes.IWeb3Connection = {
-      networkId: StorageTypes.EthereumNetwork.PRIVATE,
-      web3Provider: provider,
-    };
-    const ipfsStorage = new IpfsStorage({ ipfsGatewayConnection });
-    const ethereumStorage = new EthereumStorage('localhost', ipfsStorage, web3Connection);
-
+    provider = new providers.JsonRpcProvider('http://localhost:8545');
+    const signer = Wallet.fromMnemonic(mnemonic).connect(provider);
+    const ipfsStorage = new IpfsStorage({ ipfsTimeout: 10000 });
+    const txSubmitter = new EthereumTransactionSubmitter({ signer, network: 'private' });
+    const ethereumStorage = new EthereumStorage({ ipfsStorage, txSubmitter });
     // Data access setup
-    dataAccess = new DataAccess(ethereumStorage);
+    dataAccess = new TheGraphDataAccess({
+      graphql: { url: 'http://localhost:8000/subgraphs/name/RequestNetwork/request-storage' },
+      network: 'private',
+      storage: ethereumStorage,
+      pendingStore: new PendingStore(),
+    });
+
     await dataAccess.initialize();
 
     // Signature provider setup
@@ -145,11 +139,6 @@ describe('Request system', () => {
 
     // Logic setup
     requestLogic = new RequestLogic(transactionManager, signatureProvider, advancedLogic);
-  });
-
-  afterAll(() => {
-    // Stop web3 provider
-    provider.disconnect();
   });
 
   it('can create a request', async () => {
@@ -234,32 +223,6 @@ describe('Request system', () => {
   });
 
   it('can create a request with cache', async () => {
-    const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
-      host: 'localhost',
-      port: 5001,
-      protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
-      timeout: 10000,
-    };
-    const web3Connection: StorageTypes.IWeb3Connection = {
-      networkId: StorageTypes.EthereumNetwork.PRIVATE,
-      web3Provider: provider,
-    };
-    const ipfsStorage = new IpfsStorage({ ipfsGatewayConnection });
-    const ethereumStorage = new EthereumStorage('localhost', ipfsStorage, web3Connection);
-
-    // Data access setup
-    dataAccess = new DataAccess(ethereumStorage);
-    await dataAccess.initialize();
-
-    // Transaction manager setup
-    const transactionManager = new TransactionManager(dataAccess, decryptionProvider);
-
-    // Advanced Logic setup
-    advancedLogic = new AdvancedLogic();
-
-    // Logic setup
-    requestLogic = new RequestLogic(transactionManager, signatureProvider, advancedLogic);
-
     const contentDataExtensionData = advancedLogic.extensions.contentData.createCreationAction({
       content: { this: 'could', be: 'an', invoice: true },
     });
@@ -297,12 +260,11 @@ describe('Request system', () => {
     const requestIdLength = 66;
     expect(resultCreation.result.requestId.length).toEqual(requestIdLength);
 
-    // wait a bit
-    // eslint-disable-next-line no-magic-numbers
-    await new Promise((r: any): any => setTimeout(r, 2000));
+    await new Promise((r) => resultCreation.on('confirmed', r));
 
     const request = await requestLogic.getRequestFromId(resultCreation.result.requestId);
     expect(request).toBeDefined();
+
     expect(request.meta.transactionManagerMeta.dataAccessMeta.storageMeta[0].storageType).toEqual(
       StorageTypes.StorageSystemType.ETHEREUM_IPFS,
     );
@@ -393,6 +355,7 @@ describe('Request system', () => {
       },
       timestamp: getCurrentTimestampInSecond(),
     };
+    await new Promise((r) => resultCreation1.on('confirmed', r));
     const resultCreation2 = await requestLogic.createRequest(
       request2CreationHash,
       payeeIdentity,
@@ -406,9 +369,7 @@ describe('Request system', () => {
       requestId: requestId1,
     };
 
-    // wait a bit
-    // eslint-disable-next-line no-magic-numbers
-    await new Promise((r: any): any => setTimeout(r, 1000));
+    await new Promise((r) => resultCreation2.on('confirmed', r));
 
     const resultReduce1 = await requestLogic.reduceExpectedAmountRequest(
       request1ReduceHash,
@@ -417,9 +378,7 @@ describe('Request system', () => {
     const timestampReduce1 =
       resultReduce1.meta.transactionManagerMeta.dataAccessMeta.storageMeta.timestamp;
 
-    // wait a bit
-    // eslint-disable-next-line no-magic-numbers
-    await new Promise((r: any): any => setTimeout(r, 1100));
+    await new Promise((r) => resultReduce1.on('confirmed', r));
 
     // cancel request
     const request1CancelHash: RequestLogicTypes.ICancelParameters = {
@@ -485,13 +444,13 @@ describe('Request system', () => {
     expect(request.result.pending!.expectedAmount).toEqual('12345678987654321');
     expect(request.result.pending!.state).toEqual(RequestLogicTypes.STATE.CREATED);
 
+    await new Promise((resolve) => resultCreation.on('confirmed', resolve));
+
     // reduce the expected amount by payee
     const resultReduce = await requestLogic.reduceExpectedAmountRequest(
       { requestId: resultCreation.result.requestId, deltaAmount: '987654321' },
       payeeIdentity,
     );
-
-    await new Promise((resolve) => resultCreation.on('confirmed', resolve));
 
     expect(resultReduce.meta.transactionManagerMeta.encryptionMethod).toEqual('ecies-aes256-gcm');
     expect(resultReduce.result).not.toBeDefined();
@@ -509,6 +468,8 @@ describe('Request system', () => {
 
     expect(requestAfterReduce.result.pending).not.toBeNull();
     expect(requestAfterReduce.result.pending!.expectedAmount).toEqual('12345678000000000');
+
+    await new Promise((resolve) => resultReduce.on('confirmed', resolve));
 
     // accept the request by payer
     const resultAccept = await requestLogic.acceptRequest(
@@ -556,6 +517,8 @@ describe('Request system', () => {
     expect(requestAfterIncrease.result.pending).toBeDefined();
     expect(requestAfterIncrease.result.pending!.expectedAmount).toEqual('12345678000000111');
 
+    await new Promise((resolve) => resultIncrease.on('confirmed', resolve));
+
     // cancel the request by payee
     const resultCancel = await requestLogic.cancelRequest(
       { requestId: resultCreation.result.requestId },
@@ -576,6 +539,8 @@ describe('Request system', () => {
 
     expect(requestAfterCancel.result.pending).toBeDefined();
     expect(requestAfterCancel.result.pending!.state).toEqual(RequestLogicTypes.STATE.CANCELED);
+
+    await new Promise((resolve) => resultCancel.on('confirmed', resolve));
 
     // check that the data are encrypted:
     const dataAccessData = await dataAccess.getTransactionsByChannelId(

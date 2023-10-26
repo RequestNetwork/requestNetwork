@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
+import { getRequestNode } from '../src/server';
 import { RequestNode } from '../src/requestNode';
-import { RequestNodeBase } from '../src/requestNodeBase';
 
 const packageJson = require('../package.json');
 const requestNodeVersion = packageJson.version;
@@ -10,14 +10,14 @@ const dataAccessInitializeFailureMock = async (): Promise<never> => {
   throw Error('This mock function always fails');
 };
 
-let requestNodeInstance: RequestNodeBase;
+let requestNodeInstance: RequestNode;
 let server: any;
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('requestNode server', () => {
   beforeAll(async () => {
-    requestNodeInstance = new RequestNode();
+    requestNodeInstance = getRequestNode();
     await requestNodeInstance.initialize();
 
     server = (requestNodeInstance as any).express;
@@ -41,14 +41,14 @@ describe('requestNode server', () => {
   });
 
   it('responds with status 503 to readyness check requests when not ready', async () => {
-    requestNodeInstance = new RequestNode();
+    requestNodeInstance = getRequestNode();
     server = (requestNodeInstance as any).express;
     await request(server).get('/readyz').expect(StatusCodes.SERVICE_UNAVAILABLE);
   });
 
   it('responds with status 503 if server is uninitialized', async () => {
     // Import directly requestNode to create a server where we don't call requestNodeInstance.initialize()
-    requestNodeInstance = new RequestNode();
+    requestNodeInstance = getRequestNode();
     const notInitializedServer = (requestNodeInstance as any).express;
 
     await request(notInitializedServer)
@@ -63,7 +63,7 @@ describe('requestNode server', () => {
   });
 
   it('initialization failure should throw an error', async () => {
-    requestNodeInstance = new RequestNode();
+    requestNodeInstance = getRequestNode();
     jest
       .spyOn((requestNodeInstance as any).dataAccess, 'initialize')
       .mockImplementation(dataAccessInitializeFailureMock);
@@ -71,18 +71,9 @@ describe('requestNode server', () => {
     await expect(requestNodeInstance.initialize()).rejects.toThrowError(Error);
   });
 
-  it('serves custom headers', async () => {
-    // Import directly requestNode to create a server
-    process.env.HEADERS = '{"x-custom-test-header": "test-passed"}';
-    requestNodeInstance = new RequestNode();
-    server = (requestNodeInstance as any).express;
-
-    await request(server).post('/').expect('x-custom-test-header', 'test-passed');
-  });
-
   it('the response header contains the Request Node version', async () => {
     // Import directly requestNode to create a server
-    requestNodeInstance = new RequestNode();
+    requestNodeInstance = getRequestNode();
     server = (requestNodeInstance as any).express;
 
     await request(server).post('/').expect('X-Request-Network-Node-Version', requestNodeVersion);
@@ -92,7 +83,7 @@ describe('requestNode server', () => {
     process.env.ETHEREUM_NETWORK_ID = '4';
 
     // 'must throw'
-    expect(() => new RequestNode()).toThrowError(
+    expect(() => getRequestNode()).toThrowError(
       'the environment variable MNEMONIC must be set up. The default mnemonic is only for private network.',
     );
   });

@@ -3,7 +3,7 @@ import * as qs from 'qs';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 
-import { getDefaultIpfs, getIpfsErrorHandlingConfig } from './config';
+import { getDefaultIpfsTimeout, getDefaultIpfsUrl, getIpfsErrorHandlingConfig } from './config';
 import * as FormData from 'form-data';
 import { retry, SimpleLogger } from '@requestnetwork/utils';
 
@@ -19,13 +19,18 @@ type IpfsPaths = {
   'bootstrap/list': { Peers: string[] };
 };
 
+export type IpfsOptions = {
+  ipfsUrl?: string;
+  ipfsTimeout?: number;
+  ipfsErrorHandling?: StorageTypes.IIpfsErrorHandlingConfiguration;
+  logger?: LogTypes.ILogger;
+};
 /**
  * Manages Ipfs communication used as storage
  */
 export default class IpfsManager {
   private readonly logger: LogTypes.ILogger;
   private readonly axiosInstance: AxiosInstance;
-  private readonly ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection;
   private readonly ipfsErrorHandling: StorageTypes.IIpfsErrorHandlingConfiguration;
 
   public readonly BASE_PATH: string = 'api/v0';
@@ -36,18 +41,15 @@ export default class IpfsManager {
    * If no values are provided default values from config are used
    * Private network is used for default values
    */
-  public constructor(options?: {
-    ipfsGatewayConnection?: StorageTypes.IIpfsGatewayConnection;
-    ipfsErrorHandling?: StorageTypes.IIpfsErrorHandlingConfiguration;
-    logger?: LogTypes.ILogger;
-  }) {
-    this.ipfsGatewayConnection = options?.ipfsGatewayConnection || getDefaultIpfs();
+  public constructor(options?: IpfsOptions) {
+    const ipfsUrl = options?.ipfsUrl || getDefaultIpfsUrl();
+    const ipfsTimeout = options?.ipfsTimeout || getDefaultIpfsTimeout();
     this.ipfsErrorHandling = options?.ipfsErrorHandling || getIpfsErrorHandlingConfig();
     this.logger = options?.logger || new SimpleLogger();
 
     this.axiosInstance = axios.create({
-      baseURL: `${this.ipfsGatewayConnection.protocol}://${this.ipfsGatewayConnection.host}:${this.ipfsGatewayConnection.port}/${this.BASE_PATH}/`,
-      timeout: this.ipfsGatewayConnection.timeout,
+      baseURL: `${ipfsUrl}/${this.BASE_PATH}/`,
+      timeout: ipfsTimeout,
       paramsSerializer: function (params) {
         return qs.stringify(params, { arrayFormat: 'repeat' });
       },
@@ -219,12 +221,10 @@ export default class IpfsManager {
   public async getConfig(): Promise<StorageTypes.IIpfsConfig> {
     return {
       delayBetweenRetries: this.ipfsErrorHandling.delayBetweenRetries,
-      host: this.ipfsGatewayConnection.host,
+      url: this.axiosInstance.defaults.baseURL || '',
+      timeout: this.axiosInstance.defaults.timeout,
       id: await this.getIpfsNodeId(),
       maxRetries: this.ipfsErrorHandling.maxRetries,
-      port: this.ipfsGatewayConnection.port,
-      protocol: this.ipfsGatewayConnection.protocol,
-      timeout: this.ipfsGatewayConnection.timeout,
     };
   }
 

@@ -3,20 +3,6 @@ import IpfsManager from '../src/ipfs-manager';
 import { AxiosInstance } from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
-const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
-  host: 'localhost',
-  port: 5001,
-  protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
-  timeout: 1000,
-};
-
-const invalidHostIpfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
-  host: 'nonexistent',
-  port: 5001,
-  protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
-  timeout: 1500,
-};
-
 const testErrorHandling: StorageTypes.IIpfsErrorHandlingConfiguration = {
   delayBetweenRetries: 0,
   maxRetries: 0,
@@ -46,7 +32,7 @@ const contentLengthOnIpfs2 = 38;
 describe('Ipfs manager', () => {
   beforeEach(() => {
     ipfsManager = new IpfsManager({
-      ipfsGatewayConnection,
+      ipfsTimeout: 1000,
       ipfsErrorHandling: testErrorHandling,
     });
   });
@@ -117,7 +103,8 @@ describe('Ipfs manager', () => {
 
   it('operations with a invalid host network should throw ENOTFOUND errors', async () => {
     ipfsManager = new IpfsManager({
-      ipfsGatewayConnection: invalidHostIpfsGatewayConnection,
+      ipfsUrl: 'http://nonexistent:5001',
+      ipfsTimeout: 1500,
       ipfsErrorHandling: testErrorHandling,
     });
     await expect(ipfsManager.getIpfsNodeId()).rejects.toThrowError('getaddrinfo ENOTFOUND');
@@ -139,7 +126,6 @@ describe('Ipfs manager', () => {
 
   it('should retry on error', async () => {
     ipfsManager = new IpfsManager({
-      ipfsGatewayConnection,
       ipfsErrorHandling: retryTestErrorHandling,
     });
     const axiosInstance: AxiosInstance = (ipfsManager as any).axiosInstance;
@@ -151,7 +137,7 @@ describe('Ipfs manager', () => {
 
   it('timeout errors should generate retry', async () => {
     ipfsManager = new IpfsManager({
-      ipfsGatewayConnection: { ...ipfsGatewayConnection, timeout: 1 },
+      ipfsTimeout: 1,
       ipfsErrorHandling: retryTestErrorHandling,
     });
     const axiosInstance: AxiosInstance = (ipfsManager as any).axiosInstance;
