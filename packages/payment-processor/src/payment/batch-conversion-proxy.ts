@@ -98,7 +98,7 @@ export function prepareBatchConversionPaymentTransaction(
   };
 }
 
-const pnToDetailsBuilder: Record<
+const mapPnToDetailsBuilder: Record<
   BatchPaymentNetworks,
   (req: EnrichedRequest, isNative: boolean) => PaymentTypes.RequestDetail
 > = {
@@ -108,14 +108,14 @@ const pnToDetailsBuilder: Record<
   'pn-eth-fee-proxy-contract': getRequestDetailWithoutConversion,
 };
 
-const pnToAllowedCurrencies: Record<BatchPaymentNetworks, RequestLogicTypes.CURRENCY[]> = {
+const mapPnToAllowedCurrencies: Record<BatchPaymentNetworks, RequestLogicTypes.CURRENCY[]> = {
   'pn-any-to-erc20-proxy': [CURRENCY.ERC20, CURRENCY.ISO4217, CURRENCY.ETH],
   'pn-any-to-eth-proxy': [CURRENCY.ERC20, CURRENCY.ISO4217],
   'pn-erc20-fee-proxy-contract': [CURRENCY.ERC20],
   'pn-eth-fee-proxy-contract': [CURRENCY.ETH],
 };
 
-const pnToBatchId: Record<BatchPaymentNetworks, PaymentTypes.BATCH_PAYMENT_NETWORK_ID> = {
+const mapPnToBatchId: Record<BatchPaymentNetworks, PaymentTypes.BATCH_PAYMENT_NETWORK_ID> = {
   'pn-any-to-erc20-proxy':
     PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
   'pn-any-to-eth-proxy': PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_ETH_CONVERSION_PAYMENTS,
@@ -131,8 +131,8 @@ const computeRequestDetails = ({
   extension: IState<any> | undefined;
 }) => {
   const paymentNetworkId = enrichedRequest.paymentNetworkId;
-  const allowedCurrencies = pnToAllowedCurrencies[paymentNetworkId];
-  const detailsBuilder = pnToDetailsBuilder[paymentNetworkId];
+  const allowedCurrencies = mapPnToAllowedCurrencies[paymentNetworkId];
+  const detailsBuilder = mapPnToDetailsBuilder[paymentNetworkId];
   const isNative =
     paymentNetworkId === ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY ||
     paymentNetworkId === ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT;
@@ -203,7 +203,7 @@ function encodePayBatchConversionRequest(
    */
   const metaDetails = Object.entries(requestDetails)
     .map(([pn, details]) => ({
-      paymentNetworkId: pnToBatchId[pn as BatchPaymentNetworks],
+      paymentNetworkId: mapPnToBatchId[pn as BatchPaymentNetworks],
       requestDetails: details,
     }))
     .filter((details) => details.requestDetails.length > 0)
