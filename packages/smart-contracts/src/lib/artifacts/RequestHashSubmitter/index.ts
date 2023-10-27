@@ -2,7 +2,7 @@ import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
 // @ts-ignore Cannot find module
-import type { RequestOpenHashSubmitter } from '../../../types/RequestOpenHashSubmitter';
+import type { RequestOpenHashSubmitter } from '../../../types';
 
 export const requestHashSubmitterArtifact = new ContractArtifact<RequestOpenHashSubmitter>(
   {

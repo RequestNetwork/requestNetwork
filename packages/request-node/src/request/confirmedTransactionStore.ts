@@ -7,7 +7,7 @@ import Keyv, { Store } from 'keyv';
  * The client can call the getConfirmed entry point, to get the confirmed event.
  */
 export default class ConfirmedTransactionStore {
-  private store: Keyv<DataAccessTypes.IReturnPersistTransaction>;
+  private store: Keyv<DataAccessTypes.IReturnPersistTransactionRaw>;
 
   /**
    * Confirmed transactions store constructor
@@ -21,7 +21,7 @@ export default class ConfirmedTransactionStore {
 
   public async getConfirmedTransaction(
     transactionHash: string,
-  ): Promise<DataAccessTypes.IReturnPersistTransaction | undefined> {
+  ): Promise<DataAccessTypes.IReturnPersistTransactionRaw | undefined> {
     return this.store.get(transactionHash);
   }
 
@@ -33,7 +33,7 @@ export default class ConfirmedTransactionStore {
    */
   public async addConfirmedTransaction(
     transactionHash: string,
-    result: DataAccessTypes.IReturnPersistTransaction,
+    result: DataAccessTypes.IReturnPersistTransactionRaw,
   ): Promise<void> {
     await this.store.set(transactionHash, result);
   }

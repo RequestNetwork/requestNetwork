@@ -39,6 +39,4 @@ export abstract class CombinedDataAccess implements DataAccessTypes.IDataAccess 
     channelId: string,
     topics?: string[] | undefined,
   ) => Promise<DataAccessTypes.IReturnPersistTransaction>;
-
-  abstract _getStatus(): Promise<any>;
 }

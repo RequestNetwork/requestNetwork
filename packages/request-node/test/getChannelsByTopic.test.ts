@@ -1,15 +1,18 @@
 import { StatusCodes } from 'http-status-codes';
+import { getRequestNode } from '../src/server';
 import request from 'supertest';
 import { RequestNode } from '../src/requestNode';
-import { RequestNodeBase } from '../src/requestNodeBase';
+import { normalizeKeccak256Hash } from '@requestnetwork/utils';
+import { providers } from 'ethers';
 
-const channelId = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-const anotherChannelId = '01bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
-const commonTopic = ['01cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc'];
-const topics = ['01dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd'].concat(
-  commonTopic,
-);
-const otherTopics = ['01eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'].concat(
+// enable re-running these tests on local environment by having a different channel ID each time.
+const time = Date.now();
+const channelId = `01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa${time}`;
+const anotherChannelId = `01bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb${time}`;
+
+const commonTopic = [`01ccccccccccccccccccccccccccccccccccccccccccccccccccc${time}`];
+const topics = [`01ddddddddddddddddddddddddddddddddddddddddddddddddddd${time}`].concat(commonTopic);
+const otherTopics = [`01eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee${time}`].concat(
   commonTopic,
 );
 const nonExistentTopic = '010000000000000000000000000000000000000000000000000000000000000000';
@@ -20,14 +23,14 @@ const otherTransactionData = {
   data: 'this is other sample data for a transaction to test getChannelsByTopic',
 };
 
-let requestNodeInstance: RequestNodeBase;
+let requestNodeInstance: RequestNode;
 let server: any;
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('getChannelsByTopic', () => {
   beforeAll(async () => {
-    requestNodeInstance = new RequestNode();
+    requestNodeInstance = getRequestNode();
     await requestNodeInstance.initialize();
     server = (requestNodeInstance as any).express;
   });
@@ -54,9 +57,10 @@ describe('getChannelsByTopic', () => {
       .set('Accept', 'application/json')
       .expect(StatusCodes.OK);
 
-    expect(Object.keys(serverResponse.body.result.transactions[channelId])).toHaveLength(1);
-    expect(serverResponse.body.result.transactions[channelId][0].transaction).toEqual(
-      transactionData,
+    expect(serverResponse.body.result.transactions).toMatchObject(
+      expect.objectContaining({
+        [channelId]: [expect.objectContaining({ transaction: transactionData })],
+      }),
     );
 
     await request(server)
@@ -74,9 +78,11 @@ describe('getChannelsByTopic', () => {
       .query({ topic: otherTopics[0] })
       .set('Accept', 'application/json')
       .expect(StatusCodes.OK);
-    expect(Object.keys(serverResponse.body.result.transactions[anotherChannelId])).toHaveLength(1);
-    expect(serverResponse.body.result.transactions[anotherChannelId][0].transaction).toEqual(
-      otherTransactionData,
+
+    expect(serverResponse.body.result.transactions).toMatchObject(
+      expect.objectContaining({
+        [anotherChannelId]: [expect.objectContaining({ transaction: otherTransactionData })],
+      }),
     );
 
     // If we search for the common topic, there should be two transaction
@@ -86,9 +92,32 @@ describe('getChannelsByTopic', () => {
       .set('Accept', 'application/json')
       .expect(StatusCodes.OK);
 
-    expect(Object.keys(serverResponse.body.result.transactions[channelId])).toHaveLength(1);
-    expect(Object.keys(serverResponse.body.result.transactions[anotherChannelId])).toHaveLength(1);
-  });
+    expect(serverResponse.body.result.transactions).toMatchObject(
+      expect.objectContaining({
+        [channelId]: [expect.objectContaining({ transaction: transactionData })],
+        [anotherChannelId]: [expect.objectContaining({ transaction: otherTransactionData })],
+      }),
+    );
+
+    // confirm the transactions for clean shutdown
+    const provider = new providers.JsonRpcProvider();
+    const confirm = (txData: unknown) => {
+      const transactionHash = normalizeKeccak256Hash(txData).value;
+      return new Promise<void>((r) => {
+        const i = setInterval(async () => {
+          await provider.send('evm_mine', []);
+          const res = await request(server)
+            .get('/getConfirmedTransaction')
+            .query({ transactionHash });
+          if (res.status === 200) {
+            clearInterval(i);
+            return r();
+          }
+        }, 200);
+      });
+    };
+    await Promise.all([confirm(transactionData), confirm(otherTransactionData)]);
+  }, 10000);
 
   it('responds with no transaction to requests with a non-existent topic', async () => {
     const serverResponse = await request(server)

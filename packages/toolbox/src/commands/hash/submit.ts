@@ -5,7 +5,6 @@ import { InferArgs } from '../../types';
 import yargs from 'yargs';
 import { getWallet } from '../transaction/utils';
 import { EthereumTransactionSubmitter, IpfsStorage } from '@requestnetwork/ethereum-storage';
-import { StorageTypes } from '@requestnetwork/types';
 import { EvmChains } from '@requestnetwork/currency';
 
 export const command = 'hash submit <ipfsHash>';
@@ -22,12 +21,7 @@ export const handler = async (argv: yargs.Arguments<InferArgs<ReturnType<typeof 
 
   const wallet = await getWallet({ chainName: argv.chainName, dryRun: argv.dryRun });
   const ipfsStorage = new IpfsStorage({
-    ipfsGatewayConnection: {
-      host: 'localhost',
-      port: 5001,
-      protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
-      timeout: 5000,
-    },
+    ipfsTimeout: 5000,
   });
   await ipfsStorage.initialize();
   const ipfsSize = await ipfsStorage.getSize(argv.ipfsHash);

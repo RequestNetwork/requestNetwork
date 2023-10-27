@@ -1,7 +1,7 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module
-import { Erc20ConversionProxy } from '../src/types/Erc20ConversionProxy';
+import { Erc20ConversionProxy } from '../src/types';
 import {
   erc20ConversionProxy as erc20ConversionProxyArtifact,
   ethConversionArtifact,

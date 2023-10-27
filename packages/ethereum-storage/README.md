@@ -15,32 +15,16 @@ npm install @requestnetwork/ethereum-storage
 ## Usage
 
 ```js
-import { EthereumStorage } from '@requestnetwork/ethereum-storage';
-import { StorageTypes } from '@requestnetwork/types';
+import {
+  EthereumStorage,
+  EthereumTransactionSubmitter,
+  IpfsStorage,
+} from '@requestnetwork/ethereum-storage';
 
-const web3HttpProvider = require('web3-providers-http');
-
-const provider = new web3HttpProvider('http://localhost:8545');
-
-const web3Connection: StorageTypes.IWeb3Connection = {
-  networkId: StorageTypes.EthereumNetwork.PRIVATE,
-  timeout: 1000,
-  web3Provider: provider,
-};
-
-const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
-  host: 'localhost',
-  port: 5001,
-  protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
-  timeout: 1000,
-};
-
-const ethereumStorage = new EthereumStorage(
-  // Give an external url of the storage (use to indicate where the buffer data are stored)
-  'url.buffer.ethereum.storage',
-  ipfsGatewayConnection,
-  web3Connection,
-);
+const ethereumStorage = new EthereumStorage({
+  ipfsStorage: new IpfsStorage(),
+  txSubmitter: new EthereumTransactionSubmitter(),
+});
 
 const data = 'Some data';
 

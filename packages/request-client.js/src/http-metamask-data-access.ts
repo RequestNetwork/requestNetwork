@@ -21,7 +21,6 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     };
   } = {};
 
-  private submitterContract: ethers.Contract | undefined;
   private provider: ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider;
   private networkName: CurrencyTypes.EvmChainName = 'private';
 
@@ -77,18 +76,16 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     channelId: string,
     topics?: string[],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
-    if (!this.submitterContract) {
+    if (!this.networkName) {
       const network = await this.provider.getNetwork();
 
       this.networkName =
         network.chainId === 1 ? 'mainnet' : network.chainId === 4 ? 'rinkeby' : 'private';
-
-      this.submitterContract = new ethers.Contract(
-        requestHashSubmitterArtifact.getAddress(this.networkName),
-        requestHashSubmitterArtifact.getContractAbi(),
-        this.provider.getSigner(),
-      );
     }
+    const submitterContract = requestHashSubmitterArtifact.connect(
+      this.networkName,
+      this.provider.getSigner(),
+    );
 
     // We don't use the node to persist the transaction, but we will Do it ourselves
 
@@ -106,26 +103,26 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     } = await axios.post('/ipfsAdd', { data: block }, this.axiosConfig);
 
     // get the fee required to submit the hash
-    const fee = await this.submitterContract.getFeesAmount(ipfsSize);
+    const fee = await submitterContract.getFeesAmount(ipfsSize);
 
     // submit the hash to ethereum
-    const tx = await this.submitterContract.submitHash(
+    const tx = await submitterContract.submitHash(
       ipfsHash,
       /* eslint-disable no-magic-numbers */
       ethers.utils.hexZeroPad(ethers.utils.hexlify(ipfsSize), 32),
       { value: fee },
     );
 
-    const ethBlock = await this.provider.getBlock(tx.blockNumber);
+    const ethBlock = await this.provider.getBlock(tx.blockNumber ?? -1);
 
     // create the storage meta from the transaction receipt
     const storageMeta: StorageTypes.IEthereumMetadata = {
       blockConfirmation: tx.confirmations,
-      blockNumber: tx.blockNumber,
+      blockNumber: tx.blockNumber ?? -1,
       blockTimestamp: ethBlock.timestamp,
-      fee,
+      fee: fee.toString(),
       networkName: this.networkName,
-      smartContractAddress: tx.to,
+      smartContractAddress: tx.to ?? '',
       transactionHash: tx.hash,
     };
 
@@ -135,7 +132,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     }
     this.cache[channelId][ipfsHash] = { block, storageMeta };
 
-    const eventEmitter = new EventEmitter();
+    const eventEmitter = new EventEmitter() as DataAccessTypes.PersistTransactionEmitter;
     const result: DataAccessTypes.IReturnPersistTransactionRaw = {
       meta: {
         storageMeta: {
@@ -151,22 +148,23 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     };
 
     // When the ethereum transaction is mined, emit an event 'confirmed'
-    tx.wait().then((txConfirmed: any) => {
-      // create the storage meta from the transaction receipt
-      const storageMetaConfirmed = {
-        blockConfirmation: txConfirmed.confirmations,
-        blockNumber: txConfirmed.blockNumber,
-        blockTimestamp: ethBlock.timestamp,
-        fee,
-        networkName: this.networkName,
-        smartContractAddress: txConfirmed.to,
-        transactionHash: txConfirmed.hash,
-      };
-
+    void tx.wait().then((txConfirmed) => {
       // emit the event to tell the request transaction is confirmed
       eventEmitter.emit('confirmed', {
         meta: {
-          storageMeta: storageMetaConfirmed,
+          storageMeta: {
+            ethereum: {
+              blockConfirmation: txConfirmed.confirmations,
+              blockNumber: txConfirmed.blockNumber,
+              blockTimestamp: ethBlock.timestamp,
+              fee: fee.toString(),
+              networkName: this.networkName,
+              smartContractAddress: txConfirmed.to,
+              transactionHash: txConfirmed.transactionHash,
+            },
+            state: StorageTypes.ContentState.CONFIRMED,
+            timestamp: ethBlock.timestamp,
+          },
           topics: topics || [],
           transactionStorageLocation: ipfsHash,
         },

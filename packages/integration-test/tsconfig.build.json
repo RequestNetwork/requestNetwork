@@ -15,6 +15,7 @@
     { "path": "../multi-format/tsconfig.build.json" },
     { "path": "../payment-processor/tsconfig.build.json" },
     { "path": "../request-logic/tsconfig.build.json" },
+    { "path": "../thegraph-data-access/tsconfig.build.json" },
     { "path": "../transaction-manager/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" }
   ]

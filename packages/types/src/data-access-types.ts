@@ -1,5 +1,5 @@
-import { EventEmitter } from 'events';
 import * as StorageTypes from './storage-types';
+import { ConfirmationEventEmitter } from './events';
 
 /** Data Access Layer */
 export interface IDataRead {
@@ -32,25 +32,11 @@ export interface IDataWrite {
 }
 
 export interface IDataAccess extends IDataRead, IDataWrite {
-  _getStatus(detailed?: boolean): Promise<IDataAccessStatus>;
+  _getStatus?(): Promise<IDataAccessStatus>;
 }
 
 export interface IDataAccessStatus {
-  filesIgnored: {
-    count: number;
-    list?: { [location: string]: string };
-  };
-  filesRetrieved: {
-    count: number;
-    lastTimestamp: number | null;
-    list?: string[];
-  };
-  lastSynchronizationTimestamp: number;
   storage: any;
-  synchronizationConfig: {
-    intervalTime: number;
-    successiveFailureThreshold: number;
-  };
 }
 
 /** Enum of state possible for an action */
@@ -79,7 +65,9 @@ export type IReturnPersistTransactionRaw = {
   result: Record<string, never>;
 };
 
-export type IReturnPersistTransaction = EventEmitter & IReturnPersistTransactionRaw;
+export type PersistTransactionEmitter = ConfirmationEventEmitter<IReturnPersistTransactionRaw>;
+
+export type IReturnPersistTransaction = PersistTransactionEmitter & IReturnPersistTransactionRaw;
 
 /** return interface for getTransactionsByChannelId */
 export interface IReturnGetTransactions {
@@ -159,26 +147,18 @@ export interface ITimestampedTransaction {
 /** Transaction data */
 export type ITransactionData = string;
 
-/**
- * An index to store locations and timestamps of transactions in IPFS.
- */
-export interface ITransactionIndex {
-  initialize(): Promise<void>;
-  getLastTransactionTimestamp(): Promise<number | null>;
-  addTransaction(dataId: string, header: IBlockHeader, timestamp: number): Promise<void>;
-  getChannelIdsForTopic(
-    topic: string,
-    timestampBoundaries?: ITimestampBoundaries,
-  ): Promise<string[]>;
-  getChannelIdsForMultipleTopics(
-    topics: string[],
-    timestampBoundaries?: ITimestampBoundaries,
-  ): Promise<string[]>;
-  getIndexedLocations(): Promise<string[]>;
-  getStorageLocationList(
-    channelId: string,
-    timestampBoundaries?: ITimestampBoundaries,
-  ): Promise<string[]>;
-  updateTimestamp(dataId: string, timestamp: number): Promise<void>;
-  removeTransaction(dataId: string): Promise<void>;
+export type PendingItem = {
+  topics: string[];
+  transaction: ITransaction;
+  storageResult: StorageTypes.IEntry;
+};
+
+export interface IPendingStore {
+  get(channelId: string): PendingItem | undefined;
+
+  findByTopics(topic: string[]): (PendingItem & { channelId: string })[];
+
+  add(channelId: string, item: PendingItem): void;
+
+  remove(channelId: string): void;
 }

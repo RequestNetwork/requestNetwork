@@ -12,7 +12,6 @@ import TransactionsParser from '../src/transactions-parser';
 import * as TestData from './unit/utils/test-data';
 
 const extraTopics = ['topic1', 'topic2'];
-const fakeTxHash = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 const data = '{ "what": "ever", "it": "is,", "this": "must", "work": true }';
 const data2 = '{"or": "can", "be":false}';
@@ -34,7 +33,7 @@ const dataHash2 = normalizeKeccak256Hash(JSON.parse(data2));
 const channelId2 = MultiFormat.serialize(dataHash2);
 
 const fakeMetaDataAccessPersistReturn: DataAccessTypes.IReturnPersistTransaction = Object.assign(
-  new EventEmitter(),
+  new EventEmitter() as DataAccessTypes.PersistTransactionEmitter,
   {
     meta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
     result: {},
@@ -62,19 +61,17 @@ describe('index', () => {
       getTransactionsByChannelId: jest.fn().mockReturnValue(fakeMetaDataAccessGetReturn),
       initialize: jest.fn(),
       close: jest.fn(),
-      // persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
       persistTransaction: jest.fn((): any => {
-        setTimeout(() => {
-          fakeMetaDataAccessPersistReturn.emit(
-            'confirmed',
-            {
+        setTimeout(
+          () => {
+            fakeMetaDataAccessPersistReturn.emit('confirmed', {
               meta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
-              result: { topics: [fakeTxHash] },
-            },
-            // eslint-disable-next-line no-magic-numbers
-            100,
-          );
-        });
+              result: {},
+            });
+          },
+          // eslint-disable-next-line no-magic-numbers
+          100,
+        );
         return fakeMetaDataAccessPersistReturn;
       }),
     };

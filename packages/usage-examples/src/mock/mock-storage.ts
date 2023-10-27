@@ -42,7 +42,10 @@ export default class MockStorage implements StorageTypes.IStorage {
         timestamp: nowTimestampInSec,
       },
     };
-    const result = Object.assign(new EventEmitter(), resultData);
+    const result = Object.assign(
+      new EventEmitter() as StorageTypes.AppendResultEmitter,
+      resultData,
+    );
 
     // emit confirmed
     setTimeout(() => {
@@ -90,9 +93,5 @@ export default class MockStorage implements StorageTypes.IStorage {
       entries,
       lastTimestamp: nowTimestampInSec,
     };
-  }
-
-  public async getIgnoredData(): Promise<StorageTypes.IEntry[]> {
-    return [];
   }
 }

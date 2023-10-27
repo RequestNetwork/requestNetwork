@@ -21,9 +21,9 @@
   "engines": {
     "node": ">=16.0.0"
   },
-  "main": "dist/server",
+  "main": "dist/bin",
   "bin": {
-    "request-node": "dist/server.js"
+    "request-node": "dist/bin.js"
   },
   "files": [
     "dist"
@@ -33,8 +33,8 @@
     "build:watch": "tsc -b tsconfig.build.json --watch",
     "test": "jest --runInBand --forceExit",
     "test:watch": "yarn test --watch",
-    "start": "ts-node src/server.ts",
-    "start:watch": "ts-node-dev src/server.ts",
+    "start": "ts-node src/bin.ts",
+    "start:watch": "ts-node-dev src/bin.ts",
     "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
@@ -42,13 +42,13 @@
   },
   "dependencies": {
     "@ethersproject/experimental": "5.5.0",
+    "@requestnetwork/currency": "0.10.0",
     "@requestnetwork/data-access": "0.28.0",
     "@requestnetwork/ethereum-storage": "0.28.0",
     "@requestnetwork/smart-contracts": "0.30.0",
     "@requestnetwork/thegraph-data-access": "0.35.2",
     "@requestnetwork/types": "0.37.0",
     "@requestnetwork/utils": "0.37.0",
-    "@truffle/hdwallet-provider": "1.2.3",
     "chalk": "4.1.0",
     "cors": "2.8.5",
     "dotenv": "8.2.0",
@@ -62,7 +62,6 @@
     "keyv-file": "0.2.0",
     "shelljs": "0.8.5",
     "tslib": "2.5.0",
-    "web3-providers-ws": "1.6.1",
     "yargs": "17.6.2"
   },
   "devDependencies": {
