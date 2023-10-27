@@ -70,11 +70,9 @@ export async function deployEthConversionProxy(
     return;
   }
 
-  // The private native token hash is the same as on mainnet
-  const nativeTokenNetwork = hre.network.name === 'private' ? 'mainnet' : hre.network.name;
   const nativeTokenHash = CurrencyManager.getDefault().getNativeCurrency(
     RequestLogicTypes.CURRENCY.ETH,
-    nativeTokenNetwork,
+    hre.network.name,
   )?.hash;
   if (!nativeTokenHash) {
     console.error(

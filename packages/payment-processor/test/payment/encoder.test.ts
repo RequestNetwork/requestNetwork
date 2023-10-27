@@ -6,11 +6,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { encodeRequestApprovalAndPayment } from '../../src';
-import {
-  IApprovalSettings,
-  IConversionSettings,
-  IRequestPaymentOptions,
-} from '../../src/payment/settings';
+import { IApprovalSettings, IConversionSettings, IRequestPaymentOptions } from '../../src/types';
 import { currencyManager } from './shared';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { MAX_ALLOWANCE } from '../../src/payment/utils';
@@ -35,7 +31,7 @@ const alphaConversionSettings: IConversionSettings = {
 const ethConversionSettings = {
   currency: {
     type: RequestLogicTypes.CURRENCY.ETH,
-    value: 'ETH',
+    value: 'ETH-private',
   },
   maxToSpend: '2500000000000000',
   currencyManager,
@@ -144,7 +140,7 @@ const validRequestERC20ConversionProxy: ClientTypes.IRequestData = {
 
 const validRequestEthProxy: ClientTypes.IRequestData = {
   ...baseValidRequest,
-  currency: 'ETH',
+  currency: 'ETH-private',
   currencyInfo: {
     network: 'private',
     type: RequestLogicTypes.CURRENCY.ETH,
@@ -167,7 +163,7 @@ const validRequestEthProxy: ClientTypes.IRequestData = {
 
 const validRequestEthFeeProxy: ClientTypes.IRequestData = {
   ...baseValidRequest,
-  currency: 'ETH',
+  currency: 'ETH-private',
   currencyInfo: {
     network: 'private',
     type: RequestLogicTypes.CURRENCY.ETH,

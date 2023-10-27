@@ -10,6 +10,12 @@ export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthC
   Record<RequestLogicTypes.CURRENCY.BTC, NativeBtcCurrency[]> = {
   [RequestLogicTypes.CURRENCY.ETH]: [
     {
+      symbol: 'ETH-private',
+      decimals: 18,
+      name: 'Ether',
+      network: 'private',
+    },
+    {
       symbol: 'ETH',
       decimals: 18,
       name: 'Ether',

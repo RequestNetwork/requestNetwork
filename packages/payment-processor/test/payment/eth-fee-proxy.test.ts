@@ -32,7 +32,7 @@ const validRequest: ClientTypes.IRequestData = {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: wallet.address,
   },
-  currency: 'ETH',
+  currency: 'ETH-private',
   currencyInfo: {
     network: 'private',
     type: RequestLogicTypes.CURRENCY.ETH,

@@ -205,11 +205,11 @@ describe('conversion-erc20-fee-proxy', () => {
 
     it('should convert and pay a request in ETH with ERC20', async () => {
       const validEthRequest = validEuroRequest;
-      validEthRequest.currency = 'ETH';
+      validEthRequest.currency = 'ETH-private';
       validEthRequest.currencyInfo = {
         type: RequestLogicTypes.CURRENCY.ETH,
-        value: 'ETH',
-        network: 'mainnet',
+        value: 'ETH-private',
+        network: 'private',
       };
       validEthRequest.expectedAmount = '1000000000000000000'; // 1 ETH
       validEthRequest.extensions[

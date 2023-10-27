@@ -77,7 +77,7 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
     await batch.connect(owner).setBatchFee(100);
     await batch.setBatchFeeAmountUSDLimit(BigNumber.from(1e8).div(1000)); // 1$
     await batch.setNativeAndUSDAddress(
-      currencyManager.fromSymbol('ETH')!.hash,
+      currencyManager.fromSymbol('ETH-private')!.hash,
       currencyManager.fromSymbol('USD')!.hash,
     );
     ethRequestDetail1.recipient = payee1;

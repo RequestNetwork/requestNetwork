@@ -93,11 +93,9 @@ export function encodePayAnyToErc20ProxyRequest(
  * @param amount Optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride Optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
-export function checkRequestAndGetPathAndCurrency(
+export function getConversionPathForErc20Request(
   request: ClientTypes.IRequestData,
   paymentSettings: IConversionPaymentSettings,
-  amount?: BigNumberish,
-  feeAmountOverride?: BigNumberish,
 ): { path: string[]; requestCurrency: CurrencyDefinition<unknown> } {
   if (!paymentSettings.currency) {
     throw new Error('currency must be provided in the paymentSettings');
@@ -130,9 +128,6 @@ export function checkRequestAndGetPathAndCurrency(
       `Impossible to find a conversion path between from ${requestCurrency.symbol} (${requestCurrency.hash}) to ${paymentCurrency.symbol} (${paymentCurrency.hash})`,
     );
   }
-
-  // Check request
-  validateConversionFeeProxyRequest(request, path, amount, feeAmountOverride);
   return { path, requestCurrency };
 }
 
@@ -157,12 +152,8 @@ function prepareAnyToErc20Arguments(
   amountToPay: BigNumber;
   feeToPay: BigNumber;
 } {
-  const { path, requestCurrency } = checkRequestAndGetPathAndCurrency(
-    request,
-    paymentSettings,
-    amount,
-    feeAmountOverride,
-  );
+  const { path, requestCurrency } = getConversionPathForErc20Request(request, paymentSettings);
+  validateConversionFeeProxyRequest(request, path, amount, feeAmountOverride);
 
   const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan } =
     getRequestPaymentValues(request);

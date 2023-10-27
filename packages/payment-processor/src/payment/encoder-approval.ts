@@ -1,4 +1,4 @@
-import { IRequestPaymentOptions } from './settings';
+import { IRequestPaymentOptions } from '../types';
 import { IPreparedTransaction } from './prepared-transaction';
 import { providers, BigNumber } from 'ethers';
 import { hasErc20Approval, prepareApproveErc20 } from './erc20';
