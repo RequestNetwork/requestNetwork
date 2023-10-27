@@ -2,11 +2,10 @@ import { SuperFluidInfoRetriever } from '../../src/erc777/superfluid-retriever';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { PaymentTypes } from '@requestnetwork/types';
 import { GraphQLClient } from 'graphql-request';
-import { mocked } from 'ts-jest/utils';
 import { mockSuperfluidSubgraph } from './mocks';
 
 jest.mock('graphql-request');
-const graphql = mocked(GraphQLClient.prototype);
+const graphql = jest.mocked(GraphQLClient.prototype);
 const fDAIxTokenRinkeby = '0x745861aed1eee363b4aaa5f1994be40b1e05ff90';
 const fUSDCxTokenRinkeby = '0x0f1d7c55a2b133e000ea10eec03c774e0d6796e8';
 const fDAIxTokenGoerli = '0x2bf02814ea0b2b155ed47b7cede18caa752940e6';

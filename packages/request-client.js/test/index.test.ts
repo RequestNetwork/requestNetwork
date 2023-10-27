@@ -1010,7 +1010,7 @@ describe('request-client.js', () => {
     });
 
     it('creates an encrypted request and cancel it', async () => {
-      jest.useFakeTimers('modern');
+      jest.useFakeTimers();
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -1041,7 +1041,7 @@ describe('request-client.js', () => {
     });
 
     it('creates an encrypted request, increase and decrease the amount', async () => {
-      jest.useFakeTimers('modern');
+      jest.useFakeTimers();
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -1195,7 +1195,7 @@ describe('request-client.js', () => {
     });
 
     it('can create ETH requests with given salt', async () => {
-      jest.useFakeTimers('modern');
+      jest.useFakeTimers();
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
@@ -1238,7 +1238,7 @@ describe('request-client.js', () => {
     });
 
     it('can create ETH requests without given salt', async () => {
-      jest.useFakeTimers('modern');
+      jest.useFakeTimers();
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
@@ -1276,7 +1276,7 @@ describe('request-client.js', () => {
     });
 
     it('can create ETH requests without refund address', async () => {
-      jest.useFakeTimers('modern');
+      jest.useFakeTimers();
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
@@ -1314,7 +1314,7 @@ describe('request-client.js', () => {
 
     // This test checks that 2 payments with reference `c19da4923539c37f` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
     it('can get the balance of an ETH request', async () => {
-      jest.useFakeTimers('modern');
+      jest.useFakeTimers();
       const etherscanMock = new EtherscanProviderMock();
       ethers.providers.EtherscanProvider.prototype.getHistory = jest
         .fn()
@@ -1378,7 +1378,7 @@ describe('request-client.js', () => {
     });
 
     it('can disable and enable the get the balance of a request', async () => {
-      jest.useFakeTimers('modern');
+      jest.useFakeTimers();
 
       const etherscanMock = new EtherscanProviderMock();
       ethers.providers.EtherscanProvider.prototype.getHistory = jest
@@ -1462,7 +1462,7 @@ describe('request-client.js', () => {
     });
 
     it('can get the balance on a skipped payment detection request', async () => {
-      jest.useFakeTimers('modern');
+      jest.useFakeTimers();
 
       const etherscanMock = new EtherscanProviderMock();
       ethers.providers.EtherscanProvider.prototype.getHistory = jest

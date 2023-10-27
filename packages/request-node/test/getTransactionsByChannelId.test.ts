@@ -27,7 +27,6 @@ describe('getTransactionsByChannelId', () => {
 
   afterAll(async () => {
     await requestNodeInstance.close();
-    server.close();
   });
 
   it('responds with the correct transactions to requests with an existing channel id', async () => {

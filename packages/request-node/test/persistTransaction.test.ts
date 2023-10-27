@@ -35,7 +35,6 @@ describe('persistTransaction', () => {
 
   afterAll(async () => {
     await requestNodeInstance.close();
-    server.close();
     jest.restoreAllMocks();
     axiosMock.reset();
   });
