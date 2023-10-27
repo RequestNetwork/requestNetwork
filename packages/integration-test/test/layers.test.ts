@@ -23,6 +23,7 @@ import {
   StorageTypes,
 } from '@requestnetwork/types';
 import { providers, Wallet } from 'ethers';
+import { automine } from './scheduled/fixtures';
 
 let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 let requestLogic: RequestLogicTypes.IRequestLogic;
@@ -38,14 +39,7 @@ let signatureProvider: any;
 
 let dataAccess: DataAccessTypes.IDataAccess;
 
-const interval = setInterval(async () => {
-  await provider.send('evm_mine', []);
-  // eslint-disable-next-line no-magic-numbers
-}, 200);
-
-afterAll(() => {
-  clearInterval(interval);
-});
+automine();
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 

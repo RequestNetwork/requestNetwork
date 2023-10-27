@@ -5,6 +5,7 @@ import { mockAdvancedLogic } from './mocks';
 import { Types, Utils } from '@requestnetwork/request-client.js';
 import { CurrencyManager } from '@requestnetwork/currency';
 import {
+  automine,
   erc20requestCreationHash,
   localErc20PaymentNetworkParams,
   payeeIdentity,
@@ -12,6 +13,8 @@ import {
   privateErc20Address,
   requestNetwork,
 } from './fixtures';
+
+automine();
 
 const erc20ProxyAddressedBased = new Erc20PaymentNetwork.ERC20ProxyPaymentDetector({
   advancedLogic: mockAdvancedLogic,
@@ -29,6 +32,7 @@ describe('ERC20 Proxy detection test-suite', () => {
       requestInfo: erc20requestCreationHash,
       signer: payeeIdentity,
     });
+    await request.waitForConfirmation();
 
     let requestData = await request.declareReceivedPayment('1', 'OK', payeeIdentity);
     const declarationTimestamp = Utils.getCurrentTimestampInSecond();
@@ -60,16 +64,14 @@ describe('ERC20 Proxy detection test-suite', () => {
       requestInfo: erc20requestCreationHash,
       signer: payeeIdentity,
     });
+    const refreshedRequest = await request.waitForConfirmation();
+    expect(refreshedRequest.state).toBe('created');
 
     // The payer declares a payment
-    let requestData: Types.IRequestDataWithEvents = await request.declareSentPayment(
-      '1',
-      'OK',
-      payerIdentity,
-    );
-    requestData = await new Promise((resolve): unknown => requestData.on('confirmed', resolve));
+    let sentResult = await request.declareSentPayment('1', 'OK', payerIdentity);
+    sentResult = await new Promise((resolve) => sentResult.on('confirmed', resolve));
     const balance = await erc20ProxyAddressedBased.getBalance({
-      ...requestData,
+      ...sentResult,
       currency: {
         network: 'private',
         type: RequestLogicTypes.CURRENCY.ERC20,

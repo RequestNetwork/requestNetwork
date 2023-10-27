@@ -5,6 +5,7 @@ import { Types, Utils } from '@requestnetwork/request-client.js';
 
 import { mockAdvancedLogic } from './mocks';
 import {
+  automine,
   erc20requestCreationHash,
   localErc20PaymentNetworkParams,
   payeeIdentity,
@@ -13,6 +14,8 @@ import {
   requestNetwork,
 } from './fixtures';
 import { createMockErc20FeeRequest } from '../utils';
+
+automine();
 
 const pnFactory = new PaymentNetworkFactory(mockAdvancedLogic, CurrencyManager.getDefault());
 
