@@ -84,7 +84,11 @@ export default class PersistTransactionHandler {
       });
 
       // when the transaction fails, log an error
-      dataAccessResponse.on('error', async (e) => {
+      dataAccessResponse.on('error', async (e: unknown) => {
+        await this.confirmedTransactionStore.addFailedTransaction(
+          transactionHash.value,
+          e as Error,
+        );
         this.logger.error(`persistTransaction error: ${e}\n
           transactionHash: ${transactionHash.value}, channelId: ${
           clientRequest.body.channelId
