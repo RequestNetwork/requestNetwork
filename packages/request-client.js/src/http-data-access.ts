@@ -130,7 +130,12 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
         let error: Error = e;
         if (e.response.status === 404) {
           error = new Error(
-            `Transaction confirmation not receive after ${this.httpConfig.getConfirmationMaxRetry} retries`,
+            `Transaction confirmation not received after ${
+              this.httpConfig.getConfirmationDeferDelay +
+              this.httpConfig.getConfirmationMaxRetry * this.httpConfig.getConfirmationRetryDelay
+            }ms. (${this.httpConfig.getConfirmationDeferDelay}ms defer delay plus ${
+              this.httpConfig.getConfirmationMaxRetry
+            } retries with ${this.httpConfig.getConfirmationRetryDelay}ms retry delay)`,
           );
         }
         result.emit('error', error);
