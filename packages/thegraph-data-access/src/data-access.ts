@@ -44,7 +44,10 @@ export class TheGraphDataAccess extends CombinedDataAccess {
     result.on('confirmed', (receipt) => {
       this.fetchConfirmedTransaction(channelId, receipt)
         .then((confirmedReceipt) => eventEmitter.emit('confirmed', confirmedReceipt))
-        .catch(() => this.logger.warn(`Could not confirm channel ${channelId}`));
+        .catch(() => {
+          this.logger.error(`Could not confirm channel ${channelId} after 30s`);
+          eventEmitter.emit('error', new Error(`Could not confirm channel ${channelId} after 30s`));
+        });
     });
     result.on('error', (e) => eventEmitter.emit('error', e));
     return Object.assign(eventEmitter, { meta: result.meta, result: result.result });
