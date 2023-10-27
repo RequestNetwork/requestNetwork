@@ -68,10 +68,10 @@ describe('ERC20 Proxy detection test-suite', () => {
     expect(refreshedRequest.state).toBe('created');
 
     // The payer declares a payment
-    let sentResult = await request.declareSentPayment('1', 'OK', payerIdentity);
-    sentResult = await new Promise((resolve) => sentResult.on('confirmed', resolve));
+    let requestData = await request.declareSentPayment('1', 'OK', payerIdentity);
+    requestData = await new Promise((resolve) => requestData.on('confirmed', resolve));
     const balance = await erc20ProxyAddressedBased.getBalance({
-      ...sentResult,
+      ...requestData,
       currency: {
         network: 'private',
         type: RequestLogicTypes.CURRENCY.ERC20,
