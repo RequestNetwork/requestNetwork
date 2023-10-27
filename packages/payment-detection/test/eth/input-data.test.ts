@@ -1,4 +1,3 @@
-import { mocked } from 'ts-jest/utils';
 import { CurrencyManager } from '@requestnetwork/currency';
 import {
   AdvancedLogicTypes,
@@ -11,7 +10,7 @@ import { EthInputDataPaymentDetector } from '../../src/eth/input-data';
 import { mockAdvancedLogicBase } from '../utils';
 
 jest.mock('../../src/thegraph/client');
-const theGraphClientMock = mocked(getTheGraphClient(''));
+const theGraphClientMock = jest.mocked(getTheGraphClient(''));
 
 let ethInputData: EthInputDataPaymentDetector;
 

@@ -37,7 +37,6 @@ describe('getChannelsByTopic', () => {
 
   afterAll(async () => {
     await requestNodeInstance.close();
-    server.close();
   });
 
   it('responds with the correct transactions to requests with an existing topic', async () => {

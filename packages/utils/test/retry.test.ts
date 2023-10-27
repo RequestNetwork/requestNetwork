@@ -79,7 +79,7 @@ describe('Retry', () => {
   });
 
   it('waits for the delay before retring', async () => {
-    jest.useFakeTimers('modern');
+    jest.useFakeTimers();
     jest.setSystemTime(0);
 
     const throwOnce = jest
@@ -124,7 +124,7 @@ describe('Retry', () => {
   });
 
   it('delay increases exponentially if using exponentialBackoff', async () => {
-    jest.useFakeTimers('modern');
+    jest.useFakeTimers();
     jest.setSystemTime(0);
 
     const throwFn = jest.fn().mockImplementation(() => {

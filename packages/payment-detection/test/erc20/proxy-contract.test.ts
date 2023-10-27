@@ -1,4 +1,3 @@
-import { mocked } from 'ts-jest/utils';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -19,7 +18,7 @@ const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
 
 jest.mock('../../src/thegraph/client');
-const theGraphClientMock = mocked(getTheGraphClient(''));
+const theGraphClientMock = jest.mocked(getTheGraphClient(''));
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   ...mockAdvancedLogicBase,
   extensions: {
