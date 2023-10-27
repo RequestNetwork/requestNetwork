@@ -10,10 +10,10 @@ import { uniswapV2RouterAddresses, jumpToNonce } from './utils';
 import { Contract } from 'ethers';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module
-import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath';
+import { ChainlinkConversionPath } from '../src/types';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module
-import { EthConversionProxy } from '../src/types/EthConversionProxy';
+import { EthConversionProxy } from '../src/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { HardhatRuntimeEnvironmentExtended } from '../scripts-create2/types';

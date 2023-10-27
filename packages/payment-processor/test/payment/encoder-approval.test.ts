@@ -14,7 +14,7 @@ import {
   erc20SwapConversionArtifact,
   erc20SwapToPayArtifact,
 } from '@requestnetwork/smart-contracts';
-import { IConversionSettings } from '../../src/payment/settings';
+import { IConversionSettings } from '../../src/types';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */
@@ -158,7 +158,7 @@ const validRequestERC20ConversionProxy: ClientTypes.IRequestData = {
 
 const validRequestEthProxy: ClientTypes.IRequestData = {
   ...baseValidRequest,
-  currency: 'ETH',
+  currency: 'ETH-private',
   currencyInfo: {
     network: 'private',
     type: RequestLogicTypes.CURRENCY.ETH,
@@ -181,7 +181,7 @@ const validRequestEthProxy: ClientTypes.IRequestData = {
 
 const validRequestEthFeeProxy: ClientTypes.IRequestData = {
   ...baseValidRequest,
-  currency: 'ETH',
+  currency: 'ETH-private',
   currencyInfo: {
     network: 'private',
     type: RequestLogicTypes.CURRENCY.ETH,

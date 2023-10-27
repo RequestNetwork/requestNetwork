@@ -2,7 +2,7 @@ import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
 // @ts-ignore Cannot find module
-import type { BatchPayments } from '../../../types/BatchPayments';
+import type { BatchPayments } from '../../../types';
 
 export const batchPaymentsArtifact = new ContractArtifact<BatchPayments>(
   {

@@ -1,4 +1,4 @@
-import { IRequestPaymentOptions } from './settings';
+import { IRequestPaymentOptions } from '../types';
 import { IPreparedTransaction } from './prepared-transaction';
 import { providers } from 'ethers';
 import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';

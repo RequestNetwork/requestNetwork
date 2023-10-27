@@ -14,7 +14,7 @@ import {
   validateConversionFeeProxyRequest,
 } from './utils';
 import { CurrencyManager, EvmChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
-import { IRequestPaymentOptions } from './settings';
+import { IRequestPaymentOptions } from '../types';
 import { IPreparedTransaction } from './prepared-transaction';
 
 export { ISwapSettings } from './swap-erc20-fee-proxy';

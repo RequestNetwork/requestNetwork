@@ -1,21 +1,16 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
-
-import { getIpfsExpectedBootstrapNodes, getPinRequestConfig } from './config';
-import IpfsManager from './ipfs-manager';
 import { SimpleLogger } from '@requestnetwork/utils';
 
-export type IpfsStorageProps = {
-  logger?: LogTypes.ILogger;
-  ipfsGatewayConnection?: StorageTypes.IIpfsGatewayConnection;
-};
+import { getIpfsExpectedBootstrapNodes } from './config';
+import IpfsManager, { IpfsOptions } from './ipfs-manager';
 
 export class IpfsStorage implements StorageTypes.IIpfsStorage {
   private ipfsManager: IpfsManager;
   private logger: LogTypes.ILogger;
 
-  constructor({ ipfsGatewayConnection, logger }: IpfsStorageProps) {
-    this.ipfsManager = new IpfsManager({ ipfsGatewayConnection, logger });
-    this.logger = logger || new SimpleLogger();
+  constructor(options: IpfsOptions = {}) {
+    this.ipfsManager = new IpfsManager(options);
+    this.logger = options.logger || new SimpleLogger();
   }
 
   public async initialize(): Promise<void> {
@@ -35,11 +30,16 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
     }
 
     // Add content to IPFS and get the hash back
-    let ipfsHash;
+    let ipfsHash: string;
     try {
       ipfsHash = await this.ipfsManager.add(data);
     } catch (error) {
-      throw Error(`Ipfs add request error: ${error}`);
+      throw new Error(`Ipfs add request error: ${error}`);
+    }
+    try {
+      await this.ipfsManager.pin([ipfsHash]);
+    } catch (error) {
+      throw new Error(`Ipfs pin request error: ${error}`);
     }
 
     const ipfsSize = await this.getSize(ipfsHash);
@@ -66,35 +66,6 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
   }
 
   /**
-   * Pin an array of IPFS hashes
-   *
-   * @param hashes An array of IPFS hashes to pin
-   */
-  public async pinDataToIPFS(
-    hashes: string[],
-    {
-      delayBetweenCalls,
-      maxSize,
-      timeout,
-    }: StorageTypes.IPinRequestConfiguration = getPinRequestConfig(),
-  ): Promise<void> {
-    // How many slices we need from the total list of hashes to be under pinRequestMaxSize
-    const slices = Math.ceil(hashes.length / maxSize);
-
-    // Iterate over the hashes list, slicing it at pinRequestMaxSize sizes and pinning it
-    for (let i = 0; i < slices; i++) {
-      await new Promise<void>((res): NodeJS.Timeout => setTimeout(() => res(), delayBetweenCalls));
-      const slice = hashes.slice(i * maxSize, (i + 1) * maxSize);
-      try {
-        await this.ipfsManager.pin(slice, timeout);
-        this.logger.debug(`Pinned ${slice.length} hashes to IPFS node.`);
-      } catch (error) {
-        this.logger.warn(`Failed pinning some hashes the IPFS node: ${error}`, ['ipfs']);
-      }
-    }
-  }
-
-  /**
    * Retrieve content from ipfs from its hash
    * @param hash Hash of the content
    * @param maxSize The maximum size of the file to read
@@ -111,7 +82,7 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
   /**
    * Gets current configuration
    */
-  public async getConfig(): Promise<any> {
+  public async getConfig(): Promise<StorageTypes.IIpfsConfig> {
     return this.ipfsManager.getConfig();
   }
 

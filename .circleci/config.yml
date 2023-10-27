@@ -96,7 +96,6 @@ jobs:
       - run:
           name: Generate Payment Detection queries
           command: yarn workspace @requestnetwork/payment-detection run codegen
-
       - run:
           name: Build all packages (tsc)
           command: yarn build:tsc
@@ -372,33 +371,6 @@ jobs:
       - *node_image
       - *ipfs_image
       - *ganache_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build integration-test'
-          command: 'yarn workspace @requestnetwork/integration-test run build'
-      - run:
-          name: 'Deploy test contract from smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
-      - run:
-          name: 'Start request-node'
-          command: 'yarn workspace @requestnetwork/request-node run start'
-          background: true
-      - run: *step_wait_for_node
-      - run:
-          name: 'Test integration-test (node)'
-          command: 'yarn workspace @requestnetwork/integration-test run test:node --ci --maxWorkers=1'
-      - run:
-          name: 'Test integration-test (layers)'
-          command: 'yarn workspace @requestnetwork/integration-test run test:layers --ci --maxWorkers=1'
-  # This test runs the node-client tests against a node backed by TheGraph data access
-  test-integration-graph-node:
-    docker:
-      - *node_image
-      - *ipfs_image
-      - *ganache_image
       - *postgres_image
       - *graph_image
     working_directory: *working_directory
@@ -416,21 +388,13 @@ jobs:
           name: 'Start request-node'
           command: 'yarn workspace @requestnetwork/request-node run start'
           background: true
-          environment:
-            GRAPH_NODE_URL: http://localhost:8000/subgraphs/name/RequestNetwork/request-storage
       - run: *step_wait_for_node
       - run:
-          name: 'Confirm TheGraph mode'
-          command: |
-            NODE_ENDPOINT=$(wget -O- http://localhost:3000/status | jq .dataAccess.endpoint -r)
-            if [  "$NODE_ENDPOINT" != "http://localhost:8000/subgraphs/name/RequestNetwork/request-storage" ] ; then
-              print "Graph node URL mismatch"
-              print $NODE_ENDPOINT
-              exit 1
-            fi
+          name: 'Test integration-test (node)'
+          command: 'yarn workspace @requestnetwork/integration-test run test:node --ci --maxWorkers=1'
       - run:
-          name: 'Test integration-test'
-          command: 'yarn workspace @requestnetwork/integration-test run test:node'
+          name: 'Test integration-test (layers)'
+          command: 'yarn workspace @requestnetwork/integration-test run test:layers --ci --maxWorkers=1'
   test-usage-examples:
     docker:
       - *node_image
@@ -528,6 +492,8 @@ jobs:
       - *node_image
       - *ipfs_image
       - *ganache_image
+      - *postgres_image
+      - *graph_image
     working_directory: *working_directory
     steps:
       - attach_workspace:
@@ -538,20 +504,12 @@ jobs:
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+      - run: *step_graph_deploy
       - run:
           name: 'Start request-node'
           command: 'yarn workspace @requestnetwork/request-node run start'
           background: true
-      - run:
-          name: Waiting for Request Node to be ready
-          command: |
-            for i in `seq 1 10`;
-            do
-              curl -s -o /dev/null -f http://localhost:3000/readyz > /dev/null && echo Success && exit 0
-              echo -n .
-              sleep 1
-            done
-            echo Failed waiting for Node initialization && exit 1
+      - run: *step_wait_for_node
       - run:
           name: 'Test integration-test (erc20)'
           command: 'yarn workspace @requestnetwork/integration-test run test:erc20 --ci --maxWorkers=1'
@@ -659,9 +617,6 @@ workflows:
       - test-integration-test:
           requires:
             - build
-      - test-integration-graph-node:
-          requires:
-            - build
       - test-payment-detection:
           requires:
             - build
@@ -699,7 +654,6 @@ workflows:
             - test-epk-signature
             - test-ethereum-storage
             - test-integration-test
-            - test-integration-graph-node
             - test-smart-contracts
             - test-multi-format
             - test-request-client

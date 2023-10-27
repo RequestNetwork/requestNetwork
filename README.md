@@ -41,12 +41,11 @@ Join the [Request Discord][request-discord-url] to get in touch with us.
 
 ### Private Packages
 
-| Package                                                                | Description                                                 |
-| ---------------------------------------------------------------------- | ----------------------------------------------------------- |
-| [`@requestnetwork/integration-test`](/packages/integration-test)       | Integration test for the Request system                     |
-| [`@requestnetwork/prototype-estimator`](/packages/prototype-estimator) | Give estimates of size and throughput of the Request system |
-| [`@requestnetwork/toolbox`](/packages/toolbox)                         | Toolbox for Request Network                                 |
-| [`@requestnetwork/usage-example`](/packages/usage-example)             | Usage examples of Request Network                           |
+| Package                                                          | Description                             |
+| ---------------------------------------------------------------- | --------------------------------------- |
+| [`@requestnetwork/integration-test`](/packages/integration-test) | Integration test for the Request system |
+| [`@requestnetwork/toolbox`](/packages/toolbox)                   | Toolbox for Request Network             |
+| [`@requestnetwork/usage-example`](/packages/usage-example)       | Usage examples of Request Network       |
 
 ## Contributing
 

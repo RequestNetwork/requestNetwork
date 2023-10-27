@@ -18,6 +18,7 @@ import {
   getRequestPaymentValues,
   getSigner,
   MAX_ALLOWANCE,
+  validateConversionFeeProxyRequest,
   validateErc20FeeProxyRequest,
 } from './utils';
 import {
@@ -25,12 +26,19 @@ import {
   getPaymentNetworkExtension,
 } from '@requestnetwork/payment-detection';
 import { IPreparedTransaction } from './prepared-transaction';
-import { EnrichedRequest, IConversionPaymentSettings } from './index';
-import { checkRequestAndGetPathAndCurrency } from './any-to-erc20-proxy';
+import { IConversionPaymentSettings } from './index';
+import { getConversionPathForErc20Request } from './any-to-erc20-proxy';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 import { IState } from 'types/dist/extension-types';
-import { CurrencyDefinition, ICurrencyManager } from '@requestnetwork/currency';
-import { IConversionSettings, IRequestPaymentOptions } from './settings';
+import { CurrencyDefinition, CurrencyManager, ICurrencyManager } from '@requestnetwork/currency';
+import {
+  BatchPaymentNetworks,
+  EnrichedRequest,
+  IConversionSettings,
+  IRequestPaymentOptions,
+} from '../types';
+import { validateEthFeeProxyRequest } from './eth-fee-proxy';
+import { getConversionPathForEthRequest } from './any-to-eth-proxy';
 
 const CURRENCY = RequestLogicTypes.CURRENCY;
 
@@ -81,13 +89,66 @@ export function prepareBatchConversionPaymentTransaction(
     options.skipFeeUSDLimit,
     options.conversion,
   );
+  const value = getBatchTxValue(enrichedRequests);
   const proxyAddress = getBatchConversionProxyAddress(enrichedRequests[0].request, options.version);
   return {
     data: encodedTx,
     to: proxyAddress,
-    value: 0,
+    value,
   };
 }
+
+const mapPnToDetailsBuilder: Record<
+  BatchPaymentNetworks,
+  (req: EnrichedRequest, isNative: boolean) => PaymentTypes.RequestDetail
+> = {
+  'pn-any-to-erc20-proxy': getRequestDetailWithConversion,
+  'pn-any-to-eth-proxy': getRequestDetailWithConversion,
+  'pn-erc20-fee-proxy-contract': getRequestDetailWithoutConversion,
+  'pn-eth-fee-proxy-contract': getRequestDetailWithoutConversion,
+};
+
+const mapPnToAllowedCurrencies: Record<BatchPaymentNetworks, RequestLogicTypes.CURRENCY[]> = {
+  'pn-any-to-erc20-proxy': [CURRENCY.ERC20, CURRENCY.ISO4217, CURRENCY.ETH],
+  'pn-any-to-eth-proxy': [CURRENCY.ERC20, CURRENCY.ISO4217],
+  'pn-erc20-fee-proxy-contract': [CURRENCY.ERC20],
+  'pn-eth-fee-proxy-contract': [CURRENCY.ETH],
+};
+
+const mapPnToBatchId: Record<BatchPaymentNetworks, PaymentTypes.BATCH_PAYMENT_NETWORK_ID> = {
+  'pn-any-to-erc20-proxy':
+    PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
+  'pn-any-to-eth-proxy': PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_ETH_CONVERSION_PAYMENTS,
+  'pn-erc20-fee-proxy-contract': PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
+  'pn-eth-fee-proxy-contract': PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_ETH_PAYMENTS,
+};
+
+const computeRequestDetails = ({
+  enrichedRequest,
+  extension,
+}: {
+  enrichedRequest: EnrichedRequest;
+  extension: IState<any> | undefined;
+}) => {
+  const paymentNetworkId = enrichedRequest.paymentNetworkId;
+  const allowedCurrencies = mapPnToAllowedCurrencies[paymentNetworkId];
+  const detailsBuilder = mapPnToDetailsBuilder[paymentNetworkId];
+  const isNative =
+    paymentNetworkId === ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY ||
+    paymentNetworkId === ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT;
+
+  extension = extension ?? getPaymentNetworkExtension(enrichedRequest.request);
+
+  comparePnTypeAndVersion(extension, enrichedRequest.request);
+  if (!allowedCurrencies.includes(enrichedRequest.request.currencyInfo.type)) {
+    throw new Error(`wrong request currencyInfo type`);
+  }
+
+  return {
+    input: detailsBuilder(enrichedRequest, isNative),
+    extension,
+  };
+};
 
 /**
  * Encodes a transaction to pay a batch of requests with an ERC20 currency
@@ -108,65 +169,56 @@ function encodePayBatchConversionRequest(
   const { feeAddress } = getRequestPaymentValues(enrichedRequests[0].request);
 
   const { network } = getPnAndNetwork(enrichedRequests[0].request);
-  let firstConversionRequestExtension: IState<any> | undefined;
-  let firstNoConversionRequestExtension: IState<any> | undefined;
 
-  const ERC20NoConversionRequestDetails: PaymentTypes.RequestDetail[] = [];
-  const ERC20ConversionRequestDetails: PaymentTypes.RequestDetail[] = [];
+  const requestDetails: Record<BatchPaymentNetworks, PaymentTypes.RequestDetail[]> = {
+    'pn-any-to-erc20-proxy': [],
+    'pn-any-to-eth-proxy': [],
+    'pn-erc20-fee-proxy-contract': [],
+    'pn-eth-fee-proxy-contract': [],
+  };
 
-  // fill ERC20ConversionRequestDetails and ERC20NoConversionRequestDetails lists
+  const requestExtensions: Record<BatchPaymentNetworks, IState<any> | undefined> = {
+    'pn-any-to-erc20-proxy': undefined,
+    'pn-any-to-eth-proxy': undefined,
+    'pn-erc20-fee-proxy-contract': undefined,
+    'pn-eth-fee-proxy-contract': undefined,
+  };
+
   for (const enrichedRequest of enrichedRequests) {
     const request = enrichedRequest.request;
-    if (enrichedRequest.paymentNetworkId === ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY) {
-      enrichedRequest.paymentSettings.currencyManager = conversion.currencyManager;
-      firstConversionRequestExtension =
-        firstConversionRequestExtension ?? getPaymentNetworkExtension(request);
+    const { input, extension } = computeRequestDetails({
+      enrichedRequest,
+      extension: requestExtensions[enrichedRequest.paymentNetworkId],
+    });
+    requestDetails[enrichedRequest.paymentNetworkId].push(input);
+    requestExtensions[enrichedRequest.paymentNetworkId] = extension;
 
-      comparePnTypeAndVersion(firstConversionRequestExtension, request);
-      if (![CURRENCY.ERC20, CURRENCY.ISO4217].includes(request.currencyInfo.type)) {
-        throw new Error(`wrong request currencyInfo type`);
-      }
-      ERC20ConversionRequestDetails.push(getInputERC20ConversionRequestDetail(enrichedRequest));
-    } else if (
-      enrichedRequest.paymentNetworkId ===
-      ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
-    ) {
-      firstNoConversionRequestExtension =
-        firstNoConversionRequestExtension ?? getPaymentNetworkExtension(request);
-
-      // isERC20Currency is checked within getBatchArgs function
-      comparePnTypeAndVersion(firstNoConversionRequestExtension, request);
-      if (!(request.currencyInfo.type === CURRENCY.ERC20)) {
-        throw new Error(`wrong request currencyInfo type`);
-      }
-      ERC20NoConversionRequestDetails.push(getInputERC20NoConversionRequestDetail(request));
-    }
     if (network !== getPnAndNetwork(request).network)
       throw new Error('All the requests must have the same network');
   }
 
-  const metaDetails: PaymentTypes.MetaDetail[] = [];
-  if (ERC20ConversionRequestDetails.length > 0) {
-    // Add ERC20 conversion payments
-    metaDetails.push({
-      paymentNetworkId: PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
-      requestDetails: ERC20ConversionRequestDetails,
-    });
-  }
+  /**
+   * The native with conversion payment inputs must be the last element.
+   * See BatchConversionPayment batchPayments method in @requestnetwork/smart-contracts
+   */
+  const metaDetails = Object.entries(requestDetails)
+    .map(([pn, details]) => ({
+      paymentNetworkId: mapPnToBatchId[pn as BatchPaymentNetworks],
+      requestDetails: details,
+    }))
+    .filter((details) => details.requestDetails.length > 0)
+    .sort((a, b) => a.paymentNetworkId - b.paymentNetworkId);
 
-  if (ERC20NoConversionRequestDetails.length > 0) {
-    // Add multi ERC20 no-conversion payments
-    metaDetails.push({
-      paymentNetworkId: PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
-      requestDetails: ERC20NoConversionRequestDetails,
-    });
-  }
+  const hasNativePayment =
+    requestDetails['pn-any-to-eth-proxy'].length > 0 ||
+    requestDetails['pn-eth-fee-proxy-contract'].length > 0;
 
   const pathsToUSD = getUSDPathsForFeeLimit(
-    [...ERC20ConversionRequestDetails, ...ERC20NoConversionRequestDetails],
+    [...metaDetails.map((details) => details.requestDetails).flat()],
     network,
     skipFeeUSDLimit,
     conversion.currencyManager,
+    hasNativePayment,
   );
 
   const proxyContract = BatchConversionPayments__factory.createInterface();
@@ -178,15 +230,27 @@ function encodePayBatchConversionRequest(
 }
 
 /**
- * Get the ERC20 no conversion input requestDetail from a request, that can be used by the batch contract.
- * @param request The request to pay.
+ * Get the batch input associated to a request without conversion.
+ * @param enrichedRequest The enrichedRequest to pay.
  */
-function getInputERC20NoConversionRequestDetail(
-  request: ClientTypes.IRequestData,
+function getRequestDetailWithoutConversion(
+  enrichedRequest: EnrichedRequest,
+  isNative: boolean,
 ): PaymentTypes.RequestDetail {
-  validateErc20FeeProxyRequest(request);
+  const request = enrichedRequest.request;
+  isNative ? validateEthFeeProxyRequest(request) : validateErc20FeeProxyRequest(request);
 
-  const tokenAddress = request.currencyInfo.value;
+  const currencyManager =
+    enrichedRequest.paymentSettings?.currencyManager || CurrencyManager.getDefault();
+  const tokenAddress = isNative
+    ? currencyManager.getNativeCurrency(
+        RequestLogicTypes.CURRENCY.ETH,
+        request.currencyInfo.network as string,
+      )?.hash
+    : request.currencyInfo.value;
+  if (!tokenAddress) {
+    throw new Error('Could not find the request currency');
+  }
   const { paymentReference, paymentAddress, feeAmount } = getRequestPaymentValues(request);
 
   return {
@@ -201,24 +265,31 @@ function getInputERC20NoConversionRequestDetail(
 }
 
 /**
- * Get the ERC20 conversion input requestDetail from an enriched request, that can be used by the batch contract.
+ * Get the batch input associated to a request with conversion.
  * @param enrichedRequest The enrichedRequest to pay.
  */
-function getInputERC20ConversionRequestDetail(
+function getRequestDetailWithConversion(
   enrichedRequest: EnrichedRequest,
+  isNative: boolean,
 ): PaymentTypes.RequestDetail {
-  const { path, requestCurrency } = checkRequestAndGetPathAndCurrency(
-    enrichedRequest.request,
-    enrichedRequest.paymentSettings,
-  );
+  const { request, paymentSettings } = enrichedRequest;
+  const { path, requestCurrency } = (
+    isNative ? getConversionPathForEthRequest : getConversionPathForErc20Request
+  )(request, paymentSettings);
 
-  const { paymentReference, paymentAddress, feeAmount, maxRateTimespan } = getRequestPaymentValues(
-    enrichedRequest.request,
-  );
+  isNative
+    ? validateEthFeeProxyRequest(
+        request,
+        undefined,
+        undefined,
+        ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
+      )
+    : validateConversionFeeProxyRequest(request, path);
 
-  const requestAmount = BigNumber.from(enrichedRequest.request.expectedAmount).sub(
-    enrichedRequest.request.balance?.balance || 0,
-  );
+  const { paymentReference, paymentAddress, feeAmount, maxRateTimespan } =
+    getRequestPaymentValues(request);
+
+  const requestAmount = BigNumber.from(request.expectedAmount).sub(request.balance?.balance || 0);
 
   const padRequestAmount = padAmountForChainlink(requestAmount, requestCurrency);
   const padFeeAmount = padAmountForChainlink(feeAmount || 0, requestCurrency);
@@ -228,10 +299,25 @@ function getInputERC20ConversionRequestDetail(
     path: path,
     paymentReference: `0x${paymentReference}`,
     feeAmount: padFeeAmount.toString(),
-    maxToSpend: enrichedRequest.paymentSettings.maxToSpend.toString(),
+    maxToSpend: paymentSettings.maxToSpend.toString(),
     maxRateTimespan: maxRateTimespan || '0',
   };
 }
+
+const getBatchTxValue = (enrichedRequests: EnrichedRequest[]) => {
+  return enrichedRequests.reduce((prev, curr) => {
+    if (
+      curr.paymentNetworkId !== ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY &&
+      curr.paymentNetworkId !== ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT
+    )
+      return prev;
+    return prev.add(
+      curr.paymentNetworkId === ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY
+        ? curr.paymentSettings.maxToSpend
+        : getAmountToPay(curr.request),
+    );
+  }, BigNumber.from(0));
+};
 
 /**
  * Get the list of conversion paths from tokens to the USD address through currencyManager.
@@ -246,11 +332,24 @@ function getUSDPathsForFeeLimit(
   network: string,
   skipFeeUSDLimit: boolean,
   currencyManager: ICurrencyManager<unknown>,
+  hasNativePayment: boolean,
 ): string[][] {
   if (skipFeeUSDLimit) return [];
 
   const USDCurrency = currencyManager.fromSymbol('USD');
   if (!USDCurrency) throw 'Cannot find the USD currency information';
+
+  // Native to USD conversion path
+  let nativeConversionPath: string[] = [];
+  if (hasNativePayment) {
+    const nativeCurrencyHash = currencyManager.getNativeCurrency(
+      RequestLogicTypes.CURRENCY.ETH,
+      network,
+    )?.hash;
+    if (!nativeCurrencyHash) throw 'Cannot find the Native currency information';
+    nativeConversionPath =
+      currencyManager.getConversionPath({ hash: nativeCurrencyHash }, USDCurrency, network) || [];
+  }
 
   // get a list of unique token addresses
   const tokenAddresses = requestDetails
@@ -263,9 +362,10 @@ function getUSDPathsForFeeLimit(
     .filter((value): value is CurrencyDefinition => !!value);
 
   // get all the conversion paths to USD when it exists and return it
-  return tokenCurrencies
+  const path = tokenCurrencies
     .map((t) => currencyManager.getConversionPath(t, USDCurrency, network))
     .filter((value): value is string[] => !!value);
+  return hasNativePayment ? path.concat([nativeConversionPath]) : path;
 }
 
 /**

@@ -21,7 +21,7 @@ export default class Web3SignatureProvider implements SignatureProviderTypes.ISi
     try {
       this.web3Provider = new providers.Web3Provider(web3Provider);
     } catch (error) {
-      throw Error(`Can't initialize web3-eth ${error}`);
+      throw Error(`Can't initialize Web3Provider ${error}`);
     }
   }
 

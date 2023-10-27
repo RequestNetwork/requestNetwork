@@ -1,4 +1,4 @@
-import { DataAccess } from '@requestnetwork/data-access';
+import { MockDataAccess as DataAccess } from '@requestnetwork/data-access';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';

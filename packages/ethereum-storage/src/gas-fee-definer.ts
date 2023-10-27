@@ -2,7 +2,6 @@ import { suggestFees } from '@rainbow-me/fee-suggestions';
 import { BigNumber, providers, constants } from 'ethers';
 import { normalizeGasFees } from '@requestnetwork/utils';
 import { FeeTypes, LogTypes } from '@requestnetwork/types';
-import { GasDefinerProps } from './ethereum-storage-ethers';
 
 export class GasFeeDefiner {
   private readonly logger: LogTypes.ILogger;
@@ -13,7 +12,11 @@ export class GasFeeDefiner {
     logger,
     provider,
     gasPriceMin,
-  }: GasDefinerProps & { logger: LogTypes.ILogger; provider: providers.JsonRpcProvider }) {
+  }: {
+    logger: LogTypes.ILogger;
+    gasPriceMin?: BigNumber;
+    provider: providers.JsonRpcProvider;
+  }) {
     this.logger = logger;
     this.provider = provider;
     this.gasPriceMin = gasPriceMin || constants.Zero;

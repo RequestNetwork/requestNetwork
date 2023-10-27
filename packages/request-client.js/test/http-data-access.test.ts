@@ -24,7 +24,7 @@ describe('HttpDataAccess', () => {
         },
       });
       void httpDataAccess.persistTransaction({}, '', []).then((returnPersistTransaction) => {
-        returnPersistTransaction.on('error', (e) => {
+        returnPersistTransaction.on('error', (e: any) => {
           expect(e.message).toBe('Transaction confirmation not receive after 0 retries');
           done();
         });

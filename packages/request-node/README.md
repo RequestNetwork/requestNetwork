@@ -230,27 +230,15 @@ Default values correspond to the basic configuration used to run a server in a t
 - `--providerUrl` URL of the web3 provider for Ethereum
   - Default value: `http://localhost:8545`
   - Environment variable name: `$WEB3_PROVIDER_URL`
-- `--ipfsHost` Host of the IPFS gateway
-  - Default value: `localhost`
-  - Environment variable name: `$IPFS_HOST`
-- `--ipfsPort` Port of the IPFS gateway
-  - Default value: `5001`
-  - Environment variable name: `$IPFS_PORT`
-- `--ipfsProtocol` Protocol used to connect to the IPFS gateway
-  - Default value: `http`
-  - Environment variable name: `$IPFS_PROTOCOL`
+- `--ipfsUrl` URL of the IPFS gateway
+  - Default value: `http://localhost:5001`
+  - Environment variable name: `$IPFS_URL`
 - `--ipfsTimeout` Timeout threshold to connect to the IPFS gateway
   - Default value: `10000`
   - Environment variable name: `$IPFS_TIMEOUT`
-- `--headers` Custom headers to send with the API responses (as a stringified JSON object)
-  - Default value: `'{}'`
-  - Environment variable name: `$HEADERS`
-    `--blockConfirmations` The number of block confirmations to consider a transaction successful
+- `--blockConfirmations` The number of block confirmations to consider a transaction successful
   - Default value: `2`
   - Environment variable name: `$BLOCK_CONFIRMATIONS`
-- `--lastBlockNumberDelay` The minimum delay between getLastBlockNumber calls to ethereum network
-  - Default value: `'10000'`
-  - Environment variable name: `$LAST_BLOCK_NUMBER_DELAY`
 - `--storageConcurrency` Maximum number of concurrent calls to Ethereum or IPFS
   - Default value: `'200'`
   - Environment variable name: `$STORAGE_MAX_CONCURRENCY`

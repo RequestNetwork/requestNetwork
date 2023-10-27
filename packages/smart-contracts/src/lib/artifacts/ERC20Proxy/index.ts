@@ -2,7 +2,7 @@ import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
 // @ts-ignore Cannot find module
-import type { ERC20Proxy } from '../../../types/ERC20Proxy';
+import type { ERC20Proxy } from '../../../types';
 
 export const erc20ProxyArtifact = new ContractArtifact<ERC20Proxy>(
   {

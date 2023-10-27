@@ -1,6 +1,10 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
-import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import {
+  CurrencyDefinition,
+  CurrencyManager,
+  UnsupportedCurrencyError,
+} from '@requestnetwork/currency';
 import { AnyToEthFeeProxyPaymentDetector } from '@requestnetwork/payment-detection';
 import { EthConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
@@ -54,39 +58,10 @@ export function encodePayAnyToEthProxyRequest(
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): string {
-  const currencyManager = paymentSettings.currencyManager || CurrencyManager.getDefault();
+  const { path, requestCurrency } = getConversionPathForEthRequest(request, paymentSettings);
 
-  if (!request.currencyInfo) {
-    throw new Error(`currency not specified`);
-  }
-
-  const requestCurrency = currencyManager.fromStorageCurrency(request.currencyInfo);
-  if (!requestCurrency) {
-    throw new UnsupportedCurrencyError(request.currencyInfo);
-  }
-
-  const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan, network } =
+  const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan } =
     getRequestPaymentValues(request);
-
-  if (!network) {
-    throw new Error(`missing network`);
-  }
-
-  const paymentCurrency = currencyManager.getNativeCurrency(
-    RequestLogicTypes.CURRENCY.ETH,
-    network,
-  );
-  if (!paymentCurrency) {
-    throw new UnsupportedCurrencyError({ value: 'ETH', network });
-  }
-
-  // Compute the path automatically
-  const path = currencyManager.getConversionPath(requestCurrency, paymentCurrency, network);
-  if (!path) {
-    throw new Error(
-      `Impossible to find a conversion path between from ${requestCurrency.symbol} (${requestCurrency.hash}) to ${paymentCurrency.symbol} (${paymentCurrency.hash})`,
-    );
-  }
 
   const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
   const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
@@ -124,4 +99,44 @@ export function prepareAnyToEthProxyPaymentTransaction(
     to: proxyAddress,
     value: BigNumber.from(paymentSettings.maxToSpend),
   };
+}
+
+export function getConversionPathForEthRequest(
+  request: ClientTypes.IRequestData,
+  paymentSettings: IConversionPaymentSettings,
+): { path: string[]; requestCurrency: CurrencyDefinition<unknown> } {
+  const currencyManager = paymentSettings.currencyManager || CurrencyManager.getDefault();
+
+  if (!request.currencyInfo) {
+    throw new Error(`currency not specified`);
+  }
+
+  const requestCurrency = currencyManager.fromStorageCurrency(request.currencyInfo);
+  if (!requestCurrency) {
+    throw new UnsupportedCurrencyError(request.currencyInfo);
+  }
+
+  const { network } = getRequestPaymentValues(request);
+
+  if (!network) {
+    throw new Error(`missing network`);
+  }
+
+  const paymentCurrency = currencyManager.getNativeCurrency(
+    RequestLogicTypes.CURRENCY.ETH,
+    network,
+  );
+  if (!paymentCurrency) {
+    throw new UnsupportedCurrencyError({ value: 'ETH', network });
+  }
+
+  // Compute the path automatically
+  const path = currencyManager.getConversionPath(requestCurrency, paymentCurrency, network);
+  if (!path) {
+    throw new Error(
+      `Impossible to find a conversion path between from ${requestCurrency.symbol} (${requestCurrency.hash}) to ${paymentCurrency.symbol} (${paymentCurrency.hash})`,
+    );
+  }
+
+  return { path, requestCurrency };
 }

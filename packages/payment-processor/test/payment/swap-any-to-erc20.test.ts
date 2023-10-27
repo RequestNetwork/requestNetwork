@@ -11,7 +11,7 @@ import { deepCopy } from '@requestnetwork/utils';
 import { approveErc20ForSwapWithConversionIfNeeded } from '../../src/payment/swap-conversion-erc20';
 import { ERC20, ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { swapToPayAnyToErc20Request } from '../../src/payment/swap-any-to-erc20';
-import { IConversionSettings } from '../../src/payment/settings';
+import { IConversionSettings } from '../../src/types';
 
 import { currencyManager } from './shared';
 import { UnsupportedCurrencyError } from '@requestnetwork/currency';
