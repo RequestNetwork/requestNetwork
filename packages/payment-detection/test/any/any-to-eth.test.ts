@@ -4,12 +4,11 @@ import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwor
 import { StaticJsonRpcProvider } from '@ethersproject/providers';
 import { AnyToEthFeeProxyPaymentDetector } from '../../src/any';
 import { getTheGraphClient } from '../../src/thegraph';
-import { mocked } from 'ts-jest/utils';
 
 const getLogs = jest.spyOn(StaticJsonRpcProvider.prototype, 'getLogs');
 
 jest.mock('../../src/thegraph/client');
-const theGraphClientMock = mocked(getTheGraphClient(''));
+const theGraphClientMock = jest.mocked(getTheGraphClient(''));
 describe('Any to ETH payment detection', () => {
   const mockRequest: RequestLogicTypes.IRequest = {
     creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },

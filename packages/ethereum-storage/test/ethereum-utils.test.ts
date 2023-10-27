@@ -29,7 +29,7 @@ describe('Ethereum Utils', () => {
     });
 
     it(`should throw if the storage network is not supported`, async () => {
-      expect(() => getEthereumStorageNetworkNameFromId(2000)).toThrowError(
+      expect(() => getEthereumStorageNetworkNameFromId(2000 as any)).toThrowError(
         'Unsupported storage chain: 2000',
       );
     });

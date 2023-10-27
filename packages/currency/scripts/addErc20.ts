@@ -63,7 +63,7 @@ const handler = async ({ address, network, skipUpgrade }: IOptions) => {
   );
 };
 
-yargs(process.argv.slice(2)).command<IOptions>(
+void yargs(process.argv.slice(2)).command<IOptions>(
   '$0 [address]',
   'Fetch info about the desired ERC20 token, for the given network',
   (builder) => {

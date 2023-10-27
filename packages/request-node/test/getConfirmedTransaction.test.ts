@@ -26,7 +26,6 @@ describe('getConfirmedTransaction', () => {
 
   afterAll(async () => {
     await requestNodeInstance.close();
-    server.close();
   });
 
   it('responds with status 200 to requests with correct values', async () => {
