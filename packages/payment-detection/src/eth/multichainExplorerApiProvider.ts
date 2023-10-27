@@ -64,6 +64,8 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
         return 'https://explorer.mantle.xyz/';
       case 'mantle-testnet':
         return 'https://explorer.testnet.mantle.xyz/';
+      case 'core':
+        return 'https://openapi.coredao.org/';
       default:
         return super.getBaseUrl();
     }
