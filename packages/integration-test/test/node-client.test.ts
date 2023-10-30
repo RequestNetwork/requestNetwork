@@ -700,8 +700,8 @@ describe('ETH localhost request creation and detection test', () => {
     // Cancel the request
     const requestDataCancel = await request.cancel(payeeIdentity);
     const requestDataCancelConfirmed = await waitForConfirmation(requestDataCancel);
-    console.log(JSON.stringify(requestDataCancelConfirmed));
     expect(requestDataCancelConfirmed.state).toBe(Types.RequestLogic.STATE.CANCELED);
+    expect(requestDataCancelConfirmed.balance?.balance).toBe('1000');
   });
 
   it('can create & pay a request with any to eth proxy', async () => {
