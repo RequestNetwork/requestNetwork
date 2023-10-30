@@ -699,7 +699,7 @@ describe('ETH localhost request creation and detection test', () => {
 
     // Cancel the request
     const cancelData = await request.cancel(payeeIdentity);
-    expect(data.state).toBe(Types.RequestLogic.STATE.CANCELED);
+    expect(cancelData.state).toBe(Types.RequestLogic.STATE.CANCELED);
   });
 
   it('can create & pay a request with any to eth proxy', async () => {
