@@ -698,8 +698,10 @@ describe('ETH localhost request creation and detection test', () => {
     expect(event?.parameters?.to).toBe('0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB');
 
     // Cancel the request
-    const cancelData = await request.cancel(payeeIdentity);
-    expect(cancelData.state).toBe(Types.RequestLogic.STATE.CANCELED);
+    const requestDataCancel = await request.cancel(payeeIdentity);
+    const requestDataCancelConfirmed = await waitForConfirmation(requestDataCancel);
+    console.log(JSON.stringify(requestDataCancelConfirmed));
+    expect(requestDataCancelConfirmed.state).toBe(Types.RequestLogic.STATE.CANCELED);
   });
 
   it('can create & pay a request with any to eth proxy', async () => {
