@@ -179,6 +179,7 @@ async function ecDecrypt(privateKey: string, data: string): Promise<string> {
       e.message === 'public key length is invalid' ||
       e.message === 'Expected public key to be an Uint8Array with length [33, 65]' ||
       e.message === 'Bad MAC' ||
+      e.message === 'bad MAC after trying padded' ||
       e.message === 'the public key could not be parsed or is invalid' ||
       e.message === 'Public Key could not be parsed'
     ) {
