@@ -1,6 +1,7 @@
-import * as EcCrypto from 'eccrypto';
 import { publicKeyConvert, ecdsaRecover } from 'secp256k1';
 import { ethers } from 'ethers';
+import { Ecies, decrypt, encrypt } from '@toruslabs/eccrypto';
+
 /**
  * Function to manage Elliptic-curve cryptography
  */
@@ -135,7 +136,7 @@ async function ecEncrypt(publicKey: string, data: string): Promise<string> {
   try {
     // encrypts the data with the publicKey, returns the encrypted data with encryption parameters (such as IV..)
     const compressed = compressPublicKey(publicKey);
-    const encrypted = await EcCrypto.encrypt(Buffer.from(compressed), Buffer.from(data));
+    const encrypted = await encrypt(Buffer.from(compressed), Buffer.from(data));
 
     // Transforms the object with the encrypted data into a smaller string-representation.
     return Buffer.concat([
@@ -165,10 +166,7 @@ async function ecEncrypt(publicKey: string, data: string): Promise<string> {
  */
 async function ecDecrypt(privateKey: string, data: string): Promise<string> {
   try {
-    const buf = await EcCrypto.decrypt(
-      Buffer.from(privateKey.replace(/^0x/, ''), 'hex'),
-      eciesSplit(data),
-    );
+    const buf = await decrypt(Buffer.from(privateKey.replace(/^0x/, ''), 'hex'), eciesSplit(data));
     return buf.toString();
   } catch (e) {
     if (
@@ -206,7 +204,7 @@ function compressPublicKey(publicKey: string): Uint8Array {
  * Split an encrypted string to ECIES params
  * inspired from https://github.com/pubkey/eth-crypto/blob/master/src/ecDecrypt-with-private-key.js
  */
-const eciesSplit = (str: string): EcCrypto.Ecies => {
+const eciesSplit = (str: string): Ecies => {
   const buf = Buffer.from(str, 'hex');
 
   const ephemPublicKeyStr = buf.toString('hex', 16, 49);

@@ -6,6 +6,8 @@ import {
   getAddressFromPrivateKey,
   getAddressFromPublicKey,
 } from '../../src';
+import { eccryptoNativeData } from './data/crypto-native';
+import { eccryptoBrowserData } from './data/crypto-browser';
 
 const rawId = {
   address: '0x818B6337657A23F58581715Fc610577292e521D0',
@@ -158,6 +160,19 @@ describe('Utils/EcUtils', () => {
           '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc7',
         ),
       ).rejects.toThrowError('The encrypted data is not well formatted');
+    });
+
+    it('should be compatible with previous implementation of eccrypto', async () => {
+      const dataTypes = { native: eccryptoNativeData, browser: eccryptoBrowserData } as const;
+      for (const dataType in dataTypes) {
+        console.log(`testing ${dataType} type`);
+        const array = dataTypes[dataType as keyof typeof dataTypes];
+        for (const row of array) {
+          const { data, key, encrypted } = row;
+          const decrypted = await ecDecrypt(key, encrypted);
+          expect(decrypted).toBe(data);
+        }
+      }
     });
   });
 

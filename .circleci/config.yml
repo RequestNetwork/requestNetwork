@@ -5,7 +5,7 @@ references:
   attach_workspace: &attach_workspace
   image_name: &image_name 'cimg/python:3.7'
   node_image: &node_image
-    image: cimg/node:16.15
+    image: cimg/node:18.18
   ipfs_image: &ipfs_image
     image: requestnetwork/request-ipfs:v0.13.0
   ganache_image: &ganache_image
