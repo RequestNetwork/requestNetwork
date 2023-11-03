@@ -8,6 +8,7 @@ import * as AvalancheDefinition from './data/avalanche';
 import * as BscDefinition from './data/bsc';
 import * as BscTestDefinition from './data/bsctest';
 import * as CeloDefinition from './data/celo';
+import * as CoreDefinition from './data/core';
 import * as FantomDefinition from './data/fantom';
 import * as FuseDefinition from './data/fuse';
 import * as GoerliDefinition from './data/goerli';
@@ -37,6 +38,7 @@ export const chains: Record<CurrencyTypes.EvmChainName, EvmChain> = {
   bsc: BscDefinition,
   bsctest: BscTestDefinition,
   celo: CeloDefinition,
+  core: CoreDefinition,
   fantom: FantomDefinition,
   fuse: FuseDefinition,
   goerli: GoerliDefinition,
