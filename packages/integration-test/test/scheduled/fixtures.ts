@@ -1,6 +1,7 @@
 import { IdentityTypes, PaymentTypes, ExtensionTypes } from '@requestnetwork/types';
 import { RequestNetwork, Types } from '@requestnetwork/request-client.js';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
+import { providers } from 'ethers';
 
 export const httpConfig = {
   getConfirmationDeferDelay: 1000,
@@ -66,4 +67,11 @@ export const localEthInputDataPaymentNetworkParams: PaymentTypes.PaymentNetworkC
   parameters: {
     paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
   },
+};
+
+export const automine = (freq = 200) => {
+  const provider = new providers.JsonRpcProvider();
+  setInterval(async () => {
+    await provider.send('evm_mine', []);
+  }, freq).unref();
 };

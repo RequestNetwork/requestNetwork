@@ -25,7 +25,6 @@ describe('requestNode server', () => {
 
   afterAll(async () => {
     await requestNodeInstance.close();
-    server.close();
   });
 
   it('responds with status 404 to unimplemented requests', async () => {
