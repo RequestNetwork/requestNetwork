@@ -141,6 +141,12 @@ export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthC
       name: 'Mantle Testnet',
       network: 'mantle-testnet',
     },
+    {
+      symbol: 'CORE',
+      decimals: 18,
+      name: 'Core',
+      network: 'core',
+    },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [
     {
