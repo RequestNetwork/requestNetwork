@@ -9,6 +9,7 @@ export type EvmChainName =
   | 'bsc'
   | 'bsctest'
   | 'celo'
+  | 'core'
   | 'fantom'
   | 'fuse'
   | 'goerli'

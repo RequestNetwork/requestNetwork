@@ -56,6 +56,7 @@ export const computeCreate2DeploymentAddressesFromList = async (
         case 'EthereumProxy':
         case 'EthereumFeeProxy':
         case 'EthConversionProxy':
+        case 'ERC20Proxy':
         case 'ERC20FeeProxy':
         case 'Erc20ConversionProxy':
         case 'ERC20EscrowToPay':
