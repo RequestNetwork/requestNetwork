@@ -162,16 +162,14 @@ describe('Utils/EcUtils', () => {
       ).rejects.toThrowError('The encrypted data is not well formatted');
     });
 
-    it('should be compatible with previous implementation of eccrypto', async () => {
-      const dataTypes = { native: eccryptoNativeData, browser: eccryptoBrowserData } as const;
-      for (const dataType in dataTypes) {
-        console.log(`testing ${dataType} type`);
-        const array = dataTypes[dataType as keyof typeof dataTypes];
-        for (const row of array) {
-          const { data, key, encrypted } = row;
-          const decrypted = await ecDecrypt(key, encrypted);
-          expect(decrypted).toBe(data);
-        }
+    it.each([
+      { type: 'native', array: eccryptoNativeData },
+      { type: 'browser', array: eccryptoBrowserData },
+    ])('should be compatible with legacy $type implementation of eccrypto', async ({ array }) => {
+      for (const row of array) {
+        const { data, key, encrypted } = row;
+        const decrypted = await ecDecrypt(key, encrypted);
+        expect(decrypted).toBe(data);
       }
     });
   });
