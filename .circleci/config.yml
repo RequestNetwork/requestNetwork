@@ -295,7 +295,7 @@ jobs:
       - run: *step_graph_deploy
       - run:
           name: 'Test request-node'
-          command: 'yarn workspace @requestnetwork/request-node run test --ci'
+          command: 'yarn workspace @requestnetwork/request-node run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/request-node/reports/
       - persist_to_workspace:
@@ -479,7 +479,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
           name: 'Test payment-detection'
-          command: 'yarn workspace @requestnetwork/payment-detection run test --ci'
+          command: 'yarn workspace @requestnetwork/payment-detection run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/payment-detection/reports/
       - persist_to_workspace:
@@ -502,7 +502,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
           name: 'Test payment-processor'
-          command: 'yarn workspace @requestnetwork/payment-processor run test --ci'
+          command: 'yarn workspace @requestnetwork/payment-processor run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/payment-processor/reports/
       - persist_to_workspace:
