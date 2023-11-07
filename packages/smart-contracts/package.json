@@ -19,7 +19,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "main": "dist/src/lib/index.js",
   "types": "dist/src/lib/index.d.ts",
