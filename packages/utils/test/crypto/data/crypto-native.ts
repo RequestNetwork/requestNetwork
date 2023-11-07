@@ -1,7 +1,7 @@
 /**
  * This file contains random strings and its encrypted version.
  * The data was encrypted by the library `eccrypto` using the native C++ implementation.
- * Any replacement library (like `eccrypto-js`) should be able to decrypt this encrypted data.
+ * Any replacement library should be able to decrypt this encrypted data.
  * More info on how this data was generated: https://github.com/RequestNetwork/requestNetwork/issues/1227
  */
 
