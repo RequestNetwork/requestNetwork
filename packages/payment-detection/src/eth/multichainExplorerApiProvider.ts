@@ -61,9 +61,9 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
       case 'avalanche':
         return 'https://api.snowtrace.io';
       case 'mantle':
-        return 'https://explorer.mantle.xyz/';
+        return 'https://explorer.mantle.xyz/api';
       case 'mantle-testnet':
-        return 'https://explorer.testnet.mantle.xyz/';
+        return 'https://explorer.testnet.mantle.xyz/api';
       case 'core':
         return 'https://openapi.coredao.org/';
       default:
