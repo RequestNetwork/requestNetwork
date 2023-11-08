@@ -656,7 +656,7 @@ describe('ETH localhost request creation and detection test', () => {
     payer: payerIdentity,
   };
 
-  it('can create ETH requests and pay with ETH Fee proxy', async () => {
+  it('can create ETH requests and pay with ETH Fee proxy and cancel after paid', async () => {
     const currencies = [...CurrencyManager.getDefaultList()];
     const requestNetwork = new RequestNetwork({
       signatureProvider,
@@ -696,6 +696,12 @@ describe('ETH localhost request creation and detection test', () => {
     expect(event?.parameters?.feeAddress).toBe('0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2');
     // amount in crypto after apply the rates of the fake aggregators
     expect(event?.parameters?.to).toBe('0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB');
+
+    // Cancel the request
+    const requestDataCancel = await request.cancel(payeeIdentity);
+    const requestDataCancelConfirmed = await waitForConfirmation(requestDataCancel);
+    expect(requestDataCancelConfirmed.state).toBe(Types.RequestLogic.STATE.CANCELED);
+    expect(requestDataCancelConfirmed.balance?.balance).toBe('1000');
   });
 
   it('can create & pay a request with any to eth proxy', async () => {

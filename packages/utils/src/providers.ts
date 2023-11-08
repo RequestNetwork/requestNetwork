@@ -48,6 +48,7 @@ const networkRpcs: Record<string, string> = {
   tombchain: 'https://rpc.tombchain.com/',
   mantle: 'https://rpc.mantle.xyz/',
   'mantle-testnet': 'https://rpc.testnet.mantle.xyz/',
+  core: 'https://rpc.coredao.org/',
 };
 
 /**

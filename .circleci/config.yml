@@ -5,7 +5,7 @@ references:
   attach_workspace: &attach_workspace
   image_name: &image_name 'cimg/python:3.7'
   node_image: &node_image
-    image: cimg/node:16.15
+    image: cimg/node:18.18
   ipfs_image: &ipfs_image
     image: requestnetwork/request-ipfs:v0.13.0
   ganache_image: &ganache_image
@@ -130,6 +130,8 @@ jobs:
       - run:
           name: 'Test request-client.js'
           command: 'yarn workspace @requestnetwork/request-client.js run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/request-client.js/reports/
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -147,6 +149,8 @@ jobs:
       - run:
           name: 'Test data-access'
           command: 'yarn workspace @requestnetwork/data-access run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/data-access/reports/
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -164,6 +168,8 @@ jobs:
       - run:
           name: 'Test data-format'
           command: 'yarn workspace @requestnetwork/data-format run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/data-format/reports/
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -181,6 +187,8 @@ jobs:
       - run:
           name: 'Test transaction-manager'
           command: 'yarn workspace @requestnetwork/transaction-manager run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/transaction-manager/reports/
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -203,6 +211,8 @@ jobs:
       - run:
           name: 'Test ethereum-storage'
           command: 'yarn workspace @requestnetwork/ethereum-storage run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/ethereum-storage/reports/
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -240,6 +250,8 @@ jobs:
       - run:
           name: 'Test request-logic'
           command: 'yarn workspace @requestnetwork/request-logic run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/request-logic/reports/
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -257,6 +269,8 @@ jobs:
       - run:
           name: 'Test advanced-logic'
           command: 'yarn workspace @requestnetwork/advanced-logic run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/advanced-logic/reports/
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -282,6 +296,8 @@ jobs:
       - run:
           name: 'Test request-node'
           command: 'yarn workspace @requestnetwork/request-node run test --ci'
+      - store_test_results:
+          path: packages/request-node/reports/
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -297,6 +313,8 @@ jobs:
       - run:
           name: 'Test utils'
           command: 'yarn workspace @requestnetwork/utils run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/utils/reports/
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -311,6 +329,8 @@ jobs:
       - run:
           name: 'Test currency'
           command: 'yarn workspace @requestnetwork/currency run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/currency/reports/
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -328,6 +348,8 @@ jobs:
       - run:
           name: 'Test epk-signature'
           command: 'yarn workspace @requestnetwork/epk-signature run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/epk-signature/reports/
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -345,6 +367,8 @@ jobs:
       - run:
           name: 'Test epk-decryption'
           command: 'yarn workspace @requestnetwork/epk-decryption run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/epk-decryption/reports/
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -362,6 +386,8 @@ jobs:
       - run:
           name: 'Test web3-signature'
           command: 'yarn workspace @requestnetwork/web3-signature run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/web3-signature/reports/
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -431,6 +457,8 @@ jobs:
       - run:
           name: 'Test multi-format'
           command: 'yarn workspace @requestnetwork/multi-format run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/multi-format/reports/
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -452,6 +480,8 @@ jobs:
       - run:
           name: 'Test payment-detection'
           command: 'yarn workspace @requestnetwork/payment-detection run test --ci'
+      - store_test_results:
+          path: packages/payment-detection/reports/
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -473,6 +503,8 @@ jobs:
       - run:
           name: 'Test payment-processor'
           command: 'yarn workspace @requestnetwork/payment-processor run test --ci'
+      - store_test_results:
+          path: packages/payment-processor/reports/
       - persist_to_workspace:
           root: *working_directory
           paths:

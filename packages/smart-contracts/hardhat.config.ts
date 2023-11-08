@@ -1,6 +1,6 @@
 import '@typechain/hardhat';
 import '@nomiclabs/hardhat-waffle';
-import '@nomiclabs/hardhat-etherscan';
+import '@nomicfoundation/hardhat-verify';
 import '@nomiclabs/hardhat-ethers';
 import { subtask, task } from 'hardhat/config';
 import { config } from 'dotenv';
@@ -156,6 +156,11 @@ export default {
       chainId: 5001,
       accounts,
     },
+    core: {
+      url: url('core'),
+      chainId: 1116,
+      accounts,
+    },
   },
   etherscan: {
     apiKey: {
@@ -180,6 +185,8 @@ export default {
       optimism: process.env.OPTIMISM_API_KEY,
       // moonbeam
       moonbeam: process.env.MOONBEAM_API_KEY,
+      // core
+      core: process.env.CORE_API_KEY,
       // other networks don't need an API key, but you still need
       // to specify one; any string placeholder will work
       sokol: 'api-key',
@@ -211,6 +218,14 @@ export default {
         urls: {
           apiURL: 'https://explorer.testnet.mantle.xyz/api',
           browserURL: 'https://explorer.testnet.mantle.xyz/',
+        },
+      },
+      {
+        network: 'core',
+        chainId: 1116,
+        urls: {
+          apiURL: 'https://openapi.coredao.org/api',
+          browserURL: 'https://scan.coredao.org/',
         },
       },
     ],
