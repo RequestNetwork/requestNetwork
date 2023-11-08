@@ -25,8 +25,9 @@ yarn-error.log
 tsconfig.tsbuildinfo
 tsconfig.build.tsbuildinfo
 
-# coverage
+# tests
 /packages/*/coverage/
+/packages/*/reports/
 
 # payment-detection generated files
 /packages/payment-detection/src/thegraph/generated/
