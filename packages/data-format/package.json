@@ -20,7 +20,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -46,6 +46,7 @@
   },
   "devDependencies": {
     "@types/node": "16.11.7",
+    "jest-junit": "16.0.0",
     "nyc": "15.1.0",
     "rimraf": "3.0.2",
     "shx": "0.3.2",
