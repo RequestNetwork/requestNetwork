@@ -34,11 +34,11 @@ export class TheGraphDataAccess extends CombinedDataAccess {
   }
 
   /** intercept events so that confirmation is emitted only once the transaction is indexed */
-  persistTransaction = async (
+  async persistTransaction(
     transactionData: DataAccessTypes.ITransaction,
     channelId: string,
     topics?: string[] | undefined,
-  ): Promise<DataAccessTypes.IReturnPersistTransaction> => {
+  ): Promise<DataAccessTypes.IReturnPersistTransaction> {
     const eventEmitter = new EventEmitter() as DataAccessTypes.PersistTransactionEmitter;
     const result = await this.writer.persistTransaction(transactionData, channelId, topics);
     result.on('confirmed', (receipt) => {
@@ -48,7 +48,7 @@ export class TheGraphDataAccess extends CombinedDataAccess {
     });
     result.on('error', (e) => eventEmitter.emit('error', e));
     return Object.assign(eventEmitter, { meta: result.meta, result: result.result });
-  };
+  }
 
   /**
    * We wait until the data is indexed on TheGraph
