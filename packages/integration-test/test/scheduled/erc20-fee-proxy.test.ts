@@ -96,6 +96,8 @@ describe('ERC20 Fee Proxy detection test-suite (with a TheGraph Retriever)', () 
       signer: payeeIdentity,
     });
 
+    await request.waitForConfirmation();
+
     // The payee declares the payment
     let requestData = await request.declareReceivedPayment('1', 'OK', payeeIdentity, '0x1234');
     const declarationTimestamp = Utils.getCurrentTimestampInSecond();
@@ -126,6 +128,8 @@ describe('ERC20 Fee Proxy detection test-suite (with a TheGraph Retriever)', () 
       requestInfo: erc20requestCreationHash,
       signer: payeeIdentity,
     });
+
+    await request.waitForConfirmation();
 
     // The payer declares a payment
     let requestData: Types.IRequestDataWithEvents = await request.declareSentPayment(
