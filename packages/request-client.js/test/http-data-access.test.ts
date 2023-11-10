@@ -25,7 +25,13 @@ describe('HttpDataAccess', () => {
       });
       void httpDataAccess.persistTransaction({}, '', []).then((returnPersistTransaction) => {
         returnPersistTransaction.on('error', (e: any) => {
-          expect(e.message).toBe('Transaction confirmation not receive after 0 retries');
+          expect(e.message).toBe(`Transaction confirmation not received. Try polling
+            getTransactionsByChannelId() until the transaction is confirmed.
+            deferDelay: 0ms,
+            maxRetries: 0,
+            retryDelay: 1000ms,
+            exponentialBackoffDelay: 0ms,
+            maxExponentialBackoffDelay: 30000ms`);
           done();
         });
       });
