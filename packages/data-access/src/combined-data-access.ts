@@ -4,12 +4,7 @@ export abstract class CombinedDataAccess implements DataAccessTypes.IDataAccess 
   constructor(
     protected reader: DataAccessTypes.IDataRead,
     protected writer: DataAccessTypes.IDataWrite,
-  ) {
-    this.getTransactionsByChannelId = this.reader.getTransactionsByChannelId.bind(this.reader);
-    this.getChannelsByTopic = this.reader.getChannelsByTopic.bind(this.reader);
-    this.getChannelsByMultipleTopics = this.reader.getChannelsByMultipleTopics.bind(this.reader);
-    this.persistTransaction = this.writer.persistTransaction.bind(this.writer);
-  }
+  ) {}
 
   async initialize(): Promise<void> {
     await this.reader.initialize();
@@ -21,22 +16,30 @@ export abstract class CombinedDataAccess implements DataAccessTypes.IDataAccess 
     await this.reader.close();
   }
 
-  getTransactionsByChannelId: (
+  async getTransactionsByChannelId(
     channelId: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries | undefined,
-  ) => Promise<DataAccessTypes.IReturnGetTransactions>;
+  ): Promise<DataAccessTypes.IReturnGetTransactions> {
+    return await this.reader.getTransactionsByChannelId(channelId, updatedBetween);
+  }
 
-  getChannelsByTopic: (
+  async getChannelsByTopic(
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries | undefined,
-  ) => Promise<DataAccessTypes.IReturnGetChannelsByTopic>;
-  getChannelsByMultipleTopics: (
+  ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
+    return await this.reader.getChannelsByTopic(topic, updatedBetween);
+  }
+  async getChannelsByMultipleTopics(
     topics: string[],
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
-  ) => Promise<DataAccessTypes.IReturnGetChannelsByTopic>;
-  persistTransaction: (
+  ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
+    return await this.reader.getChannelsByMultipleTopics(topics, updatedBetween);
+  }
+  async persistTransaction(
     transactionData: DataAccessTypes.ITransaction,
     channelId: string,
     topics?: string[] | undefined,
-  ) => Promise<DataAccessTypes.IReturnPersistTransaction>;
+  ): Promise<DataAccessTypes.IReturnPersistTransaction> {
+    return await this.writer.persistTransaction(transactionData, channelId, topics);
+  }
 }

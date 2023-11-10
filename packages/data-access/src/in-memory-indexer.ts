@@ -86,14 +86,14 @@ export class InMemoryIndexer implements StorageTypes.IIndexer {
       .flat()
       .map(
         (item): StorageTypes.IIndexedTransaction => ({
-          blockNumber: 0,
-          blockTimestamp: 0,
+          blockNumber: item.meta.ethereum?.blockNumber ?? 0,
+          blockTimestamp: item.meta.ethereum?.blockTimestamp ?? 0,
           channelId: item.channelId,
           hash: item.locationId,
-          size: '0',
-          smartContractAddress: '',
+          size: String(item.meta.ipfs?.size ?? 0),
+          smartContractAddress: item.meta.ethereum?.smartContractAddress ?? '',
           topics: [],
-          transactionHash: '',
+          transactionHash: item.meta.ethereum?.transactionHash ?? '',
           data: item.transaction.data,
           encryptedData: item.transaction.encryptedData,
           encryptionMethod: item.transaction.encryptionMethod,
