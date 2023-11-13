@@ -4590,13 +4590,6 @@
   resolved "https://registry.npmjs.org/@tootallnate/once/-/once-1.1.2.tgz"
   integrity sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==
 
-"@toruslabs/eccrypto@4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@toruslabs/eccrypto/-/eccrypto-4.0.0.tgz#0b27ed2d1e9483e77f42a7619a2c3c19cb802f44"
-  integrity sha512-Z3EINkbsgJx1t6jCDVIJjLSUEGUtNIeDjhMWmeDGOWcP/+v/yQ1hEvd1wfxEz4q5WqIHhevacmPiVxiJ4DljGQ==
-  dependencies:
-    elliptic "^6.5.4"
-
 "@truffle/abi-utils@^0.2.11":
   version "0.2.11"
   resolved "https://registry.npmjs.org/@truffle/abi-utils/-/abi-utils-0.2.11.tgz"
@@ -9509,7 +9502,7 @@ ecdsa-sig-formatter@1.0.11:
   dependencies:
     safe-buffer "^5.0.1"
 
-eciesjs@^0.4.5:
+eciesjs@0.4.5:
   version "0.4.5"
   resolved "https://registry.yarnpkg.com/eciesjs/-/eciesjs-0.4.5.tgz#35c48963e6942687da2bc93eb5b612ebf6a0bbfb"
   integrity sha512-2zSRIygO48LpdS95Rwt9ryIkJNO37IdbkjRsnYyAn7gx7e4WPBNimnk6jGNdx2QQYr/VJRPnSVdwQpO5bycYZw==
@@ -18776,7 +18769,7 @@ scuid@^1.1.0:
   resolved "https://registry.npmjs.org/scuid/-/scuid-1.1.0.tgz"
   integrity sha512-MuCAyrGZcTLfQoH2XoBlQ8C6bzwN88XT/0slOGz0pn8+gIP85BOAfYa44ZXQUTOwRwPU0QvgU+V+OSajl/59Xg==
 
-secp256k1@4.0.2, secp256k1@^4.0.1:
+secp256k1@^4.0.1:
   version "4.0.2"
   resolved "https://registry.npmjs.org/secp256k1/-/secp256k1-4.0.2.tgz"
   integrity sha512-UDar4sKvWAksIlfX3xIaQReADn+WFnHvbVujpcbr+9Sf/69odMwy2MUsz5CKLQgX9nsIyrjuxL2imVyoNHa3fg==
