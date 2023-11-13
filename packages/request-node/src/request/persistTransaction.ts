@@ -43,7 +43,6 @@ export default class PersistTransactionHandler {
       !clientRequest.body.transactionData ||
       !clientRequest.body.channelId
     ) {
-      console.log('persist', clientRequest.body);
       serverResponse.status(StatusCodes.UNPROCESSABLE_ENTITY).send('Incorrect data');
       return;
     }
