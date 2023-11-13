@@ -133,7 +133,7 @@ describe('Ipfs manager', () => {
     mockServer.close();
   });
 
-  fit('timeout errors should generate retry', async () => {
+  it('timeout errors should generate retry', async () => {
     ipfsManager = new IpfsManager({
       ipfsTimeout: 1,
       ipfsErrorHandling: retryTestErrorHandling,
