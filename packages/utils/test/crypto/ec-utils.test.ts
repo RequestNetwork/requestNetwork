@@ -97,15 +97,15 @@ describe('Utils/EcUtils', () => {
 
   describe('encrypt', () => {
     it('can encrypt', async () => {
-      const encryptedData = await ecEncrypt(rawId.publicKey, anyData);
+      const encryptedData = ecEncrypt(rawId.publicKey, anyData);
       // 'encrypt() error'
       expect(encryptedData.length).toBe(226);
       // 'decrypt() error'
-      expect(await ecDecrypt(rawId.privateKey, encryptedData)).toBe(anyData);
+      expect(ecDecrypt(rawId.privateKey, encryptedData)).toBe(anyData);
     });
 
     it('can encrypt with other public key formats', async () => {
-      const encryptedData = await ecEncrypt(
+      const encryptedData = ecEncrypt(
         '0396212fc129c2f78771218b2e93da7a5aac63490a42bb41b97848c39c14fe65cd',
         anyData,
       );
@@ -113,7 +113,7 @@ describe('Utils/EcUtils', () => {
     });
 
     it('cannot encrypt data with a wrong public key', async () => {
-      await expect(ecEncrypt('cf4a', anyData)).rejects.toThrowError(
+      expect(() => ecEncrypt('cf4a', anyData)).toThrow(
         'The public key must be a string representing 64 bytes',
       );
     });
@@ -121,7 +121,7 @@ describe('Utils/EcUtils', () => {
 
   describe('decrypt', () => {
     it('can decrypt', async () => {
-      const data = await ecDecrypt(
+      const data = ecDecrypt(
         rawId.privateKey,
         '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc70a',
       );
@@ -130,36 +130,36 @@ describe('Utils/EcUtils', () => {
     });
 
     it('cannot decrypt data with a wrong private key', async () => {
-      await expect(
+      expect(() =>
         ecDecrypt(
           '0xaa',
           '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc70a',
         ),
-      ).rejects.toThrowError('The private key must be a string representing 32 bytes');
+      ).toThrow('The private key must be a string representing 32 bytes');
     });
 
     it('cannot decrypt data with a wrong encrypted data: public key too short', async () => {
-      await expect(ecDecrypt(rawId.privateKey, 'aa')).rejects.toThrowError(
+      expect(() => ecDecrypt(rawId.privateKey, 'aa')).toThrow(
         'The encrypted data is not well formatted',
       );
     });
 
     it('cannot decrypt data with a wrong encrypted data: public key not parsable', async () => {
-      await expect(
+      expect(() =>
         ecDecrypt(
           rawId.privateKey,
           'e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc7',
         ),
-      ).rejects.toThrowError('The encrypted data is not well formatted');
+      ).toThrow('The encrypted data is not well formatted');
     });
 
     it('cannot decrypt data with a wrong encrypted data: bad MAC', async () => {
-      await expect(
+      expect(() =>
         ecDecrypt(
           rawId.privateKey,
           '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc7',
         ),
-      ).rejects.toThrowError('The encrypted data is not well formatted');
+      ).toThrow('The encrypted data is not well formatted');
     });
 
     it.each([
@@ -168,22 +168,22 @@ describe('Utils/EcUtils', () => {
     ])('should be compatible with legacy $type implementation of eccrypto', async ({ array }) => {
       for (const row of array) {
         const { data, key, encrypted } = row;
-        const decrypted = await ecDecrypt(key, encrypted);
+        const decrypted = ecDecrypt(key, encrypted);
         expect(decrypted).toBe(data);
       }
     });
   });
 
   it('can encrypt()', async () => {
-    const encryptedData = await ecEncrypt(rawId.publicKey, anyData);
+    const encryptedData = ecEncrypt(rawId.publicKey, anyData);
     // 'encrypt() error'
     expect(encryptedData.length).toBe(226);
     // 'decrypt() error'
-    expect(await ecDecrypt(rawId.privateKey, encryptedData)).toBe(anyData);
+    expect(ecDecrypt(rawId.privateKey, encryptedData)).toBe(anyData);
   });
 
   it('can decrypt()', async () => {
-    const data = await ecDecrypt(
+    const data = ecDecrypt(
       rawId.privateKey,
       '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc70a',
     );
