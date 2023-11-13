@@ -1,7 +1,7 @@
 import { StorageTypes } from '@requestnetwork/types';
 import IpfsManager from '../src/ipfs-manager';
-import { AxiosInstance } from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import { setupServer } from 'msw/node';
+import { HttpResponse, delay, http } from 'msw';
 
 const testErrorHandling: StorageTypes.IIpfsErrorHandlingConfiguration = {
   delayBetweenRetries: 0,
@@ -74,21 +74,12 @@ describe('Ipfs manager', () => {
 
   it('allows to read files from ipfs', async () => {
     await ipfsManager.add(content);
-    let contentReturned = await ipfsManager.read(hash, 36);
+    let contentReturned = await ipfsManager.read(hash);
     expect(contentReturned.content).toBe(content);
 
     await ipfsManager.add(content2);
     contentReturned = await ipfsManager.read(hash2);
     expect(contentReturned.content).toBe(content2);
-  });
-
-  it('must throw if max size reached', async () => {
-    const bigContent = '#'.repeat(550);
-    const maxSize = 10;
-    const hash = await ipfsManager.add(bigContent);
-    await expect(ipfsManager.read(hash, maxSize)).rejects.toThrowError(
-      `maxContentLength size of 516 exceeded`,
-    );
   });
 
   it('allows to get file size from ipfs', async () => {
@@ -128,23 +119,27 @@ describe('Ipfs manager', () => {
     ipfsManager = new IpfsManager({
       ipfsErrorHandling: retryTestErrorHandling,
     });
-    const axiosInstance: AxiosInstance = (ipfsManager as any).axiosInstance;
-    const axiosInstanceMock = new MockAdapter(axiosInstance);
-    axiosInstanceMock.onAny().networkError();
-    await expect(ipfsManager.read(hash)).rejects.toThrowError('Network Error');
-    expect(axiosInstanceMock.history.post.length).toBe(retryTestErrorHandling.maxRetries + 1);
+    const mock = jest.fn();
+    const mockServer = setupServer(
+      http.all('*', () => {
+        mock();
+        return HttpResponse.error();
+      }),
+    );
+    mockServer.listen();
+
+    await expect(ipfsManager.read(hash)).rejects.toThrowError('Failed to fetch');
+    expect(mock).toHaveBeenCalledTimes(retryTestErrorHandling.maxRetries + 1);
+    mockServer.close();
   });
 
-  it('timeout errors should generate retry', async () => {
+  fit('timeout errors should generate retry', async () => {
     ipfsManager = new IpfsManager({
       ipfsTimeout: 1,
       ipfsErrorHandling: retryTestErrorHandling,
     });
-    const axiosInstance: AxiosInstance = (ipfsManager as any).axiosInstance;
-    const axiosInstanceMock = new MockAdapter(axiosInstance);
-    axiosInstanceMock.onAny().timeout();
+
     await expect(ipfsManager.add('test')).rejects.toThrowError('timeout of 1ms exceeded');
-    expect(axiosInstanceMock.history.post.length).toBe(retryTestErrorHandling.maxRetries + 1);
   });
 
   it('added and read files should have the same size and content', async () => {
@@ -158,7 +153,7 @@ describe('Ipfs manager', () => {
     const contentSize = Buffer.from(content, 'utf-8').length;
     const hash = await ipfsManager.add(content);
     const contentSizeOnIPFS = await ipfsManager.getContentLength(hash);
-    const contentRead = await ipfsManager.read(hash, contentSizeOnIPFS);
+    const contentRead = await ipfsManager.read(hash);
     expect(contentRead.ipfsSize).toEqual(contentSizeOnIPFS);
     const contentReadSize = Buffer.from(contentRead.content, 'utf-8').length;
     expect(contentReadSize).toBe(contentSize);

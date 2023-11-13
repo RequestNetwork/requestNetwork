@@ -1,12 +1,14 @@
 import { ClientTypes, DataAccessTypes } from '@requestnetwork/types';
-import axios, { AxiosRequestConfig } from 'axios';
 
 import { EventEmitter } from 'events';
 import httpConfigDefaults from './http-config-defaults';
 import { normalizeKeccak256Hash, retry } from '@requestnetwork/utils';
+import { stringify } from 'qs';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
+
+export type NodeConnectionConfig = { baseURL: string; headers: Record<string, string> };
 
 /**
  * Exposes a Data-Access module over HTTP
@@ -19,15 +21,14 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   protected httpConfig: ClientTypes.IHttpDataAccessConfig;
 
   /**
-   * Configuration that will be sent to axios for each request.
-   * We can also create a AxiosInstance with axios.create() but it dramatically complicates testing.
+   * Configuration that will be sent at each request.
    */
-  protected axiosConfig: AxiosRequestConfig;
+  protected nodeConnectionConfig: NodeConnectionConfig;
 
   /**
    * Creates an instance of HttpDataAccess.
    * @param httpConfig @see ClientTypes.IHttpDataAccessConfig for available options.
-   * @param nodeConnectionConfig Configuration options to connect to the node. Follows Axios configuration format.
+   * @param nodeConnectionConfig Configuration options to connect to the node.
    */
   constructor(
     {
@@ -35,7 +36,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
       nodeConnectionConfig,
     }: {
       httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
-      nodeConnectionConfig?: AxiosRequestConfig;
+      nodeConnectionConfig?: Partial<NodeConnectionConfig>;
     } = {
       httpConfig: {},
       nodeConnectionConfig: {},
@@ -47,7 +48,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
       ...httpConfigDefaults,
       ...httpConfig,
     };
-    this.axiosConfig = {
+    this.nodeConnectionConfig = {
       baseURL: 'http://localhost:3000',
       headers: {
         [this.httpConfig.requestClientVersionHeader]: requestClientVersion,
@@ -90,53 +91,51 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     // We don't retry this request since it may fail because of a slow Storage
     // For example, if the Ethereum network is slow and we retry the request three times
     // three data will be persisted at the end
-    const { data } = await axios.post(
+    const data = await this.fetch<DataAccessTypes.IReturnPersistTransactionRaw>(
+      'POST',
       '/persistTransaction',
-      {
-        channelId,
-        topics,
-        transactionData,
-      },
-      this.axiosConfig,
+      undefined,
+      { channelId, topics, transactionData },
     );
 
     const transactionHash: string = normalizeKeccak256Hash(transactionData).value;
 
     // Create the return result with EventEmitter
     const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(
-      new EventEmitter(),
+      new EventEmitter() as DataAccessTypes.PersistTransactionEmitter,
       data,
     );
 
     // Try to get the confirmation
     new Promise((r) => setTimeout(r, this.httpConfig.getConfirmationDeferDelay))
       .then(async () => {
-        const confirmedData = await this.fetchAndRetry(
-          '/getConfirmedTransaction',
-          {
-            transactionHash,
-          },
-          {
-            maxRetries: this.httpConfig.getConfirmationMaxRetry,
-            retryDelay: this.httpConfig.getConfirmationRetryDelay,
-            exponentialBackoffDelay: this.httpConfig.getConfirmationExponentialBackoffDelay,
-            maxExponentialBackoffDelay: this.httpConfig.getConfirmationMaxExponentialBackoffDelay,
-          },
-        );
+        const confirmedData =
+          await this.fetchAndRetry<DataAccessTypes.IReturnPersistTransactionRaw>(
+            '/getConfirmedTransaction',
+            {
+              transactionHash,
+            },
+            {
+              maxRetries: this.httpConfig.getConfirmationMaxRetry,
+              retryDelay: this.httpConfig.getConfirmationRetryDelay,
+              exponentialBackoffDelay: this.httpConfig.getConfirmationExponentialBackoffDelay,
+              maxExponentialBackoffDelay: this.httpConfig.getConfirmationMaxExponentialBackoffDelay,
+            },
+          );
         // when found, emit the event 'confirmed'
         result.emit('confirmed', confirmedData);
       })
       .catch((e) => {
         let error: Error = e;
-        if (e.response.status === 404) {
+        if (e.status === 404) {
           error = new Error(
             `Transaction confirmation not received. Try polling
-            getTransactionsByChannelId() until the transaction is confirmed.
-            deferDelay: ${this.httpConfig.getConfirmationDeferDelay}ms,
-            maxRetries: ${this.httpConfig.getConfirmationMaxRetry},
-            retryDelay: ${this.httpConfig.getConfirmationRetryDelay}ms,
-            exponentialBackoffDelay: ${this.httpConfig.getConfirmationExponentialBackoffDelay}ms,
-            maxExponentialBackoffDelay: ${this.httpConfig.getConfirmationMaxExponentialBackoffDelay}ms`,
+          getTransactionsByChannelId() until the transaction is confirmed.
+          deferDelay: ${this.httpConfig.getConfirmationDeferDelay}ms,
+          maxRetries: ${this.httpConfig.getConfirmationMaxRetry},
+          retryDelay: ${this.httpConfig.getConfirmationRetryDelay}ms,
+          exponentialBackoffDelay: ${this.httpConfig.getConfirmationExponentialBackoffDelay}ms,
+          maxExponentialBackoffDelay: ${this.httpConfig.getConfirmationMaxExponentialBackoffDelay}ms`,
           );
         }
         result.emit('error', error);
@@ -155,7 +154,10 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     channelId: string,
     timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetTransactions> {
-    return this.fetchAndRetry('/getTransactionsByChannelId', { channelId, timestampBoundaries });
+    return this.fetchAndRetry('/getTransactionsByChannelId', {
+      channelId,
+      timestampBoundaries,
+    });
   }
 
   /**
@@ -168,7 +170,10 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    return this.fetchAndRetry('/getChannelsByTopic', { topic, updatedBetween });
+    return this.fetchAndRetry('/getChannelsByTopic', {
+      topic,
+      updatedBetween,
+    });
   }
 
   /**
@@ -181,7 +186,10 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     topics: string[],
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    return this.fetchAndRetry('/getChannelsByMultipleTopics', { topics, updatedBetween });
+    return this.fetchAndRetry('/getChannelsByMultipleTopics', {
+      topics,
+      updatedBetween,
+    });
   }
 
   /**
@@ -200,16 +208,16 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    * @param params HTTP GET request parameters
    * @param retryConfig Maximum retry count, delay between retries, exponential backoff delay, and maximum exponential backoff delay
    */
-  protected async fetchAndRetry(
-    url: string,
-    params: any,
+  protected async fetchAndRetry<T = unknown>(
+    path: string,
+    params: Record<string, unknown>,
     retryConfig: {
       maxRetries?: number;
       retryDelay?: number;
       exponentialBackoffDelay?: number;
       maxExponentialBackoffDelay?: number;
     } = {},
-  ): Promise<any> {
+  ): Promise<T> {
     retryConfig.maxRetries = retryConfig.maxRetries ?? this.httpConfig.httpRequestMaxRetry;
     retryConfig.retryDelay = retryConfig.retryDelay ?? this.httpConfig.httpRequestRetryDelay;
     retryConfig.exponentialBackoffDelay =
@@ -217,11 +225,34 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     retryConfig.maxExponentialBackoffDelay =
       retryConfig.maxExponentialBackoffDelay ??
       this.httpConfig.httpRequestMaxExponentialBackoffDelay;
-    const { data } = await retry(
-      async () => axios.get(url, { ...this.axiosConfig, params }),
-      retryConfig,
-    )();
+    return await retry(async () => await this.fetch<T>('GET', path, params), retryConfig)();
+  }
 
-    return data;
+  protected async fetch<T = unknown>(
+    method: 'GET' | 'POST',
+    path: string,
+    params: unknown,
+    body?: Record<string, unknown>,
+  ): Promise<T> {
+    const { baseURL, headers, ...options } = this.nodeConnectionConfig;
+    const url = new URL(path, baseURL);
+    url.search = stringify(params);
+    const r = await fetch(url, {
+      method,
+      body: body ? JSON.stringify(body) : undefined,
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers,
+      },
+      ...options,
+    });
+    if (r.ok) {
+      return await r.json();
+    }
+
+    throw Object.assign(new Error(r.statusText), {
+      status: r.status,
+      statusText: r.statusText,
+    });
   }
 }

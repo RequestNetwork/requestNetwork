@@ -67,7 +67,6 @@ export type IIpfsConfig = {
 export interface IIpfsStorage {
   initialize: () => Promise<void>;
   ipfsAdd: (data: string) => Promise<IIpfsMeta>;
-  read(hash: string, maxSize?: number, retries?: number): Promise<IIpfsObject>;
   getConfig(): Promise<IIpfsConfig>;
 }
 

@@ -1,40 +1,49 @@
 import HttpDataAccess from '../src/http-data-access';
-import MockAdapter from 'axios-mock-adapter';
 import * as TestData from './data-test';
+import { SetupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw';
 
-let mockAxios: MockAdapter;
+let mockServer: SetupServer;
 
 beforeAll(() => {
-  mockAxios = TestData.mockAxiosRequestNode();
+  mockServer = TestData.mockRequestNode();
 });
 
 afterAll(() => {
-  mockAxios.restore();
+  mockServer.close();
   jest.restoreAllMocks();
 });
 
 describe('HttpDataAccess', () => {
   describe('persistTransaction()', () => {
-    it('should emmit error', (done) => {
-      mockAxios.onGet('/getConfirmedTransaction').reply(404, { result: {} });
+    it('should emit error', async () => {
+      mockServer.use(
+        http.get('*/getConfirmedTransaction', () =>
+          HttpResponse.json({ result: {} }, { status: 404 }),
+        ),
+      );
       const httpDataAccess = new HttpDataAccess({
         httpConfig: {
           getConfirmationDeferDelay: 0,
           getConfirmationMaxRetry: 0,
         },
       });
-      void httpDataAccess.persistTransaction({}, '', []).then((returnPersistTransaction) => {
-        returnPersistTransaction.on('error', (e: any) => {
-          expect(e.message).toBe(`Transaction confirmation not received. Try polling
-            getTransactionsByChannelId() until the transaction is confirmed.
-            deferDelay: 0ms,
-            maxRetries: 0,
-            retryDelay: 1000ms,
-            exponentialBackoffDelay: 0ms,
-            maxExponentialBackoffDelay: 30000ms`);
-          done();
-        });
-      });
+      await expect(
+        new Promise((resolve, reject) =>
+          httpDataAccess.persistTransaction({}, '', []).then((returnPersistTransaction) => {
+            returnPersistTransaction.on('confirmed', resolve);
+            returnPersistTransaction.on('error', reject);
+          }),
+        ),
+      ).rejects.toThrow(
+        new Error(`Transaction confirmation not received. Try polling
+          getTransactionsByChannelId() until the transaction is confirmed.
+          deferDelay: 0ms,
+          maxRetries: 0,
+          retryDelay: 1000ms,
+          exponentialBackoffDelay: 0ms,
+          maxExponentialBackoffDelay: 30000ms`),
+      );
     });
   });
 });

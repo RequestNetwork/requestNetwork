@@ -22,6 +22,7 @@ export default class GetChannelHandler {
     let transactions;
 
     const { updatedBetween, topic } = clientRequest.query;
+    console.log(clientRequest.query);
     // Verifies if data sent from get request are correct
     // clientRequest.query is expected to contain the topic of the transactions to search for
     if (!topic || typeof topic !== 'string') {
