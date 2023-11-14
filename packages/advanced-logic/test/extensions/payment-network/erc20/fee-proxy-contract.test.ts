@@ -8,9 +8,8 @@ import { deepCopy } from '@requestnetwork/utils';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { AdvancedLogic } from '../../../../src';
 
-const currencyManager = new CurrencyManager(CurrencyManager.getDefaultList());
+const advancedLogic = new AdvancedLogic(CurrencyManager.getDefault());
 
-const advancedLogic = new AdvancedLogic(currencyManager);
 const erc20FeeProxyContract = advancedLogic.getFeeProxyContractErc20ForNetwork();
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */

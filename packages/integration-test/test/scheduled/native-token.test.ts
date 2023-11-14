@@ -3,7 +3,7 @@ import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { CurrencyManager } from '@requestnetwork/currency';
 
-const advancedLogic = new AdvancedLogic(new CurrencyManager(CurrencyManager.getDefaultList()));
+const advancedLogic = new AdvancedLogic(CurrencyManager.getDefault());
 
 const createCreationActionParams: ExtensionTypes.PnReferenceBased.ICreationParameters = {
   paymentAddress: 'payment.testnet',

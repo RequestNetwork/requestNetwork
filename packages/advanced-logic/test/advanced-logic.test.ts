@@ -1,3 +1,4 @@
+import { CurrencyManager } from '@requestnetwork/currency';
 import { AdvancedLogicTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import * as DataBTCCreate from './utils/payment-network/bitcoin/generator-data-create';
