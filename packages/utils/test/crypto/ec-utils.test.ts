@@ -30,7 +30,7 @@ describe('Utils/EcUtils', () => {
       expect(identity).toBe(rawId.address);
     });
     it('cannot get Address From PrivateKey if the private key is wrong', () => {
-      // 'getAddressFromPrivateKey() error'
+      // getAddressFromPrivateKey() error
       expect(() => getAddressFromPrivateKey('aa')).toThrowError(
         'The private key must be a string representing 32 bytes',
       );
@@ -50,7 +50,7 @@ describe('Utils/EcUtils', () => {
       expect(identity).toBe(rawId.address);
     });
     it('cannot get Address From Public Key if the Public key is wrong', () => {
-      // 'getAddressFromPrivateKey() error'
+      // getAddressFromPrivateKey() error
       expect(() => getAddressFromPublicKey('aa')).toThrowError(
         'The public key must be a string representing 64 bytes',
       );
@@ -68,7 +68,7 @@ describe('Utils/EcUtils', () => {
       );
     });
     it('cannot signs if the private key is wrong', () => {
-      // 'sign() error'
+      // sign() error
       expect(() =>
         ecSign('aa', '0xfd6201dabdd4d7177f7c3baba47c5533b12f0a8127ab5d8c71d831fa4df2b19f'),
       ).toThrowError('The private key must be a string representing 32 bytes');
@@ -84,7 +84,7 @@ describe('Utils/EcUtils', () => {
       expect(id).toEqual(rawId.address);
     });
     it('cannot recover address from signature if signature is not well formatted', () => {
-      // 'sign() error'
+      // sign() error
       expect(() =>
         ecRecover('0xaa', '0xfd6201dabdd4d7177f7c3baba47c5533b12f0a8127ab5d8c71d831fa4df2b19f'),
       ).toThrowError('The signature must be a string representing 66 bytes');
@@ -107,7 +107,7 @@ describe('Utils/EcUtils', () => {
     });
 
     it('cannot encrypt data with a wrong public key', async () => {
-      // 'encrypt() error'
+      // encrypt() error
       await expect(ecEncrypt('cf4a', anyData)).rejects.toThrowError(
         'The public key must be a string representing 64 bytes',
       );
@@ -124,7 +124,7 @@ describe('Utils/EcUtils', () => {
     });
 
     it('cannot decrypt data with a wrong private key', async () => {
-      // 'decrypt() error'
+      // decrypt() error
       await expect(
         ecDecrypt(
           '0xaa',
@@ -134,14 +134,14 @@ describe('Utils/EcUtils', () => {
     });
 
     it('cannot decrypt data with a wrong encrypted data: public key too short', async () => {
-      // 'decrypt() error'
+      // decrypt() error
       await expect(ecDecrypt(rawId.privateKey, 'aa')).rejects.toThrowError(
         'The encrypted data is not well formatted',
       );
     });
 
     it('cannot decrypt data with a wrong encrypted data: public key not parsable', async () => {
-      // 'decrypt() error'
+      // decrypt() error
       await expect(
         ecDecrypt(
           rawId.privateKey,
@@ -151,7 +151,7 @@ describe('Utils/EcUtils', () => {
     });
 
     it('cannot decrypt data with a wrong encrypted data: bad MAC', async () => {
-      // 'decrypt() error'
+      // decrypt() error
       await expect(
         ecDecrypt(
           rawId.privateKey,
