@@ -1,4 +1,4 @@
-import { ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import { CurrencyTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { AnyToAnyDetector } from './any-to-any-detector';
 import { NativeDetectorOptions } from './types';
@@ -6,11 +6,20 @@ import { NativeDetectorOptions } from './types';
 /**
  * Handle payment detection for native token payment with conversion
  */
-export abstract class AnyToNativeDetector extends AnyToAnyDetector<
+export abstract class AnyToNativeDetector<
+  TChain extends CurrencyTypes.ChainName,
+> extends AnyToAnyDetector<
   ExtensionTypes.PnAnyToEth.IAnyToEth,
-  PaymentTypes.IETHFeePaymentEventParameters
+  PaymentTypes.IETHFeePaymentEventParameters,
+  TChain
 > {
-  protected constructor({ network, advancedLogic, currencyManager }: NativeDetectorOptions) {
+  protected constructor({
+    network,
+    advancedLogic,
+    currencyManager,
+    getSubgraphClient,
+    subgraphMinIndexedBlock,
+  }: NativeDetectorOptions<TChain>) {
     const extensionId = ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN;
     const extension = advancedLogic.getAnyToNativeTokenExtensionForNetwork(
       network,
@@ -18,6 +27,6 @@ export abstract class AnyToNativeDetector extends AnyToAnyDetector<
     if (!extension) {
       throw new Error(`the ${extensionId} extension is not supported for the network ${network}`);
     }
-    super(extensionId, extension, currencyManager);
+    super(extensionId, extension, currencyManager, getSubgraphClient, subgraphMinIndexedBlock);
   }
 }

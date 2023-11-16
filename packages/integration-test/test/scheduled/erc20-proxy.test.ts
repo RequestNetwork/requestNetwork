@@ -20,6 +20,7 @@ const erc20ProxyAddressedBased = new Erc20PaymentNetwork.ERC20ProxyPaymentDetect
   advancedLogic: mockAdvancedLogic,
   currencyManager: CurrencyManager.getDefault(),
   getSubgraphClient: jest.fn(),
+  subgraphMinIndexedBlock: undefined,
 });
 
 describe('ERC20 Proxy detection test-suite', () => {

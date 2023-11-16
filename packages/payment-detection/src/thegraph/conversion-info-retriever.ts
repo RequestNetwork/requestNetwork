@@ -12,9 +12,10 @@ import { ConversionTransferEventsParams } from '../types';
 export class TheGraphConversionInfoRetriever extends TheGraphInfoRetriever<ConversionTransferEventsParams> {
   constructor(
     protected readonly client: TheGraphClient,
+    protected readonly minIndexedBlock: number | undefined,
     protected readonly currencyManager: ICurrencyManager,
   ) {
-    super(client, currencyManager);
+    super(client, minIndexedBlock, currencyManager);
   }
 
   public async getTransferEvents(
@@ -22,6 +23,7 @@ export class TheGraphConversionInfoRetriever extends TheGraphInfoRetriever<Conve
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
     const { payments } = params.acceptedTokens
       ? await this.client.GetAnyToFungiblePayments({
+          blockFilter: this.minIndexedBlock ? { number_gte: this.minIndexedBlock } : undefined,
           reference: utils.keccak256(`0x${params.paymentReference}`),
           to: params.toAddress.toLowerCase(),
           currency: params.requestCurrency.hash.toLowerCase(),
@@ -29,6 +31,7 @@ export class TheGraphConversionInfoRetriever extends TheGraphInfoRetriever<Conve
           contractAddress: params.contractAddress.toLowerCase(),
         })
       : await this.client.GetAnyToNativePayments({
+          blockFilter: this.minIndexedBlock ? { number_gte: this.minIndexedBlock } : undefined,
           reference: utils.keccak256(`0x${params.paymentReference}`),
           to: params.toAddress.toLowerCase(),
           currency: params.requestCurrency.hash.toLowerCase(),

@@ -61,7 +61,11 @@ describe('api/erc20/thegraph-info-retriever', () => {
         GetLastSyncedBlock: jest.fn(),
         GetSyncedBlock: jest.fn(),
       };
-      graphRetriever = new TheGraphInfoRetriever(clientMock, CurrencyManager.getDefault());
+      graphRetriever = new TheGraphInfoRetriever(
+        clientMock,
+        undefined,
+        CurrencyManager.getDefault(),
+      );
     });
 
     it('should get payment event from ethFeeProxy via subgraph', async () => {
@@ -86,7 +90,11 @@ describe('api/erc20/thegraph-info-retriever', () => {
       const onChainReference = hashReference(paymentReference);
       expect(onChainReference).toEqual(paymentData.reference);
 
-      const graphRetriever = new TheGraphInfoRetriever(clientMock, CurrencyManager.getDefault());
+      const graphRetriever = new TheGraphInfoRetriever(
+        clientMock,
+        undefined,
+        CurrencyManager.getDefault(),
+      );
       const allNetworkEvents = await graphRetriever.getTransferEvents({
         paymentReference,
         contractAddress: RINKEBY_ETH_FEE_PROXY_CONTRACT,

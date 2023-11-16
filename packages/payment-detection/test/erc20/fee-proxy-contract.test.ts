@@ -45,6 +45,7 @@ describe('api/erc20/fee-proxy-contract', () => {
       advancedLogic: mockAdvancedLogic,
       currencyManager,
       getSubgraphClient: jest.fn(),
+      subgraphMinIndexedBlock: undefined,
     });
   });
 
@@ -267,6 +268,7 @@ describe('api/erc20/fee-proxy-contract', () => {
       advancedLogic: mockAdvancedLogic,
       currencyManager,
       getSubgraphClient: jest.fn(),
+      subgraphMinIndexedBlock: undefined,
     });
 
     jest
@@ -332,6 +334,7 @@ describe('api/erc20/fee-proxy-contract', () => {
       advancedLogic: mockAdvancedLogic,
       currencyManager,
       getSubgraphClient: jest.fn(),
+      subgraphMinIndexedBlock: undefined,
     });
 
     const mockExtractEvents = (eventName: any) => {
@@ -442,6 +445,7 @@ describe('api/erc20/fee-proxy-contract', () => {
         GetLastSyncedBlock: jest.fn(),
         GetSyncedBlock: jest.fn(),
       }),
+      subgraphMinIndexedBlock: undefined,
     });
 
     const { balance, error, events } = await erc20FeeProxyContract.getBalance(mockRequest);
@@ -472,7 +476,7 @@ describe('api/erc20/fee-proxy-contract', () => {
 
   describe('on Near', () => {
     beforeEach(() => {
-      // Same Detector, but instanciated with a Near network and a mocked Near graph client
+      // Same Detector, but instantiated with a Near network and a mocked Near graph client
       erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>({
         advancedLogic: mockAdvancedLogic,
         currencyManager,
@@ -505,6 +509,7 @@ describe('api/erc20/fee-proxy-contract', () => {
           GetLastSyncedBlock: jest.fn(),
           GetSyncedBlock: jest.fn(),
         }),
+        subgraphMinIndexedBlock: undefined,
       });
     });
     it('can createExtensionsDataForCreation', async () => {

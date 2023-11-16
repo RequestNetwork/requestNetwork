@@ -7,6 +7,7 @@ const feeProxyDetector = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
   advancedLogic: mockAdvancedLogic,
   currencyManager: CurrencyManager.getDefault(),
   getSubgraphClient: jest.fn(),
+  subgraphMinIndexedBlock: undefined,
 });
 
 describe('ERC20 with Escrow detection test-suite', () => {

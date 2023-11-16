@@ -48,6 +48,7 @@ describe('api/erc20/transferable-receivable-contract', () => {
       advancedLogic: mockAdvancedLogic,
       currencyManager,
       getSubgraphClient: jest.fn(),
+      subgraphMinIndexedBlock: undefined,
     });
   });
 
@@ -453,7 +454,11 @@ describe('api/erc20/transferable-receivable-contract', () => {
       }),
     });
 
-    const graphRetriever = new TheGraphInfoRetriever(clientMock, CurrencyManager.getDefault());
+    const graphRetriever = new TheGraphInfoRetriever(
+      clientMock,
+      undefined,
+      CurrencyManager.getDefault(),
+    );
     const allNetworkEvents = await graphRetriever.getReceivableEvents({
       paymentReference: shortReference,
       contractAddress: erc20LocalhostContractAddress,

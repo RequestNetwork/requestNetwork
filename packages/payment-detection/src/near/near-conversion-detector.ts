@@ -23,11 +23,9 @@ const CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment detection for NEAR native token payment with conversion
  */
-export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetector {
-  private readonly getSubgraphClient: NativeDetectorOptions['getSubgraphClient'];
-  constructor(args: NativeDetectorOptions) {
+export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetector<CurrencyTypes.NearChainName> {
+  constructor(args: NativeDetectorOptions<CurrencyTypes.NearChainName>) {
     super(args);
-    this.getSubgraphClient = args.getSubgraphClient;
   }
 
   public static getContractName = (

@@ -22,6 +22,7 @@ const ethInputContract = new EthInputDataPaymentDetector({
   currencyManager: CurrencyManager.getDefault(),
   explorerApiKeys: {},
   getSubgraphClient: jest.fn(),
+  subgraphMinIndexedBlock: undefined,
 });
 
 describe('ETH Fee proxy detection test-suite', () => {

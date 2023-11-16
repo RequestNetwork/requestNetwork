@@ -10,6 +10,7 @@ import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { DeclarativePaymentDetectorBase } from './declarative';
 import { generate8randomBytes } from '@requestnetwork/utils';
+import { TGetSubGraphClient } from './types';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
@@ -17,6 +18,7 @@ import { generate8randomBytes } from '@requestnetwork/utils';
 export abstract class ReferenceBasedDetector<
   TExtension extends ExtensionTypes.PnReferenceBased.IReferenceBased,
   TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters<string>,
+  TChain extends CurrencyTypes.ChainName,
 > extends DeclarativePaymentDetectorBase<
   TExtension,
   TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
@@ -25,11 +27,15 @@ export abstract class ReferenceBasedDetector<
    * @param paymentNetworkId Example : ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
    * @param extension The advanced logic payment network extension, reference based
    * @param currencyManager The currency manager
+   * @param getSubgraphClient A function to retrieve a subgraph client
+   * @param subgraphMinIndexedBlock The minimum block constraint for subgraph indexers
    */
   protected constructor(
     paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
     protected readonly currencyManager: ICurrencyManager,
+    protected readonly getSubgraphClient: TGetSubGraphClient<TChain>,
+    protected readonly subgraphMinIndexedBlock: number | undefined,
   ) {
     super(paymentNetworkId, extension);
     if (!TypesUtils.isPaymentNetworkId(paymentNetworkId)) {

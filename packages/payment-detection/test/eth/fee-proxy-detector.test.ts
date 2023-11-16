@@ -35,6 +35,7 @@ describe('api/eth/fee-proxy-contract', () => {
       advancedLogic: mockAdvancedLogic,
       currencyManager: CurrencyManager.getDefault(),
       getSubgraphClient: jest.fn(),
+      subgraphMinIndexedBlock: undefined,
     });
   });
 

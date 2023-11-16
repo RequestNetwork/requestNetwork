@@ -10,7 +10,7 @@ import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
 import { TheGraphInfoRetriever } from '../thegraph';
-import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
+import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -27,12 +27,14 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH input data extension
  */
-export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
+export class EthInputDataPaymentDetector<
+  TChain extends CurrencyTypes.EvmChainName = CurrencyTypes.EvmChainName,
+> extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
-  PaymentTypes.IETHPaymentEventParameters
+  PaymentTypes.IETHPaymentEventParameters,
+  TChain
 > {
-  private explorerApiKeys: Partial<Record<CurrencyTypes.ChainName, string>>;
-  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
+  private explorerApiKeys: Partial<Record<TChain, string>>;
 
   /**
    * @param extension The advanced logic payment network extensions
@@ -42,18 +44,17 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
     currencyManager,
     explorerApiKeys,
     getSubgraphClient,
-  }: ReferenceBasedDetectorOptions &
-    Pick<
-      PaymentNetworkOptions<CurrencyTypes.EvmChainName>,
-      'explorerApiKeys' | 'getSubgraphClient'
-    >) {
+    subgraphMinIndexedBlock,
+  }: ReferenceBasedDetectorOptions<TChain> &
+    Pick<PaymentNetworkOptions<TChain>, 'explorerApiKeys'>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       advancedLogic.extensions.ethereumInputData,
       currencyManager,
+      getSubgraphClient,
+      subgraphMinIndexedBlock,
     );
     this.explorerApiKeys = explorerApiKeys || {};
-    this.getSubgraphClient = getSubgraphClient;
   }
 
   /**
@@ -61,8 +62,8 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
    *
    * @param toAddress Address to check
    * @param eventName Indicate if it is an address for payment or refund
-   * @param requestCurrency The request currency
    * @param paymentReference The reference to identify the payment
+   * @param _requestCurrency The request currency
    * @param paymentNetwork the payment network
    * @returns The balance
    */
@@ -71,7 +72,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
     toAddress: string | undefined,
     paymentReference: string,
     _requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: CurrencyTypes.EvmChainName,
+    paymentChain: TChain,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
   ): Promise<
     PaymentTypes.AllNetworkEvents<
@@ -102,7 +103,11 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
     if (proxyContractArtifact) {
       const subgraphClient = this.getSubgraphClient(paymentChain);
       if (subgraphClient) {
-        const graphInfoRetriever = new TheGraphInfoRetriever(subgraphClient, this.currencyManager);
+        const graphInfoRetriever = new TheGraphInfoRetriever(
+          subgraphClient,
+          this.subgraphMinIndexedBlock,
+          this.currencyManager,
+        );
         allEvents = await graphInfoRetriever.getTransferEvents({
           paymentReference,
           contractAddress: proxyContractArtifact.address,

@@ -12,18 +12,28 @@ import { ReferenceBasedDetectorOptions } from '../types';
 /**
  * Handle payment networks with ERC777 Superfluid streaming extension
  */
-export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
+export class SuperFluidPaymentDetector<
+  TChain extends CurrencyTypes.EvmChainName = CurrencyTypes.EvmChainName,
+> extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
-  PaymentTypes.IERC777PaymentEventParameters
+  PaymentTypes.IERC777PaymentEventParameters,
+  TChain
 > {
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor({ advancedLogic, currencyManager }: ReferenceBasedDetectorOptions) {
+  public constructor({
+    advancedLogic,
+    currencyManager,
+    getSubgraphClient,
+    subgraphMinIndexedBlock,
+  }: ReferenceBasedDetectorOptions<TChain>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
       advancedLogic.extensions.erc777Stream,
       currencyManager,
+      getSubgraphClient,
+      subgraphMinIndexedBlock,
     );
   }
 

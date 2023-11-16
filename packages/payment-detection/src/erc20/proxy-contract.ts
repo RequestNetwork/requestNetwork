@@ -9,7 +9,7 @@ import ProxyInfoRetriever from './proxy-info-retriever';
 import { TheGraphInfoRetriever } from '../thegraph';
 import { makeGetDeploymentInformation } from '../utils';
 import { ReferenceBasedDetector } from '../reference-based-detector';
-import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
+import { ReferenceBasedDetectorOptions } from '../types';
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
@@ -20,10 +20,9 @@ const PROXY_CONTRACT_ADDRESS_MAP = {
  */
 export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
-  PaymentTypes.IERC20PaymentEventParameters
+  PaymentTypes.IERC20PaymentEventParameters,
+  CurrencyTypes.EvmChainName
 > {
-  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
-
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -31,14 +30,15 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
     advancedLogic,
     currencyManager,
     getSubgraphClient,
-  }: ReferenceBasedDetectorOptions &
-    Pick<PaymentNetworkOptions<CurrencyTypes.EvmChainName>, 'getSubgraphClient'>) {
+    subgraphMinIndexedBlock,
+  }: ReferenceBasedDetectorOptions<CurrencyTypes.EvmChainName>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       advancedLogic.extensions.proxyContractErc20,
       currencyManager,
+      getSubgraphClient,
+      subgraphMinIndexedBlock,
     );
-    this.getSubgraphClient = getSubgraphClient;
   }
 
   /**
@@ -70,7 +70,11 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
 
     const subgraphClient = this.getSubgraphClient(paymentChain);
     if (subgraphClient) {
-      const graphInfoRetriever = new TheGraphInfoRetriever(subgraphClient, this.currencyManager);
+      const graphInfoRetriever = new TheGraphInfoRetriever(
+        subgraphClient,
+        this.subgraphMinIndexedBlock,
+        this.currencyManager,
+      );
 
       return graphInfoRetriever.getTransferEvents({
         paymentReference,

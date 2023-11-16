@@ -42,6 +42,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
       advancedLogic: mockAdvancedLogic,
       currencyManager,
       getSubgraphClient: jest.fn(),
+      subgraphMinIndexedBlock: undefined,
     });
   });
 
@@ -264,6 +265,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
       advancedLogic: mockAdvancedLogic,
       currencyManager,
       getSubgraphClient: jest.fn(),
+      subgraphMinIndexedBlock: undefined,
     });
 
     jest

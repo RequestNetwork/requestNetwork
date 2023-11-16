@@ -23,8 +23,8 @@ const CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment detection for NEAR native token payment
  */
-export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
-  constructor(args: NativeDetectorOptions) {
+export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector<CurrencyTypes.NearChainName> {
+  constructor(args: NativeDetectorOptions<CurrencyTypes.NearChainName>) {
     super(args);
   }
 

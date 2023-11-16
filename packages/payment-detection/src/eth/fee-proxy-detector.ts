@@ -10,7 +10,7 @@ import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
 import { TheGraphInfoRetriever } from '../thegraph';
-import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
+import { ReferenceBasedDetectorOptions } from '../types';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -25,11 +25,13 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH fee proxy extension
  */
-export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
+export class EthFeeProxyPaymentDetector<
+  TChain extends CurrencyTypes.EvmChainName = CurrencyTypes.EvmChainName,
+> extends FeeReferenceBasedDetector<
   ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
-  PaymentTypes.IETHFeePaymentEventParameters
+  PaymentTypes.IETHFeePaymentEventParameters,
+  TChain
 > {
-  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -37,14 +39,15 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
     advancedLogic,
     currencyManager,
     getSubgraphClient,
-  }: ReferenceBasedDetectorOptions &
-    Pick<PaymentNetworkOptions<CurrencyTypes.EvmChainName>, 'getSubgraphClient'>) {
+    subgraphMinIndexedBlock,
+  }: ReferenceBasedDetectorOptions<TChain>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
       advancedLogic.extensions.feeProxyContractEth,
       currencyManager,
+      getSubgraphClient,
+      subgraphMinIndexedBlock,
     );
-    this.getSubgraphClient = getSubgraphClient;
   }
 
   /**
@@ -63,7 +66,7 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
     toAddress: string | undefined,
     paymentReference: string,
     _requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: CurrencyTypes.EvmChainName,
+    paymentChain: TChain,
     paymentNetwork: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased extends ExtensionTypes.IExtension<
       infer X
     >
@@ -82,7 +85,11 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
     );
     const subgraphClient = this.getSubgraphClient(paymentChain);
     if (subgraphClient) {
-      const graphInfoRetriever = new TheGraphInfoRetriever(subgraphClient, this.currencyManager);
+      const graphInfoRetriever = new TheGraphInfoRetriever(
+        subgraphClient,
+        this.subgraphMinIndexedBlock,
+        this.currencyManager,
+      );
 
       return graphInfoRetriever.getTransferEvents({
         paymentReference,

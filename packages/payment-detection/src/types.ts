@@ -93,7 +93,7 @@ export interface ISupportedPaymentNetworkByCurrency<
 }
 
 export type TGetSubGraphClient<TChain extends CurrencyTypes.ChainName> = (
-  network: CurrencyTypes.ChainName,
+  network: TChain,
 ) => TChain extends CurrencyTypes.VMChainName ? TheGraphClient<TChain> | undefined : undefined;
 
 export type PaymentNetworkOptions<
@@ -105,17 +105,23 @@ export type PaymentNetworkOptions<
   explorerApiKeys: Partial<Record<CurrencyTypes.ChainName, string>>;
   /** override the default Subgraph for payment detection (EVM, Near) */
   getSubgraphClient: TGetSubGraphClient<TChain>;
+  /** constraint to select indexers that have at least parsed this block */
+  subgraphMinIndexedBlock?: number | undefined;
   /** override the default RPC provider (EVM) */
   getRpcProvider: (network: CurrencyTypes.ChainName) => providers.Provider;
 };
 
-export type ReferenceBasedDetectorOptions = {
+export type ReferenceBasedDetectorOptions<
+  TChain extends CurrencyTypes.ChainName = CurrencyTypes.ChainName,
+> = {
   advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
   currencyManager: ICurrencyManager;
+  getSubgraphClient: TGetSubGraphClient<TChain>;
+  subgraphMinIndexedBlock: number | undefined;
 };
 
-export type NativeDetectorOptions = ReferenceBasedDetectorOptions & {
-  network: CurrencyTypes.NearChainName;
-  /** override the default Subgraph for payment detection (EVM, Near) */
-  getSubgraphClient: TGetSubGraphClient<CurrencyTypes.NearChainName>;
+export type NativeDetectorOptions<
+  TChain extends CurrencyTypes.ChainName = CurrencyTypes.ChainName,
+> = ReferenceBasedDetectorOptions<TChain> & {
+  network: TChain;
 };

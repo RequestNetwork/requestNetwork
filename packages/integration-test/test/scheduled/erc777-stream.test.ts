@@ -49,6 +49,8 @@ const createMockRequest = ({
 const detector = new SuperFluidPaymentDetector({
   advancedLogic: mockAdvancedLogic,
   currencyManager: CurrencyManager.getDefault(),
+  getSubgraphClient: jest.fn(),
+  subgraphMinIndexedBlock: undefined,
 });
 
 describe('ERC777 SuperFluid detection test-suite', () => {

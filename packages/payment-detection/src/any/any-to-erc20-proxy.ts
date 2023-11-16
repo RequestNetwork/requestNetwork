@@ -9,7 +9,7 @@ import { ERC20FeeProxyPaymentDetectorBase } from '../erc20/fee-proxy-contract';
 import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy';
 import { TheGraphConversionInfoRetriever } from '../thegraph/conversion-info-retriever';
 import { makeGetDeploymentInformation } from '../utils';
-import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
+import { ReferenceBasedDetectorOptions } from '../types';
 import { generate8randomBytes } from '@requestnetwork/utils';
 import { EvmChains } from '@requestnetwork/currency';
 
@@ -20,12 +20,13 @@ const PROXY_CONTRACT_ADDRESS_MAP = {
 /**
  * Handle payment networks with conversion proxy contract extension
  */
-export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
+export class AnyToERC20PaymentDetector<
+  TChain extends CurrencyTypes.EvmChainName = CurrencyTypes.EvmChainName,
+> extends ERC20FeeProxyPaymentDetectorBase<
   ExtensionTypes.PnAnyToErc20.IAnyToERC20,
-  PaymentTypes.IERC20FeePaymentEventParameters
+  PaymentTypes.IERC20FeePaymentEventParameters,
+  TChain
 > {
-  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
-
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -34,14 +35,15 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     advancedLogic,
     currencyManager,
     getSubgraphClient,
-  }: ReferenceBasedDetectorOptions &
-    Pick<PaymentNetworkOptions<CurrencyTypes.EvmChainName>, 'getSubgraphClient'>) {
+    subgraphMinIndexedBlock,
+  }: ReferenceBasedDetectorOptions<TChain>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
       advancedLogic.extensions.anyToErc20Proxy,
       currencyManager,
+      getSubgraphClient,
+      subgraphMinIndexedBlock,
     );
-    this.getSubgraphClient = getSubgraphClient;
   }
 
   /**
@@ -85,7 +87,7 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: CurrencyTypes.EvmChainName,
+    paymentChain: TChain,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToErc20.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
     if (!toAddress) {
@@ -108,6 +110,7 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     if (subgraphClient) {
       const infoRetriever = new TheGraphConversionInfoRetriever(
         subgraphClient,
+        this.subgraphMinIndexedBlock,
         this.currencyManager,
       );
       return await infoRetriever.getTransferEvents({

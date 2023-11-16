@@ -1,14 +1,14 @@
 import {
+  CurrencyTypes,
   ExtensionTypes,
   PaymentTypes,
   RequestLogicTypes,
-  CurrencyTypes,
 } from '@requestnetwork/types';
 
 import { TheGraphInfoRetriever } from '../thegraph';
 import { erc20TransferableReceivableArtifact } from '@requestnetwork/smart-contracts';
 import { makeGetDeploymentInformation } from '../utils';
-import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
+import { ReferenceBasedDetectorOptions } from '../types';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
 import ProxyERC20InfoRetriever from './proxy-info-retriever';
 
@@ -22,10 +22,9 @@ const ERC20_TRANSFERABLE_RECEIVABLE_CONTRACT_ADDRESS_MAP = {
  */
 export class ERC20TransferableReceivablePaymentDetector extends FeeReferenceBasedDetector<
   ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
-  PaymentTypes.IERC20PaymentEventParameters
+  PaymentTypes.IERC20PaymentEventParameters,
+  CurrencyTypes.EvmChainName
 > {
-  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
-
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -33,14 +32,15 @@ export class ERC20TransferableReceivablePaymentDetector extends FeeReferenceBase
     advancedLogic,
     currencyManager,
     getSubgraphClient,
-  }: ReferenceBasedDetectorOptions &
-    Pick<PaymentNetworkOptions<CurrencyTypes.EvmChainName>, 'getSubgraphClient'>) {
+    subgraphMinIndexedBlock,
+  }: ReferenceBasedDetectorOptions<CurrencyTypes.EvmChainName>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE,
       advancedLogic.extensions.erc20TransferableReceivable,
       currencyManager,
+      getSubgraphClient,
+      subgraphMinIndexedBlock,
     );
-    this.getSubgraphClient = getSubgraphClient;
   }
 
   /**
@@ -79,7 +79,11 @@ export class ERC20TransferableReceivablePaymentDetector extends FeeReferenceBase
 
     const subgraphClient = this.getSubgraphClient(paymentChain);
     if (subgraphClient) {
-      const graphInfoRetriever = new TheGraphInfoRetriever(subgraphClient, this.currencyManager);
+      const graphInfoRetriever = new TheGraphInfoRetriever(
+        subgraphClient,
+        this.subgraphMinIndexedBlock,
+        this.currencyManager,
+      );
       return graphInfoRetriever.getReceivableEvents({
         paymentReference,
         toAddress: '', // Filtering by payee address does not apply for transferable receivables
