@@ -1,7 +1,12 @@
 import '@typechain/hardhat';
 import '@nomiclabs/hardhat-waffle';
-import '@nomicfoundation/hardhat-verify';
 import '@nomiclabs/hardhat-ethers';
+
+import '@matterlabs/hardhat-zksync-node';
+import '@matterlabs/hardhat-zksync-deploy';
+import '@matterlabs/hardhat-zksync-solc';
+import '@matterlabs/hardhat-zksync-verify';
+
 import { subtask, task } from 'hardhat/config';
 import { config } from 'dotenv';
 import deployAllContracts from './scripts/test-deploy-all';
@@ -161,6 +166,26 @@ export default {
       chainId: 1116,
       accounts,
     },
+    zkSyncTestnet: {
+      url: 'https://testnet.era.zksync.dev',
+      ethNetwork: 'goerli',
+      zksync: true,
+      verifyURL: 'https://zksync2-testnet-explorer.zksync.dev/contract_verification',
+    },
+    zkSyncMainnet: {
+      url: 'https://mainnet.era.zksync.io',
+      ethNetwork: 'mainnet',
+      zksync: true,
+      verifyURL: 'https://zksync2-mainnet-explorer.zksync.io/contract_verification',
+    },
+    inMemoryNode: {
+      url: 'http://127.0.0.1:8011',
+      ethNetwork: '', // in-memory node doesn't support eth node; removing this line will cause an error
+      zksync: true,
+    },
+  },
+  zksolc: {
+    version: '1.3.17',
   },
   etherscan: {
     apiKey: {
@@ -348,3 +373,10 @@ subtask(DEPLOYER_KEY_GUARD, 'prevent usage of the deployer master key').setActio
     throw new Error('The deployer master key should not be used for this action');
   }
 });
+
+// task(
+//   'deploy-deployer-contract-zksync',
+//   'Deploy request deployer contract on the specified zksync network',
+// ).setAction(async (_args, hre) => {
+//   await deployRequestDeployerZksync(hre);
+// });
