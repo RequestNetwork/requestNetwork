@@ -22,9 +22,7 @@ import { MockDataAccess } from '@requestnetwork/data-access';
 import { MockStorage } from '../src/mock-storage';
 import * as RequestLogic from '@requestnetwork/types/src/request-logic-types';
 import { http, HttpResponse } from 'msw';
-import { setupServer } from 'msw/node';
-
-const packageJson = require('../package.json');
+import { setupServer, SetupServer } from 'msw/node';
 
 const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = {
   getConfirmationDeferDelay: 0,
@@ -166,10 +164,16 @@ const waitForConfirmation = async (
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('request-client.js', () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   describe('API', () => {
+    const spyPersistTransaction = jest.fn();
+    const spyIpfsAdd = jest.fn();
+    const spyGetTransactionsByChannelId = jest.fn();
+
+    let mockServer: SetupServer;
+
     const requestCreationParams: ClientTypes.ICreateRequestParameters = {
       paymentNetwork: TestData.declarativePaymentNetworkNoPaymentInfo,
       requestInfo: TestData.parametersWithoutExtensionsData,
@@ -178,20 +182,27 @@ describe('request-client.js', () => {
     const mockedTransactions = {
       transactions: [TestData.timestampedTransactionWithoutPaymentInfo],
     };
-    it('specify the Request Client version in the header', async () => {
-      const spy = jest.fn();
-      const mock = setupServer(
-        http.post('*/persistTransaction', () => {
-          spy();
-          return HttpResponse.json({});
-        }),
+
+    beforeAll(() => {
+      mockServer = setupServer(
+        http.post('*/persistTransaction', () => HttpResponse.json(spyPersistTransaction())),
         http.get('*/getTransactionsByChannelId', () =>
-          HttpResponse.json({ result: mockedTransactions }),
+          HttpResponse.json(spyGetTransactionsByChannelId()),
         ),
+        http.post('*/ipfsAdd', () => HttpResponse.json(spyIpfsAdd())),
         http.get('*/getConfirmedTransaction', () => HttpResponse.json({ result: {} })),
       );
-      mock.listen({ onUnhandledRequest: 'bypass' });
+      mockServer.listen({ onUnhandledRequest: 'bypass' });
+    });
+    beforeEach(() => {
+      spyPersistTransaction.mockReturnValue({});
+      spyGetTransactionsByChannelId.mockReturnValue({ result: mockedTransactions });
+    });
+    afterAll(() => {
+      mockServer.close();
+    });
 
+    it('specify the Request Client version in the header', async () => {
       const requestNetwork = new RequestNetwork({
         httpConfig,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -201,26 +212,12 @@ describe('request-client.js', () => {
       });
 
       const request = await requestNetwork.createRequest(requestCreationParams);
-      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spyPersistTransaction).toHaveBeenCalledTimes(1);
 
       await request.waitForConfirmation();
-      mock.close();
     });
 
     it('uses http://localhost:3000 with signatureProvider and paymentNetwork', async () => {
-      const spy = jest.fn();
-      const mock = setupServer(
-        http.post('*/persistTransaction', () => {
-          spy();
-          return HttpResponse.json({});
-        }),
-        http.get('*/getTransactionsByChannelId', () =>
-          HttpResponse.json({ result: mockedTransactions }),
-        ),
-        http.get('*/getConfirmedTransaction', () => HttpResponse.json({ result: {} })),
-      );
-      mock.listen({ onUnhandledRequest: 'bypass' });
-
       const requestNetwork = new RequestNetwork({
         httpConfig,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -230,32 +227,20 @@ describe('request-client.js', () => {
       });
 
       const request = await requestNetwork.createRequest(requestCreationParams);
-      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spyPersistTransaction).toHaveBeenCalledTimes(1);
 
       await request.waitForConfirmation();
-      mock.close();
     });
 
     it('uses http://localhost:3000 with persist from local', async () => {
-      const spyIpfsAdd = jest.fn();
-      const mock = setupServer(
-        http.post('*/persistTransaction', () => HttpResponse.json({ meta: {}, result: {} })),
-        http.post('*/ipfsAdd', () => {
-          spyIpfsAdd();
-          return HttpResponse.json({
-            ipfsSize: 100,
-            ipfsHash: 'QmZLqH4EsjmB79gjvyzXWBcihbNBZkw8YuELco84PxGzQY',
-          });
-        }),
-        http.get('*/getTransactionsByChannelId', () =>
-          HttpResponse.json({
-            meta: { storageMeta: [], transactionsStorageLocation: [] },
-            result: { transactions: [] },
-          }),
-        ),
-      );
-
-      mock.listen({ onUnhandledRequest: 'bypass' });
+      spyGetTransactionsByChannelId.mockReturnValue({
+        meta: { storageMeta: [], transactionsStorageLocation: [] },
+        result: { transactions: [] },
+      });
+      spyIpfsAdd.mockReturnValue({
+        ipfsSize: 100,
+        ipfsHash: 'QmZLqH4EsjmB79gjvyzXWBcihbNBZkw8YuELco84PxGzQY',
+      });
 
       const requestNetwork = new RequestNetworkBase({
         dataAccess: new HttpMetaMaskDataAccess({
@@ -283,24 +268,14 @@ describe('request-client.js', () => {
       expect(spyIpfsAdd).toHaveBeenCalledTimes(1);
 
       await request.waitForConfirmation();
-      mock.close();
     });
 
     it('uses http://localhost:3000 with signatureProvider and paymentNetwork real btc', async () => {
-      const spy = jest.fn();
-      const mock = setupServer(
-        http.post('*/persistTransaction', () => {
-          spy();
-          return HttpResponse.json({});
-        }),
-        http.get('*/getTransactionsByChannelId', () =>
-          HttpResponse.json({
-            result: { transactions: [TestDataRealBTC.timestampedTransaction] },
-          }),
-        ),
-        http.get('*/getConfirmedTransaction', () => HttpResponse.json({ result: {} })),
-      );
-      mock.listen({ onUnhandledRequest: 'bypass' });
+      spyGetTransactionsByChannelId.mockReturnValue({
+        result: {
+          transactions: [TestDataRealBTC.timestampedTransaction],
+        },
+      });
 
       const requestNetwork = new RequestNetwork({
         httpConfig,
@@ -322,27 +297,18 @@ describe('request-client.js', () => {
         requestInfo: requestParameters,
         signer: TestData.payee.identity,
       });
-      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spyPersistTransaction).toHaveBeenCalledTimes(1);
 
       await request.waitForConfirmation();
-      mock.close();
     });
 
     it('uses http://localhost:3000 with signatureProvider', async () => {
-      const spy = jest.fn();
-      const mock = setupServer(
-        http.post('*/persistTransaction', () => {
-          spy();
-          return HttpResponse.json({});
-        }),
-        http.get('*/getTransactionsByChannelId', () =>
-          HttpResponse.json({
-            result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
-          }),
-        ),
-        http.get('*/getConfirmedTransaction', () => HttpResponse.json({ result: {} })),
-      );
-      mock.listen({ onUnhandledRequest: 'bypass' });
+      spyGetTransactionsByChannelId.mockReturnValue({
+        result: {
+          transactions: [TestData.timestampedTransactionWithoutExtensionsData],
+        },
+      });
+
       const requestNetwork = new RequestNetwork({
         httpConfig,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -352,27 +318,17 @@ describe('request-client.js', () => {
         requestInfo: TestData.parametersWithoutExtensionsData,
         signer: TestData.payee.identity,
       });
-      expect(spy).toHaveBeenCalledTimes(1);
-      mock.close();
+      expect(spyPersistTransaction).toHaveBeenCalledTimes(1);
     });
 
     it('uses baseUrl given in parameter', async () => {
       const baseURL = 'http://request.network/api';
+      spyGetTransactionsByChannelId.mockReturnValue({
+        result: {
+          transactions: [TestData.timestampedTransactionWithoutExtensionsData],
+        },
+      });
 
-      const spy = jest.fn();
-      const mock = setupServer(
-        http.post('*/persistTransaction', () => {
-          spy();
-          return HttpResponse.json({});
-        }),
-        http.get('*/getTransactionsByChannelId', () =>
-          HttpResponse.json({
-            result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
-          }),
-        ),
-        http.get('*/getConfirmedTransaction', () => HttpResponse.json({ result: {} })),
-      );
-      mock.listen({ onUnhandledRequest: 'bypass' });
       const requestNetwork = new RequestNetwork({
         httpConfig,
         nodeConnectionConfig: { baseURL },
@@ -382,20 +338,33 @@ describe('request-client.js', () => {
         requestInfo: TestData.parametersWithoutExtensionsData,
         signer: TestData.payee.identity,
       });
-      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spyPersistTransaction).toHaveBeenCalledTimes(1);
 
       await request.waitForConfirmation();
-      mock.close();
     });
   });
 
   describe('Request Logic without encryption', () => {
-    it('allows to create a request', async () => {
-      const mock = TestData.mockRequestNode();
-      const hits: Record<string, number> = { get: 0, post: 0 };
-      mock.events.on('request:start', ({ request }) => {
+    let mockServer: SetupServer;
+    let hits: Record<string, number> = {};
+
+    beforeAll(() => {
+      mockServer = TestData.mockRequestNode();
+      mockServer.events.on('request:start', ({ request }) => {
         hits[request.method.toLowerCase()]++;
       });
+    });
+    afterAll(() => {
+      // mock.events.removeAllListeners();
+      mockServer.close();
+    });
+    beforeEach(() => {
+      hits = { get: 0, post: 0 };
+    });
+    afterEach(() => {
+      // mock.resetHandlers();
+    });
+    it('allows to create a request', async () => {
       const requestNetwork = new RequestNetwork({
         httpConfig,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -415,22 +384,12 @@ describe('request-client.js', () => {
       // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
       const requestIdLength = 66;
       expect(request.requestId.length).toBe(requestIdLength);
-
-      mock.events.removeAllListeners();
-      mock.close();
-      mock.resetHandlers();
     });
 
     it('allows to compute a request id', async () => {
-      const mock = TestData.mockRequestNode();
       const requestNetwork = new RequestNetwork({
         httpConfig,
         signatureProvider: TestData.fakeSignatureProvider,
-      });
-
-      const hits: Record<string, number> = { get: 0, post: 0 };
-      mock.events.on('request:start', ({ request }) => {
-        hits[request.method.toLowerCase()]++;
       });
 
       const requestId = await requestNetwork.computeRequestId({
@@ -440,21 +399,13 @@ describe('request-client.js', () => {
 
       expect(hits.get).toBe(0);
       expect(hits.post).toBe(0);
-      mock.events.removeAllListeners();
 
       // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
       const requestIdLength = 66;
       expect(requestId.length).toBe(requestIdLength);
-      mock.close();
-      mock.resetHandlers();
     });
 
     it('allows to compute a request id, then generate the request with the same id', async () => {
-      const mock = TestData.mockRequestNode();
-      const hits: Record<string, number> = { get: 0, post: 0 };
-      mock.events.on('request:start', ({ request }) => {
-        hits[request.method.toLowerCase()]++;
-      });
       const requestNetwork = new RequestNetwork({
         httpConfig,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -479,13 +430,9 @@ describe('request-client.js', () => {
       expect(request.requestId).toBe(requestId);
       expect(hits.get).toBe(3);
       expect(hits.post).toBe(1);
-      mock.events.removeAllListeners();
-      mock.close();
-      mock.resetHandlers();
     });
 
     it('allows to get a request from its ID', async () => {
-      const mock = TestData.mockRequestNode();
       const requestNetwork = new RequestNetwork({
         httpConfig,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -500,8 +447,6 @@ describe('request-client.js', () => {
       const requestFromId = await requestNetwork.fromRequestId(request.requestId);
 
       expect(requestFromId.requestId).toBe(request.requestId);
-      mock.close();
-      mock.resetHandlers();
     });
 
     it('allows to get a request from its ID with a payment network', async () => {
@@ -540,16 +485,6 @@ describe('request-client.js', () => {
     });
 
     it('allows to refresh a request', async () => {
-      const mock = setupServer(
-        http.post('*/persistTransaction', () => HttpResponse.json({ result: {} })),
-        http.get('*/getTransactionsByChannelId', () =>
-          HttpResponse.json({
-            result: { transactions: [TestData.timestampedTransactionWithoutExtensionsData] },
-          }),
-        ),
-        http.get('*/getConfirmedTransaction', () => HttpResponse.json({ result: {} })),
-      );
-      mock.listen({ onUnhandledRequest: 'bypass' });
       const requestNetwork = new RequestNetwork({
         httpConfig,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -560,10 +495,9 @@ describe('request-client.js', () => {
       });
       await request.waitForConfirmation();
 
-      const hits: Record<string, number> = { get: 0, post: 0 };
-      mock.events.on('request:start', ({ request }) => {
-        hits[request.method.toLowerCase()]++;
-      });
+      // reset hits
+      hits = { get: 0, post: 0 };
+
       const data = await request.refresh();
 
       expect(data).toBeDefined();
@@ -571,8 +505,6 @@ describe('request-client.js', () => {
       expect(data.meta).toBeDefined();
       expect(hits.get).toBe(1);
       expect(hits.post).toBe(0);
-      mock.events.removeAllListeners();
-      mock.close();
     });
 
     it('works with mocked storage', async () => {
@@ -752,7 +684,6 @@ describe('request-client.js', () => {
     });
 
     it('allows to accept a request', async () => {
-      const mock = TestData.mockRequestNode();
       const requestNetwork = new RequestNetwork({
         httpConfig,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -763,18 +694,13 @@ describe('request-client.js', () => {
       });
       await request.waitForConfirmation();
 
-      const hits: Record<string, number> = { get: 0, post: 0 };
-      mock.events.on('request:start', ({ request }) => {
-        hits[request.method.toLowerCase()]++;
-      });
+      // reset hits
+      hits = { get: 0, post: 0 };
       const requestDataWithEvents = await request.accept(TestData.payer.identity);
       await waitForConfirmation(requestDataWithEvents);
 
       expect(hits.get).toBe(5);
       expect(hits.post).toBe(1);
-      mock.events.removeAllListeners();
-      mock.close();
-      mock.resetHandlers();
     });
 
     it('works with mocked storage emitting error when append an accept', async () => {
@@ -820,7 +746,6 @@ describe('request-client.js', () => {
     });
 
     it('allows to cancel a request', async () => {
-      const mock = TestData.mockRequestNode();
       const requestNetwork = new RequestNetwork({
         httpConfig,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -830,18 +755,12 @@ describe('request-client.js', () => {
         signer: TestData.payee.identity,
       });
       await request.waitForConfirmation();
-
-      const hits: Record<string, number> = { get: 0, post: 0 };
-      mock.events.on('request:start', ({ request }) => {
-        hits[request.method.toLowerCase()]++;
-      });
+      // reset hits
+      hits = { get: 0, post: 0 };
       await waitForConfirmation(request.cancel(TestData.payee.identity));
 
       expect(hits.get).toBe(5);
       expect(hits.post).toBe(1);
-      mock.events.removeAllListeners();
-      mock.close();
-      mock.resetHandlers();
     });
 
     it('allows to increase the expected amount a request', async () => {
@@ -855,22 +774,15 @@ describe('request-client.js', () => {
         signer: TestData.payee.identity,
       });
       await request.waitForConfirmation();
-
-      const hits: Record<string, number> = { get: 0, post: 0 };
-      mock.events.on('request:start', ({ request }) => {
-        hits[request.method.toLowerCase()]++;
-      });
+      // reset hits
+      hits = { get: 0, post: 0 };
       await waitForConfirmation(request.increaseExpectedAmountRequest(3, TestData.payer.identity));
 
       expect(hits.get).toBe(5);
       expect(hits.post).toBe(1);
-      mock.events.removeAllListeners();
-      mock.close();
-      mock.resetHandlers();
     });
 
     it('allows to reduce the expected amount a request', async () => {
-      const mock = TestData.mockRequestNode();
       const requestNetwork = new RequestNetwork({
         httpConfig,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -881,17 +793,12 @@ describe('request-client.js', () => {
       });
       await request.waitForConfirmation();
 
-      const hits: Record<string, number> = { get: 0, post: 0 };
-      mock.events.on('request:start', ({ request }) => {
-        hits[request.method.toLowerCase()]++;
-      });
+      // reset hits
+      hits = { get: 0, post: 0 };
       await waitForConfirmation(request.reduceExpectedAmountRequest(3, TestData.payee.identity));
 
       expect(hits.get).toBe(5);
       expect(hits.post).toBe(1);
-      mock.events.removeAllListeners();
-      mock.close();
-      mock.resetHandlers();
     });
   });
 
