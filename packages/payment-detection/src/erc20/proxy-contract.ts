@@ -18,10 +18,12 @@ const PROXY_CONTRACT_ADDRESS_MAP = {
 /**
  * Handle payment networks with ERC20 proxy contract extension
  */
-export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
+export class ERC20ProxyPaymentDetector<
+  TChain extends CurrencyTypes.EvmChainName = CurrencyTypes.EvmChainName,
+> extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
   PaymentTypes.IERC20PaymentEventParameters,
-  CurrencyTypes.EvmChainName
+  TChain
 > {
   /**
    * @param extension The advanced logic payment network extensions
@@ -31,7 +33,7 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
     currencyManager,
     getSubgraphClient,
     subgraphMinIndexedBlock,
-  }: ReferenceBasedDetectorOptions<CurrencyTypes.EvmChainName>) {
+  }: ReferenceBasedDetectorOptions<TChain>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       advancedLogic.extensions.proxyContractErc20,
@@ -56,7 +58,7 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
     toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: CurrencyTypes.EvmChainName,
+    paymentChain: TChain,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20PaymentEventParameters>> {
     if (!toAddress) {
