@@ -355,7 +355,8 @@ describe('request-client.js', () => {
       });
     });
     afterAll(() => {
-      // mock.events.removeAllListeners();
+      mockServer.events.removeAllListeners();
+      mockServer.resetHandlers();
       mockServer.close();
     });
     beforeEach(() => {
@@ -764,7 +765,6 @@ describe('request-client.js', () => {
     });
 
     it('allows to increase the expected amount a request', async () => {
-      const mock = TestData.mockRequestNode();
       const requestNetwork = new RequestNetwork({
         httpConfig,
         signatureProvider: TestData.fakeSignatureProvider,
