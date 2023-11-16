@@ -47,6 +47,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       advancedLogic: mockAdvancedLogic,
       currencyManager,
       getSubgraphClient: () => theGraphClientMock,
+      subgraphMinIndexedBlock: undefined,
     });
   });
 

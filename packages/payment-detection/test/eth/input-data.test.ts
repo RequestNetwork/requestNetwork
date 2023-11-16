@@ -43,6 +43,7 @@ describe('api/eth/input-data', () => {
       currencyManager: CurrencyManager.getDefault(),
       explorerApiKeys: {},
       getSubgraphClient: () => theGraphClientMock,
+      subgraphMinIndexedBlock: undefined,
     });
   });
 

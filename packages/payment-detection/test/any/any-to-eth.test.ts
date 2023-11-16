@@ -107,7 +107,8 @@ describe('Any to ETH payment detection', () => {
     const detector = new AnyToEthFeeProxyPaymentDetector({
       advancedLogic: new AdvancedLogic(currencyManager),
       currencyManager,
-      getSubgraphClient: () => undefined,
+      getSubgraphClient: jest.fn(),
+      subgraphMinIndexedBlock: undefined,
     });
     const balance = await detector.getBalance(mockRequest);
     expect(balance.error).not.toBeDefined();
@@ -144,6 +145,7 @@ describe('Any to ETH payment detection', () => {
       advancedLogic: new AdvancedLogic(currencyManager),
       currencyManager,
       getSubgraphClient: () => theGraphClientMock,
+      subgraphMinIndexedBlock: undefined,
     });
     const balance = await detector.getBalance(mockRequest);
     expect(balance.error).not.toBeDefined();

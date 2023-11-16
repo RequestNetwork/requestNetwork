@@ -40,6 +40,7 @@ describe('api/erc20/proxy-contract', () => {
       advancedLogic: mockAdvancedLogic,
       currencyManager: CurrencyManager.getDefault(),
       getSubgraphClient: () => theGraphClientMock,
+      subgraphMinIndexedBlock: undefined,
     });
   });
 

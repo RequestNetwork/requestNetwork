@@ -140,6 +140,7 @@ describe('Near payments detection', () => {
       advancedLogic: advancedLogic,
       currencyManager,
       getSubgraphClient: mockedGetSubgraphClient,
+      subgraphMinIndexedBlock: undefined,
     });
     const balance = await paymentDetector.getBalance(request);
 
@@ -167,6 +168,7 @@ describe('Near payments detection', () => {
         advancedLogic: advancedLogic,
         currencyManager,
         getSubgraphClient: mockedGetSubgraphClient,
+        subgraphMinIndexedBlock: undefined,
       });
       expect(mockedGetSubgraphClient).not.toHaveBeenCalled();
       expect(await paymentDetector.getBalance(requestWithWrongVersion)).toMatchObject({
@@ -199,6 +201,7 @@ describe('Near payments detection', () => {
         advancedLogic: advancedLogic,
         currencyManager,
         getSubgraphClient: mockedGetSubgraphClient,
+        subgraphMinIndexedBlock: undefined,
       });
       expect(mockedGetSubgraphClient).not.toHaveBeenCalled();
       expect(await paymentDetector.getBalance(requestWithWrongNetwork)).toMatchObject({

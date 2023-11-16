@@ -233,6 +233,7 @@ describe('api/erc20/transferable-receivable-contract', () => {
         GetLastSyncedBlock: jest.fn(),
         GetSyncedBlock: jest.fn(),
       }),
+      subgraphMinIndexedBlock: undefined,
     });
 
     const { balance, error, events } = await erc20TransferableReceivable.getBalance(mockRequest);
@@ -452,6 +453,7 @@ describe('api/erc20/transferable-receivable-contract', () => {
       getSubgraphClient: jest.fn().mockImplementation(({}) => {
         return clientMock;
       }),
+      subgraphMinIndexedBlock: undefined,
     });
 
     const graphRetriever = new TheGraphInfoRetriever(

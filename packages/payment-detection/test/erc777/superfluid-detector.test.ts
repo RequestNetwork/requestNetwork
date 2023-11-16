@@ -134,6 +134,8 @@ describe('superfluid balance computation', () => {
     superfluidPaymentDetector = new SuperFluidPaymentDetector({
       advancedLogic: mockAdvancedLogic,
       currencyManager: CurrencyManager.getDefault(),
+      getSubgraphClient: jest.fn(),
+      subgraphMinIndexedBlock: undefined,
     });
   });
   afterEach(() => {
