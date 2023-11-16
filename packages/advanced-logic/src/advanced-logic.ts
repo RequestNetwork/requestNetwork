@@ -5,12 +5,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import {
-  CurrencyManager,
-  ICurrencyManager,
-  NearChains,
-  isSameChain,
-} from '@requestnetwork/currency';
+import { NearChains, isSameChain } from '@requestnetwork/currency';
 
 import ContentData from './extensions/content-data';
 import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
@@ -56,10 +51,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     erc20TransferableReceivable: Erc20TransferableReceivablePaymentNetwork;
   };
 
-  constructor(currencyManager?: ICurrencyManager) {
-    if (!currencyManager) {
-      currencyManager = CurrencyManager.getDefault();
-    }
+  constructor(currencyManager: CurrencyTypes.ICurrencyManager) {
     this.extensions = {
       addressBasedBtc: new AddressBasedBtc(),
       addressBasedErc20: new AddressBasedErc20(),

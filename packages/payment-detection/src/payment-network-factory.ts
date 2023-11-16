@@ -5,7 +5,6 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { ICurrencyManager } from '@requestnetwork/currency';
 import {
   ContractBasedDetector,
   IPaymentNetworkModuleByType,
@@ -96,7 +95,7 @@ export class PaymentNetworkFactory {
    */
   constructor(
     private readonly advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    private readonly currencyManager: ICurrencyManager,
+    private readonly currencyManager: CurrencyTypes.ICurrencyManager,
     options?: Partial<PaymentNetworkOptions>,
   ) {
     this.options = this.buildOptions(options || {});

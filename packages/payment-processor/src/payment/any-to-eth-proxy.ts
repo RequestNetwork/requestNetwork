@@ -1,13 +1,9 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
-import {
-  CurrencyDefinition,
-  CurrencyManager,
-  UnsupportedCurrencyError,
-} from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { AnyToEthFeeProxyPaymentDetector } from '@requestnetwork/payment-detection';
 import { EthConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ClientTypes, CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import { getAmountToPay, getProvider, getRequestPaymentValues, getSigner } from './utils';
@@ -104,7 +100,7 @@ export function prepareAnyToEthProxyPaymentTransaction(
 export function getConversionPathForEthRequest(
   request: ClientTypes.IRequestData,
   paymentSettings: IConversionPaymentSettings,
-): { path: string[]; requestCurrency: CurrencyDefinition<unknown> } {
+): { path: string[]; requestCurrency: CurrencyTypes.CurrencyDefinition<unknown> } {
   const currencyManager = paymentSettings.currencyManager || CurrencyManager.getDefault();
 
   if (!request.currencyInfo) {

@@ -5,7 +5,7 @@ import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { omit } from 'lodash';
 
-const advancedLogic = new AdvancedLogic();
+const advancedLogic = new AdvancedLogic(CurrencyManager.getDefault());
 
 const createCreationActionParams: PnReferenceBased.ICreationParameters = {
   paymentAddress: 'payment.testnet',

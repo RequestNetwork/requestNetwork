@@ -1,10 +1,9 @@
-import { Chain, NamedNativeCurrency, TokenMap } from '../types';
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { nativeCurrencies } from '../native';
 
 export abstract class ChainsAbstract<
   CHAIN_NAME extends CurrencyTypes.ChainName,
-  CHAIN extends Chain,
+  CHAIN extends CurrencyTypes.Chain,
   CHAIN_ID extends string | number,
 > {
   public chains: Record<CHAIN_NAME, CHAIN>;
@@ -26,11 +25,11 @@ export abstract class ChainsAbstract<
     currencyType: RequestLogicTypes.CURRENCY.ETH | RequestLogicTypes.CURRENCY.BTC,
   ): void {
     this.chainNames.forEach((chainName) => {
-      const nativeCurrency = (nativeCurrencies[currencyType] as NamedNativeCurrency[]).find(
-        (currency) => currency.network === chainName,
-      );
+      const nativeCurrency = (
+        nativeCurrencies[currencyType] as CurrencyTypes.NamedNativeCurrency[]
+      ).find((currency) => currency.network === chainName);
       if (nativeCurrency) {
-        const chainCurrencies: TokenMap = this.chains[chainName].currencies || {};
+        const chainCurrencies: CurrencyTypes.TokenMap = this.chains[chainName].currencies || {};
         chainCurrencies.native = nativeCurrency;
         this.chains[chainName].currencies = chainCurrencies;
       }

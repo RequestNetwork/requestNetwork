@@ -1,5 +1,4 @@
-import { CurrencyDefinition } from '@requestnetwork/currency';
-import { PaymentTypes } from '@requestnetwork/types';
+import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, ethers } from 'ethers';
 import { parseLogArgs, unpadAmountFromChainlink } from '../../utils';
 import type { JsonFragment } from '@ethersproject/abi';
@@ -41,7 +40,7 @@ export abstract class ConversionInfoRetriever {
    * @param network The Ethereum network to use
    */
   constructor(
-    protected requestCurrency: CurrencyDefinition,
+    protected requestCurrency: CurrencyTypes.CurrencyDefinition,
     protected paymentReference: string,
     protected conversionProxyContractAddress: string,
     protected conversionProxyCreationBlockNumber: number,

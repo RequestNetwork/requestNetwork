@@ -1,5 +1,9 @@
-import { ICurrencyManager } from '@requestnetwork/currency';
-import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  ClientTypes,
+  CurrencyTypes,
+  ExtensionTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import { BigNumber, BigNumberish } from 'ethers';
 import { IConversionPaymentSettings } from './payment';
 import { ITransactionOverrides } from './payment/transaction-overrides';
@@ -33,7 +37,7 @@ export interface IConversionSettings {
   /** maximum number of tokens to be spent when the conversion is made */
   maxToSpend?: BigNumberish;
   /** a currency manager to access currencies property, like decimals */
-  currencyManager?: ICurrencyManager;
+  currencyManager?: CurrencyTypes.ICurrencyManager;
   /** maximum time in seconds of how old chainlink rate can be used, default is zero for infinitely old */
   maxRateAge?: number;
 }

@@ -6,7 +6,6 @@ import {
 } from '@requestnetwork/types';
 import { PaymentDetectorBase } from './payment-detector-base';
 import { GetDeploymentInformation } from './utils';
-import type { CurrencyDefinition, ICurrencyManager } from '@requestnetwork/currency';
 import type { providers } from 'ethers';
 import type { TheGraphClient } from './thegraph';
 
@@ -36,7 +35,7 @@ export type ConversionTransferEventsParams = TransferEventsParams & {
   /** The maximum span between the time the rate was fetched and the payment */
   maxRateTimespan?: number;
   /** Request denomination (usually fiat) */
-  requestCurrency: CurrencyDefinition;
+  requestCurrency: CurrencyTypes.CurrencyDefinition;
 };
 
 export interface IPaymentRetriever<
@@ -111,7 +110,7 @@ export type PaymentNetworkOptions<
 
 export type ReferenceBasedDetectorOptions = {
   advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
-  currencyManager: ICurrencyManager;
+  currencyManager: CurrencyTypes.ICurrencyManager;
 };
 
 export type NativeDetectorOptions = ReferenceBasedDetectorOptions & {

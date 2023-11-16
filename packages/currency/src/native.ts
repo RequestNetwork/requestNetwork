@@ -1,10 +1,11 @@
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { NamedNativeCurrency } from './types';
 
-type NativeEthCurrency = NamedNativeCurrency & {
+type NativeEthCurrency = CurrencyTypes.NamedNativeCurrency & {
   network: CurrencyTypes.EvmChainName | CurrencyTypes.NearChainName;
 };
-type NativeBtcCurrency = NamedNativeCurrency & { network: CurrencyTypes.BtcChainName };
+type NativeBtcCurrency = CurrencyTypes.NamedNativeCurrency & {
+  network: CurrencyTypes.BtcChainName;
+};
 
 export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthCurrency[]> &
   Record<RequestLogicTypes.CURRENCY.BTC, NativeBtcCurrency[]> = {

@@ -1,11 +1,11 @@
-import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import EthereumFeeProxyPaymentNetwork from './ethereum/fee-proxy-contract';
 
 const CURRENT_VERSION = '0.2.0';
 
 export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPaymentNetwork {
-  public constructor(private currencyManager: ICurrencyManager) {
+  public constructor(private currencyManager: CurrencyTypes.ICurrencyManager) {
     super(ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY, CURRENT_VERSION);
   }
 

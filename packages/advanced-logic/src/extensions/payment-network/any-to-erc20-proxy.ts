@@ -1,16 +1,12 @@
-import {
-  conversionSupportedNetworks,
-  ICurrencyManager,
-  UnsupportedCurrencyError,
-} from '@requestnetwork/currency';
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { conversionSupportedNetworks, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Erc20FeeProxyPaymentNetwork from './erc20/fee-proxy-contract';
 
 const CURRENT_VERSION = '0.1.0';
 
 export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentNetwork {
   public constructor(
-    private currencyManager: ICurrencyManager,
+    private currencyManager: CurrencyTypes.ICurrencyManager,
     extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
       .ANY_TO_ERC20_PROXY,
     currentVersion: string = CURRENT_VERSION,

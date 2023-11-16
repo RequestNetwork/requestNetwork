@@ -5,7 +5,6 @@ import {
   RequestLogicTypes,
   TypesUtils,
 } from '@requestnetwork/types';
-import { ICurrencyManager } from '@requestnetwork/currency';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { DeclarativePaymentDetectorBase } from './declarative';
@@ -29,7 +28,7 @@ export abstract class ReferenceBasedDetector<
   protected constructor(
     paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
-    protected readonly currencyManager: ICurrencyManager,
+    protected readonly currencyManager: CurrencyTypes.ICurrencyManager,
   ) {
     super(paymentNetworkId, extension);
     if (!TypesUtils.isPaymentNetworkId(paymentNetworkId)) {

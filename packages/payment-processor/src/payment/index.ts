@@ -1,6 +1,6 @@
 import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 'ethers';
 
-import { ClientTypes, ExtensionTypes, TypesUtils } from '@requestnetwork/types';
+import { ClientTypes, CurrencyTypes, ExtensionTypes, TypesUtils } from '@requestnetwork/types';
 
 import { getBtcPaymentUrl } from './btc-address-based';
 import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
@@ -16,7 +16,7 @@ import { payAnyToErc20ProxyRequest } from './any-to-erc20-proxy';
 import { payAnyToEthProxyRequest } from './any-to-eth-proxy';
 import { WalletConnection } from 'near-api-js';
 import { isNearAccountSolvent } from './utils-near';
-import { ICurrencyManager, NearChains } from '@requestnetwork/currency';
+import { NearChains } from '@requestnetwork/currency';
 import { encodeRequestErc20Approval } from './encoder-approval';
 import { encodeRequestPayment } from './encoder-payment';
 import { IPreparedTransaction } from './prepared-transaction';
@@ -36,7 +36,7 @@ export const noConversionNetworks = [
 export interface IConversionPaymentSettings {
   currency?: RequestLogicTypes.ICurrency;
   maxToSpend: BigNumberish;
-  currencyManager?: ICurrencyManager;
+  currencyManager?: CurrencyTypes.ICurrencyManager;
 }
 
 const getPaymentNetwork = (

@@ -1,10 +1,9 @@
 import { CurrencyTypes } from '@requestnetwork/types';
-import { Chain } from '../../types';
 
 import * as MainnetDefinition from './data/mainnet';
 import * as TestnetDefinition from './data/testnet';
 
-export type BtcChain = Chain & {
+export type BtcChain = CurrencyTypes.Chain & {
   chainId: string;
 };
 

@@ -1,4 +1,4 @@
-import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 import {
   CurrencyTypes,
   ExtensionTypes,
@@ -11,7 +11,7 @@ const CURRENT_VERSION = '0.1.0';
 
 export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetwork {
   public constructor(
-    private currencyManager: ICurrencyManager,
+    private currencyManager: CurrencyTypes.ICurrencyManager,
     supportedNetworks: CurrencyTypes.NearChainName[] = [
       'aurora',
       // FIXME: enable near network support

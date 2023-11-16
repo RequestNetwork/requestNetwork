@@ -1,5 +1,4 @@
-import { PaymentTypes } from '@requestnetwork/types';
-import { ICurrencyManager } from '@requestnetwork/currency';
+import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
 import { pick, mapValues } from 'lodash';
 import type { TheGraphClient } from './client';
@@ -15,7 +14,7 @@ export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = Tr
 {
   constructor(
     protected readonly client: TheGraphClient,
-    protected readonly currencyManager: ICurrencyManager,
+    protected readonly currencyManager: CurrencyTypes.ICurrencyManager,
   ) {}
 
   public async getTransferEvents(

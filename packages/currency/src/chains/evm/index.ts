@@ -1,5 +1,4 @@
 import { CurrencyTypes } from '@requestnetwork/types';
-import { Chain } from '../../types';
 
 import * as AlfajoresDefinition from './data/alfajores';
 import * as ArbitrumOneDefinition from './data/arbitrum-one';
@@ -26,7 +25,7 @@ import * as SokolDefinition from './data/sokol';
 import * as TombchainDefinition from './data/tombchain';
 import * as XDaiDefinition from './data/xdai';
 
-export type EvmChain = Chain & {
+export type EvmChain = CurrencyTypes.Chain & {
   chainId: number;
 };
 

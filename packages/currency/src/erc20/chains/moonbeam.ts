@@ -1,7 +1,7 @@
-import { TokenMap } from '../../types';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 // List of the supported bsc network tokens
-export const supportedMoonbeamERC20: TokenMap = {
+export const supportedMoonbeamERC20: CurrencyTypes.TokenMap = {
   '0x818ec0A7Fe18Ff94269904fCED6AE3DaE6d6dC0b': {
     name: 'USDC Multichain',
     symbol: 'USDC-multichain',

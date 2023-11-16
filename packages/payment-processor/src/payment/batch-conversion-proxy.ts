@@ -30,7 +30,7 @@ import { IConversionPaymentSettings } from './index';
 import { getConversionPathForErc20Request } from './any-to-erc20-proxy';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 import { IState } from 'types/dist/extension-types';
-import { CurrencyDefinition, CurrencyManager, ICurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 import {
   BatchPaymentNetworks,
   EnrichedRequest,
@@ -331,7 +331,7 @@ function getUSDPathsForFeeLimit(
   requestDetails: PaymentTypes.RequestDetail[],
   network: string,
   skipFeeUSDLimit: boolean,
-  currencyManager: ICurrencyManager<unknown>,
+  currencyManager: CurrencyTypes.ICurrencyManager<unknown>,
   hasNativePayment: boolean,
 ): string[][] {
   if (skipFeeUSDLimit) return [];
@@ -357,9 +357,9 @@ function getUSDPathsForFeeLimit(
     .filter((value, index, self) => self.indexOf(value) === index);
 
   // get the token currencies and keep the one that are defined
-  const tokenCurrencies: Array<CurrencyDefinition<unknown>> = tokenAddresses
+  const tokenCurrencies: Array<CurrencyTypes.CurrencyDefinition<unknown>> = tokenAddresses
     .map((token) => currencyManager.fromAddress(token, network))
-    .filter((value): value is CurrencyDefinition => !!value);
+    .filter((value): value is CurrencyTypes.CurrencyDefinition => !!value);
 
   // get all the conversion paths to USD when it exists and return it
   const path = tokenCurrencies

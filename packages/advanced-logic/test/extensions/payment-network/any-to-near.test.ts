@@ -266,7 +266,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
     let creationAction: ExtensionTypes.IAction;
     let anyToNearPn: AnyToNearPaymentNetwork;
     beforeEach(() => {
-      advancedLogic = new AdvancedLogic();
+      advancedLogic = new AdvancedLogic(CurrencyManager.getDefault());
       anyToNearPn = new AnyToNearPaymentNetwork(currencyManager);
       validRequestState = {
         ...requestStateNoExtensions,

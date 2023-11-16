@@ -1,6 +1,7 @@
-import { CurrencyInput, CurrencyManager, ICurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 import {
   ClientTypes,
+  CurrencyTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
   SignatureProviderTypes,
@@ -32,7 +33,6 @@ export default class HttpRequestNetwork extends RequestNetwork {
       nodeConnectionConfig,
       signatureProvider,
       useMockStorage,
-      currencies,
       currencyManager,
       paymentOptions,
     }: {
@@ -41,8 +41,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       nodeConnectionConfig?: Partial<NodeConnectionConfig>;
       signatureProvider?: SignatureProviderTypes.ISignatureProvider;
       useMockStorage?: boolean;
-      currencies?: CurrencyInput[];
-      currencyManager?: ICurrencyManager;
+      currencyManager?: CurrencyTypes.ICurrencyManager;
       paymentOptions?: Partial<PaymentNetworkOptions>;
     } = {
       httpConfig: {},
@@ -54,7 +53,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       : new HttpDataAccess({ httpConfig, nodeConnectionConfig });
 
     if (!currencyManager) {
-      currencyManager = new CurrencyManager(currencies || CurrencyManager.getDefaultList());
+      currencyManager = CurrencyManager.getDefault();
     }
 
     super({ dataAccess, signatureProvider, decryptionProvider, currencyManager, paymentOptions });
