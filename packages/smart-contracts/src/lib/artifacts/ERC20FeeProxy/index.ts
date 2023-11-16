@@ -147,6 +147,10 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           address: '0x399F5EE127ce7432E4921a61b8CF52b0af52cbfE',
           creationBlockNumber: 8317450,
         },
+        zkSyncEraGoerli: {
+          address: '0xb4E10de047b72Af2a44F64892419d248d58d9dF5',
+          creationBlockNumber: 13616167,
+        },
       },
     },
     near: {
