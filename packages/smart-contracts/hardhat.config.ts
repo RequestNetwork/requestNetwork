@@ -172,7 +172,7 @@ export default {
       zksync: true,
       verifyURL: 'https://zksync2-testnet-explorer.zksync.dev/contract_verification',
     },
-    zkSyncEraMainnet: {
+    zkSyncEra: {
       url: 'https://mainnet.era.zksync.io',
       ethNetwork: 'mainnet',
       zksync: true,
