@@ -154,10 +154,13 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     channelId: string,
     timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetTransactions> {
-    return this.fetchAndRetry('/getTransactionsByChannelId', {
-      channelId,
-      timestampBoundaries,
-    });
+    return await this.fetchAndRetry<DataAccessTypes.IReturnGetTransactions>(
+      '/getTransactionsByChannelId',
+      {
+        channelId,
+        timestampBoundaries,
+      },
+    );
   }
 
   /**
@@ -170,7 +173,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    return this.fetchAndRetry('/getChannelsByTopic', {
+    return await this.fetchAndRetry('/getChannelsByTopic', {
       topic,
       updatedBetween,
     });
@@ -186,7 +189,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     topics: string[],
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    return this.fetchAndRetry('/getChannelsByMultipleTopics', {
+    return await this.fetchAndRetry('/getChannelsByMultipleTopics', {
       topics,
       updatedBetween,
     });
@@ -197,7 +200,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    *
    */
   public async _getStatus(): Promise<any> {
-    return this.fetchAndRetry('/information', {});
+    return await this.fetchAndRetry('/information', {});
   }
 
   /**
@@ -231,12 +234,20 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   protected async fetch<T = unknown>(
     method: 'GET' | 'POST',
     path: string,
-    params: unknown,
+    params: Record<string, unknown> | undefined,
     body?: Record<string, unknown>,
   ): Promise<T> {
     const { baseURL, headers, ...options } = this.nodeConnectionConfig;
     const url = new URL(path, baseURL);
-    url.search = stringify(params);
+    if (params) {
+      // qs.parse doesn't handle well mixes of string and object params
+      for (const [key, value] of Object.entries(params)) {
+        if (typeof value === 'object') {
+          params[key] = JSON.stringify(value);
+        }
+      }
+      url.search = stringify(params);
+    }
     const r = await fetch(url, {
       method,
       body: body ? JSON.stringify(body) : undefined,
