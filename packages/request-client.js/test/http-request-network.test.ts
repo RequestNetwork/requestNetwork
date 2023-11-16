@@ -13,6 +13,7 @@ beforeAll(() => {
 
 afterAll(() => {
   mockServer.close();
+  mockServer.resetHandlers();
   jest.restoreAllMocks();
 });
 
