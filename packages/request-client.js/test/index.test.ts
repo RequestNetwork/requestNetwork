@@ -870,7 +870,7 @@ describe('request-client.js', () => {
       await request.waitForConfirmation();
 
       const requestsFromTopic = await requestNetwork.fromTopic('my amazing test topic');
-      expect(requestsFromTopic).not.toBe(0);
+      expect(requestsFromTopic).not.toHaveLength(0);
       const requestData = requestsFromTopic[0].getData();
       expect(requestData).toMatchObject(request.getData());
 
