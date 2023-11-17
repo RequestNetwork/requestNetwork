@@ -76,12 +76,6 @@ jobs:
           paths:
             - ~/.cache/yarn
       - run:
-          name: Verify format
-          command: yarn format:check
-      - run:
-          name: Verify lint
-          command: yarn lint:check
-      - run:
           name: Build types
           command: yarn workspace @requestnetwork/types run build
       - run:
@@ -103,13 +97,19 @@ jobs:
       - persist_to_workspace:
           root: *working_directory
           paths: .
-  lint-package-json:
+  lint:
     docker:
       - *node_image
     working_directory: *working_directory
     steps:
       - attach_workspace:
           at: *working_directory
+      - run:
+          name: Verify format
+          command: yarn format:check
+      - run:
+          name: Verify lint
+          command: yarn lint:check
       - run:
           name: 'lint package.json files'
           command: 'yarn run packageJsonLint'
@@ -591,7 +591,7 @@ workflows:
   build-and-test:
     jobs:
       - build
-      - lint-package-json:
+      - lint:
           requires:
             - build
       # Test
@@ -714,7 +714,7 @@ workflows:
                 - master
     jobs:
       - build
-      - lint-package-json:
+      - lint:
           requires:
             - build
       - test-nightly:
