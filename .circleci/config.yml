@@ -2,8 +2,6 @@ version: 2.1
 
 references:
   working_directory: &working_directory ~/repo
-  attach_workspace: &attach_workspace
-  image_name: &image_name 'cimg/python:3.7'
   node_image: &node_image
     image: cimg/node:18.18
   ipfs_image: &ipfs_image
@@ -96,7 +94,8 @@ jobs:
 
       - persist_to_workspace:
           root: *working_directory
-          paths: .
+          paths:
+            - ./
   lint:
     docker:
       - *node_image
