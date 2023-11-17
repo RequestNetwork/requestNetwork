@@ -129,7 +129,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
           name: 'Test request-client.js'
-          command: 'yarn workspace @requestnetwork/request-client.js run test --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/request-client.js run test --ci'
       - store_test_results:
           path: packages/request-client.js/reports/
       - persist_to_workspace:
@@ -148,7 +148,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/data-access run build'
       - run:
           name: 'Test data-access'
-          command: 'yarn workspace @requestnetwork/data-access run test --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/data-access run test --ci'
       - store_test_results:
           path: packages/data-access/reports/
       - persist_to_workspace:
@@ -167,7 +167,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/data-format run build'
       - run:
           name: 'Test data-format'
-          command: 'yarn workspace @requestnetwork/data-format run test --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/data-format run test --ci'
       - store_test_results:
           path: packages/data-format/reports/
       - persist_to_workspace:
@@ -186,7 +186,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/transaction-manager run build'
       - run:
           name: 'Test transaction-manager'
-          command: 'yarn workspace @requestnetwork/transaction-manager run test --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/transaction-manager run test --ci'
       - store_test_results:
           path: packages/transaction-manager/reports/
       - persist_to_workspace:
@@ -210,7 +210,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
           name: 'Test ethereum-storage'
-          command: 'yarn workspace @requestnetwork/ethereum-storage run test --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/ethereum-storage run test --ci'
       - store_test_results:
           path: packages/ethereum-storage/reports/
       - persist_to_workspace:
@@ -236,7 +236,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/smart-contracts run test'
       - run:
           name: 'Test smart contracts utilities'
-          command: 'yarn workspace @requestnetwork/smart-contracts run test:lib --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/smart-contracts run test:lib --ci'
   test-request-logic:
     docker:
       - *node_image
@@ -249,7 +249,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/request-logic run build'
       - run:
           name: 'Test request-logic'
-          command: 'yarn workspace @requestnetwork/request-logic run test --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/request-logic run test --ci'
       - store_test_results:
           path: packages/request-logic/reports/
       - persist_to_workspace:
@@ -268,7 +268,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/advanced-logic run build'
       - run:
           name: 'Test advanced-logic'
-          command: 'yarn workspace @requestnetwork/advanced-logic run test --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/advanced-logic run test --ci'
       - store_test_results:
           path: packages/advanced-logic/reports/
       - persist_to_workspace:
@@ -312,7 +312,7 @@ jobs:
           at: *working_directory
       - run:
           name: 'Test utils'
-          command: 'yarn workspace @requestnetwork/utils run test --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/utils run test --ci'
       - store_test_results:
           path: packages/utils/reports/
       - persist_to_workspace:
@@ -328,7 +328,7 @@ jobs:
           at: *working_directory
       - run:
           name: 'Test currency'
-          command: 'yarn workspace @requestnetwork/currency run test --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/currency run test --ci'
       - store_test_results:
           path: packages/currency/reports/
       - persist_to_workspace:
@@ -347,7 +347,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/epk-signature run build'
       - run:
           name: 'Test epk-signature'
-          command: 'yarn workspace @requestnetwork/epk-signature run test --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/epk-signature run test --ci'
       - store_test_results:
           path: packages/epk-signature/reports/
       - persist_to_workspace:
@@ -366,7 +366,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/epk-decryption run build'
       - run:
           name: 'Test epk-decryption'
-          command: 'yarn workspace @requestnetwork/epk-decryption run test --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/epk-decryption run test --ci'
       - store_test_results:
           path: packages/epk-decryption/reports/
       - persist_to_workspace:
@@ -385,7 +385,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/web3-signature run build'
       - run:
           name: 'Test web3-signature'
-          command: 'yarn workspace @requestnetwork/web3-signature run test --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/web3-signature run test --ci'
       - store_test_results:
           path: packages/web3-signature/reports/
       - persist_to_workspace:
@@ -417,10 +417,10 @@ jobs:
       - run: *step_wait_for_node
       - run:
           name: 'Test integration-test (node)'
-          command: 'yarn workspace @requestnetwork/integration-test run test:node --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/integration-test run test:node --ci'
       - run:
           name: 'Test integration-test (layers)'
-          command: 'yarn workspace @requestnetwork/integration-test run test:layers --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/integration-test run test:layers --ci'
   test-usage-examples:
     docker:
       - *node_image
@@ -456,7 +456,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/multi-format run build'
       - run:
           name: 'Test multi-format'
-          command: 'yarn workspace @requestnetwork/multi-format run test --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/multi-format run test --ci'
       - store_test_results:
           path: packages/multi-format/reports/
       - persist_to_workspace:
@@ -544,10 +544,10 @@ jobs:
       - run: *step_wait_for_node
       - run:
           name: 'Test integration-test (erc20)'
-          command: 'yarn workspace @requestnetwork/integration-test run test:erc20 --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/integration-test run test:erc20 --ci'
       - run:
           name: 'Test integration-test (btc)'
-          command: 'yarn workspace @requestnetwork/integration-test run test:btc --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/integration-test run test:btc --ci'
 
   # Release a next version package everytime we merge to master
   next-release:
