@@ -76,12 +76,6 @@ jobs:
           paths:
             - ~/.cache/yarn
       - run:
-          name: Verify format
-          command: yarn format:check
-      - run:
-          name: Verify lint
-          command: yarn lint:check
-      - run:
           name: Build types
           command: yarn workspace @requestnetwork/types run build
       - run:
@@ -102,14 +96,21 @@ jobs:
 
       - persist_to_workspace:
           root: *working_directory
-          paths: .
-  lint-package-json:
+          paths:
+            - ./
+  lint:
     docker:
       - *node_image
     working_directory: *working_directory
     steps:
       - attach_workspace:
           at: *working_directory
+      - run:
+          name: Verify format
+          command: yarn format:check
+      - run:
+          name: Verify lint
+          command: yarn lint:check
       - run:
           name: 'lint package.json files'
           command: 'yarn run packageJsonLint'
@@ -591,7 +592,7 @@ workflows:
   build-and-test:
     jobs:
       - build
-      - lint-package-json:
+      - lint:
           requires:
             - build
       # Test
@@ -659,44 +660,48 @@ workflows:
       # Publish the code coverage
       - publish-coverage:
           requires:
-            - test-request-client
-            - test-data-access
-            - test-data-format
-            - test-transaction-manager
-            - test-ethereum-storage
-            - test-request-logic
+            - lint
             - test-advanced-logic
-            - test-epk-signature
-            - test-web3-signature
-            - test-epk-decryption
-            - test-request-node
-            - test-utils
             - test-currency
-            - test-multi-format
-            - test-payment-detection
-            - test-payment-processor
-
-      # Release a next version package everytime we merge to master
-      - next-release:
-          requires:
-            - test-advanced-logic
             - test-data-access
             - test-data-format
             - test-epk-decryption
             - test-epk-signature
             - test-ethereum-storage
             - test-integration-test
-            - test-smart-contracts
             - test-multi-format
+            - test-payment-detection
+            - test-payment-processor
             - test-request-client
             - test-request-logic
             - test-request-node
+            - test-smart-contracts
             - test-transaction-manager
             - test-utils
-            - test-currency
             - test-web3-signature
+
+      # Release a next version package everytime we merge to master
+      - next-release:
+          requires:
+            - lint
+            - test-advanced-logic
+            - test-currency
+            - test-data-access
+            - test-data-format
+            - test-epk-decryption
+            - test-epk-signature
+            - test-ethereum-storage
+            - test-integration-test
+            - test-multi-format
             - test-payment-detection
             - test-payment-processor
+            - test-request-client
+            - test-request-logic
+            - test-request-node
+            - test-smart-contracts
+            - test-transaction-manager
+            - test-utils
+            - test-web3-signature
           context: protocol-release
           filters:
             branches:
@@ -714,9 +719,6 @@ workflows:
                 - master
     jobs:
       - build
-      - lint-package-json:
-          requires:
-            - build
       - test-nightly:
           requires:
             - build

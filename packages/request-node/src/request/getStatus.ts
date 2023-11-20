@@ -6,8 +6,6 @@ import * as config from '../config';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
 
-const GET_CHANNELS_TIMEOUT = 600000;
-
 /**
  * Handles getStatus of data-access layer.
  *
@@ -20,14 +18,6 @@ export default class GetStatusHandler {
     this.handler = this.handler.bind(this);
   }
   async handler(clientRequest: Request, serverResponse: Response): Promise<void> {
-    // Used to compute request time
-    const requestStartTime = Date.now();
-
-    // As the Node doesn't implement a cache, all transactions have to be retrieved directly on IPFS
-    // This operation can take a long time and then the timeout of the request should be increase
-    // PROT-187: Decrease or remove this value
-    clientRequest.setTimeout(GET_CHANNELS_TIMEOUT);
-
     if (!this.dataAccess._getStatus) {
       serverResponse
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -64,13 +54,6 @@ export default class GetStatusHandler {
           version: packageJson.version,
         },
       };
-
-      // Log the request time
-      const requestEndTime = Date.now();
-      this.logger.debug(`getStatus latency: ${requestEndTime - requestStartTime}ms`, [
-        'metric',
-        'latency',
-      ]);
 
       serverResponse.status(StatusCodes.OK).send(status);
     } catch (e) {
