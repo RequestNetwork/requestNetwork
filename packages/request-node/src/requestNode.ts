@@ -151,7 +151,7 @@ export class RequestNode {
     this.express.use(express.urlencoded({ extended: true }));
 
     router.get('/healthz', (_, res) => res.status(StatusCodes.OK).send('OK'));
-    router.use(this.initializedMiddelware());
+    router.use(this.initializedMiddleware());
     router.get('/readyz', (_, res) => res.status(StatusCodes.OK).send('OK'));
     router.get('/status', this.getStatusHandler.handler);
     router.post('/ipfsAdd', this.ipfsAddHandler.handler);
@@ -170,11 +170,20 @@ export class RequestNode {
   /**
    * Middleware to refuse traffic if node is not initialized yet
    */
-  private initializedMiddelware() {
-    return (_: Request, res: Response, next: NextFunction) => {
+  private initializedMiddleware() {
+    return (req: Request, res: Response, next: NextFunction) => {
       if (!this.initialized) {
         res.status(StatusCodes.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       } else {
+        const start = Date.now();
+        // Log the request time and status
+        res.on('finish', () => {
+          const path = req.path.replace(/^\//, '');
+          this.logger.debug(`${path} latency: ${Date.now() - start}ms. Status: ${res.statusCode}`, [
+            'metric',
+            'latency',
+          ]);
+        });
         next();
       }
     };
