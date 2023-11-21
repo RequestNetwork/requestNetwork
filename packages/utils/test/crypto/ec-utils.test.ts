@@ -27,11 +27,9 @@ describe('Utils/EcUtils', () => {
   describe('getAddressFromPrivateKey', () => {
     it('can get Address From PrivateKey', () => {
       const identity = getAddressFromPrivateKey(rawId.privateKey);
-      // 'getAddressFromPrivateKey() error'
       expect(identity).toBe(rawId.address);
     });
     it('cannot get Address From PrivateKey if the private key is wrong', () => {
-      // 'getAddressFromPrivateKey() error'
       expect(() => getAddressFromPrivateKey('aa')).toThrowError(
         'The private key must be a string representing 32 bytes',
       );
@@ -48,11 +46,9 @@ describe('Utils/EcUtils', () => {
   describe('getAddressFromPublicKey', () => {
     it('can get Address From Public Key', () => {
       const identity = getAddressFromPublicKey(rawId.publicKey);
-      // 'getAddressFromPublicKey() error'
       expect(identity).toBe(rawId.address);
     });
     it('cannot get Address From Public Key if the Public key is wrong', () => {
-      // 'getAddressFromPrivateKey() error'
       expect(() => getAddressFromPublicKey('aa')).toThrowError(
         'The public key must be a string representing 64 bytes',
       );
@@ -65,13 +61,11 @@ describe('Utils/EcUtils', () => {
         rawId.privateKey,
         '0xfd6201dabdd4d7177f7c3baba47c5533b12f0a8127ab5d8c71d831fa4df2b19f',
       );
-      // 'sign() error'
       expect(signature).toBe(
         '0xdf4d49c7c01e00a970378e5a400dd4168aed6c43a1c510b124026467c78a3566048549c6ab5e0f618e2939c518e9fbe52e07836d4cb07fa44186fa3ffe3b3b981b',
       );
     });
     it('cannot signs if the private key is wrong', () => {
-      // 'sign() error'
       expect(() =>
         ecSign('aa', '0xfd6201dabdd4d7177f7c3baba47c5533b12f0a8127ab5d8c71d831fa4df2b19f'),
       ).toThrowError('The private key must be a string representing 32 bytes');
@@ -84,11 +78,9 @@ describe('Utils/EcUtils', () => {
         '0xdf4d49c7c01e00a970378e5a400dd4168aed6c43a1c510b124026467c78a3566048549c6ab5e0f618e2939c518e9fbe52e07836d4cb07fa44186fa3ffe3b3b981b',
         '0xfd6201dabdd4d7177f7c3baba47c5533b12f0a8127ab5d8c71d831fa4df2b19f',
       );
-      // 'recover() error'
       expect(id).toEqual(rawId.address);
     });
     it('cannot recover address from signature if signature is not well formatted', () => {
-      // 'sign() error'
       expect(() =>
         ecRecover('0xaa', '0xfd6201dabdd4d7177f7c3baba47c5533b12f0a8127ab5d8c71d831fa4df2b19f'),
       ).toThrowError('The signature must be a string representing 66 bytes');
@@ -98,9 +90,7 @@ describe('Utils/EcUtils', () => {
   describe('encrypt', () => {
     it('can encrypt', async () => {
       const encryptedData = await ecEncrypt(rawId.publicKey, anyData);
-      // 'encrypt() error'
       expect(encryptedData.length).toBe(226);
-      // 'decrypt() error'
       expect(await ecDecrypt(rawId.privateKey, encryptedData)).toBe(anyData);
     });
 
@@ -125,7 +115,6 @@ describe('Utils/EcUtils', () => {
         rawId.privateKey,
         '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc70a',
       );
-      // 'decrypt() error'
       expect(data).toBe(anyData);
     });
 
@@ -172,22 +161,5 @@ describe('Utils/EcUtils', () => {
         expect(decrypted).toBe(data);
       }
     });
-  });
-
-  it('can encrypt()', async () => {
-    const encryptedData = await ecEncrypt(rawId.publicKey, anyData);
-    // 'encrypt() error'
-    expect(encryptedData.length).toBe(226);
-    // 'decrypt() error'
-    expect(await ecDecrypt(rawId.privateKey, encryptedData)).toBe(anyData);
-  });
-
-  it('can decrypt()', async () => {
-    const data = await ecDecrypt(
-      rawId.privateKey,
-      '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc70a',
-    );
-    // 'decrypt() error'
-    expect(data).toBe(anyData);
   });
 });

@@ -32,9 +32,6 @@ export default class PersistTransactionHandler {
     // Retrieves data access layer
     let dataAccessResponse: DataAccessTypes.IReturnPersistTransaction;
 
-    // Used to compute request time
-    const requestStartTime = Date.now();
-
     // Set the timeout from the value from config and convert seconds to milliseconds
     /* eslint-disable no-magic-numbers */
     clientRequest.setTimeout(getPersistTransactionTimeout() * 1000);
@@ -97,12 +94,6 @@ export default class PersistTransactionHandler {
         )}`);
       });
 
-      // Log the request time
-      const requestEndTime = Date.now();
-      this.logger.debug(`persistTransaction latency: ${requestEndTime - requestStartTime}ms`, [
-        'metric',
-        'latency',
-      ]);
       this.logger.debug(`persistTransaction successfully completed`, ['metric', 'successRate']);
 
       serverResponse.status(StatusCodes.OK).send(dataAccessResponse);

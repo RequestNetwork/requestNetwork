@@ -2,7 +2,6 @@ import { DataAccessTypes, LogTypes } from '@requestnetwork/types';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-const GET_CHANNELS_TIMEOUT = 600000;
 export default class GetChannelHandler {
   constructor(private logger: LogTypes.ILogger, private dataAccess: DataAccessTypes.IDataRead) {
     this.handler = this.handler.bind(this);
@@ -19,14 +18,6 @@ export default class GetChannelHandler {
     // Retrieves data access layer
     let transactions;
 
-    // Used to compute request time
-    const requestStartTime = Date.now();
-
-    // As the Node doesn't implement a cache, all transactions have to be retrieved directly on IPFS
-    // This operation can take a long time and then the timeout of the request should be increase
-    // PROT-187: Decrease or remove this value
-    clientRequest.setTimeout(GET_CHANNELS_TIMEOUT);
-
     const { updatedBetween, topic } = clientRequest.query;
     // Verifies if data sent from get request are correct
     // clientRequest.query is expected to contain the topic of the transactions to search for
@@ -41,13 +32,6 @@ export default class GetChannelHandler {
           ? JSON.parse(updatedBetween)
           : undefined,
       );
-
-      // Log the request time
-      const requestEndTime = Date.now();
-      this.logger.debug(`getChannelsByTopic latency: ${requestEndTime - requestStartTime}ms`, [
-        'metric',
-        'latency',
-      ]);
 
       serverResponse.status(StatusCodes.OK).send(transactions);
     } catch (e) {
