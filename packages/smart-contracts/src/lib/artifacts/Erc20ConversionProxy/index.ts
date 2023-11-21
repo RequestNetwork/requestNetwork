@@ -78,6 +78,11 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
           address: '0x1550A8C4F4E5afC67Ea07e8ac590fdcAdB4bBfb1',
           creationBlockNumber: 2415439,
         },
+        // Deployed via deployer
+        sepolia: {
+          address: '0xaD61121DAfAAe495095Cd466022b519Cb7503a4E',
+          creationBlockNumber: 4733467,
+        },
       },
     },
     '0.1.1': {
@@ -94,7 +99,7 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
         },
         /**
          * The contract on networks below is used as ABI 0.1.0 (cf. above)
-         *  */
+         */
         'arbitrum-one': {
           address: '0xA5186dec7dC1ec85B42A3cd2Dc8289e248530B07',
           creationBlockNumber: 5321045,
@@ -119,6 +124,10 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
         moonbeam: {
           address: '0x1550A8C4F4E5afC67Ea07e8ac590fdcAdB4bBfb1',
           creationBlockNumber: 2415439,
+        },
+        sepolia: {
+          address: '0xaD61121DAfAAe495095Cd466022b519Cb7503a4E',
+          creationBlockNumber: 4733467,
         },
       },
     },

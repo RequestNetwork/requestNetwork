@@ -88,6 +88,11 @@ export const erc20SwapConversionArtifact = new ContractArtifact<ERC20SwapToConve
           address: '0x80D1EE67ffAf7047d3E6EbF7317cF0eAd63FFc78',
           creationBlockNumber: 2415496,
         },
+        // Deployment address changed due to an update of the ChainlinkConversionPath contract
+        sepolia: {
+          address: '0x05e94CDdd14E0b18317AE21BAFAEC24156BdB7C9',
+          creationBlockNumber: 4733367,
+        },
       },
     },
   },

@@ -63,6 +63,11 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
           address: '0x3cF63891928B8CeebB81C95426600a18cd59C03f',
           creationBlockNumber: 19856206,
         },
+        // Deployment address changed due to an update of the ChainlinkConversionPath contract
+        sepolia: {
+          address: '0x67818703c92580c0e106e401F253E8A410A66f8B',
+          creationBlockNumber: 4733368,
+        },
       },
     },
   },

@@ -2,6 +2,7 @@ import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
 import { abi as ABI_0_2_0 } from './0.2.0.json';
+import { abi as ABI_0_2_1 } from './0.2.1.json';
 // @ts-ignore Cannot find module
 import type { EthConversionProxy } from '../../../types';
 
@@ -90,6 +91,24 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
         moonbeam: {
           address: '0x7Ebf48a26253810629C191b56C3212Fd0D211c26',
           creationBlockNumber: 2415431,
+        },
+        /**
+         * The contract was deployed on networks below with ABI 0.2.1
+         * The ABI for payments is the same, only administration tasks change.
+         */
+        sepolia: {
+          address: '0xc861aE0Cd70b73b0C8F1D62Fa669E6D1d7D7e0aB',
+          creationBlockNumber: 4733362,
+        },
+      },
+    },
+    '0.2.1': {
+      abi: ABI_0_2_1,
+      deployment: {
+        // Implements additional admin functions
+        sepolia: {
+          address: '0xc861aE0Cd70b73b0C8F1D62Fa669E6D1d7D7e0aB',
+          creationBlockNumber: 4733362,
         },
       },
     },
