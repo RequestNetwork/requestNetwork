@@ -167,14 +167,14 @@ export default {
       accounts,
     },
     zkSyncEraTestnet: {
-      url: 'https://testnet.era.zksync.dev',
+      url: url('zkSyncEraTestnet'),
       ethNetwork: 'goerli',
       zksync: true,
       verifyURL: 'https://zksync2-testnet-explorer.zksync.dev/contract_verification',
       accounts,
     },
     zkSyncEra: {
-      url: 'https://mainnet.era.zksync.io',
+      url: url('zkSyncEra'),
       ethNetwork: 'mainnet',
       zksync: true,
       verifyURL: 'https://zksync2-mainnet-explorer.zksync.io/contract_verification',
