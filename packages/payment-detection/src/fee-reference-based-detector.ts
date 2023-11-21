@@ -1,14 +1,7 @@
 import { BigNumber } from 'ethers';
-import {
-  CurrencyTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
-import { ICurrencyManager } from '@requestnetwork/currency';
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ReferenceBasedDetector } from './reference-based-detector';
 import { generate8randomBytes } from '@requestnetwork/utils';
-import { TGetSubGraphClient } from './types';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
@@ -19,8 +12,7 @@ export abstract class FeeReferenceBasedDetector<
     feeAddress?: string;
     feeAmount?: string;
   },
-  TChain extends CurrencyTypes.ChainName,
-> extends ReferenceBasedDetector<TExtension, TPaymentEventParameters, TChain> {
+> extends ReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
    * @param paymentNetworkId Example : ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
    * @param extension The advanced logic payment network extension, reference based
@@ -28,11 +20,8 @@ export abstract class FeeReferenceBasedDetector<
   protected constructor(
     paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
-    currencyManager: ICurrencyManager,
-    getSubgraphClient: TGetSubGraphClient<TChain>,
-    subgraphMinIndexedBlock: number | undefined,
   ) {
-    super(paymentNetworkId, extension, currencyManager, getSubgraphClient, subgraphMinIndexedBlock);
+    super(paymentNetworkId, extension);
   }
 
   /**

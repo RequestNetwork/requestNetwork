@@ -8,7 +8,8 @@ import { SuperFluidInfoRetriever } from './superfluid-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import { BigNumber } from 'ethers';
-import { ReferenceBasedDetectorOptions } from '../types';
+import { DetectorOptions } from '../types';
+
 /**
  * Handle payment networks with ERC777 Superfluid streaming extension
  */
@@ -16,25 +17,10 @@ export class SuperFluidPaymentDetector<
   TChain extends CurrencyTypes.EvmChainName = CurrencyTypes.EvmChainName,
 > extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
-  PaymentTypes.IERC777PaymentEventParameters,
-  TChain
+  PaymentTypes.IERC777PaymentEventParameters
 > {
-  /**
-   * @param extension The advanced logic payment network extensions
-   */
-  public constructor({
-    advancedLogic,
-    currencyManager,
-    getSubgraphClient,
-    subgraphMinIndexedBlock,
-  }: ReferenceBasedDetectorOptions<TChain>) {
-    super(
-      ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
-      advancedLogic.extensions.erc777Stream,
-      currencyManager,
-      getSubgraphClient,
-      subgraphMinIndexedBlock,
-    );
+  public constructor({ advancedLogic }: DetectorOptions<TChain>) {
+    super(ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM, advancedLogic.extensions.erc777Stream);
   }
 
   protected isSubsequentRequest(request: RequestLogicTypes.IRequest): boolean {

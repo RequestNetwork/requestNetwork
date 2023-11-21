@@ -12,7 +12,7 @@ import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
 import { AnyToAnyDetector } from '../any-to-any-detector';
 import { makeGetDeploymentInformation } from '../utils';
 import { TheGraphConversionInfoRetriever } from '../thegraph/conversion-info-retriever';
-import { ReferenceBasedDetectorOptions } from '../types';
+import { DetectorOptions } from '../types';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -31,24 +31,12 @@ export class AnyToEthFeeProxyPaymentDetector<
   TChain extends CurrencyTypes.EvmChainName = CurrencyTypes.EvmChainName,
 > extends AnyToAnyDetector<
   ExtensionTypes.PnAnyToEth.IAnyToEth,
-  PaymentTypes.IETHFeePaymentEventParameters,
-  TChain
+  PaymentTypes.IETHFeePaymentEventParameters
 > {
-  /**
-   * @param extension The advanced logic payment network extensions
-   */
-  public constructor({
-    advancedLogic,
-    currencyManager,
-    getSubgraphClient,
-    subgraphMinIndexedBlock,
-  }: ReferenceBasedDetectorOptions<TChain>) {
+  public constructor(protected readonly detectorOptions: DetectorOptions<TChain>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
-      advancedLogic.extensions.anyToEthProxy,
-      currencyManager,
-      getSubgraphClient,
-      subgraphMinIndexedBlock,
+      detectorOptions.advancedLogic.extensions.anyToEthProxy,
     );
   }
 
@@ -81,17 +69,17 @@ export class AnyToEthFeeProxyPaymentDetector<
       paymentNetwork.version,
     );
 
-    const currency = this.currencyManager.fromStorageCurrency(requestCurrency);
+    const currency = this.detectorOptions.currencyManager.fromStorageCurrency(requestCurrency);
     if (!currency) {
       throw new UnsupportedCurrencyError(requestCurrency.value);
     }
 
-    const subgraphClient = this.getSubgraphClient(paymentChain);
+    const subgraphClient = this.detectorOptions.getSubgraphClient(paymentChain);
     if (subgraphClient) {
       const infoRetriever = new TheGraphConversionInfoRetriever(
         subgraphClient,
-        this.subgraphMinIndexedBlock,
-        this.currencyManager,
+        this.detectorOptions.subgraphMinIndexedBlock,
+        this.detectorOptions.currencyManager,
       );
       return await infoRetriever.getTransferEvents({
         paymentReference,

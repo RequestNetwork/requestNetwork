@@ -9,9 +9,9 @@ import { ERC20FeeProxyPaymentDetectorBase } from '../erc20/fee-proxy-contract';
 import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy';
 import { TheGraphConversionInfoRetriever } from '../thegraph/conversion-info-retriever';
 import { makeGetDeploymentInformation } from '../utils';
-import { ReferenceBasedDetectorOptions } from '../types';
 import { generate8randomBytes } from '@requestnetwork/utils';
 import { EvmChains } from '@requestnetwork/currency';
+import { DetectorOptions } from '../types';
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
@@ -27,22 +27,11 @@ export class AnyToERC20PaymentDetector<
   PaymentTypes.IERC20FeePaymentEventParameters,
   TChain
 > {
-  /**
-   * @param extension The advanced logic payment network extensions
-   */
-
-  public constructor({
-    advancedLogic,
-    currencyManager,
-    getSubgraphClient,
-    subgraphMinIndexedBlock,
-  }: ReferenceBasedDetectorOptions<TChain>) {
+  public constructor(detectorOptions: DetectorOptions<TChain>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
-      advancedLogic.extensions.anyToErc20Proxy,
-      currencyManager,
-      getSubgraphClient,
-      subgraphMinIndexedBlock,
+      detectorOptions.advancedLogic.extensions.anyToErc20Proxy,
+      detectorOptions,
     );
   }
 
@@ -106,12 +95,12 @@ export class AnyToERC20PaymentDetector<
 
     const currency = await this.getCurrency(requestCurrency);
 
-    const subgraphClient = this.getSubgraphClient(paymentChain);
+    const subgraphClient = this.detectorOptions.getSubgraphClient(paymentChain);
     if (subgraphClient) {
       const infoRetriever = new TheGraphConversionInfoRetriever(
         subgraphClient,
-        this.subgraphMinIndexedBlock,
-        this.currencyManager,
+        this.detectorOptions.subgraphMinIndexedBlock,
+        this.detectorOptions.currencyManager,
       );
       return await infoRetriever.getTransferEvents({
         paymentReference,

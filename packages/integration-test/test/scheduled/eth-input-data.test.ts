@@ -18,11 +18,13 @@ import {
 import { createMockNativeTokenRequest } from '../utils';
 
 const ethInputContract = new EthInputDataPaymentDetector({
+  network: 'mainnet',
   advancedLogic: mockAdvancedLogic,
   currencyManager: CurrencyManager.getDefault(),
   explorerApiKeys: {},
   getSubgraphClient: jest.fn(),
   subgraphMinIndexedBlock: undefined,
+  getRpcProvider: jest.fn(),
 });
 
 describe('ETH Fee proxy detection test-suite', () => {

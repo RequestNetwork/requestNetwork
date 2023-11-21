@@ -10,7 +10,7 @@ import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
 import { TheGraphInfoRetriever } from '../thegraph';
-import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
+import { DetectorOptions } from '../types';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -31,30 +31,13 @@ export class EthInputDataPaymentDetector<
   TChain extends CurrencyTypes.EvmChainName = CurrencyTypes.EvmChainName,
 > extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
-  PaymentTypes.IETHPaymentEventParameters,
-  TChain
+  PaymentTypes.IETHPaymentEventParameters
 > {
-  private explorerApiKeys: Partial<Record<TChain, string>>;
-
-  /**
-   * @param extension The advanced logic payment network extensions
-   */
-  public constructor({
-    advancedLogic,
-    currencyManager,
-    explorerApiKeys,
-    getSubgraphClient,
-    subgraphMinIndexedBlock,
-  }: ReferenceBasedDetectorOptions<TChain> &
-    Pick<PaymentNetworkOptions<TChain>, 'explorerApiKeys'>) {
+  public constructor(protected readonly detectorOptions: DetectorOptions<TChain>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
-      advancedLogic.extensions.ethereumInputData,
-      currencyManager,
-      getSubgraphClient,
-      subgraphMinIndexedBlock,
+      detectorOptions.advancedLogic.extensions.ethereumInputData,
     );
-    this.explorerApiKeys = explorerApiKeys || {};
   }
 
   /**
@@ -89,7 +72,7 @@ export class EthInputDataPaymentDetector<
       eventName,
       paymentChain,
       paymentReference,
-      this.explorerApiKeys[paymentChain],
+      this.detectorOptions.explorerApiKeys[paymentChain],
     );
     const events = await infoRetriever.getTransferEvents();
     const proxyContractArtifact = EthInputDataPaymentDetector.getDeploymentInformation(
@@ -101,12 +84,12 @@ export class EthInputDataPaymentDetector<
     >;
     let escrowEvents: PaymentTypes.EscrowNetworkEvent[] | undefined = [];
     if (proxyContractArtifact) {
-      const subgraphClient = this.getSubgraphClient(paymentChain);
+      const subgraphClient = this.detectorOptions.getSubgraphClient(paymentChain);
       if (subgraphClient) {
         const graphInfoRetriever = new TheGraphInfoRetriever(
           subgraphClient,
-          this.subgraphMinIndexedBlock,
-          this.currencyManager,
+          this.detectorOptions.subgraphMinIndexedBlock,
+          this.detectorOptions.currencyManager,
         );
         allEvents = await graphInfoRetriever.getTransferEvents({
           paymentReference,

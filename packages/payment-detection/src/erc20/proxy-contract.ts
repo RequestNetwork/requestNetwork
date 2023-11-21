@@ -9,7 +9,7 @@ import ProxyInfoRetriever from './proxy-info-retriever';
 import { TheGraphInfoRetriever } from '../thegraph';
 import { makeGetDeploymentInformation } from '../utils';
 import { ReferenceBasedDetector } from '../reference-based-detector';
-import { ReferenceBasedDetectorOptions } from '../types';
+import { DetectorOptions } from '../types';
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
@@ -22,24 +22,12 @@ export class ERC20ProxyPaymentDetector<
   TChain extends CurrencyTypes.EvmChainName = CurrencyTypes.EvmChainName,
 > extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
-  PaymentTypes.IERC20PaymentEventParameters,
-  TChain
+  PaymentTypes.IERC20PaymentEventParameters
 > {
-  /**
-   * @param extension The advanced logic payment network extensions
-   */
-  public constructor({
-    advancedLogic,
-    currencyManager,
-    getSubgraphClient,
-    subgraphMinIndexedBlock,
-  }: ReferenceBasedDetectorOptions<TChain>) {
+  public constructor(protected readonly detectorOptions: DetectorOptions<TChain>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
-      advancedLogic.extensions.proxyContractErc20,
-      currencyManager,
-      getSubgraphClient,
-      subgraphMinIndexedBlock,
+      detectorOptions.advancedLogic.extensions.proxyContractErc20,
     );
   }
 
@@ -70,12 +58,12 @@ export class ERC20ProxyPaymentDetector<
     const { address: proxyContractAddress, creationBlockNumber: proxyCreationBlockNumber } =
       ERC20ProxyPaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
 
-    const subgraphClient = this.getSubgraphClient(paymentChain);
+    const subgraphClient = this.detectorOptions.getSubgraphClient(paymentChain);
     if (subgraphClient) {
       const graphInfoRetriever = new TheGraphInfoRetriever(
         subgraphClient,
-        this.subgraphMinIndexedBlock,
-        this.currencyManager,
+        this.detectorOptions.subgraphMinIndexedBlock,
+        this.detectorOptions.currencyManager,
       );
 
       return graphInfoRetriever.getTransferEvents({

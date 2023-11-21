@@ -8,7 +8,7 @@ import { NearChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { NearConversionInfoRetriever } from './retrievers/near-conversion-info-retriever';
 import { AnyToNativeDetector } from '../any-to-native-detector';
 import { NetworkNotSupported } from '../balance-error';
-import { NativeDetectorOptions } from '../types';
+import { DetectorOptions } from '../types';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -24,8 +24,8 @@ const CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
  * Handle payment detection for NEAR native token payment with conversion
  */
 export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetector<CurrencyTypes.NearChainName> {
-  constructor(args: NativeDetectorOptions<CurrencyTypes.NearChainName>) {
-    super(args);
+  constructor(protected readonly detectorOptions: DetectorOptions<CurrencyTypes.NearChainName>) {
+    super(detectorOptions);
   }
 
   public static getContractName = (
@@ -76,12 +76,12 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
       };
     }
 
-    const currency = this.currencyManager.fromStorageCurrency(requestCurrency);
+    const currency = this.detectorOptions.currencyManager.fromStorageCurrency(requestCurrency);
     if (!currency) {
       throw new UnsupportedCurrencyError(requestCurrency.value);
     }
 
-    const subgraphClient = this.getSubgraphClient(paymentChain);
+    const subgraphClient = this.detectorOptions.getSubgraphClient(paymentChain);
 
     if (!subgraphClient) {
       throw new Error(`Error getting subgraph client for ${paymentChain}`);

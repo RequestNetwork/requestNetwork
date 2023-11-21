@@ -17,10 +17,13 @@ import {
 automine();
 
 const erc20ProxyAddressedBased = new Erc20PaymentNetwork.ERC20ProxyPaymentDetector({
+  network: 'mainnet',
   advancedLogic: mockAdvancedLogic,
   currencyManager: CurrencyManager.getDefault(),
+  explorerApiKeys: {},
   getSubgraphClient: jest.fn(),
   subgraphMinIndexedBlock: undefined,
+  getRpcProvider: jest.fn(),
 });
 
 describe('ERC20 Proxy detection test-suite', () => {

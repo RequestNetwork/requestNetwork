@@ -4,10 +4,13 @@ import { createMockErc20FeeRequest } from '../utils';
 import { mockAdvancedLogic } from './mocks';
 
 const feeProxyDetector = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
+  network: 'mainnet',
   advancedLogic: mockAdvancedLogic,
   currencyManager: CurrencyManager.getDefault(),
+  explorerApiKeys: {},
   getSubgraphClient: jest.fn(),
   subgraphMinIndexedBlock: undefined,
+  getRpcProvider: jest.fn(),
 });
 
 describe('ERC20 with Escrow detection test-suite', () => {

@@ -1,8 +1,6 @@
-import { CurrencyTypes, ExtensionTypes } from '@requestnetwork/types';
+import { ExtensionTypes } from '@requestnetwork/types';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
-import { ICurrencyManager } from '@requestnetwork/currency';
 import { generate8randomBytes } from '@requestnetwork/utils';
-import { TGetSubGraphClient } from './types';
 
 /**
  * Abstract class to extend to get the payment balance of conversion requests
@@ -10,19 +8,15 @@ import { TGetSubGraphClient } from './types';
 export abstract class AnyToAnyDetector<
   TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
   TPaymentEventParameters extends Partial<ExtensionTypes.PnFeeReferenceBased.IAddFeeParameters>,
-  TChain extends CurrencyTypes.ChainName,
-> extends FeeReferenceBasedDetector<TExtension, TPaymentEventParameters, TChain> {
+> extends FeeReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extension, with conversion
    */
   protected constructor(
     paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
-    currencyManager: ICurrencyManager,
-    getSubgraphClient: TGetSubGraphClient<TChain>,
-    subgraphMinIndexedBlock: number | undefined,
   ) {
-    super(paymentNetworkId, extension, currencyManager, getSubgraphClient, subgraphMinIndexedBlock);
+    super(paymentNetworkId, extension);
   }
 
   /**

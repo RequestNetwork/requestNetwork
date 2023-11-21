@@ -8,7 +8,7 @@ import {
 import { TheGraphInfoRetriever } from '../thegraph';
 import { erc20TransferableReceivableArtifact } from '@requestnetwork/smart-contracts';
 import { makeGetDeploymentInformation } from '../utils';
-import { ReferenceBasedDetectorOptions } from '../types';
+import { DetectorOptions } from '../types';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
 import ProxyERC20InfoRetriever from './proxy-info-retriever';
 
@@ -22,24 +22,17 @@ const ERC20_TRANSFERABLE_RECEIVABLE_CONTRACT_ADDRESS_MAP = {
  */
 export class ERC20TransferableReceivablePaymentDetector extends FeeReferenceBasedDetector<
   ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
-  PaymentTypes.IERC20PaymentEventParameters,
-  CurrencyTypes.EvmChainName
+  PaymentTypes.IERC20PaymentEventParameters
 > {
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor({
-    advancedLogic,
-    currencyManager,
-    getSubgraphClient,
-    subgraphMinIndexedBlock,
-  }: ReferenceBasedDetectorOptions<CurrencyTypes.EvmChainName>) {
+  public constructor(
+    protected readonly detectorOptions: DetectorOptions<CurrencyTypes.EvmChainName>,
+  ) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE,
-      advancedLogic.extensions.erc20TransferableReceivable,
-      currencyManager,
-      getSubgraphClient,
-      subgraphMinIndexedBlock,
+      detectorOptions.advancedLogic.extensions.erc20TransferableReceivable,
     );
   }
 
@@ -77,12 +70,12 @@ export class ERC20TransferableReceivablePaymentDetector extends FeeReferenceBase
       paymentNetwork.version,
     );
 
-    const subgraphClient = this.getSubgraphClient(paymentChain);
+    const subgraphClient = this.detectorOptions.getSubgraphClient(paymentChain);
     if (subgraphClient) {
       const graphInfoRetriever = new TheGraphInfoRetriever(
         subgraphClient,
-        this.subgraphMinIndexedBlock,
-        this.currencyManager,
+        this.detectorOptions.subgraphMinIndexedBlock,
+        this.detectorOptions.currencyManager,
       );
       return graphInfoRetriever.getReceivableEvents({
         paymentReference,

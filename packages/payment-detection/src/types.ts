@@ -111,17 +111,9 @@ export type PaymentNetworkOptions<
   getRpcProvider: (network: CurrencyTypes.ChainName) => providers.Provider;
 };
 
-export type ReferenceBasedDetectorOptions<
-  TChain extends CurrencyTypes.ChainName = CurrencyTypes.ChainName,
-> = {
-  advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
-  currencyManager: ICurrencyManager;
-  getSubgraphClient: TGetSubGraphClient<TChain>;
-  subgraphMinIndexedBlock: number | undefined;
-};
-
-export type NativeDetectorOptions<
-  TChain extends CurrencyTypes.ChainName = CurrencyTypes.ChainName,
-> = ReferenceBasedDetectorOptions<TChain> & {
-  network: TChain;
-};
+export type DetectorOptions<TChain extends CurrencyTypes.ChainName = CurrencyTypes.ChainName> =
+  PaymentNetworkOptions<TChain> & {
+    network: TChain;
+    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+    currencyManager: ICurrencyManager;
+  };
