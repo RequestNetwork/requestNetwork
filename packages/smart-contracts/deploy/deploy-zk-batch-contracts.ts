@@ -1,7 +1,7 @@
 import { erc20FeeProxyArtifact, ethereumFeeProxyArtifact } from '../src/lib';
 import { deployContract } from './utils-zk';
 import * as hre from 'hardhat';
-import { VMChainName } from 'types/dist/currency-types';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 // An example of a basic deploy script
 // It will deploy a Greeter contract to selected network
@@ -9,8 +9,8 @@ import { VMChainName } from 'types/dist/currency-types';
 export default async function () {
   const [deployer] = await hre.ethers.getSigners();
   const constructorArguments = [
-    erc20FeeProxyArtifact.getAddress(hre.network.name as VMChainName),
-    ethereumFeeProxyArtifact.getAddress(hre.network.name as VMChainName),
+    erc20FeeProxyArtifact.getAddress(hre.network.name as CurrencyTypes.EvmChainName),
+    ethereumFeeProxyArtifact.getAddress(hre.network.name as CurrencyTypes.EvmChainName),
     hre.ethers.constants.AddressZero,
     hre.ethers.constants.AddressZero,
     hre.ethers.constants.AddressZero,
