@@ -26,7 +26,7 @@ export type EvmChainName =
   | 'sokol'
   | 'tombchain'
   | 'xdai'
-  | 'zkSyncEraGoerli'
+  | 'zkSyncEraTestnet'
   | 'zkSyncEra';
 
 /**

@@ -166,7 +166,7 @@ export default {
       chainId: 1116,
       accounts,
     },
-    zkSyncEraGoerli: {
+    zkSyncEraTestnet: {
       url: 'https://testnet.era.zksync.dev',
       ethNetwork: 'goerli',
       zksync: true,

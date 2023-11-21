@@ -15,7 +15,7 @@ const networks: Record<string, ethers.providers.Network> = {
   mantle: { chainId: 5000, name: 'mantle' },
   'mantle-testnet': { chainId: 5001, name: 'mantle-testnet' },
   core: { chainId: 1116, name: 'core' },
-  zkSyncEraGoerli: { chainId: 280, name: 'zkSyncEraGoerli' },
+  zkSyncEraTestnet: { chainId: 280, name: 'zkSyncEraTestnet' },
   zkSyncEra: { chainId: 324, name: 'zkSyncEra' },
 };
 
@@ -68,7 +68,7 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
         return 'https://explorer.testnet.mantle.xyz/api';
       case 'core':
         return 'https://openapi.coredao.org/';
-      case 'zkSyncEraGoerli':
+      case 'zkSyncEraTestnet':
         return 'https://goerli.explorer.zksync.io/';
       case 'zkSyncEra':
         return 'https://explorer.zksync.io/';
