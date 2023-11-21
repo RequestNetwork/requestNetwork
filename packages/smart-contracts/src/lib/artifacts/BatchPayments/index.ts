@@ -61,6 +61,10 @@ export const batchPaymentsArtifact = new ContractArtifact<BatchPayments>(
           address: '0x0DD57FFe83a53bCbd657e234B16A3e74fEDb8fBA',
           creationBlockNumber: 35498688,
         },
+        zkSyncEra: {
+          address: '0x0C41700ee1B363DB2ebC1a985f65cAf6eC4b1023',
+          creationBlockNumber: 19545614,
+        },
       },
     },
   },

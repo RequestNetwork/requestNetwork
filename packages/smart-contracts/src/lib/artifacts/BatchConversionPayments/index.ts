@@ -63,6 +63,11 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
           address: '0x3cF63891928B8CeebB81C95426600a18cd59C03f',
           creationBlockNumber: 19856206,
         },
+        // Caution: no ETHConversion, ERC20Conversion, and chainlinkConversionPath proxies on zkSyncEra
+        zkSyncEra: {
+          address: '0x0C41700ee1B363DB2ebC1a985f65cAf6eC4b1023',
+          creationBlockNumber: 19545614,
+        },
       },
     },
   },

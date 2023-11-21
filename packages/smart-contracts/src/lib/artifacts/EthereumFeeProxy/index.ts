@@ -138,6 +138,10 @@ export const ethereumFeeProxyArtifact = new ContractArtifact<EthereumFeeProxy>(
           address: '0x0de6a1FB56a141086E0192269399af8b8a9e334A',
           creationBlockNumber: 13616655,
         },
+        zkSyncEra: {
+          address: '0xE9A708db0D30409e39810C44cA240fd15cdA9b1a',
+          creationBlockNumber: 19545294,
+        },
       },
     },
   },
