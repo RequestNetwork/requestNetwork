@@ -22,6 +22,7 @@ export type EvmChainName =
   | 'optimism'
   | 'private'
   | 'rinkeby' // FIXME: Rinkeby is deprecated
+  | 'sepolia'
   | 'ronin'
   | 'sokol'
   | 'tombchain'
