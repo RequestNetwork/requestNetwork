@@ -4,9 +4,8 @@ import { Deployer } from '@matterlabs/hardhat-zksync-deploy';
 import { formatEther } from 'ethers/lib/utils';
 import { BigNumberish } from 'ethers';
 
-import '@matterlabs/hardhat-zksync-node/dist/type-extensions';
-import '@matterlabs/hardhat-zksync-verify/dist/src/type-extensions';
 import { config } from 'dotenv';
+import { networkRpcs } from '@requestnetwork/utils/dist/providers';
 
 config();
 
@@ -21,7 +20,7 @@ const accounts = process.env.DEPLOYMENT_PRIVATE_KEY
 const WALLET_PRIVATE_KEY = (accounts || [])[0];
 
 export const getProvider = () => {
-  const rpcUrl = hre.network.config.url;
+  const rpcUrl = networkRpcs[hre.network.name];
   if (!rpcUrl)
     throw `⛔️ RPC URL wasn't found in "${hre.network.name}"! Please add a "url" field to the network config in hardhat.config.ts`;
 

@@ -1,5 +1,5 @@
 import { erc20FeeProxyArtifact, ethereumFeeProxyArtifact } from '../src/lib';
-import { deployContract } from './utils';
+import { deployContract } from './utils-zk';
 import * as hre from 'hardhat';
 import { VMChainName } from 'types/dist/currency-types';
 
