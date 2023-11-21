@@ -158,7 +158,7 @@ describe('api/payment-network/payment-network-factory', () => {
       });
       const pn = paymentNetworkFactory.getPaymentNetworkFromRequest(request);
       expect(pn).toBeInstanceOf(EthInputDataPaymentDetector);
-      expect((pn as any).explorerApiKeys).toMatchObject({
+      expect((pn as any).detectorOptions.explorerApiKeys).toMatchObject({
         mainnet: 'abcd',
       });
     });
