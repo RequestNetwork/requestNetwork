@@ -171,12 +171,14 @@ export default {
       ethNetwork: 'goerli',
       zksync: true,
       verifyURL: 'https://zksync2-testnet-explorer.zksync.dev/contract_verification',
+      accounts,
     },
     zkSyncEra: {
       url: 'https://mainnet.era.zksync.io',
       ethNetwork: 'mainnet',
       zksync: true,
       verifyURL: 'https://zksync2-mainnet-explorer.zksync.io/contract_verification',
+      accounts,
     },
   },
   zksolc: {
@@ -368,10 +370,3 @@ subtask(DEPLOYER_KEY_GUARD, 'prevent usage of the deployer master key').setActio
     throw new Error('The deployer master key should not be used for this action');
   }
 });
-
-// task(
-//   'deploy-deployer-contract-zksync',
-//   'Deploy request deployer contract on the specified zksync network',
-// ).setAction(async (_args, hre) => {
-//   await deployRequestDeployerZksync(hre);
-// });
