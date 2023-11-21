@@ -147,6 +147,12 @@ export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthC
       name: 'Core',
       network: 'core',
     },
+    {
+      symbol: 'ETH-sepolia',
+      decimals: 18,
+      name: 'Sepolia Ether',
+      network: 'sepolia',
+    },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [
     {
