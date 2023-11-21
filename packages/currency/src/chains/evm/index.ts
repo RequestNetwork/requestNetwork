@@ -25,7 +25,7 @@ import * as RoninDefinition from './data/ronin';
 import * as SokolDefinition from './data/sokol';
 import * as TombchainDefinition from './data/tombchain';
 import * as XDaiDefinition from './data/xdai';
-import * as ZkSyncEraGoerliDefinition from './data/zksync-era-testnet';
+import * as ZkSyncEraTestnetDefinition from './data/zksync-era-testnet';
 import * as ZkSyncEraDefinition from './data/zksync-era';
 
 export type EvmChain = Chain & {
@@ -57,6 +57,6 @@ export const chains: Record<CurrencyTypes.EvmChainName, EvmChain> = {
   sokol: SokolDefinition,
   tombchain: TombchainDefinition,
   xdai: XDaiDefinition,
-  zkSyncEraGoerli: ZkSyncEraGoerliDefinition,
+  zkSyncEraTestnet: ZkSyncEraTestnetDefinition,
   zkSyncEra: ZkSyncEraDefinition,
 };
