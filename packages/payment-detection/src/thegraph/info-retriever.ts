@@ -48,7 +48,9 @@ export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = Tr
       throw new Error('TheGraphInfoRetriever only supports no or 1 acceptedToken.');
     }
     const { payments, escrowEvents } = await this.client.GetPaymentsAndEscrowStateForReceivables({
-      blockFilter: this.minIndexedBlock ? { number_gte: this.minIndexedBlock } : undefined,
+      blockFilter: this.client.options?.minIndexedBlock
+        ? { number_gte: this.client.options?.minIndexedBlock }
+        : undefined,
       reference: utils.keccak256(`0x${params.paymentReference}`),
       tokenAddress: params.acceptedTokens ? params.acceptedTokens[0].toLowerCase() : null,
       contractAddress: params.contractAddress.toLowerCase(),
