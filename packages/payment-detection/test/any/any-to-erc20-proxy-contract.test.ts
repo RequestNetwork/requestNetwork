@@ -44,6 +44,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
     anyToErc20Proxy = new AnyToERC20PaymentDetector({
       ...defaultPaymentDetectorOptions,
       advancedLogic: mockAdvancedLogic,
+      getSubgraphClient: () => theGraphClientMock,
     });
   });
 
