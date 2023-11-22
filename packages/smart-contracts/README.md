@@ -215,6 +215,40 @@ yarn hardhat deploy-live-payments --network private --force
 yarn hardhat deploy-live-payments --network private --force --dry-run
 ```
 
+## ZkSyncEra support
+
+### Compilation
+
+To compile the contracts with the zkSync compiler, we use the same compile task but with the zkSync network specified.
+
+```bash
+yarn hardhat compile --network zkSyncEra
+```
+
+The compiled results go in separate directories build-zk and cache-zk.
+In order for the zkSync compiler to be activated, this networks has the `zksync: true` flag in the hardhat.config.ts file.
+
+### Deployment
+
+We have deployment scripts in the /deploy directory for contracts ERC20FeeProxy, EthereumFeeProxy and BatchPayments.
+These are different deploy scripts than regular EVM ones because they use the zkSync deploy package.
+
+We deploy with the following commands:
+
+First deploy the Proxy contracts:
+
+```bash
+yarn hardhat deploy-zksync --script deploy-zk-proxy-contracts --network zkSyncEra
+```
+
+Then deploy the Batch contract:
+
+```bash
+yarn hardhat deploy-zksync --script deploy-zk-batch-contracts --network zkSyncEra
+```
+
+We don't have deploy scripts for our Conversion proxy because there is no Chainlink feed yet on this chain.
+
 ## Administrate the contracts
 
 The contracts to be updated are listed in the array `create2ContractDeploymentList` in [Utils](scripts-create2/utils.ts).
