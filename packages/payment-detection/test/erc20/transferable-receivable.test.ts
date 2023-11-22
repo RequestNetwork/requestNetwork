@@ -14,6 +14,7 @@ import { mockAdvancedLogicBase } from '../utils';
 import ProxyERC20InfoRetriever from '../../src/erc20/proxy-info-retriever';
 import { ethers, utils } from 'ethers';
 import { defaultPaymentDetectorOptions } from '@requestnetwork/integration-test/test/utils';
+import { DetectorOptions } from '../../src';
 
 let erc20TransferableReceivable: ERC20TransferableReceivablePaymentDetector;
 
@@ -44,7 +45,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 describe('api/erc20/transferable-receivable-contract', () => {
   beforeEach(() => {
     erc20TransferableReceivable = new ERC20TransferableReceivablePaymentDetector({
-      ...defaultPaymentDetectorOptions,
+      ...(defaultPaymentDetectorOptions as DetectorOptions<CurrencyTypes.EvmChainName>),
       advancedLogic: mockAdvancedLogic,
     });
   });

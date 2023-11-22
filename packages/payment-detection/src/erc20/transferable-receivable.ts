@@ -24,9 +24,6 @@ export class ERC20TransferableReceivablePaymentDetector extends FeeReferenceBase
   ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
   PaymentTypes.IERC20PaymentEventParameters
 > {
-  /**
-   * @param extension The advanced logic payment network extensions
-   */
   public constructor(
     protected readonly detectorOptions: DetectorOptions<CurrencyTypes.EvmChainName>,
   ) {
