@@ -1,8 +1,10 @@
 import { deployContract } from './utils-zk';
 
-// An example of a basic deploy script
-// It will deploy a Greeter contract to selected network
-// as well as verify it on Block Explorer if possible for the network
+/**
+ * Deploys Proxy contracts to zkSync network.
+ * This script is supposed to be run with the deploy-zksync plugin
+ * check zkSync section in smart-contracts/README file
+ */
 export default async function () {
   const deployList: string[] = ['ERC20FeeProxy', 'EthereumFeeProxy'];
 
