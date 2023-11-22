@@ -4,7 +4,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { DetectorOptions } from '@requestnetwork/payment-detection/src/types';
+import { DetectorOptions } from '@requestnetwork/payment-detection';
 import { mockAdvancedLogic } from './scheduled/mocks';
 import { CurrencyManager } from '@requestnetwork/currency';
 
