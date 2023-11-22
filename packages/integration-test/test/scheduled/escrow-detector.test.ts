@@ -1,17 +1,11 @@
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { createMockErc20FeeRequest } from '../utils';
+import { createMockErc20FeeRequest, defaultPaymentDetectorOptions } from '../utils';
 import { mockAdvancedLogic } from './mocks';
 
-const feeProxyDetector = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
-  network: 'mainnet',
-  advancedLogic: mockAdvancedLogic,
-  currencyManager: CurrencyManager.getDefault(),
-  explorerApiKeys: {},
-  getSubgraphClient: jest.fn(),
-  subgraphMinIndexedBlock: undefined,
-  getRpcProvider: jest.fn(),
-});
+const feeProxyDetector = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector(
+  defaultPaymentDetectorOptions,
+);
 
 describe('ERC20 with Escrow detection test-suite', () => {
   it('can getBalance on a matic request, with TheGraph', async () => {

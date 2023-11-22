@@ -1,4 +1,3 @@
-import { CurrencyManager } from '@requestnetwork/currency';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -7,7 +6,8 @@ import {
 } from '@requestnetwork/types';
 import { getTheGraphClient } from '../../src/thegraph';
 import { EthInputDataPaymentDetector } from '../../src/eth/input-data';
-import { mockAdvancedLogicBase, defaultPaymentDetectorOptions } from '../utils';
+import { mockAdvancedLogicBase } from '../utils';
+import { defaultPaymentDetectorOptions } from '@requestnetwork/integration-test/test/utils';
 
 jest.mock('../../src/thegraph/client');
 const theGraphClientMock = jest.mocked(getTheGraphClient(''));

@@ -10,9 +10,10 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { mockAdvancedLogicBase, defaultPaymentDetectorOptions } from '../utils';
+import { mockAdvancedLogicBase } from '../utils';
 import ProxyERC20InfoRetriever from '../../src/erc20/proxy-info-retriever';
 import { ethers, utils } from 'ethers';
+import { defaultPaymentDetectorOptions } from '@requestnetwork/integration-test/test/utils';
 
 let erc20TransferableReceivable: ERC20TransferableReceivablePaymentDetector;
 

@@ -4,7 +4,7 @@ import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwor
 import { StaticJsonRpcProvider } from '@ethersproject/providers';
 import { AnyToEthFeeProxyPaymentDetector } from '../../src/any';
 import { getTheGraphClient } from '../../src/thegraph';
-import { defaultPaymentDetectorOptions } from '../utils';
+import { defaultPaymentDetectorOptions } from '@requestnetwork/integration-test/test/utils';
 
 const getLogs = jest.spyOn(StaticJsonRpcProvider.prototype, 'getLogs');
 

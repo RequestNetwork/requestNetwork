@@ -1,7 +1,7 @@
-import { CurrencyManager } from '@requestnetwork/currency';
 import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { EthFeeProxyPaymentDetector } from '../../src';
-import { mockAdvancedLogicBase, defaultPaymentDetectorOptions } from '../utils';
+import { mockAdvancedLogicBase } from '../utils';
+import { defaultPaymentDetectorOptions } from '@requestnetwork/integration-test/test/utils';
 
 let ethFeeProxyDetector: EthFeeProxyPaymentDetector;
 

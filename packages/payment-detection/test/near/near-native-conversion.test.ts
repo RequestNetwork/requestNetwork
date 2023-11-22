@@ -14,7 +14,7 @@ import {
 import { deepCopy } from 'ethers/lib/utils';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { TheGraphClient } from '../../src';
-import { defaultPaymentDetectorOptions } from '../utils';
+import { defaultPaymentDetectorOptions } from '@requestnetwork/integration-test/test/utils';
 
 jest.mock('graphql-request');
 const currencyManager = CurrencyManager.getDefault();

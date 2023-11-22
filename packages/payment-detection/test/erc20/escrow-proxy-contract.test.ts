@@ -7,7 +7,8 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { Erc20PaymentNetwork } from '../../src';
-import { mockAdvancedLogicBase, defaultPaymentDetectorOptions } from '../utils';
+import { mockAdvancedLogicBase } from '../utils';
+import { defaultPaymentDetectorOptions } from '@requestnetwork/integration-test/test/utils';
 
 let erc20FeeProxyDetector: Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector;
 

@@ -1,9 +1,6 @@
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-
-import { mockAdvancedLogic } from './mocks';
-import { Types, Utils } from '@requestnetwork/request-client.js';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { Utils } from '@requestnetwork/request-client.js';
 import {
   automine,
   erc20requestCreationHash,
@@ -13,18 +10,13 @@ import {
   privateErc20Address,
   requestNetwork,
 } from './fixtures';
+import { defaultPaymentDetectorOptions } from '../utils';
 
 automine();
 
-const erc20ProxyAddressedBased = new Erc20PaymentNetwork.ERC20ProxyPaymentDetector({
-  network: 'mainnet',
-  advancedLogic: mockAdvancedLogic,
-  currencyManager: CurrencyManager.getDefault(),
-  explorerApiKeys: {},
-  getSubgraphClient: jest.fn(),
-  subgraphMinIndexedBlock: undefined,
-  getRpcProvider: jest.fn(),
-});
+const erc20ProxyAddressedBased = new Erc20PaymentNetwork.ERC20ProxyPaymentDetector(
+  defaultPaymentDetectorOptions,
+);
 
 describe('ERC20 Proxy detection test-suite', () => {
   it('can getBalance for a payment declared by the payee', async () => {

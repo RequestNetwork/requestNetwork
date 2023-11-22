@@ -9,6 +9,7 @@ import {
 import { CurrencyManager } from '@requestnetwork/currency';
 
 import { mockAdvancedLogic } from './mocks';
+import { defaultPaymentDetectorOptions } from '../utils';
 
 const createMockRequest = ({
   network,
@@ -46,15 +47,7 @@ const createMockRequest = ({
   version: '0.2',
 });
 
-const detector = new SuperFluidPaymentDetector({
-  network: 'mainnet',
-  advancedLogic: mockAdvancedLogic,
-  currencyManager: CurrencyManager.getDefault(),
-  explorerApiKeys: {},
-  getSubgraphClient: jest.fn(),
-  subgraphMinIndexedBlock: undefined,
-  getRpcProvider: jest.fn(),
-});
+const detector = new SuperFluidPaymentDetector(defaultPaymentDetectorOptions);
 
 describe('ERC777 SuperFluid detection test-suite', () => {
   it('can getBalance on a rinkeby request', async () => {

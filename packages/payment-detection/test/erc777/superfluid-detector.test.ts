@@ -5,10 +5,10 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { CurrencyManager } from '@requestnetwork/currency';
 import { SuperFluidPaymentDetector } from '../../src/erc777/superfluid-detector';
 import { genTransferEventsByMonth } from './mocks';
-import { mockAdvancedLogicBase, defaultPaymentDetectorOptions } from '../utils';
+import { mockAdvancedLogicBase } from '../utils';
+import { defaultPaymentDetectorOptions } from '@requestnetwork/integration-test/test/utils';
 
 let superfluidPaymentDetector: SuperFluidPaymentDetector;
 

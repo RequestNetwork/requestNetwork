@@ -10,7 +10,7 @@ import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { NearInfoRetriever, NearNativeTokenPaymentDetector } from '../../src/near';
 import { deepCopy } from 'ethers/lib/utils';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
-import { defaultPaymentDetectorOptions } from '../utils';
+import { defaultPaymentDetectorOptions } from '@requestnetwork/integration-test/test/utils';
 
 const currencyManager = CurrencyManager.getDefault();
 const advancedLogic = new AdvancedLogic(currencyManager);

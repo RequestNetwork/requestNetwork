@@ -7,7 +7,8 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { ERC20FeeProxyPaymentDetector } from '../../src/erc20/fee-proxy-contract';
-import { mockAdvancedLogicBase, defaultPaymentDetectorOptions } from '../utils';
+import { mockAdvancedLogicBase } from '../utils';
+import { defaultPaymentDetectorOptions } from '@requestnetwork/integration-test/test/utils';
 
 let erc20FeeProxyContract:
   | ERC20FeeProxyPaymentDetector

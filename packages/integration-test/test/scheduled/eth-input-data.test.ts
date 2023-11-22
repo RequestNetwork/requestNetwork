@@ -15,17 +15,9 @@ import {
   privateErc20Address,
   requestNetwork,
 } from './fixtures';
-import { createMockNativeTokenRequest } from '../utils';
+import { createMockNativeTokenRequest, defaultPaymentDetectorOptions } from '../utils';
 
-const ethInputContract = new EthInputDataPaymentDetector({
-  network: 'mainnet',
-  advancedLogic: mockAdvancedLogic,
-  currencyManager: CurrencyManager.getDefault(),
-  explorerApiKeys: {},
-  getSubgraphClient: jest.fn(),
-  subgraphMinIndexedBlock: undefined,
-  getRpcProvider: jest.fn(),
-});
+const ethInputContract = new EthInputDataPaymentDetector(defaultPaymentDetectorOptions);
 
 describe('ETH Fee proxy detection test-suite', () => {
   it('can getBalance for a payment declared by the payee', async () => {

@@ -4,10 +4,10 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20ProxyPaymentDetector } from '../../src/erc20';
 import { getTheGraphClient } from '../../src';
-import { mockAdvancedLogicBase, defaultPaymentDetectorOptions } from '../utils';
+import { mockAdvancedLogicBase } from '../utils';
+import { defaultPaymentDetectorOptions } from '@requestnetwork/integration-test/test/utils';
 
 let erc20ProxyContract: ERC20ProxyPaymentDetector;
 

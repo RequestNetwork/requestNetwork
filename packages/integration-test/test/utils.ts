@@ -4,6 +4,9 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import { DetectorOptions } from '@requestnetwork/payment-detection/src/types';
+import { mockAdvancedLogic } from './scheduled/mocks';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 export const createMockErc20FeeRequest = ({
   network,
@@ -169,3 +172,13 @@ export const createMockConversionEthTokenRequest = ({
   timestamp: 0,
   version: '0.2.0',
 });
+
+export const defaultPaymentDetectorOptions: DetectorOptions<any> = {
+  network: 'mainnet',
+  advancedLogic: mockAdvancedLogic,
+  currencyManager: CurrencyManager.getDefault(),
+  explorerApiKeys: {},
+  getSubgraphClient: jest.fn(),
+  subgraphMinIndexedBlock: undefined,
+  getRpcProvider: jest.fn(),
+};
