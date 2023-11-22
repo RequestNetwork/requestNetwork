@@ -6,9 +6,6 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { CurrencyManager } from '@requestnetwork/currency';
-
-import { mockAdvancedLogic } from './mocks';
 import { defaultPaymentDetectorOptions } from '../utils';
 
 const createMockRequest = ({
