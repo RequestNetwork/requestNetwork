@@ -71,7 +71,6 @@ export class ERC20TransferableReceivablePaymentDetector extends FeeReferenceBase
     if (subgraphClient) {
       const graphInfoRetriever = new TheGraphInfoRetriever(
         subgraphClient,
-        this.detectorOptions.subgraphMinIndexedBlock,
         this.detectorOptions.currencyManager,
       );
       return graphInfoRetriever.getReceivableEvents({

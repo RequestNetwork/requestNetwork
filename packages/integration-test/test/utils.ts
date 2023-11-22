@@ -179,6 +179,5 @@ export const defaultPaymentDetectorOptions: DetectorOptions<any> = {
   currencyManager: CurrencyManager.getDefault(),
   explorerApiKeys: {},
   getSubgraphClient: jest.fn(),
-  subgraphMinIndexedBlock: undefined,
   getRpcProvider: jest.fn(),
 };

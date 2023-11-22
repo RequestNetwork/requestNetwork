@@ -88,7 +88,6 @@ export class EthInputDataPaymentDetector<
       if (subgraphClient) {
         const graphInfoRetriever = new TheGraphInfoRetriever(
           subgraphClient,
-          this.detectorOptions.subgraphMinIndexedBlock,
           this.detectorOptions.currencyManager,
         );
         allEvents = await graphInfoRetriever.getTransferEvents({

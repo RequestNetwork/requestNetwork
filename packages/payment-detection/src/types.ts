@@ -105,8 +105,6 @@ export type PaymentNetworkOptions<
   explorerApiKeys: Partial<Record<CurrencyTypes.ChainName, string>>;
   /** override the default Subgraph for payment detection (EVM, Near) */
   getSubgraphClient: TGetSubGraphClient<TChain>;
-  /** constraint to select indexers that have at least parsed this block */
-  subgraphMinIndexedBlock?: number | undefined;
   /** override the default RPC provider (EVM) */
   getRpcProvider: (network: CurrencyTypes.ChainName) => providers.Provider;
 };

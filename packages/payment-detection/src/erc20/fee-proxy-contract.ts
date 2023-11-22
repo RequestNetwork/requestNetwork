@@ -121,7 +121,6 @@ export class ERC20FeeProxyPaymentDetector<
       const graphInfoRetriever = this.getTheGraphInfoRetriever(
         paymentChain,
         subgraphClient as TheGraphClient<TChain>,
-        this.detectorOptions.subgraphMinIndexedBlock,
       );
       return graphInfoRetriever.getTransferEvents({
         eventName,
@@ -156,12 +155,10 @@ export class ERC20FeeProxyPaymentDetector<
   protected getTheGraphInfoRetriever(
     paymentChain: TChain,
     subgraphClient: TheGraphClient<TChain>,
-    subgraphMinIndexedBlock: number | undefined,
   ): TheGraphInfoRetriever | NearInfoRetriever {
     const graphInfoRetriever = EvmChains.isChainSupported(paymentChain)
       ? new TheGraphInfoRetriever(
           subgraphClient as TheGraphClient,
-          subgraphMinIndexedBlock,
           this.detectorOptions.currencyManager,
         )
       : NearChains.isChainSupported(paymentChain) && this.detectorOptions.network

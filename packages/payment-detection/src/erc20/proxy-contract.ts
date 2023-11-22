@@ -62,7 +62,6 @@ export class ERC20ProxyPaymentDetector<
     if (subgraphClient) {
       const graphInfoRetriever = new TheGraphInfoRetriever(
         subgraphClient,
-        this.detectorOptions.subgraphMinIndexedBlock,
         this.detectorOptions.currencyManager,
       );
 

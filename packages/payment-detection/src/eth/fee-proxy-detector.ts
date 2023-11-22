@@ -75,7 +75,6 @@ export class EthFeeProxyPaymentDetector<
     if (subgraphClient) {
       const graphInfoRetriever = new TheGraphInfoRetriever(
         subgraphClient,
-        this.detectorOptions.subgraphMinIndexedBlock,
         this.detectorOptions.currencyManager,
       );
 

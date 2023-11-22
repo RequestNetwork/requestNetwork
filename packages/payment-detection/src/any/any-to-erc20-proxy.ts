@@ -99,7 +99,6 @@ export class AnyToERC20PaymentDetector<
     if (subgraphClient) {
       const infoRetriever = new TheGraphConversionInfoRetriever(
         subgraphClient,
-        this.detectorOptions.subgraphMinIndexedBlock,
         this.detectorOptions.currencyManager,
       );
       return await infoRetriever.getTransferEvents({
