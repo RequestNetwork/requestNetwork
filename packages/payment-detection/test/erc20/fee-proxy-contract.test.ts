@@ -1,16 +1,17 @@
 import {
   AdvancedLogicTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   PaymentTypes,
   RequestLogicTypes,
-  CurrencyTypes,
 } from '@requestnetwork/types';
-import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20FeeProxyPaymentDetector } from '../../src/erc20/fee-proxy-contract';
-import { mockAdvancedLogicBase } from '../utils';
+import { mockAdvancedLogicBase, defaultPaymentDetectorOptions } from '../utils';
 
-let erc20FeeProxyContract: ERC20FeeProxyPaymentDetector<CurrencyTypes.VMChainName>;
+let erc20FeeProxyContract:
+  | ERC20FeeProxyPaymentDetector
+  | ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>;
 
 const createAddPaymentAddressAction = jest.fn();
 const createAddRefundAddressAction = jest.fn();
@@ -37,15 +38,12 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   getFeeProxyContractErc20ForNetwork: (_network) => feeProxyContractErc20,
 };
 
-const currencyManager = CurrencyManager.getDefault();
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/fee-proxy-contract', () => {
   beforeEach(() => {
     erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector({
+      ...defaultPaymentDetectorOptions,
       advancedLogic: mockAdvancedLogic,
-      currencyManager,
-      getSubgraphClient: jest.fn(),
-      subgraphMinIndexedBlock: undefined,
     });
   });
 
@@ -265,10 +263,8 @@ describe('api/erc20/fee-proxy-contract', () => {
       });
     };
     erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector({
+      ...defaultPaymentDetectorOptions,
       advancedLogic: mockAdvancedLogic,
-      currencyManager,
-      getSubgraphClient: jest.fn(),
-      subgraphMinIndexedBlock: undefined,
     });
 
     jest
@@ -331,10 +327,8 @@ describe('api/erc20/fee-proxy-contract', () => {
     };
 
     erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector({
+      ...defaultPaymentDetectorOptions,
       advancedLogic: mockAdvancedLogic,
-      currencyManager,
-      getSubgraphClient: jest.fn(),
-      subgraphMinIndexedBlock: undefined,
     });
 
     const mockExtractEvents = (eventName: any) => {
@@ -413,8 +407,8 @@ describe('api/erc20/fee-proxy-contract', () => {
       version: '0.2',
     };
     erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector({
+      ...defaultPaymentDetectorOptions,
       advancedLogic: mockAdvancedLogic,
-      currencyManager,
       getSubgraphClient: () => ({
         GetPaymentsAndEscrowState: jest.fn().mockImplementation(({ reference }) => ({
           payments: [
@@ -445,7 +439,6 @@ describe('api/erc20/fee-proxy-contract', () => {
         GetLastSyncedBlock: jest.fn(),
         GetSyncedBlock: jest.fn(),
       }),
-      subgraphMinIndexedBlock: undefined,
     });
 
     const { balance, error, events } = await erc20FeeProxyContract.getBalance(mockRequest);
@@ -478,8 +471,8 @@ describe('api/erc20/fee-proxy-contract', () => {
     beforeEach(() => {
       // Same Detector, but instantiated with a Near network and a mocked Near graph client
       erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>({
+        ...defaultPaymentDetectorOptions,
         advancedLogic: mockAdvancedLogic,
-        currencyManager,
         network: 'aurora-testnet',
         getSubgraphClient: (_network) => ({
           GetFungibleTokenPayments: jest.fn().mockImplementation(() => ({
@@ -509,7 +502,6 @@ describe('api/erc20/fee-proxy-contract', () => {
           GetLastSyncedBlock: jest.fn(),
           GetSyncedBlock: jest.fn(),
         }),
-        subgraphMinIndexedBlock: undefined,
       });
     });
     it('can createExtensionsDataForCreation', async () => {

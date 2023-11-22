@@ -14,6 +14,7 @@ import {
 import { deepCopy } from 'ethers/lib/utils';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { TheGraphClient } from '../../src';
+import { defaultPaymentDetectorOptions } from '../utils';
 
 jest.mock('graphql-request');
 const currencyManager = CurrencyManager.getDefault();
@@ -136,11 +137,10 @@ describe('Near payments detection', () => {
 
   it('NearConversionNativeTokenPaymentDetector can detect a payment on Near', async () => {
     const paymentDetector = new NearConversionNativeTokenPaymentDetector({
+      ...defaultPaymentDetectorOptions,
       network: 'aurora',
       advancedLogic: advancedLogic,
-      currencyManager,
       getSubgraphClient: mockedGetSubgraphClient,
-      subgraphMinIndexedBlock: undefined,
     });
     const balance = await paymentDetector.getBalance(request);
 
@@ -164,11 +164,10 @@ describe('Near payments detection', () => {
         },
       };
       const paymentDetector = new NearConversionNativeTokenPaymentDetector({
+        ...defaultPaymentDetectorOptions,
         network: 'aurora',
         advancedLogic: advancedLogic,
-        currencyManager,
         getSubgraphClient: mockedGetSubgraphClient,
-        subgraphMinIndexedBlock: undefined,
       });
       expect(mockedGetSubgraphClient).not.toHaveBeenCalled();
       expect(await paymentDetector.getBalance(requestWithWrongVersion)).toMatchObject({
@@ -197,11 +196,10 @@ describe('Near payments detection', () => {
         },
       };
       const paymentDetector = new NearConversionNativeTokenPaymentDetector({
+        ...defaultPaymentDetectorOptions,
         network: 'aurora',
         advancedLogic: advancedLogic,
-        currencyManager,
         getSubgraphClient: mockedGetSubgraphClient,
-        subgraphMinIndexedBlock: undefined,
       });
       expect(mockedGetSubgraphClient).not.toHaveBeenCalled();
       expect(await paymentDetector.getBalance(requestWithWrongNetwork)).toMatchObject({

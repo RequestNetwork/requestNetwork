@@ -7,7 +7,7 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { Erc20PaymentNetwork } from '../../src';
-import { mockAdvancedLogicBase } from '../utils';
+import { mockAdvancedLogicBase, defaultPaymentDetectorOptions } from '../utils';
 
 let erc20FeeProxyDetector: Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector;
 
@@ -33,16 +33,12 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
-const currencyManager = CurrencyManager.getDefault();
-
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/escrow-proxy-contract', () => {
   beforeEach(() => {
     erc20FeeProxyDetector = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
+      ...defaultPaymentDetectorOptions,
       advancedLogic: mockAdvancedLogic,
-      currencyManager,
-      getSubgraphClient: jest.fn(),
-      subgraphMinIndexedBlock: undefined,
     });
   });
 
@@ -262,10 +258,8 @@ describe('api/erc20/escrow-proxy-contract', () => {
       });
     };
     erc20FeeProxyDetector = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
+      ...defaultPaymentDetectorOptions,
       advancedLogic: mockAdvancedLogic,
-      currencyManager,
-      getSubgraphClient: jest.fn(),
-      subgraphMinIndexedBlock: undefined,
     });
 
     jest

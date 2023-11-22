@@ -7,7 +7,7 @@ import {
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20ProxyPaymentDetector } from '../../src/erc20';
 import { getTheGraphClient } from '../../src';
-import { mockAdvancedLogicBase } from '../utils';
+import { mockAdvancedLogicBase, defaultPaymentDetectorOptions } from '../utils';
 
 let erc20ProxyContract: ERC20ProxyPaymentDetector;
 
@@ -37,10 +37,9 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 describe('api/erc20/proxy-contract', () => {
   beforeEach(() => {
     erc20ProxyContract = new ERC20ProxyPaymentDetector({
+      ...defaultPaymentDetectorOptions,
       advancedLogic: mockAdvancedLogic,
-      currencyManager: CurrencyManager.getDefault(),
       getSubgraphClient: () => theGraphClientMock,
-      subgraphMinIndexedBlock: undefined,
     });
   });
 

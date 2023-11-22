@@ -7,7 +7,7 @@ import {
 } from '@requestnetwork/types';
 import { getTheGraphClient } from '../../src/thegraph';
 import { EthInputDataPaymentDetector } from '../../src/eth/input-data';
-import { mockAdvancedLogicBase } from '../utils';
+import { mockAdvancedLogicBase, defaultPaymentDetectorOptions } from '../utils';
 
 jest.mock('../../src/thegraph/client');
 const theGraphClientMock = jest.mocked(getTheGraphClient(''));
@@ -39,11 +39,9 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 describe('api/eth/input-data', () => {
   beforeEach(() => {
     ethInputData = new EthInputDataPaymentDetector({
+      ...defaultPaymentDetectorOptions,
       advancedLogic: mockAdvancedLogic,
-      currencyManager: CurrencyManager.getDefault(),
-      explorerApiKeys: {},
       getSubgraphClient: () => theGraphClientMock,
-      subgraphMinIndexedBlock: undefined,
     });
   });
 

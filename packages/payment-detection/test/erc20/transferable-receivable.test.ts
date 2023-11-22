@@ -10,7 +10,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { mockAdvancedLogicBase } from '../utils';
+import { mockAdvancedLogicBase, defaultPaymentDetectorOptions } from '../utils';
 import ProxyERC20InfoRetriever from '../../src/erc20/proxy-info-retriever';
 import { ethers, utils } from 'ethers';
 
@@ -39,16 +39,12 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
-const currencyManager = CurrencyManager.getDefault();
-
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/transferable-receivable-contract', () => {
   beforeEach(() => {
     erc20TransferableReceivable = new ERC20TransferableReceivablePaymentDetector({
+      ...defaultPaymentDetectorOptions,
       advancedLogic: mockAdvancedLogic,
-      currencyManager,
-      getSubgraphClient: jest.fn(),
-      subgraphMinIndexedBlock: undefined,
     });
   });
 
@@ -182,8 +178,8 @@ describe('api/erc20/transferable-receivable-contract', () => {
       version: '0.2',
     };
     erc20TransferableReceivable = new ERC20TransferableReceivablePaymentDetector({
+      ...defaultPaymentDetectorOptions,
       advancedLogic: mockAdvancedLogic,
-      currencyManager,
       getSubgraphClient: () => ({
         GetPaymentsAndEscrowState: jest.fn(),
         GetPaymentsAndEscrowStateForReceivables: jest.fn().mockImplementation(({ reference }) => ({
@@ -233,7 +229,6 @@ describe('api/erc20/transferable-receivable-contract', () => {
         GetLastSyncedBlock: jest.fn(),
         GetSyncedBlock: jest.fn(),
       }),
-      subgraphMinIndexedBlock: undefined,
     });
 
     const { balance, error, events } = await erc20TransferableReceivable.getBalance(mockRequest);
@@ -448,12 +443,11 @@ describe('api/erc20/transferable-receivable-contract', () => {
     };
 
     erc20TransferableReceivable = new ERC20TransferableReceivablePaymentDetector({
+      ...defaultPaymentDetectorOptions,
       advancedLogic: mockAdvancedLogic,
-      currencyManager,
       getSubgraphClient: jest.fn().mockImplementation(({}) => {
         return clientMock;
       }),
-      subgraphMinIndexedBlock: undefined,
     });
 
     const graphRetriever = new TheGraphInfoRetriever(

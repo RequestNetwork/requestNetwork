@@ -4,6 +4,7 @@ import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwor
 import { StaticJsonRpcProvider } from '@ethersproject/providers';
 import { AnyToEthFeeProxyPaymentDetector } from '../../src/any';
 import { getTheGraphClient } from '../../src/thegraph';
+import { defaultPaymentDetectorOptions } from '../utils';
 
 const getLogs = jest.spyOn(StaticJsonRpcProvider.prototype, 'getLogs');
 
@@ -105,10 +106,8 @@ describe('Any to ETH payment detection', () => {
 
     const currencyManager = CurrencyManager.getDefault();
     const detector = new AnyToEthFeeProxyPaymentDetector({
+      ...defaultPaymentDetectorOptions,
       advancedLogic: new AdvancedLogic(currencyManager),
-      currencyManager,
-      getSubgraphClient: jest.fn(),
-      subgraphMinIndexedBlock: undefined,
     });
     const balance = await detector.getBalance(mockRequest);
     expect(balance.error).not.toBeDefined();
@@ -142,10 +141,9 @@ describe('Any to ETH payment detection', () => {
 
     const currencyManager = CurrencyManager.getDefault();
     const detector = new AnyToEthFeeProxyPaymentDetector({
+      ...defaultPaymentDetectorOptions,
       advancedLogic: new AdvancedLogic(currencyManager),
-      currencyManager,
       getSubgraphClient: () => theGraphClientMock,
-      subgraphMinIndexedBlock: undefined,
     });
     const balance = await detector.getBalance(mockRequest);
     expect(balance.error).not.toBeDefined();

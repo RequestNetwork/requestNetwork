@@ -10,6 +10,7 @@ import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { NearInfoRetriever, NearNativeTokenPaymentDetector } from '../../src/near';
 import { deepCopy } from 'ethers/lib/utils';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
+import { defaultPaymentDetectorOptions } from '../utils';
 
 const currencyManager = CurrencyManager.getDefault();
 const advancedLogic = new AdvancedLogic(currencyManager);
@@ -101,11 +102,10 @@ describe('Near payments detection', () => {
 
   it('NearNativeTokenPaymentDetector can detect a payment on Near', async () => {
     const paymentDetector = new NearNativeTokenPaymentDetector({
+      ...defaultPaymentDetectorOptions,
       network: 'aurora',
       advancedLogic: advancedLogic,
-      currencyManager: CurrencyManager.getDefault(),
       getSubgraphClient: mockedGetSubgraphClient,
-      subgraphMinIndexedBlock: undefined,
     });
     const balance = await paymentDetector.getBalance(request);
 
@@ -116,11 +116,10 @@ describe('Near payments detection', () => {
 
   it('NearNativeTokenPaymentDetector can detect a payment on Near with an additional declarative payment', async () => {
     const paymentDetector = new NearNativeTokenPaymentDetector({
+      ...defaultPaymentDetectorOptions,
       network: 'aurora',
       advancedLogic: advancedLogic,
-      currencyManager: CurrencyManager.getDefault(),
       getSubgraphClient: mockedGetSubgraphClient,
-      subgraphMinIndexedBlock: undefined,
     });
     const declarativeRequest = {
       ...request,
@@ -168,11 +167,10 @@ describe('Near payments detection', () => {
         },
       };
       const paymentDetector = new NearNativeTokenPaymentDetector({
+        ...defaultPaymentDetectorOptions,
         network: 'aurora',
         advancedLogic: advancedLogic,
-        currencyManager: CurrencyManager.getDefault(),
         getSubgraphClient: mockedGetSubgraphClient,
-        subgraphMinIndexedBlock: undefined,
       });
       expect(mockedGetSubgraphClient).not.toHaveBeenCalled();
       expect(await paymentDetector.getBalance(requestWithWrongVersion)).toMatchObject({
@@ -189,11 +187,10 @@ describe('Near payments detection', () => {
         currency: { ...requestWithWrongNetwork.currency, network: 'unknown-network' },
       };
       const paymentDetector = new NearNativeTokenPaymentDetector({
+        ...defaultPaymentDetectorOptions,
         network: 'aurora',
         advancedLogic: advancedLogic,
-        currencyManager: CurrencyManager.getDefault(),
         getSubgraphClient: mockedGetSubgraphClient,
-        subgraphMinIndexedBlock: undefined,
       });
       expect(mockedGetSubgraphClient).not.toHaveBeenCalled();
       expect(await paymentDetector.getBalance(requestWithWrongNetwork)).toMatchObject({

@@ -8,7 +8,7 @@ import {
 import { CurrencyManager } from '@requestnetwork/currency';
 import { SuperFluidPaymentDetector } from '../../src/erc777/superfluid-detector';
 import { genTransferEventsByMonth } from './mocks';
-import { mockAdvancedLogicBase } from '../utils';
+import { mockAdvancedLogicBase, defaultPaymentDetectorOptions } from '../utils';
 
 let superfluidPaymentDetector: SuperFluidPaymentDetector;
 
@@ -132,10 +132,8 @@ const mockTransferEventsForMonth = (monthNumber: number) => {
 describe('superfluid balance computation', () => {
   beforeEach(() => {
     superfluidPaymentDetector = new SuperFluidPaymentDetector({
+      ...defaultPaymentDetectorOptions,
       advancedLogic: mockAdvancedLogic,
-      currencyManager: CurrencyManager.getDefault(),
-      getSubgraphClient: jest.fn(),
-      subgraphMinIndexedBlock: undefined,
     });
   });
   afterEach(() => {

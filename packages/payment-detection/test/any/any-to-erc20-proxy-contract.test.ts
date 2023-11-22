@@ -7,16 +7,14 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { AnyToERC20PaymentDetector, getTheGraphClient } from '../../src';
-import { mockAdvancedLogicBase } from '../utils';
+import { mockAdvancedLogicBase, defaultPaymentDetectorOptions } from '../utils';
 
 jest.mock('../../src/thegraph/client');
 const theGraphClientMock = jest.mocked(getTheGraphClient(''));
 
 let anyToErc20Proxy: AnyToERC20PaymentDetector;
-const currencyManager = CurrencyManager.getDefault();
 
 const createAddPaymentAddressAction = jest.fn();
 const createAddRefundAddressAction = jest.fn();
@@ -44,10 +42,8 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 describe('api/any/conversion-fee-proxy-contract', () => {
   beforeEach(() => {
     anyToErc20Proxy = new AnyToERC20PaymentDetector({
+      ...defaultPaymentDetectorOptions,
       advancedLogic: mockAdvancedLogic,
-      currencyManager,
-      getSubgraphClient: () => theGraphClientMock,
-      subgraphMinIndexedBlock: undefined,
     });
   });
 
