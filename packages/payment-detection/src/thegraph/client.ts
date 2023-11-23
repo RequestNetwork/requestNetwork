@@ -4,6 +4,7 @@ import { NearChains } from '@requestnetwork/currency';
 import { GraphQLClient } from 'graphql-request';
 import { getSdk } from './generated/graphql';
 import { getSdk as getNearSdk } from './generated/graphql-near';
+import { pick } from 'lodash';
 
 const HOSTED_THE_GRAPH_URL =
   'https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-';
@@ -24,32 +25,48 @@ const THE_GRAPH_URL_MANTLE =
  */
 export type TheGraphClient<TChain extends CurrencyTypes.VMChainName = CurrencyTypes.EvmChainName> =
   (TChain extends CurrencyTypes.NearChainName
-    ? ReturnType<typeof getTheGraphNearClient>
-    : ReturnType<typeof getTheGraphClient>) & {
-    options?: {
-      /** constraint to select indexers that have at least parsed this block */
-      subgraphMinIndexedBlock?: number | undefined;
-    };
+    ? ReturnType<typeof getNearSdk>
+    : ReturnType<typeof getSdk>) & {
+    options?: TheGraphClientOptions;
   };
 
 export type TheGraphClientOptions = {
   timeout?: number;
+  /** constraint to select indexers that have at least parsed this block */
+  minIndexedBlock?: number | undefined;
 };
 
-export const getTheGraphClient = (url: string, options?: TheGraphClientOptions) =>
-  getSdk(new GraphQLClient(url, options));
+const extractClientOptions = (options?: TheGraphClientOptions) => {
+  return pick(options, 'timeout');
+};
 
-export const getTheGraphNearClient = (url: string, options?: TheGraphClientOptions) =>
-  getNearSdk(new GraphQLClient(url, options));
+export const getTheGraphEvmClient = (url: string, options?: TheGraphClientOptions) => {
+  const sdk: TheGraphClient<CurrencyTypes.EvmChainName> = getSdk(
+    new GraphQLClient(url, extractClientOptions(options)),
+  );
+  sdk.options = options;
+  return sdk;
+};
 
-export const defaultGetTheGraphClient = (network: CurrencyTypes.ChainName) => {
+export const getTheGraphNearClient = (url: string, options?: TheGraphClientOptions) => {
+  const sdk: TheGraphClient<CurrencyTypes.NearChainName> = getNearSdk(
+    new GraphQLClient(url, extractClientOptions(options)),
+  );
+  sdk.options = options;
+  return sdk;
+};
+
+export const defaultGetTheGraphClient = (
+  network: CurrencyTypes.ChainName,
+  options?: TheGraphClientOptions,
+) => {
   return network === 'private'
     ? undefined
     : NearChains.isChainSupported(network)
-    ? getTheGraphNearClient(`${HOSTED_THE_GRAPH_URL}${network.replace('aurora', 'near')}`)
+    ? getTheGraphNearClient(`${HOSTED_THE_GRAPH_URL}${network.replace('aurora', 'near')}`, options)
     : network === 'mantle'
-    ? getTheGraphClient(THE_GRAPH_URL_MANTLE)
+    ? getTheGraphEvmClient(THE_GRAPH_URL_MANTLE, options)
     : network === 'mantle-testnet'
-    ? getTheGraphClient(THE_GRAPH_URL_MANTLE_TESTNET)
-    : getTheGraphClient(`${HOSTED_THE_GRAPH_URL}${network}`);
+    ? getTheGraphEvmClient(THE_GRAPH_URL_MANTLE_TESTNET, options)
+    : getTheGraphEvmClient(`${HOSTED_THE_GRAPH_URL}${network}`, options);
 };
