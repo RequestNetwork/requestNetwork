@@ -23,9 +23,14 @@ const THE_GRAPH_URL_MANTLE =
  * @type TGraphClientVariant: null if no variant, 'near' if native token payments detection on Near
  */
 export type TheGraphClient<TChain extends CurrencyTypes.VMChainName = CurrencyTypes.EvmChainName> =
-  TChain extends CurrencyTypes.NearChainName
+  (TChain extends CurrencyTypes.NearChainName
     ? ReturnType<typeof getTheGraphNearClient>
-    : ReturnType<typeof getTheGraphClient>;
+    : ReturnType<typeof getTheGraphClient>) & {
+    options?: {
+      /** constraint to select indexers that have at least parsed this block */
+      subgraphMinIndexedBlock?: number | undefined;
+    };
+  };
 
 export type TheGraphClientOptions = {
   timeout?: number;
