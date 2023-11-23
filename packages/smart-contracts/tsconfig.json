@@ -9,6 +9,7 @@
     "test/",
     "scripts/",
     "scripts-create2/",
+    "deploy/",
     "hardhat.config.ts"
   ]
 }
