@@ -3,7 +3,7 @@ import { CurrencyManager } from '@requestnetwork/currency';
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { StaticJsonRpcProvider } from '@ethersproject/providers';
 import { AnyToEthFeeProxyPaymentDetector } from '../../src/any';
-import { getTheGraphEvmClient, TheGraphClient } from '../../src/thegraph';
+import { TheGraphClient } from '../../src/thegraph';
 
 const getLogs = jest.spyOn(StaticJsonRpcProvider.prototype, 'getLogs');
 
