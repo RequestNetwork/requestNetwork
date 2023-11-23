@@ -151,13 +151,13 @@ export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthC
       symbol: 'ETH-zksync',
       decimals: 18,
       name: 'Ether',
-      network: 'zkSyncEra',
+      network: 'zksyncera',
     },
     {
       symbol: 'ETH-zksync-testnet',
       decimals: 18,
       name: 'Ether',
-      network: 'zkSyncEraTestnet',
+      network: 'zksynceratestnet',
     },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [

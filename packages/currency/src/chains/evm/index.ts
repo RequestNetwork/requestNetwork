@@ -57,6 +57,6 @@ export const chains: Record<CurrencyTypes.EvmChainName, EvmChain> = {
   sokol: SokolDefinition,
   tombchain: TombchainDefinition,
   xdai: XDaiDefinition,
-  zkSyncEraTestnet: ZkSyncEraTestnetDefinition,
-  zkSyncEra: ZkSyncEraDefinition,
+  zksynceratestnet: ZkSyncEraTestnetDefinition,
+  zksyncera: ZkSyncEraDefinition,
 };
