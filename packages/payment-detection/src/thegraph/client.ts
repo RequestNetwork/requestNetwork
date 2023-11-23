@@ -18,6 +18,7 @@ const THE_GRAPH_URL_MANTLE =
 // NB: the GraphQL client is automatically generated based on files present in ./queries,
 // using graphql-codegen.
 // To generate types, run `yarn codegen`, then open the generated files so that the code editor picks up the changes.
+
 /**
  * A GraphQL client to query Request's subgraph.
  *
@@ -39,6 +40,11 @@ export type TheGraphClientOptions = {
 const extractClientOptions = (options?: TheGraphClientOptions) => {
   return pick(options, 'timeout');
 };
+
+export const getTheGraphClient = (network: string, url: string, options?: TheGraphClientOptions) =>
+  NearChains.isChainSupported(network)
+    ? getTheGraphNearClient(url, options)
+    : getTheGraphEvmClient(url, options);
 
 export const getTheGraphEvmClient = (url: string, options?: TheGraphClientOptions) => {
   const sdk: TheGraphClient<CurrencyTypes.EvmChainName> = getSdk(

@@ -9,11 +9,13 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
-import { AnyToERC20PaymentDetector, getTheGraphEvmClient } from '../../src';
+import { AnyToERC20PaymentDetector, TheGraphClient } from '../../src';
 import { mockAdvancedLogicBase } from '../utils';
 
 jest.mock('../../src/thegraph/client');
-const theGraphClientMock = jest.mocked(getTheGraphEvmClient(''));
+const theGraphClientMock = {
+  GetAnyToFungiblePayments: jest.fn(),
+} as jest.MockedObjectDeep<TheGraphClient>;
 
 let anyToErc20Proxy: AnyToERC20PaymentDetector;
 const currencyManager = CurrencyManager.getDefault();
