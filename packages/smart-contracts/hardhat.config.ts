@@ -166,15 +166,15 @@ export default {
       chainId: 1116,
       accounts,
     },
-    zkSyncEraTestnet: {
-      url: url('zkSyncEraTestnet'),
+    zksynceratestnet: {
+      url: url('zksynceratestnet'),
       ethNetwork: 'goerli',
       zksync: true,
       verifyURL: 'https://zksync2-testnet-explorer.zksync.dev/contract_verification',
       accounts,
     },
-    zkSyncEra: {
-      url: url('zkSyncEra'),
+    zksyncera: {
+      url: url('zksyncera'),
       ethNetwork: 'mainnet',
       zksync: true,
       verifyURL: 'https://zksync2-mainnet-explorer.zksync.io/contract_verification',

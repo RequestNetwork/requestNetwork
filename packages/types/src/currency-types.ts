@@ -26,8 +26,8 @@ export type EvmChainName =
   | 'sokol'
   | 'tombchain'
   | 'xdai'
-  | 'zkSyncEraTestnet'
-  | 'zkSyncEra';
+  | 'zksynceratestnet'
+  | 'zksyncera';
 
 /**
  * List of supported BTC chains

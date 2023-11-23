@@ -64,11 +64,11 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
           creationBlockNumber: 19856206,
         },
         // Caution: no ETHConversion, ERC20Conversion, and chainlinkConversionPath proxies on zkSyncEra
-        zkSyncEra: {
+        zksyncera: {
           address: '0x0C41700ee1B363DB2ebC1a985f65cAf6eC4b1023',
           creationBlockNumber: 19545614,
         },
-        zkSyncEraTestnet: {
+        zksynceratestnet: {
           address: '0x9959F193498e75A2a46A04647fC15a031e308a0b',
           creationBlockNumber: 13769945,
         },

@@ -222,7 +222,7 @@ yarn hardhat deploy-live-payments --network private --force --dry-run
 To compile the contracts with the zkSync compiler, we use the same compile task but with the zkSync network specified.
 
 ```bash
-yarn hardhat compile --network zkSyncEra
+yarn hardhat compile --network zksyncera
 ```
 
 The compiled results go in separate directories build-zk and cache-zk.
@@ -238,13 +238,13 @@ We deploy with the following commands:
 First deploy the Proxy contracts:
 
 ```bash
-yarn hardhat deploy-zksync --script deploy-zk-proxy-contracts --network zkSyncEra
+yarn hardhat deploy-zksync --script deploy-zk-proxy-contracts --network zksyncera
 ```
 
 Then deploy the Batch contract:
 
 ```bash
-yarn hardhat deploy-zksync --script deploy-zk-batch-contracts --network zkSyncEra
+yarn hardhat deploy-zksync --script deploy-zk-batch-contracts --network zksyncera
 ```
 
 We don't have deploy scripts for our Conversion proxy because there is no Chainlink feed yet on this chain.
