@@ -28,12 +28,14 @@ fragment EscrowEventResult on EscrowEvent {
 }
 
 query GetPaymentsAndEscrowState(
+  $blockFilter: Block_height
   $reference: Bytes!
   $to: Bytes!
   $tokenAddress: Bytes
   $contractAddress: Bytes!
 ) {
   payments(
+    block: $blockFilter
     where: {
       reference: $reference
       to: $to
@@ -46,13 +48,19 @@ query GetPaymentsAndEscrowState(
   ) {
     ...PaymentEventResult
   }
-  escrowEvents(where: { reference: $reference }, orderBy: timestamp, orderDirection: asc) {
+  escrowEvents(
+    block: $blockFilter
+    where: { reference: $reference }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
     ...EscrowEventResult
   }
 }
 
 # AnyToErc20 payments: denominated in request $currency payable with many token addresses
 query GetAnyToFungiblePayments(
+  $blockFilter: Block_height
   $reference: Bytes!
   $to: Bytes!
   $currency: Bytes!
@@ -60,6 +68,7 @@ query GetAnyToFungiblePayments(
   $contractAddress: Bytes!
 ) {
   payments(
+    block: $blockFilter
     where: {
       reference: $reference
       to: $to
@@ -76,12 +85,14 @@ query GetAnyToFungiblePayments(
 
 # AnyToETH payments: denominated in request $currency payable with the EVM native token
 query GetAnyToNativePayments(
+  $blockFilter: Block_height
   $reference: Bytes!
   $to: Bytes!
   $currency: Bytes!
   $contractAddress: Bytes!
 ) {
   payments(
+    block: $blockFilter
     where: {
       reference: $reference
       to: $to
@@ -98,18 +109,25 @@ query GetAnyToNativePayments(
 
 # Receivables can be transferred to different owners, so searching by to could drop balance events.
 query GetPaymentsAndEscrowStateForReceivables(
+  $blockFilter: Block_height
   $reference: Bytes!
   $tokenAddress: Bytes!
   $contractAddress: Bytes!
 ) {
   payments(
+    block: $blockFilter
     where: { reference: $reference, tokenAddress: $tokenAddress, contractAddress: $contractAddress }
     orderBy: timestamp
     orderDirection: asc
   ) {
     ...PaymentEventResult
   }
-  escrowEvents(where: { reference: $reference }, orderBy: timestamp, orderDirection: asc) {
+  escrowEvents(
+    block: $blockFilter
+    where: { reference: $reference }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
     ...EscrowEventResult
   }
 }

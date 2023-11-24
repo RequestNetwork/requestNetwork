@@ -10,7 +10,7 @@ import { DeclarativePaymentDetector } from './declarative';
 import * as Erc20PaymentNetwork from './erc20';
 import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
 import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
-import { getTheGraphClient, getTheGraphNearClient } from './thegraph';
+import { getTheGraphEvmClient, getTheGraphNearClient } from './thegraph';
 import {
   calculateEscrowState,
   formatAddress,
@@ -52,7 +52,7 @@ export {
   setProviderFactory,
   initPaymentDetectionApiKeys,
   getDefaultProvider,
-  getTheGraphClient,
+  getTheGraphEvmClient,
   getTheGraphNearClient,
   parseLogArgs,
   padAmountForChainlink,
