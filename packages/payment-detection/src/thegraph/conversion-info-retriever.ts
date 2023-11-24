@@ -22,6 +22,9 @@ export class TheGraphConversionInfoRetriever extends TheGraphInfoRetriever<Conve
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
     const { payments } = params.acceptedTokens
       ? await this.client.GetAnyToFungiblePayments({
+          blockFilter: this.client.options?.minIndexedBlock
+            ? { number_gte: this.client.options.minIndexedBlock }
+            : undefined,
           reference: utils.keccak256(`0x${params.paymentReference}`),
           to: params.toAddress.toLowerCase(),
           currency: params.requestCurrency.hash.toLowerCase(),
@@ -29,6 +32,9 @@ export class TheGraphConversionInfoRetriever extends TheGraphInfoRetriever<Conve
           contractAddress: params.contractAddress.toLowerCase(),
         })
       : await this.client.GetAnyToNativePayments({
+          blockFilter: this.client.options?.minIndexedBlock
+            ? { number_gte: this.client.options.minIndexedBlock }
+            : undefined,
           reference: utils.keccak256(`0x${params.paymentReference}`),
           to: params.toAddress.toLowerCase(),
           currency: params.requestCurrency.hash.toLowerCase(),
