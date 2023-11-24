@@ -6,8 +6,8 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20ProxyPaymentDetector } from '../../src/erc20';
-import { getTheGraphClient } from '../../src';
 import { mockAdvancedLogicBase } from '../utils';
+import { TheGraphClient } from '../../src';
 
 let erc20ProxyContract: ERC20ProxyPaymentDetector;
 
@@ -18,7 +18,10 @@ const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
 
 jest.mock('../../src/thegraph/client');
-const theGraphClientMock = jest.mocked(getTheGraphClient(''));
+const theGraphClientMock = {
+  GetPaymentsAndEscrowState: jest.fn(),
+} as jest.MockedObjectDeep<TheGraphClient>;
+
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   ...mockAdvancedLogicBase,
   extensions: {

@@ -1,7 +1,12 @@
 import '@typechain/hardhat';
 import '@nomiclabs/hardhat-waffle';
-import '@nomicfoundation/hardhat-verify';
 import '@nomiclabs/hardhat-ethers';
+
+import '@matterlabs/hardhat-zksync-node';
+import '@matterlabs/hardhat-zksync-deploy';
+import '@matterlabs/hardhat-zksync-solc';
+import '@matterlabs/hardhat-zksync-verify';
+
 import { subtask, task } from 'hardhat/config';
 import { config } from 'dotenv';
 import deployAllContracts from './scripts/test-deploy-all';
@@ -167,6 +172,23 @@ export default {
       chainId: 1116,
       accounts,
     },
+    zksynceratestnet: {
+      url: url('zksynceratestnet'),
+      ethNetwork: 'goerli',
+      zksync: true,
+      verifyURL: 'https://zksync2-testnet-explorer.zksync.dev/contract_verification',
+      accounts,
+    },
+    zksyncera: {
+      url: url('zksyncera'),
+      ethNetwork: 'mainnet',
+      zksync: true,
+      verifyURL: 'https://zksync2-mainnet-explorer.zksync.io/contract_verification',
+      accounts,
+    },
+  },
+  zksolc: {
+    version: '1.3.16',
   },
   etherscan: {
     apiKey: {

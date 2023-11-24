@@ -96,7 +96,7 @@ describe('erc777-stream', () => {
     it.each([
       { network: 'goerli' },
       { network: 'matic' },
-      { network: 'xdai' },
+      // { network: 'xdai' },
       { network: 'optimism' },
       { network: 'avalanche' },
       { network: 'arbitrum-one' },

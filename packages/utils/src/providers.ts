@@ -49,6 +49,8 @@ const networkRpcs: Record<string, string> = {
   mantle: 'https://rpc.mantle.xyz/',
   'mantle-testnet': 'https://rpc.testnet.mantle.xyz/',
   core: 'https://rpc.coredao.org/',
+  zksynceratestnet: 'https://testnet.era.zksync.dev',
+  zksyncera: 'https://mainnet.era.zksync.io',
 };
 
 /**
