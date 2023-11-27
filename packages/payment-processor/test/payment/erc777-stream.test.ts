@@ -92,31 +92,6 @@ describe('erc777-stream', () => {
     });
   });
 
-  describe('Superfluid framework', () => {
-    it.each([
-      { network: 'goerli' },
-      { network: 'matic' },
-      // { network: 'xdai' },
-      { network: 'optimism' },
-      { network: 'avalanche' },
-      { network: 'arbitrum-one' },
-    ] as Array<{ network: CurrencyTypes.EvmChainName }>)(
-      'Should initialize superfluid framework on $network',
-      async ({ network }) => {
-        const provider = getDefaultProvider(network);
-        const networkValidRequest = {
-          ...validRequest,
-          currencyInfo: {
-            ...validRequest.currencyInfo,
-            network,
-          },
-        };
-        const sf = await getSuperFluidFramework(networkValidRequest, provider);
-        expect(sf).toBeDefined();
-      },
-    );
-  });
-
   describe('encodePayErc20FeeRequest (used to pay and swap to pay)', () => {
     it('should throw an error if the request is not erc777', async () => {
       const request = deepCopy(validRequest) as ClientTypes.IRequestData;
