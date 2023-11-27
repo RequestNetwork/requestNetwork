@@ -8,11 +8,10 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { deepCopy, getDefaultProvider } from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 import {
   closeErc777StreamRequest,
-  getSuperFluidFramework,
   makeErc777OneOffPayment,
   payErc777StreamRequest,
   RESOLVER_ADDRESS,
@@ -134,7 +133,7 @@ describe('erc777-stream', () => {
       let confirmedTx;
       // initialize the superfluid framework...put custom and web3 only bc we are using ganache locally
       const sf = await Framework.create({
-        chainId: provider.network.chainId,
+        chainId: 1337,
         provider,
         resolverAddress: RESOLVER_ADDRESS,
         protocolReleaseVersion: 'test',
@@ -209,7 +208,7 @@ describe('erc777-stream', () => {
       let confirmedTx;
       // initialize the superfluid framework...put custom and web3 only bc we are using ganache locally
       const sf = await Framework.create({
-        chainId: provider.network.chainId,
+        chainId: 1337,
         provider,
         resolverAddress: RESOLVER_ADDRESS,
         protocolReleaseVersion: 'test',
@@ -248,7 +247,7 @@ describe('erc777-stream', () => {
     it('Should perform a payment', async () => {
       // initialize the superfluid framework...put custom and web3 only bc we are using ganache locally
       const sf = await Framework.create({
-        chainId: provider.network.chainId,
+        chainId: 1337,
         provider,
         resolverAddress: RESOLVER_ADDRESS,
         protocolReleaseVersion: 'test',

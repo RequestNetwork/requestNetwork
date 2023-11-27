@@ -320,7 +320,7 @@ describe('request-client.js: declarative payments', () => {
       expect(requestData.balance?.events[1].parameters).toMatchObject({ note: 'received payment' });
     });
 
-    fit('can declare payments and refunds on an ANY_TO_ERC20_PROXY request', async () => {
+    it('can declare payments and refunds on an ANY_TO_ERC20_PROXY request', async () => {
       const salt = 'ea3bc7caf64110ca';
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
