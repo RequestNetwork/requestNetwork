@@ -402,6 +402,7 @@ describe('Request client using a request node', () => {
 
     // Fetch the created request by its id
     const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
+    await fetchedRequest.waitForConfirmation();
 
     // Verify that the request values are correct
     expect(fetchedRequest).toBeInstanceOf(Request);

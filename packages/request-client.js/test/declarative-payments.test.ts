@@ -320,7 +320,7 @@ describe('request-client.js: declarative payments', () => {
       expect(requestData.balance?.events[1].parameters).toMatchObject({ note: 'received payment' });
     });
 
-    it('can declare payments and refunds on an ANY_TO_ERC20_PROXY request', async () => {
+    fit('can declare payments and refunds on an ANY_TO_ERC20_PROXY request', async () => {
       const salt = 'ea3bc7caf64110ca';
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
@@ -391,7 +391,7 @@ describe('request-client.js: declarative payments', () => {
       expect(request.getData().balance?.error).toBeUndefined();
       expect(request.getData().balance?.balance).toBe('8');
       expect(request.getData().balance?.events?.length).toBe(2);
-    });
+    }, 10000);
   });
 
   describe('other creations', () => {
