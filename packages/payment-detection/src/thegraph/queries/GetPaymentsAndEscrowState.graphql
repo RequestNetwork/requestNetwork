@@ -28,7 +28,7 @@ fragment EscrowEventResult on EscrowEvent {
 }
 
 query GetPaymentsAndEscrowState(
-  $blockFilter: Block_height!
+  $blockFilter: Block_height
   $reference: Bytes!
   $to: Bytes!
   $tokenAddress: Bytes
@@ -60,7 +60,7 @@ query GetPaymentsAndEscrowState(
 
 # AnyToErc20 payments: denominated in request $currency payable with many token addresses
 query GetAnyToFungiblePayments(
-  $blockFilter: Block_height!
+  $blockFilter: Block_height
   $reference: Bytes!
   $to: Bytes!
   $currency: Bytes!
@@ -85,7 +85,7 @@ query GetAnyToFungiblePayments(
 
 # AnyToETH payments: denominated in request $currency payable with the EVM native token
 query GetAnyToNativePayments(
-  $blockFilter: Block_height!
+  $blockFilter: Block_height
   $reference: Bytes!
   $to: Bytes!
   $currency: Bytes!
@@ -109,7 +109,7 @@ query GetAnyToNativePayments(
 
 # Receivables can be transferred to different owners, so searching by to could drop balance events.
 query GetPaymentsAndEscrowStateForReceivables(
-  $blockFilter: Block_height!
+  $blockFilter: Block_height
   $reference: Bytes!
   $tokenAddress: Bytes!
   $contractAddress: Bytes!

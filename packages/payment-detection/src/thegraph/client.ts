@@ -38,10 +38,23 @@ export type TheGraphClientOptions = {
   timeout?: number;
   /** constraint to select indexers that have at least parsed this block */
   minIndexedBlock?: number | undefined;
+  /** is this client targeting TheGraph decentralized network? */
+  decentralizedNetwork?: boolean;
 };
 
 const extractClientOptions = (options?: TheGraphClientOptions) => {
   return pick(options, 'timeout');
+};
+
+const populateSdkWithOptions = (
+  sdk: TheGraphClient<any>,
+  url: string,
+  options?: TheGraphClientOptions,
+) => {
+  sdk.options = {
+    decentralizedNetwork: url.startsWith('https://gateway-arbitrum.network.thegraph.com/'),
+    ...options,
+  };
 };
 
 export const getTheGraphClient = (network: string, url: string, options?: TheGraphClientOptions) =>
@@ -53,7 +66,7 @@ export const getTheGraphEvmClient = (url: string, options?: TheGraphClientOption
   const sdk: TheGraphClient<CurrencyTypes.EvmChainName> = getSdk(
     new GraphQLClient(url, extractClientOptions(options)),
   );
-  sdk.options = options;
+  populateSdkWithOptions(sdk, url, options);
   return sdk;
 };
 
@@ -61,7 +74,7 @@ export const getTheGraphNearClient = (url: string, options?: TheGraphClientOptio
   const sdk: TheGraphClient<CurrencyTypes.NearChainName> = getNearSdk(
     new GraphQLClient(url, extractClientOptions(options)),
   );
-  sdk.options = options;
+  populateSdkWithOptions(sdk, url, options);
   return sdk;
 };
 
