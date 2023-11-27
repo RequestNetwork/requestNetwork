@@ -15,6 +15,9 @@ const THE_GRAPH_URL_MANTLE_TESTNET =
 const THE_GRAPH_URL_MANTLE =
   'https://graph.fusionx.finance/subgraphs/name/requestnetwork/request-payments-mantle';
 
+const THE_GRAPH_URL_STUDIO_ZKSYNC =
+  'https://api.studio.thegraph.com/query/35843/request-payment-zksyncera/version/latest';
+
 // NB: the GraphQL client is automatically generated based on files present in ./queries,
 // using graphql-codegen.
 // To generate types, run `yarn codegen`, then open the generated files so that the code editor picks up the changes.
@@ -74,5 +77,7 @@ export const defaultGetTheGraphClient = (
     ? getTheGraphEvmClient(THE_GRAPH_URL_MANTLE, options)
     : network === 'mantle-testnet'
     ? getTheGraphEvmClient(THE_GRAPH_URL_MANTLE_TESTNET, options)
+    : network === 'zksyncera'
+    ? getTheGraphEvmClient(THE_GRAPH_URL_STUDIO_ZKSYNC, options)
     : getTheGraphEvmClient(`${HOSTED_THE_GRAPH_URL}${network}`, options);
 };
