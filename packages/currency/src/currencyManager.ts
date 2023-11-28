@@ -29,6 +29,8 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   private readonly legacyTokens: LegacyTokenMap;
   private readonly conversionPairs: AggregatorsMap;
 
+  private static defaultInstance: CurrencyManager;
+
   /**
    *
    * @param inputCurrencies The list of currencies known by the Manager.
@@ -328,9 +330,12 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * Returns a default instance of CurrencyManager based on default lists
    */
   static getDefault(): CurrencyManager {
-    return new CurrencyManager(
+    if (this.defaultInstance) return this.defaultInstance;
+
+    this.defaultInstance = new CurrencyManager(
       CurrencyManager.getDefaultList(),
       CurrencyManager.getDefaultLegacyTokens(),
     );
+    return this.defaultInstance;
   }
 }
