@@ -23,6 +23,7 @@ import httpConfigDefaults from '../src/http-config-defaults';
 import { IRequestDataWithEvents } from '../src/types';
 import HttpMetaMaskDataAccess from '../src/http-metamask-data-access';
 import { MockDataAccess } from '@requestnetwork/data-access';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { MockStorage } from '../src/mock-storage';
 import * as RequestLogic from '@requestnetwork/types/src/request-logic-types';
 
@@ -2031,10 +2032,19 @@ describe('request-client.js', () => {
     });
 
     describe('allows overriding the default currencies', () => {
+      const currencyManager = new CurrencyManager(CurrencyManager.getDefaultList());
+      const ETH = currencyManager.from('ETH', 'mainnet');
+
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
         useMockStorage: true,
         currencies: [
+          {
+            network: 'mainnet',
+            type: RequestLogicTypes.CURRENCY.ETH,
+            decimals: ETH!.decimals,
+            symbol: ETH!.symbol,
+          },
           {
             network: 'private',
             address: testErc20Data.currency.value,
