@@ -1,5 +1,5 @@
 import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { NearChains, isSameChain } from '@requestnetwork/currency';
+import { ICurrencyManager, NearChains, isSameChain } from '@requestnetwork/currency';
 import { UnsupportedNetworkError } from '../address-based';
 import { FeeReferenceBasedPaymentNetwork } from '../fee-reference-based';
 
@@ -16,12 +16,14 @@ export default class Erc20FeeProxyPaymentNetwork<
    * @param network is only relevant for non-EVM chains (Near and Near testnet)
    */
   public constructor(
+    currencyManager: ICurrencyManager,
     extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
       .ERC20_FEE_PROXY_CONTRACT,
     currentVersion?: string | undefined,
     protected network?: string | undefined,
   ) {
     super(
+      currencyManager,
       extensionId,
       currentVersion ?? Erc20FeeProxyPaymentNetwork.getDefaultCurrencyVersion(network),
       RequestLogicTypes.CURRENCY.ERC20,
