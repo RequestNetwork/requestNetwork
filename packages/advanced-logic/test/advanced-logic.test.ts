@@ -5,6 +5,7 @@ import * as DataDeclarativeCreate from './utils/payment-network/any/generator-da
 import * as DataTestnetBTCCreate from './utils/payment-network/bitcoin/testnet-generator-data-create';
 
 import { deepCopy } from '@requestnetwork/utils';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 import { AdvancedLogic } from '../src/index';
 
@@ -15,7 +16,7 @@ let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('advanced-logic.ts', () => {
   beforeEach(() => {
-    advancedLogic = new AdvancedLogic();
+    advancedLogic = new AdvancedLogic(CurrencyManager.getDefault());
   });
   describe('applyActionToExtensions', () => {
     it('can applyActionToExtensions', () => {
