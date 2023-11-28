@@ -65,9 +65,9 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
 
     this.currencyManager = currencyManager;
     this.extensions = {
-      addressBasedBtc: new AddressBasedBtc(),
+      addressBasedBtc: new AddressBasedBtc(currencyManager),
       addressBasedErc20: new AddressBasedErc20(currencyManager),
-      addressBasedTestnetBtc: new AddressBasedTestnetBtc(),
+      addressBasedTestnetBtc: new AddressBasedTestnetBtc(currencyManager),
       contentData: new ContentData(),
       anyToErc20Proxy: new AnyToErc20Proxy(currencyManager),
       declarative: new Declarative(),
