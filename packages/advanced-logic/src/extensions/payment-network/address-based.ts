@@ -1,4 +1,4 @@
-import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import {
   CurrencyTypes,
   ExtensionTypes,
@@ -16,6 +16,7 @@ export default abstract class AddressBasedPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters,
 > extends DeclarativePaymentNetwork<TCreationParameters> {
   protected constructor(
+    protected currencyManager: ICurrencyManager,
     extensionId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currentVersion: string,
     public readonly supportedCurrencyType: RequestLogicTypes.CURRENCY,
@@ -162,12 +163,11 @@ export default abstract class AddressBasedPaymentNetwork<
     symbol: string,
     network: CurrencyTypes.ChainName,
   ): boolean {
-    const currencyManager = CurrencyManager.getDefault();
-    const currency = currencyManager.from(symbol, network);
+    const currency = this.currencyManager.from(symbol, network);
     if (!currency) {
       throw new UnsupportedCurrencyError({ value: symbol, network });
     }
-    return currencyManager.validateAddress(address, currency);
+    return this.currencyManager.validateAddress(address, currency);
   }
 
   /**

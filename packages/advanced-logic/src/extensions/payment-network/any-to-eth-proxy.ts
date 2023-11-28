@@ -5,8 +5,8 @@ import EthereumFeeProxyPaymentNetwork from './ethereum/fee-proxy-contract';
 const CURRENT_VERSION = '0.2.0';
 
 export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPaymentNetwork {
-  public constructor(private currencyManager: ICurrencyManager) {
-    super(ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY, CURRENT_VERSION);
+  public constructor(currencyManager: ICurrencyManager) {
+    super(currencyManager, ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY, CURRENT_VERSION);
   }
 
   /**

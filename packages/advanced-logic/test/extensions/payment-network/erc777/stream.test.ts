@@ -1,5 +1,6 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 import Erc777StreamPaymentNetwork from '../../../../src/extensions/payment-network/erc777/stream';
 
@@ -7,7 +8,7 @@ import * as DataERC777StreamAddData from '../../../utils/payment-network/erc777/
 import * as DataERC777StreamCreate from '../../../utils/payment-network/erc777/stream-create-data-generator';
 import * as TestData from '../../../utils/test-data-generator';
 
-const erc777StreamPaymentNetwork = new Erc777StreamPaymentNetwork();
+const erc777StreamPaymentNetwork = new Erc777StreamPaymentNetwork(CurrencyManager.getDefault());
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/erc777/stream', () => {

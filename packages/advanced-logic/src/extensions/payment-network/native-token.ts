@@ -2,17 +2,19 @@ import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwor
 import { InvalidPaymentAddressError, UnsupportedNetworkError } from './address-based';
 
 import ReferenceBasedPaymentNetwork from './reference-based';
+import { ICurrencyManager } from '@requestnetwork/currency';
 
 /**
  * Implementation of the payment network to pay in ETH based on input data.
  */
 export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPaymentNetwork {
   public constructor(
+    currencyManager: ICurrencyManager,
     extensionId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currentVersion: string,
     public readonly supportedNetworks: CurrencyTypes.ChainName[],
   ) {
-    super(extensionId, currentVersion, RequestLogicTypes.CURRENCY.ETH);
+    super(currencyManager, extensionId, currentVersion, RequestLogicTypes.CURRENCY.ETH);
   }
 
   public createCreationAction(
