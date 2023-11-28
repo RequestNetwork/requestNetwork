@@ -172,7 +172,7 @@ describe('extensions/payment-network/native-token', () => {
   describe('AdvancedLogic.applyActionToExtension', () => {
     const mainnetTestCase = nativeTokenTestCases[0];
     it('works with state and action on the same network', () => {
-      const advancedLogic = new AdvancedLogic();
+      const advancedLogic = new AdvancedLogic(currencyManager);
 
       const requestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,
@@ -198,7 +198,7 @@ describe('extensions/payment-network/native-token', () => {
       expect(newExtensionState).toEqual(extensionStateWithNativeTokenPaymentAndRefund);
     });
     it('works with an action without payment network', () => {
-      const advancedLogic = new AdvancedLogic();
+      const advancedLogic = new AdvancedLogic(currencyManager);
 
       const requestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,
@@ -224,7 +224,7 @@ describe('extensions/payment-network/native-token', () => {
       expect(newExtensionState).toEqual(extensionStateWithNativeTokenPaymentAndRefund);
     });
     it('works when adding a payment address to a created state', () => {
-      const advancedLogic = new AdvancedLogic();
+      const advancedLogic = new AdvancedLogic(currencyManager);
       const nearPn = new NearNativePaymentNetwork(currencyManager);
 
       const requestState: typeof requestStateNoExtensions = {
@@ -257,7 +257,7 @@ describe('extensions/payment-network/native-token', () => {
       expect(newExtensionState).toEqual(extensionStateWithPaymentAddressAdded);
     });
     it('throws when creating the extension on a different network from the request network', () => {
-      const advancedLogic = new AdvancedLogic();
+      const advancedLogic = new AdvancedLogic(currencyManager);
       const nearPn = new NearTestnetNativeNativePaymentNetwork(currencyManager);
 
       const requestState: typeof requestStateNoExtensions = {
@@ -278,7 +278,7 @@ describe('extensions/payment-network/native-token', () => {
       );
     });
     it('throws when adding a payment address a different network', () => {
-      const advancedLogic = new AdvancedLogic();
+      const advancedLogic = new AdvancedLogic(currencyManager);
       const nearPn = new NearNativePaymentNetwork(currencyManager);
 
       const requestState: typeof requestStateNoExtensions = {
@@ -301,7 +301,7 @@ describe('extensions/payment-network/native-token', () => {
       }).toThrowError("paymentAddress 'pay.testnet' is not a valid address");
     });
     it('throws with no state or action payment network', () => {
-      const advancedLogic = new AdvancedLogic();
+      const advancedLogic = new AdvancedLogic(currencyManager);
 
       const wrongNativeTokenRequestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,
@@ -330,7 +330,7 @@ describe('extensions/payment-network/native-token', () => {
       ).toThrowError('extension with id: pn-native-token not found for network: undefined');
     });
     it('throws on a wrong payment network', () => {
-      const advancedLogic = new AdvancedLogic();
+      const advancedLogic = new AdvancedLogic(currencyManager);
       const wrongNetwork = `wrong network` as CurrencyTypes.EvmChainName;
 
       const wrongNativeTokenRequestState: typeof requestStateNoExtensions = {
@@ -360,7 +360,7 @@ describe('extensions/payment-network/native-token', () => {
       ).toThrowError('extension with id: pn-native-token not found for network: wrong network');
     });
     it('throws on a different payment network', () => {
-      const advancedLogic = new AdvancedLogic();
+      const advancedLogic = new AdvancedLogic(currencyManager);
 
       const requestState = {
         ...requestStateNoExtensions,
@@ -389,7 +389,7 @@ describe('extensions/payment-network/native-token', () => {
     });
 
     it('keeps the version used at creation', () => {
-      const advancedLogic = new AdvancedLogic();
+      const advancedLogic = new AdvancedLogic(currencyManager);
       const requestState = {
         ...requestStateNoExtensions,
         currency: mainnetTestCase.currency,
@@ -406,7 +406,7 @@ describe('extensions/payment-network/native-token', () => {
 
     it('requires a version at creation', () => {
       expect(() => {
-        const advancedLogic = new AdvancedLogic();
+        const advancedLogic = new AdvancedLogic(currencyManager);
         const requestState = {
           ...requestStateNoExtensions,
           currency: mainnetTestCase.currency,
