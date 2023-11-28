@@ -5,12 +5,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import {
-  CurrencyManager,
-  ICurrencyManager,
-  NearChains,
-  isSameChain,
-} from '@requestnetwork/currency';
+import { ICurrencyManager, NearChains, isSameChain } from '@requestnetwork/currency';
 
 import ContentData from './extensions/content-data';
 import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
@@ -58,11 +53,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
 
   private currencyManager: ICurrencyManager;
 
-  constructor(currencyManager?: ICurrencyManager) {
-    if (!currencyManager) {
-      currencyManager = CurrencyManager.getDefault();
-    }
-
+  constructor(currencyManager: ICurrencyManager) {
     this.currencyManager = currencyManager;
     this.extensions = {
       addressBasedBtc: new AddressBasedBtc(currencyManager),
