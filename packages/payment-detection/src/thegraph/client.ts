@@ -52,7 +52,7 @@ const extractClientOptions = (
   const queryOptions: TheGraphQueryOptions = {};
   if (minIndexedBlock) {
     queryOptions.blockFilter = { number_gte: minIndexedBlock };
-  } else if (url.match(/https:\/\/gateway-\w.network.thegraph.com/)) {
+  } else if (url.match(/^https:\/\/gateway-\w+\.network\.thegraph\.com\//)) {
     // the decentralized network expects an empty object, and doesn't support "undefined"
     queryOptions.blockFilter = {};
   }
