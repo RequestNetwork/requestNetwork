@@ -19,6 +19,7 @@ const feedMap: Partial<
 > = {
   mainnet: ['mainnet', 'Ethereum Mainnet'],
   goerli: ['goerli', 'Goerli Testnet'],
+  sepolia: ['sepolia', 'Sepolia Testnet'],
   fantom: ['fantom-mainnet', 'Fantom Mainnet'],
   matic: ['matic-mainnet', 'Polygon Mainnet'],
   xdai: ['xdai-mainnet', 'Gnosis Chain Mainnet'],

@@ -2,6 +2,7 @@ import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
 import { abi as ABI_0_2_0 } from './0.2.0.json';
+import { abi as ABI_0_2_1 } from './0.2.1.json';
 // @ts-ignore Cannot find module
 import type { ChainlinkConversionPath } from '../../../types';
 
@@ -116,6 +117,23 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
         moonbeam: {
           address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
           creationBlockNumber: 2415429,
+        },
+        /**
+         * The contract was deployed on networks below with ABI 0.2.1
+         * The ABI for payments is the same, only administration tasks change.
+         */
+        sepolia: {
+          address: '0x7c285b9F2dA5E2c10feA25C00Ce1aCB107F85475',
+          creationBlockNumber: 4733359,
+        },
+      },
+    },
+    '0.2.1': {
+      abi: ABI_0_2_1,
+      deployment: {
+        sepolia: {
+          address: '0x7c285b9F2dA5E2c10feA25C00Ce1aCB107F85475',
+          creationBlockNumber: 4733359,
         },
       },
     },

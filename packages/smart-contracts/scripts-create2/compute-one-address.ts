@@ -53,6 +53,7 @@ export const computeCreate2DeploymentAddressesFromList = async (
     create2ContractDeploymentList.map(async (contract) => {
       let address: string;
       switch (contract) {
+        case 'ChainlinkConversionPath':
         case 'EthereumProxy':
         case 'EthereumFeeProxy':
         case 'EthConversionProxy':
@@ -61,6 +62,7 @@ export const computeCreate2DeploymentAddressesFromList = async (
         case 'Erc20ConversionProxy':
         case 'ERC20EscrowToPay':
         case 'BatchConversionPayments':
+        case 'ERC20SwapToPay':
         case 'ERC20SwapToConversion':
         case 'ERC20TransferableReceivable': {
           try {

@@ -140,6 +140,10 @@ export const erc20SwapToPayArtifact = new ContractArtifact<ERC20SwapToPay>(
           address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
           creationBlockNumber: 21337989,
         },
+        sepolia: {
+          address: '0x626e6E3dac82205EA5FfB526092F4DCe525E46a9',
+          creationBlockNumber: 4733365,
+        },
       },
     },
   },

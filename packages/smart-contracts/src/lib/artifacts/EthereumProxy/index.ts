@@ -196,6 +196,10 @@ export const ethereumProxyArtifact = new ContractArtifact<EthereumProxy>(
           address: '0x171Ee0881407d4c0C11eA1a2FB7D5b4cdED71e6e',
           creationBlockNumber: 8317443,
         },
+        sepolia: {
+          address: '0x171Ee0881407d4c0C11eA1a2FB7D5b4cdED71e6e',
+          creationBlockNumber: 4733360,
+        },
       },
     },
   },
