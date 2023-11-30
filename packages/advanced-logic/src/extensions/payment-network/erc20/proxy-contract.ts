@@ -1,4 +1,5 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ICurrencyManager } from '@requestnetwork/currency';
 import ReferenceBasedPaymentNetwork from '../reference-based';
 
 const CURRENT_VERSION = '0.1.0';
@@ -9,8 +10,9 @@ const CURRENT_VERSION = '0.1.0';
 export default class Erc20ProxyPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnReferenceBased.ICreationParameters = ExtensionTypes.PnReferenceBased.ICreationParameters,
 > extends ReferenceBasedPaymentNetwork<TCreationParameters> {
-  public constructor() {
+  public constructor(currencyManager: ICurrencyManager) {
     super(
+      currencyManager,
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       CURRENT_VERSION,
       RequestLogicTypes.CURRENCY.ERC20,

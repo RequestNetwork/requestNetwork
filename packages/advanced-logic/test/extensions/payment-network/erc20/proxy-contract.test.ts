@@ -1,4 +1,5 @@
 import { ExtensionTypes, RequestLogicTypes, IdentityTypes } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 import Erc20ProxyContract from '../../../../src/extensions/payment-network/erc20/proxy-contract';
 
@@ -7,7 +8,7 @@ import * as DataERC20Create from '../../../utils/payment-network/erc20/proxy-con
 import * as TestData from '../../../utils/test-data-generator';
 import { deepCopy } from '@requestnetwork/utils';
 
-const erc20ProxyContract = new Erc20ProxyContract();
+const erc20ProxyContract = new Erc20ProxyContract(CurrencyManager.getDefault());
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/erc20/proxy-contract', () => {

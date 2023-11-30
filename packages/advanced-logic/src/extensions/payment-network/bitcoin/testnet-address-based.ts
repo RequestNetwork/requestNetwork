@@ -1,5 +1,6 @@
 import BitcoinAddressBasedPaymentNetwork from './mainnet-address-based';
 import { ExtensionTypes } from '@requestnetwork/types';
+import { ICurrencyManager } from '@requestnetwork/currency';
 
 const BITCOIN_NETWORK = 'testnet';
 
@@ -11,8 +12,8 @@ const BITCOIN_NETWORK = 'testnet';
  * Important: the addresses must be exclusive to the request
  */
 export default class BitcoinTestnetAddressBasedPaymentNetwork extends BitcoinAddressBasedPaymentNetwork {
-  public constructor() {
-    super(ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED);
+  public constructor(currencyManager: ICurrencyManager) {
+    super(currencyManager, ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED);
   }
 
   protected isValidAddress(address: string): boolean {

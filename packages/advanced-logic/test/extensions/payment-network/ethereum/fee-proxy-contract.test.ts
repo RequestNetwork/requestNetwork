@@ -1,4 +1,5 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 import EthereumFeeProxyContract from '../../../../src/extensions/payment-network/ethereum/fee-proxy-contract';
 
@@ -7,7 +8,7 @@ import * as DataEthFeeCreate from '../../../utils/payment-network/ethereum/fee-p
 import * as TestData from '../../../utils/test-data-generator';
 import { deepCopy } from '@requestnetwork/utils';
 
-const ethFeeProxyContract = new EthereumFeeProxyContract();
+const ethFeeProxyContract = new EthereumFeeProxyContract(CurrencyManager.getDefault());
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {

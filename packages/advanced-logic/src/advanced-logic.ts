@@ -5,12 +5,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import {
-  CurrencyManager,
-  ICurrencyManager,
-  NearChains,
-  isSameChain,
-} from '@requestnetwork/currency';
+import { ICurrencyManager, NearChains, isSameChain } from '@requestnetwork/currency';
 
 import ContentData from './extensions/content-data';
 import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
@@ -56,26 +51,26 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     erc20TransferableReceivable: Erc20TransferableReceivablePaymentNetwork;
   };
 
-  constructor(currencyManager?: ICurrencyManager) {
-    if (!currencyManager) {
-      currencyManager = CurrencyManager.getDefault();
-    }
+  private currencyManager: ICurrencyManager;
+
+  constructor(currencyManager: ICurrencyManager) {
+    this.currencyManager = currencyManager;
     this.extensions = {
-      addressBasedBtc: new AddressBasedBtc(),
-      addressBasedErc20: new AddressBasedErc20(),
-      addressBasedTestnetBtc: new AddressBasedTestnetBtc(),
+      addressBasedBtc: new AddressBasedBtc(currencyManager),
+      addressBasedErc20: new AddressBasedErc20(currencyManager),
+      addressBasedTestnetBtc: new AddressBasedTestnetBtc(currencyManager),
       contentData: new ContentData(),
       anyToErc20Proxy: new AnyToErc20Proxy(currencyManager),
       declarative: new Declarative(),
-      ethereumInputData: new EthereumInputData(),
-      feeProxyContractErc20: new FeeProxyContractErc20(),
-      proxyContractErc20: new ProxyContractErc20(),
-      erc777Stream: new Erc777Stream(),
-      feeProxyContractEth: new FeeProxyContractEth(),
+      ethereumInputData: new EthereumInputData(currencyManager),
+      feeProxyContractErc20: new FeeProxyContractErc20(currencyManager),
+      proxyContractErc20: new ProxyContractErc20(currencyManager),
+      erc777Stream: new Erc777Stream(currencyManager),
+      feeProxyContractEth: new FeeProxyContractEth(currencyManager),
       anyToEthProxy: new AnyToEthProxy(currencyManager),
-      nativeToken: [new NearNative(), new NearTestnetNative()],
+      nativeToken: [new NearNative(currencyManager), new NearTestnetNative(currencyManager)],
       anyToNativeToken: [new AnyToNear(currencyManager), new AnyToNearTestnet(currencyManager)],
-      erc20TransferableReceivable: new Erc20TransferableReceivablePaymentNetwork(),
+      erc20TransferableReceivable: new Erc20TransferableReceivablePaymentNetwork(currencyManager),
     };
   }
 
@@ -173,7 +168,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
 
   public getFeeProxyContractErc20ForNetwork(network?: string): FeeProxyContractErc20 {
     return NearChains.isChainSupported(network)
-      ? new FeeProxyContractErc20(undefined, undefined, network)
+      ? new FeeProxyContractErc20(this.currencyManager, undefined, undefined, network)
       : this.extensions.feeProxyContractErc20;
   }
 

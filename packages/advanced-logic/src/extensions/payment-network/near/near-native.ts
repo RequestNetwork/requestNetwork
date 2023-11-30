@@ -1,5 +1,6 @@
 import { CurrencyTypes, ExtensionTypes } from '@requestnetwork/types';
 import NativeTokenPaymentNetwork from '../native-token';
+import { ICurrencyManager } from '@requestnetwork/currency';
 
 const CURRENT_VERSION = '0.2.0';
 
@@ -8,6 +9,7 @@ const CURRENT_VERSION = '0.2.0';
  */
 export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork {
   public constructor(
+    currencyManager: ICurrencyManager,
     supportedNetworks: CurrencyTypes.NearChainName[] = [
       'aurora',
       // FIXME: enable near network support
@@ -15,7 +17,12 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
     ],
     currentVersion: string = CURRENT_VERSION,
   ) {
-    super(ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN, currentVersion, supportedNetworks);
+    super(
+      currencyManager,
+      ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
+      currentVersion,
+      supportedNetworks,
+    );
   }
 
   /**
