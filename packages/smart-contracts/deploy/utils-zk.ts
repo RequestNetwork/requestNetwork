@@ -5,7 +5,7 @@ import { formatEther } from 'ethers/lib/utils';
 import { BigNumberish } from 'ethers';
 
 import { config } from 'dotenv';
-import { networkRpcs } from '@requestnetwork/utils/dist/providers';
+import { networkRpcs } from '@requestnetwork/utils';
 
 config();
 

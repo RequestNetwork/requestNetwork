@@ -29,7 +29,6 @@ import { IPreparedTransaction } from './prepared-transaction';
 import { IConversionPaymentSettings } from './index';
 import { getConversionPathForErc20Request } from './any-to-erc20-proxy';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
-import { IState } from 'types/dist/extension-types';
 import { CurrencyDefinition, CurrencyManager, ICurrencyManager } from '@requestnetwork/currency';
 import {
   BatchPaymentNetworks,
@@ -128,7 +127,7 @@ const computeRequestDetails = ({
   extension,
 }: {
   enrichedRequest: EnrichedRequest;
-  extension: IState<any> | undefined;
+  extension: ExtensionTypes.IState<any> | undefined;
 }) => {
   const paymentNetworkId = enrichedRequest.paymentNetworkId;
   const allowedCurrencies = mapPnToAllowedCurrencies[paymentNetworkId];
@@ -177,7 +176,7 @@ function encodePayBatchConversionRequest(
     'pn-eth-fee-proxy-contract': [],
   };
 
-  const requestExtensions: Record<BatchPaymentNetworks, IState<any> | undefined> = {
+  const requestExtensions: Record<BatchPaymentNetworks, ExtensionTypes.IState<any> | undefined> = {
     'pn-any-to-erc20-proxy': undefined,
     'pn-any-to-eth-proxy': undefined,
     'pn-erc20-fee-proxy-contract': undefined,

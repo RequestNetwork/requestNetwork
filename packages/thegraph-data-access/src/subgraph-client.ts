@@ -1,8 +1,9 @@
 import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 import { GraphQLClient } from 'graphql-request';
 import {
-  GetBlock,
+  GetBlockQuery,
   GetChannelsByTopicsQuery,
+  GetTransactionByDataHashQuery,
   GetTransactionsByChannelIdQuery,
   GetTransactionsByHashQuery,
   Meta,
@@ -27,7 +28,7 @@ export class SubgraphClient implements StorageTypes.IIndexer {
   }
 
   public async getBlockNumber(): Promise<number> {
-    const { _meta } = await this.graphql.request<Meta>(GetBlock);
+    const { _meta } = await this.graphql.request<Meta>(GetBlockQuery);
     return _meta.block.number;
   }
 
@@ -75,6 +76,12 @@ export class SubgraphClient implements StorageTypes.IIndexer {
       transactions: transactionsByChannel.map(this.toIndexedTransaction),
       blockNumber: _meta.block.number,
     };
+  }
+
+  public async getTransactionsByDataHash(
+    dataHash: string,
+  ): Promise<StorageTypes.IGetTransactionsResponse> {
+    return await this.fetchAndFormat(GetTransactionByDataHashQuery, { dataHash });
   }
 
   private async fetchAndFormat(

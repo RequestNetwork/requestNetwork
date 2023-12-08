@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import ConfirmedTransactionStore from './confirmedTransactionStore';
 
-export default class getConfirmedTransactionHandler {
+export default class GetConfirmedTransactionHandler {
   constructor(
     private logger: LogTypes.ILogger,
     private store: ConfirmedTransactionStore,

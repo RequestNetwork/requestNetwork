@@ -4,6 +4,14 @@ export type Meta = {
   _meta: { block: { number: number } };
 };
 
+const metaQueryBody = `
+  _meta {
+    block {
+      number
+    }
+  }
+`;
+
 export type Transaction = {
   hash: string;
   channelId: string;
@@ -45,11 +53,7 @@ const TransactionsBodyFragment = gql`
 export const GetTransactionsByChannelIdQuery = gql`
   ${TransactionsBodyFragment}
   query GetTransactionsByChannelId($channelId: String!, $from: Int, $to: Int) {
-    _meta {
-      block {
-        number
-      }
-    }
+    ${metaQueryBody}
     transactions(
       where: { channelId: $channelId, blockTimestamp_gte: $from, blockTimestamp_lt: $to }
       orderBy: blockTimestamp
@@ -63,11 +67,7 @@ export const GetTransactionsByChannelIdQuery = gql`
 export const GetTransactionsByHashQuery = gql`
   ${TransactionsBodyFragment}
   query GetTransactionsByHash($hash: String!) {
-    _meta {
-      block {
-        number
-      }
-    }
+    ${metaQueryBody}
     transactions(where: { hash: $hash }, orderBy: blockTimestamp, orderDirection: asc) {
       ...TransactionsBody
     }
@@ -77,11 +77,7 @@ export const GetTransactionsByHashQuery = gql`
 export const GetChannelsByTopicsQuery = gql`
   ${TransactionsBodyFragment}
   query GetChannelsByTopics($topics: [String!]!) {
-    _meta {
-      block {
-        number
-      }
-    }
+    ${metaQueryBody}
     transactions(
       where: { topics_contains: $topics }
       orderBy: blockTimestamp
@@ -92,12 +88,18 @@ export const GetChannelsByTopicsQuery = gql`
   }
 `;
 
-export const GetBlock = gql`
+export const GetBlockQuery = gql`
   query GetBlock {
-    _meta {
-      block {
-        number
-      }
+    ${metaQueryBody}
+  }
+`;
+
+export const GetTransactionByDataHashQuery = gql`
+  ${TransactionsBodyFragment}
+  query GetTransactionsByDataHash($dataHash: String!) {
+    ${metaQueryBody}
+    transactions(where: { dataHash: $dataHash }) {
+      ...TransactionsBody
     }
   }
 `;

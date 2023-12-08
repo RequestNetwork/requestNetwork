@@ -11,7 +11,7 @@ import {
 import { EthereumFeeProxy, BatchNoConversionPayments } from '../../src/types';
 import { chainlinkConversionPath } from '../../src/lib';
 import { HttpNetworkConfig } from 'hardhat/types';
-import { PaymentTypes } from 'types/dist';
+import { PaymentTypes } from '@requestnetwork/types';
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
 
 const logGasInfos = false;

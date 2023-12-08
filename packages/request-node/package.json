@@ -58,8 +58,6 @@
     "graphql-request": "6.1.0",
     "http-shutdown": "1.2.2",
     "http-status-codes": "2.1.4",
-    "keyv": "4.0.3",
-    "keyv-file": "0.2.0",
     "shelljs": "0.8.5",
     "tslib": "2.5.0",
     "yargs": "17.6.2"
@@ -68,7 +66,6 @@
     "@types/cors": "2.8.9",
     "@types/express": "4.17.17",
     "@types/jest": "29.5.6",
-    "@types/keyv": "3.1.1",
     "@types/node": "18.11.9",
     "@types/supertest": "2.0.10",
     "@types/yargs": "17.0.14",

@@ -3,7 +3,6 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { getPersistTransactionTimeout } from '../config';
 
-import ConfirmedTransactionStore from './confirmedTransactionStore';
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 /**
@@ -13,11 +12,7 @@ export default class PersistTransactionHandler {
   /**
    * Persist transaction constructor
    */
-  constructor(
-    private confirmedTransactionStore: ConfirmedTransactionStore,
-    private dataAccess: DataAccessTypes.IDataWrite,
-    private logger: LogTypes.ILogger,
-  ) {
+  constructor(private dataAccess: DataAccessTypes.IDataWrite, private logger: LogTypes.ILogger) {
     this.handler = this.handler.bind(this);
   }
 
@@ -68,12 +63,7 @@ export default class PersistTransactionHandler {
         clientRequest.body.topics,
       );
 
-      // when the transaction is confirmed, store the information to be served when requested
-      dataAccessResponse.on('confirmed', async (dataAccessConfirmedResponse) => {
-        await this.confirmedTransactionStore.addConfirmedTransaction(
-          transactionHash.value,
-          dataAccessConfirmedResponse,
-        );
+      dataAccessResponse.on('confirmed', async () => {
         this.logger.info(`Transaction confirmed: ${transactionHash.value}`, [
           'metric',
           'successRate',
@@ -82,10 +72,6 @@ export default class PersistTransactionHandler {
 
       // when the transaction fails, log an error
       dataAccessResponse.on('error', async (e: unknown) => {
-        await this.confirmedTransactionStore.addFailedTransaction(
-          transactionHash.value,
-          e as Error,
-        );
         this.logger.error(`persistTransaction error: ${e}\n
           transactionHash: ${transactionHash.value}, channelId: ${
             clientRequest.body.channelId
