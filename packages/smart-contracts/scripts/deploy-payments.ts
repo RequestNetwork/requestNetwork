@@ -315,9 +315,8 @@ export async function deployAllPaymentContracts(
     );
 
     // Batch 4
-    const { chainlinkInstance, ethConversionResult } = await runDeploymentBatch_4(
-      ethFeeProxyAddress,
-    );
+    const { chainlinkInstance, ethConversionResult } =
+      await runDeploymentBatch_4(ethFeeProxyAddress);
 
     // Batch 5
     await runDeploymentBatch_5(

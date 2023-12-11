@@ -21,6 +21,7 @@ import { NUMBER_ERRORS } from './scripts/utils';
 import { networkRpcs } from '@requestnetwork/utils';
 import { tenderlyImportAll } from './scripts-create2/tenderly';
 import { updateContractsFromList } from './scripts-create2/update-contracts-setup';
+import deployStorage from './scripts/deploy-storage';
 
 config();
 
@@ -84,6 +85,11 @@ export default {
     goerli: {
       url: process.env.WEB3_PROVIDER_URL || 'https://goerli.infura.io/v3/YOUR_API_KEY',
       chainId: 5,
+      accounts,
+    },
+    sepolia: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://sepolia.infura.io/v3/YOUR_API_KEY',
+      chainId: 11155111,
       accounts,
     },
     matic: {
@@ -189,6 +195,7 @@ export default {
       mainnet: process.env.ETHERSCAN_API_KEY,
       rinkeby: process.env.ETHERSCAN_API_KEY,
       goerli: process.env.ETHERSCAN_API_KEY,
+      sepolia: process.env.ETHERSCAN_API_KEY,
       // binance smart chain
       bsc: process.env.BSCSCAN_API_KEY,
       bscTestnet: process.env.BSCSCAN_API_KEY,
@@ -311,6 +318,20 @@ task(
     args.simulate = args.dryRun;
     await hre.run(DEPLOYER_KEY_GUARD);
     await deployAllPaymentContracts(args, hre as HardhatRuntimeEnvironmentExtended);
+  });
+
+task(
+  'deploy-live-storage',
+  'Deploy payment contracts on a live network. Make sure to update all artifacts before running.',
+)
+  .addFlag('dryRun', 'to prevent any deployment')
+  .addFlag('force', 'to force re-deployment')
+  .setAction(async (args, hre) => {
+    args.force = args.force ?? false;
+    args.dryRun = args.dryRun ?? false;
+    args.simulate = args.dryRun;
+    await hre.run(DEPLOYER_KEY_GUARD);
+    await deployStorage(args, hre as HardhatRuntimeEnvironmentExtended);
   });
 
 // Tasks inherent to the CREATE2 deployment scheme
