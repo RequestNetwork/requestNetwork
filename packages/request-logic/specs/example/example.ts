@@ -40,7 +40,7 @@ async function foo(): Promise<void> {
       ({
         [aliceRaw.identity.value as string]: sign(data, aliceRaw.signatureParams),
         [bobRaw.identity.value as string]: sign(data, bobRaw.signatureParams),
-      }[identity.value]),
+      })[identity.value],
     supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
     supportedMethods: [SignatureTypes.METHOD.ECDSA],
   };

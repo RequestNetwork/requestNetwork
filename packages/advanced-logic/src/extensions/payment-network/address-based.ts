@@ -13,7 +13,8 @@ import DeclarativePaymentNetwork from './declarative';
  * This module is called by the address based payment networks to avoid code redundancy
  */
 export default abstract class AddressBasedPaymentNetwork<
-  TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters,
+  TCreationParameters extends
+    ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters,
 > extends DeclarativePaymentNetwork<TCreationParameters> {
   protected constructor(
     protected currencyManager: ICurrencyManager,
