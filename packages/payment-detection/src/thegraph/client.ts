@@ -28,13 +28,12 @@ const THE_GRAPH_URL_STUDIO_ZKSYNC =
  *
  * @type TGraphClientVariant: null if no variant, 'near' if native token payments detection on Near
  */
-export type TheGraphClient<
-  TChain extends CurrencyTypes.VMChainName = CurrencyTypes.EvmChainName
-> = (TChain extends CurrencyTypes.NearChainName
-  ? ReturnType<typeof getNearSdk>
-  : ReturnType<typeof getSdk>) & {
-  options?: TheGraphQueryOptions;
-};
+export type TheGraphClient<TChain extends CurrencyTypes.VMChainName = CurrencyTypes.EvmChainName> =
+  (TChain extends CurrencyTypes.NearChainName
+    ? ReturnType<typeof getNearSdk>
+    : ReturnType<typeof getSdk>) & {
+    options?: TheGraphQueryOptions;
+  };
 
 export type TheGraphQueryOptions = {
   blockFilter?: Maybe<Block_Height>;
