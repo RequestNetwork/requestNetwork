@@ -55,7 +55,7 @@
     "tslib": "2.5.0"
   },
   "devDependencies": {
-    "@babel/helper-get-function-arity": "^7.16.7",
+    "@babel/helper-get-function-arity": "7.16.7",
     "@graphql-codegen/cli": "4.0.1",
     "@graphql-codegen/typescript": "4.0.1",
     "@graphql-codegen/typescript-document-nodes": "4.0.1",
