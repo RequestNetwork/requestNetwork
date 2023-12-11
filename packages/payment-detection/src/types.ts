@@ -67,27 +67,29 @@ export interface IEventRetriever<
 
 /** Object interface to list the payment network module by id */
 export type IPaymentNetworkModuleByType<
-  TPaymentEventParameters extends PaymentTypes.GenericEventParameters = PaymentTypes.GenericEventParameters,
+  TPaymentEventParameters extends
+    PaymentTypes.GenericEventParameters = PaymentTypes.GenericEventParameters,
 > = Partial<
   Record<
     ExtensionTypes.PAYMENT_NETWORK_ID,
-    new (...pnParams: any) => PaymentDetectorBase<
-      ExtensionTypes.IExtension,
-      TPaymentEventParameters
-    >
+    new (
+      ...pnParams: any
+    ) => PaymentDetectorBase<ExtensionTypes.IExtension, TPaymentEventParameters>
   >
 >;
 
 /** Object interface to list the payment network module by network */
 export interface ISupportedPaymentNetworkByNetwork<
-  TPaymentEventParameters extends PaymentTypes.GenericEventParameters = PaymentTypes.GenericEventParameters,
+  TPaymentEventParameters extends
+    PaymentTypes.GenericEventParameters = PaymentTypes.GenericEventParameters,
 > {
   [network: string]: IPaymentNetworkModuleByType<TPaymentEventParameters>;
 }
 
 /** Object interface to list the payment network id and its module by currency */
 export interface ISupportedPaymentNetworkByCurrency<
-  TPaymentEventParameters extends PaymentTypes.GenericEventParameters = PaymentTypes.GenericEventParameters,
+  TPaymentEventParameters extends
+    PaymentTypes.GenericEventParameters = PaymentTypes.GenericEventParameters,
 > {
   [currency: string]: ISupportedPaymentNetworkByNetwork<TPaymentEventParameters>;
 }

@@ -88,10 +88,10 @@ export default class PersistTransactionHandler {
         );
         this.logger.error(`persistTransaction error: ${e}\n
           transactionHash: ${transactionHash.value}, channelId: ${
-          clientRequest.body.channelId
-        }, topics: ${clientRequest.body.topics}, transactionData: ${JSON.stringify(
-          clientRequest.body.transactionData,
-        )}`);
+            clientRequest.body.channelId
+          }, topics: ${clientRequest.body.topics}, transactionData: ${JSON.stringify(
+            clientRequest.body.transactionData,
+          )}`);
       });
 
       this.logger.debug(`persistTransaction successfully completed`, ['metric', 'successRate']);

@@ -4,7 +4,10 @@ import { StatusCodes } from 'http-status-codes';
 import ConfirmedTransactionStore from './confirmedTransactionStore';
 
 export default class getConfirmedTransactionHandler {
-  constructor(private logger: LogTypes.ILogger, private store: ConfirmedTransactionStore) {
+  constructor(
+    private logger: LogTypes.ILogger,
+    private store: ConfirmedTransactionStore,
+  ) {
     this.handler = this.handler.bind(this);
   }
 
