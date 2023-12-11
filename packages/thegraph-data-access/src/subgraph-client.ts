@@ -10,7 +10,6 @@ import {
   TransactionsBody,
 } from './queries';
 import { Variables, RequestConfig } from 'graphql-request/build/cjs/types';
-import type {} from 'graphql-request';
 
 // Max Int value (as supported by grapqhl types)
 const MAX_INT_VALUE = 0x7fffffff;
