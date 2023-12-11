@@ -31,6 +31,9 @@ export class EthereumTransactionSubmitter implements StorageTypes.ITransactionSu
       signer,
     ) as RequestOpenHashSubmitter; // type mismatch with ethers.
     this.gasFeeDefiner = new GasFeeDefiner({ provider, gasPriceMin, logger: this.logger });
+    this.provider.on('debug', (event) => {
+      this.logger.debug('JsonRpcProvider debug event', event);
+    });
   }
 
   get hashSubmitterAddress(): string {
