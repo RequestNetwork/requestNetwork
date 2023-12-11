@@ -1,5 +1,7 @@
 import { GraphQLClient } from 'graphql-request';
 import { getSdk } from './generated/graphql-superfluid';
+import { RequestConfig } from 'graphql-request/src/types';
+import { omit } from 'lodash';
 
 const BASE_URL = `https://api.thegraph.com`;
 const NETWORK_TO_URL: Record<string, string> = {
@@ -14,9 +16,8 @@ const NETWORK_TO_URL: Record<string, string> = {
  * A GraphQL client to query Superfluid's subgraph.
  */
 export type TheGraphSuperfluidClient = ReturnType<typeof getSdk>;
-export type TheGraphClientOptions = {
+export type TheGraphClientOptions = RequestConfig & {
   baseUrl?: string;
-  timeout?: number;
 };
 
 export const getTheGraphSuperfluidClient = (
@@ -32,5 +33,6 @@ export const getTheGraphSuperfluidClient = (
   const url = `${baseUrl}/subgraphs/name/superfluid-finance/protocol-v1-${
     NETWORK_TO_URL[network] || network
   }`;
-  return getSdk(new GraphQLClient(url, options));
+  const clientOptions = omit(options, 'baseUrl');
+  return getSdk(new GraphQLClient(url, clientOptions));
 };

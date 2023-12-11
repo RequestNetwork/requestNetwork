@@ -73,7 +73,7 @@
     "@typechain/hardhat": "2.1.2",
     "@types/chai": "4.2.21",
     "@types/mocha": "8.2.3",
-    "@types/node": "16.11.7",
+    "@types/node": "18.11.9",
     "axios": "0.27.2",
     "chai": "4.3.4",
     "dotenv": "10.0.0",

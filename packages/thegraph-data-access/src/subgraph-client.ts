@@ -9,8 +9,8 @@ import {
   Transaction,
   TransactionsBody,
 } from './queries';
-import { RequestInit } from 'graphql-request/dist/types.dom';
-import { Variables } from 'graphql-request/dist/types';
+import { Variables, RequestConfig } from 'graphql-request/build/cjs/types';
+import type {} from 'graphql-request';
 
 // Max Int value (as supported by grapqhl types)
 const MAX_INT_VALUE = 0x7fffffff;
@@ -18,7 +18,7 @@ const MAX_INT_VALUE = 0x7fffffff;
 export class SubgraphClient implements StorageTypes.IIndexer {
   private graphql: GraphQLClient;
   public readonly endpoint: string;
-  constructor(endpoint: string, options?: RequestInit) {
+  constructor(endpoint: string, options?: RequestConfig) {
     this.endpoint = endpoint;
     this.graphql = new GraphQLClient(endpoint, options);
   }
