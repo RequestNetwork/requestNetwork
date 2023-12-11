@@ -48,7 +48,7 @@
     "lint-staged": "10.5.4",
     "npm-package-json-lint": "5.1.0",
     "nyc": "15.1.0",
-    "prettier": "2.8.6",
+    "prettier": "3.0.3",
     "prettier-plugin-solidity": "1.0.0-beta.19",
     "remap-istanbul": "0.13.0",
     "typescript": "5.1.3"

@@ -1,7 +1,10 @@
 import { PaymentTypes, ExtensionTypes } from '@requestnetwork/types';
 
 export class BalanceError extends Error {
-  constructor(message: string, public readonly code: PaymentTypes.BALANCE_ERROR_CODE) {
+  constructor(
+    message: string,
+    public readonly code: PaymentTypes.BALANCE_ERROR_CODE,
+  ) {
     super(message);
   }
 }

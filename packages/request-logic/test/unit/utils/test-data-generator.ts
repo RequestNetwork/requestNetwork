@@ -283,7 +283,7 @@ export const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = 
       [payeeRaw.address as string]: sign(data, payeeRaw.signatureParams),
       [payerRaw.address as string]: sign(data, payerRaw.signatureParams),
       [otherIdRaw.address as string]: sign(data, otherIdRaw.signatureParams),
-    }[identity.value]),
+    })[identity.value],
   supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
   supportedMethods: [SignatureTypes.METHOD.ECDSA],
 };
