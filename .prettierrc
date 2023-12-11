@@ -4,7 +4,7 @@
   "printWidth": 100,
   "overrides": [
     {
-      "files": ".yarn/releases/yarn-1.22.19.cjs",
+      "files": ".yarn/releases/*.cjs",
       "options": {
         "rangeEnd": 0
       }
