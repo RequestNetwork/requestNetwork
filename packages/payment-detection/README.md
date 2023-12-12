@@ -67,8 +67,6 @@ yarn codegen
 
 # Test
 
+```bash
 yarn run test
-
-```
-
 ```
