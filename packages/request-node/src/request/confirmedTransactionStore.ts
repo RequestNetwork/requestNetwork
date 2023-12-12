@@ -2,9 +2,10 @@ import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 import { SubgraphClient } from '@requestnetwork/thegraph-data-access';
 
 /**
- * Class for storing confirmed transactions information
- * When 'confirmed' event is received from a 'persistTransaction', the event data are stored.
- * The client can call the getConfirmed entry point, to get the confirmed event.
+ * Class for storing confirmed transaction information
+ * When 'confirmed' event is received from a 'persistTransaction', the event data is
+ * stored and indexed by the storage subgraph. The client can call the 
+ * getConfirmedTransaction endpoint, to get the confirmed event.
  */
 export default class ConfirmedTransactionStore {
   /**
