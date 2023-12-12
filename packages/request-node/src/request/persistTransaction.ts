@@ -12,7 +12,10 @@ export default class PersistTransactionHandler {
   /**
    * Persist transaction constructor
    */
-  constructor(private dataAccess: DataAccessTypes.IDataWrite, private logger: LogTypes.ILogger) {
+  constructor(
+    private dataAccess: DataAccessTypes.IDataWrite,
+    private logger: LogTypes.ILogger,
+  ) {
     this.handler = this.handler.bind(this);
   }
 

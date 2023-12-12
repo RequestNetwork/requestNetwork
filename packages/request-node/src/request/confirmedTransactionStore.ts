@@ -4,7 +4,7 @@ import { SubgraphClient } from '@requestnetwork/thegraph-data-access';
 /**
  * Class for storing confirmed transaction information
  * When 'confirmed' event is received from a 'persistTransaction', the event data is
- * stored and indexed by the storage subgraph. The client can call the 
+ * stored and indexed by the storage subgraph. The client can call the
  * getConfirmedTransaction endpoint, to get the confirmed event.
  */
 export default class ConfirmedTransactionStore {
@@ -19,9 +19,8 @@ export default class ConfirmedTransactionStore {
   public async getConfirmedTransaction(
     transactionHash: string,
   ): Promise<DataAccessTypes.IReturnPersistTransactionRaw | undefined> {
-    const { transactions, blockNumber } = await this.subgraphClient.getTransactionsByDataHash(
-      transactionHash,
-    );
+    const { transactions, blockNumber } =
+      await this.subgraphClient.getTransactionsByDataHash(transactionHash);
     if (transactions.length === 0) {
       return;
     }
