@@ -26,7 +26,9 @@ export const getRequestNode = (): RequestNode => {
   const storage = getDataStorage(logger);
   const dataAccess = getDataAccess(network, storage, logger);
 
- // we access the subgraph client directly, not through the data access, because this feature is specific to RN use with Request Node. Without a node, the confirmation process would be different, so this doesn't fit in the data access layer
+  // we access the subgraph client directly, not through the data access,
+  // because this feature is specific to RN use with Request Node. Without a node,
+  // the confirmation process would be different, so this doesn't fit in the data access layer
   const confirmedTransactionStore = new ConfirmedTransactionStore(
     new SubgraphClient(config.getGraphNodeUrl()),
     network,
