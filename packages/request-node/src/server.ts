@@ -26,7 +26,7 @@ export const getRequestNode = (): RequestNode => {
   const storage = getDataStorage(logger);
   const dataAccess = getDataAccess(network, storage, logger);
 
-  // the confirmed transaction feature is specific to usage with a Request Node, so isn't exposed by dataAccess.
+ // we access the subgraph client directly, not through the data access, because this feature is specific to RN use with Request Node. Without a node, the confirmation process would be different, so this doesn't fit in the data access layer
   const confirmedTransactionStore = new ConfirmedTransactionStore(
     new SubgraphClient(config.getGraphNodeUrl()),
     network,
