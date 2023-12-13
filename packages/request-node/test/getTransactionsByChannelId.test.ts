@@ -7,7 +7,7 @@ const channelId = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 const anotherChannelId = '01bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbc';
 const nonExistentChannelId = '01cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccd';
 const transactionData = {
-  data: 'this is sample data for a transaction to test getTransactionsByChannelId',
+  data: `this is sample data for a transaction to test getTransactionsByChannelId ${Date.now()}`,
 };
 const otherTransactionData = {
   data: 'this is other sample data for a transaction to test getTransactionsByChannelId',

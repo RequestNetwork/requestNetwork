@@ -12,7 +12,7 @@ const topics = [
   '010ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc',
   '010ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
 ];
-const transactionData = { data: 'this is sample data for a transaction' };
+const transactionData = { data: `this is sample data for a transaction ${Date.now()}` };
 const anotherTransactionData = { data: 'you can put any data' };
 const badlyFormattedTransactionData = { not: 'a transaction' };
 

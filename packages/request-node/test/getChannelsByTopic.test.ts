@@ -17,7 +17,7 @@ const otherTopics = [`01eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee${tim
 );
 const nonExistentTopic = '010000000000000000000000000000000000000000000000000000000000000000';
 const transactionData = {
-  data: 'this is sample data for a transaction to test getChannelsByTopic',
+  data: `this is sample data for a transaction to test getChannelsByTopic ${Date.now()}`,
 };
 const otherTransactionData = {
   data: 'this is other sample data for a transaction to test getChannelsByTopic',
