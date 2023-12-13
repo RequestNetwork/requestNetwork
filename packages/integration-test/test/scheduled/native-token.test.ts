@@ -1,13 +1,12 @@
 import { PaymentNetworkFactory } from '@requestnetwork/payment-detection';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { PnReferenceBased } from '@requestnetwork/types/dist/extension-types';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { omit } from 'lodash';
 
 const advancedLogic = new AdvancedLogic(new CurrencyManager(CurrencyManager.getDefaultList()));
 
-const createCreationActionParams: PnReferenceBased.ICreationParameters = {
+const createCreationActionParams: ExtensionTypes.PnReferenceBased.ICreationParameters = {
   paymentAddress: 'payment.testnet',
   salt: 'a1a2a3a4a5a6a7a8',
   paymentNetworkName: 'aurora-testnet',

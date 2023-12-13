@@ -7,7 +7,7 @@ import { providers } from 'ethers';
 
 const channelId = '010aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
-const transactionData = { data: 'this is sample data for a transaction' };
+const transactionData = { data: `this is sample data for a transaction ${Date.now()}` };
 const transactionHash = normalizeKeccak256Hash(transactionData).value;
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 
