@@ -82,7 +82,10 @@ query GetTransactionsByTopics($topics: [String!]!){
   channels(
     where: { topics_contains: $topics }
   ){
-    transactions {
+    transactions(
+      orderBy: blockTimestamp, 
+      orderDirection: asc
+    ) {
       ...TransactionsBody
     }
   }
