@@ -74,19 +74,22 @@ export const GetTransactionsByHashQuery = gql`
   }
 `;
 
-export const GetChannelsByTopicsQuery = gql`
-  ${TransactionsBodyFragment}
-  query GetChannelsByTopics($topics: [String!]!) {
-    ${metaQueryBody}
+export const GetTransactionsByTopics = gql`
+${TransactionsBodyFragment}
+
+query GetTransactionsByTopics($topics: [String!]!){
+  ${metaQueryBody}
+  channels(
+    where: { topics_contains: $topics }
+  ){
     transactions(
-      where: { topics_contains: $topics }
-      orderBy: blockTimestamp
+      orderBy: blockTimestamp, 
       orderDirection: asc
     ) {
-      channelId
+      ...TransactionsBody
     }
   }
-`;
+}`;
 
 export const GetBlockQuery = gql`
   query GetBlock {
