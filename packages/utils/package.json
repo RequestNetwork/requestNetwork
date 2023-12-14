@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/utils",
-  "version": "0.38.0",
+  "version": "0.39.0",
   "publishConfig": {
     "access": "public"
   },
@@ -40,7 +40,7 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.38.0",
+    "@requestnetwork/types": "0.39.0",
     "@toruslabs/eccrypto": "4.0.0",
     "ethers": "5.5.1",
     "secp256k1": "4.0.2",
