@@ -55,7 +55,10 @@ export class SubgraphClient implements StorageTypes.IIndexer {
       Meta & { channels: { transactions: Transaction[] }[] }
     >(GetTransactionsByTopics, { topics });
 
-    const transactionsByChannel = channels.map(({ transactions }) => transactions).flat();
+    const transactionsByChannel = channels
+      .map(({ transactions }) => transactions)
+      .flat()
+      .sort((a, b) => a.blockTimestamp - b.blockTimestamp);
 
     return {
       transactions: transactionsByChannel.map(this.toIndexedTransaction),
