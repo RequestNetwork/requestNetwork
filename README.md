@@ -78,6 +78,8 @@ yarn run lint
 
 ### Test
 
+Install [Docker Engine](https://docs.docker.com/engine/install/)
+
 Disable API tests OR define all required explorer API keys.
 
 ```bash
@@ -92,7 +94,22 @@ export EXPLORER_API_KEY_FANTOM=
 
 Test all the packages in the monorepo.
 
+In one terminal, run ganache.
+
 ```bash
+yarn workspace @requestnetwork/smart-contracts ganache
+```
+
+In another terminal, run IPFS with docker
+
+```bash
+sudo docker run requestnetwork/request-ipfs
+```
+
+In another terminal, deploy smart contracts and run tests
+
+```bash
+yarn workspace @requestnetwork/smart-contracts run deploy
 yarn run test
 ```
 

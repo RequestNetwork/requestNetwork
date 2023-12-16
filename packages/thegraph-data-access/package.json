@@ -36,7 +36,7 @@
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "prepare": "yarn run build",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
