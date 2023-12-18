@@ -4,6 +4,7 @@ import { CurrencyDefinition } from './types';
 import privateAggregator from './aggregators/private.json';
 import mainnetAggregator from './aggregators/mainnet.json';
 import goerliAggregator from './aggregators/goerli.json';
+import sepoliaAggregator from './aggregators/sepolia.json';
 import rinkebyAggregator from './aggregators/rinkeby.json';
 import maticAggregator from './aggregators/matic.json';
 import fantomAggregator from './aggregators/fantom.json';
@@ -34,6 +35,7 @@ const chainlinkCurrencyPairs: AggregatorsMap<CurrencyTypes.EvmChainName> = {
   mainnet: mainnetAggregator,
   matic: maticAggregator,
   fantom: fantomAggregator,
+  sepolia: sepoliaAggregator,
 };
 
 // Pairs supported by Flux Protocol
