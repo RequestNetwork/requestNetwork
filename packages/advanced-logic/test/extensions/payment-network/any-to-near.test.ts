@@ -16,7 +16,29 @@ import { deepCopy } from '@requestnetwork/utils';
 import AnyToNearTestnetPaymentNetwork from '../../../src/extensions/payment-network/near/any-to-near-testnet';
 
 const salt = arbitrarySalt;
-const currencyManager = CurrencyManager.getDefault();
+// FIXME: replace with CurrencyManager.getDefault when Near conversion is implemented again
+const currencyManager = new CurrencyManager(
+  CurrencyManager.getDefaultList(),
+  CurrencyManager.getDefaultLegacyTokens(),
+  {
+    aurora: {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': {
+        '0x86c47ea0ea1129e55e6165d934e71698f0f49c01': 1,
+      },
+      '0x86c47ea0ea1129e55e6165d934e71698f0f49c01': {
+        '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+      },
+    },
+    'aurora-testnet': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': {
+        '0xed9cbb2837912278b47d422f36df40a1da36c4e0': 1,
+      },
+      '0xed9cbb2837912278b47d422f36df40a1da36c4e0': {
+        '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+      },
+    },
+  },
+);
 
 describe('extensions/payment-network/any-to-native-token', () => {
   const validCurrency = {
