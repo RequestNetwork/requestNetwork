@@ -1,9 +1,9 @@
 import { StorageTypes } from '@requestnetwork/types';
 import { DataAccessBaseOptions } from '@requestnetwork/data-access';
 
-import { RequestInit } from 'graphql-request/dist/types.dom';
+import { RequestConfig } from 'graphql-request/build/cjs/types';
 
 export type TheGraphDataAccessOptions = DataAccessBaseOptions & {
-  graphql: { url: string } & RequestInit;
+  graphql: { url: string } & RequestConfig;
   storage?: StorageTypes.IStorageWrite;
 };

@@ -4,7 +4,6 @@ import cors from 'cors';
 import { Server } from 'http';
 import express, { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { Store } from 'keyv';
 import ConfirmedTransactionStore from './request/confirmedTransactionStore';
 import GetConfirmedTransactionHandler from './request/getConfirmedTransactionHandler';
 import GetTransactionsByChannelIdHandler from './request/getTransactionsByChannelId';
@@ -39,7 +38,6 @@ export class RequestNode {
   private initialized: boolean;
   private logger: LogTypes.ILogger;
   private persistTransactionHandler: PersistTransactionHandler;
-  private confirmedTransactionStore: ConfirmedTransactionStore;
   private requestNodeVersion: string;
 
   private getTransactionsByChannelIdHandler: GetTransactionsByChannelIdHandler;
@@ -55,7 +53,7 @@ export class RequestNode {
   constructor(
     dataAccess: DataAccessTypes.IDataAccess,
     ipfsStorage: StorageTypes.IIpfsStorage,
-    store?: Store<DataAccessTypes.IReturnPersistTransaction>,
+    confirmedTransactionStore: ConfirmedTransactionStore,
     logger?: LogTypes.ILogger,
   ) {
     this.initialized = false;
@@ -63,10 +61,9 @@ export class RequestNode {
     this.logger = logger || new SimpleLogger();
     this.dataAccess = dataAccess;
 
-    this.confirmedTransactionStore = new ConfirmedTransactionStore(store);
     this.getConfirmedTransactionHandler = new GetConfirmedTransactionHandler(
       this.logger,
-      this.confirmedTransactionStore,
+      confirmedTransactionStore,
     );
     this.getTransactionsByChannelIdHandler = new GetTransactionsByChannelIdHandler(
       this.logger,
@@ -75,11 +72,7 @@ export class RequestNode {
     this.getChannelByTopicHandler = new GetChannelsByTopicHandler(this.logger, this.dataAccess);
     this.getStatusHandler = new GetStatusHandler(this.logger, this.dataAccess);
     this.ipfsAddHandler = new IpfsAddHandler(this.logger, ipfsStorage);
-    this.persistTransactionHandler = new PersistTransactionHandler(
-      this.confirmedTransactionStore,
-      this.dataAccess,
-      this.logger,
-    );
+    this.persistTransactionHandler = new PersistTransactionHandler(this.dataAccess, this.logger);
 
     this.express = express();
     this.mountRoutes();

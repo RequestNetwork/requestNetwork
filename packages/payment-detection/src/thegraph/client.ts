@@ -4,6 +4,8 @@ import { NearChains } from '@requestnetwork/currency';
 import { GraphQLClient } from 'graphql-request';
 import { Block_Height, Maybe, getSdk } from './generated/graphql';
 import { getSdk as getNearSdk } from './generated/graphql-near';
+import { RequestConfig } from 'graphql-request/src/types';
+import { omit } from 'lodash';
 
 const HOSTED_THE_GRAPH_URL =
   'https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-';
@@ -37,8 +39,7 @@ export type TheGraphQueryOptions = {
   blockFilter?: Maybe<Block_Height>;
 };
 
-export type TheGraphClientOptions = {
-  timeout?: number;
+export type TheGraphClientOptions = RequestConfig & {
   /** constraint to select indexers that have at least parsed this block */
   minIndexedBlock?: number | undefined;
 };
@@ -47,16 +48,22 @@ export type TheGraphClientOptions = {
 const extractClientOptions = (
   url: string,
   options?: TheGraphClientOptions,
-): [Pick<TheGraphClientOptions, 'timeout'>, TheGraphQueryOptions] => {
-  const { minIndexedBlock, timeout } = options ?? {};
+): [RequestConfig, TheGraphQueryOptions] => {
+  const optionsObject = options ?? {};
+
+  // build query options
   const queryOptions: TheGraphQueryOptions = {};
+  const { minIndexedBlock } = optionsObject;
   if (minIndexedBlock) {
     queryOptions.blockFilter = { number_gte: minIndexedBlock };
   } else if (url.match(/^https:\/\/gateway-\w+\.network\.thegraph\.com\//)) {
     // the decentralized network expects an empty object, and doesn't support "undefined"
     queryOptions.blockFilter = {};
   }
-  return [{ timeout }, queryOptions];
+
+  // build client options
+  const clientOptions: RequestConfig = omit(optionsObject, 'minIndexedBlock');
+  return [clientOptions, queryOptions];
 };
 
 export const getTheGraphClient = (network: string, url: string, options?: TheGraphClientOptions) =>

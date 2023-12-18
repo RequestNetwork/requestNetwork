@@ -154,16 +154,6 @@ export const getLogLevel = (): LogTypes.LogLevel => {
 export const getLogMode = makeOption('logMode', 'LOG_MODE', defaultValues.log.mode);
 
 /**
- * Get the initialization storage (a json-like file) path.
- * @returns the path to the json-like file that stores the initialization data (ethereum metadata and transaction index).
- */
-export const getInitializationStorageFilePath = makeOption(
-  'initializationStorageFilePath',
-  'INITIALIZATION_STORAGE_FILE_PATH',
-  '',
-);
-
-/**
  * Get the delay to wait before sending a timeout when performing a persistTransaction request
  * persistTransaction is called when a request is created or updated and need to wait for Ethereum to commit the transaction
  * PROT-300: This configuration value can be removed once batching is implenented
@@ -240,7 +230,6 @@ export const getConfigDisplay = (): string => {
   TheGraph url: ${getGraphNodeUrl()}
   IPFS url: ${getIpfsUrl()}
   IPFS timeout: ${getIpfsTimeout()}
-  Initialization storage path: ${getInitializationStorageFilePath()}
   Storage block confirmations: ${getBlockConfirmations()}
 `;
 };

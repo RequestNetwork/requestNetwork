@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/epk-decryption",
-  "version": "0.3.36",
+  "version": "0.3.37",
   "publishConfig": {
     "access": "public"
   },
@@ -41,9 +41,9 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/multi-format": "0.15.12",
-    "@requestnetwork/types": "0.38.0",
-    "@requestnetwork/utils": "0.38.0",
+    "@requestnetwork/multi-format": "0.15.13",
+    "@requestnetwork/types": "0.39.0",
+    "@requestnetwork/utils": "0.39.0",
     "tslib": "2.5.0"
   },
   "devDependencies": {

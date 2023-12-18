@@ -10,6 +10,7 @@ export type SubmitterProps = {
   gasPriceMin?: BigNumber;
   network: CurrencyTypes.EvmChainName;
   logger?: LogTypes.ILogger;
+  debugProvider?: boolean;
 };
 
 /**
@@ -22,7 +23,7 @@ export class EthereumTransactionSubmitter implements StorageTypes.ITransactionSu
   private readonly provider: providers.JsonRpcProvider;
   private readonly gasFeeDefiner: GasFeeDefiner;
 
-  constructor({ network, signer, logger, gasPriceMin }: SubmitterProps) {
+  constructor({ network, signer, logger, gasPriceMin, debugProvider }: SubmitterProps) {
     this.logger = logger || new SimpleLogger();
     const provider = signer.provider as providers.JsonRpcProvider;
     this.provider = provider;
@@ -31,6 +32,11 @@ export class EthereumTransactionSubmitter implements StorageTypes.ITransactionSu
       signer,
     ) as RequestOpenHashSubmitter; // type mismatch with ethers.
     this.gasFeeDefiner = new GasFeeDefiner({ provider, gasPriceMin, logger: this.logger });
+    if (debugProvider) {
+      this.provider.on('debug', (event) => {
+        this.logger.debug('JsonRpcProvider debug event', event);
+      });
+    }
   }
 
   get hashSubmitterAddress(): string {

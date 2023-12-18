@@ -8,7 +8,8 @@ const CURRENT_VERSION = '0.2.0';
  * Implementation of the payment network to pay in ERC20 based on a transferable receivable contract.
  */
 export default class Erc20TransferableReceivablePaymentNetwork<
-  TCreationParameters extends ExtensionTypes.PnFeeReferenceBased.ICreationParameters = ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
+  TCreationParameters extends
+    ExtensionTypes.PnFeeReferenceBased.ICreationParameters = ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
 > extends FeeReferenceBasedPaymentNetwork<TCreationParameters> {
   public constructor(
     currencyManager: ICurrencyManager,
