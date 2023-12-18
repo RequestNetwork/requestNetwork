@@ -8,9 +8,6 @@ import sepoliaAggregator from './aggregators/sepolia.json';
 import rinkebyAggregator from './aggregators/rinkeby.json';
 import maticAggregator from './aggregators/matic.json';
 import fantomAggregator from './aggregators/fantom.json';
-import nearAggregator from './aggregators/near.json';
-import nearTestnetAggregator from './aggregators/near-testnet.json';
-import auroraTestnetAggregator from './aggregators/aurora-testnet.json';
 import { CurrencyTypes } from '@requestnetwork/types';
 
 /**
@@ -38,14 +35,7 @@ const chainlinkCurrencyPairs: AggregatorsMap<CurrencyTypes.EvmChainName> = {
   sepolia: sepoliaAggregator,
 };
 
-// Pairs supported by Flux Protocol
-const fluxCurrencyPairs: AggregatorsMap<CurrencyTypes.NearChainName> = {
-  aurora: nearAggregator,
-  'aurora-testnet': auroraTestnetAggregator,
-  'near-testnet': nearTestnetAggregator,
-};
-
-// FIX ME: This fix enables to get these networks registered in conversionSupportedNetworks.
+// FIXME: This fix enables to get these networks registered in conversionSupportedNetworks.
 // Could be improved by removing the supported network check from the protocol
 const noConversionNetworks: AggregatorsMap = {
   'arbitrum-rinkeby': {},
@@ -55,6 +45,9 @@ const noConversionNetworks: AggregatorsMap = {
   bsc: {},
   optimism: {},
   moonbeam: {},
+  // FIXME: Near should get conversion again with Pyth. See './aggregators/near-testnet.json' and './aggregators/near.json';
+  aurora: {},
+  'aurora-testnet': {},
 };
 
 /**
@@ -63,7 +56,6 @@ const noConversionNetworks: AggregatorsMap = {
  */
 export const defaultConversionPairs: AggregatorsMap = {
   ...chainlinkCurrencyPairs,
-  ...fluxCurrencyPairs,
   ...noConversionNetworks,
 };
 
