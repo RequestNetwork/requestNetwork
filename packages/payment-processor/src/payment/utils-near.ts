@@ -126,6 +126,7 @@ export const processNearPaymentWithConversion = async (
   version = '0.1.0',
   callback: INearTransactionCallback | undefined = undefined,
 ): Promise<void> => {
+  throw new Error('Payments with on-chain conversions are currently disabled on Near.');
   if (version !== '0.1.0') {
     throw new Error('Native Token with conversion payments on Near only support v0.1.0 extensions');
   }

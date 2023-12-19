@@ -65,14 +65,13 @@ export async function payNearConversionRequest(
   );
 }
 
+// FIXME: the previous oracle worked with ticker, this could be deprecated with the next oracle we implement.
 const getTicker = (currency: RequestLogicTypes.ICurrency): string => {
   switch (currency.type) {
     case RequestLogicTypes.CURRENCY.ISO4217:
       return currency.value;
     default:
-      // FIXME: Flux oracles are compatible with ERC20 identified by tickers. Ex: USDT, DAI.
-      // Warning: although Flux oracles are compatible with ETH and BTC, the request contract
-      // for native payments and conversions only handles 2 decimals, not suited for cryptos.
+      // Warning: the request contract for native payments and conversions only handles 2 decimals, not suited for cryptos.
       throw new Error('Near payment with conversion only implemented for fiat denominations.');
   }
 };
