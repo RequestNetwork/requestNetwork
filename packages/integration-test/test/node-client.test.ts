@@ -32,13 +32,6 @@ const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 // eslint-disable-next-line no-magic-numbers
 jest.setTimeout(30000);
 
-const requestCreationHashBTC: Types.IRequestInfo = {
-  currency: 'BTC',
-  expectedAmount: '1000',
-  payee: payeeIdentity,
-  payer: payerIdentity,
-};
-
 const requestCreationHashUSD: Types.IRequestInfo = {
   currency: 'USD',
   expectedAmount: '1000',
@@ -89,16 +82,16 @@ const waitForConfirmation = async (input: Request | Types.IRequestDataWithEvents
   }, 5000);
 
   // Return the confirmation result.
-  const promiseResults = await Promise.all([waitForConfirmationPromise, mineBlockPromise]);
+  const [requestData] = await Promise.all([waitForConfirmationPromise, mineBlockPromise]);
   clearTimeout(timeout);
-  return promiseResults[0];
+  return requestData;
 };
 
 describe('Request client using a request node', () => {
   it('can create a request, change the amount and get data', async () => {
     // Create a request
     const request = await requestNetwork.createRequest({
-      requestInfo: requestCreationHashBTC,
+      requestInfo: requestCreationHashUSD,
       signer: payeeIdentity,
     });
     expect(request).toBeInstanceOf(Request);
@@ -194,7 +187,7 @@ describe('Request client using a request node', () => {
   it('can create requests and get them fromIdentity and with time boundaries', async () => {
     // create request 1
     const requestCreationHash1: Types.IRequestInfo = {
-      currency: 'BTC',
+      currency: 'USD',
       expectedAmount: '100000000',
       payee: payeeIdentity,
       payer: payerIdentity,
@@ -219,7 +212,7 @@ describe('Request client using a request node', () => {
 
     // create request 2
     const requestCreationHash2: Types.IRequestInfo = {
-      currency: 'BTC',
+      currency: 'USD',
       expectedAmount: '1000',
       payee: payeeIdentity,
       payer: payerIdentity,
@@ -282,7 +275,7 @@ describe('Request client using a request node', () => {
     ];
     const request1: Request = await requestNetwork.createRequest({
       requestInfo: {
-        currency: 'BTC',
+        currency: 'USD',
         expectedAmount: '100000000',
         payee: payeeIdentity,
         payer: payerSmartContract,
@@ -295,7 +288,7 @@ describe('Request client using a request node', () => {
     // create request 2 to be sure it is not found when search with smart contract identity
     await requestNetwork.createRequest({
       requestInfo: {
-        currency: 'BTC',
+        currency: 'USD',
         expectedAmount: '1000',
         payee: payeeIdentity,
         payer: payerIdentity,
@@ -330,7 +323,7 @@ describe('Request client using a request node', () => {
     const request = await requestNetwork._createEncryptedRequest(
       {
         requestInfo: {
-          ...requestCreationHashBTC,
+          ...requestCreationHashUSD,
           ...{ timestamp },
         },
         signer: payeeIdentity,
@@ -377,7 +370,7 @@ describe('Request client using a request node', () => {
     const request = await requestNetwork._createEncryptedRequest(
       {
         requestInfo: {
-          ...requestCreationHashBTC,
+          ...requestCreationHashUSD,
           ...{ timestamp },
         },
         signer: payeeIdentity,
@@ -398,7 +391,8 @@ describe('Request client using a request node', () => {
     expect(requestData.pending!.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
 
-    await waitForConfirmation(request);
+    const confirmedRequest = await waitForConfirmation(request);
+    expect(confirmedRequest.state).toBe(Types.RequestLogic.STATE.CREATED);
 
     // Fetch the created request by its id
     const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
@@ -425,18 +419,18 @@ describe('Request client using a request node', () => {
     expect(fetchedRequestData.state).toBe(Types.RequestLogic.STATE.ACCEPTED);
 
     const increaseData = await request.increaseExpectedAmountRequest(
-      requestCreationHashBTC.expectedAmount,
+      requestCreationHashUSD.expectedAmount,
       payerIdentity,
     );
     await waitForConfirmation(increaseData);
 
     await fetchedRequest.refresh();
     expect(fetchedRequest.getData().expectedAmount).toEqual(
-      String(Number(requestCreationHashBTC.expectedAmount) * 2),
+      String(Number(requestCreationHashUSD.expectedAmount) * 2),
     );
 
     const reduceData = await request.reduceExpectedAmountRequest(
-      Number(requestCreationHashBTC.expectedAmount) * 2,
+      Number(requestCreationHashUSD.expectedAmount) * 2,
       payeeIdentity,
     );
     await waitForConfirmation(reduceData);
@@ -458,7 +452,7 @@ describe('Request client using a request node', () => {
     const encryptedRequest = await requestNetwork._createEncryptedRequest(
       {
         requestInfo: {
-          ...requestCreationHashBTC,
+          ...requestCreationHashUSD,
           ...{ timestamp },
         },
         signer: payeeIdentity,
@@ -470,7 +464,7 @@ describe('Request client using a request node', () => {
     // Create a plain request
     const plainRequest = await requestNetwork.createRequest({
       requestInfo: {
-        ...requestCreationHashBTC,
+        ...requestCreationHashUSD,
         ...{ timestamp },
       },
       signer: payeeIdentity,
@@ -512,7 +506,7 @@ describe('Request client using a request node', () => {
     const request = await requestNetwork._createEncryptedRequest(
       {
         requestInfo: {
-          ...requestCreationHashBTC,
+          ...requestCreationHashUSD,
           ...{ timestamp },
         },
         signer: payeeIdentity,

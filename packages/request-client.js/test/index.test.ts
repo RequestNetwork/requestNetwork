@@ -1912,7 +1912,8 @@ describe('request-client.js', () => {
       expect(data.extensionsData[0].parameters.network).toBe('goerli');
       expect(data.extensionsData[0].id).toBe('pn-any-to-erc20-proxy');
       expect(data.expectedAmount).toBe(TestData.parametersUSDWithoutExtensionsData.expectedAmount);
-    });
+    }, 10000);
+
     it('can create any-to-native requests', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,

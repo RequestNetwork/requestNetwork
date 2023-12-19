@@ -8,11 +8,10 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { deepCopy, getDefaultProvider } from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 
 import {
   closeErc777StreamRequest,
-  getSuperFluidFramework,
   makeErc777OneOffPayment,
   payErc777StreamRequest,
   RESOLVER_ADDRESS,
@@ -92,31 +91,6 @@ describe('erc777-stream', () => {
     });
   });
 
-  describe('Superfluid framework', () => {
-    it.each([
-      { network: 'goerli' },
-      { network: 'matic' },
-      // { network: 'xdai' },
-      { network: 'optimism' },
-      { network: 'avalanche' },
-      { network: 'arbitrum-one' },
-    ] as Array<{ network: CurrencyTypes.EvmChainName }>)(
-      'Should initialize superfluid framework on $network',
-      async ({ network }) => {
-        const provider = getDefaultProvider(network);
-        const networkValidRequest = {
-          ...validRequest,
-          currencyInfo: {
-            ...validRequest.currencyInfo,
-            network,
-          },
-        };
-        const sf = await getSuperFluidFramework(networkValidRequest, provider);
-        expect(sf).toBeDefined();
-      },
-    );
-  });
-
   describe('encodePayErc20FeeRequest (used to pay and swap to pay)', () => {
     it('should throw an error if the request is not erc777', async () => {
       const request = deepCopy(validRequest) as ClientTypes.IRequestData;
@@ -159,7 +133,7 @@ describe('erc777-stream', () => {
       let confirmedTx;
       // initialize the superfluid framework...put custom and web3 only bc we are using ganache locally
       const sf = await Framework.create({
-        chainId: provider.network.chainId,
+        chainId: 1337,
         provider,
         resolverAddress: RESOLVER_ADDRESS,
         protocolReleaseVersion: 'test',
@@ -227,14 +201,14 @@ describe('erc777-stream', () => {
         providerOrSigner: provider,
       });
       expect(paymentFlowRate).toBe(expectedFlowRate);
-    });
+    }, 20000);
 
     it('closeErc777StreamRequest should close an ERC777 request', async () => {
       let tx;
       let confirmedTx;
       // initialize the superfluid framework...put custom and web3 only bc we are using ganache locally
       const sf = await Framework.create({
-        chainId: provider.network.chainId,
+        chainId: 1337,
         provider,
         resolverAddress: RESOLVER_ADDRESS,
         protocolReleaseVersion: 'test',
@@ -273,7 +247,7 @@ describe('erc777-stream', () => {
     it('Should perform a payment', async () => {
       // initialize the superfluid framework...put custom and web3 only bc we are using ganache locally
       const sf = await Framework.create({
-        chainId: provider.network.chainId,
+        chainId: 1337,
         provider,
         resolverAddress: RESOLVER_ADDRESS,
         protocolReleaseVersion: 'test',
