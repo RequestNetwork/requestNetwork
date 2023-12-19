@@ -16,11 +16,11 @@ export const runUpdate = async <T extends 'updateAggregator' | 'updateAggregator
 
   for (const { version, contract } of contractsWithVersion) {
     console.log(
-      `${dryRunText} will call ${method} on chainlinkConversionPath version ${version} at ${contract.address} (${args.network}))`,
+      `${dryRunText}will call ${method} on chainlinkConversionPath version ${version} at ${contract.address} (${args.network}))`,
     );
     console.log(JSON.stringify(params));
     if (args.dryRun) {
-      process.exit();
+      continue;
     }
     // TS hack to fix params type
     const neverParams = params as [never, never, never];
@@ -94,7 +94,8 @@ const connectChainlinkContracts = ({
   }
   const versions = chainlinkConversionPath
     .getAllAddresses(network)
-    .filter((x) => !!x.address)
+    // keep only versions with index, and remove duplicates (different versions can have same address for retro compatiblity)
+    .filter((x, i, self) => !!x.address && self.findIndex((y) => y.address === x.address) === i)
     .map((x) => x.version);
 
   return versions.map((version) => {
