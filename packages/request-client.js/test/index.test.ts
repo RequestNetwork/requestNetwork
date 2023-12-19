@@ -1913,7 +1913,7 @@ describe('request-client.js', () => {
       expect(data.extensionsData[0].id).toBe('pn-any-to-erc20-proxy');
       expect(data.expectedAmount).toBe(TestData.parametersUSDWithoutExtensionsData.expectedAmount);
     }, 10000);
-    
+
     // FIXME: Near should get conversion again with Pyth.
     it.skip('can create any-to-native requests', async () => {
       const requestNetwork = new RequestNetwork({
