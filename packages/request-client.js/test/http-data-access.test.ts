@@ -25,13 +25,14 @@ describe('HttpDataAccess', () => {
       });
       void httpDataAccess.persistTransaction({}, '', []).then((returnPersistTransaction) => {
         returnPersistTransaction.on('error', (e: any) => {
-          expect(e.message).toBe(`Transaction confirmation not received. Try polling
-            getTransactionsByChannelId() until the transaction is confirmed.
-            deferDelay: 0ms,
-            maxRetries: 0,
-            retryDelay: 1000ms,
-            exponentialBackoffDelay: 0ms,
-            maxExponentialBackoffDelay: 30000ms`);
+          expect(e.message).toBe(
+            `After calling /persistTransaction, polling /getConfirmedTransaction timed out. Try calling getConfirmedTransaction() until the transaction is confirmed. To avoid timeouts in the future, try adjusting the httpConfig values:
+            getConfirmationDeferDelay: 0ms,
+            getConfirmationMaxRetries: 0,
+            getConfirmationRetryDelay: 1000ms,
+            getConfirmationExponentialBackoffDelay: 0ms,
+            getConfirmationMaxExponentialBackoffDelay: 30000ms`,
+          );
           done();
         });
       });
