@@ -242,8 +242,6 @@ Default values correspond to the basic configuration used to run a server in a t
 - `--storageConcurrency` Maximum number of concurrent calls to Ethereum or IPFS
   - Default value: `'200'`
   - Environment variable name: `$STORAGE_MAX_CONCURRENCY`
-- `--initializationStorageFilePath` Path to a file to persist the ethereum metadata and transaction index for faster initialization
-  - Environment variable name: `$INITIALIZATION_STORAGE_FILE_PATH`
 - `--logLevel` The maximum level of messages we will log
   - Environment variable name: `$LOG_LEVEL`
   - Available levels: ERROR, WARN, INFO and DEBUG

@@ -3,7 +3,10 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 export default class GetChannelHandler {
-  constructor(private logger: LogTypes.ILogger, private dataAccess: DataAccessTypes.IDataRead) {
+  constructor(
+    private logger: LogTypes.ILogger,
+    private dataAccess: DataAccessTypes.IDataRead,
+  ) {
     this.handler = this.handler.bind(this);
   }
 

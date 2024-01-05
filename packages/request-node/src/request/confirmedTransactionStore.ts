@@ -1,50 +1,52 @@
-import { DataAccessTypes } from '@requestnetwork/types';
-import Keyv, { Store } from 'keyv';
+import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
+import { SubgraphClient } from '@requestnetwork/thegraph-data-access';
 
 /**
- * Class for storing confirmed transactions information
- * When 'confirmed' event is received from a 'persistTransaction', the event data are stored.
- * The client can call the getConfirmed entry point, to get the confirmed event.
+ * Class for storing confirmed transaction information
+ * When 'confirmed' event is received from a 'persistTransaction', the event data is
+ * stored and indexed by the storage subgraph. The client can call the
+ * getConfirmedTransaction endpoint, to get the confirmed event.
  */
 export default class ConfirmedTransactionStore {
-  private store: Keyv<DataAccessTypes.IReturnPersistTransactionRaw | Error>;
-
   /**
    * Confirmed transactions store constructor
    */
-  constructor(store?: Store<DataAccessTypes.IReturnPersistTransaction | Error>) {
-    this.store = new Keyv<DataAccessTypes.IReturnPersistTransaction | Error>({
-      namespace: 'ConfirmedTransactions',
-      store,
-    });
-  }
+  constructor(
+    private readonly subgraphClient: SubgraphClient,
+    private readonly networkName: string,
+  ) {}
 
   public async getConfirmedTransaction(
     transactionHash: string,
-  ): Promise<DataAccessTypes.IReturnPersistTransactionRaw | Error | undefined> {
-    return this.store.get(transactionHash);
-  }
-
-  /**
-   * Stores the result of a transaction confirmation
-   *
-   * @param transactionHash hash of the transaction
-   * @param result result of the event "confirmed"
-   */
-  public async addConfirmedTransaction(
-    transactionHash: string,
-    result: DataAccessTypes.IReturnPersistTransactionRaw,
-  ): Promise<void> {
-    await this.store.set(transactionHash, result);
-  }
-
-  /**
-   * Stores the error
-   *
-   * @param transactionHash hash of the transaction
-   * @param error error of the event "error"
-   */
-  public async addFailedTransaction(transactionHash: string, error: Error): Promise<void> {
-    await this.store.set(transactionHash, error);
+  ): Promise<DataAccessTypes.IReturnPersistTransactionRaw | undefined> {
+    const { transactions, blockNumber } =
+      await this.subgraphClient.getTransactionsByDataHash(transactionHash);
+    if (transactions.length === 0) {
+      return;
+    }
+    const transaction = transactions[0];
+    return {
+      meta: {
+        transactionStorageLocation: transaction.hash,
+        topics: transaction.topics,
+        storageMeta: {
+          state: StorageTypes.ContentState.CONFIRMED,
+          storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+          timestamp: transaction.blockTimestamp,
+          ethereum: {
+            blockConfirmation: blockNumber - transaction.blockNumber,
+            blockTimestamp: transaction.blockTimestamp,
+            blockNumber: transaction.blockNumber,
+            networkName: this.networkName,
+            smartContractAddress: transaction.smartContractAddress,
+            transactionHash: transaction.transactionHash,
+          },
+          ipfs: {
+            size: Number(transaction.size),
+          },
+        },
+      },
+      result: {},
+    };
   }
 }

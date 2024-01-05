@@ -1,7 +1,7 @@
 import * as config from './config';
 
 import { IpfsStorage } from '@requestnetwork/ethereum-storage';
-import { LogTypes, StorageTypes } from 'types/dist';
+import { LogTypes, StorageTypes } from '@requestnetwork/types';
 
 export function getDataStorage(logger: LogTypes.ILogger): StorageTypes.IIpfsStorage {
   return new IpfsStorage({

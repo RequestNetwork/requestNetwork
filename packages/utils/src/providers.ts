@@ -51,6 +51,7 @@ const networkRpcs: Record<string, string> = {
   core: 'https://rpc.coredao.org/',
   zksynceratestnet: 'https://testnet.era.zksync.dev',
   zksyncera: 'https://mainnet.era.zksync.io',
+  sepolia: 'https://rpc.sepolia.org/',
 };
 
 /**

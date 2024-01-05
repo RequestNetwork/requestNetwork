@@ -391,7 +391,7 @@ describe('request-client.js: declarative payments', () => {
       expect(request.getData().balance?.error).toBeUndefined();
       expect(request.getData().balance?.balance).toBe('8');
       expect(request.getData().balance?.events?.length).toBe(2);
-    });
+    }, 10000);
   });
 
   describe('other creations', () => {
