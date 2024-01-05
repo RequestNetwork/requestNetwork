@@ -132,37 +132,46 @@ describe('Retry', () => {
     });
 
     retry(throwFn, {
-      exponentialBackoffDelay: 1000,
-      maxExponentialBackoffDelay: 7000,
+      maxRetries: 5,
+      retryDelay: 0,
+      exponentialBackoffDelay: 1000, // 1s
+      maxExponentialBackoffDelay: 7000, // 7s
     })();
 
     // Should call immediately
     expect(throwFn).toHaveBeenCalledTimes(1);
 
-    // Exponential backoff should only call a second time after 2000ms
-    jest.advanceTimersByTime(1100);
+    // Call 2nd time after 1s
+    jest.advanceTimersByTime(999);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(1);
-    jest.advanceTimersByTime(1100);
+    jest.advanceTimersByTime(1000);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(2);
 
-    // Exponential backoff should call a third time after 4100ms
-    jest.advanceTimersByTime(4100);
+    // Call 3rd time after 2s
+    jest.advanceTimersByTime(1999);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(2);
+    jest.advanceTimersByTime(2000);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(3);
 
-    // Exponential backoff should call a fourth time after 7100ms
-    // since maxExponentialBackoffDelay (7000) < 8000
-    jest.advanceTimersByTime(7100);
+    // Call 4th time after 4s
+    jest.advanceTimersByTime(3999);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(3);
+    jest.advanceTimersByTime(4000);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(4);
 
-    // Exponential backoff should call a fifth time after 7100ms
-    // since maxExponentialBackoffDelay (7000) < 8000
-    jest.advanceTimersByTime(7100);
+    // Don't call 5th time after 8s because 8s > maxExponentialBackoffDelay
+    jest.advanceTimersByTime(7999);
     await Promise.resolve();
-    expect(throwFn).toHaveBeenCalledTimes(5);
+    expect(throwFn).toHaveBeenCalledTimes(4);
+    jest.advanceTimersByTime(8000);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(4);
 
     jest.useRealTimers();
   });
