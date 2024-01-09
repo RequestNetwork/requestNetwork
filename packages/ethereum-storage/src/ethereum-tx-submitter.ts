@@ -8,6 +8,8 @@ import { SimpleLogger, isEip1559Supported } from '@requestnetwork/utils';
 export type SubmitterProps = {
   signer: Signer;
   gasPriceMin?: BigNumber;
+  gasPriceMax?: BigNumber;
+  gasPriceMultiplier?: number;
   network: CurrencyTypes.EvmChainName;
   logger?: LogTypes.ILogger;
   debugProvider?: boolean;
@@ -23,7 +25,15 @@ export class EthereumTransactionSubmitter implements StorageTypes.ITransactionSu
   private readonly provider: providers.JsonRpcProvider;
   private readonly gasFeeDefiner: GasFeeDefiner;
 
-  constructor({ network, signer, logger, gasPriceMin, debugProvider }: SubmitterProps) {
+  constructor({
+    network,
+    signer,
+    logger,
+    gasPriceMin,
+    gasPriceMax,
+    gasPriceMultiplier,
+    debugProvider,
+  }: SubmitterProps) {
     this.logger = logger || new SimpleLogger();
     const provider = signer.provider as providers.JsonRpcProvider;
     this.provider = provider;
@@ -31,7 +41,13 @@ export class EthereumTransactionSubmitter implements StorageTypes.ITransactionSu
       network,
       signer,
     ) as RequestOpenHashSubmitter; // type mismatch with ethers.
-    this.gasFeeDefiner = new GasFeeDefiner({ provider, gasPriceMin, logger: this.logger });
+    this.gasFeeDefiner = new GasFeeDefiner({
+      provider,
+      gasPriceMin,
+      gasPriceMax,
+      gasPriceMultiplier,
+      logger: this.logger,
+    });
     if (debugProvider) {
       this.provider.on('debug', (event) => {
         this.logger.debug('JsonRpcProvider debug event', event);
