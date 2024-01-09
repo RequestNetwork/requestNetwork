@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "DiamondBatchFacet",
+  "sourceName": "src/contracts/facets/DiamondBatchFacet.sol",
+  "abi": [],
+  "bytecode": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122022e7af39c5ba69d126a2217922a2a224af121d9cfa13886cf18bcd60905e1c6164736f6c63430008060033",
+  "deployedBytecode": "0x6080604052600080fdfea264697066735822122022e7af39c5ba69d126a2217922a2a224af121d9cfa13886cf18bcd60905e1c6164736f6c63430008060033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
