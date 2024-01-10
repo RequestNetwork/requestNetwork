@@ -14,16 +14,19 @@ const ERC20ConversionVersion = '0.1.2';
  * @param contractAddress address of the ERC20Conversion contract.
  *                        If not provided fallback to the latest deployment address
  * @param hre Hardhat runtime environment
+ * @param safeMode Are transactions to be executed in Safe context
  */
 export const setupErc20ConversionProxy = async ({
   contractAddress,
   hre,
+  safeMode,
 }: {
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
+  safeMode: boolean;
 }): Promise<void> => {
   await Promise.all(
-    hre.config.xdeploy.networks.map(async (network) => {
+    hre.config.xdeploy.networks.map(async (network: string) => {
       try {
         EvmChains.assertChainSupported(network);
         if (!contractAddress) {
@@ -41,8 +44,16 @@ export const setupErc20ConversionProxy = async ({
           network,
           txOverrides,
           'erc20',
+          signer,
+          safeMode,
         );
-        await updateChainlinkConversionPath(Erc20ConversionProxyConnected, network, txOverrides);
+        await updateChainlinkConversionPath(
+          Erc20ConversionProxyConnected,
+          network,
+          txOverrides,
+          signer,
+          safeMode,
+        );
         console.log(`Setup of Erc20ConversionProxy successful on ${network}`);
       } catch (err) {
         console.warn(`An error occurred during the setup of Erc20ConversionProxy on ${network}`);

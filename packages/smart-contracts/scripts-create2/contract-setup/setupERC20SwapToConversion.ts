@@ -13,16 +13,19 @@ import { EvmChains } from '@requestnetwork/currency';
  * @param contractAddress address of the ERC20SwapToConversion contract
  *                        If not provided fallback to the latest deployment address
  * @param hre Hardhat runtime environment
+ * @param safeMode Are transactions to be executed in Safe context
  */
 export const setupERC20SwapToConversion = async ({
   contractAddress,
   hre,
+  safeMode,
 }: {
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
+  safeMode: boolean;
 }): Promise<void> => {
   await Promise.all(
-    hre.config.xdeploy.networks.map(async (network) => {
+    hre.config.xdeploy.networks.map(async (network: string) => {
       try {
         EvmChains.assertChainSupported(network);
         if (!contractAddress) {
@@ -35,9 +38,27 @@ export const setupERC20SwapToConversion = async ({
         const { signer, txOverrides } = await getSignerAndGasFees(network, hre);
         const ERC20SwapToConversionConnected = await ERC20SwapToConversionContract.connect(signer);
 
-        await updateChainlinkConversionPath(ERC20SwapToConversionConnected, network, txOverrides);
-        await updateSwapRouter(ERC20SwapToConversionConnected, network, txOverrides);
-        await updateRequestSwapFees(ERC20SwapToConversionConnected, txOverrides);
+        await updateChainlinkConversionPath(
+          ERC20SwapToConversionConnected,
+          network,
+          txOverrides,
+          signer,
+          safeMode,
+        );
+        await updateSwapRouter(
+          ERC20SwapToConversionConnected,
+          network,
+          txOverrides,
+          signer,
+          safeMode,
+        );
+        await updateRequestSwapFees(
+          ERC20SwapToConversionConnected,
+          network,
+          txOverrides,
+          signer,
+          safeMode,
+        );
         console.log(`Setup of Erc20SwapToConversion successful on ${network}`);
       } catch (err) {
         console.warn(`An error occurred during the setup of Erc20SwapToConversion on ${network}`);

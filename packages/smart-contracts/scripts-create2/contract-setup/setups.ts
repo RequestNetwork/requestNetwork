@@ -17,34 +17,36 @@ export const setupContract = async ({
   contractAddress,
   contractName,
   hre,
+  safeMode,
 }: {
   contractAddress?: string;
   contractName: string;
   hre: HardhatRuntimeEnvironmentExtended;
+  safeMode: boolean;
 }): Promise<void> => {
   switch (contractName) {
     case 'ChainlinkConversionPath': {
-      await setupChainlinkConversionPath({ contractAddress, hre });
+      await setupChainlinkConversionPath({ contractAddress, hre, safeMode });
       break;
     }
     case 'EthConversionProxy': {
-      await setupETHConversionProxy({ contractAddress, hre });
+      await setupETHConversionProxy({ contractAddress, hre, safeMode });
       break;
     }
     case 'Erc20ConversionProxy': {
-      await setupErc20ConversionProxy({ contractAddress, hre });
+      await setupErc20ConversionProxy({ contractAddress, hre, safeMode });
       break;
     }
     case 'ERC20SwapToPay': {
-      await setupERC20SwapToPay({ contractAddress, hre });
+      await setupERC20SwapToPay({ contractAddress, hre, safeMode });
       break;
     }
     case 'ERC20SwapToConversion': {
-      await setupERC20SwapToConversion({ contractAddress, hre });
+      await setupERC20SwapToConversion({ contractAddress, hre, safeMode });
       break;
     }
     case 'BatchConversionPayments': {
-      await setupBatchConversionPayments({ contractAddress, hre });
+      await setupBatchConversionPayments({ contractAddress, hre, safeMode });
       break;
     }
     default: {

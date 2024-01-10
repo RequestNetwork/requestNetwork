@@ -15,13 +15,16 @@ import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
  * @param contractAddress address of the BatchConversionPayments contract.
  *                        If not provided fallback to the latest deployment address
  * @param hre Hardhat runtime environment.
+ * @param safeMode Are transactions to be executed in Safe context
  */
 export const setupBatchConversionPayments = async ({
   contractAddress,
   hre,
+  safeMode,
 }: {
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
+  safeMode: boolean;
 }): Promise<void> => {
   // Setup contract parameters
 
@@ -47,43 +50,45 @@ export const setupBatchConversionPayments = async ({
 
     const { signer, txOverrides } = await getSignerAndGasFees(network, hre);
     const batchConversionPaymentConnected = batchConversionPaymentContract.connect(signer);
-    await updateBatchPaymentFees(batchConversionPaymentConnected, txOverrides);
-    await updateBatchPaymentFeeAmountUSDLimit(batchConversionPaymentConnected, txOverrides);
-    await updateBatchConversionProxy(
+    await updateBatchPaymentFees(
       batchConversionPaymentConnected,
       network,
       txOverrides,
+      signer,
+      safeMode,
+    );
+    await updateBatchPaymentFeeAmountUSDLimit(
+      batchConversionPaymentConnected,
+      network,
+      txOverrides,
+      signer,
+      safeMode,
+    );
+    const proxies = [
       'erc20',
-    );
-    await updateBatchConversionProxy(
-      batchConversionPaymentConnected,
-      network,
-      txOverrides,
       'native',
-    );
-    await updateBatchConversionProxy(
-      batchConversionPaymentConnected,
-      network,
-      txOverrides,
       'erc20Conversion',
-    );
-    await updateBatchConversionProxy(
-      batchConversionPaymentConnected,
-      network,
-      txOverrides,
       'nativeConversion',
-    );
-    await updateBatchConversionProxy(
-      batchConversionPaymentConnected,
-      network,
-      txOverrides,
       'chainlinkConversionPath',
-    );
+    ];
+    for (const proxy of proxies) {
+      await updateBatchConversionProxy(
+        batchConversionPaymentConnected,
+        network,
+        txOverrides,
+        proxy,
+        signer,
+        safeMode,
+      );
+    }
     await updateNativeAndUSDAddress(
       batchConversionPaymentConnected,
+      network,
       NativeAddress,
       USDAddress,
       txOverrides,
+      signer,
+      safeMode,
     );
   };
   for (const network of hre.config.xdeploy.networks) {

@@ -9,17 +9,20 @@ import { getSignerAndGasFees, updateNativeTokenHash } from './adminTasks';
  * @param contractAddress address of the ChainlinkConversionPath contract
  *                        If not provided fallback to the latest deployment address
  * @param hre Hardhat runtime environment
+ * @param safeMode Are transactions to be executed in Safe context
  */
 export const setupChainlinkConversionPath = async ({
   contractAddress,
   hre,
+  safeMode,
 }: {
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
+  safeMode: boolean;
 }): Promise<void> => {
   // Setup contract parameters
   await Promise.all(
-    hre.config.xdeploy.networks.map(async (network) => {
+    hre.config.xdeploy.networks.map(async (network: string) => {
       try {
         EvmChains.assertChainSupported(network);
         if (!contractAddress) {
@@ -41,8 +44,11 @@ export const setupChainlinkConversionPath = async ({
         await updateNativeTokenHash(
           'ChainlinkConversionPath',
           ChainlinkConversionPathConnected,
+          network,
           nativeTokenHash,
           txOverrides,
+          signer,
+          safeMode,
         );
         console.log(`Setup of ChainlinkConversionPath successful on ${network}`);
       } catch (err) {
