@@ -8,7 +8,7 @@ import { SimpleLogger, isEip1559Supported } from '@requestnetwork/utils';
 export type SubmitterProps = {
   signer: Signer;
   /**
-   * The minimum value for maxPriorityFeePerGas and maxFeePerGas
+   * The minimum value for maxPriorityFeePerGas and maxFeePerGas.
    * The default is zero.
    */
   gasPriceMin?: BigNumber;
