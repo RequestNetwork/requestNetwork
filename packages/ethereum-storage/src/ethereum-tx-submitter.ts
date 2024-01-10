@@ -7,8 +7,20 @@ import { SimpleLogger, isEip1559Supported } from '@requestnetwork/utils';
 
 export type SubmitterProps = {
   signer: Signer;
+  /**
+   * The minimum value for maxPriorityFeePerGas and maxFeePerGas
+   * The default is zero.
+   */
   gasPriceMin?: BigNumber;
+  /**
+   * The maximum value for maxFeePerGas.
+   * There is no limit if no value is set.
+   */
   gasPriceMax?: BigNumber;
+  /**
+   * A multiplier for the computed maxFeePerGas.
+   * The default is 100, which does not change the value (100 is equal to x1, 200 is equal to x2).
+   */
   gasPriceMultiplier?: number;
   network: CurrencyTypes.EvmChainName;
   logger?: LogTypes.ILogger;
