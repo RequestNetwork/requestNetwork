@@ -72,7 +72,7 @@
     "@safe-global/protocol-kit": "1.3.0",
     "@superfluid-finance/ethereum-contracts": "1.1.1",
     "@typechain/ethers-v5": "11.1.2",
-    "@typechain/hardhat": "2.1.2",
+    "@typechain/hardhat": "9.1.0",
     "@types/chai": "4.2.21",
     "@types/mocha": "8.2.3",
     "@types/node": "18.11.9",
