@@ -269,6 +269,12 @@ yarn hardhat update-contracts
 
 This command will output details about each update on each chain
 
+If the contracts are administrate by a Safe, use the flag `safe`:
+
+```bash
+yarn hardhat update-contracts --safe
+```
+
 ## Tests
 
 After a local deployment:
