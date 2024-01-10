@@ -1,6 +1,6 @@
 import { BigNumber, constants } from 'ethers';
 
-import { maxBigNumber } from './index';
+import { maxBigNumber, minBigNumber } from './index';
 import { LogTypes, FeeTypes } from '@requestnetwork/types';
 
 /**
@@ -14,22 +14,31 @@ import { LogTypes, FeeTypes } from '@requestnetwork/types';
 async function normalizeGasFees({
   logger,
   gasPriceMin,
+  gasPriceMax,
+  gasPriceMultiplier,
   suggestFees,
 }: {
   logger: LogTypes.ILogger;
   gasPriceMin?: BigNumber;
+  gasPriceMax?: BigNumber;
+  gasPriceMultiplier?: number;
   suggestFees: () => Promise<FeeTypes.SuggestedFees>;
 }): Promise<FeeTypes.EstimatedGasFees> {
   try {
     const suggestedFee = await suggestFees();
-
     const baseFee = maxBigNumber(suggestedFee.baseFee, gasPriceMin || constants.Zero);
-
     const maxPriorityFeePerGas = maxBigNumber(
       suggestedFee.maxPriorityFee,
       gasPriceMin || constants.Zero,
     );
-    const maxFeePerGas = baseFee.add(maxPriorityFeePerGas);
+
+    const maxFeePerGasInit = baseFee
+      .add(maxPriorityFeePerGas)
+      .mul(gasPriceMultiplier || 100)
+      .div(100);
+    const maxFeePerGas = gasPriceMax
+      ? minBigNumber(maxFeePerGasInit, gasPriceMax)
+      : maxFeePerGasInit;
 
     if (maxPriorityFeePerGas.eq(0) || maxFeePerGas.eq(0)) {
       logger.warn(
