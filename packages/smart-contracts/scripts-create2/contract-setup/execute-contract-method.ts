@@ -11,7 +11,7 @@ const txServiceUrls: Record<string, string> = {
   sepolia: 'https://safe-transaction-sepolia.safe.global/',
   matic: 'https://safe-transaction-polygon.safe.global/',
   celo: 'https://safe-transaction-celo.safe.global/',
-  xsai: 'https://safe-transaction-gnosis-chain.safe.global/',
+  xdai: 'https://safe-transaction-gnosis-chain.safe.global/',
   bsc: 'https://safe-transaction-bsc.safe.global/',
   'arbitrum-one': 'https://safe-transaction-arbitrum.safe.global/',
   avalanche: 'https://safe-transaction-avalanche.safe.global/',
@@ -36,13 +36,9 @@ export const executeContractMethod = async ({
   signer: Wallet;
   signWithEoa?: boolean;
 }): Promise<void> => {
-  if (!signWithEoa) {
-    const safeAddress = safeAdminArtifact.getAddress(network as CurrencyTypes.VMChainName);
-    const txServiceUrl = txServiceUrls[network];
-    if (!safeAddress || !txServiceUrl) {
-      throw new Error(`Can't administrate using Safe on ${network}`);
-    }
-
+  const safeAddress = safeAdminArtifact.getAddress(network as CurrencyTypes.VMChainName);
+  const txServiceUrl = txServiceUrls[network];
+  if (!signWithEoa && !!safeAddress && !!txServiceUrl) {
     const ethAdapter = new EthersAdapter({
       ethers,
       signerOrProvider: signer,
