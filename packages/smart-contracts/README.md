@@ -269,10 +269,11 @@ yarn hardhat update-contracts
 
 This command will output details about each update on each chain
 
-If the contracts are administrate by a Safe, use the flag `safe`:
+By default, updates are performed by a Safe wallet. They need to be confirmed by co-owners in the RN Admin Safe.
+If the contracts are to be administrated by an EOA, use the flag `eoa`:
 
 ```bash
-yarn hardhat update-contracts --safe
+yarn hardhat update-contracts --eoa
 ```
 
 ## Tests

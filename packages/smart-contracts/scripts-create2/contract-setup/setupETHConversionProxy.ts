@@ -14,16 +14,16 @@ import {
  * @param contractAddress address of the ETHConversion contract
  *                        If not provided fallback to the latest deployment address
  * @param hre Hardhat runtime environment
- * @param safeMode Are transactions to be executed in Safe context
+ * @param signWithEoa Are transactions to be signed by an EAO
  */
 export const setupETHConversionProxy = async ({
   contractAddress,
   hre,
-  safeMode,
+  signWithEoa,
 }: {
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
-  safeMode: boolean;
+  signWithEoa: boolean;
 }): Promise<void> => {
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network: string) => {
@@ -51,14 +51,14 @@ export const setupETHConversionProxy = async ({
           txOverrides,
           'native',
           signer,
-          safeMode,
+          signWithEoa,
         );
         await updateChainlinkConversionPath(
           EthConversionProxyConnected,
           network,
           txOverrides,
           signer,
-          safeMode,
+          signWithEoa,
         );
         await updateNativeTokenHash(
           'EthConversionProxy',
@@ -67,7 +67,7 @@ export const setupETHConversionProxy = async ({
           nativeTokenHash,
           txOverrides,
           signer,
-          safeMode,
+          signWithEoa,
         );
         console.log(`Setup of EthConversionProxy successful on ${network}`);
       } catch (err) {

@@ -28,6 +28,8 @@ const BATCH_FEE_AMOUNT_USD_LIMIT = parseUnits('150', 8);
  *                 Erc20ConversionProxy | EthConversionProxy | ERC20SwapToConversion.
  * @param network The network used.
  * @param txOverrides information related to gas fees. Increase their values if needed.
+ * @param signer Who is performing the updating
+ * @param signWithEoa Is the transaction to be signed by an EAO
  * @param version The version of the chainlink proxy to use, the last one by default.
  */
 export const updateChainlinkConversionPath = async (
@@ -35,7 +37,7 @@ export const updateChainlinkConversionPath = async (
   network: CurrencyTypes.EvmChainName,
   txOverrides: Overrides,
   signer: Wallet,
-  safeMode: boolean,
+  signWithEoa: boolean,
   version?: string,
 ): Promise<void> => {
   const currentChainlinkAddress = await contract.chainlinkConversionPath();
@@ -48,7 +50,7 @@ export const updateChainlinkConversionPath = async (
       props: [chainlinkConversionPathAddress],
       txOverrides,
       signer,
-      safeMode,
+      signWithEoa,
     });
     console.log(
       `chainlink: the current address ${currentChainlinkAddress} has been replaced by: ${chainlinkConversionPathAddress}`,
@@ -56,12 +58,20 @@ export const updateChainlinkConversionPath = async (
   }
 };
 
+/**
+ * Updates the batchFee applied by the batch conversion proxy.
+ * @param contract BatchConversionPayments contract.
+ * @param network The network used
+ * @param txOverrides information related to gas fees. Increase their values if needed.
+ * @param signer Who is performing the updating
+ * @param signWithEoa Is the transaction to be signed by an EAO
+ */
 export const updateSwapRouter = async (
   contract: Contract,
   network: string,
   txOverrides: Overrides,
   signer: Wallet,
-  safeMode: boolean,
+  signWithEoa: boolean,
 ): Promise<void> => {
   const currentSwapRouter = await contract.swapRouter();
   const expectedRouter = uniswapV2RouterAddresses[network];
@@ -73,18 +83,26 @@ export const updateSwapRouter = async (
       props: [expectedRouter],
       txOverrides,
       signer,
-      safeMode,
+      signWithEoa,
     });
     console.log(`Swap router address set to ${expectedRouter}`);
   }
 };
 
+/**
+ * Updates the batchFee applied by the batch conversion proxy.
+ * @param contract BatchConversionPayments contract.
+ * @param network The network used
+ * @param txOverrides information related to gas fees. Increase their values if needed.
+ * @param signer Who is performing the updating
+ * @param signWithEoa Is the transaction to be signed by an EAO
+ */
 export const updateRequestSwapFees = async (
   contract: Contract,
   network: string,
   txOverrides: Overrides,
   signer: Wallet,
-  safeMode: boolean,
+  signWithEoa: boolean,
 ): Promise<void> => {
   const currentFees: BigNumber = await contract.requestSwapFees();
   if (!currentFees.eq(REQUEST_SWAP_FEES)) {
@@ -95,7 +113,7 @@ export const updateRequestSwapFees = async (
       props: [REQUEST_SWAP_FEES],
       txOverrides,
       signer,
-      safeMode,
+      signWithEoa,
     });
     console.log(
       `currentFees: ${currentFees.toNumber() / 10}%, new fees: ${REQUEST_SWAP_FEES / 10}%`,
@@ -106,14 +124,17 @@ export const updateRequestSwapFees = async (
 /**
  * Updates the batchFee applied by the batch conversion proxy.
  * @param contract BatchConversionPayments contract.
+ * @param network The network used
  * @param txOverrides information related to gas fees. Increase their values if needed.
+ * @param signer Who is performing the updating
+ * @param signWithEoa Is the transaction to be signed by an EAO
  */
 export const updateBatchPaymentFees = async (
   contract: Contract,
   network: string,
   txOverrides: Overrides,
   signer: Wallet,
-  safeMode: boolean,
+  signWithEoa: boolean,
 ): Promise<void> => {
   const currentFees: BigNumber = await contract.batchFee();
   if (!BATCH_FEE.eq(currentFees)) {
@@ -124,7 +145,7 @@ export const updateBatchPaymentFees = async (
       props: [BATCH_FEE],
       txOverrides,
       signer,
-      safeMode,
+      signWithEoa,
     });
     console.log(`Batch: currentFees: ${currentFees.toString()}, new fees: ${BATCH_FEE.toString()}`);
   }
@@ -136,14 +157,14 @@ export const updateBatchPaymentFees = async (
  * @param network The network used
  * @param txOverrides information related to gas fees. Increase their values if needed.
  * @param signer Who is performing the updating
- * @param safeMode Is the transaction to be executed in Safe context
+ * @param signWithEoa Is the transaction to be signed by an EAO
  */
 export const updateBatchPaymentFeeAmountUSDLimit = async (
   contract: Contract,
   network: string,
   txOverrides: Overrides,
   signer: Wallet,
-  safeMode: boolean,
+  signWithEoa: boolean,
 ): Promise<void> => {
   const currentFeeAmountUSDLimit: BigNumber = await contract.batchFeeAmountUSDLimit();
   if (!currentFeeAmountUSDLimit.eq(BATCH_FEE_AMOUNT_USD_LIMIT)) {
@@ -154,7 +175,7 @@ export const updateBatchPaymentFeeAmountUSDLimit = async (
       props: [BATCH_FEE_AMOUNT_USD_LIMIT],
       txOverrides,
       signer,
-      safeMode,
+      signWithEoa,
     });
     console.log(
       `Batch: the current fee amount in USD limit: ${currentFeeAmountUSDLimit.toString()}, have been replaced by: ${BATCH_FEE_AMOUNT_USD_LIMIT.toString()}. ($1 = 1e8)`,
@@ -169,7 +190,7 @@ export const updateBatchPaymentFeeAmountUSDLimit = async (
  * @param txOverrides information related to gas fees. Increase their values if needed.
  * @param proxyType The type of the proxy fee.
  * @param signer Who is performing the updating
- * @param safeMode Is the transaction to be executed in Safe context
+ * @param signWithEoa Is the transaction to be signed by an EAO
  * @param version The version of the fee proxy to use, the last one by default.
  */
 export const updatePaymentFeeProxyAddress = async (
@@ -178,7 +199,7 @@ export const updatePaymentFeeProxyAddress = async (
   txOverrides: Overrides,
   proxyType: 'native' | 'erc20',
   signer: Wallet,
-  safeMode: boolean,
+  signWithEoa: boolean,
   version?: string,
 ): Promise<void> => {
   let proxyAddress: string;
@@ -199,7 +220,7 @@ export const updatePaymentFeeProxyAddress = async (
       props: [proxyAddress],
       txOverrides,
       signer,
-      safeMode,
+      signWithEoa,
     });
     console.log(
       `${proxyType} conversion proxy: the current address ${currentAddress} has been replaced by: ${proxyAddress}`,
@@ -214,7 +235,7 @@ export const updatePaymentFeeProxyAddress = async (
  * @param txOverrides information related to gas fees. Increase their values if needed.
  * @param proxyName The name of the fee proxy to update.
  * @param signer Who is performing the updating
- * @param safeMode Is the transaction to be executed in Safe context
+ * @param signWithEoa Is the transaction to be signed by an EAO
  */
 export const updateBatchConversionProxy = async (
   contract: Contract,
@@ -222,7 +243,7 @@ export const updateBatchConversionProxy = async (
   txOverrides: Overrides,
   proxyName: string,
   signer: Wallet,
-  safeMode: boolean,
+  signWithEoa: boolean,
 ): Promise<void> => {
   let proxyAddress: string;
   let method: string;
@@ -266,7 +287,7 @@ export const updateBatchConversionProxy = async (
       props: [proxyAddress],
       txOverrides,
       signer,
-      safeMode,
+      signWithEoa,
     });
     console.log(
       `${proxyName}: the current address ${currentAddress} has been replaced by: ${proxyAddress}`,
@@ -281,7 +302,7 @@ export const updateBatchConversionProxy = async (
  * @param USDAddress The address of USD token.
  * @param txOverrides information related to gas fees. Increase their values if needed.
  * @param signer Who is performing the updating
- * @param safeMode Is the transaction to be executed in Safe context
+ * @param signWithEoa Is the transaction to be signed by an EAO
  */
 export const updateNativeAndUSDAddress = async (
   contract: Contract,
@@ -290,7 +311,7 @@ export const updateNativeAndUSDAddress = async (
   USDAddress: string,
   txOverrides: Overrides,
   signer: Wallet,
-  safeMode: boolean,
+  signWithEoa: boolean,
 ): Promise<void> => {
   const currentUSDAddress = (await contract.USDAddress()).toLocaleLowerCase();
   const currentNativeAddress = (await contract.NativeAddress()).toLocaleLowerCase();
@@ -305,7 +326,7 @@ export const updateNativeAndUSDAddress = async (
       props: [NativeAddress, USDAddress],
       txOverrides,
       signer,
-      safeMode,
+      signWithEoa,
     });
     console.log(
       `Batch: the current NativeAddress: ${currentNativeAddress}, have been replaced by: ${NativeAddress}`,
@@ -324,7 +345,7 @@ export const updateNativeAndUSDAddress = async (
  * @param nativeTokenHash The address of native token, eg: ETH.
  * @param txOverrides information related to gas fees. Increase their values if needed.
  * @param signer Who is performing the updating
- * @param safeMode Is the transaction to be executed in Safe context
+ * @param signWithEoa Is the transaction to be signed by an EAO
  */
 export const updateNativeTokenHash = async (
   contractType: string,
@@ -333,7 +354,7 @@ export const updateNativeTokenHash = async (
   nativeTokenHash: string,
   txOverrides: Overrides,
   signer: Wallet,
-  safeMode: boolean,
+  signWithEoa: boolean,
 ): Promise<void> => {
   const currentNativeTokenHash = (await contract.nativeTokenHash()).toLocaleLowerCase();
   if (currentNativeTokenHash !== nativeTokenHash.toLocaleLowerCase()) {
@@ -344,7 +365,7 @@ export const updateNativeTokenHash = async (
       props: [nativeTokenHash],
       txOverrides,
       signer,
-      safeMode,
+      signWithEoa,
     });
     console.log(
       `${contractType}: the current NativeTokenHash: ${currentNativeTokenHash}, have been replaced by: ${nativeTokenHash}`,

@@ -353,10 +353,9 @@ task(
 task('update-contracts', 'Update the latest deployed contracts from the Create2DeploymentList')
   .addFlag('safe', 'Is the update to be performed in Safe context')
   .setAction(async (args, hre) => {
-    const safeMode = args.safe ?? false;
-    console.log(safeMode);
+    const signWithEoa = args.eoa ?? false;
     await hre.run(DEPLOYER_KEY_GUARD);
-    await updateContractsFromList(hre as HardhatRuntimeEnvironmentExtended, safeMode);
+    await updateContractsFromList(hre as HardhatRuntimeEnvironmentExtended, signWithEoa);
   });
 
 task(

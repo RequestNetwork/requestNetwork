@@ -14,16 +14,16 @@ const ERC20ConversionVersion = '0.1.2';
  * @param contractAddress address of the ERC20Conversion contract.
  *                        If not provided fallback to the latest deployment address
  * @param hre Hardhat runtime environment
- * @param safeMode Are transactions to be executed in Safe context
+ * @param signWithEoa Are transactions to be signed by an EAO
  */
 export const setupErc20ConversionProxy = async ({
   contractAddress,
   hre,
-  safeMode,
+  signWithEoa,
 }: {
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
-  safeMode: boolean;
+  signWithEoa: boolean;
 }): Promise<void> => {
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network: string) => {
@@ -45,14 +45,14 @@ export const setupErc20ConversionProxy = async ({
           txOverrides,
           'erc20',
           signer,
-          safeMode,
+          signWithEoa,
         );
         await updateChainlinkConversionPath(
           Erc20ConversionProxyConnected,
           network,
           txOverrides,
           signer,
-          safeMode,
+          signWithEoa,
         );
         console.log(`Setup of Erc20ConversionProxy successful on ${network}`);
       } catch (err) {

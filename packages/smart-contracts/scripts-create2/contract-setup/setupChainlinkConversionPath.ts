@@ -9,16 +9,16 @@ import { getSignerAndGasFees, updateNativeTokenHash } from './adminTasks';
  * @param contractAddress address of the ChainlinkConversionPath contract
  *                        If not provided fallback to the latest deployment address
  * @param hre Hardhat runtime environment
- * @param safeMode Are transactions to be executed in Safe context
+ * @param signWithEoa Are transactions to be signed by an EAO
  */
 export const setupChainlinkConversionPath = async ({
   contractAddress,
   hre,
-  safeMode,
+  signWithEoa,
 }: {
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
-  safeMode: boolean;
+  signWithEoa: boolean;
 }): Promise<void> => {
   // Setup contract parameters
   await Promise.all(
@@ -48,7 +48,7 @@ export const setupChainlinkConversionPath = async ({
           nativeTokenHash,
           txOverrides,
           signer,
-          safeMode,
+          signWithEoa,
         );
         console.log(`Setup of ChainlinkConversionPath successful on ${network}`);
       } catch (err) {

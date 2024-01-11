@@ -13,16 +13,16 @@ import { EvmChains } from '@requestnetwork/currency';
  * @param contractAddress address of the ERC20SwapToConversion contract
  *                        If not provided fallback to the latest deployment address
  * @param hre Hardhat runtime environment
- * @param safeMode Are transactions to be executed in Safe context
+ * @param signWithEoa Are transactions to be signed by an EAO
  */
 export const setupERC20SwapToConversion = async ({
   contractAddress,
   hre,
-  safeMode,
+  signWithEoa,
 }: {
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
-  safeMode: boolean;
+  signWithEoa: boolean;
 }): Promise<void> => {
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network: string) => {
@@ -43,21 +43,21 @@ export const setupERC20SwapToConversion = async ({
           network,
           txOverrides,
           signer,
-          safeMode,
+          signWithEoa,
         );
         await updateSwapRouter(
           ERC20SwapToConversionConnected,
           network,
           txOverrides,
           signer,
-          safeMode,
+          signWithEoa,
         );
         await updateRequestSwapFees(
           ERC20SwapToConversionConnected,
           network,
           txOverrides,
           signer,
-          safeMode,
+          signWithEoa,
         );
         console.log(`Setup of Erc20SwapToConversion successful on ${network}`);
       } catch (err) {

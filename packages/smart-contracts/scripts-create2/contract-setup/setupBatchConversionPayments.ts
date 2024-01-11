@@ -15,16 +15,16 @@ import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
  * @param contractAddress address of the BatchConversionPayments contract.
  *                        If not provided fallback to the latest deployment address
  * @param hre Hardhat runtime environment.
- * @param safeMode Are transactions to be executed in Safe context
+ * @param signWithEoa Are transactions to be signed by an EAO
  */
 export const setupBatchConversionPayments = async ({
   contractAddress,
   hre,
-  safeMode,
+  signWithEoa,
 }: {
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
-  safeMode: boolean;
+  signWithEoa: boolean;
 }): Promise<void> => {
   // Setup contract parameters
 
@@ -55,14 +55,14 @@ export const setupBatchConversionPayments = async ({
       network,
       txOverrides,
       signer,
-      safeMode,
+      signWithEoa,
     );
     await updateBatchPaymentFeeAmountUSDLimit(
       batchConversionPaymentConnected,
       network,
       txOverrides,
       signer,
-      safeMode,
+      signWithEoa,
     );
     const proxies = [
       'erc20',
@@ -78,7 +78,7 @@ export const setupBatchConversionPayments = async ({
         txOverrides,
         proxy,
         signer,
-        safeMode,
+        signWithEoa,
       );
     }
     await updateNativeAndUSDAddress(
@@ -88,7 +88,7 @@ export const setupBatchConversionPayments = async ({
       USDAddress,
       txOverrides,
       signer,
-      safeMode,
+      signWithEoa,
     );
   };
   for (const network of hre.config.xdeploy.networks) {

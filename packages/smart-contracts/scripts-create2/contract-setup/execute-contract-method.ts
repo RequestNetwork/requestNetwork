@@ -26,7 +26,7 @@ export const executeContractMethod = async ({
   props,
   txOverrides,
   signer,
-  safeMode,
+  signWithEoa,
 }: {
   network: string;
   contract: Contract;
@@ -34,9 +34,9 @@ export const executeContractMethod = async ({
   props: any[];
   txOverrides: Overrides;
   signer: Wallet;
-  safeMode?: boolean;
+  signWithEoa?: boolean;
 }): Promise<void> => {
-  if (safeMode) {
+  if (!signWithEoa) {
     const safeAddress = safeAdminArtifact.getAddress(network as CurrencyTypes.VMChainName);
     const txServiceUrl = txServiceUrls[network];
     if (!safeAddress || !txServiceUrl) {
@@ -57,7 +57,6 @@ export const executeContractMethod = async ({
         value: '0',
       },
     ];
-    console.log(safeAddress);
     const nonce = await safeService.getNextNonce(safeAddress);
     const safeTransaction = await safeSdk.createTransaction({
       safeTransactionData,

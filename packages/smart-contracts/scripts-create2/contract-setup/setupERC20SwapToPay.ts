@@ -8,16 +8,16 @@ import { getSignerAndGasFees, updateRequestSwapFees, updateSwapRouter } from './
  * @param contractAddress address of the ERC20SwapToPay contract
  *                        If not provided fallback to the latest deployment address
  * @param hre Hardhat runtime environment
- * @param safeMode Are transactions to be executed in Safe context
+ * @param signWithEoa Are transactions to be signed by an EAO
  */
 export const setupERC20SwapToPay = async ({
   contractAddress,
   hre,
-  safeMode,
+  signWithEoa,
 }: {
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
-  safeMode: boolean;
+  signWithEoa: boolean;
 }): Promise<void> => {
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network: string) => {
@@ -33,13 +33,13 @@ export const setupERC20SwapToPay = async ({
         const { signer, txOverrides } = await getSignerAndGasFees(network, hre);
         const ERC20SwapToPayConnected = await ERC20SwapToPayContract.connect(signer);
 
-        await updateSwapRouter(ERC20SwapToPayConnected, network, txOverrides, signer, safeMode);
+        await updateSwapRouter(ERC20SwapToPayConnected, network, txOverrides, signer, signWithEoa);
         await updateRequestSwapFees(
           ERC20SwapToPayConnected,
           network,
           txOverrides,
           signer,
-          safeMode,
+          signWithEoa,
         );
         console.log(`Setup of ERC20SwapToPay successful on ${network}`);
       } catch (err) {
