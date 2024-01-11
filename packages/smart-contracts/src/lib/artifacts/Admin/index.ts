@@ -32,19 +32,19 @@ export const safeAdminArtifact = new ContractArtifact<any>(
           creationBlockNumber: 1,
         },
         optimism: {
-          address: 'oeth:0xDF593767a0b42C641845e026F898f9C465d1E714',
+          address: '0xDF593767a0b42C641845e026F898f9C465d1E714',
           creationBlockNumber: 1,
         },
         zksyncera: {
-          address: 'zksync:0xC93edf2722d17d423bCd630CBB9384Cd629890f3',
+          address: '0xC93edf2722d17d423bCd630CBB9384Cd629890f3',
           creationBlockNumber: 1,
         },
         celo: {
-          address: 'celo:0x7eF1DC5317Dd6Fd258766A1B620930c2DD8A54A8',
+          address: '0x7eF1DC5317Dd6Fd258766A1B620930c2DD8A54A8',
           creationBlockNumber: 1,
         },
         avalanche: {
-          address: 'avax:0xAb05E8277c2c605D2762F6e3B6175Cab954fC8e8',
+          address: '0xAb05E8277c2c605D2762F6e3B6175Cab954fC8e8',
           creationBlockNumber: 1,
         },
       },
