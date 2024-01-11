@@ -15,13 +15,16 @@ import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
  * @param contractAddress address of the BatchConversionPayments contract.
  *                        If not provided fallback to the latest deployment address
  * @param hre Hardhat runtime environment.
+ * @param signWithEoa Are transactions to be signed by an EAO
  */
 export const setupBatchConversionPayments = async ({
   contractAddress,
   hre,
+  signWithEoa,
 }: {
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
+  signWithEoa: boolean;
 }): Promise<void> => {
   // Setup contract parameters
 
@@ -47,43 +50,45 @@ export const setupBatchConversionPayments = async ({
 
     const { signer, txOverrides } = await getSignerAndGasFees(network, hre);
     const batchConversionPaymentConnected = batchConversionPaymentContract.connect(signer);
-    await updateBatchPaymentFees(batchConversionPaymentConnected, txOverrides);
-    await updateBatchPaymentFeeAmountUSDLimit(batchConversionPaymentConnected, txOverrides);
-    await updateBatchConversionProxy(
+    await updateBatchPaymentFees(
       batchConversionPaymentConnected,
       network,
       txOverrides,
+      signer,
+      signWithEoa,
+    );
+    await updateBatchPaymentFeeAmountUSDLimit(
+      batchConversionPaymentConnected,
+      network,
+      txOverrides,
+      signer,
+      signWithEoa,
+    );
+    const proxies = [
       'erc20',
-    );
-    await updateBatchConversionProxy(
-      batchConversionPaymentConnected,
-      network,
-      txOverrides,
       'native',
-    );
-    await updateBatchConversionProxy(
-      batchConversionPaymentConnected,
-      network,
-      txOverrides,
       'erc20Conversion',
-    );
-    await updateBatchConversionProxy(
-      batchConversionPaymentConnected,
-      network,
-      txOverrides,
       'nativeConversion',
-    );
-    await updateBatchConversionProxy(
-      batchConversionPaymentConnected,
-      network,
-      txOverrides,
       'chainlinkConversionPath',
-    );
+    ];
+    for (const proxy of proxies) {
+      await updateBatchConversionProxy(
+        batchConversionPaymentConnected,
+        network,
+        txOverrides,
+        proxy,
+        signer,
+        signWithEoa,
+      );
+    }
     await updateNativeAndUSDAddress(
       batchConversionPaymentConnected,
+      network,
       NativeAddress,
       USDAddress,
       txOverrides,
+      signer,
+      signWithEoa,
     );
   };
   for (const network of hre.config.xdeploy.networks) {

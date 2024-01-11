@@ -12,39 +12,42 @@ import { setupErc20ConversionProxy } from './setupErc20ConversionProxy';
  * @param contractAddress address of the proxy
  * @param hre Hardhat runtime environment
  * @param contractName name of the contract
+ * @param signWithEao Is the signer an EAO account.
  */
 export const setupContract = async ({
   contractAddress,
   contractName,
   hre,
+  signWithEoa,
 }: {
   contractAddress?: string;
   contractName: string;
   hre: HardhatRuntimeEnvironmentExtended;
+  signWithEoa: boolean;
 }): Promise<void> => {
   switch (contractName) {
     case 'ChainlinkConversionPath': {
-      await setupChainlinkConversionPath({ contractAddress, hre });
+      await setupChainlinkConversionPath({ contractAddress, hre, signWithEoa });
       break;
     }
     case 'EthConversionProxy': {
-      await setupETHConversionProxy({ contractAddress, hre });
+      await setupETHConversionProxy({ contractAddress, hre, signWithEoa });
       break;
     }
     case 'Erc20ConversionProxy': {
-      await setupErc20ConversionProxy({ contractAddress, hre });
+      await setupErc20ConversionProxy({ contractAddress, hre, signWithEoa });
       break;
     }
     case 'ERC20SwapToPay': {
-      await setupERC20SwapToPay({ contractAddress, hre });
+      await setupERC20SwapToPay({ contractAddress, hre, signWithEoa });
       break;
     }
     case 'ERC20SwapToConversion': {
-      await setupERC20SwapToConversion({ contractAddress, hre });
+      await setupERC20SwapToConversion({ contractAddress, hre, signWithEoa });
       break;
     }
     case 'BatchConversionPayments': {
-      await setupBatchConversionPayments({ contractAddress, hre });
+      await setupBatchConversionPayments({ contractAddress, hre, signWithEoa });
       break;
     }
     default: {

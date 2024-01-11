@@ -8,11 +8,13 @@ import { setupContract } from './contract-setup/setups';
  */
 export const updateContractsFromList = async (
   hre: HardhatRuntimeEnvironmentExtended,
+  signWithEoa: boolean,
 ): Promise<void> => {
   for (const contract of create2ContractDeploymentList) {
     await setupContract({
       contractName: contract,
       hre,
+      signWithEoa,
     });
   }
 };

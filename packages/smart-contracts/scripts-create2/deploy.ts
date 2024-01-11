@@ -58,6 +58,11 @@ export const deployWithCreate2FromList = async (
     EvmChains.assertChainSupported(network);
     const constructorArgs = getConstructorArgs(contract, network);
     const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
-    await setupContract({ contractAddress: address, contractName: contract, hre });
+    await setupContract({
+      contractAddress: address,
+      contractName: contract,
+      hre,
+      signWithEoa: true,
+    });
   }
 };
