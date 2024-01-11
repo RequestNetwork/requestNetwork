@@ -89,9 +89,5 @@
     "typechain": "5.1.1",
     "web3": "1.7.3",
     "zksync-web3": "0.14.3"
-  },
-  "resolutions": {
-    "@typechain/ethers-v5/ethers": "5.7.2",
-    "@typechain/hardhat/ethers": "5.7.2"
   }
 }
