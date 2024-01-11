@@ -1,9 +1,9 @@
 import SafeApiKit from '@safe-global/api-kit';
 import { Contract, Overrides, Wallet } from 'ethers';
 import { safeAdminArtifact } from '../../src/lib/';
-import { CurrencyTypes } from 'types/dist';
-import Safe, { EthersAdapter } from '@safe-global/protocol-kit';
+import Safe, { EthersAdapter, EthersAdapterConfig } from '@safe-global/protocol-kit';
 import { ethers } from 'ethers';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 const txServiceUrls: Record<string, string> = {
   mainnet: 'https://safe-transaction-mainnet.safe.global/',
@@ -46,7 +46,7 @@ export const executeContractMethod = async ({
     const ethAdapter = new EthersAdapter({
       ethers,
       signerOrProvider: signer,
-    });
+    } as unknown as EthersAdapterConfig);
     const safeService = new SafeApiKit({ txServiceUrl, ethAdapter });
     const safeSdk = await Safe.create({ ethAdapter, safeAddress });
 
