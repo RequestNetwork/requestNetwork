@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import './lib/HooksLibrary.sol';
+import './interfaces/IRequestApp.sol';
+
 /**
  * @title ERC20FeeProxy
  * @notice This contract performs an ERC20 token transfer, with a Fee sent to a third address and stores a reference
@@ -37,8 +40,20 @@ contract ERC20FeeProxy {
     uint256 _amount,
     bytes calldata _paymentReference,
     uint256 _feeAmount,
-    address _feeAddress
+    address _feeAddress,
+    bytes calldata hooksData
   ) external {
+    if (hooksData.length > 0) {
+      IRequestApp.PaymentCtx memory paymentCtx = HooksLibrary.computePaymentContext(
+        _amount,
+        msg.sender,
+        _to,
+        _tokenAddress,
+        _paymentReference
+      );
+      HooksLibrary.executeHooks(paymentCtx, hooksData);
+    }
+
     require(safeTransferFrom(_tokenAddress, _to, _amount), 'payment transferFrom() failed');
     if (_feeAmount > 0 && _feeAddress != address(0)) {
       require(
@@ -100,5 +115,13 @@ contract ERC20FeeProxy {
 
     /* solium-enable security/no-inline-assembly */
     return result;
+  }
+
+  function computeHooksData(address app, bytes calldata appData)
+    external
+    pure
+    returns (bytes memory)
+  {
+    return HooksLibrary.computeHooksData(app, appData);
   }
 }
