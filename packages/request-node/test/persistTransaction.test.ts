@@ -93,4 +93,40 @@ describe('persistTransaction', () => {
     }
     await Promise.all(assertions);
   });
+
+  it('should work twice in a row even after a transaction is rejected by the RPC', async () => {
+    axiosMock.reset();
+    axiosMock.onAny().reply((req) => {
+      if (req.data.body?.includes('eth_sendTransaction')) {
+        return [
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          {
+            jsonrpc: '2.0',
+            error: {
+              code: -32010,
+              message:
+                'FeeTooLow, EffectivePriorityFeePerGas too low 513061393 < 1000000000, BaseFee: 20101010505',
+            },
+            id: 3939,
+          },
+        ];
+      }
+      return [StatusCodes.OK];
+    });
+
+    await request(server)
+      .post('/persistTransaction')
+      .send({ channelId, topics, transactionData })
+      .set('Accept', 'application/json')
+      .expect(StatusCodes.INTERNAL_SERVER_ERROR);
+
+    axiosMock.reset();
+    axiosMock.onAny().passThrough();
+
+    await request(server)
+      .post('/persistTransaction')
+      .send({ channelId, topics, transactionData })
+      .set('Accept', 'application/json')
+      .expect(StatusCodes.OK);
+  });
 });
