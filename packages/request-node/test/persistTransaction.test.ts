@@ -94,7 +94,7 @@ describe('persistTransaction', () => {
     await Promise.all(assertions);
   });
 
-  it('should work twice in a row even after a transaction is rejected by the RPC', async () => {
+  it('should return 200 on the second call, even after a transaction is rejected by the RPC', async () => {
     axiosMock.reset();
     axiosMock.onAny().reply((req) => {
       if (req.data.body?.includes('eth_sendTransaction')) {
