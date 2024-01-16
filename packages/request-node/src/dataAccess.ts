@@ -1,5 +1,4 @@
 import { providers, Wallet } from 'ethers';
-import { NonceManager } from '@ethersproject/experimental';
 import { CurrencyTypes, DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 
 import * as config from './config';
@@ -18,7 +17,7 @@ export function getDataAccess(
     new providers.StaticJsonRpcProvider(config.getStorageWeb3ProviderUrl()),
   );
 
-  const signer = new NonceManager(wallet);
+  const signer = wallet;
 
   const gasPriceMin = config.getGasPriceMin();
   const blockConfirmations = config.getBlockConfirmations();
