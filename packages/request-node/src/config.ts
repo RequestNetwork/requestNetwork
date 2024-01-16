@@ -21,7 +21,7 @@ const defaultValues = {
       networkId: 0,
       web3ProviderUrl: 'http://localhost:8545',
       gasPriceMin: '1000000000', // 1 gwei per gas
-      gasPriceMax: '1000000000000', // 1000 gwei per gas
+      gasPriceMax: '10000000000000', // 10,000 gwei per gas
       // multiply by 2 the estimated max fee per gas to accomadate for volatility
       gasPriceMultiplier: '200',
       blockConfirmations: 2,
