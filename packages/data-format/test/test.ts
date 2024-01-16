@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import DataFormat from '../src/index';
+import * as DataFormat from '../src/index';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Request Network Data Validator', () => {

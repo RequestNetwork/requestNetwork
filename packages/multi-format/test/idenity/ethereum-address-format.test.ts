@@ -1,6 +1,6 @@
 import { IdentityTypes, MultiFormatTypes } from '@requestnetwork/types';
 
-import EthereumAddressFormat from '../../src/identity/ethereum-address-format';
+import { EthereumAddressMultiFormat as EthereumAddressFormat } from '../../src/identity/ethereum-address-format';
 
 let ethereumAddressFormat: EthereumAddressFormat;
 
