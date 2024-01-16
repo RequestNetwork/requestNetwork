@@ -112,7 +112,7 @@ export function getGasPriceMax(): BigNumber | undefined {
   return gasPriceMax ? BigNumber.from(gasPriceMax) : undefined;
 }
 
-export const getGasPriceMultiplier = getOption(
+export const getGasPriceMultiplier = makeOption(
   'gasPriceMultiplier',
   'GAS_PRICE_MULTIPLIER',
   defaultValues.storage.ethereum.gasPriceMultiplier,
