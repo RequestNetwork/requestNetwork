@@ -20,7 +20,10 @@ const defaultValues = {
     ethereum: {
       networkId: 0,
       web3ProviderUrl: 'http://localhost:8545',
-      gasPriceMin: '1000000000', // one gwei
+      gasPriceMin: '1000000000', // 1 gwei per gas
+      gasPriceMax: '1000000000000', // 1000 gwei per gas
+      // multiply by 2 the estimated max fee per gas to accomadate for volatility
+      gasPriceMultiplier: '200',
       blockConfirmations: 2,
     },
     ipfs: {
@@ -98,6 +101,24 @@ export function getGasPriceMin(): BigNumber | undefined {
     defaultValues.storage.ethereum.gasPriceMin,
   );
   return gasPriceMin ? BigNumber.from(gasPriceMin) : undefined;
+}
+
+export function getGasPriceMax(): BigNumber | undefined {
+  const gasPriceMax = getOption(
+    'gasPriceMax',
+    'GAS_PRICE_MAX',
+    defaultValues.storage.ethereum.gasPriceMax,
+  );
+  return gasPriceMax ? BigNumber.from(gasPriceMax) : undefined;
+}
+
+export function getGasPriceMultiplier(): BigNumber | undefined {
+  const gasPriceMultiplier = getOption(
+    'gasPriceMultiplier',
+    'GAS_PRICE_MULTIPLIER',
+    defaultValues.storage.ethereum.gasPriceMultiplier,
+  );
+  return gasPriceMultiplier ? BigNumber.from(gasPriceMultiplier) : undefined;
 }
 
 /**
@@ -186,7 +207,7 @@ export function getHelpMessage(): string {
         })\t\t\t\tCustom headers to send with the API responses
 
       THE GRAPH OPTIONS
-        graphNodeUrl (${defaultValues.storage.thegraph.nodeUrl})\t\t\t\t
+        graphNodeUrl (${defaultValues.storage.thegraph.nodeUrl})\t\t\t\tURL of the Graph node
 
       ETHEREUM OPTIONS
         networkId (${
@@ -195,6 +216,18 @@ export function getHelpMessage(): string {
         providerUrl (${
           defaultValues.storage.ethereum.web3ProviderUrl
         })\tUrl of the web3 provider for Ethereum
+        gasPriceMin (${
+          defaultValues.storage.ethereum.gasPriceMin
+        })\t\t\t\tMinimum value for maxPriorityFeePerGas and maxFeePerGas
+        gasPriceMax (${
+          defaultValues.storage.ethereum.gasPriceMax
+        })\t\t\t\tMaximum value for maxFeePerGas
+        gasPriceMultiplier (${
+          defaultValues.storage.ethereum.gasPriceMultiplier
+        })\t\t\t\tMultiplier for the computed maxFeePerGas
+        blockConfirmations (${
+          defaultValues.storage.ethereum.blockConfirmations
+        })\t\t\t\tNumber of block confirmations to wait before considering a transaction successful
 
       IPFS OPTIONS
         ipfsUrl (${defaultValues.storage.ipfs.url})\t\t\tURL of the IPFS gateway
