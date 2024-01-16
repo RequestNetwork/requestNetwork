@@ -8,16 +8,19 @@ import { getSignerAndGasFees, updateRequestSwapFees, updateSwapRouter } from './
  * @param contractAddress address of the ERC20SwapToPay contract
  *                        If not provided fallback to the latest deployment address
  * @param hre Hardhat runtime environment
+ * @param signWithEoa Are transactions to be signed by an EAO
  */
 export const setupERC20SwapToPay = async ({
   contractAddress,
   hre,
+  signWithEoa,
 }: {
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
+  signWithEoa: boolean;
 }): Promise<void> => {
   await Promise.all(
-    hre.config.xdeploy.networks.map(async (network) => {
+    hre.config.xdeploy.networks.map(async (network: string) => {
       try {
         EvmChains.assertChainSupported(network);
         if (!contractAddress) {
@@ -30,8 +33,14 @@ export const setupERC20SwapToPay = async ({
         const { signer, txOverrides } = await getSignerAndGasFees(network, hre);
         const ERC20SwapToPayConnected = await ERC20SwapToPayContract.connect(signer);
 
-        await updateSwapRouter(ERC20SwapToPayConnected, network, txOverrides);
-        await updateRequestSwapFees(ERC20SwapToPayConnected, txOverrides);
+        await updateSwapRouter(ERC20SwapToPayConnected, network, txOverrides, signer, signWithEoa);
+        await updateRequestSwapFees(
+          ERC20SwapToPayConnected,
+          network,
+          txOverrides,
+          signer,
+          signWithEoa,
+        );
         console.log(`Setup of ERC20SwapToPay successful on ${network}`);
       } catch (err) {
         console.warn(`An error occurred during the setup of ERC20SwapToPay on ${network}`);

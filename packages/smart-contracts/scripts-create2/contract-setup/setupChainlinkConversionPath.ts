@@ -9,17 +9,20 @@ import { getSignerAndGasFees, updateNativeTokenHash } from './adminTasks';
  * @param contractAddress address of the ChainlinkConversionPath contract
  *                        If not provided fallback to the latest deployment address
  * @param hre Hardhat runtime environment
+ * @param signWithEoa Are transactions to be signed by an EAO
  */
 export const setupChainlinkConversionPath = async ({
   contractAddress,
   hre,
+  signWithEoa,
 }: {
   contractAddress?: string;
   hre: HardhatRuntimeEnvironmentExtended;
+  signWithEoa: boolean;
 }): Promise<void> => {
   // Setup contract parameters
   await Promise.all(
-    hre.config.xdeploy.networks.map(async (network) => {
+    hre.config.xdeploy.networks.map(async (network: string) => {
       try {
         EvmChains.assertChainSupported(network);
         if (!contractAddress) {
@@ -41,8 +44,11 @@ export const setupChainlinkConversionPath = async ({
         await updateNativeTokenHash(
           'ChainlinkConversionPath',
           ChainlinkConversionPathConnected,
+          network,
           nativeTokenHash,
           txOverrides,
+          signer,
+          signWithEoa,
         );
         console.log(`Setup of ChainlinkConversionPath successful on ${network}`);
       } catch (err) {

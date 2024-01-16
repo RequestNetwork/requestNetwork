@@ -10,7 +10,6 @@ import '@matterlabs/hardhat-zksync-verify';
 import { subtask, task } from 'hardhat/config';
 import { config } from 'dotenv';
 import deployAllContracts from './scripts/test-deploy-all';
-import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { checkCreate2Deployer } from './scripts-create2/check-deployer';
 import { deployDeployer, verifyDeployer } from './scripts-create2/deploy-request-deployer';
 import { HardhatRuntimeEnvironmentExtended } from './scripts-create2/types';
@@ -307,20 +306,6 @@ task('deploy-local-env', 'Deploy a local environment').setAction(async (args, hr
 });
 
 task(
-  'deploy-live-payments',
-  'Deploy payment contracts on a live network. Make sure to update all artifacts before running.',
-)
-  .addFlag('dryRun', 'to prevent any deployment')
-  .addFlag('force', 'to force re-deployment')
-  .setAction(async (args, hre) => {
-    args.force = args.force ?? false;
-    args.dryRun = args.dryRun ?? false;
-    args.simulate = args.dryRun;
-    await hre.run(DEPLOYER_KEY_GUARD);
-    await deployAllPaymentContracts(args, hre as HardhatRuntimeEnvironmentExtended);
-  });
-
-task(
   'deploy-live-storage',
   'Deploy payment contracts on a live network. Make sure to update all artifacts before running.',
 )
@@ -365,13 +350,13 @@ task(
   await deployWithCreate2FromList(hre as HardhatRuntimeEnvironmentExtended);
 });
 
-task(
-  'update-contracts',
-  'Update the latest deployed contracts from the Create2DeploymentList',
-).setAction(async (_args, hre) => {
-  await hre.run(DEPLOYER_KEY_GUARD);
-  await updateContractsFromList(hre as HardhatRuntimeEnvironmentExtended);
-});
+task('update-contracts', 'Update the latest deployed contracts from the Create2DeploymentList')
+  .addFlag('safe', 'Is the update to be performed in Safe context')
+  .setAction(async (args, hre) => {
+    const signWithEoa = args.eoa ?? false;
+    await hre.run(DEPLOYER_KEY_GUARD);
+    await updateContractsFromList(hre as HardhatRuntimeEnvironmentExtended, signWithEoa);
+  });
 
 task(
   'verify-contract-from-deployer',
