@@ -1,23 +1,15 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
 
-import encryptionFormats from './encryption/encryption-format';
-import GroupMultiFormat from './group-multi-format';
-import hashFormat from './hash/hash-format';
-import identityFormat from './identity/identity-format';
-import plainFormat from './plain/plain-format';
+import { encryptionFormats } from './encryption/encryption-format';
+import { MultiFormatGroup } from './multi-format-group';
+import { hashFormat } from './hash/hash-format';
+import { identityFormat } from './identity/identity-format';
+import { plainFormat } from './plain/plain-format';
 
-/** Serializes and deserializes any multi-format supported */
-export default {
-  deserialize,
-  encryptionFormats,
-  hashFormat,
-  identityFormat,
-  plainFormat,
-  serialize,
-};
+export { encryptionFormats, MultiFormatGroup, hashFormat, identityFormat, plainFormat };
 
 /** List of the groups of formats available */
-const availableFormats: GroupMultiFormat[] = [
+const availableFormats: MultiFormatGroup[] = [
   encryptionFormats,
   identityFormat,
   hashFormat,
@@ -30,7 +22,7 @@ const availableFormats: GroupMultiFormat[] = [
  * @param formatted the string to deserialize
  * @returns the deserialized object or throw
  */
-function deserialize(formatted: string): MultiFormatTypes.IMultiFormatDeserialized {
+export function deserialize(formatted: string): MultiFormatTypes.IMultiFormatDeserialized {
   const matchingFormat = availableFormats.find((format) =>
     format.isDeserializableString(formatted),
   );
@@ -48,7 +40,7 @@ function deserialize(formatted: string): MultiFormatTypes.IMultiFormatDeserializ
  * @param data the object to serialize
  * @returns the serialized string or throw.
  */
-function serialize(data: MultiFormatTypes.IMultiFormatDeserialized): string {
+export function serialize(data: MultiFormatTypes.IMultiFormatDeserialized): string {
   const matchingFormat = availableFormats.find((format) => format.isSerializableObject(data));
 
   if (matchingFormat) {

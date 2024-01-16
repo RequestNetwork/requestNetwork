@@ -1,6 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import { EthInputDataInfoRetriever } from '../../src/eth/info-retriever';
-import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
+import * as PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import etherscanFixtures from './etherscan-fixtures';
 import { providers } from 'ethers';
 

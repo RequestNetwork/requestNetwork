@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { TheGraphClient, TheGraphInfoRetriever } from '../../src/thegraph';
-import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
+import * as PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { utils } from 'ethers';
 import { PaymentTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';

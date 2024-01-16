@@ -9,7 +9,7 @@ import { BigNumber, BigNumberish, Contract, errors, logger } from 'ethers';
 import { getAddress, keccak256, LogDescription } from 'ethers/lib/utils';
 import { ContractArtifact, DeploymentInformation } from '@requestnetwork/smart-contracts';
 import { NetworkNotSupported, VersionNotSupported } from './balance-error';
-import PaymentReferenceCalculator from './payment-reference-calculator';
+import * as PaymentReferenceCalculator from './payment-reference-calculator';
 
 /**
  * Converts the Log's args from array to an object with keys being the name of the arguments

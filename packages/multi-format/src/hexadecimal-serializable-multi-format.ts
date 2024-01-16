@@ -1,12 +1,12 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
 
-import SerializableMultiFormat from './serializable-multi-format';
+import { SerializableMultiFormat } from './serializable-multi-format';
 
 /**
  * Class to serialize and deserialize multi-format data using hexadecimal values
  * This class is meant to be inherited by all the multi-format using as value a hexadecimal (starting by '0x')
  */
-export default class HexadecimalSerializableMultiFormat extends SerializableMultiFormat {
+export class HexadecimalSerializableMultiFormat extends SerializableMultiFormat {
   /**
    * Checks if an object is a deserialized multi-format
    *

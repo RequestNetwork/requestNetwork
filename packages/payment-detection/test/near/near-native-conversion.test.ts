@@ -6,7 +6,7 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyDefinition, CurrencyManager } from '@requestnetwork/currency';
 import { PaymentNetworkFactory } from '../../src/payment-network-factory';
-import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
+import * as PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import {
   NearConversionInfoRetriever,
   NearConversionNativeTokenPaymentDetector,

@@ -1,5 +1,5 @@
 import { SuperFluidInfoRetriever } from '../../src/erc777/superfluid-retriever';
-import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
+import * as PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { PaymentTypes } from '@requestnetwork/types';
 import { GraphQLClient } from 'graphql-request';
 import { mockSuperfluidSubgraph } from './mocks';
