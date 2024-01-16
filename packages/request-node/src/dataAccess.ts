@@ -21,8 +21,17 @@ export function getDataAccess(
   const signer = new NonceManager(wallet);
 
   const gasPriceMin = config.getGasPriceMin();
+  const gasPriceMax = config.getGasPriceMax();
+  const gasPriceMultiplier = config.getGasPriceMultiplier();
   const blockConfirmations = config.getBlockConfirmations();
-  const txSubmitter = new EthereumTransactionSubmitter({ network, logger, gasPriceMin, signer });
+  const txSubmitter = new EthereumTransactionSubmitter({
+    network,
+    logger,
+    gasPriceMin,
+    gasPriceMax,
+    gasPriceMultiplier,
+    signer,
+  });
   const pendingStore = new PendingStore();
   const storage = new EthereumStorage({
     ipfsStorage,
