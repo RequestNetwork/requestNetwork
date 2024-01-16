@@ -23,7 +23,7 @@ const defaultValues = {
       gasPriceMin: '1000000000', // 1 gwei per gas
       gasPriceMax: '10000000000000', // 10,000 gwei per gas
       // multiply by 2 the estimated max fee per gas to accomadate for volatility
-      gasPriceMultiplier: '200',
+      gasPriceMultiplier: 200,
       blockConfirmations: 2,
     },
     ipfs: {
@@ -112,14 +112,11 @@ export function getGasPriceMax(): BigNumber | undefined {
   return gasPriceMax ? BigNumber.from(gasPriceMax) : undefined;
 }
 
-export function getGasPriceMultiplier(): BigNumber | undefined {
-  const gasPriceMultiplier = getOption(
-    'gasPriceMultiplier',
-    'GAS_PRICE_MULTIPLIER',
-    defaultValues.storage.ethereum.gasPriceMultiplier,
-  );
-  return gasPriceMultiplier ? BigNumber.from(gasPriceMultiplier) : undefined;
-}
+export const getGasPriceMultiplier = getOption(
+  'gasPriceMultiplier',
+  'GAS_PRICE_MULTIPLIER',
+  defaultValues.storage.ethereum.gasPriceMultiplier,
+);
 
 /**
  * Get the number of block confirmations to wait before considering a transaction successful
