@@ -1,7 +1,7 @@
 import * as AJV from 'ajv';
 import * as jsonSchema from 'ajv/lib/refs/json-schema-draft-06.json';
 import * as schemaAddress from './format/address.json';
-import formats from './format';
+import { formats } from './format';
 
 /**
  * validation of data
