@@ -6,8 +6,8 @@ import '../interfaces/IRequestApp.sol';
 import '../lib/HooksLibrary.sol';
 
 /**
- * @title IRequestApp
- * @notice This interface expose the methods to integrates your application within the request network protocol
+ * @title DoublePaymentPreventionApp
+ * @notice Specific app to prevent double payment through hooks during payment
  */
 contract DoublePaymentPreventionApp is BaseRequestApp {
   mapping(bytes => bool) executedPayments;
@@ -18,6 +18,11 @@ contract DoublePaymentPreventionApp is BaseRequestApp {
   }
 
   constructor() {}
+
+  /**
+   * @notice Allow the contract to receive funds (optional)
+   */
+  receive() external payable {}
 
   /**
    * @notice This function will be called before receiving a payment.
@@ -35,15 +40,19 @@ contract DoublePaymentPreventionApp is BaseRequestApp {
       keccak256(paymentCtx.paymentRef) == keccak256(data.paymentReference),
       'Payment Reference does not match'
     );
-    require(!executedPayments[appData], 'Payment already executed');
-
-    executedPayments[appData] = true;
+    require(!executedPayments[data.paymentReference], 'Payment already executed');
+    executedPayments[data.paymentReference] = true;
     if (data.nextAppData.length != 0) {
       HooksLibrary.executeHooks(paymentCtx, data.nextAppData);
     }
     return true;
   }
 
+  /**
+   * @notice Method to compute the DoublePaymentPreventionData as encoded bytes 
+   * @param paymentReference The payment reference of the payment
+   * @param nextAppData Next application data to execute
+   */
   function computeBeforePaymentAppData(bytes calldata paymentReference, bytes calldata nextAppData)
     external
     pure

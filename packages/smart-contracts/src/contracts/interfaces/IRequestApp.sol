@@ -12,6 +12,7 @@ interface IRequestApp is IERC165 {
    * @notice Payment context structure. Contains payment information. It is passed during callbacks
    * @param amount Payment amount
    * @param payer Payer address
+   * @param recipient Recipient address
    * @param token Payment token address
    * @param paymentRef Payment reference
    */

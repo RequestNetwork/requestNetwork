@@ -117,6 +117,11 @@ contract ERC20FeeProxy {
     return result;
   }
 
+  /**
+   * @notice Returns a bytes-encoded HookData.
+   * @param app Address of the app to execute
+   * @param appData data to execute
+   */
   function computeHooksData(address app, bytes calldata appData)
     external
     pure
