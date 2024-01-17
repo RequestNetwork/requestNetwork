@@ -132,37 +132,70 @@ describe('Retry', () => {
     });
 
     retry(throwFn, {
-      exponentialBackoffDelay: 1000,
-      maxExponentialBackoffDelay: 7000,
+      maxRetries: 30,
+      retryDelay: 0,
+      exponentialBackoffDelay: 1000, // 1s
+      maxExponentialBackoffDelay: 30000, // 30s
     })();
 
     // Should call immediately
     expect(throwFn).toHaveBeenCalledTimes(1);
 
-    // Exponential backoff should only call a second time after 2000ms
-    jest.advanceTimersByTime(1100);
+    // Call 2nd time after 1s
+    jest.advanceTimersByTime(999);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(1);
-    jest.advanceTimersByTime(1100);
+    jest.advanceTimersByTime(1000);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(2);
 
-    // Exponential backoff should call a third time after 4100ms
-    jest.advanceTimersByTime(4100);
+    // Call 3rd time after 2s
+    jest.advanceTimersByTime(1999);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(2);
+    jest.advanceTimersByTime(2000);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(3);
 
-    // Exponential backoff should call a fourth time after 7100ms
-    // since maxExponentialBackoffDelay (7000) < 8000
-    jest.advanceTimersByTime(7100);
+    // Call 4th time after 4s
+    jest.advanceTimersByTime(3999);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(3);
+    jest.advanceTimersByTime(4000);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(4);
 
-    // Exponential backoff should call a fifth time after 7100ms
-    // since maxExponentialBackoffDelay (7000) < 8000
-    jest.advanceTimersByTime(7100);
+    // Call 5th time after 8s
+    jest.advanceTimersByTime(7999);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(4);
+    jest.advanceTimersByTime(8000);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(5);
+
+    // Call 6th time after 16s
+    jest.advanceTimersByTime(15999);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(5);
+    jest.advanceTimersByTime(16000);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(6);
+
+    // Call 7th time after 32s
+    jest.advanceTimersByTime(31999);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(6);
+    jest.advanceTimersByTime(32000);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(7);
+
+    // Don't call 8th time, even after 64s
+    jest.advanceTimersByTime(63999);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(7);
+    jest.advanceTimersByTime(64000);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(7);
 
     jest.useRealTimers();
   });

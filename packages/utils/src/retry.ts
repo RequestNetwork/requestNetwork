@@ -61,7 +61,7 @@ const retry = <TParams extends unknown[], TReturn>(
             setTimeout(
               resolve,
               retryDelay +
-                Math.min(maxExponentialBackoffDelay, exponentialBackoffDelay * 2 ** retry),
+                Math.min(maxExponentialBackoffDelay, (exponentialBackoffDelay / 2) * 2 ** retry),
             ),
           );
 
