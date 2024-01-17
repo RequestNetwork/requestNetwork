@@ -6,7 +6,7 @@ import {
 } from '@requestnetwork/types';
 import { SuperFluidInfoRetriever } from './superfluid-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
-import PaymentReferenceCalculator from '../payment-reference-calculator';
+import * as PaymentReferenceCalculator from '../payment-reference-calculator';
 import { BigNumber } from 'ethers';
 import { ReferenceBasedDetectorOptions } from '../types';
 /**

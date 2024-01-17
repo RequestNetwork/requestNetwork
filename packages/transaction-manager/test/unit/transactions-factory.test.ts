@@ -1,4 +1,4 @@
-import MultiFormat from '@requestnetwork/multi-format';
+import * as MultiFormat from '@requestnetwork/multi-format';
 import { EncryptionTypes, MultiFormatTypes } from '@requestnetwork/types';
 import TransactionsFactory from '../../src/transactions-factory';
 import * as TestData from './utils/test-data';

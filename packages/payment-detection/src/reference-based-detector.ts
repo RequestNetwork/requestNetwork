@@ -6,7 +6,7 @@ import {
   TypesUtils,
 } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import PaymentReferenceCalculator from './payment-reference-calculator';
+import * as PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { DeclarativePaymentDetectorBase } from './declarative';
 import { generate8randomBytes } from '@requestnetwork/utils';

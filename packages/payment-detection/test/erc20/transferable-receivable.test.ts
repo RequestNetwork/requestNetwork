@@ -1,6 +1,6 @@
 import { CurrencyManager } from '@requestnetwork/currency';
 import { TheGraphClient, TheGraphInfoRetriever } from '../../src/thegraph';
-import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
+import * as PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { ERC20TransferableReceivablePaymentDetector } from '../../src/erc20';
 import {
   AdvancedLogicTypes,

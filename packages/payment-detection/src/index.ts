@@ -4,7 +4,7 @@ import {
   setProviderFactory,
 } from '@requestnetwork/utils';
 import { PaymentNetworkFactory } from './payment-network-factory';
-import PaymentReferenceCalculator from './payment-reference-calculator';
+import * as PaymentReferenceCalculator from './payment-reference-calculator';
 import * as BtcPaymentNetwork from './btc';
 import { DeclarativePaymentDetector } from './declarative';
 import * as Erc20PaymentNetwork from './erc20';
