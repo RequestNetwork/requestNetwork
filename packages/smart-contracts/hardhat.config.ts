@@ -21,6 +21,7 @@ import { networkRpcs } from '@requestnetwork/utils';
 import { tenderlyImportAll } from './scripts-create2/tenderly';
 import { updateContractsFromList } from './scripts-create2/update-contracts-setup';
 import deployStorage from './scripts/deploy-storage';
+import { transferOwnership } from './scripts-create2/transfer-ownership';
 
 config();
 
@@ -319,7 +320,6 @@ task(
     await deployStorage(args, hre as HardhatRuntimeEnvironmentExtended);
   });
 
-// Tasks inherent to the CREATE2 deployment scheme
 task(
   'deploy-deployer-contract',
   'Deploy request deployer contract on the specified network',
@@ -351,11 +351,19 @@ task(
 });
 
 task('update-contracts', 'Update the latest deployed contracts from the Create2DeploymentList')
-  .addFlag('safe', 'Is the update to be performed in Safe context')
+  .addFlag('eoa', 'Is the update to be performed in an EOA context')
   .setAction(async (args, hre) => {
     const signWithEoa = args.eoa ?? false;
     await hre.run(DEPLOYER_KEY_GUARD);
     await updateContractsFromList(hre as HardhatRuntimeEnvironmentExtended, signWithEoa);
+  });
+
+task('transfer-ownership', 'Transfer the Ownership of eligible contracts to the RN Safe Admins')
+  .addFlag('eoa', 'Is the update to be performed in an EOA context')
+  .setAction(async (args, hre) => {
+    const signWithEoa = args.eoa ?? false;
+    await hre.run(DEPLOYER_KEY_GUARD);
+    await transferOwnership(hre as HardhatRuntimeEnvironmentExtended, signWithEoa);
   });
 
 task(
