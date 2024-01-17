@@ -1,5 +1,6 @@
 import { HardhatRuntimeEnvironmentExtended } from './types';
-import { getCeloProvider, getDefaultProvider } from '@requestnetwork/utils';
+import { getDefaultProvider } from '@requestnetwork/utils';
+import { publicActions, toHex } from 'viem';
 
 export const checkCreate2Deployer = async (
   hre: HardhatRuntimeEnvironmentExtended,
@@ -12,13 +13,10 @@ export const checkCreate2Deployer = async (
   }
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network: string) => {
-      let provider;
-      if (network === 'celo') {
-        provider = getCeloProvider();
-      } else {
-        provider = getDefaultProvider(network);
-      }
-      const code = await provider.getCode(hre.config.xdeploy.deployerAddress);
+      const provider = getDefaultProvider(network);
+      const code = await publicActions(provider).getBytecode({
+        address: toHex(hre.config.xdeploy.deployerAddress),
+      });
 
       if (code === '0x') {
         throw new Error(

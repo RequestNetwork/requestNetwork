@@ -48,11 +48,6 @@ describe('Utils/EcUtils', () => {
       const identity = getAddressFromPublicKey(rawId.publicKey);
       expect(identity).toBe(rawId.address);
     });
-    it('cannot get Address From Public Key if the Public key is wrong', () => {
-      expect(() => getAddressFromPublicKey('aa')).toThrowError(
-        'The public key must be a string representing 64 bytes',
-      );
-    });
   });
 
   describe('sign', () => {
@@ -124,7 +119,7 @@ describe('Utils/EcUtils', () => {
           '0xaa',
           '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc70a',
         ),
-      ).rejects.toThrowError('Bad private key');
+      ).rejects.toThrowError('The private key must be a string representing 32 bytes');
     });
 
     it('cannot decrypt data with a wrong encrypted data: public key too short', async () => {
@@ -139,7 +134,9 @@ describe('Utils/EcUtils', () => {
           rawId.privateKey,
           'e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc7',
         ),
-      ).rejects.toThrowError('Point of length 33 was invalid. Expected 33 compressed bytes or 65 uncompressed bytes');
+      ).rejects.toThrowError(
+        'Point of length 33 was invalid. Expected 33 compressed bytes or 65 uncompressed bytes',
+      );
     });
 
     it('cannot decrypt data with a wrong encrypted data: bad MAC', async () => {

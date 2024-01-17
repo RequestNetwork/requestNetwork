@@ -184,15 +184,6 @@ export function getHelpMessage(): string {
         providerUrl (${
           defaultValues.storage.ethereum.web3ProviderUrl
         })\tUrl of the web3 provider for Ethereum
-        gasPriceMin (${
-          defaultValues.storage.ethereum.gasPriceMin
-        })\t\t\t\tMinimum value for maxPriorityFeePerGas and maxFeePerGas
-        gasPriceMax (${
-          defaultValues.storage.ethereum.gasPriceMax
-        })\t\t\t\tMaximum value for maxFeePerGas
-        gasPriceMultiplier (${
-          defaultValues.storage.ethereum.gasPriceMultiplier
-        })\t\t\t\tMultiplier for the computed maxFeePerGas
         blockConfirmations (${
           defaultValues.storage.ethereum.blockConfirmations
         })\t\t\t\tNumber of block confirmations to wait before considering a transaction successful

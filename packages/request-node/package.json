@@ -58,7 +58,7 @@
     "http-shutdown": "1.2.2",
     "http-status-codes": "2.1.4",
     "tslib": "2.5.0",
-    "viem": "^1.17.1",
+    "viem": "1.17.1",
     "yargs": "17.6.2"
   },
   "devDependencies": {

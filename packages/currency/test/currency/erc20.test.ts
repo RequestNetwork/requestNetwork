@@ -1,7 +1,7 @@
 import { getSupportedERC20Tokens } from '../../src/erc20';
 import * as metamaskContractMap from '@metamask/contract-metadata';
 import { extraERC20Tokens } from '../../src/erc20/chains/mainnet';
-import { utils } from 'ethers';
+import { getAddress } from 'viem';
 
 describe('erc20', () => {
   describe('does not redefine tokens', () => {
@@ -14,7 +14,7 @@ describe('erc20', () => {
   describe('uses checksumed addresses', () => {
     getSupportedERC20Tokens().map(({ address, symbol }) => {
       it(`${symbol} is checksumed`, () => {
-        expect(address).toEqual(utils.getAddress(address));
+        expect(address).toEqual(getAddress(address));
       });
     });
   });

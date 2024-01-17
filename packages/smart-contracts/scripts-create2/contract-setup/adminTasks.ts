@@ -4,14 +4,8 @@ import * as artifacts from '../../src/lib';
 import { BigNumber, Overrides, Wallet, Contract } from 'ethers';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import { parseUnits } from 'ethers/lib/utils';
-import {
-  isEip1559Supported,
-  getCeloProvider,
-  getDefaultProvider,
-  normalizeGasFees,
-} from '@requestnetwork/utils';
+import { getDefaultProvider } from '@requestnetwork/utils';
 import { CurrencyTypes } from '@requestnetwork/types';
-import { suggestFeesEip1559 } from '../fee-suggestion';
 import { executeContractMethod } from './execute-contract-method';
 
 // Swap Fees: set to 5 for 0.5%
@@ -391,20 +385,11 @@ export const getSignerAndGasFees = async (
     maxPriorityFeePerGas?: BigNumber;
   };
 }> => {
-  let provider;
-  if (network === 'celo') {
-    provider = getCeloProvider();
-  } else {
-    provider = getDefaultProvider(network);
-  }
+  const provider = getDefaultProvider(network);
+
   const signer = new hre.ethers.Wallet(hre.config.xdeploy.signer).connect(provider);
 
-  const txOverrides = (await isEip1559Supported(provider))
-    ? await normalizeGasFees({
-        logger: console,
-        suggestFees: suggestFeesEip1559(provider),
-      })
-    : {};
+  const txOverrides = {};
 
   return {
     signer,

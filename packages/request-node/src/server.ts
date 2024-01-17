@@ -5,22 +5,11 @@ import { RequestNode } from './requestNode';
 import { getDataAccess } from './dataAccess';
 import { getDataStorage } from './dataStorage';
 import ConfirmedTransactionStore from './request/confirmedTransactionStore';
-import { EvmChains } from '@requestnetwork/currency';
-import { getEthereumStorageNetworkNameFromId } from '@requestnetwork/ethereum-storage';
 import { SubgraphClient } from '@requestnetwork/thegraph-data-access';
 import { getChain } from './chain';
 
 // Initialize the node logger
 const logger = new Logger(config.getLogLevel(), config.getLogMode());
-
-const getNetwork = () => {
-  const network = getEthereumStorageNetworkNameFromId(config.getStorageNetworkId()) as any;
-  if (!network) {
-    throw new Error(`Storage network not supported: ${config.getStorageNetworkId()}`);
-  }
-  EvmChains.assertChainSupported(network);
-  return network;
-};
 
 export const getRequestNode = (): RequestNode => {
   const storage = getDataStorage(logger);
@@ -32,7 +21,7 @@ export const getRequestNode = (): RequestNode => {
   // the confirmation process would be different, so this doesn't fit in the data access layer
   const confirmedTransactionStore = new ConfirmedTransactionStore(
     new SubgraphClient(config.getGraphNodeUrl()),
-    network,
+    chain.name,
   );
 
   return new RequestNode(dataAccess, storage, confirmedTransactionStore, logger);

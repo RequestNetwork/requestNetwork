@@ -47,7 +47,7 @@
     "ipfs-unixfs": "6.0.7",
     "qs": "6.11.2",
     "tslib": "2.5.0",
-    "viem": "^1.17.1",
+    "viem": "1.17.1",
     "yargs": "17.6.2"
   },
   "devDependencies": {
