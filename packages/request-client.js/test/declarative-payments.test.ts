@@ -47,7 +47,6 @@ describe('request-client.js: declarative payments', () => {
   afterEach(() => {
     jest.clearAllMocks();
     mockServer.close();
-    mockServer.events.removeAllListeners();
   });
 
   describe(`with simple creation`, () => {
@@ -75,6 +74,7 @@ describe('request-client.js: declarative payments', () => {
 
       const hits: Record<string, number> = { get: 0, post: 0 };
       mockServer.events.on('request:start', ({ request }) => {
+        console.log(request.method, request.url);
         hits[request.method.toLowerCase()]++;
       });
 
@@ -98,7 +98,6 @@ describe('request-client.js: declarative payments', () => {
 
       const hits: Record<string, number> = { get: 0, post: 0 };
       mockServer.events.on('request:start', ({ request }) => {
-        console.log(request.url);
         hits[request.method.toLowerCase()]++;
       });
       await waitForConfirmation(
