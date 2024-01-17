@@ -35,6 +35,21 @@ const waitForConfirmation = async (
   });
 };
 
+const countHttpCalls = (mockServer: SetupServer) => {
+  const hits: Record<string, number> = { get: 0, post: 0 };
+
+  const method = ({ request }: any) => {
+    if (request.url.startsWith('http://localhost:3000')) {
+      hits[request.method.toLowerCase()]++;
+    }
+  };
+  mockServer.events.on('request:start', method);
+  return {
+    hits,
+    unsubscribe: () => mockServer.events.removeListener('request:start', method),
+  };
+};
+
 // Integration tests
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('request-client.js: declarative payments', () => {
@@ -72,19 +87,15 @@ describe('request-client.js: declarative payments', () => {
       const request = await requestNetwork.createRequest(requestCreationParams);
       await request.waitForConfirmation();
 
-      const hits: Record<string, number> = { get: 0, post: 0 };
-      mockServer.events.on('request:start', ({ request }) => {
-        console.log(request.method, request.url);
-        hits[request.method.toLowerCase()]++;
-      });
+      const { hits, unsubscribe } = countHttpCalls(mockServer);
 
       await waitForConfirmation(
         request.declareSentPayment('10', 'sent payment', TestData.payer.identity),
       );
+      unsubscribe();
 
       expect(hits.get).toBe(5);
       expect(hits.post).toBe(1);
-      mockServer.events.removeAllListeners();
     });
 
     it('allows to declare a received payment', async () => {
@@ -96,17 +107,14 @@ describe('request-client.js: declarative payments', () => {
       const request = await requestNetwork.createRequest(requestCreationParams);
       await request.waitForConfirmation();
 
-      const hits: Record<string, number> = { get: 0, post: 0 };
-      mockServer.events.on('request:start', ({ request }) => {
-        hits[request.method.toLowerCase()]++;
-      });
+      const { hits, unsubscribe } = countHttpCalls(mockServer);
       await waitForConfirmation(
         request.declareReceivedPayment('10', 'received payment', TestData.payee.identity),
       );
+      unsubscribe();
 
       expect(hits.get).toBe(5);
       expect(hits.post).toBe(1);
-      mockServer.events.removeAllListeners();
     });
 
     it('allows to create a request with delegate', async () => {
@@ -147,10 +155,7 @@ describe('request-client.js: declarative payments', () => {
       const request = await requestNetwork.createRequest(requestCreationParams);
       await request.waitForConfirmation();
 
-      const hits: Record<string, number> = { get: 0, post: 0 };
-      mockServer.events.on('request:start', ({ request }) => {
-        hits[request.method.toLowerCase()]++;
-      });
+      const { hits, unsubscribe } = countHttpCalls(mockServer);
       await waitForConfirmation(
         request.declareReceivedPayment(
           '10',
@@ -160,10 +165,10 @@ describe('request-client.js: declarative payments', () => {
           'mainnet',
         ),
       );
+      unsubscribe();
 
       expect(hits.get).toBe(5);
       expect(hits.post).toBe(1);
-      mockServer.events.removeAllListeners();
     });
 
     it('allows to declare a received payment from delegate', async () => {
@@ -194,18 +199,14 @@ describe('request-client.js: declarative payments', () => {
       const request = await requestNetwork.createRequest(requestCreationParams);
       await request.waitForConfirmation();
 
-      const hits: Record<string, number> = { get: 0, post: 0 };
-      mockServer.events.on('request:start', ({ request }) => {
-        hits[request.method.toLowerCase()]++;
-      });
-
+      const { hits, unsubscribe } = countHttpCalls(mockServer);
       await waitForConfirmation(
         request.declareSentRefund('10', 'sent refund', TestData.payee.identity),
       );
+      unsubscribe();
 
       expect(hits.get).toBe(5);
       expect(hits.post).toBe(1);
-      mockServer.events.removeAllListeners();
     });
 
     it('allows to declare a received refund', async () => {
@@ -217,18 +218,14 @@ describe('request-client.js: declarative payments', () => {
       const request = await requestNetwork.createRequest(requestCreationParams);
       await request.waitForConfirmation();
 
-      const hits: Record<string, number> = { get: 0, post: 0 };
-      mockServer.events.on('request:start', ({ request }) => {
-        hits[request.method.toLowerCase()]++;
-      });
-
+      const { hits, unsubscribe } = countHttpCalls(mockServer);
       await waitForConfirmation(
         request.declareReceivedRefund('10', 'received refund', TestData.payer.identity),
       );
+      unsubscribe();
 
       expect(hits.get).toBe(5);
       expect(hits.post).toBe(1);
-      mockServer.events.removeAllListeners();
     });
 
     it('allows to declare a received refund from delegate', async () => {
@@ -259,10 +256,7 @@ describe('request-client.js: declarative payments', () => {
       const request = await requestNetwork.createRequest(requestCreationParams);
       await request.waitForConfirmation();
 
-      const hits: Record<string, number> = { get: 0, post: 0 };
-      mockServer.events.on('request:start', ({ request }) => {
-        hits[request.method.toLowerCase()]++;
-      });
+      const { hits, unsubscribe } = countHttpCalls(mockServer);
       await waitForConfirmation(
         request.declareReceivedRefund(
           '10',
@@ -271,10 +265,10 @@ describe('request-client.js: declarative payments', () => {
           '0x123456789',
         ),
       );
+      unsubscribe();
 
       expect(hits.get).toBe(5);
       expect(hits.post).toBe(1);
-      mockServer.events.removeAllListeners();
     });
 
     it('allows to get the right balance', async () => {
