@@ -18,11 +18,11 @@ import {
   waitForTransactionReceipt,
   writeContract,
 } from 'viem/actions';
+
 export type SubmitterProps = {
   client: Client;
   chain: Chain;
   logger?: LogTypes.ILogger;
-  debugProvider?: boolean;
 };
 
 const abi = parseAbi([
@@ -68,7 +68,7 @@ export class EthereumTransactionSubmitter implements StorageTypes.ITransactionSu
   /** Submits an IPFS hash, with fees according to `ipfsSize`  */
   async submit(ipfsHash: string, ipfsSize: number): Promise<string> {
     const simulation = await this.prepareSubmit(ipfsHash, ipfsSize);
-    return await writeContract(this.client, simulation.request);
+    return await writeContract(this.client, simulation);
   }
 
   async confirmTransaction(hash: string, confirmations: number): Promise<TransactionReceipt> {
@@ -82,7 +82,7 @@ export class EthereumTransactionSubmitter implements StorageTypes.ITransactionSu
   async prepareSubmit(
     ipfsHash: string,
     ipfsSize: number,
-  ): Promise<SimulateContractReturnType<typeof abi, 'submitHash'>> {
+  ): Promise<SimulateContractReturnType<typeof abi, 'submitHash'>['request']> {
     const gasParams = await estimateFeesPerGas(this.client, {
       chain: this.chain,
       type: this.enableEip1559 ? 'eip1559' : 'legacy',
@@ -96,6 +96,6 @@ export class EthereumTransactionSubmitter implements StorageTypes.ITransactionSu
       value: fee,
     });
 
-    return simulation;
+    return simulation.request;
   }
 }

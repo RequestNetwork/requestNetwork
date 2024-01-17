@@ -1,7 +1,6 @@
 import { StorageTypes } from '@requestnetwork/types';
 import { getSafeGasPriceLimit } from '../src/config';
 
-import { BigNumber } from 'ethers';
 import {
   getEthereumStorageNetworkIdFromName,
   getEthereumStorageNetworkNameFromId,
@@ -60,14 +59,14 @@ describe('Ethereum Utils', () => {
 
   describe('isGasPriceSafe', () => {
     it('should return true when a safe value is given', async () => {
-      expect(isGasPriceSafe(BigNumber.from(1))).toBe(true);
-      expect(isGasPriceSafe(BigNumber.from(1000))).toBe(true);
-      expect(isGasPriceSafe(BigNumber.from(parseInt(getSafeGasPriceLimit()) - 1))).toBe(true);
+      expect(isGasPriceSafe(1n)).toBe(true);
+      expect(isGasPriceSafe(1000n)).toBe(true);
+      expect(isGasPriceSafe(BigInt(parseInt(getSafeGasPriceLimit()) - 1))).toBe(true);
     });
 
     it('should return false when an unsafe value is given', async () => {
-      expect(isGasPriceSafe(BigNumber.from(0))).toBe(false);
-      expect(isGasPriceSafe(BigNumber.from(parseInt(getSafeGasPriceLimit())))).toBe(false);
+      expect(isGasPriceSafe(0n)).toBe(false);
+      expect(isGasPriceSafe(BigInt(parseInt(getSafeGasPriceLimit())))).toBe(false);
     });
   });
 });
