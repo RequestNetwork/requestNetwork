@@ -4,13 +4,15 @@ pragma solidity ^0.8.0;
 import './BaseRequestApp.sol';
 import '../interfaces/IRequestApp.sol';
 import '../lib/HooksLibrary.sol';
+import "@openzeppelin/contracts/utils/structs/BitMaps.sol";
 
 /**
  * @title DoublePaymentPreventionApp
  * @notice Specific app to prevent double payment through hooks during payment
  */
 contract DoublePaymentPreventionApp is BaseRequestApp {
-  mapping(bytes => bool) executedPayments;
+  using BitMaps for BitMaps.BitMap;
+  BitMaps.BitMap private paymentStatus;
 
   struct DoublePaymentPreventionData {
     bytes paymentReference;
@@ -40,8 +42,8 @@ contract DoublePaymentPreventionApp is BaseRequestApp {
       keccak256(paymentCtx.paymentRef) == keccak256(data.paymentReference),
       'Payment Reference does not match'
     );
-    require(!executedPayments[data.paymentReference], 'Payment already executed');
-    executedPayments[data.paymentReference] = true;
+    require(!paymentStatus.get(uint256(keccak256(data.paymentReference))), "Payment already executed");
+    paymentStatus.set(uint256(keccak256(data.paymentReference)));
     if (data.nextAppData.length != 0) {
       HooksLibrary.executeHooks(paymentCtx, data.nextAppData);
     }
