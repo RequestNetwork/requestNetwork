@@ -510,16 +510,6 @@ jobs:
           root: *working_directory
           paths:
             - packages/payment-processor/coverage/
-  publish-coverage:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Publish Coverage'
-          command: 'yarn publish-coverage'
   test-nightly:
     docker:
       - *node_image
@@ -656,29 +646,6 @@ workflows:
       - test-payment-processor:
           requires:
             - build
-
-      # Publish the code coverage
-      - publish-coverage:
-          requires:
-            - lint
-            - test-advanced-logic
-            - test-currency
-            - test-data-access
-            - test-data-format
-            - test-epk-decryption
-            - test-epk-signature
-            - test-ethereum-storage
-            - test-integration-test
-            - test-multi-format
-            - test-payment-detection
-            - test-payment-processor
-            - test-request-client
-            - test-request-logic
-            - test-request-node
-            - test-smart-contracts
-            - test-transaction-manager
-            - test-utils
-            - test-web3-signature
 
       # Release a next version package everytime we merge to master
       - next-release:
