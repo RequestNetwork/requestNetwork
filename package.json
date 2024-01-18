@@ -53,12 +53,16 @@
     "underscore": "^1.12.1",
     "crypto-js": "^4.2.0",
     "minimist": "^0.2.4",
-    "semver": "^7.5.4"
+    "semver": "^7.5.4",
+    "json-schema": "^0.4.0",
+    "json5": "^2.2.1"
   },
   "resolutionsDocs": {
     "underscore": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/14",
     "crypto-js": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/207",
     "minimist": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/177",
-    "semver": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/197"
+    "semver": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/197",
+    "json-schema": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/51",
+    "json5": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/165"
   }
 }
