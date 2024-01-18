@@ -55,7 +55,9 @@
     "minimist": "^0.2.4",
     "semver": "^7.5.4",
     "json-schema": "^0.4.0",
-    "json5": "^2.2.1"
+    "json5": "^2.2.1",
+    "minify": "^11.0.1",
+    "terser-webpack-plugin": "^5.3.7"
   },
   "resolutionsDocs": {
     "underscore": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/14",
@@ -63,6 +65,8 @@
     "minimist": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/177",
     "semver": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/197",
     "json-schema": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/51",
-    "json5": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/165"
+    "json5": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/165",
+    "minify": "terser: https://www.cve.org/CVERecord?id=CVE-2022-25858",
+    "terser-webpack-plugin": "terser: https://www.cve.org/CVERecord?id=CVE-2022-25858"
   }
 }
