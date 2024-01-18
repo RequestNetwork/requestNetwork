@@ -24,6 +24,7 @@ import { MockStorage } from '../src/mock-storage';
 import * as RequestLogic from '@requestnetwork/types/src/request-logic-types';
 import { http, HttpResponse } from 'msw';
 import { setupServer, SetupServer } from 'msw/node';
+import config from '../src/http-config-defaults';
 
 const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = {
   getConfirmationDeferDelay: 0,
@@ -186,7 +187,12 @@ describe('request-client.js', () => {
 
     beforeAll(() => {
       mockServer = setupServer(
-        http.post('*/persistTransaction', () => HttpResponse.json(spyPersistTransaction())),
+        http.post('*/persistTransaction', ({ request }) => {
+          if (!request.headers.get(config.requestClientVersionHeader)) {
+            throw new Error('Missing version header');
+          }
+          return HttpResponse.json(spyPersistTransaction());
+        }),
         http.get('*/getTransactionsByChannelId', () =>
           HttpResponse.json(spyGetTransactionsByChannelId()),
         ),
@@ -201,21 +207,6 @@ describe('request-client.js', () => {
     });
     afterAll(() => {
       mockServer.close();
-    });
-
-    it('specify the Request Client version in the header', async () => {
-      const requestNetwork = new RequestNetwork({
-        httpConfig,
-        signatureProvider: TestData.fakeSignatureProvider,
-        paymentOptions: {
-          bitcoinDetectionProvider: mockBTCProvider,
-        },
-      });
-
-      const request = await requestNetwork.createRequest(requestCreationParams);
-      expect(spyPersistTransaction).toHaveBeenCalledTimes(1);
-
-      await request.waitForConfirmation();
     });
 
     it('uses http://localhost:3000 with signatureProvider and paymentNetwork', async () => {
@@ -362,9 +353,6 @@ describe('request-client.js', () => {
     });
     beforeEach(() => {
       hits = { get: 0, post: 0 };
-    });
-    afterEach(() => {
-      // mock.resetHandlers();
     });
     it('allows to create a request', async () => {
       const requestNetwork = new RequestNetwork({
