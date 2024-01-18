@@ -9,8 +9,8 @@ import {
   TransactionTypes,
 } from '@requestnetwork/types';
 import { normalizeKeccak256Hash, sign } from '@requestnetwork/utils';
-import AxiosMockAdapter from 'axios-mock-adapter';
-import axios from 'axios';
+import { http, HttpResponse } from 'msw';
+import { setupServer, SetupServer } from 'msw/node';
 import { Types } from '../src';
 
 export const arbitraryTimestamp = 1549953337;
@@ -270,12 +270,16 @@ export const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = 
   supportedMethods: [SignatureTypes.METHOD.ECDSA],
 };
 
-export const mockAxiosRequestNode = (): AxiosMockAdapter => {
-  const mockAxios = new AxiosMockAdapter(axios);
-  mockAxios.onPost('/persistTransaction').reply(200, { result: {} });
-  mockAxios.onGet('/getTransactionsByChannelId').reply(200, {
-    result: { transactions: [timestampedTransactionWithoutExtensionsData] },
-  });
-  mockAxios.onGet('/getConfirmedTransaction').reply(200, { result: {} });
-  return mockAxios;
+export const mockRequestNode = (): SetupServer => {
+  const mockServer = setupServer(
+    http.post('*/persistTransaction', () => HttpResponse.json({ result: {} })),
+    http.get('*/getTransactionsByChannelId', () =>
+      HttpResponse.json({
+        result: { transactions: [timestampedTransactionWithoutExtensionsData] },
+      }),
+    ),
+    http.get('*/getConfirmedTransaction', () => HttpResponse.json({ result: {} })),
+  );
+  mockServer.listen({ onUnhandledRequest: 'bypass' });
+  return mockServer;
 };

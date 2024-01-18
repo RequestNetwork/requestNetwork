@@ -203,7 +203,9 @@ describe('Request client using a request node', () => {
       signer: payeeIdentity,
       topics: topicsRequest1and2,
     });
-    await waitForConfirmation(request1);
+    const confirmedRequest = await request1.waitForConfirmation();
+    expect(confirmedRequest.state).toBe('created');
+
     const timestampBeforeReduce = getCurrentTimestampInSecond();
 
     // make sure that request 2 timestamp is greater than request 1 timestamp
@@ -225,7 +227,8 @@ describe('Request client using a request node', () => {
       topics: topicsRequest1and2,
     });
 
-    await waitForConfirmation(request2);
+    const confirmedRequest2 = await waitForConfirmation(request2);
+    expect(confirmedRequest2.state).toBe('created');
 
     // reduce request 1
     const requestDataReduce = await request1.reduceExpectedAmountRequest('10000000', payeeIdentity);

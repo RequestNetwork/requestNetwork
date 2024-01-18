@@ -1,6 +1,5 @@
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
-import { AxiosRequestConfig } from 'axios';
 
 export default {
   createTestRequest,
@@ -15,10 +14,7 @@ export default {
  *
  * @returns The created request
  */
-function createTestRequest(
-  expectedAmount = '1000',
-  nodeConnectionConfig: AxiosRequestConfig = {},
-): Promise<Request> {
+function createTestRequest(expectedAmount = '1000', nodeConnectionConfig = {}): Promise<Request> {
   const signatureProvider = new EthereumPrivateKeySignatureProvider({
     method: Types.Signature.METHOD.ECDSA,
     privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
