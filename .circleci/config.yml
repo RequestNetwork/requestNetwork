@@ -491,7 +491,7 @@ jobs:
       #  but without it, some packages like epk-signature are missing the dist folder.
       - run:
           name: 'Build all'
-          command: 'yarn clean && yarn build'
+          command: 'yarn build'
       - run:
           name: 'Authenticate with registry'
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
