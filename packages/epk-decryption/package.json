@@ -34,7 +34,7 @@
     "build": "run-s build:commonjs build:umd",
     "build:commonjs": "tsc -b tsconfig.build.json",
     "build:umd": "webpack",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo || true",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "test": "jest",
