@@ -32,7 +32,7 @@ module.exports = {
   },
   devtool: 'source-map',
   optimization: {
-    minimizer: [new TerserPlugin({ sourceMap: true })],
+    minimizer: [new TerserPlugin({ terserOptions: { sourceMap: true } })],
   },
   module: {
     rules: [
