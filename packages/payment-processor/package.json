@@ -45,7 +45,7 @@
     "@requestnetwork/smart-contracts": "0.32.0",
     "@requestnetwork/types": "0.39.0",
     "@requestnetwork/utils": "0.39.0",
-    "@superfluid-finance/sdk-core": "0.6.12",
+    "@superfluid-finance/sdk-core": "0.5.0",
     "ethers": "5.5.1",
     "near-api-js": "2.1.4",
     "tslib": "2.5.0"
