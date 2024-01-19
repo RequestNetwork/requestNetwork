@@ -54,7 +54,7 @@
     "tslib": "2.5.0"
   },
   "devDependencies": {
-    "@matterlabs/hardhat-zksync-deploy": "1.1.2",
+    "@matterlabs/hardhat-zksync-deploy": "0.7.0",
     "@matterlabs/hardhat-zksync-node": "0.0.1-beta.6",
     "@matterlabs/hardhat-zksync-solc": "0.4.2",
     "@matterlabs/hardhat-zksync-verify": "0.2.1",
