@@ -32,7 +32,7 @@
   ],
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo || true",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "example": "ts-node specs/example/example.ts",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
