@@ -35,7 +35,7 @@
     "test:watch": "yarn test --watch",
     "start": "ts-node src/bin.ts",
     "start:watch": "ts-node-dev src/bin.ts",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo || true",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "init-ipfs": "node init-ipfs.js"

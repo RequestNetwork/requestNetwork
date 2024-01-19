@@ -32,7 +32,7 @@
   ],
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo || true",
     "example": "ts-node specs/example/example.ts",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
@@ -44,7 +44,7 @@
     "@requestnetwork/multi-format": "0.15.13",
     "@requestnetwork/types": "0.39.0",
     "@requestnetwork/utils": "0.39.0",
-    "semver": "7.5.2",
+    "semver": "7.5.4",
     "tslib": "2.5.0"
   },
   "devDependencies": {
