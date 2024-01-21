@@ -36,7 +36,6 @@ library HooksLibrary {
       bool success = IRequestApp(hookData.app).beforePaymentHook(paymentCtx, hookData.data);
       require(success, 'Hook execution failed');
     }
-
   }
 
   /**

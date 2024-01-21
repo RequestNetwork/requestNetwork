@@ -13,10 +13,6 @@ contract DoublePaymentPreventionApp is BaseRequestApp {
   using BitMaps for BitMaps.BitMap;
   BitMaps.BitMap private paymentStatus;
 
-  struct DoublePaymentPreventionData {
-    bytes paymentReference;
-  }
-
   constructor() {}
 
   /**
