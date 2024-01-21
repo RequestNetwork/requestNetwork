@@ -45,7 +45,7 @@ describe('Double Payment Prevention', () => {
         referenceExample,
         '2',
         feeAddress,
-        '0x',
+        [],
       ),
     )
       .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
@@ -60,11 +60,9 @@ describe('Double Payment Prevention', () => {
   });
 
   it('Make a payment - with double payment prevention data', async function () {
-    const doublePaymentPreventionData =
-      await doublePaymentPreventionApp.computeBeforePaymentAppData(referenceExample, '0x');
     const hooksData = await erc20FeeProxy.computeHooksData(
       doublePaymentPreventionApp.address,
-      doublePaymentPreventionData,
+      referenceExample,
     );
 
     await expect(
@@ -75,7 +73,7 @@ describe('Double Payment Prevention', () => {
         referenceExample,
         '2',
         feeAddress,
-        hooksData,
+        [hooksData],
       ),
     )
       .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
@@ -90,11 +88,9 @@ describe('Double Payment Prevention', () => {
   });
 
   it('Prevent a payment - with double payment prevention data', async function () {
-    const doublePaymentPreventionData =
-      await doublePaymentPreventionApp.computeBeforePaymentAppData(referenceExample, '0x');
     const hooksData = await erc20FeeProxy.computeHooksData(
       doublePaymentPreventionApp.address,
-      doublePaymentPreventionData,
+      referenceExample,
     );
 
     await expect(
@@ -105,17 +101,15 @@ describe('Double Payment Prevention', () => {
         referenceExample,
         '2',
         feeAddress,
-        hooksData,
+        [hooksData],
       ),
     ).to.be.revertedWith('Payment already executed');
   });
 
   it('Make a payment - do not prevent other payments', async function () {
-    const doublePaymentPreventionData =
-      await doublePaymentPreventionApp.computeBeforePaymentAppData(otherRef, '0x');
     const hooksData = await erc20FeeProxy.computeHooksData(
       doublePaymentPreventionApp.address,
-      doublePaymentPreventionData,
+      otherRef,
     );
 
     await expect(
@@ -126,7 +120,7 @@ describe('Double Payment Prevention', () => {
         otherRef,
         '2',
         feeAddress,
-        hooksData,
+        [hooksData],
       ),
     )
       .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
@@ -134,11 +128,9 @@ describe('Double Payment Prevention', () => {
   });
 
   it('Fails if payment reference mismatch', async function () {
-    const doublePaymentPreventionData =
-      await doublePaymentPreventionApp.computeBeforePaymentAppData(otherRef, '0x');
     const hooksData = await erc20FeeProxy.computeHooksData(
       doublePaymentPreventionApp.address,
-      doublePaymentPreventionData,
+      otherRef,
     );
 
     await expect(
@@ -149,7 +141,7 @@ describe('Double Payment Prevention', () => {
         referenceExample,
         '2',
         feeAddress,
-        hooksData,
+        [hooksData],
       ),
     ).to.be.revertedWith('Payment Reference does not match');
   });

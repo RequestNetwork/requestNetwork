@@ -21,19 +21,22 @@ library HooksLibrary {
    * @param paymentCtx The payment context passed by the payment proxy
    * @param hooksData Custom data to be executed
    */
-  function executeHooks(IRequestApp.PaymentCtx memory paymentCtx, bytes memory hooksData) internal {
+  function executeHooks(IRequestApp.PaymentCtx memory paymentCtx, bytes[] memory hooksData) internal {
     bytes4 erc165InterfaceId = type(IERC165).interfaceId;
     bytes4 requestAppInterfaceId = type(IRequestApp).interfaceId;
 
-    HookData memory hookData = abi.decode(hooksData, (HookData));
-    require(
-      IERC165(hookData.app).supportsInterface(erc165InterfaceId) &&
-        IERC165(hookData.app).supportsInterface(requestAppInterfaceId),
-      'Hook cannot be processed - invalid app'
-    );
+    for(uint256 i=0; i<hooksData.length; i++) {
+      HookData memory hookData = abi.decode(hooksData[i], (HookData));
+      require(
+        IERC165(hookData.app).supportsInterface(erc165InterfaceId) &&
+          IERC165(hookData.app).supportsInterface(requestAppInterfaceId),
+        'Hook cannot be processed - invalid app'
+      );
 
-    bool success = IRequestApp(hookData.app).beforePaymentHook(paymentCtx, hookData.data);
-    require(success, 'Hook execution failed');
+      bool success = IRequestApp(hookData.app).beforePaymentHook(paymentCtx, hookData.data);
+      require(success, 'Hook execution failed');
+    }
+
   }
 
   /**

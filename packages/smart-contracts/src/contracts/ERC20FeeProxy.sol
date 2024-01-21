@@ -41,7 +41,7 @@ contract ERC20FeeProxy {
     bytes calldata _paymentReference,
     uint256 _feeAmount,
     address _feeAddress,
-    bytes calldata hooksData
+    bytes[] calldata hooksData
   ) external {
     if (hooksData.length > 0) {
       IRequestApp.PaymentCtx memory paymentCtx = HooksLibrary.computePaymentContext(

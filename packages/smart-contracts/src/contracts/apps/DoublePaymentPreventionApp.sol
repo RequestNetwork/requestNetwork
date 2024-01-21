@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 
 import './BaseRequestApp.sol';
 import '../interfaces/IRequestApp.sol';
-import '../lib/HooksLibrary.sol';
 import "@openzeppelin/contracts/utils/structs/BitMaps.sol";
 
 /**
@@ -16,7 +15,6 @@ contract DoublePaymentPreventionApp is BaseRequestApp {
 
   struct DoublePaymentPreventionData {
     bytes paymentReference;
-    bytes nextAppData;
   }
 
   constructor() {}
@@ -37,29 +35,12 @@ contract DoublePaymentPreventionApp is BaseRequestApp {
     override(IRequestApp)
     returns (bool)
   {
-    DoublePaymentPreventionData memory data = abi.decode(appData, (DoublePaymentPreventionData));
     require(
-      keccak256(paymentCtx.paymentRef) == keccak256(data.paymentReference),
+      keccak256(paymentCtx.paymentRef) == keccak256(appData),
       'Payment Reference does not match'
     );
-    require(!paymentStatus.get(uint256(keccak256(data.paymentReference))), "Payment already executed");
-    paymentStatus.set(uint256(keccak256(data.paymentReference)));
-    if (data.nextAppData.length != 0) {
-      HooksLibrary.executeHooks(paymentCtx, data.nextAppData);
-    }
+    require(!paymentStatus.get(uint256(keccak256(appData))), "Payment already executed");
+    paymentStatus.set(uint256(keccak256(appData)));
     return true;
-  }
-
-  /**
-   * @notice Method to compute the DoublePaymentPreventionData as encoded bytes 
-   * @param paymentReference The payment reference of the payment
-   * @param nextAppData Next application data to execute
-   */
-  function computeBeforePaymentAppData(bytes calldata paymentReference, bytes calldata nextAppData)
-    external
-    pure
-    returns (bytes memory)
-  {
-    return abi.encode(DoublePaymentPreventionData(paymentReference, nextAppData));
   }
 }
