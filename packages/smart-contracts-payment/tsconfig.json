@@ -1,7 +1,0 @@
-{
-  "extends": "../../tsconfig",
-  "compilerOptions": {
-    "resolveJsonModule": true
-  },
-  "include": ["src/", "hardhat.config.ts"]
-}
