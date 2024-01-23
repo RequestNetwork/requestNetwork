@@ -2,7 +2,7 @@
 
 We welcome contributions from anyone, and are grateful for even the smallest of fixes!
 
-## Got a Technical Question?
+## Got a Question?
 
 Please post questions on our [Github Discussions: Questions](https://github.com/orgs/RequestNetwork/discussions/categories/questions).
 For quicker help, join the [Request Discord](https://request.network/discord/) and someone from the community may be able to help.
