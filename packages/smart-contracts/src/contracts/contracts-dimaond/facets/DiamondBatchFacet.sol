@@ -1,22 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {LibDiamond} from '../libraries/LibDiamond.sol';
 import {LibSafeERC20} from '../libraries/LibSafeERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import 'hardhat/console.sol';
 
 contract DiamondBatchFacet {
   using LibSafeERC20 for IERC20;
 
-  enum Operation {
-    CALL,
-    DELEGATECALL
+  enum PaymentType {
+    NATIVE,
+    TOKEN
   }
 
   struct BatchPayment {
     address proxy;
-    Operation operation;
+    PaymentType paymentType;
     bytes paymentData;
   }
 
@@ -29,14 +27,7 @@ contract DiamondBatchFacet {
   /**
    * @notice Method to pay several payments at once
    * @param payments list of the payments
-   *
-   * NOTE:
-   * Payments in native currency must be processed with the operation CALL.
-   * Otherwise the whole msg.value is send back to the user after the first ETH payment,
-   * and subsequent payments can't be processed. Since we can't CALL directly a facet, we target the Diamond Proxy itself.
-   *
-   * Payments in ERC20 must be processed with the opration DELEGATECALL.
-   * Otherwise, the transferFrom will fail. We target the facet directly to save gas.
+   * @param totals The approvals to make per payment proxy and currency
    */
   function batchPay(BatchPayment[] calldata payments, Total[] calldata totals) external payable {
     for (uint256 i = 0; i < totals.length; i++) {
@@ -50,17 +41,12 @@ contract DiamondBatchFacet {
 
     for (uint256 i = 0; i < payments.length; i++) {
       bool success;
-      if (payments[i].operation == Operation.CALL) {
-        console.log(i);
+      if (payments[i].paymentType == PaymentType.NATIVE) {
         (success, ) = payable(address(payments[i].proxy)).call{value: address(this).balance}(
           payments[i].paymentData
         );
-        console.log(success);
       } else {
-        console.log(i);
-        // Execute the payment
         (success, ) = address(payments[i].proxy).call{value: 0}(payments[i].paymentData);
-        console.log(success);
       }
       require(success, 'One of the payment failed');
     }

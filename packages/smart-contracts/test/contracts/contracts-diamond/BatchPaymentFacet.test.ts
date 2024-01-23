@@ -99,7 +99,7 @@ describe('Contract: BatchPaymentFacet', () => {
       );
       const singleBatchPayment = {
         proxy: diamondAddress,
-        operation: 0,
+        paymentType: 0,
         paymentData: singlePaymentData,
       };
       const batchPayment = Array(10).fill(singleBatchPayment);
@@ -133,7 +133,7 @@ describe('Contract: BatchPaymentFacet', () => {
       );
       const singleBatchPayment = {
         proxy: diamondAddress,
-        operation: 0,
+        paymentType: 0,
         paymentData: singlePaymentData,
       };
       const batchPayment = Array(10).fill(singleBatchPayment);
@@ -157,14 +157,14 @@ describe('Contract: BatchPaymentFacet', () => {
       expect(contractBalance.toString()).to.equals('0');
     });
 
-    it('Should fail if the encoding operation is DELEGATECALL', async () => {
+    it('Should fail if the encoding paymentType is ERC20', async () => {
       const singlePaymentData = paymentFacet.interface.encodeFunctionData(
         'exactNativeTransferWithFees',
         [to, amount, referenceExample, feeAmount, feeAddress],
       );
       const singleBatchPayment = {
         proxy: diamondAddress,
-        operation: 1,
+        paymentType: 1,
         paymentData: singlePaymentData,
       };
       const batchPayment = Array(10).fill(singleBatchPayment);
@@ -207,7 +207,7 @@ describe('Contract: BatchPaymentFacet', () => {
       ]);
       const singleBatchPayment = {
         proxy: diamondAddress,
-        operation: 1,
+        paymentType: 1,
         paymentData: singlePaymentData,
       };
       const batchPayment = Array(10).fill(singleBatchPayment);
@@ -259,7 +259,7 @@ describe('Contract: BatchPaymentFacet', () => {
       );
       const singleBatchPayment = {
         proxy: diamondAddress,
-        operation: 1,
+        paymentType: 1,
         paymentData: singlePaymentData,
       };
       const batchPayment = Array(10).fill(singleBatchPayment);
@@ -293,7 +293,7 @@ describe('Contract: BatchPaymentFacet', () => {
       expect(contractBalance.toString()).to.equals('0');
     });
 
-    it('Should fail if the encoding operation is CALL - with non-null msg.value', async () => {
+    it('Should fail if the encoding paymentType is ETH - with non-null msg.value', async () => {
       const path = [USD_hash, DAI_address];
       const conversionToPay = await chainlinkFacet.getConversion(amountInFiat, path);
       const conversionFees = await chainlinkFacet.getConversion(feesAmountInFiat, path);
@@ -313,7 +313,7 @@ describe('Contract: BatchPaymentFacet', () => {
       );
       const singleBatchPayment = {
         proxy: diamondAddress,
-        operation: 0,
+        paymentType: 0,
         paymentData: singlePaymentData,
       };
       const batchPayment = Array(10).fill(singleBatchPayment);
@@ -360,7 +360,7 @@ describe('Contract: BatchPaymentFacet', () => {
       );
       const singleBatchPayment = {
         proxy: oldPaymentProxy.address,
-        operation: 1,
+        paymentType: 1,
         paymentData: singlePaymentData,
       };
       const batchPayment = Array(10).fill(singleBatchPayment);
@@ -454,31 +454,31 @@ describe('Contract: BatchPaymentFacet', () => {
 
       const singleNativeBatchPayment = {
         proxy: diamondAddress,
-        operation: 0,
+        paymentType: 0,
         paymentData: singleNativePaymentData,
       };
 
       const singleNativeConversionBatchPayment = {
         proxy: diamondAddress,
-        operation: 0,
+        paymentType: 0,
         paymentData: singleNativeConversionPaymentData,
       };
 
       const singleTokenBatchPayment = {
         proxy: diamondAddress,
-        operation: 1,
+        paymentType: 1,
         paymentData: singleTokenPaymentData,
       };
 
       const singleTokenConversionBatchPayment = {
         proxy: diamondAddress,
-        operation: 1,
+        paymentType: 1,
         paymentData: singleTokenConversionPaymentData,
       };
 
       const singleLegacyBatchPayment = {
         proxy: oldPaymentProxy.address,
-        operation: 1,
+        paymentType: 1,
         paymentData: singleLegacyPaymentData,
       };
 
