@@ -13,7 +13,7 @@ If you have found a bug, please submit an issue to report it. Or even better, cr
 
 ## Requesting a feature
 
-You can request a new feature by submitting an issue to our GitHub Repository explaining the use case.
+You can request a new feature by submitting an issue or Discussion() explaining the use case.
 If you would like to implement a new feature, please submit an issue with a proposal for your work first, to be sure that we can use it.
 
 ## Submission Guidelines
@@ -37,13 +37,20 @@ To ensure fast resolution, please include the useful details:
 
 When contributing to this repository, please first discuss the change you wish to make via a github issue before making a change.
 
-We have two main branches: `master` and `development`.
-`master` represents the most recent released (published on npm) version.
-`development` represents the development state and is a default branch to which you will submit a PR.
-We use this structure so that we can push hotfixes to the currently released version without needing to publish all
-the changes made towards the next release.
-If a hotfix is implemented on `master`, it is back-ported to `development`.
+We use trunk-based branch strategy: `master` branch represents the most recent released (published on npm) version.
 
-### Useful information when developping
+Internal contributors should create a branch from `master` and submit a PR to `master`.
+External contributors should create a fork of the repository and submit a PR to `master`.
 
-Have a look at this [guide](https://docs.request.network/dev/contributing) to help you get started with developing Request
+Please name your PR with the following convention: `feat: <description>` or `fix: <description>` or `chore: <description>`.
+The description should be a short summary of the changes in the PR.
+
+Please include the following in your PR:
+
+- A [magic link](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword) to the issue that it fixes (if there is one)
+- A quick summary and/or background
+
+Feel free to create a "Draft" PR as early as possible to get feedback on your work.
+Then, when you are ready for review, mark it as "Ready for review" and request a review from one of the maintainers.
+
+All PRs must pass the CI checks before being merged.
