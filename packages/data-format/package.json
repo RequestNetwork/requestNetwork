@@ -47,7 +47,6 @@
   "devDependencies": {
     "@types/node": "18.11.9",
     "jest-junit": "16.0.0",
-    "nyc": "15.1.0",
     "rimraf": "3.0.2",
     "shx": "0.3.2",
     "ts-node": "10.9.1",

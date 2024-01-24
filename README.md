@@ -3,7 +3,6 @@
 ---
 
 [![CircleCI](https://img.shields.io/circleci/project/github/RequestNetwork/requestNetwork/master.svg)](https://circleci.com/gh/RequestNetwork/requestNetwork)
-[![Coverage Status](https://coveralls.io/repos/github/RequestNetwork/requestNetwork/badge.svg?branch=master)](https://coveralls.io/github/RequestNetwork/requestNetwork?branch=master)
 [![Commit Activity](https://img.shields.io/github/commit-activity/m/RequestNetwork/requestNetwork.svg?color=green)](https://github.com/RequestNetwork/requestNetwork/pulse/monthly)
 
 [Request][website-url] is a decentralized network built on top of Ethereum, which allows anyone, anywhere to request a payment. A full description of the protocol may be found in our [whitepaper][whitepaper-url].

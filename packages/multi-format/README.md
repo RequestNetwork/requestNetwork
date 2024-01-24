@@ -12,7 +12,7 @@ npm install @requestnetwork/multi-format
 ## Usage
 
 ```javascript
-import MultiFormat from '@requestnetwork/multi-format';
+import * as MultiFormat from '@requestnetwork/multi-format';
 ```
 
 ## Contributing

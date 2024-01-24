@@ -1,5 +1,4 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import Axios from 'axios';
 import { BigNumber } from 'ethers';
 import { retry } from '@requestnetwork/utils';
 
@@ -29,16 +28,16 @@ export class BlockcypherComProvider implements PaymentTypes.IBitcoinDetectionPro
     const baseUrl = this.getBaseUrl(bitcoinNetworkId);
     const queryUrl = `${baseUrl}/addrs/${address}`;
     try {
-      const res = await retry(async () => Axios.get(queryUrl), {
+      const res = await retry(fetch, {
         maxRetries: BLOCKCYPHER_REQUEST_MAX_RETRY,
         retryDelay: BLOCKCYPHER_REQUEST_RETRY_DELAY,
-      })();
+      })(queryUrl);
 
       // eslint-disable-next-line no-magic-numbers
       if (res.status >= 400) {
         throw new Error(`Error ${res.status}. Bad response from server ${queryUrl}`);
       }
-      const addressInfo = await res.data;
+      const addressInfo = await res.json();
 
       return this.parse(addressInfo, eventName);
     } catch (err) {

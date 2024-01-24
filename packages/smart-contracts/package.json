@@ -76,7 +76,6 @@
     "@types/chai": "4.2.21",
     "@types/mocha": "8.2.3",
     "@types/node": "18.11.9",
-    "axios": "0.27.2",
     "chai": "4.3.4",
     "dotenv": "10.0.0",
     "ethereum-waffle": "3.4.0",

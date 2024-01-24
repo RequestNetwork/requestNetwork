@@ -1,4 +1,4 @@
-import MultiFormat from '@requestnetwork/multi-format';
+import * as MultiFormat from '@requestnetwork/multi-format';
 import { TransactionTypes } from '@requestnetwork/types';
 import ChannelParser from '../../src/channel-parser';
 import TransactionsFactory from '../../src/transactions-factory';

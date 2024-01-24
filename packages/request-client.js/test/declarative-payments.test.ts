@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 import {
   ClientTypes,
   ExtensionTypes,
@@ -8,8 +6,9 @@ import {
   TransactionTypes,
 } from '@requestnetwork/types';
 import { ethers } from 'ethers';
+import { http, HttpResponse } from 'msw';
+import { setupServer, SetupServer } from 'msw/node';
 
-import AxiosMockAdapter from 'axios-mock-adapter';
 import { RequestNetwork } from '../src/index';
 import * as TestData from './data-test';
 
@@ -36,6 +35,21 @@ const waitForConfirmation = async (
   });
 };
 
+const countHttpCalls = (mockServer: SetupServer) => {
+  const hits: Record<string, number> = { get: 0, post: 0 };
+
+  const method = ({ request }: any) => {
+    if (request.url.startsWith('http://localhost:3000')) {
+      hits[request.method.toLowerCase()]++;
+    }
+  };
+  mockServer.events.on('request:start', method);
+  return {
+    hits,
+    unsubscribe: () => mockServer.events.removeListener('request:start', method),
+  };
+};
+
 // Integration tests
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('request-client.js: declarative payments', () => {
@@ -44,26 +58,24 @@ describe('request-client.js: declarative payments', () => {
     requestInfo: TestData.parametersWithoutExtensionsData,
     signer: TestData.payee.identity,
   };
-  let mock: AxiosMockAdapter;
+  let mockServer: SetupServer;
   afterEach(() => {
     jest.clearAllMocks();
-    mock.reset();
+    mockServer.close();
   });
 
   describe(`with simple creation`, () => {
     beforeEach(() => {
-      mock = new AxiosMockAdapter(axios);
-
-      const callback = (config: any): any => {
-        expect(config.baseURL).toBe('http://localhost:3000');
-        return [200, {}];
-      };
-      const spy = jest.fn(callback);
-      mock.onPost('/persistTransaction').reply(spy);
-      mock.onGet('/getTransactionsByChannelId').reply(200, {
-        result: { transactions: [TestData.timestampedTransactionWithoutPaymentInfo] },
-      });
-      mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
+      mockServer = setupServer(
+        http.post('*/persistTransaction', () => HttpResponse.json({})),
+        http.get('*/getTransactionsByChannelId', () =>
+          HttpResponse.json({
+            result: { transactions: [TestData.timestampedTransactionWithoutPaymentInfo] },
+          }),
+        ),
+        http.get('*/getConfirmedTransaction', () => HttpResponse.json({ result: {} })),
+      );
+      mockServer.listen({ onUnhandledRequest: 'bypass' });
     });
 
     it('allows to declare a sent payment', async () => {
@@ -75,14 +87,15 @@ describe('request-client.js: declarative payments', () => {
       const request = await requestNetwork.createRequest(requestCreationParams);
       await request.waitForConfirmation();
 
-      mock.resetHistory();
+      const { hits, unsubscribe } = countHttpCalls(mockServer);
 
       await waitForConfirmation(
         request.declareSentPayment('10', 'sent payment', TestData.payer.identity),
       );
+      unsubscribe();
 
-      expect(mock.history.get).toHaveLength(5);
-      expect(mock.history.post).toHaveLength(1);
+      expect(hits.get).toBe(5);
+      expect(hits.post).toBe(1);
     });
 
     it('allows to declare a received payment', async () => {
@@ -94,14 +107,14 @@ describe('request-client.js: declarative payments', () => {
       const request = await requestNetwork.createRequest(requestCreationParams);
       await request.waitForConfirmation();
 
-      mock.resetHistory();
-
+      const { hits, unsubscribe } = countHttpCalls(mockServer);
       await waitForConfirmation(
         request.declareReceivedPayment('10', 'received payment', TestData.payee.identity),
       );
+      unsubscribe();
 
-      expect(mock.history.get).toHaveLength(5);
-      expect(mock.history.post).toHaveLength(1);
+      expect(hits.get).toBe(5);
+      expect(hits.post).toBe(1);
     });
 
     it('allows to create a request with delegate', async () => {
@@ -142,8 +155,7 @@ describe('request-client.js: declarative payments', () => {
       const request = await requestNetwork.createRequest(requestCreationParams);
       await request.waitForConfirmation();
 
-      mock.resetHistory();
-
+      const { hits, unsubscribe } = countHttpCalls(mockServer);
       await waitForConfirmation(
         request.declareReceivedPayment(
           '10',
@@ -153,9 +165,10 @@ describe('request-client.js: declarative payments', () => {
           'mainnet',
         ),
       );
+      unsubscribe();
 
-      expect(mock.history.get).toHaveLength(5);
-      expect(mock.history.post).toHaveLength(1);
+      expect(hits.get).toBe(5);
+      expect(hits.post).toBe(1);
     });
 
     it('allows to declare a received payment from delegate', async () => {
@@ -186,14 +199,14 @@ describe('request-client.js: declarative payments', () => {
       const request = await requestNetwork.createRequest(requestCreationParams);
       await request.waitForConfirmation();
 
-      mock.resetHistory();
-
+      const { hits, unsubscribe } = countHttpCalls(mockServer);
       await waitForConfirmation(
         request.declareSentRefund('10', 'sent refund', TestData.payee.identity),
       );
+      unsubscribe();
 
-      expect(mock.history.get).toHaveLength(5);
-      expect(mock.history.post).toHaveLength(1);
+      expect(hits.get).toBe(5);
+      expect(hits.post).toBe(1);
     });
 
     it('allows to declare a received refund', async () => {
@@ -205,14 +218,14 @@ describe('request-client.js: declarative payments', () => {
       const request = await requestNetwork.createRequest(requestCreationParams);
       await request.waitForConfirmation();
 
-      mock.resetHistory();
-
+      const { hits, unsubscribe } = countHttpCalls(mockServer);
       await waitForConfirmation(
         request.declareReceivedRefund('10', 'received refund', TestData.payer.identity),
       );
+      unsubscribe();
 
-      expect(mock.history.get).toHaveLength(5);
-      expect(mock.history.post).toHaveLength(1);
+      expect(hits.get).toBe(5);
+      expect(hits.post).toBe(1);
     });
 
     it('allows to declare a received refund from delegate', async () => {
@@ -243,8 +256,7 @@ describe('request-client.js: declarative payments', () => {
       const request = await requestNetwork.createRequest(requestCreationParams);
       await request.waitForConfirmation();
 
-      mock.resetHistory();
-
+      const { hits, unsubscribe } = countHttpCalls(mockServer);
       await waitForConfirmation(
         request.declareReceivedRefund(
           '10',
@@ -253,9 +265,10 @@ describe('request-client.js: declarative payments', () => {
           '0x123456789',
         ),
       );
+      unsubscribe();
 
-      expect(mock.history.get).toHaveLength(5);
-      expect(mock.history.post).toHaveLength(1);
+      expect(hits.get).toBe(5);
+      expect(hits.post).toBe(1);
     });
 
     it('allows to get the right balance', async () => {
@@ -397,53 +410,50 @@ describe('request-client.js: declarative payments', () => {
   describe('other creations', () => {
     it('can have a payment reference on a declarative payment network', async () => {
       const salt = 'ea3bc7caf64110ca';
-      mock = new AxiosMockAdapter(axios);
+
       const extensionParams = { salt, paymentInfo: { anyInfo: 'anyValue' } };
 
-      const callback = (config: any): any => {
-        expect(config.baseURL).toBe('http://localhost:3000');
-        return [200, {}];
-      };
-      const spy = jest.fn(callback);
-      mock.onPost('/persistTransaction').reply(spy);
-      mock.onGet('/getTransactionsByChannelId').reply(200, {
-        result: {
-          transactions: [
-            {
-              ...TestData.timestampedTransactionWithoutPaymentInfo,
-              transaction: {
-                data: JSON.stringify({
-                  state: TransactionTypes.TransactionState.CONFIRMED,
-                  timestamp: TestData.arbitraryTimestamp,
+      mockServer.use(
+        http.get('*/getTransactionsByChannelId', () =>
+          HttpResponse.json({
+            result: {
+              transactions: [
+                {
+                  ...TestData.timestampedTransactionWithoutPaymentInfo,
                   transaction: {
-                    data: JSON.stringify(
-                      sign(
-                        {
-                          name: RequestLogicTypes.ACTION_NAME.CREATE,
-                          parameters: {
-                            ...TestData.parametersWithDeclarative,
-                            extensionsData: [
-                              {
-                                action: 'create',
-                                id: 'pn-any-declarative',
-                                parameters: extensionParams,
-                                version: '0.1.0',
+                    data: JSON.stringify({
+                      state: TransactionTypes.TransactionState.CONFIRMED,
+                      timestamp: TestData.arbitraryTimestamp,
+                      transaction: {
+                        data: JSON.stringify(
+                          sign(
+                            {
+                              name: RequestLogicTypes.ACTION_NAME.CREATE,
+                              parameters: {
+                                ...TestData.parametersWithDeclarative,
+                                extensionsData: [
+                                  {
+                                    action: 'create',
+                                    id: 'pn-any-declarative',
+                                    parameters: extensionParams,
+                                    version: '0.1.0',
+                                  },
+                                ],
                               },
-                            ],
-                          },
-                          version: '2.0.3',
-                        },
-                        TestData.payee.signatureParams,
-                      ),
-                    ),
+                              version: '2.0.3',
+                            },
+                            TestData.payee.signatureParams,
+                          ),
+                        ),
+                      },
+                    }),
                   },
-                }),
-              },
+                },
+              ],
             },
-          ],
-        },
-      });
-      mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
+          }),
+        ),
+      );
 
       const requestNetwork = new RequestNetwork({
         httpConfig,

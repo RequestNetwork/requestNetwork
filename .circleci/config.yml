@@ -133,10 +133,6 @@ jobs:
           command: 'yarn workspace @requestnetwork/request-client.js run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/request-client.js/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/request-client.js/coverage/
   test-data-access:
     docker:
       - *node_image
@@ -152,10 +148,6 @@ jobs:
           command: 'yarn workspace @requestnetwork/data-access run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/data-access/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/data-access/coverage/
   test-data-format:
     docker:
       - *node_image
@@ -171,10 +163,6 @@ jobs:
           command: 'yarn workspace @requestnetwork/data-format run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/data-format/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/data-format/coverage/
   test-transaction-manager:
     docker:
       - *node_image
@@ -190,10 +178,6 @@ jobs:
           command: 'yarn workspace @requestnetwork/transaction-manager run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/transaction-manager/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/transaction-manager/coverage/
   test-ethereum-storage:
     docker:
       - *node_image
@@ -214,10 +198,6 @@ jobs:
           command: 'yarn workspace @requestnetwork/ethereum-storage run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/ethereum-storage/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/ethereum-storage/coverage/
   test-smart-contracts:
     docker:
       - *node_image
@@ -253,10 +233,6 @@ jobs:
           command: 'yarn workspace @requestnetwork/request-logic run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/request-logic/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/request-logic/coverage/
   test-advanced-logic:
     docker:
       - *node_image
@@ -272,10 +248,6 @@ jobs:
           command: 'yarn workspace @requestnetwork/advanced-logic run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/advanced-logic/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/advanced-logic/coverage/
   test-request-node:
     docker:
       - *node_image
@@ -299,10 +271,6 @@ jobs:
           command: 'yarn workspace @requestnetwork/request-node run test --ci'
       - store_test_results:
           path: packages/request-node/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/request-node/coverage/
   test-utils:
     docker:
       - *node_image
@@ -316,10 +284,6 @@ jobs:
           command: 'yarn workspace @requestnetwork/utils run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/utils/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/utils/coverage/
   test-currency:
     docker:
       - *node_image
@@ -332,10 +296,6 @@ jobs:
           command: 'yarn workspace @requestnetwork/currency run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/currency/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/currency/coverage/
   test-epk-signature:
     docker:
       - *node_image
@@ -351,10 +311,6 @@ jobs:
           command: 'yarn workspace @requestnetwork/epk-signature run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/epk-signature/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/epk-signature/coverage/
   test-epk-decryption:
     docker:
       - *node_image
@@ -370,10 +326,6 @@ jobs:
           command: 'yarn workspace @requestnetwork/epk-decryption run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/epk-decryption/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/epk-decryption/coverage/
   test-web3-signature:
     docker:
       - *node_image
@@ -389,10 +341,6 @@ jobs:
           command: 'yarn workspace @requestnetwork/web3-signature run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/web3-signature/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/web3-signature/coverage/
   test-integration-test:
     docker:
       - *node_image
@@ -460,10 +408,6 @@ jobs:
           command: 'yarn workspace @requestnetwork/multi-format run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/multi-format/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/multi-format/coverage/
   test-payment-detection:
     docker:
       - *node_image
@@ -483,10 +427,6 @@ jobs:
           command: 'yarn workspace @requestnetwork/payment-detection run test --ci'
       - store_test_results:
           path: packages/payment-detection/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/payment-detection/coverage/
   test-payment-processor:
     docker:
       - *node_image
@@ -506,20 +446,6 @@ jobs:
           command: 'yarn workspace @requestnetwork/payment-processor run test --ci'
       - store_test_results:
           path: packages/payment-processor/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/payment-processor/coverage/
-  publish-coverage:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Publish Coverage'
-          command: 'yarn publish-coverage'
   test-nightly:
     docker:
       - *node_image
@@ -565,7 +491,7 @@ jobs:
       #  but without it, some packages like epk-signature are missing the dist folder.
       - run:
           name: 'Build all'
-          command: 'yarn clean && yarn build'
+          command: 'yarn build'
       - run:
           name: 'Authenticate with registry'
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
@@ -656,29 +582,6 @@ workflows:
       - test-payment-processor:
           requires:
             - build
-
-      # Publish the code coverage
-      - publish-coverage:
-          requires:
-            - lint
-            - test-advanced-logic
-            - test-currency
-            - test-data-access
-            - test-data-format
-            - test-epk-decryption
-            - test-epk-signature
-            - test-ethereum-storage
-            - test-integration-test
-            - test-multi-format
-            - test-payment-detection
-            - test-payment-processor
-            - test-request-client
-            - test-request-logic
-            - test-request-node
-            - test-smart-contracts
-            - test-transaction-manager
-            - test-utils
-            - test-web3-signature
 
       # Release a next version package everytime we merge to master
       - next-release:

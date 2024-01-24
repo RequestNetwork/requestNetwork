@@ -11,7 +11,7 @@ import {
   EthereumTransactionSubmitter,
   IpfsStorage,
 } from '@requestnetwork/ethereum-storage';
-import MultiFormat from '@requestnetwork/multi-format';
+import * as MultiFormat from '@requestnetwork/multi-format';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {

@@ -1,6 +1,6 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
 
-import MultiFormat from '../src/index';
+import * as MultiFormat from '../src/index';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Utils.multiFormat', () => {
