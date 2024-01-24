@@ -3,8 +3,8 @@ import { HardhatRuntimeEnvironmentExtended } from '../types';
 import { getArtifact } from '../utils';
 import { getSignerAndGasFees } from './adminTasks';
 import { EvmChains } from '@requestnetwork/currency';
-import { Ownable__factory } from '../../src/types';
 import { executeContractMethod } from './execute-contract-method';
+import { Contract } from 'ethers';
 
 /**
  * Transfer the ownership of a contract from the current owner to the RN Multisig Safe
@@ -21,48 +21,76 @@ export const updateOwner = async ({
   hre: HardhatRuntimeEnvironmentExtended;
   signWithEoa: boolean;
 }): Promise<void> => {
-  await Promise.all(
-    hre.config.xdeploy.networks.map(async (network: string) => {
-      try {
-        EvmChains.assertChainSupported(network);
-        const contractArtifact = getArtifact(contract);
-        const contractAddress = contractArtifact.getAddress(network);
-        const { signer, txOverrides } = await getSignerAndGasFees(network, hre);
-        const newOwner = safeAdminArtifact.getAddress(network);
+  for (const network of hre.config.xdeploy.networks) {
+    try {
+      EvmChains.assertChainSupported(network);
+      const contractArtifact = getArtifact(contract);
+      const contractAddress = contractArtifact.getAddress(network);
+      const { signer, txOverrides } = await getSignerAndGasFees(network, hre);
+      const newOwner = safeAdminArtifact.getAddress(network);
 
-        if (!contractAddress) {
-          throw new Error(`No deployment for ${contract} on ${network}`);
-        }
-        if (!newOwner) {
-          throw new Error(`No Safe Admin on ${network}`);
-        }
-
-        const ownerContract = Ownable__factory.connect(contractAddress, signer);
-        const currentOwner = await ownerContract.owner();
-
-        if (currentOwner === newOwner) {
-          throw new Error(`Admin of ${contract} is already ${newOwner} on ${network}`);
-        }
-
-        await executeContractMethod({
-          network,
-          contract: ownerContract,
-          method: 'transferOwnership',
-          props: [newOwner],
-          txOverrides,
-          signer,
-          signWithEoa,
-        });
-
-        console.log(
-          `Ownership of ${contract} transferred from ${signer.address} to ${newOwner} successfully on ${network}`,
-        );
-      } catch (err) {
-        console.warn(
-          `An error occurred during the ownership transfer of ${contract} on ${network}`,
-        );
-        console.warn(err);
+      if (!contractAddress) {
+        console.info(`No deployment for ${contract} on ${network}`);
+        continue;
       }
-    }),
-  );
+      if (!newOwner) {
+        console.info(`No Safe Admin on ${network}`);
+        continue;
+      }
+
+      const ownerContract = new Contract(contractAddress, ownablePartialAbi, signer);
+      const currentOwner = await ownerContract.owner();
+
+      if (currentOwner === newOwner) {
+        console.info(`Admin of ${contract} is already ${newOwner} on ${network}`);
+        continue;
+      }
+
+      await executeContractMethod({
+        network,
+        contract: ownerContract,
+        method: 'transferOwnership',
+        props: [newOwner],
+        txOverrides,
+        signer,
+        signWithEoa,
+      });
+
+      console.log(
+        `Ownership of ${contract} transferred from ${signer.address} to ${newOwner} successfully on ${network}`,
+      );
+    } catch (err) {
+      console.warn(`An error occurred during the ownership transfer of ${contract} on ${network}`);
+      console.warn(err);
+    }
+  }
 };
+
+const ownablePartialAbi = [
+  {
+    inputs: [],
+    name: 'owner',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+];
