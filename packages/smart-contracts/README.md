@@ -276,6 +276,15 @@ If the contracts are to be administrated by an EOA, use the flag `eoa`:
 yarn hardhat update-contracts --eoa
 ```
 
+If you want to transfer the ownership of eligible contracts (Payment contracts that have owners / admins) run:
+
+```bash
+yarn hardhat transfer-ownership
+```
+
+Similarly to the previous examples, you can use this command for all networks at once, or specify one in particular.
+If the ownership is transferred from an EOA, use the flag `eoa`;
+
 ## Tests
 
 After a local deployment:
