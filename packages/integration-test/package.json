@@ -57,7 +57,6 @@
     "@requestnetwork/utils": "0.39.0",
     "@types/jest": "29.5.6",
     "@types/node": "18.11.9",
-    "cash-rm": "0.2.0",
     "ethers": "5.5.1",
     "jest": "29.5.0",
     "jest-junit": "16.0.0",
