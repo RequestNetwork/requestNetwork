@@ -71,17 +71,21 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       return this.fromAddress(currencyIdentifier, network);
     }
 
+    if (network && currencyIdentifier.indexOf(network) === -1) {
+      currencyIdentifier = `${currencyIdentifier}-${network}`;
+    }
+
+    const currencyFromId = this.fromId(currencyIdentifier);
+
+    if (currencyFromId) return currencyFromId;
+
     const parts = currencyIdentifier.split('-');
     const currencyFromSymbol =
       this.fromSymbol(parts[0], network || (parts[1] as CurrencyTypes.ChainName)) ||
       // try without splitting the symbol to support currencies like ETH-rinkeby
       this.fromSymbol(currencyIdentifier, network);
 
-    if (currencyFromSymbol) {
-      return currencyFromSymbol;
-    }
-
-    return this.fromId(currencyIdentifier);
+    return currencyFromSymbol;
   }
 
   /**

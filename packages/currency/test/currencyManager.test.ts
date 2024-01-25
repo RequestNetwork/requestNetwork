@@ -709,4 +709,46 @@ describe('CurrencyManager', () => {
       expect(path).toMatchObject([eur.hash, dai.hash.toLowerCase()]);
     });
   });
+
+  describe('Native and legacy USDC', () => {
+    const USDC_LIST = [
+      {
+        address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+        name: 'USD Coin (PoS)',
+        symbol: 'USDCe',
+        network: 'matic',
+        id: 'USDC-matic',
+        decimals: 6,
+        type: RequestLogicTypes.CURRENCY.ERC20,
+      } as CurrencyInput,
+      {
+        address: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
+        name: 'USD Coin',
+        symbol: 'USDC',
+        network: 'matic',
+        id: 'USDCn-matic',
+        decimals: 6,
+        type: RequestLogicTypes.CURRENCY.ERC20,
+      } as CurrencyInput,
+    ];
+    const currencyManager = new CurrencyManager(USDC_LIST);
+    it('USDCe matic', () => {
+      expect(currencyManager.from('USDC-matic')).toMatchObject({
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        network: 'matic',
+        symbol: 'USDCe',
+        id: 'USDC-matic',
+        address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+      });
+    });
+    it('native USDC matic', () => {
+      expect(currencyManager.from('USDCn-matic')).toMatchObject({
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        network: 'matic',
+        symbol: 'USDC',
+        id: 'USDCn-matic',
+        address: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
+      });
+    });
+  });
 });
