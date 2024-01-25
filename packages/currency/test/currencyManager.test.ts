@@ -710,7 +710,7 @@ describe('CurrencyManager', () => {
     });
   });
 
-  describe('Native and legacy USDC', () => {
+  describe('Native and bridged USDC', () => {
     const USDC_LIST = [
       {
         address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
