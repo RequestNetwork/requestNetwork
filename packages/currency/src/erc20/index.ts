@@ -17,7 +17,7 @@ export function getSupportedERC20Tokens(): ERC20Currency[] {
           network: networkName,
           decimals: token.decimals,
           symbol: token.symbol,
-          id: token.id,
+          id: token.id || `${token.symbol}-${networkName}`,
         })),
       ];
     },
