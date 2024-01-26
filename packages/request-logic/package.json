@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-logic",
-  "version": "0.29.0",
+  "version": "0.30.0",
   "publishConfig": {
     "access": "public"
   },
@@ -40,10 +40,10 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.38.0",
-    "@requestnetwork/multi-format": "0.15.13",
-    "@requestnetwork/types": "0.39.0",
-    "@requestnetwork/utils": "0.39.0",
+    "@requestnetwork/advanced-logic": "0.39.0",
+    "@requestnetwork/multi-format": "0.15.14",
+    "@requestnetwork/types": "0.40.0",
+    "@requestnetwork/utils": "0.40.0",
     "semver": "7.5.4",
     "tslib": "2.5.0"
   },
