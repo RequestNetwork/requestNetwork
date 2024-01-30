@@ -46,7 +46,6 @@
     "@requestnetwork/utils": "0.40.0",
     "ethers": "5.5.1",
     "form-data": "3.0.0",
-    "ipfs-unixfs": "6.0.7",
     "qs": "6.11.2",
     "shelljs": "0.8.5",
     "tslib": "2.5.0",
