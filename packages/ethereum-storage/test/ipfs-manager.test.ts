@@ -72,16 +72,6 @@ describe('Ipfs manager', () => {
     expect(pinnedHashes).toMatchObject([hash, hash2]);
   });
 
-  it('allows to read files from ipfs', async () => {
-    await ipfsManager.add(content);
-    let contentReturned = await ipfsManager.read(hash);
-    expect(contentReturned.content).toBe(content);
-
-    await ipfsManager.add(content2);
-    contentReturned = await ipfsManager.read(hash2);
-    expect(contentReturned.content).toBe(content2);
-  });
-
   it('allows to get file size from ipfs', async () => {
     await ipfsManager.add(content);
     let sizeReturned = await ipfsManager.getContentLength(hash);
@@ -101,14 +91,8 @@ describe('Ipfs manager', () => {
     await expect(ipfsManager.getIpfsNodeId()).rejects.toThrowError('getaddrinfo ENOTFOUND');
     await expect(ipfsManager.getBootstrapList()).rejects.toThrowError('getaddrinfo ENOTFOUND');
     await expect(ipfsManager.add(content)).rejects.toThrowError('getaddrinfo ENOTFOUND');
-    await expect(ipfsManager.read(hash)).rejects.toThrowError('getaddrinfo ENOTFOUND');
     await expect(ipfsManager.getContentLength(hash)).rejects.toThrowError('getaddrinfo ENOTFOUND');
   }, 10000);
-
-  it('reading a non-existent hash should throw a timeout error', async () => {
-    await expect(ipfsManager.read(notAddedHash)).rejects.toThrowError('timeout of 1000ms exceeded');
-  });
-
   it('getContentLength on a non-existent hash should throw a timeout error', async () => {
     await expect(ipfsManager.getContentLength(notAddedHash)).rejects.toThrowError(
       'timeout of 1000ms exceeded',
@@ -128,7 +112,7 @@ describe('Ipfs manager', () => {
     );
     mockServer.listen();
 
-    await expect(ipfsManager.read(hash)).rejects.toThrowError('Failed to fetch');
+    await expect(ipfsManager.getContentLength(hash)).rejects.toThrowError('Failed to fetch');
     expect(mock).toHaveBeenCalledTimes(retryTestErrorHandling.maxRetries + 1);
     mockServer.close();
   });
@@ -140,23 +124,5 @@ describe('Ipfs manager', () => {
     });
 
     await expect(ipfsManager.add('test')).rejects.toThrowError('timeout of 1ms exceeded');
-  });
-
-  it('added and read files should have the same size and content', async () => {
-    let content = `{
-  test;
-\ttest again tab
-  spéci@l çhàractêrs
-}`;
-    const lengthyString = '='.repeat(10000);
-    content += lengthyString;
-    const contentSize = Buffer.from(content, 'utf-8').length;
-    const hash = await ipfsManager.add(content);
-    const contentSizeOnIPFS = await ipfsManager.getContentLength(hash);
-    const contentRead = await ipfsManager.read(hash);
-    expect(contentRead.ipfsSize).toEqual(contentSizeOnIPFS);
-    const contentReadSize = Buffer.from(contentRead.content, 'utf-8').length;
-    expect(contentReadSize).toBe(contentSize);
-    expect(contentRead.content).toBe(content);
   });
 });
