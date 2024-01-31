@@ -8,6 +8,7 @@ import {
   formatAddress,
 } from '../src';
 import { transformNonNull } from '../src/utils';
+import { logger, errors } from 'ethers';
 
 describe('conversion: padding amounts for Chainlink', () => {
   const currencyManager = CurrencyManager.getDefault();
@@ -391,5 +392,15 @@ fdescribe(transformNonNull, () => {
     expect(transformNonNull({ foo: 'hello' }, 'foo', (s) => s.toUpperCase())).toEqual({
       foo: 'HELLO',
     });
+  });
+
+  it('can be used with formatAddress, passing down the key', () => {
+    expect(() => transformNonNull({ foo: '0xhello' }, 'foo', formatAddress)).toThrowError(
+      logger.makeError('invalid address', errors.INVALID_ARGUMENT, {
+        argument: 'address',
+        value: '0xhello',
+        key: 'foo',
+      }),
+    );
   });
 });
