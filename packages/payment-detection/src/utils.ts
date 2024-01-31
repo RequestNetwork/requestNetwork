@@ -204,3 +204,16 @@ export const formatAddress: {
     });
   }
 };
+
+/** applies a transformation if val[key] is not null */
+export const transformNonNull = <T extends Record<string, unknown>, TKey extends keyof T, TOut>(
+  val: T,
+  key: TKey,
+  transform: (val: T[TKey], key: keyof T) => TOut = (val) => val as TOut,
+): { [P in TKey]: TOut } | Partial<Record<TKey, TOut>> =>
+  ({
+    [key as TKey]:
+      val[key] !== undefined && val[key] !== null ? transform(val[key], key) : undefined,
+  }) as {
+    [P in TKey]: TOut;
+  };

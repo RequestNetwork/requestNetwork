@@ -218,6 +218,10 @@ export interface IERC20FeePaymentEventParameters extends IERC20PaymentEventParam
   feeAmountInCrypto?: string;
   amountInCrypto?: string;
   tokenAddress?: string;
+
+  gasUsed?: string;
+  gasPrice?: string;
+  maxRateTimespan?: string;
 }
 
 export type ERC20PaymentNetworkEventParameters =

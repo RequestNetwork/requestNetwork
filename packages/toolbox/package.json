@@ -52,7 +52,6 @@
     "@requestnetwork/utils": "0.40.0",
     "ethers": "5.5.1",
     "inquirer": "8.2.0",
-    "lodash": "4.17.21",
     "tslib": "2.5.0",
     "yargs": "17.6.2"
   },

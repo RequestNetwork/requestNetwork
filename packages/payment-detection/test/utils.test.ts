@@ -7,6 +7,7 @@ import {
   getPaymentReference,
   formatAddress,
 } from '../src';
+import { transformNonNull } from '../src/utils';
 
 describe('conversion: padding amounts for Chainlink', () => {
   const currencyManager = CurrencyManager.getDefault();
@@ -370,5 +371,25 @@ describe('formatAddress', () => {
     // type assertion
     const val: string | undefined = formatAddress('', '', true);
     expect(val).toBeUndefined();
+  });
+});
+
+fdescribe(transformNonNull, () => {
+  it('ignores a null value', () => {
+    expect(transformNonNull({ foo: null }, 'foo')).toEqual({ foo: undefined });
+  });
+  it('ignores an undefined value', () => {
+    expect(transformNonNull({ foo: undefined }, 'foo')).toEqual({ foo: undefined });
+  });
+  it('keeps an empty string', () => {
+    expect(transformNonNull({ foo: '' }, 'foo')).toEqual({ foo: '' });
+  });
+  it('keeps a value', () => {
+    expect(transformNonNull({ foo: 'hello' }, 'foo')).toEqual({ foo: 'hello' });
+  });
+  it('transforms a value', () => {
+    expect(transformNonNull({ foo: 'hello' }, 'foo', (s) => s.toUpperCase())).toEqual({
+      foo: 'HELLO',
+    });
   });
 });
