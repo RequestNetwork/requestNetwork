@@ -19,6 +19,7 @@ import * as nearUtils from '../../src/payment/utils-near';
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */
 
+let fakeProvider: any;
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
@@ -329,6 +330,11 @@ describe('swapToPayRequest', () => {
 });
 
 describe('hasSufficientFunds', () => {
+  beforeEach(() => {
+    fakeProvider = {
+      getBalance: jest.fn().mockReturnValue(Promise.resolve(BigNumber.from('200'))),
+    };
+  });
   afterEach(() => {
     jest.resetAllMocks();
   });
@@ -348,15 +354,12 @@ describe('hasSufficientFunds', () => {
         },
       },
     };
-    await expect(hasSufficientFunds(request, '')).rejects.toThrowError(
+    await expect(hasSufficientFunds({ request, address: '' })).rejects.toThrowError(
       'Payment network pn-bitcoin-address-based is not supported',
     );
   });
 
   it('should call the ETH getBalance method', async () => {
-    const fakeProvider: any = {
-      getBalance: jest.fn().mockReturnValue(Promise.resolve(BigNumber.from('200'))),
-    };
     const request: any = {
       balance: {
         balance: '0',
@@ -376,7 +379,11 @@ describe('hasSufficientFunds', () => {
         },
       },
     };
-    await hasSufficientFunds(request, 'abcd', { provider: fakeProvider });
+    await hasSufficientFunds({
+      request,
+      address: 'abcd',
+      providerOptions: { provider: fakeProvider },
+    });
     expect(fakeProvider.getBalance).toHaveBeenCalledTimes(1);
   });
 
@@ -384,9 +391,6 @@ describe('hasSufficientFunds', () => {
     const spy = jest
       .spyOn(erc20Module, 'getAnyErc20Balance')
       .mockReturnValue(Promise.resolve(BigNumber.from('200')));
-    const fakeProvider: any = {
-      getBalance: () => Promise.resolve(BigNumber.from('200')),
-    };
     const request: any = {
       balance: {
         balance: '0',
@@ -408,7 +412,11 @@ describe('hasSufficientFunds', () => {
         },
       },
     };
-    await hasSufficientFunds(request, 'abcd', { provider: fakeProvider });
+    await hasSufficientFunds({
+      request,
+      address: 'abcd',
+      providerOptions: { provider: fakeProvider },
+    });
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
@@ -416,9 +424,7 @@ describe('hasSufficientFunds', () => {
     const spy = jest
       .spyOn(erc20Module, 'getAnyErc20Balance')
       .mockReturnValue(Promise.resolve(BigNumber.from('200')));
-    const fakeProvider: any = {
-      getBalance: () => Promise.resolve(BigNumber.from('200')),
-    };
+
     const request: any = {
       balance: {
         balance: '0',
@@ -440,14 +446,15 @@ describe('hasSufficientFunds', () => {
         },
       },
     };
-    await hasSufficientFunds(request, 'abcd', { provider: fakeProvider });
+    await hasSufficientFunds({
+      request,
+      address: 'abcd',
+      providerOptions: { provider: fakeProvider },
+    });
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('should call ETH getBalance for ETH_FEE_PROXY_CONTRACT requests', async () => {
-    const fakeProvider: any = {
-      getBalance: jest.fn().mockReturnValue(Promise.resolve(BigNumber.from('200'))),
-    };
     const request: any = {
       balance: {
         balance: '0',
@@ -470,14 +477,15 @@ describe('hasSufficientFunds', () => {
         },
       },
     };
-    await hasSufficientFunds(request, 'abcd', { provider: fakeProvider });
+    await hasSufficientFunds({
+      request,
+      address: 'abcd',
+      providerOptions: { provider: fakeProvider },
+    });
     expect(fakeProvider.getBalance).toHaveBeenCalledTimes(1);
   });
 
   it('should return false if balance is insufficient to pay expectedAmount plus fee', async () => {
-    const fakeProvider: any = {
-      getBalance: jest.fn().mockReturnValue(Promise.resolve(BigNumber.from('200'))),
-    };
     const request: any = {
       balance: {
         balance: '0',
@@ -500,55 +508,48 @@ describe('hasSufficientFunds', () => {
         },
       },
     };
-    const solvency = await hasSufficientFunds(request, 'abcd', { provider: fakeProvider });
+    const solvency = await hasSufficientFunds({
+      request,
+      address: 'abcd',
+      providerOptions: { provider: fakeProvider },
+    });
     expect(solvency).toBeFalsy();
   });
 
-  it('should skip ETH balance checks for smart contract wallets', async () => {
-    const walletConnectProvider = {
-      ...provider,
-      getBalance: jest.fn().mockReturnValue(Promise.resolve(BigNumber.from('0'))),
-
-      provider: {
-        wc: {
-          _peerMeta: {
-            name: 'Gnosis Safe Multisig',
-          },
-        },
-      },
-    };
-
+  it('should skip ETH balance checks when needsGas is false', async () => {
     const mock = jest
       .spyOn(erc20Module, 'getAnyErc20Balance')
       .mockReturnValue(Promise.resolve(BigNumber.from('200')));
     // eslint-disable-next-line no-magic-numbers
-    const solvency = await isSolvent('any', fakeErc20, 100, {
-      provider: walletConnectProvider as any,
+    const solvency = await isSolvent({
+      fromAddress: 'any',
+      currency: fakeErc20,
+      amount: 100,
+      providerOptions: {
+        provider: fakeProvider as any,
+      },
+      needsGas: false,
     });
     expect(solvency).toBeTruthy();
     expect(mock).toHaveBeenCalledTimes(1);
   });
 
-  it('should check ETH balance checks for non-smart contract wallets', async () => {
-    const walletConnectProvider = {
-      ...provider,
-      getBalance: jest.fn().mockReturnValue(Promise.resolve(BigNumber.from('0'))),
-
-      provider: {
-        wc: {
-          _peerMeta: {
-            name: 'Definitely not a smart contract wallet',
-          },
-        },
-      },
-    };
-
+  it('should check ETH balance checks by default', async () => {
     const mock = jest
       .spyOn(erc20Module, 'getAnyErc20Balance')
       .mockReturnValue(Promise.resolve(BigNumber.from('200')));
+
+    fakeProvider = {
+      getBalance: jest.fn().mockReturnValue(Promise.resolve(BigNumber.from('0'))),
+    };
     // eslint-disable-next-line no-magic-numbers
-    const solvency = await isSolvent('any', fakeErc20, 100, {
-      provider: walletConnectProvider as any,
+    const solvency = await isSolvent({
+      fromAddress: 'any',
+      currency: fakeErc20,
+      amount: 100,
+      providerOptions: {
+        provider: fakeProvider as any,
+      },
     });
     expect(solvency).toBeFalsy();
     expect(mock).toHaveBeenCalledTimes(1);
@@ -561,8 +562,13 @@ describe('hasSufficientFunds', () => {
       }),
     } as any;
 
-    const solvency = await isSolvent('any', nearCurrency, 100, {
-      nearWalletConnection: mockedNearWalletConnection,
+    const solvency = await isSolvent({
+      fromAddress: 'any',
+      currency: nearCurrency,
+      amount: 100,
+      providerOptions: {
+        nearWalletConnection: mockedNearWalletConnection,
+      },
     });
     expect(solvency).toBeTruthy();
   });
@@ -574,7 +580,12 @@ describe('hasSufficientFunds', () => {
       }),
     } as any;
 
-    const solvency = await isSolvent('any', nearCurrency, 100, { nearWalletConnection });
+    const solvency = await isSolvent({
+      fromAddress: 'any',
+      currency: nearCurrency,
+      amount: 100,
+      providerOptions: { nearWalletConnection },
+    });
     expect(solvency).toBeFalsy();
   });
 });
