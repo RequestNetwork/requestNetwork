@@ -710,7 +710,15 @@ describe('CurrencyManager', () => {
     });
   });
 
-  describe('Native and bridged USDC', () => {
+  /**
+   * In order to respond to the recent changes in the USDC token where
+   * Circle introduced native USDC on chains Arbitrum, Polygon and Optimism, and renamed the bridged USDC to USDCe.
+   * We wanted to support both the native USDC and the bridged USDCe on the same network,
+   * while staying backwards compatible.
+   * That is why we kept the original USDC-network id for the bridged USDC, while changing the symbol to USDCe.
+   * Then we added the new native USDC with symbol USDC but id of USDCn-network.
+   */
+  describe('Currency Manager correctly detects native USDC and bridged USDCe on polygon', () => {
     const USDC_LIST = [
       {
         address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
@@ -732,7 +740,7 @@ describe('CurrencyManager', () => {
       } as CurrencyInput,
     ];
     const currencyManager = new CurrencyManager(USDC_LIST);
-    it('USDCe matic', () => {
+    it('Detects USDCe matic by USDC-matic id', () => {
       expect(currencyManager.from('USDC-matic')).toMatchObject({
         type: RequestLogicTypes.CURRENCY.ERC20,
         network: 'matic',
@@ -741,7 +749,7 @@ describe('CurrencyManager', () => {
         address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
       });
     });
-    it('native USDC matic', () => {
+    it('Detects native USDC matic by USDCn-matic id', () => {
       expect(currencyManager.from('USDCn-matic')).toMatchObject({
         type: RequestLogicTypes.CURRENCY.ERC20,
         network: 'matic',
