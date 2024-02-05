@@ -4,7 +4,7 @@ import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
  * Common types used in token configuration files
  */
 type TokenAddress = string;
-type TokenDefinition = { name: string; symbol: string; decimals: number };
+type TokenDefinition = { name: string; symbol: string; decimals: number; id?: string };
 export type TokenMap = Record<TokenAddress, TokenDefinition>;
 
 /**

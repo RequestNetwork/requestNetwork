@@ -709,4 +709,54 @@ describe('CurrencyManager', () => {
       expect(path).toMatchObject([eur.hash, dai.hash.toLowerCase()]);
     });
   });
+
+  /**
+   * In order to respond to the recent changes in the USDC token where
+   * Circle introduced native USDC on chains Arbitrum, Polygon and Optimism, and renamed the bridged USDC to USDCe.
+   * We wanted to support both the native USDC and the bridged USDCe on the same network,
+   * while staying backwards compatible.
+   * That is why we kept the original USDC-network id for the bridged USDC, while changing the symbol to USDCe.
+   * Then we added the new native USDC with symbol USDC but id of USDCn-network.
+   */
+  describe('Currency Manager correctly detects native USDC and bridged USDCe on polygon', () => {
+    const USDC_LIST = [
+      {
+        address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+        name: 'USD Coin (PoS)',
+        symbol: 'USDCe',
+        network: 'matic',
+        id: 'USDC-matic',
+        decimals: 6,
+        type: RequestLogicTypes.CURRENCY.ERC20,
+      } as CurrencyInput,
+      {
+        address: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
+        name: 'USD Coin',
+        symbol: 'USDC',
+        network: 'matic',
+        id: 'USDCn-matic',
+        decimals: 6,
+        type: RequestLogicTypes.CURRENCY.ERC20,
+      } as CurrencyInput,
+    ];
+    const currencyManager = new CurrencyManager(USDC_LIST);
+    it('Detects USDCe matic by USDC-matic id', () => {
+      expect(currencyManager.from('USDC-matic')).toMatchObject({
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        network: 'matic',
+        symbol: 'USDCe',
+        id: 'USDC-matic',
+        address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+      });
+    });
+    it('Detects native USDC matic by USDCn-matic id', () => {
+      expect(currencyManager.from('USDCn-matic')).toMatchObject({
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        network: 'matic',
+        symbol: 'USDC',
+        id: 'USDCn-matic',
+        address: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
+      });
+    });
+  });
 });

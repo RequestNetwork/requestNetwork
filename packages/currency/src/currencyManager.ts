@@ -59,6 +59,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    *
    * @param currencyIdentifier e.g. 'DAI', 'FAU', 'FAU-rinkeby', 'ETH-rinkeby-rinkeby' or '0xFab46E002BbF0b4509813474841E0716E6730136'
    * @param network e.g. rinkeby, mainnet
+   * @deprecated Use fromSymbol, fromAddress, fromId or fromHash to avoid ambiguity
    */
   from(
     currencyIdentifier: string | undefined,
@@ -71,17 +72,21 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       return this.fromAddress(currencyIdentifier, network);
     }
 
+    if (network && currencyIdentifier.indexOf(network) === -1) {
+      currencyIdentifier = CurrencyManager.currencyId({ symbol: currencyIdentifier, network });
+    }
+
+    const currencyFromId = this.fromId(currencyIdentifier);
+
+    if (currencyFromId) return currencyFromId;
+
     const parts = currencyIdentifier.split('-');
     const currencyFromSymbol =
       this.fromSymbol(parts[0], network || (parts[1] as CurrencyTypes.ChainName)) ||
       // try without splitting the symbol to support currencies like ETH-rinkeby
       this.fromSymbol(currencyIdentifier, network);
 
-    if (currencyFromSymbol) {
-      return currencyFromSymbol;
-    }
-
-    return this.fromId(currencyIdentifier);
+    return currencyFromSymbol;
   }
 
   /**
@@ -218,7 +223,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   /**
    * Utility function to compute the unique identifier
    */
-  static currencyId(currency: CurrencyInput): string {
+  static currencyId(currency: { symbol: string; network?: string }): string {
     return 'network' in currency ? `${currency.symbol}-${currency.network}` : currency.symbol;
   }
 
