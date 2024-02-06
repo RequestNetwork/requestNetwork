@@ -1,4 +1,3 @@
-import { UnixFS } from 'ipfs-unixfs';
 import * as qs from 'qs';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 
@@ -144,30 +143,6 @@ export default class IpfsManager {
   }
 
   /**
-   * Retrieve content from ipfs from its hash
-   * @param hash Hash of the content
-   * @returns Promise resolving retrieved ipfs object
-   */
-  public async read(hash: string): Promise<StorageTypes.IIpfsObject> {
-    try {
-      const response = await this.ipfs('object/get', {
-        params: { arg: hash, 'data-encoding': 'base64' },
-      });
-      if (response.Type === 'error') {
-        throw new Error(response.Message);
-      }
-      const ipfsDataBuffer = Buffer.from(response.Data, 'base64');
-      const content = IpfsManager.getContentFromMarshaledData(ipfsDataBuffer);
-      const ipfsSize = ipfsDataBuffer.length;
-      const ipfsLinks = response.Links;
-      return { content, ipfsSize, ipfsLinks };
-    } catch (e) {
-      this.logger.error(`Failed to read IPFS file: ${e.message}`, ['ipfs']);
-      throw e;
-    }
-  }
-
-  /**
    * Pin content on ipfs node from its hash
    * @param hashes Array of hashes of the content
    * @param [timeout] An optional timeout for the IPFS pin request
@@ -240,16 +215,5 @@ export default class IpfsManager {
       id: await this.getIpfsNodeId(),
       maxRetries: this.ipfsErrorHandling.maxRetries,
     };
-  }
-
-  /**
-   * Removes the Unicode special characters from an IPFS content
-   * @param marshaledData marshaled data
-   * @returns the content without the padding
-   */
-  private static getContentFromMarshaledData(marshaledData: Buffer): string {
-    const { data } = UnixFS.unmarshal(marshaledData);
-    if (!data) throw new Error('Cannot unmarshal data');
-    return data.toString();
   }
 }

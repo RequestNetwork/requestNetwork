@@ -5,7 +5,6 @@ import { GraphQLClient } from 'graphql-request';
 import { Block_Height, Maybe, getSdk } from './generated/graphql';
 import { getSdk as getNearSdk } from './generated/graphql-near';
 import { RequestConfig } from 'graphql-request/src/types';
-import { omit } from 'lodash';
 
 const HOSTED_THE_GRAPH_URL =
   'https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-';
@@ -53,7 +52,7 @@ const extractClientOptions = (
 
   // build query options
   const queryOptions: TheGraphQueryOptions = {};
-  const { minIndexedBlock } = optionsObject;
+  const { minIndexedBlock, ...clientOptions } = optionsObject;
   if (minIndexedBlock) {
     queryOptions.blockFilter = { number_gte: minIndexedBlock };
   } else if (url.match(/^https:\/\/gateway-\w+\.network\.thegraph\.com\//)) {
@@ -62,7 +61,6 @@ const extractClientOptions = (
   }
 
   // build client options
-  const clientOptions: RequestConfig = omit(optionsObject, 'minIndexedBlock');
   return [clientOptions, queryOptions];
 };
 

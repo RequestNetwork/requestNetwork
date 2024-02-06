@@ -1,10 +1,9 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { utils } from 'ethers';
-import { pick, mapValues } from 'lodash';
 import type { TheGraphClient } from './client';
 import type { EscrowEventResultFragment, PaymentEventResultFragment } from './generated/graphql';
-import { formatAddress, unpadAmountFromChainlink } from '../utils';
+import { formatAddress, transformNonNull, unpadAmountFromChainlink } from '../utils';
 import { TransferEventsParams, ITheGraphBaseInfoRetriever } from '../types';
 
 /**
@@ -85,22 +84,15 @@ export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = Tr
         feeAmount,
         block: payment.block,
         to: formatAddress(payment.to, 'to'),
-        ...mapValues(
-          pick(
-            payment,
-            'txHash',
-            'gasUsed',
-            'gasPrice',
-            'amountInCrypto',
-            'feeAmountInCrypto',
-            'maxRateTimespan',
-          ),
-          (val) => (val !== null ? String(val) : undefined),
-        ),
-        // Make sure the checksum is right for addresses.
-        ...mapValues(pick(payment, 'from', 'feeAddress', 'tokenAddress'), (str, key) =>
-          str ? formatAddress(str, key) : undefined,
-        ),
+        ...transformNonNull(payment, 'txHash', String),
+        ...transformNonNull(payment, 'gasUsed', String),
+        ...transformNonNull(payment, 'gasPrice', String),
+        ...transformNonNull(payment, 'amountInCrypto', String),
+        ...transformNonNull(payment, 'feeAmountInCrypto', String),
+        ...transformNonNull(payment, 'maxRateTimespan', String),
+        ...transformNonNull(payment, 'from', formatAddress),
+        ...transformNonNull(payment, 'feeAddress', formatAddress),
+        ...transformNonNull(payment, 'tokenAddress', formatAddress),
       },
     };
   }
