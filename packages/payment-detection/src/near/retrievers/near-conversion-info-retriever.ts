@@ -13,7 +13,7 @@ export type TransferEventsParams = {
   /** The address of the payment proxy */
   contractAddress: string;
   /** The chain to check for payment */
-  paymentChain: CurrencyTypes.VMChainName;
+  paymentChain: ChainTypes.VMChain;
   /** Indicates if it is an address for payment or refund */
   eventName: PaymentTypes.EVENTS_NAMES;
   /** The maximum span between the time the rate was fetched and the payment */
@@ -30,7 +30,7 @@ export class NearConversionInfoRetriever extends NearInfoRetriever {
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The id of network we want to check
    */
-  constructor(protected readonly client: TheGraphClient<CurrencyTypes.NearChainName>) {
+  constructor(protected readonly client: TheGraphClient<ChainTypes.INearChain>) {
     super(client);
   }
   public async getTransferEvents(

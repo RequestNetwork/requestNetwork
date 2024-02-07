@@ -31,12 +31,12 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
   }
 
   public static getContractName = (
-    chainName: CurrencyTypes.NearChainName,
+    chainName: ChainTypes.INearChain,
     paymentNetworkVersion = '0.1.0',
   ): string => {
     const version =
       NearConversionNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
-    const versionMap: Record<CurrencyTypes.NearChainName, Record<string, string>> = {
+    const versionMap: Record<ChainTypes.INearChain, Record<string, string>> = {
       aurora: { '0.1.0': 'native.conversion.reqnetwork.near' },
       near: { '0.1.0': 'native.conversion.reqnetwork.near' },
       'aurora-testnet': {
@@ -69,7 +69,7 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
     toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: CurrencyTypes.NearChainName,
+    paymentChain: ChainTypes.INearChain,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToEth.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkRetrieverEvents<PaymentTypes.ETHPaymentNetworkEvent>> {
     if (!toAddress) {
@@ -104,7 +104,7 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
     return transferEvents;
   }
 
-  protected getPaymentChain(request: RequestLogicTypes.IRequest): CurrencyTypes.NearChainName {
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): ChainTypes.INearChain {
     const network = this.getPaymentExtension(request).values.network;
     if (!network) {
       throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);

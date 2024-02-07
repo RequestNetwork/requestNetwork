@@ -10,6 +10,7 @@ import { getAddress, keccak256, LogDescription } from 'ethers/lib/utils';
 import { ContractArtifact, DeploymentInformation } from '@requestnetwork/smart-contracts';
 import { NetworkNotSupported, VersionNotSupported } from './balance-error';
 import * as PaymentReferenceCalculator from './payment-reference-calculator';
+import { IReferenceBasedCreationParameters } from './types';
 
 /**
  * Converts the Log's args from array to an object with keys being the name of the arguments
@@ -62,7 +63,7 @@ const getChainlinkPaddingSize = ({
 
 export type DeploymentInformationWithVersion = DeploymentInformation & { contractVersion: string };
 export type GetDeploymentInformation<TAllowUndefined extends boolean> = (
-  network: CurrencyTypes.VMChainName,
+  network: ChainTypes.VMChain,
   paymentNetworkVersion: string,
 ) => TAllowUndefined extends false
   ? DeploymentInformationWithVersion
@@ -140,7 +141,7 @@ export function getPaymentNetworkExtension<T = any>(
   ) as ExtensionTypes.IPaymentNetworkState<T>;
 }
 
-type PaymentParameters = PaymentTypes.IReferenceBasedCreationParameters &
+type PaymentParameters = IReferenceBasedCreationParameters &
   PaymentTypes.IDeclarativePaymentEventParameters;
 
 /** Gets the payment info based on parameters, for payment reference calculation */

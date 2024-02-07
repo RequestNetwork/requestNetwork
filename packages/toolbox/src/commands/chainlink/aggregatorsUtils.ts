@@ -13,9 +13,7 @@ export type Aggregator = {
   aggregator: string;
 };
 
-const feedMap: Partial<
-  Record<CurrencyTypes.EvmChainName, [chainKey: string, networkName: string]>
-> = {
+const feedMap: Partial<Record<ChainTypes.IEvmChain, [chainKey: string, networkName: string]>> = {
   mainnet: ['mainnet', 'Ethereum Mainnet'],
   goerli: ['goerli', 'Goerli Testnet'],
   sepolia: ['sepolia', 'Sepolia Testnet'],
@@ -29,7 +27,7 @@ const feedMap: Partial<
   moonbeam: ['polkadot-mainnet-moonbeam', 'Moonbeam Mainnet'],
 };
 
-export const getAllAggregators = async (network: CurrencyTypes.EvmChainName): Promise<Feed[]> => {
+export const getAllAggregators = async (network: ChainTypes.IEvmChain): Promise<Feed[]> => {
   const [feedName, networkName] = feedMap[network] || [];
   if (!feedName || !networkName) {
     throw new Error(
@@ -49,7 +47,7 @@ export const getAllAggregators = async (network: CurrencyTypes.EvmChainName): Pr
 };
 
 export const getAvailableAggregators = async (
-  network: CurrencyTypes.EvmChainName,
+  network: ChainTypes.IEvmChain,
   cm: CurrencyManager,
   pairs?: string[],
   listAll?: boolean,

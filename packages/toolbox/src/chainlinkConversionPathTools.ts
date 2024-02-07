@@ -36,7 +36,7 @@ class ChainlinkConversionPathTools {
    * @param network The Ethereum network to use
    */
   constructor(
-    private network: CurrencyTypes.EvmChainName,
+    private network: ChainTypes.IEvmChain,
     options?: { web3Url?: string; lastBlock?: number; maxRange?: number },
   ) {
     const web3Url =
@@ -139,7 +139,7 @@ const getCurrency = (symbol: string) => {
 };
 
 export const listAggregators = async (options?: IOptions): Promise<void> => {
-  let networks: CurrencyTypes.EvmChainName[] = ['private', 'rinkeby', 'mainnet'];
+  let networks: ChainTypes.IEvmChain[] = ['private', 'rinkeby', 'mainnet'];
   if (options?.network) {
     EvmChains.assertChainSupported(options.network);
     networks = [options.network];

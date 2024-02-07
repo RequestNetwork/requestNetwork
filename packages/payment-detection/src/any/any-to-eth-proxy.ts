@@ -31,7 +31,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
   ExtensionTypes.PnAnyToEth.IAnyToEth,
   PaymentTypes.IETHFeePaymentEventParameters
 > {
-  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
+  private readonly getSubgraphClient: TGetSubGraphClient<ChainTypes.IEvmChain>;
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -40,7 +40,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     currencyManager,
     getSubgraphClient,
   }: ReferenceBasedDetectorOptions &
-    Pick<PaymentNetworkOptions<CurrencyTypes.EvmChainName>, 'getSubgraphClient'>) {
+    Pick<PaymentNetworkOptions<ChainTypes.IEvmChain>, 'getSubgraphClient'>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
       advancedLogic.extensions.anyToEthProxy,
@@ -64,7 +64,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: CurrencyTypes.EvmChainName,
+    paymentChain: ChainTypes.IEvmChain,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToEth.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IETHPaymentEventParameters>> {
     if (!toAddress) {
@@ -127,7 +127,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
    * @param paymentNetwork the payment network
    * @returns The network of payment
    */
-  protected getPaymentChain(request: RequestLogicTypes.IRequest): CurrencyTypes.EvmChainName {
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): ChainTypes.IEvmChain {
     const network = this.getPaymentExtension(request).values.network;
     if (!network) {
       throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);

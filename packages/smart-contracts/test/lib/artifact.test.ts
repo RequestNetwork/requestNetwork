@@ -57,7 +57,7 @@ describe('Artifact', () => {
 
   it('throws for a non-existing network', () => {
     expect(() =>
-      erc20ProxyArtifact.getDeploymentInformation('fakenetwork' as CurrencyTypes.EvmChainName),
+      erc20ProxyArtifact.getDeploymentInformation('fakenetwork' as ChainTypes.IEvmChain),
     ).toThrowError(`No deployment for network: fakenetwork`);
   });
 

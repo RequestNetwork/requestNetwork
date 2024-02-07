@@ -1,10 +1,5 @@
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
-import {
-  CurrencyTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import {
   CurrencyDefinition,
   EvmChains,
@@ -81,7 +76,7 @@ export abstract class ERC20FeeProxyPaymentDetectorBase<
  * Handle payment networks with ERC20 fee proxy contract extension on EVM (default) or Near chains
  */
 export class ERC20FeeProxyPaymentDetector<
-  TChain extends CurrencyTypes.VMChainName = CurrencyTypes.EvmChainName,
+  TChain extends ChainTypes.VMChain = ChainTypes.IEvmChain,
 > extends ERC20FeeProxyPaymentDetectorBase<
   ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
   PaymentTypes.IERC20FeePaymentEventParameters
@@ -167,12 +162,12 @@ export class ERC20FeeProxyPaymentDetector<
 
   protected getTheGraphInfoRetriever(
     paymentChain: TChain,
-    subgraphClient: TheGraphClient | TheGraphClient<CurrencyTypes.NearChainName>,
+    subgraphClient: TheGraphClient | TheGraphClient<ChainTypes.INearChain>,
   ): TheGraphInfoRetriever | NearInfoRetriever {
     const graphInfoRetriever = EvmChains.isChainSupported(paymentChain)
       ? new TheGraphInfoRetriever(subgraphClient as TheGraphClient, this.currencyManager)
       : NearChains.isChainSupported(paymentChain) && this.network
-      ? new NearInfoRetriever(subgraphClient as TheGraphClient<CurrencyTypes.NearChainName>)
+      ? new NearInfoRetriever(subgraphClient as TheGraphClient<ChainTypes.INearChain>)
       : undefined;
     if (!graphInfoRetriever) {
       throw new Error(

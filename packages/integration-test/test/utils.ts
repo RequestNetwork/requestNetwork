@@ -16,7 +16,7 @@ export const createMockErc20FeeRequest = ({
 }: Record<
   'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount',
   string
-> & { network: CurrencyTypes.EvmChainName }): RequestLogicTypes.IRequest => ({
+> & { network: ChainTypes.IEvmChain }): RequestLogicTypes.IRequest => ({
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
   currency: {
     network,
@@ -59,7 +59,7 @@ export const createMockConversionErc20Request = ({
   'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount',
   string
 > & {
-  network: CurrencyTypes.EvmChainName;
+  network: ChainTypes.IEvmChain;
   currency: RequestLogicTypes.ICurrency;
 }): RequestLogicTypes.IRequest => ({
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
@@ -101,7 +101,7 @@ export const createMockNativeTokenRequest = ({
   'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount' | 'nativeTokenCode',
   string
 > & {
-  network: CurrencyTypes.EvmChainName;
+  network: ChainTypes.IEvmChain;
 }): RequestLogicTypes.IRequest => ({
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
   currency: {
@@ -141,7 +141,7 @@ export const createMockConversionEthTokenRequest = ({
   feeAmount,
   currency,
 }: Record<'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount', string> & {
-  network: CurrencyTypes.EvmChainName;
+  network: ChainTypes.IEvmChain;
   currency: RequestLogicTypes.ICurrency;
 }): RequestLogicTypes.IRequest => ({
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },

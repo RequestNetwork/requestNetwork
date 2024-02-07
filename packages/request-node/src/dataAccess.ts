@@ -8,7 +8,7 @@ import { PendingStore } from '@requestnetwork/data-access';
 import { EthereumStorage, EthereumTransactionSubmitter } from '@requestnetwork/ethereum-storage';
 
 export function getDataAccess(
-  network: CurrencyTypes.EvmChainName,
+  network: ChainTypes.IEvmChain,
   ipfsStorage: StorageTypes.IIpfsStorage,
   logger: LogTypes.ILogger,
 ): DataAccessTypes.IDataAccess {

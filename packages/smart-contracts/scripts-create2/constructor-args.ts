@@ -8,10 +8,7 @@ const getAdminWalletAddress = (contract: string): string => {
   return process.env.ADMIN_WALLET_ADDRESS;
 };
 
-export const getConstructorArgs = (
-  contract: string,
-  network?: CurrencyTypes.EvmChainName,
-): string[] => {
+export const getConstructorArgs = (contract: string, network?: ChainTypes.IEvmChain): string[] => {
   switch (contract) {
     case 'ChainlinkConversionPath': {
       return ['0x0000000000000000000000000000000000000000', getAdminWalletAddress(contract)];

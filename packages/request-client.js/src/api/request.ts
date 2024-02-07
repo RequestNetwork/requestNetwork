@@ -709,7 +709,7 @@ export default class Request {
 
   public async getEscrowData(
     paymentReference: string,
-    network: CurrencyTypes.EvmChainName,
+    network: ChainTypes.IEvmChain,
   ): Promise<PaymentTypes.EscrowChainData> {
     const escrowContractAddress = erc20EscrowToPayArtifact.getAddress(network);
     const escrowInfoRetriever = new EscrowERC20InfoRetriever(

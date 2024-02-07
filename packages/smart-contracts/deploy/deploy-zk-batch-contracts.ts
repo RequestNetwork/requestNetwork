@@ -11,8 +11,8 @@ import { CurrencyTypes } from '@requestnetwork/types';
 export default async function () {
   const [deployer] = await hre.ethers.getSigners();
   const constructorArguments = [
-    erc20FeeProxyArtifact.getAddress(hre.network.name as CurrencyTypes.EvmChainName),
-    ethereumFeeProxyArtifact.getAddress(hre.network.name as CurrencyTypes.EvmChainName),
+    erc20FeeProxyArtifact.getAddress(hre.network.name as ChainTypes.IEvmChain),
+    ethereumFeeProxyArtifact.getAddress(hre.network.name as ChainTypes.IEvmChain),
     hre.ethers.constants.AddressZero,
     hre.ethers.constants.AddressZero,
     hre.ethers.constants.AddressZero,

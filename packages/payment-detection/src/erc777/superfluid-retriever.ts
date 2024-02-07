@@ -1,4 +1,4 @@
-import { PaymentTypes } from '@requestnetwork/types';
+import { ChainTypes, PaymentTypes } from '@requestnetwork/types';
 import { FlowUpdatedEvent, SentEvent } from '../thegraph/generated/graphql-superfluid';
 import {
   getTheGraphSuperfluidClient,
@@ -23,7 +23,7 @@ export class SuperFluidInfoRetriever {
    * @param tokenContractAddress The address of the ERC777 contract
    * @param toAddress Address of the balance we want to check
    * @param eventName Indicate if it is an address for payment or refund
-   * @param network The Ethereum network to use
+   * @param chain The Ethereum network to use
    * @param options Extra options to GraphQL client
    */
   constructor(
@@ -31,10 +31,10 @@ export class SuperFluidInfoRetriever {
     private tokenContractAddress: string | null,
     private toAddress: string,
     private eventName: PaymentTypes.EVENTS_NAMES,
-    private network: string,
+    private chain: ChainTypes.IEvmChain,
     private options?: TheGraphClientOptions,
   ) {
-    this.client = getTheGraphSuperfluidClient(this.network, this.options);
+    this.client = getTheGraphSuperfluidClient(this.chain, this.options);
   }
 
   private getGraphVariables(): GraphPaymentQueryParams {
@@ -66,7 +66,7 @@ export class SuperFluidInfoRetriever {
   }
 
   /**
-   * First MVP version which convert :
+   * First MVP version which converts
    * stream events queried from SuperFluid subgraph
    * into payment events with the parameters expected by extractEvents function
    * to compute balance from amounts in ERC20 style transactions

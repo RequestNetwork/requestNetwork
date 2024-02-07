@@ -31,7 +31,7 @@ export const setupBatchConversionPayments = async ({
   // constants related to chainlink and conversion rate
   const currencyManager = CurrencyManager.getDefault();
 
-  const setUpActions = async (network: CurrencyTypes.EvmChainName) => {
+  const setUpActions = async (network: ChainTypes.IEvmChain) => {
     console.log(`Setup BatchConversionPayments on ${network}`);
 
     if (!contractAddress) {

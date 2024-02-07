@@ -27,8 +27,8 @@ const THE_GRAPH_URL_STUDIO_ZKSYNC =
  *
  * @type TGraphClientVariant: null if no variant, 'near' if native token payments detection on Near
  */
-export type TheGraphClient<TChain extends CurrencyTypes.VMChainName = CurrencyTypes.EvmChainName> =
-  (TChain extends CurrencyTypes.NearChainName
+export type TheGraphClient<TChain extends ChainTypes.VMChain = ChainTypes.IEvmChain> =
+  (TChain extends ChainTypes.INearChain
     ? ReturnType<typeof getNearSdk>
     : ReturnType<typeof getSdk>) & {
     options?: TheGraphQueryOptions;
@@ -71,16 +71,14 @@ export const getTheGraphClient = (network: string, url: string, options?: TheGra
 
 export const getTheGraphEvmClient = (url: string, options?: TheGraphClientOptions) => {
   const [clientOptions, queryOptions] = extractClientOptions(url, options);
-  const sdk: TheGraphClient<CurrencyTypes.EvmChainName> = getSdk(
-    new GraphQLClient(url, clientOptions),
-  );
+  const sdk: TheGraphClient<ChainTypes.IEvmChain> = getSdk(new GraphQLClient(url, clientOptions));
   sdk.options = queryOptions;
   return sdk;
 };
 
 export const getTheGraphNearClient = (url: string, options?: TheGraphClientOptions) => {
   const [clientOptions, queryOptions] = extractClientOptions(url, options);
-  const sdk: TheGraphClient<CurrencyTypes.NearChainName> = getNearSdk(
+  const sdk: TheGraphClient<ChainTypes.INearChain> = getNearSdk(
     new GraphQLClient(url, clientOptions),
   );
   sdk.options = queryOptions;
@@ -88,7 +86,7 @@ export const getTheGraphNearClient = (url: string, options?: TheGraphClientOptio
 };
 
 export const defaultGetTheGraphClient = (
-  network: CurrencyTypes.ChainName,
+  network: ChainTypes.IChain,
   options?: TheGraphClientOptions,
 ) => {
   return network === 'private'

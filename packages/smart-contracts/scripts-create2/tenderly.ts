@@ -25,7 +25,7 @@ const capitalizeFirstLetter = (string: string) => string.charAt(0).toUpperCase()
  * Chains supported by Tenderly.
  * Supported testnet chains are commented out.
  */
-const supportedTenderlyChains: CurrencyTypes.EvmChainName[] = [
+const supportedTenderlyChains: ChainTypes.IEvmChain[] = [
   'arbitrum-one',
   'arbitrum-rinkeby',
   'avalanche',

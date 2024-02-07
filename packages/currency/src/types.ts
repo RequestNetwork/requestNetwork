@@ -1,4 +1,5 @@
-import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ChainTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ChainManager } from '@requestnetwork/chain';
 
 /**
  * Common types used in token configuration files
@@ -8,27 +9,13 @@ type TokenDefinition = { name: string; symbol: string; decimals: number; id?: st
 export type TokenMap = Record<TokenAddress, TokenDefinition>;
 
 /**
- * Common types used in chain configuration files
- */
-export type Chain = {
-  chainId: number | string;
-  testnet?: boolean;
-  currencies?: TokenMap;
-};
-
-/**
  * A native blockchain token (ETH, MATIC, ETH-rinkeby...)
  */
 export type NativeCurrency = {
   symbol: string;
   decimals: number;
-  network: CurrencyTypes.ChainName;
+  network: ChainTypes.IChain;
 };
-type NamedCurrency = { name: string };
-export type NamedNativeCurrency = NativeCurrency & NamedCurrency;
-
-/** Native Currency types */
-export type NativeCurrencyType = RequestLogicTypes.CURRENCY.BTC | RequestLogicTypes.CURRENCY.ETH;
 
 /**
  * A Fiat currency (EUR, USD...)
@@ -44,10 +31,7 @@ export type ISO4217Currency = {
 export type ERC20Currency = {
   symbol: string;
   decimals: number;
-  network:
-    | CurrencyTypes.EvmChainName
-    | CurrencyTypes.NearChainName
-    | CurrencyTypes.DeclarativeChainName;
+  network: ChainTypes.IEvmChain | ChainTypes.INearChain | ChainTypes.IDeclarativeChain;
   address: string;
 };
 
@@ -57,37 +41,43 @@ export type ERC20Currency = {
 export type ERC777Currency = {
   symbol: string;
   decimals: number;
-  network: CurrencyTypes.EvmChainName;
+  network: ChainTypes.IEvmChain;
   address: string;
 };
+
+/** Native Currency types */
+export type NativeCurrencyType = RequestLogicTypes.CURRENCY.BTC | RequestLogicTypes.CURRENCY.ETH;
 
 /**
  * The minimum properties of a native Currency
  */
-export type NativeCurrencyInput = {
-  type: RequestLogicTypes.CURRENCY.ETH | RequestLogicTypes.CURRENCY.BTC;
-} & NativeCurrency;
+export type NativeCurrencyInput = Omit<NativeCurrency, 'network'> & {
+  type: NativeCurrencyType;
+  network: string;
+};
 
 /**
  * The minimum properties of an ISO4217 Currency
  */
-export type ISO4217CurrencyInput = {
+export type ISO4217CurrencyInput = ISO4217Currency & {
   type: RequestLogicTypes.CURRENCY.ISO4217;
-} & ISO4217Currency;
+};
 
 /**
  * The minimum properties of an ERC20 Currency
  */
-export type ERC20CurrencyInput = {
+export type ERC20CurrencyInput = Omit<ERC20Currency, 'network'> & {
   type: RequestLogicTypes.CURRENCY.ERC20;
-} & ERC20Currency;
+  network: string;
+};
 
 /**
  * The minimum properties of an ERC777 Currency
  */
-export type ERC777CurrencyInput = {
+export type ERC777CurrencyInput = Omit<ERC777Currency, 'network'> & {
   type: RequestLogicTypes.CURRENCY.ERC777;
-} & ERC777Currency;
+  network: string;
+};
 
 /**
  * The minimum properties of a Currency
@@ -117,21 +107,37 @@ export type StorageCurrency = RequestLogicTypes.ICurrency;
  * A Currency manager handles a list of currencies and provides utility to retrieve and change format
  */
 export interface ICurrencyManager<TMeta = unknown> {
-  from(symbolOrAddress: string, network?: string): CurrencyDefinition<TMeta> | undefined;
-  fromAddress(address: string, network?: string): CurrencyDefinition<TMeta> | undefined;
-  fromSymbol(symbol: string, network?: string): CurrencyDefinition<TMeta> | undefined;
-  fromHash(hash: string, network?: string): CurrencyDefinition<TMeta> | undefined;
+  chainManager: ChainManager;
+  from(
+    symbolOrAddress: string,
+    network?: string | ChainTypes.IChain,
+  ): CurrencyDefinition<TMeta> | undefined;
+  fromAddress(
+    address: string,
+    network?: string | ChainTypes.IChain,
+  ): CurrencyDefinition<TMeta> | undefined;
+  fromSymbol(
+    symbol: string,
+    network?: string | ChainTypes.IChain,
+  ): CurrencyDefinition<TMeta> | undefined;
+  fromHash(
+    hash: string,
+    network?: string | ChainTypes.IChain,
+  ): CurrencyDefinition<TMeta> | undefined;
   fromStorageCurrency(currency: StorageCurrency): CurrencyDefinition<TMeta> | undefined;
   getNativeCurrency(
     type: NativeCurrencyType,
-    network: string,
+    network: string | ChainTypes.IChain,
   ): CurrencyDefinition<TMeta> | undefined;
   getConversionPath(
     from: Pick<CurrencyDefinition, 'hash'>,
     to: Pick<CurrencyDefinition, 'hash'>,
-    network: string,
+    network: string | ChainTypes.IChain,
   ): string[] | null;
-  supportsConversion(currency: Pick<CurrencyDefinition, 'hash'>, network: string): boolean;
+  supportsConversion(
+    currency: Pick<CurrencyDefinition, 'hash'>,
+    network: string | ChainTypes.IChain,
+  ): boolean;
   validateAddress(address: string, currency: CurrencyInput | StorageCurrency): boolean;
   validateCurrency(currency: StorageCurrency): boolean;
 }
@@ -141,4 +147,4 @@ export interface ICurrencyManager<TMeta = unknown> {
  *
  * Format  { "chainName": {"TOKEN": ["NEW_TOKEN","NEW_CHAIN"]}}
  */
-export type LegacyTokenMap = Record<string, Record<string, [string, CurrencyTypes.ChainName]>>;
+export type LegacyTokenMap = Record<string, Record<string, [string, string]>>;

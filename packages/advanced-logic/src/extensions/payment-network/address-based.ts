@@ -1,6 +1,6 @@
 import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import {
-  CurrencyTypes,
+  ChainTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
@@ -151,7 +151,11 @@ export default abstract class AddressBasedPaymentNetwork<
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
       case RequestLogicTypes.CURRENCY.ERC777:
-        return this.isValidAddressForSymbolAndNetwork(address, 'ETH', 'mainnet');
+        return this.isValidAddressForSymbolAndNetwork(
+          address,
+          'ETH',
+          this.currencyManager.chainManager.fromName('mainnet', ['evm']),
+        );
       default:
         throw new Error(
           `Default implementation of isValidAddressForNetwork() does not support currency type ${this.supportedCurrencyType}. Please override this method if needed.`,
@@ -162,11 +166,11 @@ export default abstract class AddressBasedPaymentNetwork<
   protected isValidAddressForSymbolAndNetwork(
     address: string,
     symbol: string,
-    network: CurrencyTypes.ChainName,
+    network: ChainTypes.IChain,
   ): boolean {
     const currency = this.currencyManager.from(symbol, network);
     if (!currency) {
-      throw new UnsupportedCurrencyError({ value: symbol, network });
+      throw new UnsupportedCurrencyError({ value: symbol, network: network.name });
     }
     return this.currencyManager.validateAddress(address, currency);
   }

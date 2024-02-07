@@ -24,7 +24,7 @@ export class ERC20TransferableReceivablePaymentDetector extends FeeReferenceBase
   ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
   PaymentTypes.IERC20PaymentEventParameters
 > {
-  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
+  private readonly getSubgraphClient: TGetSubGraphClient<ChainTypes.IEvmChain>;
 
   /**
    * @param extension The advanced logic payment network extensions
@@ -34,7 +34,7 @@ export class ERC20TransferableReceivablePaymentDetector extends FeeReferenceBase
     currencyManager,
     getSubgraphClient,
   }: ReferenceBasedDetectorOptions &
-    Pick<PaymentNetworkOptions<CurrencyTypes.EvmChainName>, 'getSubgraphClient'>) {
+    Pick<PaymentNetworkOptions<ChainTypes.IEvmChain>, 'getSubgraphClient'>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE,
       advancedLogic.extensions.erc20TransferableReceivable,
@@ -58,7 +58,7 @@ export class ERC20TransferableReceivablePaymentDetector extends FeeReferenceBase
     toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: CurrencyTypes.EvmChainName,
+    paymentChain: ChainTypes.IEvmChain,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20PaymentEventParameters>> {
     // To satisfy typescript

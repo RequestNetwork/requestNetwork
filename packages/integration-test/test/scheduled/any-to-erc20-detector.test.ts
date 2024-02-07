@@ -8,7 +8,7 @@ import { createMockConversionErc20Request } from '../utils';
 const pnFactory = new PaymentNetworkFactory(mockAdvancedLogic, CurrencyManager.getDefault());
 
 const paidEURRequest = {
-  network: 'matic' as CurrencyTypes.EvmChainName,
+  network: 'matic' as ChainTypes.IEvmChain,
   requestId: '0117d7a59a48e5031b3c56c92621453149e4a4462dba6eaeb3271a995c4201448b',
   paymentAddress: '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93',
   salt: '5ddb1c1645ac2daf',

@@ -10,7 +10,7 @@ export abstract class NativeTokenPaymentDetector extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
   PaymentTypes.IETHPaymentEventParameters
 > {
-  protected readonly network: CurrencyTypes.NearChainName | undefined;
+  protected readonly network: ChainTypes.INearChain | undefined;
   protected readonly getSubgraphClient: NativeDetectorOptions['getSubgraphClient'];
   protected constructor({
     network,

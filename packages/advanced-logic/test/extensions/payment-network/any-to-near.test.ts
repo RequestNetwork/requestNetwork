@@ -206,7 +206,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
             expect(() => {
               new AnyToNearPaymentNetwork(currencyManager).createCreationAction({
                 ...partialCreationParams,
-                network: 'another-chain' as CurrencyTypes.NearChainName,
+                network: 'another-chain' as ChainTypes.INearChain,
               });
             }).toThrowError(
               `Payment network 'another-chain' is not supported by this extension (only aurora)`,

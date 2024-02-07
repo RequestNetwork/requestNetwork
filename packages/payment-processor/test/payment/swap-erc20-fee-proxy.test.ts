@@ -85,9 +85,7 @@ describe('swap-erc20-fee-proxy', () => {
   beforeAll(async () => {
     // revoke erc20SwapToPay approval
     await revokeErc20Approval(
-      erc20SwapToPayArtifact.getAddress(
-        validRequest.currencyInfo.network! as CurrencyTypes.EvmChainName,
-      ),
+      erc20SwapToPayArtifact.getAddress(validRequest.currencyInfo.network! as ChainTypes.IEvmChain),
       alphaErc20Address,
       wallet.provider,
     );
@@ -97,7 +95,7 @@ describe('swap-erc20-fee-proxy', () => {
       // revoke erc20SwapToPay approval
       await revokeErc20Approval(
         erc20SwapToPayArtifact.getAddress(
-          validRequest.currencyInfo.network! as CurrencyTypes.EvmChainName,
+          validRequest.currencyInfo.network! as ChainTypes.IEvmChain,
         ),
         alphaErc20Address,
         wallet.provider,
@@ -126,7 +124,7 @@ describe('swap-erc20-fee-proxy', () => {
 
     it('should throw an error if currencyInfo has no network', async () => {
       const request = deepCopy(validRequest);
-      request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
+      request.currencyInfo.network = '' as ChainTypes.IEvmChain;
       await expect(
         swapErc20FeeProxyRequest(request, wallet, validSwapSettings),
       ).rejects.toThrowError('Unsupported chain ');

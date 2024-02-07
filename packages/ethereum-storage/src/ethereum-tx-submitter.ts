@@ -22,7 +22,7 @@ export type SubmitterProps = {
    * The default is 100, which does not change the value (100 is equal to x1, 200 is equal to x2).
    */
   gasPriceMultiplier?: number;
-  network: CurrencyTypes.EvmChainName;
+  network: ChainTypes.IEvmChain;
   logger?: LogTypes.ILogger;
   debugProvider?: boolean;
 };

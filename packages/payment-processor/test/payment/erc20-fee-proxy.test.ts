@@ -108,7 +108,7 @@ describe('erc20-fee-proxy', () => {
 
     it('should throw an error if currencyInfo has no network', async () => {
       const request = deepCopy(validRequest);
-      request.currencyInfo.network = '' as CurrencyTypes.ChainName;
+      request.currencyInfo.network = '' as ChainTypes.IChain;
       await expect(payErc20FeeProxyRequest(request, wallet)).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );

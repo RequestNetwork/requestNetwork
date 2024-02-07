@@ -146,7 +146,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
       requestCreatedNoExtension.currency = {
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'invalid value',
-        network: 'invalid network' as CurrencyTypes.EvmChainName,
+        network: 'invalid network' as ChainTypes.IEvmChain,
       };
 
       const action: ExtensionTypes.IAction = deepCopy(

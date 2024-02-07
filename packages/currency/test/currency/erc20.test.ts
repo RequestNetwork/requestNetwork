@@ -1,4 +1,4 @@
-import { getSupportedERC20Tokens } from '../../src/erc20';
+import { getSupportedERC20Currencies } from '../../src/erc20';
 import * as metamaskContractMap from '@metamask/contract-metadata';
 import { extraERC20Tokens } from '../../src/erc20/chains/mainnet';
 import { utils } from 'ethers';
@@ -12,7 +12,7 @@ describe('erc20', () => {
     });
   });
   describe('uses checksumed addresses', () => {
-    getSupportedERC20Tokens().map(({ address, symbol }) => {
+    getSupportedERC20Currencies().map(({ address, symbol }) => {
       it(`${symbol} is checksumed`, () => {
         expect(address).toEqual(utils.getAddress(address));
       });

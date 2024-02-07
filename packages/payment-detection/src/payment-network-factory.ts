@@ -47,13 +47,13 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
   },
   ERC20: {
     aurora: {
-      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>,
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<ChainTypes.INearChain>,
     },
     'aurora-testnet': {
-      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>,
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<ChainTypes.INearChain>,
     },
     'near-testnet': {
-      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>,
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<ChainTypes.INearChain>,
     },
 
     '*': {
@@ -123,7 +123,7 @@ export class PaymentNetworkFactory {
   public createPaymentNetwork(
     paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currencyType: RequestLogicTypes.CURRENCY,
-    paymentChain?: CurrencyTypes.ChainName,
+    paymentChain?: ChainTypes.IChain,
     paymentNetworkVersion?: string,
   ): PaymentTypes.IPaymentNetwork {
     const network = paymentChain ?? 'mainnet';
@@ -154,7 +154,7 @@ export class PaymentNetworkFactory {
     if (detector.extension && 'getDeploymentInformation' in detectorClass) {
       // this throws when the contract isn't deployed and was mandatory for payment detection
       (detectorClass as ContractBasedDetector).getDeploymentInformation(
-        network as CurrencyTypes.VMChainName,
+        network as ChainTypes.VMChain,
         paymentNetworkVersion || detector.extension.currentVersion,
       );
     }

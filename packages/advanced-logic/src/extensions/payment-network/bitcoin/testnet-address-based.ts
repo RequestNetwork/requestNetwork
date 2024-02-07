@@ -17,6 +17,10 @@ export default class BitcoinTestnetAddressBasedPaymentNetwork extends BitcoinAdd
   }
 
   protected isValidAddress(address: string): boolean {
-    return this.isValidAddressForSymbolAndNetwork(address, 'BTC-testnet', BITCOIN_NETWORK);
+    return this.isValidAddressForSymbolAndNetwork(
+      address,
+      'BTC-testnet',
+      this.currencyManager.chainManager.fromName(BITCOIN_NETWORK, ['btc']),
+    );
   }
 }

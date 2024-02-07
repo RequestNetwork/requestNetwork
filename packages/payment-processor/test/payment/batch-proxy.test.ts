@@ -775,7 +775,7 @@ describe('batch-proxy', () => {
       });
 
       it("should throw an error if one request's currencyInfo has no network", async () => {
-        FAURequest.currencyInfo.network = '' as CurrencyTypes.ChainName;
+        FAURequest.currencyInfo.network = '' as ChainTypes.IChain;
         await expect(
           payBatchConversionProxyRequest(enrichedRequests, wallet, options),
         ).rejects.toThrowError(

@@ -20,7 +20,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
   } = {};
 
   private provider: ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider;
-  private networkName: CurrencyTypes.EvmChainName = 'private';
+  private networkName: ChainTypes.IEvmChain = 'private';
 
   /**
    * Creates an instance of HttpDataAccess.

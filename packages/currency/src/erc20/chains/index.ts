@@ -1,5 +1,4 @@
 import { TokenMap } from '../../types';
-import { CurrencyTypes } from '@requestnetwork/types';
 
 import { supportedAvalancheERC20 } from './avalanche';
 import { supportedBSCERC20 } from './bsc';
@@ -15,7 +14,7 @@ import { supportedRinkebyERC20 } from './rinkeby';
 import { supportedXDAIERC20 } from './xdai';
 import { supportedSepoliaERC20 } from './sepolia';
 
-export const supportedNetworks: Partial<Record<CurrencyTypes.EvmChainName, TokenMap>> = {
+export const supportedNetworks: Record<string, TokenMap> = {
   celo: supportedCeloERC20,
   // FIXME: Rinkeby is deprecated
   rinkeby: supportedRinkebyERC20,

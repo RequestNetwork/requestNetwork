@@ -17,7 +17,7 @@ const createMockRequest = ({
   salt,
   requestId,
 }: Record<'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId', string> & {
-  network: CurrencyTypes.EvmChainName;
+  network: ChainTypes.IEvmChain;
 }): RequestLogicTypes.IRequest => ({
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
   currency: {

@@ -154,7 +154,7 @@ describe('extensions/payment-network/native-token', () => {
       expect(() => {
         new NearNativePaymentNetwork(currencyManager).createCreationAction({
           ...partialCreationParams,
-          paymentNetworkName: 'another-chain' as CurrencyTypes.NearChainName,
+          paymentNetworkName: 'another-chain' as ChainTypes.INearChain,
         });
       }).toThrowError(
         `Payment network 'another-chain' is not supported by this extension (only aurora)`,
@@ -331,7 +331,7 @@ describe('extensions/payment-network/native-token', () => {
     });
     it('throws on a wrong payment network', () => {
       const advancedLogic = new AdvancedLogic(currencyManager);
-      const wrongNetwork = `wrong network` as CurrencyTypes.EvmChainName;
+      const wrongNetwork = `wrong network` as ChainTypes.IEvmChain;
 
       const wrongNativeTokenRequestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,

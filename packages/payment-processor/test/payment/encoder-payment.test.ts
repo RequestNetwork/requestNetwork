@@ -316,7 +316,7 @@ describe('Payment encoder handles ERC20 Swap Proxy', () => {
     });
 
     const proxyAddress = erc20SwapToPayArtifact.getAddress(
-      validRequestERC20FeeProxy.currencyInfo.network! as CurrencyTypes.EvmChainName,
+      validRequestERC20FeeProxy.currencyInfo.network! as ChainTypes.IEvmChain,
     );
 
     expect(paymentTransaction).toEqual({
@@ -335,7 +335,7 @@ describe('Payment encoder handles ERC20 Swap & Conversion Proxy', () => {
     });
 
     const proxyAddress = erc20SwapConversionArtifact.getAddress(
-      alphaConversionSettings.currency.network as CurrencyTypes.EvmChainName,
+      alphaConversionSettings.currency.network as ChainTypes.IEvmChain,
     );
 
     expect(paymentTransaction).toEqual({

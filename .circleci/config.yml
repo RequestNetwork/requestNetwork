@@ -82,6 +82,9 @@ jobs:
           name: Build utils
           command: yarn workspace @requestnetwork/utils run build
       - run:
+          name: Build chain
+          command: yarn workspace @requestnetwork/chain run build
+      - run:
           name: Build currency
           command: yarn workspace @requestnetwork/currency run build
       - run:
@@ -284,6 +287,18 @@ jobs:
           command: 'yarn workspace @requestnetwork/utils run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/utils/reports/
+  test-chain:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Test chain'
+          command: 'yarn workspace @requestnetwork/chain run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/chain/reports/
   test-currency:
     docker:
       - *node_image
@@ -555,6 +570,9 @@ workflows:
       - test-utils:
           requires:
             - build
+      - test-chain:
+          requires:
+            - build
       - test-currency:
           requires:
             - build
@@ -588,6 +606,7 @@ workflows:
           requires:
             - lint
             - test-advanced-logic
+            - test-chain
             - test-currency
             - test-data-access
             - test-data-format

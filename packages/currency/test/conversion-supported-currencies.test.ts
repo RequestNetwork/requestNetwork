@@ -20,7 +20,7 @@ describe('supported currencies with oracles from chainlink', () => {
         private: ['EUR', 'USD'],
         matic: ['AUD', 'CAD', 'CHF', 'EUR', 'GBP', 'SGD', 'USD'],
         fantom: ['USD', 'CHF'],
-      }) as [CurrencyTypes.EvmChainName, string[]][]
+      }) as [ChainTypes.IEvmChain, string[]][]
     ).forEach(([network, symbols]) => {
       describe(network, () => {
         symbols.forEach((symbol) => {
@@ -39,7 +39,7 @@ describe('supported currencies with oracles from chainlink', () => {
       Object.entries({
         mainnet: ['ETH'],
         fantom: ['FTM'],
-      }) as [CurrencyTypes.EvmChainName, string[]][]
+      }) as [ChainTypes.IEvmChain, string[]][]
     ).forEach(([network, symbols]) => {
       describe(network, () => {
         symbols.forEach((symbol) => {
@@ -77,7 +77,7 @@ describe('supported currencies with oracles from chainlink', () => {
           '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
         ],
         private: ['0x38cf23c52bb4b13f051aec09580a2de845a7fa35'],
-      }) as [CurrencyTypes.EvmChainName, string[]][]
+      }) as [ChainTypes.IEvmChain, string[]][]
     ).forEach(([network, addresses]) => {
       describe(network, () => {
         addresses.forEach((address) => {

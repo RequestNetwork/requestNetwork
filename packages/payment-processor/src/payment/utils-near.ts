@@ -62,7 +62,7 @@ const GAS_LIMIT_FUNGIBLE_PROXY = GAS_LIMIT.mul(4).toString(); // 400 TGas
 
 export const processNearPayment = async (
   walletConnection: WalletConnection,
-  network: CurrencyTypes.NearChainName,
+  network: ChainTypes.INearChain,
   amount: BigNumberish,
   to: string,
   paymentReference: string,
@@ -114,7 +114,7 @@ export const processNearPayment = async (
  */
 export const processNearPaymentWithConversion = async (
   walletConnection: WalletConnection,
-  network: CurrencyTypes.NearChainName,
+  network: ChainTypes.INearChain,
   amount: BigNumberish,
   to: string,
   paymentReference: string,
@@ -169,7 +169,7 @@ export const processNearPaymentWithConversion = async (
 
 export const processNearFungiblePayment = async (
   walletConnection: WalletConnection,
-  network: CurrencyTypes.NearChainName,
+  network: ChainTypes.INearChain,
   amount: BigNumberish,
   to: string,
   paymentReference: string,

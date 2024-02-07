@@ -34,7 +34,7 @@ const BATCH_FEE_AMOUNT_USD_LIMIT = parseUnits('150', 8);
  */
 export const updateChainlinkConversionPath = async (
   contract: Contract,
-  network: CurrencyTypes.EvmChainName,
+  network: ChainTypes.IEvmChain,
   txOverrides: Overrides,
   signer: Wallet,
   signWithEoa: boolean,
@@ -195,7 +195,7 @@ export const updateBatchPaymentFeeAmountUSDLimit = async (
  */
 export const updatePaymentFeeProxyAddress = async (
   contract: Contract,
-  network: CurrencyTypes.EvmChainName,
+  network: ChainTypes.IEvmChain,
   txOverrides: Overrides,
   proxyType: 'native' | 'erc20',
   signer: Wallet,
@@ -239,7 +239,7 @@ export const updatePaymentFeeProxyAddress = async (
  */
 export const updateBatchConversionProxy = async (
   contract: Contract,
-  network: CurrencyTypes.EvmChainName,
+  network: ChainTypes.IEvmChain,
   txOverrides: Overrides,
   proxyName: string,
   signer: Wallet,

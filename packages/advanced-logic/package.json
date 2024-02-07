@@ -39,6 +39,7 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
+    "@requestnetwork/chain": "0.13.0",
     "@requestnetwork/currency": "0.13.0",
     "@requestnetwork/types": "0.40.0",
     "@requestnetwork/utils": "0.40.0",

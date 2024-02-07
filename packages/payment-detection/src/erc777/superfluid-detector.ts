@@ -1,9 +1,4 @@
-import {
-  CurrencyTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { SuperFluidInfoRetriever } from './superfluid-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
 import * as PaymentReferenceCalculator from '../payment-reference-calculator';
@@ -96,7 +91,7 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
     address: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: CurrencyTypes.EvmChainName,
+    paymentChain: ChainTypes.IEvmChain,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC777PaymentEventParameters>> {
     if (!address) {
       return {

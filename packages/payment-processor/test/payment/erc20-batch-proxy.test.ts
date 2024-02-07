@@ -139,7 +139,7 @@ const testSuite = (
     });
 
     it("should throw an error if one request's currencyInfo has no network", async () => {
-      request2.currencyInfo.network = '' as CurrencyTypes.ChainName;
+      request2.currencyInfo.network = '' as ChainTypes.IChain;
       await expect(
         payBatchProxyRequest([request1, request2], batchVersion, wallet, batchFee),
       ).rejects.toThrowError(

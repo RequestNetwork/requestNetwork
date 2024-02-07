@@ -111,7 +111,7 @@ describe('erc777-stream', () => {
 
     it('should throw an error if currencyInfo has no network', async () => {
       const request = deepCopy(validRequest);
-      request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
+      request.currencyInfo.network = '' as ChainTypes.IEvmChain;
       await expect(payErc777StreamRequest(request, wallet)).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc777-stream request',
       );

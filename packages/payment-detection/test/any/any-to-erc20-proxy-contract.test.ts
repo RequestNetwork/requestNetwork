@@ -56,7 +56,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
     jest.clearAllMocks();
   });
 
-  const testSuite = (network: CurrencyTypes.EvmChainName) => {
+  const testSuite = (network: ChainTypes.IEvmChain) => {
     it(`can createExtensionsDataForCreation on ${network}`, async () => {
       await anyToErc20Proxy.createExtensionsDataForCreation({
         paymentAddress: 'ethereum address',

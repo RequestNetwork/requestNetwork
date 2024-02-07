@@ -2,8 +2,8 @@ import { ContractTransaction, Signer, providers, BigNumber, constants } from 'et
 import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts';
 import { BatchConversionPayments__factory } from '@requestnetwork/smart-contracts/types';
 import {
+  ChainTypes,
   ClientTypes,
-  CurrencyTypes,
   ExtensionTypes,
   PaymentTypes,
   RequestLogicTypes,
@@ -373,7 +373,7 @@ function getUSDPathsForFeeLimit(
  * @returns
  */
 function getBatchDeploymentInformation(
-  network: CurrencyTypes.EvmChainName,
+  network: ChainTypes.IEvmChain,
   version?: string,
 ): { address: string } | null {
   return { address: batchConversionPaymentsArtifact.getAddress(network, version) };

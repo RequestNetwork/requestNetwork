@@ -63,7 +63,7 @@ export function getDefaultEthereumProviderTimeout(): number {
  * Retrieve from config the default name of the network for Ethereum
  * @returns the name of the network
  */
-export function getDefaultEthereumNetwork(): CurrencyTypes.EvmChainName {
+export function getDefaultEthereumNetwork(): ChainTypes.IEvmChain {
   return config.ethereum.default;
 }
 

@@ -1,5 +1,5 @@
 import { PnFeeReferenceBased } from '../extension-types';
-import { ChainName } from '../currency-types';
+import { IChain } from '../chain-types';
 export {
   IAddPaymentAddressParameters,
   IAddRefundAddressParameters,
@@ -13,5 +13,5 @@ export type IConversionReferenceBased<TCreationParameters = ICreationParameters>
 /** Parameters for the creation action */
 export interface ICreationParameters extends PnFeeReferenceBased.ICreationParameters {
   maxRateTimespan?: number;
-  network?: ChainName;
+  network?: IChain;
 }

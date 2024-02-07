@@ -147,7 +147,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
   }
 
   public getNativeTokenExtensionForNetwork(
-    network?: CurrencyTypes.ChainName,
+    network?: ChainTypes.IChain,
   ): ExtensionTypes.IExtension<ExtensionTypes.PnReferenceBased.ICreationParameters> | undefined {
     return network
       ? this.extensions.nativeToken.find((nativeTokenExtension) =>
@@ -157,7 +157,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
   }
 
   public getAnyToNativeTokenExtensionForNetwork(
-    network?: CurrencyTypes.ChainName,
+    network?: ChainTypes.IChain,
   ): AnyToNative | undefined {
     return network
       ? this.extensions.anyToNativeToken.find((anyToNativeTokenExtension) =>
@@ -175,7 +175,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
   protected getNetwork(
     extensionAction: ExtensionTypes.IAction,
     requestState: RequestLogicTypes.IRequest,
-  ): CurrencyTypes.ChainName | undefined {
+  ): ChainTypes.IChain | undefined {
     if (
       requestState.currency.network &&
       extensionAction.parameters.paymentNetworkName &&

@@ -8,7 +8,7 @@ export default abstract class AnyToNativeTokenPaymentNetwork extends FeeReferenc
     currencyManager: ICurrencyManager,
     extensionId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currentVersion: string,
-    public readonly supportedNetworks: CurrencyTypes.ChainName[],
+    public readonly supportedNetworks: ChainTypes.IChain[],
   ) {
     super(currencyManager, extensionId, currentVersion, RequestLogicTypes.CURRENCY.ETH);
   }
@@ -47,8 +47,8 @@ export default abstract class AnyToNativeTokenPaymentNetwork extends FeeReferenc
   }
 
   protected throwIfInvalidNetwork(
-    network?: CurrencyTypes.ChainName,
-  ): asserts network is CurrencyTypes.ChainName {
+    network?: ChainTypes.IChain,
+  ): asserts network is ChainTypes.IChain {
     super.throwIfInvalidNetwork(network);
     if (this.supportedNetworks && !this.supportedNetworks.includes(network)) {
       throw new UnsupportedNetworkError(network, this.supportedNetworks);

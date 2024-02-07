@@ -5,7 +5,6 @@ import * as Extension from './extension-types';
 import * as Identity from './identity-types';
 import * as Signature from './signature-types';
 import * as Transaction from './transaction-types';
-import { CurrencyTypes } from './index';
 
 /** Request Logic layer */
 export interface IRequestLogic {
@@ -267,7 +266,7 @@ export interface ICurrency {
   /** The currency value (e.g.: '0x123...789', 'EUR', 'ETH') */
   value: string;
   /** The currency network (e.g.: 'mainnet', 'rinkeby', 'bank_sandbox') */
-  network?: CurrencyTypes.ChainName;
+  network?: string;
 }
 
 /** Enum of name possible in a action */

@@ -21,6 +21,10 @@ export default class BitcoinAddressBasedPaymentNetwork extends AddressBasedPayme
   }
 
   protected isValidAddress(address: string): boolean {
-    return this.isValidAddressForSymbolAndNetwork(address, 'BTC', BITCOIN_NETWORK);
+    return this.isValidAddressForSymbolAndNetwork(
+      address,
+      'BTC',
+      this.currencyManager.chainManager.fromName(BITCOIN_NETWORK, ['btc']),
+    );
   }
 }

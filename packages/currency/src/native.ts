@@ -1,183 +1,175 @@
-import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { NamedNativeCurrency } from './types';
+import { RequestLogicTypes } from '@requestnetwork/types';
+import { NativeCurrency, NativeCurrencyInput, TokenMap } from './types';
 
-type NativeEthCurrency = NamedNativeCurrency & {
-  network: CurrencyTypes.EvmChainName | CurrencyTypes.NearChainName;
-};
-type NativeBtcCurrency = NamedNativeCurrency & { network: CurrencyTypes.BtcChainName };
-
-export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthCurrency[]> &
-  Record<RequestLogicTypes.CURRENCY.BTC, NativeBtcCurrency[]> = {
-  [RequestLogicTypes.CURRENCY.ETH]: [
-    {
+export const nativeCurrencies: Record<
+  RequestLogicTypes.CURRENCY.BTC | RequestLogicTypes.CURRENCY.ETH,
+  TokenMap
+> = {
+  [RequestLogicTypes.CURRENCY.ETH]: {
+    private: {
       symbol: 'ETH-private',
       decimals: 18,
       name: 'Ether',
-      network: 'private',
     },
-    {
+    mainnet: {
       symbol: 'ETH',
       decimals: 18,
       name: 'Ether',
-      network: 'mainnet',
     },
-    {
+    rinkeby: {
       symbol: 'ETH-rinkeby',
       decimals: 18,
       name: 'Rinkeby Ether',
-      network: 'rinkeby',
     },
-    {
+    goerli: {
       symbol: 'ETH-goerli',
       decimals: 18,
       name: 'Goerli Ether',
-      network: 'goerli',
     },
-    {
+    matic: {
       symbol: 'MATIC',
       decimals: 18,
       name: 'Matic',
-      network: 'matic',
     },
-    {
+    xdai: {
       symbol: 'xDAI',
       decimals: 18,
       name: 'xDAI',
-      network: 'xdai',
     },
-    {
+    sokol: {
       symbol: 'POA',
       decimals: 18,
       name: 'POA Sokol Ether',
-      network: 'sokol',
     },
-    {
+    fuse: {
       symbol: 'FUSE',
       decimals: 18,
       name: 'FUSE',
-      network: 'fuse',
     },
-    {
+    celo: {
       symbol: 'CELO',
       decimals: 18,
       name: 'CELO',
-      network: 'celo',
     },
-    {
+    fantom: {
       symbol: 'FTM',
       decimals: 18,
       name: 'Fantom',
-      network: 'fantom',
     },
-    {
+    bsc: {
       symbol: 'BNB',
       decimals: 18,
       name: 'BNB',
-      network: 'bsc',
     },
-    {
+    aurora: {
       symbol: 'NEAR',
       decimals: 24,
       name: 'Near',
-      network: 'aurora',
     },
-    {
+    'aurora-testnet': {
       symbol: 'NEAR-testnet',
       decimals: 24,
       name: 'Near Testnet',
-      network: 'aurora-testnet',
     },
-    {
+    'near-testnet': {
       symbol: 'NEAR-testnet',
       decimals: 24,
       name: 'Test Near',
-      network: 'near-testnet',
     },
-    {
+    'arbitrum-rinkeby': {
       symbol: 'ARETH',
       decimals: 18,
       name: 'Arbitrum Testnet',
-      network: 'arbitrum-rinkeby',
     },
-    {
+    'arbitrum-one': {
       symbol: 'AETH',
       decimals: 18,
       name: 'Arbitrum Ether',
-      network: 'arbitrum-one',
     },
-    {
+    avalanche: {
       symbol: 'AVAX',
       decimals: 18,
       name: 'AVAX',
-      network: 'avalanche',
     },
-    {
+    optimism: {
       symbol: 'ETH-optimism',
       decimals: 18,
       name: 'Optimism Ether',
-      network: 'optimism',
     },
-    {
+    moonbeam: {
       symbol: 'GLMR',
       decimals: 18,
       name: 'Glimmer',
-      network: 'moonbeam',
     },
-    {
+    tombchain: {
       symbol: 'TOMB',
       decimals: 18,
       name: 'Tomb',
-      network: 'tombchain',
     },
-    {
+    mantle: {
       symbol: 'MNT',
       decimals: 18,
       name: 'Mantle',
-      network: 'mantle',
     },
-    {
+    'mantle-testnet': {
       symbol: 'MNT-testnet',
       decimals: 18,
       name: 'Mantle Testnet',
-      network: 'mantle-testnet',
     },
-    {
+    core: {
       symbol: 'CORE',
       decimals: 18,
       name: 'Core',
-      network: 'core',
     },
-    {
+    sepolia: {
       symbol: 'ETH-sepolia',
       decimals: 18,
       name: 'Sepolia Ether',
-      network: 'sepolia',
     },
-    {
+    zksyncera: {
       symbol: 'ETH-zksync',
       decimals: 18,
       name: 'Ether',
-      network: 'zksyncera',
     },
-    {
+    zksynceratestnet: {
       symbol: 'ETH-zksync-testnet',
       decimals: 18,
       name: 'Ether',
-      network: 'zksynceratestnet',
     },
-  ],
-  [RequestLogicTypes.CURRENCY.BTC]: [
-    {
+  },
+  [RequestLogicTypes.CURRENCY.BTC]: {
+    mainnet: {
       symbol: 'BTC',
       decimals: 8,
       name: 'Bitcoin',
-      network: 'mainnet',
     },
-    {
+    testnet: {
       symbol: 'BTC-testnet',
       decimals: 8,
       name: 'Test Bitcoin',
-      network: 'testnet',
     },
-  ],
+  },
 };
+
+/**
+ * Returns a list of supported native tokens
+ *
+ * @returns List of supported native tokens
+ */
+export function getSupportedNativeCurrencies(): NativeCurrencyInput[] {
+  return Object.entries(nativeCurrencies).reduce(
+    (acc: NativeCurrencyInput[], [CurrencyType, supportedCurrencies]) =>
+      acc.concat(
+        Object.entries(supportedCurrencies).map(
+          ([networkName, token]) =>
+            ({
+              type: CurrencyType,
+              network: networkName,
+              decimals: token.decimals,
+              symbol: token.symbol,
+            }) as NativeCurrencyInput,
+        ),
+      ),
+    [],
+  );
+}

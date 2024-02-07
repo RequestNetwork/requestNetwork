@@ -1,7 +1,8 @@
-import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { ICurrencyManager, NearChains, isSameChain } from '@requestnetwork/currency';
+import { ChainTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ICurrencyManager } from '@requestnetwork/currency';
 import { UnsupportedNetworkError } from '../address-based';
 import { FeeReferenceBasedPaymentNetwork } from '../fee-reference-based';
+import { ChainManager } from '@requestnetwork/chain';
 
 const EVM_CURRENT_VERSION = '0.2.0';
 const NEAR_CURRENT_VERSION = 'NEAR-0.1.0';
@@ -21,18 +22,27 @@ export default class Erc20FeeProxyPaymentNetwork<
     extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
       .ERC20_FEE_PROXY_CONTRACT,
     currentVersion?: string | undefined,
-    protected network?: string | undefined,
+    protected network?: ChainTypes.IChain | undefined,
   ) {
     super(
       currencyManager,
       extensionId,
-      currentVersion ?? Erc20FeeProxyPaymentNetwork.getDefaultCurrencyVersion(network),
+      currentVersion ??
+        Erc20FeeProxyPaymentNetwork.getDefaultCurrencyVersion(
+          currencyManager.chainManager,
+          network,
+        ),
       RequestLogicTypes.CURRENCY.ERC20,
     );
   }
 
-  protected static getDefaultCurrencyVersion(network?: string): string {
-    return NearChains.isChainSupported(network) ? NEAR_CURRENT_VERSION : EVM_CURRENT_VERSION;
+  protected static getDefaultCurrencyVersion(
+    chainManager: ChainManager,
+    network?: ChainTypes.IChain | undefined,
+  ): string {
+    return chainManager.ecosystems.near.isChainSupported(network)
+      ? NEAR_CURRENT_VERSION
+      : EVM_CURRENT_VERSION;
   }
 
   // Override `validate` to account for network-specific instanciation (non-EVM only)
@@ -43,20 +53,31 @@ export default class Erc20FeeProxyPaymentNetwork<
     if (
       this.network &&
       request.currency.network &&
-      !isSameChain(this.network, request.currency.network)
+      !this.currencyManager.chainManager.isSameChain(this.network, request.currency.network, [
+        'evm',
+        'near',
+      ])
     ) {
-      throw new UnsupportedNetworkError(request.currency.network, [this.network]);
+      throw new UnsupportedNetworkError(request.currency.network, [this.network.name]);
     }
     super.validate(request, extensionAction);
   }
 
   // Override `isValidAddress` to account for network-specific instanciation (non-EVM only)
   protected isValidAddress(address: string): boolean {
-    if (NearChains.isChainSupported(this.network)) {
-      if (NearChains.isTestnet(this.network as CurrencyTypes.NearChainName)) {
-        return this.isValidAddressForSymbolAndNetwork(address, 'NEAR-testnet', 'near-testnet');
+    if (this.currencyManager.chainManager.ecosystems['near'].isChainSupported(this.network)) {
+      if (this.network?.testnet) {
+        return this.isValidAddressForSymbolAndNetwork(
+          address,
+          'NEAR-testnet',
+          this.currencyManager.chainManager.fromName('near-testnet', ['near']),
+        );
       } else {
-        return this.isValidAddressForSymbolAndNetwork(address, 'NEAR', 'near');
+        return this.isValidAddressForSymbolAndNetwork(
+          address,
+          'NEAR',
+          this.currencyManager.chainManager.fromName('near', ['near']),
+        );
       }
     } else {
       return super.isValidAddress(address);

@@ -79,7 +79,7 @@ export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   expectedStartDate?: string;
   acceptedTokens?: string[];
   maxRateTimespan?: string;
-  network?: CurrencyTypes.ChainName;
+  network?: ChainTypes.IChain;
   version: string;
 } {
   const extension = getPaymentNetworkExtension(request);
@@ -142,7 +142,7 @@ export function getPnAndNetwork(request: ClientTypes.IRequestData): {
 export const getProxyAddress = (
   request: ClientTypes.IRequestData,
   getDeploymentInformation: (
-    network: CurrencyTypes.EvmChainName,
+    network: ChainTypes.IEvmChain,
     version: string,
   ) => { address: string } | null,
   version?: string,
