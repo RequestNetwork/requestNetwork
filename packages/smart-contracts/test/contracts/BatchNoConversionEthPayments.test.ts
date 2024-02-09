@@ -12,7 +12,7 @@ import { EthereumFeeProxy, BatchNoConversionPayments } from '../../src/types';
 import { chainlinkConversionPath } from '../../src/lib';
 import { HttpNetworkConfig } from 'hardhat/types';
 import { PaymentTypes } from '@requestnetwork/types';
-import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 const logGasInfos = false;
 
@@ -65,7 +65,6 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
 
     const erc20FeeProxy = await new ERC20FeeProxy__factory(owner).deploy();
     ethFeeProxy = await new EthereumFeeProxy__factory(owner).deploy();
-    EvmChains.assertChainSupported(network.name);
     chainlinkPath = chainlinkConversionPath.connect(network.name, owner);
     batch = await new BatchNoConversionPayments__factory(owner).deploy(
       erc20FeeProxy.address,

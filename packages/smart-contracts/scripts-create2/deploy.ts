@@ -2,7 +2,6 @@ import { create2ContractDeploymentList, isContractDeployed } from './utils';
 import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './types';
 import { xdeploy } from './xdeployer';
 import { getConstructorArgs } from './constructor-args';
-import { EvmChains } from '@requestnetwork/currency';
 import { setupContract } from './contract-setup/setups';
 
 /**
@@ -55,7 +54,6 @@ export const deployWithCreate2FromList = async (
 ): Promise<void> => {
   for (const contract of create2ContractDeploymentList) {
     const network = hre.config.xdeploy.networks[0];
-    EvmChains.assertChainSupported(network);
     const constructorArgs = getConstructorArgs(contract, network);
     const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
     await setupContract({

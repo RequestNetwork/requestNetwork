@@ -10,7 +10,7 @@ import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20FeeProxyPaymentDetector } from '../../src/erc20/fee-proxy-contract';
 import { mockAdvancedLogicBase } from '../utils';
 
-let erc20FeeProxyContract: ERC20FeeProxyPaymentDetector<ChainTypes.VMChain>;
+let erc20FeeProxyContract: ERC20FeeProxyPaymentDetector<ChainTypes.IVmChain>;
 
 const createAddPaymentAddressAction = jest.fn();
 const createAddRefundAddressAction = jest.fn();

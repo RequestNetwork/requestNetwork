@@ -63,7 +63,7 @@ const getChainlinkPaddingSize = ({
 
 export type DeploymentInformationWithVersion = DeploymentInformation & { contractVersion: string };
 export type GetDeploymentInformation<TAllowUndefined extends boolean> = (
-  network: ChainTypes.VMChain,
+  network: ChainTypes.IVmChain,
   paymentNetworkVersion: string,
 ) => TAllowUndefined extends false
   ? DeploymentInformationWithVersion

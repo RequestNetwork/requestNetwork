@@ -280,10 +280,21 @@ export default abstract class AddressBasedPaymentNetwork<
     this.throwIfInvalidNetwork(request.currency.network);
   }
 
-  protected throwIfInvalidNetwork(network?: string): asserts network is string {
-    if (!network) {
+  protected throwIfInvalidNetwork(chain?: string | ChainTypes.IChain): ChainTypes.IChain {
+    if (!chain) {
       throw Error('network is required');
     }
+    const supportedEcosystems = this.currencyManager.chainManager.getEcosystemsByCurrencyType(
+      this.supportedCurrencyType,
+    );
+    if (typeof chain === 'string') {
+      // throws if network not found
+      return this.currencyManager.chainManager.fromName(chain, supportedEcosystems);
+    }
+    if (!supportedEcosystems.includes(chain.ecosystem)) {
+      throw Error(`Payment network ${this.constructor.name} does not support chain ${chain.name}`);
+    }
+    return chain;
   }
 }
 
@@ -295,12 +306,20 @@ export class InvalidPaymentAddressError extends Error {
 }
 
 export class UnsupportedNetworkError extends Error {
-  constructor(unsupportedNetworkName: string, supportedNetworks?: string[]) {
-    const supportedNetworkDetails = supportedNetworks
-      ? ` (only ${supportedNetworks.join(', ')})`
+  constructor(
+    extension: string,
+    unsupportedChain: string | ChainTypes.IChain,
+    supportedChains?: string[] | ChainTypes.IChain[],
+  ) {
+    const unsupportedChainName =
+      typeof unsupportedChain === 'string' ? unsupportedChain : unsupportedChain.name;
+    const supportedNetworkDetails = supportedChains
+      ? ` (only "${supportedChains
+          .map((chain) => (typeof chain === 'string' ? chain : chain.name))
+          .join(', ')}")`
       : '';
     super(
-      `Payment network '${unsupportedNetworkName}' is not supported by this extension${supportedNetworkDetails}`,
+      `The extension "${extension}" does not support the chain "${unsupportedChainName}"${supportedNetworkDetails}`,
     );
   }
 }

@@ -1,11 +1,11 @@
 import {
   AdvancedLogicTypes,
-  CurrencyTypes,
+  ChainTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { ICurrencyManager, NearChains, isSameChain } from '@requestnetwork/currency';
+import { ICurrencyManager } from '@requestnetwork/currency';
 
 import ContentData from './extensions/content-data';
 import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
@@ -108,7 +108,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     requestState: RequestLogicTypes.IRequest,
   ): ExtensionTypes.IExtension {
     const id: ExtensionTypes.ID = extensionAction.id;
-    const network = this.getNetwork(extensionAction, requestState) || requestState.currency.network;
+    const chain = this.getChain(extensionAction, requestState);
     const extension: ExtensionTypes.IExtension | undefined = {
       [ExtensionTypes.ID.CONTENT_DATA]: this.extensions.contentData,
       [ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED]: this.extensions.addressBasedBtc,
@@ -118,17 +118,17 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED]: this.extensions.addressBasedErc20,
       [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: this.extensions.proxyContractErc20,
       [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]:
-        this.getFeeProxyContractErc20ForNetwork(network),
+        this.getFeeProxyContractErc20ForNetwork(chain),
       [ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: this.extensions.erc777Stream,
       [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: this.extensions.ethereumInputData,
       [ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN]:
-        this.getNativeTokenExtensionForNetwork(network),
+        this.getNativeTokenExtensionForNetwork(chain),
       [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: this.extensions.anyToErc20Proxy,
       [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]:
         this.extensions.feeProxyContractEth,
       [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: this.extensions.anyToEthProxy,
       [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN]:
-        this.getAnyToNativeTokenExtensionForNetwork(network),
+        this.getAnyToNativeTokenExtensionForNetwork(chain),
       [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE]:
         this.extensions.erc20TransferableReceivable,
     }[id];
@@ -138,7 +138,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
         id === ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN ||
         id === ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN
       ) {
-        throw Error(`extension with id: ${id} not found for network: ${network}`);
+        throw Error(`extension with id: ${id} not found for network: ${chain}`);
       }
 
       throw Error(`extension not recognized, id: ${id}`);
@@ -166,30 +166,38 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       : undefined;
   }
 
-  public getFeeProxyContractErc20ForNetwork(network?: string): FeeProxyContractErc20 {
-    return NearChains.isChainSupported(network)
+  public getFeeProxyContractErc20ForNetwork(network?: ChainTypes.IChain): FeeProxyContractErc20 {
+    return this.currencyManager.chainManager.ecosystems.near.isChainSupported(network)
       ? new FeeProxyContractErc20(this.currencyManager, undefined, undefined, network)
       : this.extensions.feeProxyContractErc20;
   }
 
-  protected getNetwork(
+  private getChain(
     extensionAction: ExtensionTypes.IAction,
     requestState: RequestLogicTypes.IRequest,
   ): ChainTypes.IChain | undefined {
     if (
       requestState.currency.network &&
+      requestState.currency.type &&
       extensionAction.parameters.paymentNetworkName &&
-      !isSameChain(requestState.currency.network, extensionAction.parameters.paymentNetworkName)
+      !this.currencyManager.chainManager.isSameChain(
+        requestState.currency.network,
+        extensionAction.parameters.paymentNetworkName,
+        this.currencyManager.chainManager.getEcosystemsByCurrencyType(requestState.currency.type),
+      )
     ) {
       throw new Error(
-        `Cannot apply action for network ${extensionAction.parameters.paymentNetworkName} on state with payment network: ${requestState.currency.network}`,
+        `Cannot apply action for extension ${extensionAction.parameters.paymentNetworkName} on state with chain: ${requestState.currency.network}`,
       );
     }
-    const network =
-      extensionAction.action === 'create'
+
+    const chainName =
+      (extensionAction.action === 'create'
         ? extensionAction.parameters.network
         : requestState.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN]?.values
-            ?.network;
-    return network;
+            ?.network) || requestState.currency.network;
+
+    if (!chainName) return;
+    return this.currencyManager.chainManager.fromName(chainName);
   }
 }

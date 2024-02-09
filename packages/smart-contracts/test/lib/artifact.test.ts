@@ -1,7 +1,6 @@
 import { BigNumber, providers } from 'ethers';
 import { RequestOpenHashSubmitter } from '../../src/types';
 import { erc20FeeProxyArtifact, erc20ProxyArtifact } from '../../src/lib';
-import { CurrencyTypes } from '@requestnetwork/types';
 
 describe('Artifact', () => {
   it('can get the contract info for latest version', () => {

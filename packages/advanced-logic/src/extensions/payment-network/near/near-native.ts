@@ -1,4 +1,4 @@
-import { CurrencyTypes, ExtensionTypes } from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes } from '@requestnetwork/types';
 import NativeTokenPaymentNetwork from '../native-token';
 import { ICurrencyManager } from '@requestnetwork/currency';
 
@@ -10,18 +10,14 @@ const CURRENT_VERSION = '0.2.0';
 export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork {
   public constructor(
     currencyManager: ICurrencyManager,
-    supportedNetworks: ChainTypes.INearChain[] = [
-      'aurora',
-      // FIXME: enable near network support
-      // 'near'
-    ],
+    supportedNetworks?: ChainTypes.INearChain[],
     currentVersion: string = CURRENT_VERSION,
   ) {
     super(
       currencyManager,
       ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
       currentVersion,
-      supportedNetworks,
+      supportedNetworks ?? [currencyManager.chainManager.fromName('aurora', ['near'])],
     );
   }
 
@@ -32,6 +28,10 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
    * @returns {boolean} true if address is valid
    */
   protected isValidAddress(address: string): boolean {
-    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR', 'aurora');
+    return this.isValidAddressForSymbolAndNetwork(
+      address,
+      'NEAR',
+      this.currencyManager.chainManager.fromName('aurora', ['near']),
+    );
   }
 }

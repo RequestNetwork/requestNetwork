@@ -13,7 +13,7 @@ export type TransferEventsParams = {
   /** The address of the payment proxy */
   contractAddress: string;
   /** The chain to check for payment */
-  paymentChain: ChainTypes.VMChain;
+  paymentChain: ChainTypes.IVmChain;
   /** Indicates if it is an address for payment or refund */
   eventName: PaymentTypes.EVENTS_NAMES;
   /** The maximum span between the time the rate was fetched and the payment */

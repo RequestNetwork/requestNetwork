@@ -1,6 +1,5 @@
 import { Contract, providers, Signer } from 'ethers';
 import type { JsonFragment } from '@ethersproject/abi';
-import type { CurrencyTypes } from '@requestnetwork/types';
 
 /**
  * Contract information specific to a network
@@ -13,16 +12,16 @@ export type ArtifactNetworkInfo = {
 };
 
 /** Deployment information and ABI per network */
-export type ArtifactDeploymentInfo<TNetwork extends ChainTypes.VMChain> = {
+export type ArtifactDeploymentInfo = {
   abi: JsonFragment[];
-  deployment: Partial<Record<TNetwork, ArtifactNetworkInfo>>;
+  deployment: Partial<Record<string, ArtifactNetworkInfo>>;
 };
 
 /** Deployment information and ABI per version and network */
-export type ArtifactInfo<
-  TVersion extends string = string,
-  TNetwork extends ChainTypes.VMChain = ChainTypes.VMChain,
-> = Record<TVersion, ArtifactDeploymentInfo<TNetwork>>;
+export type ArtifactInfo<TVersion extends string = string> = Record<
+  TVersion,
+  ArtifactDeploymentInfo
+>;
 
 export type DeploymentInformation = {
   address: string;
@@ -52,7 +51,7 @@ export class ContractArtifact<TContract extends Contract> {
    * Returns an ethers contract instance for the given `networkName`
    */
   connect(
-    networkName: ChainTypes.IEvmChain,
+    networkName: string,
     signerOrProvider: Signer | providers.Provider,
     version: string = this.lastVersion,
   ): TContract {
@@ -81,7 +80,7 @@ export class ContractArtifact<TContract extends Contract> {
    * @param networkName the name of the network where the contract is deployed
    * @returns the address of the deployed contract
    */
-  getAddress(networkName: ChainTypes.VMChain, version = this.lastVersion): string {
+  getAddress(networkName: string, version = this.lastVersion): string {
     return this.getDeploymentInformation(networkName, version).address;
   }
 
@@ -90,9 +89,7 @@ export class ContractArtifact<TContract extends Contract> {
    * @param networkName the name of the network where the contract is deployed
    * @returns the addresses of the deployed contract and the associated version.
    */
-  getAllAddresses(
-    networkName: ChainTypes.VMChain,
-  ): { version: string; address: string | undefined }[] {
+  getAllAddresses(networkName: string): { version: string; address: string | undefined }[] {
     const entries = Object.entries(this.info);
     return entries.map(([version, { deployment }]) => ({
       version,
@@ -107,11 +104,11 @@ export class ContractArtifact<TContract extends Contract> {
   getAllAddressesFromAllNetworks(): {
     version: string;
     address: string;
-    networkName: ChainTypes.VMChain;
+    networkName: string;
   }[] {
     const deployments = [];
     for (const version in this.info) {
-      let networkName: ChainTypes.VMChain;
+      let networkName: string;
       for (networkName in this.info[version].deployment) {
         const address = this.info[version].deployment[networkName]?.address;
         if (!address) continue;
@@ -131,7 +128,7 @@ export class ContractArtifact<TContract extends Contract> {
    * @param networkName the name of the network where the contract is deployed
    * @returns the number of the block where the contract was deployed
    */
-  getCreationBlockNumber(networkName: ChainTypes.VMChain, version = this.lastVersion): number {
+  getCreationBlockNumber(networkName: string, version = this.lastVersion): number {
     return this.getDeploymentInformation(networkName, version).creationBlockNumber;
   }
 
@@ -141,10 +138,7 @@ export class ContractArtifact<TContract extends Contract> {
    * @param networkName the name of the network where the contract is deployed
    * @returns The address and the number of the creation block
    */
-  getDeploymentInformation(
-    networkName: ChainTypes.VMChain,
-    version = this.lastVersion,
-  ): DeploymentInformation {
+  getDeploymentInformation(networkName: string, version = this.lastVersion): DeploymentInformation {
     const versionInfo = this.info[version];
     if (!versionInfo) {
       throw Error(`No deployment for version: ${version}.`);
@@ -164,7 +158,7 @@ export class ContractArtifact<TContract extends Contract> {
    * @returns The address and the number of the creation block, or null if not found
    */
   getOptionalDeploymentInformation(
-    networkName: ChainTypes.VMChain,
+    networkName: string,
     version = this.lastVersion,
   ): DeploymentInformation | null {
     return this.info[version]?.deployment[networkName] || null;

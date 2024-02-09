@@ -3,6 +3,7 @@ import { InvalidPaymentAddressError, UnsupportedNetworkError } from './address-b
 
 import ReferenceBasedPaymentNetwork from './reference-based';
 import { ICurrencyManager } from '@requestnetwork/currency';
+import * as chai from 'chai';
 
 /**
  * Implementation of the payment network to pay in ETH based on input data.
@@ -52,15 +53,14 @@ export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPa
     );
   }
 
-  protected throwIfInvalidNetwork(
-    network?: ChainTypes.IChain,
-  ): asserts network is ChainTypes.IChain {
-    super.throwIfInvalidNetwork(network?.name);
-    if (this.supportedNetworks && !this.supportedNetworks.includes(network)) {
-      throw new UnsupportedNetworkError(
-        network?.name,
-        this.supportedNetworks.map((n) => n.name),
-      );
+  protected throwIfInvalidNetwork(chain?: string | ChainTypes.IChain): ChainTypes.IChain {
+    const _chain = super.throwIfInvalidNetwork(chain);
+    if (
+      this.supportedNetworks &&
+      !this.supportedNetworks.some((supportedChain) => supportedChain.eq(_chain))
+    ) {
+      throw new UnsupportedNetworkError(this.constructor.name, _chain, this.supportedNetworks);
     }
+    return _chain;
   }
 }

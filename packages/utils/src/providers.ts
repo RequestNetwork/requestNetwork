@@ -1,4 +1,4 @@
-import { LogTypes } from '@requestnetwork/types';
+import { ChainTypes, LogTypes } from '@requestnetwork/types';
 
 import { providers, constants, utils } from 'ethers';
 
@@ -132,8 +132,11 @@ const setProviderFactory = (providerFactory?: CurrentProviderFactory): void => {
  *
  * @param network the blockchain network. See https://chainid.network/chains.json `network` field for reference
  */
-const getDefaultProvider = (network?: string): providers.Provider => {
-  const provider = currentProviderFactory(network, defaultProviderFactory);
+const getDefaultProvider = (network?: ChainTypes.IChain | string): providers.Provider => {
+  const provider = currentProviderFactory(
+    typeof network === 'string' ? network : network?.name,
+    defaultProviderFactory,
+  );
   if (typeof provider === 'string') {
     return new providers.StaticJsonRpcProvider(provider);
   }

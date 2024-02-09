@@ -1,30 +1,32 @@
 import { RequestLogicTypes } from './index';
 
-interface IChainCommon {
+export interface IChainCommon {
   id: string;
   name: string;
   testnet: boolean;
   ecosystem: ChainEcosystem;
+  currencyType: RequestLogicTypes.CURRENCY;
+  eq(chain: IChainCommon): boolean;
 }
 
 export interface IBtcChain extends IChainCommon {
   ecosystem: 'btc';
-  currenciesType: RequestLogicTypes.CURRENCY.BTC;
+  currencyType: RequestLogicTypes.CURRENCY.BTC;
 }
 
 export interface IDeclarativeChain extends IChainCommon {
   ecosystem: 'declarative';
-  currenciesType: RequestLogicTypes.CURRENCY.ETH;
+  currencyType: RequestLogicTypes.CURRENCY.ETH;
 }
 
 export interface IEvmChain extends IChainCommon {
   ecosystem: 'evm';
-  currenciesType: RequestLogicTypes.CURRENCY.ETH;
+  currencyType: RequestLogicTypes.CURRENCY.ETH;
 }
 
 export interface INearChain extends IChainCommon {
   ecosystem: 'near';
-  currenciesType: RequestLogicTypes.CURRENCY.ETH;
+  currencyType: RequestLogicTypes.CURRENCY.ETH;
 }
 
 /**

@@ -5,7 +5,7 @@ import DeclarativeEcosystem from './chains/declarative/declarative-ecosystem';
 import EvmEcosystem from './chains/evm/evm-ecosystem';
 import NearEcosystem from './chains/near/near-ecosystem';
 import { initializeChains } from './chains/utils';
-import { ChainTypes } from '@requestnetwork/types';
+import { ChainTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 export class ChainManager {
   private static defaultInstance: ChainManager;
@@ -37,6 +37,14 @@ export class ChainManager {
         Object.values(this.ecosystems[ecosystemName as ChainTypes.ChainEcosystem].chains),
       );
     }, [] as ChainTypes.IChain[]);
+  }
+
+  getEcosystemsByCurrencyType(
+    currencyType: RequestLogicTypes.CURRENCY,
+  ): ChainTypes.ChainEcosystem[] {
+    return (Object.keys(this.ecosystems) as ChainTypes.ChainEcosystem[]).filter((ecosystemName) =>
+      this.ecosystems[ecosystemName].currencyType.includes(currencyType),
+    );
   }
 
   static getName(chain: string | ChainTypes.IChain): string {
@@ -112,12 +120,6 @@ export class ChainManager {
       typeof chain1 === 'string' ? this.fromName(chain1, chainsEcosystem) : chain1;
     const chain2Object =
       typeof chain2 === 'string' ? this.fromName(chain2, chainsEcosystem) : chain2;
-    return (
-      chain1Object === chain2Object ||
-      this.ecosystems[chain1Object.ecosystem].isSameChainFromString(
-        chain1Object.name,
-        chain2Object.name,
-      )
-    );
+    return chain1Object.eq(chain2Object);
   };
 }

@@ -154,7 +154,7 @@ export class PaymentNetworkFactory {
     if (detector.extension && 'getDeploymentInformation' in detectorClass) {
       // this throws when the contract isn't deployed and was mandatory for payment detection
       (detectorClass as ContractBasedDetector).getDeploymentInformation(
-        network as ChainTypes.VMChain,
+        network as ChainTypes.IVmChain,
         paymentNetworkVersion || detector.extension.currentVersion,
       );
     }

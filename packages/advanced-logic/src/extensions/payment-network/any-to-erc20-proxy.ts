@@ -42,10 +42,10 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
       if (!acceptedCurrency) {
         throw new UnsupportedCurrencyError({
           value: address,
-          network,
+          network: network?.name,
         });
       }
-      if (!this.currencyManager.supportsConversion(acceptedCurrency, network)) {
+      if (!network || !this.currencyManager.supportsConversion(acceptedCurrency, network)) {
         throw Error(
           `acceptedTokens must contain only supported token addresses (ERC20 only). ${address} is not supported for ${network}.`,
         );

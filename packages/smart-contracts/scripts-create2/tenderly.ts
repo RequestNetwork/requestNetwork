@@ -3,8 +3,8 @@ import * as artifacts from '../src/lib/artifacts';
 import { ContractArtifact } from '../src/lib';
 import { Contract } from 'ethers';
 import * as console from 'console';
-import { EvmChains } from '@requestnetwork/currency';
-import { CurrencyTypes } from '@requestnetwork/types';
+import { ChainTypes } from '@requestnetwork/types';
+import { ChainManager } from '@requestnetwork/chain/src';
 
 const tenderlyBaseURL = 'https://api.tenderly.co';
 const makeTenderlyClient =
@@ -39,7 +39,7 @@ const supportedTenderlyChains: ChainTypes.IEvmChain[] = [
   'optimism',
   'rinkeby',
   'xdai',
-];
+].map((chainName: string) => ChainManager.getDefault().fromName(chainName, ['evm']));
 
 type TenderlyContract = { address: string; chainId: number };
 
@@ -58,13 +58,17 @@ export const tenderlyImportAll = async (hre: HardhatRuntimeEnvironmentExtended):
       const deployments = artifact.getAllAddressesFromAllNetworks();
       for (const deployment of deployments) {
         const { networkName, address, version } = deployment;
+        let deploymentChain: ChainTypes.IEvmChain;
         try {
-          EvmChains.assertChainSupported(networkName);
+          deploymentChain = ChainManager.getDefault().fromName(networkName, ['evm']);
         } catch {
           continue;
         }
-        if (!supportedTenderlyChains.includes(networkName)) continue;
-        const chainId = EvmChains.getChainId(networkName);
+        const chain = supportedTenderlyChains.find((tenderlyChain) =>
+          tenderlyChain.eq(deploymentChain),
+        );
+        if (!chain) continue;
+        const chainId = parseInt(chain.id);
         const contract: TenderlyContract = {
           address,
           chainId,
@@ -76,7 +80,7 @@ export const tenderlyImportAll = async (hre: HardhatRuntimeEnvironmentExtended):
         };
         versions[version] ??= new Set();
         versions[version].add(contractId);
-        (EvmChains.isTestnet(networkName) ? testnetContracts : mainnetContracts).add(contractId);
+        (chain.testnet ? testnetContracts : mainnetContracts).add(contractId);
       }
     }
     console.log(`> Retrieved ${Object.keys(contracts).length} contracts from protocol artifacts`);

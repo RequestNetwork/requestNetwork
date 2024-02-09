@@ -2,7 +2,6 @@ import { safeAdminArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import { getArtifact } from '../utils';
 import { getSignerAndGasFees } from './adminTasks';
-import { EvmChains } from '@requestnetwork/currency';
 import { executeContractMethod } from './execute-contract-method';
 import { Contract } from 'ethers';
 
@@ -23,7 +22,6 @@ export const updateOwner = async ({
 }): Promise<void> => {
   for (const network of hre.config.xdeploy.networks) {
     try {
-      EvmChains.assertChainSupported(network);
       const contractArtifact = getArtifact(contract);
       const contractAddress = contractArtifact.getAddress(network);
       const { signer, txOverrides } = await getSignerAndGasFees(network, hre);

@@ -1,6 +1,5 @@
 import { HardhatRuntimeEnvironmentExtended } from './types';
 import { create2ContractDeploymentList } from './utils';
-import { EvmChains } from '@requestnetwork/currency';
 import { updateOwner } from './contract-setup/update-owner';
 import { updateWhitelistedRole } from './contract-setup/update-whitelisted-role';
 
@@ -8,8 +7,6 @@ export const transferOwnership = async (
   hre: HardhatRuntimeEnvironmentExtended,
   signWithEoa: boolean,
 ): Promise<void> => {
-  const chain = hre.network.name;
-  EvmChains.assertChainSupported(chain);
   await Promise.all(
     create2ContractDeploymentList.map(async (contract) => {
       switch (contract) {

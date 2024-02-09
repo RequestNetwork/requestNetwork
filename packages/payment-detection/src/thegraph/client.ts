@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import { CurrencyTypes } from '@requestnetwork/types';
-import { NearChains } from '@requestnetwork/currency';
 import { GraphQLClient } from 'graphql-request';
 import { Block_Height, Maybe, getSdk } from './generated/graphql';
 import { getSdk as getNearSdk } from './generated/graphql-near';
 import { RequestConfig } from 'graphql-request/src/types';
+import { ChainTypes } from '@requestnetwork/types';
 
 const HOSTED_THE_GRAPH_URL =
   'https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-';
@@ -27,7 +26,7 @@ const THE_GRAPH_URL_STUDIO_ZKSYNC =
  *
  * @type TGraphClientVariant: null if no variant, 'near' if native token payments detection on Near
  */
-export type TheGraphClient<TChain extends ChainTypes.VMChain = ChainTypes.IEvmChain> =
+export type TheGraphClient<TChain extends ChainTypes.IVmChain = ChainTypes.IEvmChain> =
   (TChain extends ChainTypes.INearChain
     ? ReturnType<typeof getNearSdk>
     : ReturnType<typeof getSdk>) & {
@@ -64,8 +63,12 @@ const extractClientOptions = (
   return [clientOptions, queryOptions];
 };
 
-export const getTheGraphClient = (network: string, url: string, options?: TheGraphClientOptions) =>
-  NearChains.isChainSupported(network)
+export const getTheGraphClient = (
+  chain: ChainTypes.IChain,
+  url: string,
+  options?: TheGraphClientOptions,
+) =>
+  chain.ecosystem === 'near'
     ? getTheGraphNearClient(url, options)
     : getTheGraphEvmClient(url, options);
 
@@ -86,18 +89,21 @@ export const getTheGraphNearClient = (url: string, options?: TheGraphClientOptio
 };
 
 export const defaultGetTheGraphClient = (
-  network: ChainTypes.IChain,
+  chain: ChainTypes.IChain,
   options?: TheGraphClientOptions,
 ) => {
-  return network === 'private'
+  return chain.name === 'private'
     ? undefined
-    : NearChains.isChainSupported(network)
-    ? getTheGraphNearClient(`${HOSTED_THE_GRAPH_URL}${network.replace('aurora', 'near')}`, options)
-    : network === 'mantle'
+    : chain.ecosystem === 'near'
+    ? getTheGraphNearClient(
+        `${HOSTED_THE_GRAPH_URL}${chain.name.replace('aurora', 'near')}`,
+        options,
+      )
+    : chain.name === 'mantle'
     ? getTheGraphEvmClient(THE_GRAPH_URL_MANTLE, options)
-    : network === 'mantle-testnet'
+    : chain.name === 'mantle-testnet'
     ? getTheGraphEvmClient(THE_GRAPH_URL_MANTLE_TESTNET, options)
-    : network === 'zksyncera'
+    : chain.name === 'zksyncera'
     ? getTheGraphEvmClient(THE_GRAPH_URL_STUDIO_ZKSYNC, options)
-    : getTheGraphEvmClient(`${HOSTED_THE_GRAPH_URL}${network}`, options);
+    : getTheGraphEvmClient(`${HOSTED_THE_GRAPH_URL}${chain}`, options);
 };

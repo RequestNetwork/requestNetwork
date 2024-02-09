@@ -1,7 +1,6 @@
 import { erc20FeeProxyArtifact, ethereumFeeProxyArtifact } from '../src/lib';
 import { deployContract } from './utils-zk';
 import * as hre from 'hardhat';
-import { CurrencyTypes } from '@requestnetwork/types';
 
 /**
  * Deploys Batch payments contracts to zkSync network.
@@ -11,8 +10,8 @@ import { CurrencyTypes } from '@requestnetwork/types';
 export default async function () {
   const [deployer] = await hre.ethers.getSigners();
   const constructorArguments = [
-    erc20FeeProxyArtifact.getAddress(hre.network.name as ChainTypes.IEvmChain),
-    ethereumFeeProxyArtifact.getAddress(hre.network.name as ChainTypes.IEvmChain),
+    erc20FeeProxyArtifact.getAddress(hre.network.name),
+    ethereumFeeProxyArtifact.getAddress(hre.network.name),
     hre.ethers.constants.AddressZero,
     hre.ethers.constants.AddressZero,
     hre.ethers.constants.AddressZero,

@@ -25,7 +25,7 @@ export type TransferEventsParams = {
   /** The address of the payment proxy */
   contractAddress: string;
   /** The chain to check for payment */
-  paymentChain: ChainTypes.VMChain;
+  paymentChain: ChainTypes.IVmChain;
   /** Indicates if it is an address for payment or refund */
   eventName: PaymentTypes.EVENTS_NAMES;
   /** The list of ERC20 tokens addresses accepted for payments and refunds OR undefined for native tokens (e.g. ETH) */
@@ -96,7 +96,7 @@ export interface ISupportedPaymentNetworkByCurrency<
 
 export type TGetSubGraphClient<TChain extends ChainTypes.IChain> = (
   network: ChainTypes.IChain,
-) => TChain extends ChainTypes.VMChain ? TheGraphClient<TChain> | undefined : undefined;
+) => TChain extends ChainTypes.IVmChain ? TheGraphClient<TChain> | undefined : undefined;
 
 export type PaymentNetworkOptions<TChain extends ChainTypes.IChain = ChainTypes.IChain> = {
   /** override default bitcoin detection provider */

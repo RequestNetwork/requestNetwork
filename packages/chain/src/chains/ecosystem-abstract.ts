@@ -60,27 +60,6 @@ export abstract class EcosystemAbstract<CHAIN extends ChainTypes.IChain> {
   }
 
   /**
-   * Retrieve the corresponding chain ID from Request Network's internal chain name representation
-   */
-  public getChainId(chainName: string): string {
-    return this.chains[chainName].id;
-  }
-
-  /**
-   * Returns true is the chain is a testnet chain
-   */
-  public isTestnet(chainName: string): boolean {
-    return Boolean(this.chains[chainName].testnet);
-  }
-
-  /**
-   * @returns true if both chains have the same ID or same name
-   */
-  private isSameChain = (chain1: string, chain2: string): boolean => {
-    return chain1 === chain2 || this.getChainId(chain1) === this.getChainId(chain2);
-  };
-
-  /**
    * @returns true if both chains have the same ID or same name
    */
   public isSameChainFromString = (chain1: string, chain2: string): boolean => {
@@ -90,6 +69,8 @@ export abstract class EcosystemAbstract<CHAIN extends ChainTypes.IChain> {
     } catch {
       return false;
     }
-    return this.isSameChain(chain1, chain2);
+    const chain1Object = this.chains[chain1];
+    const chain2Object = this.chains[chain2];
+    return chain1Object.eq(chain2Object);
   };
 }

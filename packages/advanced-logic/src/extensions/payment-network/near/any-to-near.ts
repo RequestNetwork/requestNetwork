@@ -1,6 +1,6 @@
 import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import {
-  CurrencyTypes,
+  ChainTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
@@ -12,18 +12,14 @@ const CURRENT_VERSION = '0.1.0';
 export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetwork {
   public constructor(
     currencyManager: ICurrencyManager,
-    supportedNetworks: ChainTypes.INearChain[] = [
-      'aurora',
-      // FIXME: enable near network support
-      // 'near'
-    ],
+    supportedNetworks?: ChainTypes.INearChain[],
     currentVersion: string = CURRENT_VERSION,
   ) {
     super(
       currencyManager,
       ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN,
       currentVersion,
-      supportedNetworks,
+      supportedNetworks ?? [currencyManager.chainManager.fromName('aurora', ['near'])],
     );
   }
 
@@ -34,7 +30,11 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
    * @returns {boolean} true if address is valid
    */
   protected isValidAddress(address: string): boolean {
-    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR', 'aurora');
+    return this.isValidAddressForSymbolAndNetwork(
+      address,
+      'NEAR',
+      this.currencyManager.chainManager.fromName('aurora', ['near']),
+    );
   }
 
   /**

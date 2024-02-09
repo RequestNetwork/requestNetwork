@@ -58,7 +58,9 @@ export default class Erc20FeeProxyPaymentNetwork<
         'near',
       ])
     ) {
-      throw new UnsupportedNetworkError(request.currency.network, [this.network.name]);
+      throw new UnsupportedNetworkError(this.constructor.name, request.currency.network, [
+        this.network.name,
+      ]);
     }
     super.validate(request, extensionAction);
   }
