@@ -43,7 +43,7 @@ export const getArtifact = (contract: string): artifacts.ContractArtifact<Contra
       return artifacts.chainlinkConversionPath;
     case 'Erc20ConversionProxy':
       return artifacts.erc20ConversionProxy;
-    case 'ETHConversionProxy':
+    case 'EthConversionProxy':
       return artifacts.ethConversionArtifact;
     case 'ERC20SwapToPay':
       return artifacts.erc20SwapToPayArtifact;
