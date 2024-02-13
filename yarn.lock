@@ -12965,13 +12965,12 @@ graphql-config@^5.0.2:
     string-env-interpolation "^1.0.1"
     tslib "^2.4.0"
 
-graphql-request@6.1.0, graphql-request@^6.0.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/graphql-request/-/graphql-request-6.1.0.tgz#f4eb2107967af3c7a5907eb3131c671eac89be4f"
-  integrity sha512-p+XPfS4q7aIpKVcgmnZKhMNqhltk20hfXtkaIkTfjjmiKMJ5xrt5c743cL03y/K7y1rg3WrIC49xGiEQ4mxdNw==
+graphql-request@7.0.0-next.17:
+  version "7.0.0-next.17"
+  resolved "https://registry.yarnpkg.com/graphql-request/-/graphql-request-7.0.0-next.17.tgz#e7098d4a00a9d336b5202bbbff3d7a34939663c6"
+  integrity sha512-GoCG5GgxZ8NtGFRaisOFHznNTwGYvqZ95EiD4QH/gLfu8Q2DtLNTtvW/W1L7CrqHlv6WyVtfHfjywnB9zcuw1Q==
   dependencies:
     "@graphql-typed-document-node/core" "^3.2.0"
-    cross-fetch "^3.1.5"
 
 graphql-request@^4.3.0:
   version "4.3.0"
@@ -12981,6 +12980,14 @@ graphql-request@^4.3.0:
     cross-fetch "^3.1.5"
     extract-files "^9.0.0"
     form-data "^3.0.0"
+
+graphql-request@^6.0.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/graphql-request/-/graphql-request-6.1.0.tgz#f4eb2107967af3c7a5907eb3131c671eac89be4f"
+  integrity sha512-p+XPfS4q7aIpKVcgmnZKhMNqhltk20hfXtkaIkTfjjmiKMJ5xrt5c743cL03y/K7y1rg3WrIC49xGiEQ4mxdNw==
+  dependencies:
+    "@graphql-typed-document-node/core" "^3.2.0"
+    cross-fetch "^3.1.5"
 
 graphql-tag@2.12.6:
   version "2.12.6"

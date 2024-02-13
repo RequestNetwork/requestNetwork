@@ -45,7 +45,7 @@
     "@requestnetwork/types": "0.40.0",
     "@requestnetwork/utils": "0.40.0",
     "ethers": "5.5.1",
-    "graphql-request": "6.1.0",
+    "graphql-request": "7.0.0-next.17",
     "tslib": "2.5.0"
   },
   "devDependencies": {
