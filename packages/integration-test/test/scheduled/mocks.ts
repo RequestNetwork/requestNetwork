@@ -68,8 +68,7 @@ export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     } as any as Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>,
-    anyToEthProxy:
-      {} as Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>,
+    anyToEthProxy: {} as Extension.PnAnyToEth.IAnyToEth,
     anyToNativeToken:
       {} as Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>[],
     erc20TransferableReceivable: {

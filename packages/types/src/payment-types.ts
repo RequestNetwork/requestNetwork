@@ -2,16 +2,17 @@ import { IIdentity } from './identity-types';
 import * as RequestLogic from './request-logic-types';
 import * as ExtensionTypes from './extension-types';
 import { ICreationParameters } from './extensions/pn-any-declarative-types';
-import { ICreationParameters as ICreationParametersAnyToAny } from './extensions/pn-any-to-any-conversion-types';
-import { EvmChainName } from './currency-types';
 
 /** Interface for payment network extensions state and interpretation */
 export interface IPaymentNetwork<
   TEventParameters extends GenericEventParameters = GenericEventParameters,
+  TCreationParameters = any,
 > {
   paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID;
   extension: ExtensionTypes.IExtension;
-  createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
+  createExtensionsDataForCreation: (
+    paymentNetworkCreationParameters: TCreationParameters,
+  ) => Promise<ExtensionTypes.IAction<any>>;
   createExtensionsDataForAddRefundInformation: (parameters: any) => any;
   createExtensionsDataForAddPaymentInformation: (parameters: any) => any;
   getBalance(request: RequestLogic.IRequest): Promise<IBalanceWithEvents<TEventParameters>>;
@@ -34,12 +35,6 @@ export interface IFeeReferenceBasedCreationParameters extends IReferenceBasedCre
   feeAmount?: string;
 }
 
-/** Parameters to create a request with "any to erc20" payment network */
-export interface IAnyToErc20CreationParameters extends ICreationParametersAnyToAny {
-  acceptedTokens?: string[];
-  network?: EvmChainName;
-}
-
 /**
  * Interface to create a payment network
  * @deprecated Use `PaymentNetworkCreateParameters` type instead
@@ -51,17 +46,27 @@ export interface IPaymentNetworkCreateParameters<T = any> {
 
 export type PaymentNetworkCreateParameters =
   | {
-      id:
-        | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT
-        | ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
-        | ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN;
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT;
       parameters: ExtensionTypes.PnReferenceBased.ICreationParameters;
     }
   | {
-      id:
-        | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
-        | ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT
-        | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE;
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA;
+      parameters: ExtensionTypes.PnReferenceBased.ICreationParameters;
+    }
+  | {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN;
+      parameters: ExtensionTypes.PnReferenceBased.ICreationParameters;
+    }
+  | {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT;
+      parameters: ExtensionTypes.PnFeeReferenceBased.ICreationParameters;
+    }
+  | {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT;
+      parameters: ExtensionTypes.PnFeeReferenceBased.ICreationParameters;
+    }
+  | {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE;
       parameters: ExtensionTypes.PnFeeReferenceBased.ICreationParameters;
     }
   | {
@@ -85,10 +90,15 @@ export type PaymentNetworkCreateParameters =
       parameters: ExtensionTypes.PnStreamReferenceBased.ICreationParameters;
     }
   | {
-      id:
-        | ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED
-        | ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED
-        | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED;
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED;
+      parameters: ExtensionTypes.PnAddressBased.ICreationParameters;
+    }
+  | {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED;
+      parameters: ExtensionTypes.PnAddressBased.ICreationParameters;
+    }
+  | {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED;
       parameters: ExtensionTypes.PnAddressBased.ICreationParameters;
     };
 
