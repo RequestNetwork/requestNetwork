@@ -414,7 +414,7 @@ export default class RequestNetwork {
       // create the extensions data for the payment network
       copiedRequestParameters.extensionsData.push(
         await paymentNetwork.createExtensionsDataForCreation(
-          parameters.paymentNetwork?.parameters as any,
+          parameters.paymentNetwork?.parameters || {},
         ),
       );
     }
