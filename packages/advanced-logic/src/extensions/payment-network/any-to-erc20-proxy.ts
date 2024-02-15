@@ -42,7 +42,7 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
       if (!acceptedCurrency) {
         throw new UnsupportedCurrencyError({
           value: address,
-          network: network?.name,
+          network,
         });
       }
       if (!network || !this.currencyManager.supportsConversion(acceptedCurrency, network)) {

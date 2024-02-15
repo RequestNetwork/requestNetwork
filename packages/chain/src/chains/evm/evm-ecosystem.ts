@@ -5,7 +5,7 @@ import { EvmChain } from './evm-chain';
 
 class EvmEcosystem extends EcosystemAbstract<ChainTypes.IEvmChain> {
   constructor(chains: Record<string, EvmChain>) {
-    super('evm', EvmChain, chains, RequestLogicTypes.CURRENCY.ETH);
+    super(ChainTypes.ECOSYSTEM.EVM, EvmChain, chains, RequestLogicTypes.CURRENCY.ETH);
   }
 }
 

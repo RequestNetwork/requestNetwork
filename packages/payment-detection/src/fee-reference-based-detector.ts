@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers';
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { ReferenceBasedDetector } from './reference-based-detector';
 import { generate8randomBytes } from '@requestnetwork/utils';
@@ -22,8 +22,9 @@ export abstract class FeeReferenceBasedDetector<
     paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
     currencyManager: ICurrencyManager,
+    allowedEcosystems: readonly ChainTypes.ECOSYSTEM[],
   ) {
-    super(paymentNetworkId, extension, currencyManager);
+    super(paymentNetworkId, extension, currencyManager, allowedEcosystems);
   }
 
   /**

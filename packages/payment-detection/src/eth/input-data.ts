@@ -1,10 +1,5 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
-import {
-  CurrencyTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { EthInputDataInfoRetriever } from './info-retriever';
 import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
@@ -31,7 +26,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
   PaymentTypes.IETHPaymentEventParameters
 > {
-  private explorerApiKeys: Partial<Record<ChainTypes.IChain, string>>;
+  private explorerApiKeys: Partial<Record<string, string>>;
   private readonly getSubgraphClient: TGetSubGraphClient<ChainTypes.IEvmChain>;
 
   /**
@@ -48,6 +43,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
       ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       advancedLogic.extensions.ethereumInputData,
       currencyManager,
+      [ChainTypes.ECOSYSTEM.EVM],
     );
     this.explorerApiKeys = explorerApiKeys || {};
     this.getSubgraphClient = getSubgraphClient;
@@ -85,7 +81,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
       eventName,
       paymentChain,
       paymentReference,
-      this.explorerApiKeys[paymentChain],
+      this.explorerApiKeys[paymentChain.name],
     );
     const events = await infoRetriever.getTransferEvents();
     const proxyContractArtifact = EthInputDataPaymentDetector.getDeploymentInformation(

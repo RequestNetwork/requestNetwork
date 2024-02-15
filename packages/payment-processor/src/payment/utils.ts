@@ -1,13 +1,8 @@
 import { ethers, Signer, providers, BigNumber, BigNumberish, ContractTransaction } from 'ethers';
 
 import { getDefaultProvider, getPaymentReference } from '@requestnetwork/payment-detection';
-import {
-  ClientTypes,
-  CurrencyTypes,
-  ExtensionTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
-import { EvmChains, getCurrencyHash } from '@requestnetwork/currency';
+import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { getCurrencyHash } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 import { getReceivableTokenIdForRequest } from './erc20-transferable-receivable';
@@ -79,7 +74,7 @@ export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   expectedStartDate?: string;
   acceptedTokens?: string[];
   maxRateTimespan?: string;
-  network?: ChainTypes.IChain;
+  network?: string;
   version: string;
 } {
   const extension = getPaymentNetworkExtension(request);

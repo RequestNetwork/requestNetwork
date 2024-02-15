@@ -1,9 +1,4 @@
-import {
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-  CurrencyTypes,
-} from '@requestnetwork/types';
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes, ChainTypes } from '@requestnetwork/types';
 
 import { TheGraphInfoRetriever } from '../thegraph';
 import { erc20TransferableReceivableArtifact } from '@requestnetwork/smart-contracts';
@@ -39,6 +34,7 @@ export class ERC20TransferableReceivablePaymentDetector extends FeeReferenceBase
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE,
       advancedLogic.extensions.erc20TransferableReceivable,
       currencyManager,
+      [ChainTypes.ECOSYSTEM.EVM],
     );
     this.getSubgraphClient = getSubgraphClient;
   }

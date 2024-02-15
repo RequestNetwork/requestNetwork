@@ -1,4 +1,4 @@
-import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
+import { ChainTypes, PaymentTypes } from '@requestnetwork/types';
 import { CurrencyDefinition } from '@requestnetwork/currency';
 import { NearInfoRetriever, NearPaymentEvent } from './near-info-retriever';
 import { TheGraphClient } from '../../thegraph';
@@ -13,7 +13,7 @@ export type TransferEventsParams = {
   /** The address of the payment proxy */
   contractAddress: string;
   /** The chain to check for payment */
-  paymentChain: ChainTypes.IVmChain;
+  paymentChain: ChainTypes.INearChain;
   /** Indicates if it is an address for payment or refund */
   eventName: PaymentTypes.EVENTS_NAMES;
   /** The maximum span between the time the rate was fetched and the payment */
@@ -24,12 +24,6 @@ export type TransferEventsParams = {
  * Gets a list of transfer events for a set of Near payment details
  */
 export class NearConversionInfoRetriever extends NearInfoRetriever {
-  /**
-   * @param paymentReference The reference to identify the payment
-   * @param toAddress Address to check
-   * @param eventName Indicate if it is an address for payment or refund
-   * @param network The id of network we want to check
-   */
   constructor(protected readonly client: TheGraphClient<ChainTypes.INearChain>) {
     super(client);
   }

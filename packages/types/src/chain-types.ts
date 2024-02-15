@@ -1,31 +1,47 @@
 import { RequestLogicTypes } from './index';
 
+/**
+ * List of ecosystems supported by the Request Network protocol
+ */
+export enum ECOSYSTEM {
+  BTC = 'BTC',
+  DECLARATIVE = 'DECLARATIVE',
+  EVM = 'EVM',
+  NEAR = 'NEAR',
+}
+
+/**
+ * List of ecosystems supported by TheGraph
+ */
+export const VM_ECOSYSTEMS = [ECOSYSTEM.EVM, ECOSYSTEM.NEAR] as const;
+export type VmChainEcosystem = (typeof VM_ECOSYSTEMS)[number];
+
 export interface IChainCommon {
   id: string;
   name: string;
   testnet: boolean;
-  ecosystem: ChainEcosystem;
+  ecosystem: ECOSYSTEM;
   currencyType: RequestLogicTypes.CURRENCY;
   eq(chain: IChainCommon): boolean;
 }
 
 export interface IBtcChain extends IChainCommon {
-  ecosystem: 'btc';
+  ecosystem: ECOSYSTEM.BTC;
   currencyType: RequestLogicTypes.CURRENCY.BTC;
 }
 
 export interface IDeclarativeChain extends IChainCommon {
-  ecosystem: 'declarative';
+  ecosystem: ECOSYSTEM.DECLARATIVE;
   currencyType: RequestLogicTypes.CURRENCY.ETH;
 }
 
 export interface IEvmChain extends IChainCommon {
-  ecosystem: 'evm';
+  ecosystem: ECOSYSTEM.EVM;
   currencyType: RequestLogicTypes.CURRENCY.ETH;
 }
 
 export interface INearChain extends IChainCommon {
-  ecosystem: 'near';
+  ecosystem: ECOSYSTEM.NEAR;
   currencyType: RequestLogicTypes.CURRENCY.ETH;
 }
 
@@ -33,18 +49,17 @@ export interface INearChain extends IChainCommon {
  * List of ecosystems supported by the Request Network protocol
  */
 export type ChainTypeByEcosystem = {
-  btc: IBtcChain;
-  declarative: IDeclarativeChain;
-  evm: IEvmChain;
-  near: INearChain;
+  [ECOSYSTEM.BTC]: IBtcChain;
+  [ECOSYSTEM.DECLARATIVE]: IDeclarativeChain;
+  [ECOSYSTEM.EVM]: IEvmChain;
+  [ECOSYSTEM.NEAR]: INearChain;
 };
-export type ChainEcosystem = keyof ChainTypeByEcosystem;
-export type IChain = ChainTypeByEcosystem[ChainEcosystem];
+export type IChain = ChainTypeByEcosystem[ECOSYSTEM];
 
 /**
  * VmChains are Virtual Machine chains supported by TheGraph
  */
-export type IVmChain = IEvmChain | INearChain;
+export type IVmChain = ChainTypeByEcosystem[VmChainEcosystem];
 
 // export interface IChainManager {
 //   chains: IChain[];

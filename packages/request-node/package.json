@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@ethersproject/experimental": "5.5.0",
+    "@requestnetwork/chain": "0.13.0",
     "@requestnetwork/currency": "0.13.0",
     "@requestnetwork/data-access": "0.31.0",
     "@requestnetwork/ethereum-storage": "0.31.0",

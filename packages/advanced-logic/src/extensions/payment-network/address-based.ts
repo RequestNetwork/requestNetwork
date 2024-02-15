@@ -154,7 +154,7 @@ export default abstract class AddressBasedPaymentNetwork<
         return this.isValidAddressForSymbolAndNetwork(
           address,
           'ETH',
-          this.currencyManager.chainManager.fromName('mainnet', ['evm']),
+          this.currencyManager.chainManager.fromName('mainnet', [ChainTypes.ECOSYSTEM.EVM]),
         );
       default:
         throw new Error(

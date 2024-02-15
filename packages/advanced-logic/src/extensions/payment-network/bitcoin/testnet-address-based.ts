@@ -1,5 +1,5 @@
 import BitcoinAddressBasedPaymentNetwork from './mainnet-address-based';
-import { ExtensionTypes } from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 
 const BITCOIN_NETWORK = 'testnet';
@@ -20,7 +20,7 @@ export default class BitcoinTestnetAddressBasedPaymentNetwork extends BitcoinAdd
     return this.isValidAddressForSymbolAndNetwork(
       address,
       'BTC-testnet',
-      this.currencyManager.chainManager.fromName(BITCOIN_NETWORK, ['btc']),
+      this.currencyManager.chainManager.fromName(BITCOIN_NETWORK, [ChainTypes.ECOSYSTEM.BTC]),
     );
   }
 }

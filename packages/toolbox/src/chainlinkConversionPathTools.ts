@@ -5,9 +5,9 @@ import {
   ChainlinkConversionPath,
   ChainlinkConversionPath__factory,
 } from '@requestnetwork/smart-contracts/types';
-import { CurrencyManager, EvmChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { retry } from '@requestnetwork/utils';
-import { CurrencyTypes } from '@requestnetwork/types';
+import { ChainTypes } from '@requestnetwork/types';
 
 export interface IOptions {
   network?: string;
@@ -48,11 +48,11 @@ class ChainlinkConversionPathTools {
 
     // Setup the conversion proxy contract interface
     this.chainLinkConversionPath = ChainlinkConversionPath__factory.connect(
-      chainlinkConversionPath.getAddress(network),
+      chainlinkConversionPath.getAddress(network.name),
       this.provider,
     );
 
-    this.creationBlockNumber = chainlinkConversionPath.getCreationBlockNumber(this.network);
+    this.creationBlockNumber = chainlinkConversionPath.getCreationBlockNumber(this.network.name);
 
     this.maxRange = options?.maxRange || 1000000;
   }
@@ -139,7 +139,7 @@ const getCurrency = (symbol: string) => {
 };
 
 export const listAggregators = async (options?: IOptions): Promise<void> => {
-  let networks: ChainTypes.IEvmChain[] = ['private', 'rinkeby', 'mainnet'];
+  let networks = ['private', 'rinkeby', 'mainnet'];
   if (options?.network) {
     EvmChains.assertChainSupported(options.network);
     networks = [options.network];

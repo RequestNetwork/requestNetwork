@@ -4,7 +4,7 @@ import {
   EscrowERC20InfoRetriever,
 } from '@requestnetwork/payment-detection';
 import {
-  CurrencyTypes,
+  ChainTypes,
   EncryptionTypes,
   IdentityTypes,
   PaymentTypes,
@@ -709,16 +709,16 @@ export default class Request {
 
   public async getEscrowData(
     paymentReference: string,
-    network: ChainTypes.IEvmChain,
+    chain: ChainTypes.IEvmChain,
   ): Promise<PaymentTypes.EscrowChainData> {
-    const escrowContractAddress = erc20EscrowToPayArtifact.getAddress(network);
+    const escrowContractAddress = erc20EscrowToPayArtifact.getAddress(chain.name);
     const escrowInfoRetriever = new EscrowERC20InfoRetriever(
       paymentReference,
       escrowContractAddress,
       0,
       '',
       '',
-      network,
+      chain,
     );
     return await escrowInfoRetriever.getEscrowRequestMapping();
   }

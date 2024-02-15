@@ -4,4 +4,9 @@ import { chains } from './index';
 import { BtcChain } from './btc-chain';
 
 class BtcEcosystem extends EcosystemAbstract<ChainTypes.IBtcChain> {}
-export default new BtcEcosystem('btc', BtcChain, chains, RequestLogicTypes.CURRENCY.BTC);
+export default new BtcEcosystem(
+  ChainTypes.ECOSYSTEM.BTC,
+  BtcChain,
+  chains,
+  RequestLogicTypes.CURRENCY.BTC,
+);

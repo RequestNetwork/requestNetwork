@@ -1,7 +1,7 @@
 import { ChainAbstract } from '../chain-abstract';
-import { RequestLogicTypes } from '@requestnetwork/types';
+import { ChainTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 export class BtcChain extends ChainAbstract {
-  public readonly ecosystem = 'btc';
+  public readonly ecosystem = ChainTypes.ECOSYSTEM.BTC;
   public readonly currencyType = RequestLogicTypes.CURRENCY.BTC;
 }

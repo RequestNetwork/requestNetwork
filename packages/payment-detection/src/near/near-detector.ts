@@ -1,9 +1,4 @@
-import {
-  CurrencyTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { NearInfoRetriever } from './retrievers/near-info-retriever';
 import { NativeTokenPaymentDetector } from '../native-token-detector';
 import { NetworkNotSupported } from '../balance-error';
@@ -33,7 +28,7 @@ export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
     paymentNetworkVersion = '0.2.0',
   ): string => {
     const version = NearNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
-    const versionMap: Record<ChainTypes.INearChain, Record<string, string>> = {
+    const versionMap: Record<string, Record<string, string>> = {
       aurora: { '0.1.0': 'requestnetwork.near', '0.2.0': 'requestnetwork.near' },
       near: { '0.1.0': 'requestnetwork.near', '0.2.0': 'requestnetwork.near' },
       'aurora-testnet': {
@@ -45,8 +40,8 @@ export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
         '0.2.0': 'dev-1631521265288-35171138540673',
       },
     };
-    if (versionMap[chainName]?.[version]) {
-      return versionMap[chainName][version];
+    if (versionMap[chainName.name]?.[version]) {
+      return versionMap[chainName.name][version];
     }
     throw new NetworkNotSupported(
       `Unconfigured near-detector chain '${chainName}' and version '${version}'`,

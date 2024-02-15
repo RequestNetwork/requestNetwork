@@ -1,16 +1,10 @@
 import { CurrencyDefinition, isValidNearAddress } from '@requestnetwork/currency';
-import {
-  CurrencyTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { BigNumber, BigNumberish, Contract, errors, logger } from 'ethers';
 import { getAddress, keccak256, LogDescription } from 'ethers/lib/utils';
 import { ContractArtifact, DeploymentInformation } from '@requestnetwork/smart-contracts';
 import { NetworkNotSupported, VersionNotSupported } from './balance-error';
 import * as PaymentReferenceCalculator from './payment-reference-calculator';
-import { IReferenceBasedCreationParameters } from './types';
 
 /**
  * Converts the Log's args from array to an object with keys being the name of the arguments
@@ -88,15 +82,17 @@ export const makeGetDeploymentInformation = <
         `No contract matches payment network version: ${paymentNetworkVersion}.`,
       );
     }
-    const info = artifact.getOptionalDeploymentInformation(network, contractVersion);
+    const info = artifact.getOptionalDeploymentInformation(network.name, contractVersion);
     if (!info) {
       if (!allowUndefined) {
-        if (artifact.getOptionalDeploymentInformation(network)) {
+        if (artifact.getOptionalDeploymentInformation(network.name)) {
           throw new VersionNotSupported(
             `Payment network version not supported: ${paymentNetworkVersion}`,
           );
         }
-        throw new NetworkNotSupported(`Network not supported for this payment network: ${network}`);
+        throw new NetworkNotSupported(
+          `Network not supported for this payment network: ${network.name}`,
+        );
       }
       return null as ReturnType<GetDeploymentInformation<TAllowUndefined>>;
     }
@@ -141,7 +137,7 @@ export function getPaymentNetworkExtension<T = any>(
   ) as ExtensionTypes.IPaymentNetworkState<T>;
 }
 
-type PaymentParameters = IReferenceBasedCreationParameters &
+type PaymentParameters = PaymentTypes.IReferenceBasedCreationParameters &
   PaymentTypes.IDeclarativePaymentEventParameters;
 
 /** Gets the payment info based on parameters, for payment reference calculation */

@@ -264,7 +264,9 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
       case RequestLogicTypes.CURRENCY.ERC777:
-        if (this.chainManager.ecosystems.near.isChainSupported(currency.network)) {
+        if (
+          this.chainManager.ecosystems[ChainTypes.ECOSYSTEM.NEAR].isChainSupported(currency.network)
+        ) {
           return isValidNearAddress(address, currency.network);
         } else if (currency.network === 'tron' || currency.network === 'solana') {
           return addressValidator.validate(address, currency.network);
@@ -306,7 +308,6 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    */
   static getDefaultList<TMeta = unknown>(): CurrencyDefinition<TMeta>[] {
     return ([] as CurrencyInput[])
-      .concat(getSupportedNativeCurrencies())
       .concat(getSupportedNativeCurrencies())
       .concat(getSupportedERC20Currencies())
       .concat(getSupportedERC777Currencies())

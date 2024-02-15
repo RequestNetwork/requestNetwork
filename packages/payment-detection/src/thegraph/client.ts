@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { GraphQLClient } from 'graphql-request';
-import { Block_Height, Maybe, getSdk } from './generated/graphql';
+import { Block_Height, getSdk, Maybe } from './generated/graphql';
 import { getSdk as getNearSdk } from './generated/graphql-near';
 import { RequestConfig } from 'graphql-request/src/types';
 import { ChainTypes } from '@requestnetwork/types';
@@ -68,7 +68,7 @@ export const getTheGraphClient = (
   url: string,
   options?: TheGraphClientOptions,
 ) =>
-  chain.ecosystem === 'near'
+  chain.ecosystem === ChainTypes.ECOSYSTEM.NEAR
     ? getTheGraphNearClient(url, options)
     : getTheGraphEvmClient(url, options);
 
@@ -94,7 +94,7 @@ export const defaultGetTheGraphClient = (
 ) => {
   return chain.name === 'private'
     ? undefined
-    : chain.ecosystem === 'near'
+    : chain.ecosystem === ChainTypes.ECOSYSTEM.NEAR
     ? getTheGraphNearClient(
         `${HOSTED_THE_GRAPH_URL}${chain.name.replace('aurora', 'near')}`,
         options,

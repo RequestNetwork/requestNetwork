@@ -19,6 +19,7 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
       advancedLogic.extensions.erc777Stream,
       currencyManager,
+      [ChainTypes.ECOSYSTEM.EVM],
     );
   }
 

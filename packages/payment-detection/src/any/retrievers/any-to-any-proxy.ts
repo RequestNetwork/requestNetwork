@@ -1,5 +1,5 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
-import { PaymentTypes } from '@requestnetwork/types';
+import { ChainTypes, PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, ethers } from 'ethers';
 import { parseLogArgs, unpadAmountFromChainlink } from '../../utils';
 import type { JsonFragment } from '@ethersproject/abi';
@@ -48,7 +48,7 @@ export abstract class ConversionInfoRetriever {
     protected conversionProxyContractAbiFragment: JsonFragment[],
     protected toAddress: string,
     protected eventName: PaymentTypes.EVENTS_NAMES,
-    protected network: string,
+    protected network: ChainTypes.IChain,
     protected acceptedTokens?: string[],
     protected maxRateTimespan: number = 0,
   ) {

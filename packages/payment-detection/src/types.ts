@@ -3,6 +3,7 @@ import {
   ChainTypes,
   ExtensionTypes,
   PaymentTypes,
+  RequestLogicTypes,
 } from '@requestnetwork/types';
 import { PaymentDetectorBase } from './payment-detector-base';
 import { GetDeploymentInformation } from './utils';
@@ -87,12 +88,12 @@ export interface ISupportedPaymentNetworkByNetwork<
 }
 
 /** Object interface to list the payment network id and its module by currency */
-export interface ISupportedPaymentNetworkByCurrency<
+export type ISupportedPaymentNetworkByCurrency<
   TPaymentEventParameters extends
     PaymentTypes.GenericEventParameters = PaymentTypes.GenericEventParameters,
-> {
-  [currency: string]: ISupportedPaymentNetworkByNetwork<TPaymentEventParameters>;
-}
+> = {
+  [key in RequestLogicTypes.CURRENCY]: ISupportedPaymentNetworkByNetwork<TPaymentEventParameters>;
+};
 
 export type TGetSubGraphClient<TChain extends ChainTypes.IChain> = (
   network: ChainTypes.IChain,

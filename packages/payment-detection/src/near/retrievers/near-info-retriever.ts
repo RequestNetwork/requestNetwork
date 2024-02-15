@@ -16,7 +16,7 @@ export type TransferEventsParams = {
   /** The address of the payment proxy */
   contractAddress: string;
   /** The chain to check for payment */
-  paymentChain: ChainTypes.IVmChain;
+  paymentChain: ChainTypes.INearChain;
   /** Indicates if it is an address for payment or refund */
   eventName: PaymentTypes.EVENTS_NAMES;
   /** The list of ERC20 tokens addresses accepted for payments and refunds. Set to `undefined` for payments in NEAR token. */

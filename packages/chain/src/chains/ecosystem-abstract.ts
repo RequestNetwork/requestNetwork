@@ -3,7 +3,7 @@ import { ChainAbstract } from './chain-abstract';
 
 export abstract class EcosystemAbstract<CHAIN extends ChainTypes.IChain> {
   constructor(
-    public name: ChainTypes.ChainEcosystem,
+    public name: ChainTypes.ECOSYSTEM,
     public chainClass: new (id: string, name: string, testnet?: boolean) => CHAIN,
     public chains: Record<string, CHAIN>,
     public currencyType: RequestLogicTypes.CURRENCY,

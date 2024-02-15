@@ -1,9 +1,10 @@
 import { Block } from '@requestnetwork/data-access';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
-import { ClientTypes, CurrencyTypes, DataAccessTypes, StorageTypes } from '@requestnetwork/types';
+import { ChainTypes, ClientTypes, DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
 import { EventEmitter } from 'events';
 import HttpDataAccess, { NodeConnectionConfig } from './http-data-access';
+import { ChainManager } from '@requestnetwork/chain';
 
 /**
  * Exposes a Data-Access module over HTTP
@@ -20,7 +21,9 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
   } = {};
 
   private provider: ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider;
-  private networkName: ChainTypes.IEvmChain = 'private';
+  private storageChain: ChainTypes.IEvmChain = ChainManager.getDefault().fromName('private', [
+    ChainTypes.ECOSYSTEM.EVM,
+  ]);
 
   /**
    * Creates an instance of HttpDataAccess.
@@ -73,14 +76,14 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     channelId: string,
     topics?: string[],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
-    if (!this.networkName) {
+    if (!this.storageChain) {
       const network = await this.provider.getNetwork();
-
-      this.networkName =
-        network.chainId === 1 ? 'mainnet' : network.chainId === 4 ? 'rinkeby' : 'private';
+      this.storageChain = ChainManager.getDefault().fromId(network.chainId.toString(), [
+        ChainTypes.ECOSYSTEM.EVM,
+      ]);
     }
     const submitterContract = requestHashSubmitterArtifact.connect(
-      this.networkName,
+      this.storageChain.name,
       this.provider.getSigner(),
     );
 
@@ -94,7 +97,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
       topics,
     );
 
-    // store the block on ipfs and get the the ipfs hash and size
+    // store the block on ipfs and get the ipfs hash and size
     const { ipfsHash, ipfsSize } = await this.fetch<{ ipfsHash: string; ipfsSize: number }>(
       'POST',
       '/ipfsAdd',
@@ -120,7 +123,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
       blockNumber: tx.blockNumber ?? -1,
       blockTimestamp: ethBlock.timestamp,
       fee: fee.toString(),
-      networkName: this.networkName,
+      networkName: this.storageChain.name,
       smartContractAddress: tx.to ?? '',
       transactionHash: tx.hash,
     };
@@ -157,7 +160,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
               blockNumber: txConfirmed.blockNumber,
               blockTimestamp: ethBlock.timestamp,
               fee: fee.toString(),
-              networkName: this.networkName,
+              networkName: this.storageChain.name,
               smartContractAddress: txConfirmed.to,
               transactionHash: txConfirmed.transactionHash,
             },

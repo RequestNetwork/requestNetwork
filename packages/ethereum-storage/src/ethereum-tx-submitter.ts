@@ -1,5 +1,5 @@
 import { BigNumber, ContractTransaction, providers, Signer, utils } from 'ethers';
-import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
+import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
 import { GasFeeDefiner } from './gas-fee-definer';
@@ -22,7 +22,7 @@ export type SubmitterProps = {
    * The default is 100, which does not change the value (100 is equal to x1, 200 is equal to x2).
    */
   gasPriceMultiplier?: number;
-  network: ChainTypes.IEvmChain;
+  network: string;
   logger?: LogTypes.ILogger;
   debugProvider?: boolean;
 };

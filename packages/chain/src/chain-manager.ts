@@ -10,17 +10,17 @@ import { ChainTypes, RequestLogicTypes } from '@requestnetwork/types';
 export class ChainManager {
   private static defaultInstance: ChainManager;
 
-  public ecosystems: Record<ChainTypes.ChainEcosystem, EcosystemAbstract<any>> = {
-    btc: BtcEcosystem,
-    declarative: DeclarativeEcosystem,
-    evm: EvmEcosystem,
-    near: NearEcosystem,
+  public ecosystems: Record<ChainTypes.ECOSYSTEM, EcosystemAbstract<any>> = {
+    [ChainTypes.ECOSYSTEM.BTC]: BtcEcosystem,
+    [ChainTypes.ECOSYSTEM.DECLARATIVE]: DeclarativeEcosystem,
+    [ChainTypes.ECOSYSTEM.EVM]: EvmEcosystem,
+    [ChainTypes.ECOSYSTEM.NEAR]: NearEcosystem,
   };
 
-  constructor(inputChains?: Record<ChainTypes.ChainEcosystem, Record<string, ChainDefinition>>) {
+  constructor(inputChains?: Record<ChainTypes.ECOSYSTEM, Record<string, ChainDefinition>>) {
     if (!inputChains) return;
     for (const ecosystemName in this.ecosystems) {
-      const ecosystem = this.ecosystems[ecosystemName as ChainTypes.ChainEcosystem];
+      const ecosystem = this.ecosystems[ecosystemName as ChainTypes.ECOSYSTEM];
       if (!inputChains[ecosystem.name]) continue;
       const chainDefinitions = inputChains[ecosystem.name];
       const chains = initializeChains(ecosystem.chainClass, chainDefinitions);
@@ -34,15 +34,13 @@ export class ChainManager {
   get chains(): ChainTypes.IChain[] {
     return Object.keys(this.ecosystems).reduce((chains, ecosystemName) => {
       return chains.concat(
-        Object.values(this.ecosystems[ecosystemName as ChainTypes.ChainEcosystem].chains),
+        Object.values(this.ecosystems[ecosystemName as ChainTypes.ECOSYSTEM].chains),
       );
     }, [] as ChainTypes.IChain[]);
   }
 
-  getEcosystemsByCurrencyType(
-    currencyType: RequestLogicTypes.CURRENCY,
-  ): ChainTypes.ChainEcosystem[] {
-    return (Object.keys(this.ecosystems) as ChainTypes.ChainEcosystem[]).filter((ecosystemName) =>
+  getEcosystemsByCurrencyType(currencyType: RequestLogicTypes.CURRENCY): ChainTypes.ECOSYSTEM[] {
+    return (Object.keys(this.ecosystems) as ChainTypes.ECOSYSTEM[]).filter((ecosystemName) =>
       this.ecosystems[ecosystemName].currencyType.includes(currencyType),
     );
   }
@@ -53,51 +51,49 @@ export class ChainManager {
   }
 
   /**
-   * Gets a supported chain from its name
+   * Gets a supported chain from its name or ID
    */
-  fromName<T extends ChainTypes.ChainEcosystem[]>(
-    chainName: string,
+  protected fromGeneric<T extends readonly ChainTypes.ECOSYSTEM[]>(
+    propertyName: 'id' | 'name',
+    propertyValue: string,
     ecosystemsFilter?: T,
   ): ChainTypes.ChainTypeByEcosystem[T[number]] {
     const chains = this.chains.filter(
       (chain) =>
-        chain.name === chainName &&
+        chain[propertyName] === propertyValue &&
         (ecosystemsFilter ? ecosystemsFilter.includes(chain.ecosystem) : true),
     );
     if (chains.length < 1) {
       throw new Error(
-        `No chain found with name "${chainName}" for ecosystem(s) "${ecosystemsFilter}"`,
+        `No chain found with "${propertyName}=${propertyValue}" for ecosystem(s) "${ecosystemsFilter}"`,
       );
     }
     if (chains.length > 1) {
       throw new Error(
-        `There is more than one chain named "${chainName}" for ecosystem(s) "${ecosystemsFilter}"`,
+        `There is more than one chain with "${propertyName}=${propertyValue}" for ecosystem(s) "${ecosystemsFilter}"`,
       );
     }
     return chains[0] as ChainTypes.ChainTypeByEcosystem[T[number]];
   }
 
   /**
+   * Gets a supported chain from its name
+   */
+  fromName<T extends readonly ChainTypes.ECOSYSTEM[]>(
+    chainName: string,
+    ecosystemsFilter?: T,
+  ): ChainTypes.ChainTypeByEcosystem[T[number]] {
+    return this.fromGeneric('name', chainName, ecosystemsFilter);
+  }
+
+  /**
    * Gets a supported chain from its ID
    */
-  fromId<T extends ChainTypes.ChainEcosystem[]>(
+  fromId<T extends readonly ChainTypes.ECOSYSTEM[]>(
     chainId: string,
     ecosystemsFilter?: T,
   ): ChainTypes.ChainTypeByEcosystem[T[number]] {
-    const chains = this.chains.filter(
-      (chain) =>
-        chain.id === chainId &&
-        (ecosystemsFilter ? ecosystemsFilter.includes(chain.ecosystem) : true),
-    );
-    if (chains.length < 1) {
-      throw new Error(`No chain found with ID "${chainId}" for ecosystem(s) "${ecosystemsFilter}"`);
-    }
-    if (chains.length > 1) {
-      throw new Error(
-        `There is more than one chain with ID "${chainId}" for ecosystem(s) "${ecosystemsFilter}"`,
-      );
-    }
-    return chains[0] as ChainTypes.ChainTypeByEcosystem[T[number]];
+    return this.fromGeneric('id', chainId, ecosystemsFilter);
   }
 
   static getDefault(): ChainManager {
@@ -114,7 +110,7 @@ export class ChainManager {
   isSameChain = (
     chain1: string | ChainTypes.IChain,
     chain2: string | ChainTypes.IChain,
-    chainsEcosystem?: ChainTypes.ChainEcosystem[],
+    chainsEcosystem?: readonly ChainTypes.ECOSYSTEM[],
   ): boolean => {
     const chain1Object =
       typeof chain1 === 'string' ? this.fromName(chain1, chainsEcosystem) : chain1;

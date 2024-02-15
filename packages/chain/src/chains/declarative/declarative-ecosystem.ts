@@ -5,7 +5,12 @@ import { chains } from './index';
 
 class DeclarativeEcosystem extends EcosystemAbstract<ChainTypes.IDeclarativeChain> {
   constructor(chains: Record<string, DeclarativeChain>) {
-    super('declarative', DeclarativeChain, chains, RequestLogicTypes.CURRENCY.ETH);
+    super(
+      ChainTypes.ECOSYSTEM.DECLARATIVE,
+      DeclarativeChain,
+      chains,
+      RequestLogicTypes.CURRENCY.ETH,
+    );
   }
 }
 

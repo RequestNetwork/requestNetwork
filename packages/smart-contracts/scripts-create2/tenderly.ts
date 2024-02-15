@@ -39,7 +39,9 @@ const supportedTenderlyChains: ChainTypes.IEvmChain[] = [
   'optimism',
   'rinkeby',
   'xdai',
-].map((chainName: string) => ChainManager.getDefault().fromName(chainName, ['evm']));
+].map((chainName: string) =>
+  ChainManager.getDefault().fromName(chainName, [ChainTypes.ECOSYSTEM.EVM]),
+);
 
 type TenderlyContract = { address: string; chainId: number };
 
@@ -60,7 +62,9 @@ export const tenderlyImportAll = async (hre: HardhatRuntimeEnvironmentExtended):
         const { networkName, address, version } = deployment;
         let deploymentChain: ChainTypes.IEvmChain;
         try {
-          deploymentChain = ChainManager.getDefault().fromName(networkName, ['evm']);
+          deploymentChain = ChainManager.getDefault().fromName(networkName, [
+            ChainTypes.ECOSYSTEM.EVM,
+          ]);
         } catch {
           continue;
         }

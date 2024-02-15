@@ -1,6 +1,6 @@
 import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 'ethers';
 
-import { ClientTypes, ExtensionTypes, TypesUtils } from '@requestnetwork/types';
+import { ChainTypes, ClientTypes, ExtensionTypes, TypesUtils } from '@requestnetwork/types';
 
 import { getBtcPaymentUrl } from './btc-address-based';
 import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
@@ -261,9 +261,9 @@ export async function isSolvent({
 }): Promise<boolean> {
   // Near case
   if (
-    CurrencyManager.getDefault().chainManager.ecosystems['near'].isChainSupported(
-      currency.network,
-    ) &&
+    CurrencyManager.getDefault().chainManager.ecosystems[
+      ChainTypes.ECOSYSTEM.NEAR
+    ].isChainSupported(currency.network) &&
     providerOptions?.nearWalletConnection
   ) {
     return isNearAccountSolvent(amount, providerOptions.nearWalletConnection, currency);
@@ -350,9 +350,9 @@ const throwIfNotWeb3 = (request: ClientTypes.IRequestData) => {
   // FIXME: there is a near web3Provider equivalent: https://github.com/aurora-is-near/near-web3-provider
   if (
     request.currencyInfo?.network &&
-    CurrencyManager.getDefault().chainManager.ecosystems['near'].isChainSupported(
-      request.currencyInfo.network,
-    )
+    CurrencyManager.getDefault().chainManager.ecosystems[
+      ChainTypes.ECOSYSTEM.NEAR
+    ].isChainSupported(request.currencyInfo.network)
   ) {
     throw new UnsupportedPaymentChain(request.currencyInfo.network);
   }

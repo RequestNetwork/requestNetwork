@@ -1,12 +1,7 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
-import {
-  CurrencyTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import { EvmChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
 import { AnyToAnyDetector } from '../any-to-any-detector';
@@ -45,6 +40,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
       ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
       advancedLogic.extensions.anyToEthProxy,
       currencyManager,
+      [ChainTypes.ECOSYSTEM.EVM],
     );
     this.getSubgraphClient = getSubgraphClient;
   }
@@ -132,8 +128,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     if (!network) {
       throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
     }
-    EvmChains.assertChainSupported(network);
-    return network;
+    return this.currencyManager.chainManager.fromName(network, [ChainTypes.ECOSYSTEM.EVM]);
   }
 
   /*

@@ -17,7 +17,9 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
       currencyManager,
       ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
       currentVersion,
-      supportedNetworks ?? [currencyManager.chainManager.fromName('aurora', ['near'])],
+      supportedNetworks ?? [
+        currencyManager.chainManager.fromName('aurora', [ChainTypes.ECOSYSTEM.NEAR]),
+      ],
     );
   }
 
@@ -31,7 +33,7 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
     return this.isValidAddressForSymbolAndNetwork(
       address,
       'NEAR',
-      this.currencyManager.chainManager.fromName('aurora', ['near']),
+      this.currencyManager.chainManager.fromName('aurora', [ChainTypes.ECOSYSTEM.NEAR]),
     );
   }
 }

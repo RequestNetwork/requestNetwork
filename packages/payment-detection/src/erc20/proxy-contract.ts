@@ -1,9 +1,4 @@
-import {
-  CurrencyTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import ProxyInfoRetriever from './proxy-info-retriever';
 import { TheGraphInfoRetriever } from '../thegraph';
@@ -37,6 +32,7 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       advancedLogic.extensions.proxyContractErc20,
       currencyManager,
+      [ChainTypes.ECOSYSTEM.EVM],
     );
     this.getSubgraphClient = getSubgraphClient;
   }

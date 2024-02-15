@@ -1,10 +1,5 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
-import {
-  CurrencyTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
@@ -43,6 +38,7 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
       ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
       advancedLogic.extensions.feeProxyContractEth,
       currencyManager,
+      [ChainTypes.ECOSYSTEM.EVM],
     );
     this.getSubgraphClient = getSubgraphClient;
   }
