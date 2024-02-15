@@ -28,6 +28,7 @@ import * as XDaiDefinition from './data/xdai';
 import * as SepoliaDefinition from './data/sepolia';
 import * as ZkSyncEraTestnetDefinition from './data/zksync-era-testnet';
 import * as ZkSyncEraDefinition from './data/zksync-era';
+import * as BaseDefinition from './data/base';
 
 export type EvmChain = Chain & {
   chainId: number;
@@ -61,4 +62,5 @@ export const chains: Record<CurrencyTypes.EvmChainName, EvmChain> = {
   sepolia: SepoliaDefinition,
   zksynceratestnet: ZkSyncEraTestnetDefinition,
   zksyncera: ZkSyncEraDefinition,
+  base: BaseDefinition,
 };

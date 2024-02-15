@@ -28,7 +28,8 @@ export type EvmChainName =
   | 'tombchain'
   | 'xdai'
   | 'zksynceratestnet'
-  | 'zksyncera';
+  | 'zksyncera'
+  | 'base';
 
 /**
  * List of supported BTC chains
