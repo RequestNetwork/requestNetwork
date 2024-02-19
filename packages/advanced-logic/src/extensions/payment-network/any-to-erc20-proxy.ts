@@ -8,7 +8,7 @@ import Erc20FeeProxyPaymentNetwork from './erc20/fee-proxy-contract';
 
 const CURRENT_VERSION = '0.1.0';
 
-export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentNetwork {
+export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentNetwork<ExtensionTypes.PnAnyToErc20.ICreationParameters> {
   public constructor(
     currencyManager: ICurrencyManager,
     extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
@@ -28,8 +28,11 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
   public createCreationAction(
     creationParameters: ExtensionTypes.PnAnyToErc20.ICreationParameters,
   ): ExtensionTypes.IAction {
-    if (!creationParameters.acceptedTokens || creationParameters.acceptedTokens.length === 0) {
+    if (!creationParameters.acceptedTokens) {
       throw Error('acceptedTokens is required');
+    }
+    if (creationParameters.acceptedTokens.length === 0) {
+      throw Error('acceptedTokens cannot be empty');
     }
     if (creationParameters.acceptedTokens.some((address) => !this.isValidAddress(address))) {
       throw Error('acceptedTokens must contains only valid ethereum addresses');

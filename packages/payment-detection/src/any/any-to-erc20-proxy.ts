@@ -52,7 +52,7 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
    * @returns The extensionData object
    */
   public async createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: PaymentTypes.IAnyToErc20CreationParameters,
+    paymentNetworkCreationParameters: ExtensionTypes.PnAnyToErc20.ICreationParameters,
   ): Promise<ExtensionTypes.IAction> {
     // If no salt is given, generate one
     const salt = paymentNetworkCreationParameters.salt || (await generate8randomBytes());
