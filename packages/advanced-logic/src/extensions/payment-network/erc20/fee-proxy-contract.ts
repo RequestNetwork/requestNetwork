@@ -2,7 +2,6 @@ import { ChainTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/t
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { UnsupportedNetworkError } from '../address-based';
 import { FeeReferenceBasedPaymentNetwork } from '../fee-reference-based';
-import { ChainManager } from '@requestnetwork/chain';
 
 const EVM_CURRENT_VERSION = '0.2.0';
 const NEAR_CURRENT_VERSION = 'NEAR-0.1.0';
@@ -37,7 +36,7 @@ export default class Erc20FeeProxyPaymentNetwork<
   }
 
   protected static getDefaultCurrencyVersion(
-    chainManager: ChainManager,
+    chainManager: ChainTypes.IChainManager,
     network?: ChainTypes.IChain | undefined,
   ): string {
     return chainManager.ecosystems[ChainTypes.ECOSYSTEM.NEAR].isChainSupported(network)

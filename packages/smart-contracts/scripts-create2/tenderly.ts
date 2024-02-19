@@ -4,7 +4,7 @@ import { ContractArtifact } from '../src/lib';
 import { Contract } from 'ethers';
 import * as console from 'console';
 import { ChainTypes } from '@requestnetwork/types';
-import { ChainManager } from '@requestnetwork/chain/src';
+import { ChainManager } from '@requestnetwork/chain';
 
 const tenderlyBaseURL = 'https://api.tenderly.co';
 const makeTenderlyClient =
@@ -40,7 +40,7 @@ const supportedTenderlyChains: ChainTypes.IEvmChain[] = [
   'rinkeby',
   'xdai',
 ].map((chainName: string) =>
-  ChainManager.getDefault().fromName(chainName, [ChainTypes.ECOSYSTEM.EVM]),
+  ChainManager.current().fromName(chainName, [ChainTypes.ECOSYSTEM.EVM]),
 );
 
 type TenderlyContract = { address: string; chainId: number };
@@ -62,7 +62,7 @@ export const tenderlyImportAll = async (hre: HardhatRuntimeEnvironmentExtended):
         const { networkName, address, version } = deployment;
         let deploymentChain: ChainTypes.IEvmChain;
         try {
-          deploymentChain = ChainManager.getDefault().fromName(networkName, [
+          deploymentChain = ChainManager.current().fromName(networkName, [
             ChainTypes.ECOSYSTEM.EVM,
           ]);
         } catch {

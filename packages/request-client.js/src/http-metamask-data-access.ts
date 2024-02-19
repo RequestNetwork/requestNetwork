@@ -21,7 +21,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
   } = {};
 
   private provider: ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider;
-  private storageChain: ChainTypes.IEvmChain = ChainManager.getDefault().fromName('private', [
+  private storageChain: ChainTypes.IEvmChain = ChainManager.current().fromName('private', [
     ChainTypes.ECOSYSTEM.EVM,
   ]);
 
@@ -78,7 +78,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
     if (!this.storageChain) {
       const network = await this.provider.getNetwork();
-      this.storageChain = ChainManager.getDefault().fromId(network.chainId.toString(), [
+      this.storageChain = ChainManager.current().fromId(network.chainId.toString(), [
         ChainTypes.ECOSYSTEM.EVM,
       ]);
     }

@@ -7,7 +7,7 @@ import { getDataStorage } from './dataStorage';
 import ConfirmedTransactionStore from './request/confirmedTransactionStore';
 import { getEthereumStorageNetworkNameFromId } from '@requestnetwork/ethereum-storage';
 import { SubgraphClient } from '@requestnetwork/thegraph-data-access';
-import { ChainManager } from '@requestnetwork/chain/src';
+import { ChainManager } from '@requestnetwork/chain';
 import { ChainTypes } from '@requestnetwork/types';
 
 // Initialize the node logger
@@ -18,7 +18,7 @@ const getStorageChain = (): ChainTypes.IEvmChain => {
   if (!network) {
     throw new Error(`Storage network not supported: ${config.getStorageNetworkId()}`);
   }
-  return ChainManager.getDefault().fromName(network, [ChainTypes.ECOSYSTEM.EVM]);
+  return ChainManager.current().fromName(network, [ChainTypes.ECOSYSTEM.EVM]);
 };
 
 export const getRequestNode = (): RequestNode => {

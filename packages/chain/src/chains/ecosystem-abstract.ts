@@ -1,43 +1,29 @@
 import { ChainTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ChainAbstract } from './chain-abstract';
 
-export abstract class EcosystemAbstract<CHAIN extends ChainTypes.IChain> {
+export abstract class EcosystemAbstract<ECOSYSTEM extends ChainTypes.ECOSYSTEM>
+  implements ChainTypes.IEcosystem<ECOSYSTEM>
+{
   constructor(
-    public name: ChainTypes.ECOSYSTEM,
-    public chainClass: new (id: string, name: string, testnet?: boolean) => CHAIN,
-    public chains: Record<string, CHAIN>,
+    public name: ECOSYSTEM,
+    public chainClass: new (
+      id: string,
+      name: string,
+      testnet?: boolean,
+    ) => ChainTypes.ChainTypeByEcosystem[ECOSYSTEM],
+    public chains: Record<string, ChainTypes.ChainTypeByEcosystem[ECOSYSTEM]>,
     public currencyType: RequestLogicTypes.CURRENCY,
-  ) {
-    // this.addNativeCurrenciesToChains(currencyType);
-  }
+  ) {}
 
   get chainNames(): string[] {
     return Object.keys(this.chains);
   }
 
   /**
-   * Adds the native currency to the list of currencies supported by each chain
-   */
-  // private addNativeCurrenciesToChains(
-  //   currencyType: RequestLogicTypes.CURRENCY.ETH | RequestLogicTypes.CURRENCY.BTC,
-  // ): void {
-  //   this.chainNames.forEach((chainName) => {
-  //     const nativeCurrency = (
-  //       nativeCurrencies[currencyType] as CurrencyTypes.NamedNativeCurrency[]
-  //     ).find((currency) => currency.network === chainName);
-  //     if (nativeCurrency) {
-  //       const chainCurrencies: TokenMap = this.chains[chainName].currencies || {};
-  //       chainCurrencies.native = nativeCurrency;
-  //       this.chains[chainName].currencies = chainCurrencies;
-  //     }
-  //   });
-  // }
-
-  /**
    * Check if chainName lives amongst the list of supported chains by this chain type.
    * Throws in the case it's not supported.
    */
-  public assertChainNameSupported(chainName?: string) {
+  public assertChainNameSupported(chainName?: string): asserts chainName is string {
     if (!this.isChainSupported(chainName)) throw new Error(`Unsupported chain ${chainName}`);
   }
 
@@ -45,7 +31,9 @@ export abstract class EcosystemAbstract<CHAIN extends ChainTypes.IChain> {
    * Check if chainName lives amongst the list of supported chains by this chain type.
    * Throws in the case it's not supported.
    */
-  public assertChainSupported(chain?: ChainAbstract): asserts chain is CHAIN {
+  public assertChainSupported(
+    chain?: ChainTypes.IChain,
+  ): asserts chain is ChainTypes.ChainTypeByEcosystem[ECOSYSTEM] {
     if (!this.isChainSupported(chain)) throw new Error(`Unsupported chain ${chain?.name}`);
   }
 

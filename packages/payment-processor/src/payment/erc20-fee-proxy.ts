@@ -1,13 +1,13 @@
-import { constants, ContractTransaction, Signer, BigNumberish, providers, BigNumber } from 'ethers';
+import { BigNumber, BigNumberish, constants, ContractTransaction, providers, Signer } from 'ethers';
 
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20FeeProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
-import { EvmChains } from '@requestnetwork/currency';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
+  ensureEvmChain,
   getAmountToPay,
   getProvider,
   getRequestPaymentValues,
@@ -82,7 +82,7 @@ export function _getErc20FeeProxyPaymentUrl(
   validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
   const { paymentReference, paymentAddress, feeAddress, feeAmount, version, network } =
     getRequestPaymentValues(request);
-  EvmChains.assertChainSupported(network!);
+  ensureEvmChain(network);
   const contractAddress = erc20FeeProxyArtifact.getAddress(network, version);
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = feeAmountOverride || BigNumber.from(feeAmount || 0);
@@ -103,9 +103,8 @@ export function prepareErc20FeeProxyPaymentTransaction(
   feeAmountOverride?: BigNumberish,
 ): IPreparedTransaction {
   validateErc20FeeProxyRequest(request, amount, feeAmountOverride);
-
   const { network } = request.currencyInfo;
-  EvmChains.assertChainSupported(network!);
+  ensureEvmChain(network);
   const encodedTx = encodePayErc20FeeRequest(request, amount, feeAmountOverride);
   const pn = getPaymentNetworkExtension(request);
   const proxyAddress = erc20FeeProxyArtifact.getAddress(network, pn?.version);

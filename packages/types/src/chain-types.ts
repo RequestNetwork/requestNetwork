@@ -61,42 +61,35 @@ export type IChain = ChainTypeByEcosystem[ECOSYSTEM];
  */
 export type IVmChain = ChainTypeByEcosystem[VmChainEcosystem];
 
-// export interface IChainManager {
-//   chains: IChain[];
-//
-//   /**
-//    * Gets the name of a chain
-//    */
-//   getName(chain: string | IChain): string;
-//
-//   /**
-//    * Gets a supported chain from its name
-//    */
-//   fromName<T extends ChainEcosystem[]>(
-//     chainName: string,
-//     ecosystemsFilter?: T,
-//   ): ChainTypeByEcosystem[T[number]];
-//
-//   /**
-//    * Gets a supported chain from its ID
-//    */
-//   fromId<T extends ChainEcosystem[]>(
-//     chainId: string,
-//     ecosystemsFilter?: T,
-//   ): ChainTypeByEcosystem[T[number]];
-//
-//   /**
-//    * Get default chain manager
-//    */
-//   getDefault(): IChainManager;
-//
-//   /**
-//    * Returns true if both chains are equal or aliases.
-//    * The third argument "chainsEcosystem" is only needed when comparing chains as strings.
-//    */
-//   isSameChain(
-//     chain1: string | IChain,
-//     chain2: string | IChain,
-//     chainsEcosystem?: ChainEcosystem[],
-//   ): boolean;
-// }
+export interface IEcosystem<E extends ECOSYSTEM> {
+  name: E;
+  chainClass: new (id: string, name: string, testnet?: boolean) => ChainTypeByEcosystem[E];
+  chains: Record<string, ChainTypeByEcosystem[E]>;
+  currencyType: RequestLogicTypes.CURRENCY;
+  chainNames: string[];
+  assertChainNameSupported(chainName?: string): asserts chainName is string;
+  assertChainSupported(chain?: IChain): asserts chain is ChainTypeByEcosystem[E];
+  isChainSupported(chainName?: string | IChain): boolean;
+  isSameChainFromString(chain1: string, chain2: string): boolean;
+}
+
+export interface IChainManager {
+  chains: IChain[];
+  ecosystems: {
+    [E in ECOSYSTEM]: IEcosystem<E>;
+  };
+  getEcosystemsByCurrencyType(currencyType: RequestLogicTypes.CURRENCY): ECOSYSTEM[];
+  fromName<T extends readonly ECOSYSTEM[]>(
+    chainName: string,
+    ecosystemsFilter?: T,
+  ): ChainTypeByEcosystem[T[number]];
+  fromId<T extends readonly ECOSYSTEM[]>(
+    chainId: string,
+    ecosystemsFilter?: T,
+  ): ChainTypeByEcosystem[T[number]];
+  isSameChain(
+    chain1: string | IChain,
+    chain2: string | IChain,
+    chainsEcosystem?: readonly ECOSYSTEM[],
+  ): boolean;
+}

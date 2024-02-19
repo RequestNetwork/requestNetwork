@@ -1,7 +1,7 @@
 import { BigNumberish } from 'ethers';
 import { WalletConnection } from 'near-api-js';
 
-import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
+import { ChainTypes, ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import {
   getAmountToPay,
@@ -10,7 +10,7 @@ import {
   validateRequest,
 } from './utils';
 import { INearTransactionCallback, processNearPayment } from './utils-near';
-import { NearChains } from '@requestnetwork/currency';
+import { ChainManager } from '@requestnetwork/chain';
 
 /**
  * processes the transaction to pay a Near request.
@@ -24,11 +24,18 @@ export async function payNearInputDataRequest(
   amount?: BigNumberish,
   callback?: INearTransactionCallback,
 ): Promise<void> {
-  if (!request.currencyInfo.network || !NearChains.isChainSupported(request.currencyInfo.network)) {
+  if (
+    !request.currencyInfo.network ||
+    !ChainManager.current().ecosystems[ChainTypes.ECOSYSTEM.NEAR].isChainSupported(
+      request.currencyInfo.network,
+    )
+  ) {
     throw new Error('request.currencyInfo should be a Near network');
   }
 
-  NearChains.assertChainSupported(request.currencyInfo.network);
+  const chain = ChainManager.current().fromName(request.currencyInfo.network, [
+    ChainTypes.ECOSYSTEM.NEAR,
+  ]);
   validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN);
 
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
@@ -40,7 +47,7 @@ export async function payNearInputDataRequest(
 
   return processNearPayment(
     walletConnection,
-    request.currencyInfo.network,
+    chain,
     amountToPay,
     paymentAddress,
     paymentReference,

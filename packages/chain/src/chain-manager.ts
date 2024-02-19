@@ -1,16 +1,18 @@
 import { ChainDefinition } from './types';
-import { EcosystemAbstract } from './chains/ecosystem-abstract';
 import BtcEcosystem from './chains/btc/btc-ecosystem';
 import DeclarativeEcosystem from './chains/declarative/declarative-ecosystem';
 import EvmEcosystem from './chains/evm/evm-ecosystem';
 import NearEcosystem from './chains/near/near-ecosystem';
 import { initializeChains } from './chains/utils';
 import { ChainTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ChainAbstract } from './chains/chain-abstract';
 
-export class ChainManager {
-  private static defaultInstance: ChainManager;
+export class ChainManager implements ChainTypes.IChainManager {
+  private static instance: ChainTypes.IChainManager;
 
-  public ecosystems: Record<ChainTypes.ECOSYSTEM, EcosystemAbstract<any>> = {
+  public readonly ecosystems: {
+    [E in ChainTypes.ECOSYSTEM]: ChainTypes.IEcosystem<E>;
+  } = {
     [ChainTypes.ECOSYSTEM.BTC]: BtcEcosystem,
     [ChainTypes.ECOSYSTEM.DECLARATIVE]: DeclarativeEcosystem,
     [ChainTypes.ECOSYSTEM.EVM]: EvmEcosystem,
@@ -23,7 +25,7 @@ export class ChainManager {
       const ecosystem = this.ecosystems[ecosystemName as ChainTypes.ECOSYSTEM];
       if (!inputChains[ecosystem.name]) continue;
       const chainDefinitions = inputChains[ecosystem.name];
-      const chains = initializeChains(ecosystem.chainClass, chainDefinitions);
+      const chains = initializeChains<ChainAbstract>(ecosystem.chainClass, chainDefinitions);
       Object.assign(ecosystem.chains, chains);
     }
   }
@@ -32,11 +34,11 @@ export class ChainManager {
    * Returns the list of supported chains
    */
   get chains(): ChainTypes.IChain[] {
-    return Object.keys(this.ecosystems).reduce((chains, ecosystemName) => {
-      return chains.concat(
-        Object.values(this.ecosystems[ecosystemName as ChainTypes.ECOSYSTEM].chains),
-      );
-    }, [] as ChainTypes.IChain[]);
+    return Object.keys(this.ecosystems).reduce(
+      (chains, ecosystemName) =>
+        chains.concat(Object.values(this.ecosystems[ecosystemName as ChainTypes.ECOSYSTEM].chains)),
+      [] as ChainTypes.IChain[],
+    );
   }
 
   getEcosystemsByCurrencyType(currencyType: RequestLogicTypes.CURRENCY): ChainTypes.ECOSYSTEM[] {
@@ -96,11 +98,14 @@ export class ChainManager {
     return this.fromGeneric('id', chainId, ecosystemsFilter);
   }
 
-  static getDefault(): ChainManager {
-    if (this.defaultInstance) return this.defaultInstance;
+  static setCurrent(chainManager: ChainTypes.IChainManager): void {
+    this.instance = chainManager;
+  }
 
-    this.defaultInstance = new ChainManager();
-    return this.defaultInstance;
+  static current(): ChainTypes.IChainManager {
+    if (this.instance) return this.instance;
+    this.instance = new ChainManager();
+    return this.instance;
   }
 
   /**

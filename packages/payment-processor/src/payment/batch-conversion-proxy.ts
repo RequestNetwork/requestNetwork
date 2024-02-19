@@ -328,7 +328,7 @@ const getBatchTxValue = (enrichedRequests: EnrichedRequest[]) => {
  */
 function getUSDPathsForFeeLimit(
   requestDetails: PaymentTypes.RequestDetail[],
-  network: string,
+  network: ChainTypes.IVmChain,
   skipFeeUSDLimit: boolean,
   currencyManager: ICurrencyManager<unknown>,
   hasNativePayment: boolean,
@@ -373,10 +373,10 @@ function getUSDPathsForFeeLimit(
  * @returns
  */
 function getBatchDeploymentInformation(
-  network: ChainTypes.IEvmChain,
+  network: ChainTypes.IVmChain,
   version?: string,
 ): { address: string } | null {
-  return { address: batchConversionPaymentsArtifact.getAddress(network, version) };
+  return { address: batchConversionPaymentsArtifact.getAddress(network.name, version) };
 }
 
 /**

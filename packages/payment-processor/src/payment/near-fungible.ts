@@ -2,7 +2,7 @@ import { BigNumberish } from 'ethers';
 import { WalletConnection } from 'near-api-js';
 
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
-import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
+import { ChainTypes, ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { getRequestPaymentValues, validateRequest, getAmountToPay } from './utils';
 import {
@@ -10,7 +10,7 @@ import {
   isReceiverReady,
   processNearFungiblePayment,
 } from './utils-near';
-import { NearChains } from '@requestnetwork/currency';
+import { ChainManager } from '@requestnetwork/chain';
 
 /**
  * Processes the transaction to pay a request in fungible token on NEAR with fee (Erc20FeeProxy).
@@ -31,10 +31,13 @@ export async function payNearFungibleRequest(
     throw new Error('Cannot pay without a paymentReference');
   }
 
-  if (!network || !NearChains.isChainSupported(network)) {
+  if (
+    !network ||
+    !ChainManager.current().ecosystems[ChainTypes.ECOSYSTEM.NEAR].isChainSupported(network)
+  ) {
     throw new Error('Should be a Near network');
   }
-  NearChains.assertChainSupported(network);
+  const chain = ChainManager.current().fromName(network, [ChainTypes.ECOSYSTEM.NEAR]);
 
   const amountToPay = getAmountToPay(request, amount).toString();
 
@@ -50,7 +53,7 @@ export async function payNearFungibleRequest(
 
   return processNearFungiblePayment(
     walletConnection,
-    network,
+    chain,
     amountToPay,
     paymentAddress,
     paymentReference,

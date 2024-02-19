@@ -1,6 +1,5 @@
-import { ERC777Currency, ERC777CurrencyInput, TokenMap } from '../types';
+import { ERC777CurrencyInput, TokenMap } from '../types';
 import { supportedNetworks } from './chains';
-import { ChainManager } from '@requestnetwork/chain';
 import { RequestLogicTypes } from '@requestnetwork/types';
 
 /**

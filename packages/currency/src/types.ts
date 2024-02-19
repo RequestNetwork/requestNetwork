@@ -1,5 +1,4 @@
 import { ChainTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { ChainManager } from '@requestnetwork/chain';
 
 /**
  * Common types used in token configuration files
@@ -107,7 +106,7 @@ export type StorageCurrency = RequestLogicTypes.ICurrency;
  * A Currency manager handles a list of currencies and provides utility to retrieve and change format
  */
 export interface ICurrencyManager<TMeta = unknown> {
-  chainManager: ChainManager;
+  chainManager: ChainTypes.IChainManager;
   from(
     symbolOrAddress: string,
     network?: string | ChainTypes.IChain,

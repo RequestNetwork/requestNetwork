@@ -6,6 +6,7 @@ import { ERC20SwapToConversion__factory } from '@requestnetwork/smart-contracts/
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import {
+  ensureEvmChain,
   getAmountToPay,
   getProvider,
   getProxyAddress,
@@ -13,7 +14,7 @@ import {
   getSigner,
   validateConversionFeeProxyRequest,
 } from './utils';
-import { CurrencyManager, EvmChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { IRequestPaymentOptions } from '../types';
 import { IPreparedTransaction } from './prepared-transaction';
 
@@ -91,7 +92,7 @@ export function encodeSwapToPayAnyToErc20Request(
   if (!network) {
     throw new Error(`Currency in conversion settings must have a network`);
   }
-  EvmChains.assertChainSupported(network);
+  ensureEvmChain(network);
 
   const requestCurrency = currencyManager.fromStorageCurrency(request.currencyInfo);
   if (!requestCurrency) {

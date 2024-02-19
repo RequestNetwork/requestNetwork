@@ -4,7 +4,6 @@ import addressValidator from 'multicoin-address-validator';
 import { getSupportedERC20Currencies } from './erc20';
 import { getSupportedERC777Currencies } from './erc777';
 import { getHash } from './getHash';
-import { ChainManager } from '@requestnetwork/chain';
 import {
   CurrencyDefinition,
   CurrencyInput,
@@ -16,6 +15,7 @@ import {
 import { AggregatorsMap, defaultConversionPairs, getPath } from './conversion-aggregators';
 import { isValidNearAddress } from './currency-utils';
 import { getSupportedNativeCurrencies } from './native';
+import { ChainManager } from '@requestnetwork/chain';
 
 const { BTC, ERC20, ERC777, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 
@@ -26,21 +26,21 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   private readonly knownCurrencies: CurrencyDefinition<TMeta>[];
   private readonly legacyTokens: LegacyTokenMap;
   private readonly conversionPairs: AggregatorsMap;
-  public readonly chainManager: ChainManager;
+  public readonly chainManager: ChainTypes.IChainManager;
 
   private static defaultInstance: CurrencyManager;
 
   /**
-   *
    * @param inputCurrencies The list of currencies known by the Manager.
    * @param legacyTokens A mapping of legacy currency name or network name, in the format { "chainName": {"TOKEN": ["NEW_TOKEN","NEW_CHAIN"]}}
    * @param conversionPairs A mapping of possible conversions by network (network => currencyFrom => currencyTo => cost)
+   * @param chainManager A ChainManager instance that describes the supported underlying chains
    */
   constructor(
     inputCurrencies: (CurrencyInput & { id?: string; meta?: TMeta })[],
     legacyTokens?: LegacyTokenMap,
     conversionPairs?: AggregatorsMap,
-    chainManager?: ChainManager,
+    chainManager?: ChainTypes.IChainManager,
   ) {
     this.knownCurrencies = [];
     for (const input of inputCurrencies) {
@@ -52,7 +52,8 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     }
     this.legacyTokens = legacyTokens || CurrencyManager.getDefaultLegacyTokens();
     this.conversionPairs = conversionPairs || CurrencyManager.getDefaultConversionPairs();
-    this.chainManager = chainManager || ChainManager.getDefault();
+    this.chainManager = chainManager || ChainManager.current();
+    ChainManager.setCurrent(this.chainManager);
   }
 
   /**

@@ -4,7 +4,7 @@ import {
   NearConversionNativeTokenPaymentDetector,
   NearNativeTokenPaymentDetector,
 } from '@requestnetwork/payment-detection';
-import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ChainTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 
 /**
@@ -183,7 +183,7 @@ export const processNearFungiblePayment = async (
     viewMethods: [],
   }) as any;
 
-  const proxyAddress = erc20FeeProxyArtifact.getAddress(network, 'near');
+  const proxyAddress = erc20FeeProxyArtifact.getAddress(network.name, 'near');
   await fungibleContract.ft_transfer_call({
     args: {
       receiver_id: proxyAddress,

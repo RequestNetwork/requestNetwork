@@ -3,7 +3,7 @@ import { ChainTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { chains } from './index';
 import { EvmChain } from './evm-chain';
 
-class EvmEcosystem extends EcosystemAbstract<ChainTypes.IEvmChain> {
+class EvmEcosystem extends EcosystemAbstract<ChainTypes.ECOSYSTEM.EVM> {
   constructor(chains: Record<string, EvmChain>) {
     super(ChainTypes.ECOSYSTEM.EVM, EvmChain, chains, RequestLogicTypes.CURRENCY.ETH);
   }
