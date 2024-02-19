@@ -2,7 +2,7 @@ import * as yargs from 'yargs';
 import { runUpdate } from './contractUtils';
 import { getAllAggregators, getCurrencyManager } from './aggregatorsUtils';
 import assert from 'assert';
-import { EvmChains } from '@requestnetwork/currency';
+import { ChainTypes } from '@requestnetwork/types';
 
 type Options = {
   dryRun: boolean;
@@ -58,12 +58,12 @@ export const builder = (): yargs.Argv<Options> =>
 
 export const handler = async (args: Options): Promise<void> => {
   const { input, output, aggregator: aggregatorArg } = args;
-  const { network, list } = args;
+  const { network: chainName, list } = args;
 
-  EvmChains.assertChainSupported(network);
   const currencyManager = await getCurrencyManager(list);
-  const inputCcy = currencyManager.from(input, network) || currencyManager.from(input);
-  const outputCcy = currencyManager.from(output, network) || currencyManager.from(output);
+  const chain = currencyManager.chainManager.fromName(chainName, [ChainTypes.ECOSYSTEM.EVM]);
+  const inputCcy = currencyManager.from(input, chain) || currencyManager.from(input);
+  const outputCcy = currencyManager.from(output, chain) || currencyManager.from(output);
 
   let inputAddress = input;
   if (!inputAddress.startsWith('0x')) {
@@ -80,7 +80,7 @@ export const handler = async (args: Options): Promise<void> => {
   const aggregator = aggregatorArg || `${inputCcy?.symbol} / ${outputCcy?.symbol}`;
   let aggregatorAddress = aggregator;
   if (!aggregatorAddress.startsWith('0x')) {
-    const aggregators = await getAllAggregators(network);
+    const aggregators = await getAllAggregators(chain);
     const newAggregator = aggregators.find((x) => x.name === aggregator);
     assert(newAggregator, `aggregator ${aggregator} not found`);
     aggregatorAddress = newAggregator?.proxyAddress;

@@ -1,6 +1,6 @@
 import { CurrencyManager } from '@requestnetwork/currency';
 import { PaymentNetworkFactory } from '@requestnetwork/payment-detection';
-import { CurrencyTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { Types, Utils } from '@requestnetwork/request-client.js';
 
 import { mockAdvancedLogic } from './mocks';
@@ -20,7 +20,7 @@ automine();
 const pnFactory = new PaymentNetworkFactory(mockAdvancedLogic, CurrencyManager.getDefault());
 
 const paidRequest = {
-  network: 'matic' as ChainTypes.IEvmChain,
+  network: 'matic',
   requestId: '014bcd076791fb915af457df1d3f26c81ff66f7e278e4a18f0e48a1705572a6306',
   paymentAddress: '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93',
   salt: '8c5ea6f8b4a14fe0',

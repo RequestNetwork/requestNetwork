@@ -1,6 +1,6 @@
 import * as yargs from 'yargs';
 import { getAvailableAggregators, getCurrencyManager } from './aggregatorsUtils';
-import { EvmChains } from '@requestnetwork/currency';
+import { ChainTypes } from '@requestnetwork/types';
 
 type Options = {
   network: string[];
@@ -30,11 +30,11 @@ export const builder = (): yargs.Argv<Options> =>
 export const handler = async (args: Options): Promise<void> => {
   const { list } = args;
   const currencyManager = await getCurrencyManager(list);
-  for (const network of args.network) {
-    EvmChains.assertChainSupported(network);
-    const available = await getAvailableAggregators(network, currencyManager);
+  for (const chainName of args.network) {
+    const chain = currencyManager.chainManager.fromName(chainName, [ChainTypes.ECOSYSTEM.EVM]);
+    const available = await getAvailableAggregators(chain, currencyManager);
     if (available.length > 0) {
-      console.log(network);
+      console.log(chainName);
       console.log(available.map((x) => x.name).join('\n'));
       console.log();
     }

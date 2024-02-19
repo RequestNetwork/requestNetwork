@@ -8,6 +8,7 @@ import {
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { retry } from '@requestnetwork/utils';
 import { ChainTypes } from '@requestnetwork/types';
+import { ChainManager } from '@requestnetwork/chain/src';
 
 export interface IOptions {
   network?: string;
@@ -139,35 +140,39 @@ const getCurrency = (symbol: string) => {
 };
 
 export const listAggregators = async (options?: IOptions): Promise<void> => {
-  let networks = ['private', 'rinkeby', 'mainnet'];
+  let chains = [
+    ChainManager.current().fromName('private', [ChainTypes.ECOSYSTEM.EVM]),
+    ChainManager.current().fromName('goerli', [ChainTypes.ECOSYSTEM.EVM]),
+    ChainManager.current().fromName('mainnet', [ChainTypes.ECOSYSTEM.EVM]),
+  ];
   if (options?.network) {
-    EvmChains.assertChainSupported(options.network);
-    networks = [options.network];
+    const chain = ChainManager.current().fromName(options.network, [ChainTypes.ECOSYSTEM.EVM]);
+    chains = [chain];
   }
 
   // Create an Object to be used by a dijkstra algorithm to find the best path between two currencies
   const allAggregators: Record<string, Record<string, Record<string, string>>> = {};
   const aggregatorsNodesForDijkstra: Record<string, Record<string, Record<string, number>>> = {};
-  for (const network of networks) {
-    allAggregators[network] = {};
-    const chainlinkConversionPathTools = new ChainlinkConversionPathTools(network, options);
-    allAggregators[network] = await chainlinkConversionPathTools.getAggregators();
+  for (const chain of chains) {
+    allAggregators[chain.name] = {};
+    const chainlinkConversionPathTools = new ChainlinkConversionPathTools(chain, options);
+    allAggregators[chain.name] = await chainlinkConversionPathTools.getAggregators();
 
     // Include the reverse path of each aggregators
-    aggregatorsNodesForDijkstra[network] = {};
-    for (let ccyIn in allAggregators[network]) {
+    aggregatorsNodesForDijkstra[chain.name] = {};
+    for (let ccyIn in allAggregators[chain.name]) {
       ccyIn = ccyIn.toLowerCase();
-      if (!aggregatorsNodesForDijkstra[network][ccyIn]) {
-        aggregatorsNodesForDijkstra[network][ccyIn] = {};
+      if (!aggregatorsNodesForDijkstra[chain.name][ccyIn]) {
+        aggregatorsNodesForDijkstra[chain.name][ccyIn] = {};
       }
-      for (let ccyOut in allAggregators[network][ccyIn]) {
+      for (let ccyOut in allAggregators[chain.name][ccyIn]) {
         ccyOut = ccyOut.toLowerCase();
 
-        if (!aggregatorsNodesForDijkstra[network][ccyOut]) {
-          aggregatorsNodesForDijkstra[network][ccyOut] = {};
+        if (!aggregatorsNodesForDijkstra[chain.name][ccyOut]) {
+          aggregatorsNodesForDijkstra[chain.name][ccyOut] = {};
         }
-        aggregatorsNodesForDijkstra[network][ccyIn][ccyOut] = 1;
-        aggregatorsNodesForDijkstra[network][ccyOut][ccyIn] = 1;
+        aggregatorsNodesForDijkstra[chain.name][ccyIn][ccyOut] = 1;
+        aggregatorsNodesForDijkstra[chain.name][ccyOut][ccyIn] = 1;
       }
     }
   }

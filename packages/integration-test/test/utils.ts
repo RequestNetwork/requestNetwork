@@ -1,5 +1,5 @@
 import {
-  CurrencyTypes,
+  ChainTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
@@ -14,9 +14,9 @@ export const createMockErc20FeeRequest = ({
   feeAddress,
   feeAmount,
 }: Record<
-  'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount',
+  'network' | 'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount',
   string
-> & { network: ChainTypes.IEvmChain }): RequestLogicTypes.IRequest => ({
+>): RequestLogicTypes.IRequest => ({
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
   currency: {
     network,
@@ -56,10 +56,9 @@ export const createMockConversionErc20Request = ({
   feeAmount,
   currency,
 }: Record<
-  'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount',
+  'network' | 'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount',
   string
 > & {
-  network: ChainTypes.IEvmChain;
   currency: RequestLogicTypes.ICurrency;
 }): RequestLogicTypes.IRequest => ({
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
@@ -98,11 +97,15 @@ export const createMockNativeTokenRequest = ({
   feeAmount,
   nativeTokenCode,
 }: Record<
-  'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount' | 'nativeTokenCode',
+  | 'network'
+  | 'paymentAddress'
+  | 'salt'
+  | 'requestId'
+  | 'feeAddress'
+  | 'feeAmount'
+  | 'nativeTokenCode',
   string
-> & {
-  network: ChainTypes.IEvmChain;
-}): RequestLogicTypes.IRequest => ({
+>): RequestLogicTypes.IRequest => ({
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
   currency: {
     network,
@@ -140,8 +143,10 @@ export const createMockConversionEthTokenRequest = ({
   feeAddress,
   feeAmount,
   currency,
-}: Record<'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount', string> & {
-  network: ChainTypes.IEvmChain;
+}: Record<
+  'network' | 'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount',
+  string
+> & {
   currency: RequestLogicTypes.ICurrency;
 }): RequestLogicTypes.IRequest => ({
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },

@@ -1,5 +1,6 @@
 import * as yargs from 'yargs';
-import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
+import { ChainTypes } from '@requestnetwork/types';
 
 type Options = { to: string; from: string; network: string };
 
@@ -27,6 +28,6 @@ export const handler = (args: yargs.Arguments<Options>): void => {
   const currencyManager = CurrencyManager.getDefault();
   const from = currencyManager.from(args.from)!;
   const to = currencyManager.from(args.to)!;
-  EvmChains.assertChainSupported(args.network);
-  console.log(currencyManager.getConversionPath(from, to, args.network));
+  const chain = currencyManager.chainManager.fromName(args.network, [ChainTypes.ECOSYSTEM.EVM]);
+  console.log(currencyManager.getConversionPath(from, to, chain));
 };
