@@ -100,6 +100,10 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
           address: '0xc861aE0Cd70b73b0C8F1D62Fa669E6D1d7D7e0aB',
           creationBlockNumber: 4733362,
         },
+        base: {
+          address: '0xEdfD8386d5DE52072B4Ad8dC69BBD0bB89f9A1fb',
+          creationBlockNumber: 10827267,
+        },
       },
     },
     '0.2.1': {
@@ -109,6 +113,10 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
         sepolia: {
           address: '0xc861aE0Cd70b73b0C8F1D62Fa669E6D1d7D7e0aB',
           creationBlockNumber: 4733362,
+        },
+        base: {
+          address: '0xEdfD8386d5DE52072B4Ad8dC69BBD0bB89f9A1fb',
+          creationBlockNumber: 10827267,
         },
       },
     },

@@ -146,6 +146,10 @@ export const ethereumFeeProxyArtifact = new ContractArtifact<EthereumFeeProxy>(
           address: '0xE9A708db0D30409e39810C44cA240fd15cdA9b1a',
           creationBlockNumber: 19545294,
         },
+        base: {
+          address: '0xd9C3889eB8DA6ce449bfFE3cd194d08A436e96f2',
+          creationBlockNumber: 10827264,
+        },
       },
     },
   },
