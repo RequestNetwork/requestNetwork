@@ -257,12 +257,12 @@ beforeAll(async () => {
   await revokeErc20Approval(proxyERC20Conv, alphaContractAddress, wallet);
 
   proxyERC20Swap = erc20SwapToPayArtifact.getAddress(
-    validRequestERC20FeeProxy.currencyInfo.network! as ChainTypes.IEvmChain,
+    validRequestERC20FeeProxy.currencyInfo.network!,
   );
   await revokeErc20Approval(proxyERC20Swap, alphaContractAddress, wallet);
 
   proxyERC20SwapConv = erc20SwapConversionArtifact.getAddress(
-    validRequestERC20FeeProxy.currencyInfo.network! as ChainTypes.IEvmChain,
+    validRequestERC20FeeProxy.currencyInfo.network!,
   );
   await revokeErc20Approval(proxyERC20SwapConv, alphaContractAddress, wallet);
 });

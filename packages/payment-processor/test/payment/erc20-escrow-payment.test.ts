@@ -67,9 +67,7 @@ const validRequest: ClientTypes.IRequestData = {
   version: '1.0',
 };
 
-const escrowAddress = erc20EscrowToPayArtifact.getAddress(
-  validRequest.currencyInfo.network! as ChainTypes.IEvmChain,
-);
+const escrowAddress = erc20EscrowToPayArtifact.getAddress(validRequest.currencyInfo.network!);
 const payerAddress = wallet.address;
 
 describe('erc20-escrow-payment tests:', () => {

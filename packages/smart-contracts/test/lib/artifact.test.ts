@@ -55,9 +55,9 @@ describe('Artifact', () => {
   });
 
   it('throws for a non-existing network', () => {
-    expect(() =>
-      erc20ProxyArtifact.getDeploymentInformation('fakenetwork' as ChainTypes.IEvmChain),
-    ).toThrowError(`No deployment for network: fakenetwork`);
+    expect(() => erc20ProxyArtifact.getDeploymentInformation('fakenetwork')).toThrowError(
+      `No deployment for network: fakenetwork`,
+    );
   });
 
   it('throws for a non-existing version', () => {

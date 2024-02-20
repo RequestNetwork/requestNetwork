@@ -11,7 +11,7 @@ import {
 } from '../../utils/payment-network/mocked_native_data';
 import { AdvancedLogic } from '../../../src';
 import { arbitraryTimestamp, payeeRaw } from '../../utils/test-data-generator';
-import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import NearTestnetNativeNativePaymentNetwork from '../../../src/extensions/payment-network/near/near-testnet-native';
 
@@ -154,7 +154,7 @@ describe('extensions/payment-network/native-token', () => {
       expect(() => {
         new NearNativePaymentNetwork(currencyManager).createCreationAction({
           ...partialCreationParams,
-          paymentNetworkName: 'another-chain' as ChainTypes.INearChain,
+          paymentNetworkName: 'another-chain',
         });
       }).toThrowError(
         `Payment network 'another-chain' is not supported by this extension (only aurora)`,
@@ -331,7 +331,7 @@ describe('extensions/payment-network/native-token', () => {
     });
     it('throws on a wrong payment network', () => {
       const advancedLogic = new AdvancedLogic(currencyManager);
-      const wrongNetwork = `wrong network` as ChainTypes.IEvmChain;
+      const wrongNetwork = `wrong network`;
 
       const wrongNativeTokenRequestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,
