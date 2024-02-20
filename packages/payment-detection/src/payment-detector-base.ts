@@ -9,7 +9,11 @@ import {
 export abstract class PaymentDetectorBase<
   TExtension extends ExtensionTypes.IExtension,
   TPaymentEventParameters extends PaymentTypes.GenericEventParameters,
-> implements PaymentTypes.IPaymentNetwork<TPaymentEventParameters>
+> implements
+    PaymentTypes.IPaymentNetwork<
+      TPaymentEventParameters,
+      TExtension extends ExtensionTypes.IExtension<infer U> ? U : never
+    >
 {
   protected constructor(
     public readonly paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,

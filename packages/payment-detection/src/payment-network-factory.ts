@@ -122,12 +122,15 @@ export class PaymentNetworkFactory {
    * @param paymentChainName Different from request.currency.network for on-chain conversion payment networks (any-to-something)
    * @returns the module to handle the payment network
    */
-  public createPaymentNetwork(
-    paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
+  public createPaymentNetwork<PN_ID extends ExtensionTypes.PAYMENT_NETWORK_ID>(
+    paymentNetworkId: PN_ID,
     currencyType: RequestLogicTypes.CURRENCY,
     paymentChainName?: string,
     paymentNetworkVersion?: string,
-  ): PaymentTypes.IPaymentNetwork {
+  ): PaymentTypes.IPaymentNetwork<
+    PaymentTypes.GenericEventParameters,
+    Extract<PaymentTypes.PaymentNetworkCreateParameters, { id: PN_ID }>['parameters']
+  > {
     const paymentChain = this.currencyManager.chainManager.fromName(
       paymentChainName ?? 'mainnet',
       AdvancedLogic.supportedEcosystemsForExtension[paymentNetworkId],
@@ -176,7 +179,7 @@ export class PaymentNetworkFactory {
    */
   public getPaymentNetworkFromRequest(
     request: RequestLogicTypes.IRequest,
-  ): PaymentTypes.IPaymentNetwork | null {
+  ): PaymentTypes.IPaymentNetwork<PaymentTypes.GenericEventParameters, any> | null {
     const pn = getPaymentNetworkExtension(request);
     if (!pn) {
       return null;
@@ -185,11 +188,6 @@ export class PaymentNetworkFactory {
     const detectionChain = pn.values?.network ?? request.currency.network;
 
     const { id, version } = pn;
-    return this.createPaymentNetwork(
-      id as unknown as ExtensionTypes.PAYMENT_NETWORK_ID,
-      request.currency.type,
-      detectionChain,
-      version,
-    );
+    return this.createPaymentNetwork(id, request.currency.type, detectionChain, version);
   }
 }

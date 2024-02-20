@@ -26,7 +26,7 @@ const PROXY_CONTRACT_ADDRESS_MAP = {
  */
 
 export abstract class ERC20FeeProxyPaymentDetectorBase<
-  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
+  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased<any>,
   TPaymentEventParameters extends PaymentTypes.IERC20FeePaymentEventParameters,
 > extends FeeReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**

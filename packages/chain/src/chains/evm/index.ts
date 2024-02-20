@@ -4,6 +4,7 @@ import * as AlfajoresDefinition from './data/alfajores';
 import * as ArbitrumOneDefinition from './data/arbitrum-one';
 import * as ArbitrumRinkebyDefinition from './data/arbitrum-rinkeby';
 import * as AvalancheDefinition from './data/avalanche';
+import * as BaseDefinition from './data/base';
 import * as BscDefinition from './data/bsc';
 import * as BscTestDefinition from './data/bsctest';
 import * as CeloDefinition from './data/celo';
@@ -35,6 +36,7 @@ export const chainDefinitions: Record<string, ChainDefinition> = {
   'arbitrum-one': ArbitrumOneDefinition,
   'arbitrum-rinkeby': ArbitrumRinkebyDefinition,
   avalanche: AvalancheDefinition,
+  base: BaseDefinition,
   bsc: BscDefinition,
   bsctest: BscTestDefinition,
   celo: CeloDefinition,

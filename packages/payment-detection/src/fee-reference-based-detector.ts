@@ -8,7 +8,7 @@ import { generate8randomBytes } from '@requestnetwork/utils';
  * Abstract class to extend to get the payment balance of reference based requests
  */
 export abstract class FeeReferenceBasedDetector<
-  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
+  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased<any>,
   TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters<string> & {
     feeAddress?: string;
     feeAmount?: string;

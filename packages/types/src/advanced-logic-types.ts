@@ -18,7 +18,7 @@ export interface IAdvancedLogicExtensions {
   // FIXME: should be Extension.PnReferenceBased.IReferenceBased<Extension.PnStreamReferenceBased.ICreationParameters>
   erc777Stream: any;
   feeProxyContractEth: Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>;
-  anyToEthProxy: Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>;
+  anyToEthProxy: Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnAnyToEth.ICreationParameters>;
   anyToNativeToken: Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>[];
   erc20TransferableReceivable: Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>;
 }

@@ -11,7 +11,7 @@ import { notNull } from '@requestnetwork/utils';
  * Handles payment detection for a declarative request, or derived.
  */
 export abstract class DeclarativePaymentDetectorBase<
-  TExtension extends ExtensionTypes.PnAnyDeclarative.IAnyDeclarative,
+  TExtension extends ExtensionTypes.PnAnyDeclarative.IAnyDeclarative<any>,
   TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters<unknown>,
 > extends PaymentDetectorBase<TExtension, TPaymentEventParameters> {
   protected constructor(
