@@ -3,7 +3,6 @@ import { InvalidPaymentAddressError, UnsupportedNetworkError } from './address-b
 
 import ReferenceBasedPaymentNetwork from './reference-based';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import * as chai from 'chai';
 
 /**
  * Implementation of the payment network to pay in ETH based on input data.

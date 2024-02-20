@@ -4,8 +4,7 @@
 	Data last updated 2018-08-29
 */
 
-import { ISO4217CurrencyInput, NativeCurrencyInput } from './types';
-import { nativeCurrencies } from './native';
+import { ISO4217CurrencyInput } from './types';
 import { RequestLogicTypes } from '@requestnetwork/types';
 
 const iso4217Currencies = [

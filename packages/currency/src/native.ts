@@ -1,5 +1,5 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { NativeCurrency, NativeCurrencyInput, TokenMap } from './types';
+import { NativeCurrencyInput, TokenMap } from './types';
 
 export const nativeCurrencies: Record<
   RequestLogicTypes.CURRENCY.BTC | RequestLogicTypes.CURRENCY.ETH,
