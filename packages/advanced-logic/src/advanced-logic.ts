@@ -131,6 +131,9 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     requestState: RequestLogicTypes.IRequest,
   ): ExtensionTypes.IExtension {
     const id: ExtensionTypes.ID = extensionAction.id;
+    if (!(id in AdvancedLogic.supportedEcosystemsForExtension)) {
+      throw Error(`extension not recognized, id: ${id}`);
+    }
     const ecosystems = AdvancedLogic.supportedEcosystemsForExtension[id];
     if (!ecosystems) {
       throw Error(`chain ecosystem not recognized for extension: ${id}`);
@@ -144,7 +147,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     return extension;
   }
 
-  public getExtensionsForChain(
+  protected getExtensionsForChain(
     chain?: ChainTypes.IChain,
   ): Record<ExtensionTypes.ID, ExtensionTypes.IExtension | undefined> {
     const extensions: Record<ExtensionTypes.ID, ExtensionTypes.IExtension | undefined> = {
