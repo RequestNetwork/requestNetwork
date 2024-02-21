@@ -43,14 +43,26 @@ const DEPLOYER_KEY_GUARD = 'DEPLOYER_KEY_GUARD';
 const LOCAL_DEPLOYER_ADDRESS = '0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0';
 
 // Request deployer address on live blockchains
-const LIVE_DEPLOYER_ADDRESS = `0xe7E02e5e94d668C5630959e4791B1977f3b74fcC`; // base
-//'0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2';
+const LIVE_DEPLOYER_ADDRESS = '0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2';
+
+/**
+ * The following function was added due to unusual transaction activity when bridging ETH to base.
+ * This affected the account nonce and the subsequent addresss of the RN deployer contract on that chain.
+ */
+function liveDeployerAddress(): string {
+  switch (process.env.NETWORK?.toLowerCase()) {
+    case `base`:
+      return `0xe7E02e5e94d668C5630959e4791B1977f3b74fcC`;
+    default:
+      return LIVE_DEPLOYER_ADDRESS;
+  }
+}
 
 // Arbitrary data used to deploy our contracts at predefined addresses
 const REQUEST_SALT = '0x0679724da7211bc62502a39f41cbf818fc7132c266e7c819fc2b06fad9593655';
 
 const requestDeployer = process.env.REQUEST_DEPLOYER_LIVE
-  ? LIVE_DEPLOYER_ADDRESS
+  ? liveDeployerAddress()
   : LOCAL_DEPLOYER_ADDRESS;
 
 const url = (network: string): string => process.env.WEB3_PROVIDER_URL || networkRpcs[network];
@@ -188,7 +200,7 @@ export default {
       accounts,
     },
     base: {
-      url: process.env.WEB3_PROVIDER_URL,
+      url: url(`base`),
       chainId: 8453,
       accounts,
     },
