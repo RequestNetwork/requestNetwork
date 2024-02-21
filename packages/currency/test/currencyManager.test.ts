@@ -1,4 +1,4 @@
-import { RequestLogicTypes } from '@requestnetwork/types';
+import { ChainTypes, RequestLogicTypes } from '@requestnetwork/types';
 import {
   CurrencyInput,
   CurrencyDefinition,
@@ -6,8 +6,9 @@ import {
   ERC20Currency,
   StorageCurrency,
 } from '../src';
+import { ChainManager } from '@requestnetwork/chain';
 
-const testCasesPerNetwork: Record<string, Record<string, Partial<CurrencyDefinition>>> = {
+const testCasesPerNetwork: Record<string, Record<string, Partial<CurrencyInput>>> = {
   mainnet: {
     ETH: { symbol: 'ETH', network: 'mainnet' },
     SAI: {
@@ -126,7 +127,7 @@ describe('CurrencyManager', () => {
     it('fails if there is a duplicate token in the list', () => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const dai = CurrencyManager.getDefaultList().find((x) => x.id === 'DAI-mainnet')!;
-      const list: CurrencyInput[] = [dai, dai, dai, dai];
+      const list: CurrencyDefinition[] = [dai, dai, dai, dai];
       expect(() => new CurrencyManager(list)).toThrowError('Duplicate found: DAI-mainnet');
     });
 
@@ -159,78 +160,78 @@ describe('CurrencyManager', () => {
     it('access a common token by its symbol', () => {
       expect(currencyManager.from('DAI')).toMatchObject({
         symbol: 'DAI',
-        network: 'mainnet',
+        network: expect.objectContaining({ name: 'mainnet' }),
       });
       expect(currencyManager.fromSymbol('DAI')).toBeDefined();
     });
 
     it('access a chain-specific token by its symbol', () => {
       expect(currencyManager.from('CELO')).toMatchObject({
-        network: 'celo',
+        network: expect.objectContaining({ name: 'celo' }),
       });
       expect(currencyManager.fromSymbol('CELO')).toMatchObject({
-        network: 'celo',
+        network: expect.objectContaining({ name: 'celo' }),
       });
     });
 
     it('access a multichain token by its symbol and network', () => {
       expect(currencyManager.from('DAI-matic')).toMatchObject({
         symbol: 'DAI',
-        network: 'matic',
+        network: expect.objectContaining({ name: 'matic' }),
       });
 
       expect(currencyManager.fromSymbol('DAI-matic')).toBeUndefined();
 
       expect(currencyManager.from('DAI', 'matic')).toMatchObject({
         symbol: 'DAI',
-        network: 'matic',
+        network: expect.objectContaining({ name: 'matic' }),
       });
       expect(currencyManager.fromSymbol('DAI', 'matic')).toMatchObject({
         symbol: 'DAI',
-        network: 'matic',
+        network: expect.objectContaining({ name: 'matic' }),
       });
     });
 
     it('access a currency by its id', () => {
       expect(currencyManager.from('ETH-rinkeby-rinkeby')).toMatchObject({
         symbol: 'ETH-rinkeby',
-        network: 'rinkeby',
+        network: expect.objectContaining({ name: 'rinkeby' }),
       });
     });
 
     it('access a mainnet token by its address with or without network', () => {
       expect(currencyManager.from('0x6B175474E89094C44Da98b954EedeAC495271d0F')).toMatchObject({
         symbol: 'DAI',
-        network: 'mainnet',
+        network: expect.objectContaining({ name: 'mainnet' }),
       });
       expect(
         currencyManager.from('0x6B175474E89094C44Da98b954EedeAC495271d0F', 'mainnet'),
       ).toMatchObject({
         symbol: 'DAI',
-        network: 'mainnet',
+        network: expect.objectContaining({ name: 'mainnet' }),
       });
       expect(
         currencyManager.fromAddress('0x6B175474E89094C44Da98b954EedeAC495271d0F'),
       ).toMatchObject({
         symbol: 'DAI',
-        network: 'mainnet',
+        network: expect.objectContaining({ name: 'mainnet' }),
       });
       expect(
         currencyManager.fromAddress('0x6B175474E89094C44Da98b954EedeAC495271d0F', 'mainnet'),
       ).toMatchObject({
         symbol: 'DAI',
-        network: 'mainnet',
+        network: expect.objectContaining({ name: 'mainnet' }),
       });
     });
 
     it('access a mainnet token by its address whatever the case', () => {
       expect(currencyManager.from('0x6b175474e89094c44da98b954eedeac495271d0f')).toMatchObject({
         symbol: 'DAI',
-        network: 'mainnet',
+        network: expect.objectContaining({ name: 'mainnet' }),
       });
       expect(currencyManager.from('0x6B175474E89094C44DA98B954EEDEAC495271D0F')).toMatchObject({
         symbol: 'DAI',
-        network: 'mainnet',
+        network: expect.objectContaining({ name: 'mainnet' }),
       });
     });
 
@@ -239,38 +240,38 @@ describe('CurrencyManager', () => {
         currencyManager.from('0xD3b71117E6C1558c1553305b44988cd944e97300', 'matic'),
       ).toMatchObject({
         symbol: 'YEL',
-        network: 'matic',
+        network: expect.objectContaining({ name: 'matic' }),
       });
       expect(
         currencyManager.from('0xD3b71117E6C1558c1553305b44988cd944e97300', 'fantom'),
       ).toMatchObject({
         symbol: 'YEL',
-        network: 'fantom',
+        network: expect.objectContaining({ name: 'fantom' }),
       });
 
       expect(
         currencyManager.fromAddress('0xD3b71117E6C1558c1553305b44988cd944e97300', 'matic'),
       ).toMatchObject({
         symbol: 'YEL',
-        network: 'matic',
+        network: expect.objectContaining({ name: 'matic' }),
       });
       expect(
         currencyManager.fromAddress('0xD3b71117E6C1558c1553305b44988cd944e97300', 'fantom'),
       ).toMatchObject({
         symbol: 'YEL',
-        network: 'fantom',
+        network: expect.objectContaining({ name: 'fantom' }),
       });
     });
 
     it('defaults to mainnet for native tokens with a mainnet equivalent', () => {
       expect(currencyManager.from('MATIC')).toMatchObject({
         symbol: 'MATIC',
-        network: 'mainnet',
+        network: expect.objectContaining({ name: 'mainnet' }),
         type: RequestLogicTypes.CURRENCY.ERC20,
       });
       expect(currencyManager.from('MATIC-matic')).toMatchObject({
         symbol: 'MATIC',
-        network: 'matic',
+        network: expect.objectContaining({ name: 'matic' }),
         type: RequestLogicTypes.CURRENCY.ETH,
       });
     });
@@ -493,10 +494,7 @@ describe('CurrencyManager', () => {
       '0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb',
     ];
 
-    const extendedTestCasesPerNetwork: Record<
-      string,
-      Record<string, Partial<CurrencyDefinition>>
-    > = {
+    const extendedTestCasesPerNetwork: Record<string, Record<string, Partial<CurrencyInput>>> = {
       ...testCasesPerNetwork,
       aurora: {
         NEAR: {
@@ -548,7 +546,10 @@ describe('CurrencyManager', () => {
                   switch (currency.symbol) {
                     case 'NEAR':
                     case 'NEAR-testnet':
-                      testValidateAddressForCurrency(nearAddresses[currency.network], currency);
+                      testValidateAddressForCurrency(
+                        nearAddresses[currency.network.name],
+                        currency,
+                      );
                       break;
                     default:
                       eip55Addresses.forEach((address) =>
@@ -557,7 +558,7 @@ describe('CurrencyManager', () => {
                   }
                   break;
                 case RequestLogicTypes.CURRENCY.BTC:
-                  testValidateAddressForCurrency(bitcoinAddresses[currency.network], currency);
+                  testValidateAddressForCurrency(bitcoinAddresses[currency.network.name], currency);
                   break;
                 default:
                   throw new Error(`Could not generate a valid address for an unknown type`);

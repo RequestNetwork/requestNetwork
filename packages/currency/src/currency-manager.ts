@@ -5,6 +5,7 @@ import { getSupportedERC20Currencies } from './erc20';
 import { getSupportedERC777Currencies } from './erc777';
 import { getHash } from './getHash';
 import {
+  Currency,
   CurrencyDefinition,
   CurrencyInput,
   ICurrencyManager,
@@ -18,6 +19,10 @@ import { getSupportedNativeCurrencies } from './native';
 import { ChainManager } from '@requestnetwork/chain';
 
 const { BTC, ERC20, ERC777, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
+
+type MixedCurrencyType<TMeta = unknown> =
+  | (CurrencyInput & { id?: string; hash?: string; meta?: TMeta })
+  | CurrencyDefinition<TMeta>;
 
 /**
  * Handles a list of currencies and provide features to retrieve them, as well as convert to/from storage format
@@ -37,11 +42,17 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * @param chainManager A ChainManager instance that describes the supported underlying chains
    */
   constructor(
-    inputCurrencies: (CurrencyInput & { id?: string; meta?: TMeta })[],
+    inputCurrencies: MixedCurrencyType<TMeta>[],
     legacyTokens?: LegacyTokenMap,
     conversionPairs?: AggregatorsMap,
     chainManager?: ChainTypes.IChainManager,
   ) {
+    this.legacyTokens = legacyTokens || CurrencyManager.getDefaultLegacyTokens();
+    this.conversionPairs = conversionPairs || CurrencyManager.getDefaultConversionPairs();
+    this.chainManager = chainManager || ChainManager.current();
+    ChainManager.setCurrent(this.chainManager);
+
+    // initialize currencies
     this.knownCurrencies = [];
     for (const input of inputCurrencies) {
       const currency = CurrencyManager.fromInput(input);
@@ -50,10 +61,6 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       }
       this.knownCurrencies.push(currency);
     }
-    this.legacyTokens = legacyTokens || CurrencyManager.getDefaultLegacyTokens();
-    this.conversionPairs = conversionPairs || CurrencyManager.getDefaultConversionPairs();
-    this.chainManager = chainManager || ChainManager.current();
-    ChainManager.setCurrent(this.chainManager);
   }
 
   /**
@@ -80,7 +87,9 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
 
     const currencyFromId = this.fromId(currencyIdentifier);
 
-    if (currencyFromId) return currencyFromId;
+    if (currencyFromId) {
+      return currencyFromId;
+    }
 
     const parts = currencyIdentifier.split('-');
     const currencyFromSymbol =
@@ -111,7 +120,10 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       (x) =>
         (x.type === ERC20 || x.type === ERC777) &&
         x.address === address &&
-        (!network || x.network === network),
+        (!network ||
+          (typeof network === 'string'
+            ? x.network.name === network
+            : x.network.name === network.name)),
     );
     if (matches.length > 1) {
       const networks = matches.map((x) => ('network' in x ? x.network : '')).join(', ');
@@ -139,7 +151,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     return this.knownCurrencies.find(
       (x) =>
         x.symbol.toUpperCase() === symbol &&
-        (!network || ('network' in x && x.network === ChainManager.getName(network))) &&
+        (!network || ('network' in x && x.network.name === ChainManager.getName(network))) &&
         (!network ||
           typeof network === 'string' ||
           this.chainManager.ecosystems[network.ecosystem].currencyTypes.includes(x.type)),
@@ -153,7 +165,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     return this.knownCurrencies.find(
       (x) =>
         x.hash.toLowerCase() === hash.toLowerCase() &&
-        (!network || ('network' in x && x.network === ChainManager.getName(network))) &&
+        (!network || ('network' in x && x.network.name === ChainManager.getName(network))) &&
         (!network ||
           typeof network === 'string' ||
           this.chainManager.ecosystems[network.ecosystem].currencyTypes.includes(x.type)),
@@ -176,8 +188,8 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
         x.type === currency.type &&
         (((x.type === ERC20 || x.type === ERC777) &&
           currency.value === x.address &&
-          x.network === networkOrDefault) ||
-          ((x.type === ETH || x.type === BTC) && x.network === networkOrDefault) ||
+          x.network.name === networkOrDefault) ||
+          ((x.type === ETH || x.type === BTC) && x.network.name === networkOrDefault) ||
           (x.symbol === currency.value && !currency.network)),
     );
   }
@@ -190,7 +202,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     network: string | ChainTypes.IChain,
   ): CurrencyDefinition<TMeta> | undefined {
     return this.knownCurrencies.find(
-      (x) => x.type === type && x.network === ChainManager.getName(network),
+      (x) => x.type === type && x.network.name === ChainManager.getName(network),
     );
   }
 
@@ -218,7 +230,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     hash,
     meta,
     ...input
-  }: CurrencyInput & { id?: string; hash?: string; meta?: TMeta }): CurrencyDefinition<TMeta> {
+  }: MixedCurrencyType<TMeta>): CurrencyDefinition<TMeta> {
     if ('address' in input) {
       if (input.address.startsWith('0x') && input.address.length === 42) {
         input.address = utils.getAddress(input.address);
@@ -229,7 +241,16 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       hash: hash || getHash(CurrencyManager.toStorageCurrency(input)),
       meta: meta as TMeta,
       ...input,
-    };
+      network:
+        'network' in input
+          ? typeof input.network === 'string'
+            ? ChainManager.current().fromName(
+                input.network,
+                ChainManager.current().getEcosystemsByCurrencyType(input.type),
+              )
+            : input.network
+          : undefined,
+    } as CurrencyDefinition<TMeta>;
   }
 
   /**
@@ -244,12 +265,17 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   /**
    * Converts a currency to the storage format (ICurrency)
    */
-  static toStorageCurrency(currency: CurrencyInput): StorageCurrency {
+  static toStorageCurrency(currency: CurrencyInput | Currency): StorageCurrency {
     return {
       type: currency.type,
       value:
         currency.type === ERC20 || currency.type === ERC777 ? currency.address : currency.symbol,
-      network: currency.type === ISO4217 ? undefined : currency.network,
+      network:
+        currency.type === ISO4217
+          ? undefined
+          : typeof currency.network === 'string'
+          ? currency.network
+          : currency.network.name,
     };
   }
 
@@ -257,27 +283,28 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * Validates an address for a given currency.
    * Throws if the currency is an ISO4217 currency.
    */
-  validateAddress(address: string, currency: CurrencyInput | StorageCurrency): boolean {
+  validateAddress(address: string, currency: CurrencyDefinition | StorageCurrency): boolean {
     if (currency.type === RequestLogicTypes.CURRENCY.ISO4217) {
       throw new Error(`Could not validate an address for an ISO4217 currency`);
     }
+    const chainName =
+      currency.network &&
+      (typeof currency.network === 'string' ? currency.network : currency.network.name);
     switch (currency.type) {
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
       case RequestLogicTypes.CURRENCY.ERC777:
-        if (
-          this.chainManager.ecosystems[ChainTypes.ECOSYSTEM.NEAR].isChainSupported(currency.network)
-        ) {
-          return isValidNearAddress(address, currency.network);
-        } else if (currency.network === 'tron' || currency.network === 'solana') {
-          return addressValidator.validate(address, currency.network);
+        if (this.chainManager.ecosystems[ChainTypes.ECOSYSTEM.NEAR].isChainSupported(chainName)) {
+          return isValidNearAddress(address, chainName);
+        } else if (chainName === 'tron' || chainName === 'solana') {
+          return addressValidator.validate(address, chainName);
         }
         return addressValidator.validate(address, 'ETH');
       case RequestLogicTypes.CURRENCY.BTC:
         return addressValidator.validate(
           address,
           'BTC',
-          currency.network === 'testnet' ? 'testnet' : 'prod',
+          chainName === 'testnet' ? 'testnet' : 'prod',
         );
       default:
         throw new Error(`Could not validate an address for an unknown currency type`);
@@ -292,8 +319,9 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       currency.type === RequestLogicTypes.CURRENCY.ISO4217 ||
       currency.type === RequestLogicTypes.CURRENCY.ETH ||
       currency.type === RequestLogicTypes.CURRENCY.BTC
-    )
+    ) {
       return true;
+    }
     return this.validateAddress(currency.value, currency);
   }
 
@@ -334,7 +362,9 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * Returns a default instance of CurrencyManager based on default lists
    */
   static getDefault(): CurrencyManager {
-    if (this.defaultInstance) return this.defaultInstance;
+    if (this.defaultInstance) {
+      return this.defaultInstance;
+    }
 
     this.defaultInstance = new CurrencyManager(
       CurrencyManager.getDefaultList(),

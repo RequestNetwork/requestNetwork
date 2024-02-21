@@ -1,6 +1,7 @@
 import {
   CurrencyDefinition,
   CurrencyManager,
+  ERC20Currency,
   getCurrencyHash,
   StorageCurrency,
 } from '@requestnetwork/currency';
@@ -8,7 +9,8 @@ import { RequestLogicTypes } from '@requestnetwork/types';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { isAddress } from 'ethers/lib/utils';
 import { getDefaultProvider } from '@requestnetwork/utils';
-import { ERC20CurrencyInput } from '@requestnetwork/currency/src';
+import { CurrencyInput, ERC20CurrencyInput } from '@requestnetwork/currency/src';
+import { ChainManager } from '@requestnetwork/chain/src';
 
 export const loadCurrencyFromContract = async (
   currency: StorageCurrency,
@@ -32,13 +34,16 @@ export const loadCurrencyFromContract = async (
       return null;
     }
 
-    const definition: ERC20CurrencyInput = {
+    const definition = {
       address: value,
       decimals,
       symbol,
-      network: network,
+      network: ChainManager.current().fromName(
+        network,
+        ChainManager.current().getEcosystemsByCurrencyType(RequestLogicTypes.CURRENCY.ERC20),
+      ),
       type: RequestLogicTypes.CURRENCY.ERC20,
-    };
+    } as ERC20Currency;
 
     return {
       ...definition,
