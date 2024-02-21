@@ -142,7 +142,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
         (!network || ('network' in x && x.network === ChainManager.getName(network))) &&
         (!network ||
           typeof network === 'string' ||
-          x.type === this.chainManager.ecosystems[network.ecosystem].currencyType),
+          this.chainManager.ecosystems[network.ecosystem].currencyTypes.includes(x.type)),
     );
   }
 
@@ -156,7 +156,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
         (!network || ('network' in x && x.network === ChainManager.getName(network))) &&
         (!network ||
           typeof network === 'string' ||
-          x.type === this.chainManager.ecosystems[network.ecosystem].currencyType),
+          this.chainManager.ecosystems[network.ecosystem].currencyTypes.includes(x.type)),
     );
   }
 

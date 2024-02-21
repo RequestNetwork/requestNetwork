@@ -21,28 +21,23 @@ export interface IChainCommon {
   name: string;
   testnet: boolean;
   ecosystem: ECOSYSTEM;
-  currencyType: RequestLogicTypes.CURRENCY;
   eq(chain: IChainCommon): boolean;
 }
 
 export interface IBtcChain extends IChainCommon {
   ecosystem: ECOSYSTEM.BTC;
-  currencyType: RequestLogicTypes.CURRENCY.BTC;
 }
 
 export interface IDeclarativeChain extends IChainCommon {
   ecosystem: ECOSYSTEM.DECLARATIVE;
-  currencyType: RequestLogicTypes.CURRENCY.ETH;
 }
 
 export interface IEvmChain extends IChainCommon {
   ecosystem: ECOSYSTEM.EVM;
-  currencyType: RequestLogicTypes.CURRENCY.ETH;
 }
 
 export interface INearChain extends IChainCommon {
   ecosystem: ECOSYSTEM.NEAR;
-  currencyType: RequestLogicTypes.CURRENCY.ETH;
 }
 
 /**
@@ -65,7 +60,7 @@ export interface IEcosystem<E extends ECOSYSTEM> {
   name: E;
   chainClass: new (id: string, name: string, testnet?: boolean) => ChainTypeByEcosystem[E];
   chains: Record<string, ChainTypeByEcosystem[E]>;
-  currencyType: RequestLogicTypes.CURRENCY;
+  currencyTypes: RequestLogicTypes.CURRENCY[];
   chainNames: string[];
   assertChainNameSupported(chainName?: string): asserts chainName is string;
   assertChainSupported(chain?: IChain): asserts chain is ChainTypeByEcosystem[E];

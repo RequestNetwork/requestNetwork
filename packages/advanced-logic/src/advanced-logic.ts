@@ -41,7 +41,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     [ExtensionTypes.ID.CONTENT_DATA]: [ECOSYSTEM.EVM],
     [ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED]: [ECOSYSTEM.BTC],
     [ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED]: [ECOSYSTEM.BTC],
-    [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE]: [ECOSYSTEM.BTC],
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE]: [],
     [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED]: VM_ECOSYSTEMS,
     [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: VM_ECOSYSTEMS,
     [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: VM_ECOSYSTEMS,
@@ -173,14 +173,15 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE]:
         this.extensions.erc20TransferableReceivable,
     };
+    if (!chain) return extensions;
     // filter-out unsupported extensions for this chain ecosystem
     return (Object.keys(extensions) as ExtensionTypes.ID[]).reduce(
       (filteredExtensions, extensionId) => {
-        filteredExtensions[extensionId] =
-          chain &&
-          AdvancedLogic.supportedEcosystemsForExtension[extensionId].includes(chain.ecosystem)
-            ? extensions[extensionId]
-            : undefined;
+        filteredExtensions[extensionId] = AdvancedLogic.supportedEcosystemsForExtension[
+          extensionId
+        ].includes(chain.ecosystem)
+          ? extensions[extensionId]
+          : undefined;
         return filteredExtensions;
       },
       {} as Record<ExtensionTypes.ID, ExtensionTypes.IExtension | undefined>,

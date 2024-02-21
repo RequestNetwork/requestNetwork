@@ -65,7 +65,7 @@ export default class Erc20FeeProxyPaymentNetwork<
     super.validate(request, extensionAction);
   }
 
-  // Override `isValidAddress` to account for network-specific instanciation (non-EVM only)
+  // Override `isValidAddress` to account for network-specific instantiation (non-EVM only)
   protected isValidAddress(address: string): boolean {
     if (
       this.currencyManager.chainManager.ecosystems[ChainTypes.ECOSYSTEM.NEAR].isChainSupported(

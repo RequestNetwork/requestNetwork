@@ -42,9 +42,9 @@ export class ChainManager implements ChainTypes.IChainManager {
   }
 
   getEcosystemsByCurrencyType(currencyType: RequestLogicTypes.CURRENCY): ChainTypes.ECOSYSTEM[] {
-    return (Object.keys(this.ecosystems) as ChainTypes.ECOSYSTEM[]).filter((ecosystemName) =>
-      this.ecosystems[ecosystemName].currencyType.includes(currencyType),
-    );
+    return (Object.keys(this.ecosystems) as ChainTypes.ECOSYSTEM[]).filter((ecosystemName) => {
+      return this.ecosystems[ecosystemName].currencyTypes.includes(currencyType);
+    });
   }
 
   static getName(chain: string | ChainTypes.IChain): string {

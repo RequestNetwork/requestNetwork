@@ -12,7 +12,7 @@ export abstract class EcosystemAbstract<ECOSYSTEM extends ChainTypes.ECOSYSTEM>
       testnet?: boolean,
     ) => ChainTypes.ChainTypeByEcosystem[ECOSYSTEM],
     public chains: Record<string, ChainTypes.ChainTypeByEcosystem[ECOSYSTEM]>,
-    public currencyType: RequestLogicTypes.CURRENCY,
+    public currencyTypes: RequestLogicTypes.CURRENCY[],
   ) {}
 
   get chainNames(): string[] {
@@ -40,7 +40,7 @@ export abstract class EcosystemAbstract<ECOSYSTEM extends ChainTypes.ECOSYSTEM>
   /**
    * Check if chainName lives amongst the list of supported chains by this chain type.
    */
-  public isChainSupported(chainName?: string | ChainAbstract) {
+  public isChainSupported(chainName?: string | ChainAbstract): boolean {
     return (
       !!chainName &&
       this.chainNames.includes(chainName instanceof ChainAbstract ? chainName.name : chainName)
