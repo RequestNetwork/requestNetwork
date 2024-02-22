@@ -91,7 +91,7 @@ const testCasesPerNetwork: Record<string, Record<string, Partial<CurrencyInput>>
     },
   },
   bitcoin: {
-    BTC: { symbol: 'BTC' },
+    BTC: { symbol: 'BTC', network: 'mainnet' },
     'BTC-testnet': { symbol: 'BTC-testnet', network: 'testnet' },
   },
   other: {
@@ -406,7 +406,13 @@ describe('CurrencyManager', () => {
       describe(network, () => {
         Object.entries(testCases).forEach(([symbol, expected]) => {
           it(`Resolves ${symbol}`, () => {
-            expect(currencyManager.from(symbol)).toMatchObject(expected);
+            expect(currencyManager.from(symbol)).toMatchObject({
+              ...expected,
+              network:
+                'network' in expected
+                  ? expect.objectContaining({ name: expected.network })
+                  : undefined,
+            });
           });
         });
       });
@@ -744,7 +750,7 @@ describe('CurrencyManager', () => {
     it('Detects USDCe matic by USDC-matic id', () => {
       expect(currencyManager.from('USDC-matic')).toMatchObject({
         type: RequestLogicTypes.CURRENCY.ERC20,
-        network: 'matic',
+        network: expect.objectContaining({ name: 'matic' }),
         symbol: 'USDCe',
         id: 'USDC-matic',
         address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
@@ -753,7 +759,7 @@ describe('CurrencyManager', () => {
     it('Detects native USDC matic by USDCn-matic id', () => {
       expect(currencyManager.from('USDCn-matic')).toMatchObject({
         type: RequestLogicTypes.CURRENCY.ERC20,
-        network: 'matic',
+        network: expect.objectContaining({ name: 'matic' }),
         symbol: 'USDC',
         id: 'USDCn-matic',
         address: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',

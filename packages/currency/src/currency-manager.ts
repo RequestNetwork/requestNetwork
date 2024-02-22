@@ -10,6 +10,7 @@ import {
   CurrencyInput,
   ICurrencyManager,
   LegacyTokenMap,
+  MixedCurrencyType,
   NativeCurrencyType,
   StorageCurrency,
 } from './types';
@@ -17,12 +18,9 @@ import { AggregatorsMap, defaultConversionPairs, getPath } from './conversion-ag
 import { isValidNearAddress } from './currency-utils';
 import { getSupportedNativeCurrencies } from './native';
 import { ChainManager } from '@requestnetwork/chain';
+import { getSupportedIso4217Currencies } from './iso4217';
 
 const { BTC, ERC20, ERC777, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
-
-type MixedCurrencyType<TMeta = unknown> =
-  | (CurrencyInput & { id?: string; hash?: string; meta?: TMeta })
-  | CurrencyDefinition<TMeta>;
 
 /**
  * Handles a list of currencies and provide features to retrieve them, as well as convert to/from storage format
@@ -126,9 +124,9 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
             : x.network.name === network.name)),
     );
     if (matches.length > 1) {
-      const networks = matches.map((x) => ('network' in x ? x.network : '')).join(', ');
+      const networks = matches.map((x) => ('network' in x ? x.network.name : '')).join(', ');
       console.warn(
-        `${address} has several matches on "${networks}". To avoid errors, specify a network.`,
+        `${address} has several matches on ${networks}. To avoid errors, specify a network.`,
       );
       return undefined;
     }
@@ -337,9 +335,10 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    */
   static getDefaultList<TMeta = unknown>(): CurrencyDefinition<TMeta>[] {
     return ([] as CurrencyInput[])
-      .concat(getSupportedNativeCurrencies())
+      .concat(getSupportedIso4217Currencies())
       .concat(getSupportedERC20Currencies())
       .concat(getSupportedERC777Currencies())
+      .concat(getSupportedNativeCurrencies())
       .map(CurrencyManager.fromInput<TMeta>);
   }
 

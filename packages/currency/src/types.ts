@@ -102,6 +102,13 @@ export type CurrencyDefinition<TMeta = unknown> = Currency & {
 };
 
 /**
+ * Allowed inputs to instantiate the CurrencyManager
+ */
+export type MixedCurrencyType<TMeta = unknown> =
+  | (CurrencyInput & Partial<{ id?: string; hash?: string; meta?: TMeta }>)
+  | CurrencyDefinition<TMeta>;
+
+/**
  * Alias for ICurrency for clarity in the context
  */
 export type StorageCurrency = RequestLogicTypes.ICurrency;

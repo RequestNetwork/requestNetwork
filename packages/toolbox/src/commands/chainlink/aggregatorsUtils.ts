@@ -68,7 +68,7 @@ export const getAvailableAggregators = async (
       fromCurrency.type !== RequestLogicTypes.CURRENCY.BTC &&
       toCurrency.type !== RequestLogicTypes.CURRENCY.BTC &&
       (fromCurrency.type === RequestLogicTypes.CURRENCY.ISO4217 ||
-        fromCurrency.network === chain.name) &&
+        fromCurrency.network.eq(chain)) &&
       (listAll || !cm.getConversionPath(fromCurrency, toCurrency, chain))
     ) {
       missingAggregators.push({

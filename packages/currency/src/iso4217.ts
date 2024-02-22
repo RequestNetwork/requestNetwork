@@ -1365,7 +1365,7 @@ export default iso4217Currencies;
  *
  * @returns List of supported ISO-4217 currencies
  */
-export function getSupportedNativeCurrencies(): ISO4217CurrencyInput[] {
+export function getSupportedIso4217Currencies(): ISO4217CurrencyInput[] {
   return iso4217Currencies.map((cc) => ({
     type: RequestLogicTypes.CURRENCY.ISO4217,
     decimals: cc.digits,
