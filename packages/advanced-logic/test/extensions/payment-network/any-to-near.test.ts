@@ -209,7 +209,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
                 network: 'another-chain',
               });
             }).toThrowError(
-              `Payment network 'another-chain' is not supported by this extension (only aurora)`,
+              `No chain found with "name=another-chain" for ecosystem(s) "DECLARATIVE,EVM,NEAR"`,
             );
           });
           it('throws when payment network is missing', () => {

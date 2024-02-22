@@ -411,7 +411,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
               TestData.arbitraryTimestamp,
             ),
           ).toThrowError(
-            "Payment network 'mainnet' is not supported by this extension (only near-testnet)",
+            `The extension "Erc20FeeProxyPaymentNetwork" does not support the chain "mainnet" (only "near-testnet")`,
           );
         });
       });
