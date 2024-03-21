@@ -13,4 +13,9 @@ export const supportedSepoliaERC20: TokenMap = {
     name: 'FakeUSDT',
     symbol: 'fUSDT',
   },
+  '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238': {
+    decimals: 18,
+    name: 'FakeUSDC',
+    symbol: 'fUSDC',
+  },
 };
