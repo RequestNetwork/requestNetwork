@@ -55,8 +55,8 @@ const extractClientOptions = (
   if (minIndexedBlock) {
     queryOptions.blockFilter = { number_gte: minIndexedBlock };
   } else if (url.match(/^https:\/\/gateway-\w+\.network\.thegraph\.com\//)) {
-    // the decentralized network expects an empty object, and doesn't support "undefined"
-    queryOptions.blockFilter = {};
+    // the decentralized network doesn't support "undefined"
+    queryOptions.blockFilter = { number_gte: 0 };
   }
 
   // build client options

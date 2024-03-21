@@ -126,6 +126,10 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
           address: '0x7c285b9F2dA5E2c10feA25C00Ce1aCB107F85475',
           creationBlockNumber: 4733359,
         },
+        base: {
+          address: '0x3dF89c727eaDF67eeD7b4d09EC4F2b41f8Dec2ca',
+          creationBlockNumber: 10827258,
+        },
       },
     },
     '0.2.1': {
@@ -134,6 +138,10 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
         sepolia: {
           address: '0x7c285b9F2dA5E2c10feA25C00Ce1aCB107F85475',
           creationBlockNumber: 4733359,
+        },
+        base: {
+          address: '0x3dF89c727eaDF67eeD7b4d09EC4F2b41f8Dec2ca',
+          creationBlockNumber: 10827258,
         },
       },
     },
