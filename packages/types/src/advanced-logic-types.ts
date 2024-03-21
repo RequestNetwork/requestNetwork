@@ -1,7 +1,7 @@
 import * as Extension from './extension-types';
 import * as Identity from './identity-types';
 import * as RequestLogic from './request-logic-types';
-import { ChainName } from './currency-types';
+import { IChain } from './chain-types';
 
 /** Advanced Logic extensions */
 export interface IAdvancedLogicExtensions {
@@ -33,13 +33,13 @@ export interface IAdvancedLogic {
     timestamp: number,
   ) => RequestLogic.IExtensionStates;
   getNativeTokenExtensionForNetwork: (
-    network: ChainName,
+    chain: IChain,
   ) => Extension.IExtension<Extension.PnReferenceBased.ICreationParameters> | undefined;
   getAnyToNativeTokenExtensionForNetwork: (
-    network: ChainName,
+    chain: IChain,
   ) => Extension.IExtension<Extension.PnAnyToEth.ICreationParameters> | undefined;
   getFeeProxyContractErc20ForNetwork: (
-    network?: ChainName,
+    chain?: IChain,
   ) => Extension.PnFeeReferenceBased.IFeeReferenceBased | undefined;
   extensions: IAdvancedLogicExtensions;
 }

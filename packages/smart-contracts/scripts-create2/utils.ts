@@ -1,6 +1,5 @@
 import { Contract } from 'ethers';
 import * as artifacts from '../src/lib';
-import { EvmChains } from '@requestnetwork/currency';
 
 /**
  * List of smart contract that we deploy using the CREATE2 scheme through the Request Deployer contract
@@ -74,7 +73,6 @@ export const isContractDeployed = (
   computedAddress: string,
 ): boolean => {
   try {
-    EvmChains.assertChainSupported(network);
     const contractArtifact = getArtifact(contract);
     const addresses = contractArtifact.getAllAddresses(network);
     return addresses.some((x) => x.address === computedAddress);

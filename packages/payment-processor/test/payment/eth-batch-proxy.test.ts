@@ -106,7 +106,7 @@ describe('payBatchProxyRequest', () => {
 
   it('should throw an error if in one request, currencyInfo has no network', async () => {
     const request = deepCopy(validRequest);
-    request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
+    request.currencyInfo.network = '';
     await expect(
       payBatchProxyRequest([validRequest, request], batchVersion, wallet, batchFee),
     ).rejects.toThrowError(

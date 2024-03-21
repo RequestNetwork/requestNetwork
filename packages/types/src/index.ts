@@ -1,6 +1,6 @@
 import * as AdvancedLogicTypes from './advanced-logic-types';
 import * as ClientTypes from './client-types';
-import * as CurrencyTypes from './currency-types';
+import * as ChainTypes from './chain-types';
 import * as DataAccessTypes from './data-access-types';
 import * as DecryptionProviderTypes from './decryption-provider-types';
 import * as EncryptionTypes from './encryption-types';
@@ -20,7 +20,7 @@ import * as FeeTypes from './fees-types';
 export {
   AdvancedLogicTypes,
   ClientTypes,
-  CurrencyTypes,
+  ChainTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
   EncryptionTypes,

@@ -1,4 +1,4 @@
-import { ContractTransaction, Signer, providers, constants, BigNumber } from 'ethers';
+import { BigNumber, constants, ContractTransaction, providers, Signer } from 'ethers';
 import { batchPaymentsArtifact } from '@requestnetwork/smart-contracts';
 import { BatchPayments__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes } from '@requestnetwork/types';
@@ -6,6 +6,7 @@ import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   comparePnTypeAndVersion,
+  ensureEvmChain,
   getAmountToPay,
   getProvider,
   getRequestPaymentValues,
@@ -15,7 +16,6 @@ import {
 import { validateEthFeeProxyRequest } from './eth-fee-proxy';
 import { IPreparedTransaction } from './prepared-transaction';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
-import { EvmChains } from '@requestnetwork/currency';
 
 /**
  * ERC20 Batch Proxy payment details:
@@ -224,7 +224,7 @@ export function getBatchProxyAddress(request: ClientTypes.IRequestData, version:
   if (!network) {
     throw new Error('No currency network');
   }
-  EvmChains.assertChainSupported(network);
+  ensureEvmChain(network);
 
   const proxyAddress = batchPaymentsArtifact.getAddress(network, version);
 

@@ -1,8 +1,9 @@
 import {
   AdvancedLogicTypes,
-  CurrencyTypes,
+  ChainTypes,
   ExtensionTypes,
   PaymentTypes,
+  RequestLogicTypes,
 } from '@requestnetwork/types';
 import { PaymentDetectorBase } from './payment-detector-base';
 import { GetDeploymentInformation } from './utils';
@@ -25,7 +26,7 @@ export type TransferEventsParams = {
   /** The address of the payment proxy */
   contractAddress: string;
   /** The chain to check for payment */
-  paymentChain: CurrencyTypes.VMChainName;
+  paymentChain: ChainTypes.IVmChain;
   /** Indicates if it is an address for payment or refund */
   eventName: PaymentTypes.EVENTS_NAMES;
   /** The list of ERC20 tokens addresses accepted for payments and refunds OR undefined for native tokens (e.g. ETH) */
@@ -87,28 +88,26 @@ export interface ISupportedPaymentNetworkByNetwork<
 }
 
 /** Object interface to list the payment network id and its module by currency */
-export interface ISupportedPaymentNetworkByCurrency<
+export type ISupportedPaymentNetworkByCurrency<
   TPaymentEventParameters extends
     PaymentTypes.GenericEventParameters = PaymentTypes.GenericEventParameters,
-> {
-  [currency: string]: ISupportedPaymentNetworkByNetwork<TPaymentEventParameters>;
-}
-
-export type TGetSubGraphClient<TChain extends CurrencyTypes.ChainName> = (
-  network: CurrencyTypes.ChainName,
-) => TChain extends CurrencyTypes.VMChainName ? TheGraphClient<TChain> | undefined : undefined;
-
-export type PaymentNetworkOptions<
-  TChain extends CurrencyTypes.ChainName = CurrencyTypes.ChainName,
 > = {
+  [key in RequestLogicTypes.CURRENCY]: ISupportedPaymentNetworkByNetwork<TPaymentEventParameters>;
+};
+
+export type TGetSubGraphClient<TChain extends ChainTypes.IChain> = (
+  network: ChainTypes.IChain,
+) => TChain extends ChainTypes.IVmChain ? TheGraphClient<TChain> | undefined : undefined;
+
+export type PaymentNetworkOptions<TChain extends ChainTypes.IChain = ChainTypes.IChain> = {
   /** override default bitcoin detection provider */
   bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
   /** the explorer API (e.g. Etherscan) api keys, for PNs that rely on it. Record by network name  */
-  explorerApiKeys: Partial<Record<CurrencyTypes.ChainName, string>>;
+  explorerApiKeys: Partial<Record<string, string>>;
   /** override the default Subgraph for payment detection (EVM, Near) */
   getSubgraphClient: TGetSubGraphClient<TChain>;
   /** override the default RPC provider (EVM) */
-  getRpcProvider: (network: CurrencyTypes.ChainName) => providers.Provider;
+  getRpcProvider: (network: string) => providers.Provider;
 };
 
 export type ReferenceBasedDetectorOptions = {
@@ -117,7 +116,7 @@ export type ReferenceBasedDetectorOptions = {
 };
 
 export type NativeDetectorOptions = ReferenceBasedDetectorOptions & {
-  network: CurrencyTypes.NearChainName;
+  network: ChainTypes.INearChain;
   /** override the default Subgraph for payment detection (EVM, Near) */
-  getSubgraphClient: TGetSubGraphClient<CurrencyTypes.NearChainName>;
+  getSubgraphClient: TGetSubGraphClient<ChainTypes.INearChain>;
 };

@@ -1,4 +1,4 @@
-import { CurrencyInput, CurrencyManager, ICurrencyManager } from '@requestnetwork/currency';
+import { MixedCurrencyType, CurrencyManager, ICurrencyManager } from '@requestnetwork/currency';
 import {
   ClientTypes,
   DataAccessTypes,
@@ -41,7 +41,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       nodeConnectionConfig?: Partial<NodeConnectionConfig>;
       signatureProvider?: SignatureProviderTypes.ISignatureProvider;
       useMockStorage?: boolean;
-      currencies?: CurrencyInput[];
+      currencies?: MixedCurrencyType[];
       currencyManager?: ICurrencyManager;
       paymentOptions?: Partial<PaymentNetworkOptions>;
     } = {

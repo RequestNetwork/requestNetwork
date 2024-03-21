@@ -1,10 +1,5 @@
-import {
-  CurrencyTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
-import { NearChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { ChainTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { NearConversionInfoRetriever } from './retrievers/near-conversion-info-retriever';
 import { AnyToNativeDetector } from '../any-to-native-detector';
 import { NetworkNotSupported } from '../balance-error';
@@ -31,12 +26,12 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
   }
 
   public static getContractName = (
-    chainName: CurrencyTypes.NearChainName,
+    chain: ChainTypes.INearChain,
     paymentNetworkVersion = '0.1.0',
   ): string => {
     const version =
       NearConversionNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
-    const versionMap: Record<CurrencyTypes.NearChainName, Record<string, string>> = {
+    const versionMap: Record<string, Record<string, string>> = {
       aurora: { '0.1.0': 'native.conversion.reqnetwork.near' },
       near: { '0.1.0': 'native.conversion.reqnetwork.near' },
       'aurora-testnet': {
@@ -46,11 +41,11 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
         '0.1.0': 'native.conversion.reqnetwork.testnet',
       },
     };
-    if (versionMap[chainName]?.[version]) {
-      return versionMap[chainName][version];
+    if (versionMap[chain.name]?.[version]) {
+      return versionMap[chain.name][version];
     }
     throw new NetworkNotSupported(
-      `Unconfigured near-conversion-detector chain '${chainName}' and version '${version}'`,
+      `Unconfigured near-conversion-detector chain '${chain.name}' and version '${version}'`,
     );
   };
 
@@ -69,7 +64,7 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
     toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: CurrencyTypes.NearChainName,
+    paymentChain: ChainTypes.INearChain,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToEth.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkRetrieverEvents<PaymentTypes.ETHPaymentNetworkEvent>> {
     if (!toAddress) {
@@ -104,13 +99,12 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
     return transferEvents;
   }
 
-  protected getPaymentChain(request: RequestLogicTypes.IRequest): CurrencyTypes.NearChainName {
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): ChainTypes.INearChain {
     const network = this.getPaymentExtension(request).values.network;
     if (!network) {
       throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
     }
-    NearChains.assertChainSupported(network);
-    return network;
+    return this.currencyManager.chainManager.fromName(network, [ChainTypes.ECOSYSTEM.NEAR]);
   }
 
   protected static getVersionOrThrow = (paymentNetworkVersion: string): string => {

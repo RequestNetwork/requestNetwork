@@ -7,8 +7,8 @@ import {
   updateBatchPaymentFees,
   updateNativeAndUSDAddress,
 } from './adminTasks';
-import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
-import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
+import { RequestLogicTypes } from '@requestnetwork/types';
 
 /**
  * Updates the values of the batch fees of the BatchConversionPayments contract, if needed.
@@ -31,7 +31,7 @@ export const setupBatchConversionPayments = async ({
   // constants related to chainlink and conversion rate
   const currencyManager = CurrencyManager.getDefault();
 
-  const setUpActions = async (network: CurrencyTypes.EvmChainName) => {
+  const setUpActions = async (network: string) => {
     console.log(`Setup BatchConversionPayments on ${network}`);
 
     if (!contractAddress) {
@@ -93,7 +93,6 @@ export const setupBatchConversionPayments = async ({
   };
   for (const network of hre.config.xdeploy.networks) {
     try {
-      EvmChains.assertChainSupported(network);
       await setUpActions(network);
     } catch (err) {
       console.warn(`An error occurred during the setup of BatchConversion on ${network}`);

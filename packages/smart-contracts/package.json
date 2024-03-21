@@ -65,6 +65,7 @@
     "@nomiclabs/hardhat-web3": "2.0.0",
     "@openzeppelin/contracts": "4.9.5",
     "@rainbow-me/fee-suggestions": "2.1.0",
+    "@requestnetwork/chain": "0.13.0",
     "@requestnetwork/currency": "0.13.0",
     "@requestnetwork/types": "0.40.0",
     "@requestnetwork/utils": "0.40.0",

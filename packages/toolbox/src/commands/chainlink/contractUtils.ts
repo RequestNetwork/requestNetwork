@@ -4,7 +4,8 @@ import { getDefaultProvider } from '@requestnetwork/payment-detection';
 import { chainlinkConversionPath } from '@requestnetwork/smart-contracts';
 import { GasFeeDefiner } from '@requestnetwork/ethereum-storage';
 import { ChainlinkConversionPath } from '@requestnetwork/smart-contracts/types';
-import { EvmChains } from '@requestnetwork/currency';
+import { ChainManager } from '@requestnetwork/chain/src';
+import { ChainTypes } from '@requestnetwork/types';
 
 export const runUpdate = async <T extends 'updateAggregator' | 'updateAggregatorsList'>(
   method: T,
@@ -77,9 +78,8 @@ const connectChainlinkContracts = ({
   dryRun,
   network,
 }: SharedOptions): ChainlinkContractWithVersion[] => {
-  EvmChains.assertChainSupported(network);
-
-  const provider = getDefaultProvider(network);
+  const chain = ChainManager.current().fromName(network, [ChainTypes.ECOSYSTEM.EVM]);
+  const provider = getDefaultProvider(chain);
 
   const wallet = privateKey
     ? new Wallet(privateKey).connect(provider as any) // TODO

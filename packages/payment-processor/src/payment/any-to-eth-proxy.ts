@@ -10,7 +10,13 @@ import { EthConversionProxy__factory } from '@requestnetwork/smart-contracts/typ
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
-import { getAmountToPay, getProvider, getRequestPaymentValues, getSigner } from './utils';
+import {
+  ensureEvmChain,
+  getAmountToPay,
+  getProvider,
+  getRequestPaymentValues,
+  getSigner,
+} from './utils';
 import { padAmountForChainlink } from '@requestnetwork/payment-detection';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IConversionPaymentSettings } from './index';
@@ -117,10 +123,7 @@ export function getConversionPathForEthRequest(
   }
 
   const { network } = getRequestPaymentValues(request);
-
-  if (!network) {
-    throw new Error(`missing network`);
-  }
+  ensureEvmChain(network);
 
   const paymentCurrency = currencyManager.getNativeCurrency(
     RequestLogicTypes.CURRENCY.ETH,

@@ -1,5 +1,5 @@
 import { PaymentNetworkFactory } from '@requestnetwork/payment-detection';
-import { CurrencyTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 
 import { mockAdvancedLogic } from './mocks';
@@ -8,7 +8,7 @@ import { createMockConversionEthTokenRequest } from '../utils';
 const pnFactory = new PaymentNetworkFactory(mockAdvancedLogic, CurrencyManager.getDefault());
 
 const paidEURRequest = {
-  network: 'matic' as CurrencyTypes.EvmChainName,
+  network: 'matic',
   requestId: '01814304b39265cbf0c2abb4f3c7e8432d1e2c8779be6022e545d25f95144360e0',
   paymentAddress: '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93',
   salt: 'b3f2e478374bff64',

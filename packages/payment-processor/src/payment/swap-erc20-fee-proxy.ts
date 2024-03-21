@@ -6,6 +6,7 @@ import { ClientTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
+  ensureEvmChain,
   getAmountToPay,
   getProvider,
   getProxyAddress,
@@ -15,7 +16,6 @@ import {
 } from './utils';
 import { IPreparedTransaction } from './prepared-transaction';
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
-import { EvmChains } from '@requestnetwork/currency';
 
 /**
  * Details required for a token swap:
@@ -85,7 +85,7 @@ export function prepareSwapToPayErc20FeeRequest(
   options?: ISwapTransactionOptions,
 ): IPreparedTransaction {
   const { network } = request.currencyInfo;
-  EvmChains.assertChainSupported(network!);
+  ensureEvmChain(network);
   const encodedTx = encodeSwapToPayErc20FeeRequest(
     request,
     signerOrProvider,
@@ -116,7 +116,7 @@ export function encodeSwapToPayErc20FeeRequest(
 ): string {
   const { paymentReference, paymentAddress, feeAddress, feeAmount, network } =
     getRequestPaymentValues(request);
-  EvmChains.assertChainSupported(network!);
+  ensureEvmChain(network);
 
   validateErc20FeeProxyRequest(request, options?.amount, options?.feeAmount);
 

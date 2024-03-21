@@ -81,7 +81,7 @@ describe('payEthInputDataRequest', () => {
 
   it('should throw an error if currencyInfo has no network', async () => {
     const request = deepCopy(validRequest);
-    request.currencyInfo.network = '' as CurrencyTypes.EvmChainName;
+    request.currencyInfo.network = '';
     await expect(payEthInputDataRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );

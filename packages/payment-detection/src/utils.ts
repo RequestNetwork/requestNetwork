@@ -1,10 +1,5 @@
 import { CurrencyDefinition, isValidNearAddress } from '@requestnetwork/currency';
-import {
-  CurrencyTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { BigNumber, BigNumberish, Contract, errors, logger } from 'ethers';
 import { getAddress, keccak256, LogDescription } from 'ethers/lib/utils';
 import { ContractArtifact, DeploymentInformation } from '@requestnetwork/smart-contracts';
@@ -62,7 +57,7 @@ const getChainlinkPaddingSize = ({
 
 export type DeploymentInformationWithVersion = DeploymentInformation & { contractVersion: string };
 export type GetDeploymentInformation<TAllowUndefined extends boolean> = (
-  network: CurrencyTypes.VMChainName,
+  network: ChainTypes.IVmChain,
   paymentNetworkVersion: string,
 ) => TAllowUndefined extends false
   ? DeploymentInformationWithVersion
@@ -87,15 +82,17 @@ export const makeGetDeploymentInformation = <
         `No contract matches payment network version: ${paymentNetworkVersion}.`,
       );
     }
-    const info = artifact.getOptionalDeploymentInformation(network, contractVersion);
+    const info = artifact.getOptionalDeploymentInformation(network.name, contractVersion);
     if (!info) {
       if (!allowUndefined) {
-        if (artifact.getOptionalDeploymentInformation(network)) {
+        if (artifact.getOptionalDeploymentInformation(network.name)) {
           throw new VersionNotSupported(
             `Payment network version not supported: ${paymentNetworkVersion}`,
           );
         }
-        throw new NetworkNotSupported(`Network not supported for this payment network: ${network}`);
+        throw new NetworkNotSupported(
+          `Network not supported for this payment network: ${network.name}`,
+        );
       }
       return null as ReturnType<GetDeploymentInformation<TAllowUndefined>>;
     }

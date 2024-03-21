@@ -13,7 +13,6 @@ import {
   TestERC20__factory,
 } from '../../src/types';
 import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '../../src/lib';
-import { EvmChains } from '@requestnetwork/currency';
 
 use(solidity);
 
@@ -39,7 +38,6 @@ describe('contract: SwapToPay', () => {
   const erc20Liquidity = erc20Decimal.mul(100);
 
   before(async () => {
-    EvmChains.assertChainSupported(network.name);
     [, from, to, builder] = (await ethers.getSigners()).map((s) => s.address);
     [adminSigner, signer] = await ethers.getSigners();
     erc20FeeProxy = erc20FeeProxyArtifact.connect(network.name, adminSigner);

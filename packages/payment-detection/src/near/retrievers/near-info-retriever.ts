@@ -1,4 +1,4 @@
-import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
+import { ChainTypes, PaymentTypes } from '@requestnetwork/types';
 import { TheGraphClient } from '../../thegraph';
 import { GetNearPaymentsQuery } from 'payment-detection/src/thegraph/generated/graphql-near';
 import { ITheGraphBaseInfoRetriever } from 'payment-detection/src/types';
@@ -16,7 +16,7 @@ export type TransferEventsParams = {
   /** The address of the payment proxy */
   contractAddress: string;
   /** The chain to check for payment */
-  paymentChain: CurrencyTypes.VMChainName;
+  paymentChain: ChainTypes.INearChain;
   /** Indicates if it is an address for payment or refund */
   eventName: PaymentTypes.EVENTS_NAMES;
   /** The list of ERC20 tokens addresses accepted for payments and refunds. Set to `undefined` for payments in NEAR token. */
@@ -24,16 +24,10 @@ export type TransferEventsParams = {
 };
 /**
  * Gets a list of transfer events for a set of Near payment details
- * TheGraph-based etriever for ERC20 Fee Proxy and Native token payments.
+ * TheGraph-based retriever for ERC20 Fee Proxy and Native token payments.
  */
 export class NearInfoRetriever implements ITheGraphBaseInfoRetriever<NearPaymentEvent> {
-  /**
-   * @param paymentReference The reference to identify the payment
-   * @param toAddress Address to check
-   * @param eventName Indicate if it is an address for payment or refund
-   *
-   */
-  constructor(protected readonly client: TheGraphClient<CurrencyTypes.NearChainName>) {}
+  constructor(protected readonly client: TheGraphClient<ChainTypes.INearChain>) {}
 
   public async getTransferEvents(
     params: TransferEventsParams,

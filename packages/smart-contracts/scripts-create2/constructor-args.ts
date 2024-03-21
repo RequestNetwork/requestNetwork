@@ -1,5 +1,4 @@
 import * as artifacts from '../src/lib';
-import { CurrencyTypes } from '@requestnetwork/types';
 
 const getAdminWalletAddress = (contract: string): string => {
   if (!process.env.ADMIN_WALLET_ADDRESS) {
@@ -8,10 +7,7 @@ const getAdminWalletAddress = (contract: string): string => {
   return process.env.ADMIN_WALLET_ADDRESS;
 };
 
-export const getConstructorArgs = (
-  contract: string,
-  network?: CurrencyTypes.EvmChainName,
-): string[] => {
+export const getConstructorArgs = (contract: string, network?: string): string[] => {
   switch (contract) {
     case 'ChainlinkConversionPath': {
       return ['0x0000000000000000000000000000000000000000', getAdminWalletAddress(contract)];

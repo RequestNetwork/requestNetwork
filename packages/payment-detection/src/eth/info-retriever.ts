@@ -1,4 +1,4 @@
-import { PaymentTypes } from '@requestnetwork/types';
+import { ChainTypes, PaymentTypes } from '@requestnetwork/types';
 import { IPaymentRetriever } from '../types';
 import { MultichainExplorerApiProvider } from './multichainExplorerApiProvider';
 
@@ -18,18 +18,18 @@ export class EthInputDataInfoRetriever
   constructor(
     private toAddress: string,
     private eventName: PaymentTypes.EVENTS_NAMES,
-    private network: string,
+    private network: ChainTypes.IChain,
     private paymentReference: string,
     private explorerApiKey?: string,
   ) {}
 
   public async getTransferEvents(): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
-    if (this.network === 'private') {
+    if (this.network.name === 'private') {
       throw new Error(
         'ETH input data info-retriever works with etherscan and cannot work on a local network',
       );
     }
-    const provider = new MultichainExplorerApiProvider(this.network, this.explorerApiKey);
+    const provider = new MultichainExplorerApiProvider(this.network.name, this.explorerApiKey);
     const history = await provider.getHistory(this.toAddress);
 
     const events = history

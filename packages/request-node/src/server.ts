@@ -5,33 +5,33 @@ import { RequestNode } from './requestNode';
 import { getDataAccess } from './dataAccess';
 import { getDataStorage } from './dataStorage';
 import ConfirmedTransactionStore from './request/confirmedTransactionStore';
-import { EvmChains } from '@requestnetwork/currency';
 import { getEthereumStorageNetworkNameFromId } from '@requestnetwork/ethereum-storage';
 import { SubgraphClient } from '@requestnetwork/thegraph-data-access';
+import { ChainManager } from '@requestnetwork/chain';
+import { ChainTypes } from '@requestnetwork/types';
 
 // Initialize the node logger
 const logger = new Logger(config.getLogLevel(), config.getLogMode());
 
-const getNetwork = () => {
-  const network = getEthereumStorageNetworkNameFromId(config.getStorageNetworkId()) as any;
+const getStorageChain = (): ChainTypes.IEvmChain => {
+  const network = getEthereumStorageNetworkNameFromId(config.getStorageNetworkId());
   if (!network) {
     throw new Error(`Storage network not supported: ${config.getStorageNetworkId()}`);
   }
-  EvmChains.assertChainSupported(network);
-  return network;
+  return ChainManager.current().fromName(network, [ChainTypes.ECOSYSTEM.EVM]);
 };
 
 export const getRequestNode = (): RequestNode => {
-  const network = getNetwork();
+  const storageChain = getStorageChain();
   const storage = getDataStorage(logger);
-  const dataAccess = getDataAccess(network, storage, logger);
+  const dataAccess = getDataAccess(storageChain, storage, logger);
 
   // we access the subgraph client directly, not through the data access,
   // because this feature is specific to RN use with Request Node. Without a node,
   // the confirmation process would be different, so this doesn't fit in the data access layer
   const confirmedTransactionStore = new ConfirmedTransactionStore(
     new SubgraphClient(config.getGraphNodeUrl()),
-    network,
+    storageChain,
   );
 
   return new RequestNode(dataAccess, storage, confirmedTransactionStore, logger);

@@ -1,4 +1,4 @@
-import { CurrencyTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { ReferenceBasedDetector } from './reference-based-detector';
 import { NativeDetectorOptions } from './types';
@@ -10,7 +10,7 @@ export abstract class NativeTokenPaymentDetector extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
   PaymentTypes.IETHPaymentEventParameters
 > {
-  protected readonly network: CurrencyTypes.NearChainName | undefined;
+  protected readonly network: ChainTypes.INearChain | undefined;
   protected readonly getSubgraphClient: NativeDetectorOptions['getSubgraphClient'];
   protected constructor({
     network,
@@ -25,7 +25,7 @@ export abstract class NativeTokenPaymentDetector extends ReferenceBasedDetector<
     if (!extension) {
       throw new Error(`the ${extensionId} extension is not supported for the network ${network}`);
     }
-    super(extensionId, extension, currencyManager);
+    super(extensionId, extension, currencyManager, [ChainTypes.ECOSYSTEM.NEAR]);
     this.getSubgraphClient = getSubgraphClient;
     this.network = network;
   }

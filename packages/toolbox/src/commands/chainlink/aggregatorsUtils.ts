@@ -1,5 +1,5 @@
 import { AggregatorsMap, CurrencyInput, CurrencyManager } from '@requestnetwork/currency';
-import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ChainTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 type Feed = {
   name: string;
@@ -13,9 +13,7 @@ export type Aggregator = {
   aggregator: string;
 };
 
-const feedMap: Partial<
-  Record<CurrencyTypes.EvmChainName, [chainKey: string, networkName: string]>
-> = {
+const feedMap: Partial<Record<string, [chainKey: string, networkName: string]>> = {
   mainnet: ['mainnet', 'Ethereum Mainnet'],
   goerli: ['goerli', 'Goerli Testnet'],
   sepolia: ['sepolia', 'Sepolia Testnet'],
@@ -29,8 +27,8 @@ const feedMap: Partial<
   moonbeam: ['polkadot-mainnet-moonbeam', 'Moonbeam Mainnet'],
 };
 
-export const getAllAggregators = async (network: CurrencyTypes.EvmChainName): Promise<Feed[]> => {
-  const [feedName, networkName] = feedMap[network] || [];
+export const getAllAggregators = async (network: ChainTypes.IEvmChain): Promise<Feed[]> => {
+  const [feedName, networkName] = feedMap[network.name] || [];
   if (!feedName || !networkName) {
     throw new Error(
       `network ${network} not supported by feed provider. Is it supported by Chainlink?`,
@@ -49,18 +47,18 @@ export const getAllAggregators = async (network: CurrencyTypes.EvmChainName): Pr
 };
 
 export const getAvailableAggregators = async (
-  network: CurrencyTypes.EvmChainName,
+  chain: ChainTypes.IEvmChain,
   cm: CurrencyManager,
   pairs?: string[],
   listAll?: boolean,
 ): Promise<Aggregator[]> => {
-  const feeds = await getAllAggregators(network);
+  const feeds = await getAllAggregators(chain);
 
   const missingAggregators: Aggregator[] = [];
   for (const feed of feeds) {
     const [from, to] = feed.name.split(' / ');
-    const fromCurrency = cm.from(from, network) || cm.from(from);
-    const toCurrency = cm.from(to, network) || cm.from(to);
+    const fromCurrency = cm.from(from, chain) || cm.from(from);
+    const toCurrency = cm.from(to, chain) || cm.from(to);
     if (pairs && !pairs.includes(`${from}-${to}`.toLowerCase())) {
       continue;
     }
@@ -70,8 +68,8 @@ export const getAvailableAggregators = async (
       fromCurrency.type !== RequestLogicTypes.CURRENCY.BTC &&
       toCurrency.type !== RequestLogicTypes.CURRENCY.BTC &&
       (fromCurrency.type === RequestLogicTypes.CURRENCY.ISO4217 ||
-        fromCurrency.network === network) &&
-      (listAll || !cm.getConversionPath(fromCurrency, toCurrency, network))
+        fromCurrency.network.eq(chain)) &&
+      (listAll || !cm.getConversionPath(fromCurrency, toCurrency, chain))
     ) {
       missingAggregators.push({
         name: feed.name,

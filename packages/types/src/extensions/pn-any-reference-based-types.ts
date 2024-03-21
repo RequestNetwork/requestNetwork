@@ -1,5 +1,4 @@
 import { PnAddressBased } from '../extension-types';
-import { ChainName } from '../currency-types';
 export {
   ACTION,
   IAddPaymentAddressParameters,
@@ -18,5 +17,5 @@ export interface IValues extends PnAddressBased.IValues {
 /** Parameters of creation action */
 export interface ICreationParameters extends PnAddressBased.ICreationParameters {
   salt?: string;
-  paymentNetworkName?: ChainName;
+  paymentNetworkName?: string;
 }

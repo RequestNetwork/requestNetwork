@@ -1,16 +1,12 @@
 import { ethers, Signer, providers, BigNumber, BigNumberish, ContractTransaction } from 'ethers';
 
 import { getDefaultProvider, getPaymentReference } from '@requestnetwork/payment-detection';
-import {
-  ClientTypes,
-  CurrencyTypes,
-  ExtensionTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
-import { EvmChains, getCurrencyHash } from '@requestnetwork/currency';
+import { ChainTypes, ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { getCurrencyHash } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 import { getReceivableTokenIdForRequest } from './erc20-transferable-receivable';
+import { ChainManager } from '@requestnetwork/chain';
 
 /** @constant MAX_ALLOWANCE set to the max uint256 value */
 export const MAX_ALLOWANCE = BigNumber.from(2).pow(256).sub(1);
@@ -79,7 +75,7 @@ export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   expectedStartDate?: string;
   acceptedTokens?: string[];
   maxRateTimespan?: string;
-  network?: CurrencyTypes.ChainName;
+  network?: string;
   version: string;
 } {
   const extension = getPaymentNetworkExtension(request);
@@ -109,14 +105,10 @@ export function getPaymentExtensionVersion(request: ClientTypes.IRequestData): s
 export const getProxyNetwork = (
   pn: ExtensionTypes.IState,
   currency: RequestLogicTypes.ICurrency,
-): string => {
-  if (pn.values.network) {
-    return pn.values.network;
-  }
-  if (currency.network) {
-    return currency.network;
-  }
-  throw new Error('Payment currency must have a network');
+): ChainTypes.IVmChain => {
+  const chainName = pn.values.network || currency.network;
+  if (!chainName) throw new Error('Payment currency must have a network');
+  return ChainManager.current().fromName(chainName, ChainTypes.VM_ECOSYSTEMS);
 };
 
 /**
@@ -125,7 +117,7 @@ export const getProxyNetwork = (
  */
 export function getPnAndNetwork(request: ClientTypes.IRequestData): {
   paymentNetwork: ExtensionTypes.IState<any>;
-  network: string;
+  network: ChainTypes.IVmChain;
 } {
   const pn = getPaymentNetworkExtension(request);
   if (!pn) {
@@ -142,13 +134,12 @@ export function getPnAndNetwork(request: ClientTypes.IRequestData): {
 export const getProxyAddress = (
   request: ClientTypes.IRequestData,
   getDeploymentInformation: (
-    network: CurrencyTypes.EvmChainName,
+    network: ChainTypes.IVmChain,
     version: string,
   ) => { address: string } | null,
   version?: string,
 ): string => {
   const { paymentNetwork, network } = getPnAndNetwork(request);
-  EvmChains.assertChainSupported(network);
   const deploymentInfo = getDeploymentInformation(network, version || paymentNetwork.version);
   if (!deploymentInfo) {
     throw new Error(
@@ -419,4 +410,15 @@ export async function revokeErc20Approval(
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction(preparedTx);
   return tx;
+}
+
+/**
+ * Typescript assertions cannot be used directly from class methods at the moment,
+ * see: https://github.com/microsoft/TypeScript/issues/36931#issuecomment-589753014
+ * We use this helper function to avoid repetitions.
+ */
+export function ensureEvmChain(chainName?: string): asserts chainName is string {
+  const ensureEvm: ChainTypes.IEcosystem<ChainTypes.ECOSYSTEM.EVM>['assertChainNameSupported'] =
+    ChainManager.current().ecosystems[ChainTypes.ECOSYSTEM.EVM].assertChainNameSupported;
+  ensureEvm(chainName);
 }

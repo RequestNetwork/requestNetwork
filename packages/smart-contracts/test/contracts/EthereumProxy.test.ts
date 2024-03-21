@@ -11,7 +11,6 @@ import {
 } from '../../src/types';
 import { ethereumProxyArtifact } from '../../src/lib/';
 import { HttpNetworkConfig } from 'hardhat/types';
-import { EvmChains } from '@requestnetwork/currency';
 
 use(solidity);
 
@@ -29,7 +28,6 @@ describe('contract: EthereumProxy', () => {
   const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
 
   before(async () => {
-    EvmChains.assertChainSupported(network.name);
     [from, to] = (await ethers.getSigners()).map((s) => s.address);
     [signer] = await ethers.getSigners();
     ethProxy = ethereumProxyArtifact.connect(network.name, signer);

@@ -1,17 +1,11 @@
 import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
-import {
-  CurrencyTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ERC20FeeProxyPaymentDetectorBase } from '../erc20/fee-proxy-contract';
 import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy';
 import { TheGraphConversionInfoRetriever } from '../thegraph/conversion-info-retriever';
 import { makeGetDeploymentInformation } from '../utils';
 import { PaymentNetworkOptions, ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
 import { generate8randomBytes } from '@requestnetwork/utils';
-import { EvmChains } from '@requestnetwork/currency';
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
@@ -24,18 +18,14 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
   ExtensionTypes.PnAnyToErc20.IAnyToERC20,
   PaymentTypes.IERC20FeePaymentEventParameters
 > {
-  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
-
-  /**
-   * @param extension The advanced logic payment network extensions
-   */
+  private readonly getSubgraphClient: TGetSubGraphClient<ChainTypes.IEvmChain>;
 
   public constructor({
     advancedLogic,
     currencyManager,
     getSubgraphClient,
   }: ReferenceBasedDetectorOptions &
-    Pick<PaymentNetworkOptions<CurrencyTypes.EvmChainName>, 'getSubgraphClient'>) {
+    Pick<PaymentNetworkOptions<ChainTypes.IEvmChain>, 'getSubgraphClient'>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
       advancedLogic.extensions.anyToErc20Proxy,
@@ -85,7 +75,7 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     toAddress: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: CurrencyTypes.EvmChainName,
+    paymentChain: ChainTypes.IEvmChain,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToErc20.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
     if (!toAddress) {
@@ -141,13 +131,12 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     };
   }
 
-  protected getPaymentChain(request: RequestLogicTypes.IRequest): CurrencyTypes.EvmChainName {
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): ChainTypes.IEvmChain {
     const network = this.getPaymentExtension(request).values.network;
     if (!network) {
       throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
     }
-    EvmChains.assertChainSupported(network);
-    return network;
+    return this.currencyManager.chainManager.fromName(network, [ChainTypes.ECOSYSTEM.EVM]);
   }
 
   public static getDeploymentInformation = makeGetDeploymentInformation(

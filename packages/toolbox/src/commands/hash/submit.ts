@@ -5,7 +5,8 @@ import { InferArgs } from '../../types';
 import yargs from 'yargs';
 import { getWallet } from '../transaction/utils';
 import { EthereumTransactionSubmitter, IpfsStorage } from '@requestnetwork/ethereum-storage';
-import { EvmChains } from '@requestnetwork/currency';
+import { ChainManager } from '@requestnetwork/chain/src';
+import { ChainTypes } from '@requestnetwork/types';
 
 export const command = 'hash submit <ipfsHash>';
 export const describe = 'Forces the submission of an IPFS hash to the Request HashStorage contract';
@@ -17,9 +18,9 @@ export const builder = (y: yargs.Argv) =>
     .option('dryRun', { type: 'boolean', default: false });
 
 export const handler = async (argv: yargs.Arguments<InferArgs<ReturnType<typeof builder>>>) => {
-  EvmChains.assertChainSupported(argv.chainName);
+  const chain = ChainManager.current().fromName(argv.chainName, [ChainTypes.ECOSYSTEM.EVM]);
 
-  const wallet = await getWallet({ chainName: argv.chainName, dryRun: argv.dryRun });
+  const wallet = await getWallet({ chain, dryRun: argv.dryRun });
   const ipfsStorage = new IpfsStorage({
     ipfsTimeout: 5000,
   });

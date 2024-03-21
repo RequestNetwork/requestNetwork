@@ -1,4 +1,4 @@
-import { ExtensionTypes } from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes } from '@requestnetwork/types';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { generate8randomBytes } from '@requestnetwork/utils';
@@ -17,8 +17,9 @@ export abstract class AnyToAnyDetector<
     paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
     currencyManager: ICurrencyManager,
+    allowedEcosystems: ChainTypes.ECOSYSTEM[],
   ) {
-    super(paymentNetworkId, extension, currencyManager);
+    super(paymentNetworkId, extension, currencyManager, allowedEcosystems);
   }
 
   /**

@@ -67,9 +67,7 @@ const validRequest: ClientTypes.IRequestData = {
   version: '1.0',
 };
 
-const escrowAddress = erc20EscrowToPayArtifact.getAddress(
-  validRequest.currencyInfo.network! as CurrencyTypes.EvmChainName,
-);
+const escrowAddress = erc20EscrowToPayArtifact.getAddress(validRequest.currencyInfo.network!);
 const payerAddress = wallet.address;
 
 describe('erc20-escrow-payment tests:', () => {
@@ -105,7 +103,7 @@ describe('erc20-escrow-payment tests:', () => {
     });
     it('Should throw an error if currencyInfo has no network', async () => {
       const request = deepCopy(validRequest);
-      request.currencyInfo.network = '' as CurrencyTypes.ChainName;
+      request.currencyInfo.network = '' as ChainTypes.IChain;
       await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError('Unsupported chain ');
     });
     it('Should throw an error if request has no extension', async () => {

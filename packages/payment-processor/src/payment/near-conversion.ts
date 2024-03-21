@@ -1,17 +1,18 @@
 import { BigNumberish } from 'ethers';
 import { WalletConnection } from 'near-api-js';
 
-import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ChainTypes, ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import {
-  getRequestPaymentValues,
-  validateRequest,
   getAmountToPay,
   getPaymentExtensionVersion,
+  getRequestPaymentValues,
+  validateRequest,
 } from './utils';
 import { INearTransactionCallback, processNearPaymentWithConversion } from './utils-near';
 import { IConversionPaymentSettings } from '.';
-import { CurrencyManager, NearChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { ChainManager } from '@requestnetwork/chain';
 
 /**
  * Processes the transaction to pay a request in NEAR with on-chain conversion.
@@ -41,17 +42,20 @@ export async function payNearConversionRequest(
     throw new Error('Cannot pay without a paymentReference');
   }
 
-  if (!network || !NearChains.isChainSupported(network)) {
+  if (
+    !network ||
+    !ChainManager.current().ecosystems[ChainTypes.ECOSYSTEM.NEAR].isChainSupported(network)
+  ) {
     throw new Error('Should be a Near network');
   }
-  NearChains.assertChainSupported(network);
+  const chain = ChainManager.current().fromName(network, [ChainTypes.ECOSYSTEM.NEAR]);
 
   const amountToPay = getAmountToPay(request, amount).toString();
   const version = getPaymentExtensionVersion(request);
 
   return processNearPaymentWithConversion(
     walletConnection,
-    network,
+    chain,
     amountToPay,
     paymentAddress,
     paymentReference,

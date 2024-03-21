@@ -1,4 +1,3 @@
-import { EvmChains } from '@requestnetwork/currency';
 import { erc20SwapToPayArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import { getSignerAndGasFees, updateRequestSwapFees, updateSwapRouter } from './adminTasks';
@@ -22,7 +21,6 @@ export const setupERC20SwapToPay = async ({
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network: string) => {
       try {
-        EvmChains.assertChainSupported(network);
         if (!contractAddress) {
           contractAddress = erc20SwapToPayArtifact.getAddress(network);
         }

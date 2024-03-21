@@ -10,7 +10,7 @@ import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20FeeProxyPaymentDetector } from '../../src/erc20/fee-proxy-contract';
 import { mockAdvancedLogicBase } from '../utils';
 
-let erc20FeeProxyContract: ERC20FeeProxyPaymentDetector<CurrencyTypes.VMChainName>;
+let erc20FeeProxyContract: ERC20FeeProxyPaymentDetector<ChainTypes.IVmChain>;
 
 const createAddPaymentAddressAction = jest.fn();
 const createAddRefundAddressAction = jest.fn();
@@ -473,7 +473,7 @@ describe('api/erc20/fee-proxy-contract', () => {
   describe('on Near', () => {
     beforeEach(() => {
       // Same Detector, but instanciated with a Near network and a mocked Near graph client
-      erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>({
+      erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector<ChainTypes.INearChain>({
         advancedLogic: mockAdvancedLogic,
         currencyManager,
         network: 'aurora-testnet',

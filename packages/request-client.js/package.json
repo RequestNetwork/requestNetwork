@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@requestnetwork/advanced-logic": "0.39.0",
+    "@requestnetwork/chain": "0.13.0",
     "@requestnetwork/currency": "0.13.0",
     "@requestnetwork/data-access": "0.31.0",
     "@requestnetwork/data-format": "0.14.0",

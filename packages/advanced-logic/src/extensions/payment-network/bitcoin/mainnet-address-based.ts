@@ -1,4 +1,4 @@
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import AddressBasedPaymentNetwork from '../address-based';
 import { ICurrencyManager } from '@requestnetwork/currency';
 
@@ -21,6 +21,10 @@ export default class BitcoinAddressBasedPaymentNetwork extends AddressBasedPayme
   }
 
   protected isValidAddress(address: string): boolean {
-    return this.isValidAddressForSymbolAndNetwork(address, 'BTC', BITCOIN_NETWORK);
+    return this.isValidAddressForSymbolAndNetwork(
+      address,
+      'BTC',
+      this.currencyManager.chainManager.fromName(BITCOIN_NETWORK, [ChainTypes.ECOSYSTEM.BTC]),
+    );
   }
 }

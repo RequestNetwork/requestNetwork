@@ -7,12 +7,18 @@ import {
   PaymentTypes,
   RequestLogicTypes,
   ExtensionTypes,
+  ChainTypes,
 } from '@requestnetwork/types';
 import {
   payRequest,
   approveErc20ForProxyConversionIfNeeded,
 } from '@requestnetwork/payment-processor';
-import { CurrencyInput, CurrencyManager } from '@requestnetwork/currency';
+import {
+  Currency,
+  CurrencyDefinition,
+  CurrencyInput,
+  CurrencyManager,
+} from '@requestnetwork/currency';
 
 import { Wallet, providers, BigNumber } from 'ethers';
 import {
@@ -24,6 +30,8 @@ import {
   signatureProvider,
 } from './scheduled/fixtures';
 import { getCurrentTimestampInSecond, normalizeKeccak256Hash } from '@requestnetwork/utils';
+import { ChainManager } from '@requestnetwork/chain/src';
+import { MixedCurrencyType } from '@requestnetwork/currency/src';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
@@ -561,7 +569,7 @@ describe('ERC20 localhost request creation and detection test', () => {
   it('can create ERC20 requests with any to erc20 proxy', async () => {
     const tokenContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 
-    const currencies: CurrencyInput[] = [
+    const currencies: MixedCurrencyType[] = [
       ...CurrencyManager.getDefaultList(),
       {
         address: tokenContractAddress,
@@ -702,7 +710,7 @@ describe('ETH localhost request creation and detection test', () => {
   });
 
   it('can create & pay a request with any to eth proxy', async () => {
-    const currencies: CurrencyInput[] = [
+    const currencies: MixedCurrencyType[] = [
       ...CurrencyManager.getDefaultList(),
       {
         network: 'private',

@@ -8,7 +8,7 @@ import {
 } from '../../utils/payment-network/any/generator-data-create';
 import { AdvancedLogic } from '../../../src';
 import { arbitraryTimestamp, payeeRaw, payerRaw } from '../../utils/test-data-generator';
-import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import AnyToNearPaymentNetwork from '../../../src/extensions/payment-network/near/any-to-near';
 import AnyToNativeTokenPaymentNetwork from '../../../src/extensions/payment-network/any-to-native';
 import { CurrencyManager } from '@requestnetwork/currency';
@@ -206,10 +206,10 @@ describe('extensions/payment-network/any-to-native-token', () => {
             expect(() => {
               new AnyToNearPaymentNetwork(currencyManager).createCreationAction({
                 ...partialCreationParams,
-                network: 'another-chain' as CurrencyTypes.NearChainName,
+                network: 'another-chain',
               });
             }).toThrowError(
-              `Payment network 'another-chain' is not supported by this extension (only aurora)`,
+              `No chain found with "name=another-chain" for ecosystem(s) "DECLARATIVE,EVM,NEAR"`,
             );
           });
           it('throws when payment network is missing', () => {

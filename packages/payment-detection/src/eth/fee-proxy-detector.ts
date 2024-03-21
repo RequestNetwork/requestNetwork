@@ -1,10 +1,5 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
-import {
-  CurrencyTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
@@ -29,7 +24,7 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
   ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
   PaymentTypes.IETHFeePaymentEventParameters
 > {
-  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
+  private readonly getSubgraphClient: TGetSubGraphClient<ChainTypes.IEvmChain>;
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -38,11 +33,12 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
     currencyManager,
     getSubgraphClient,
   }: ReferenceBasedDetectorOptions &
-    Pick<PaymentNetworkOptions<CurrencyTypes.EvmChainName>, 'getSubgraphClient'>) {
+    Pick<PaymentNetworkOptions<ChainTypes.IEvmChain>, 'getSubgraphClient'>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
       advancedLogic.extensions.feeProxyContractEth,
       currencyManager,
+      [ChainTypes.ECOSYSTEM.EVM],
     );
     this.getSubgraphClient = getSubgraphClient;
   }
@@ -63,7 +59,7 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
     toAddress: string | undefined,
     paymentReference: string,
     _requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: CurrencyTypes.EvmChainName,
+    paymentChain: ChainTypes.IEvmChain,
     paymentNetwork: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased extends ExtensionTypes.IExtension<
       infer X
     >

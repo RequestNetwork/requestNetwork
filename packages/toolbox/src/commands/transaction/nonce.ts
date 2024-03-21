@@ -2,6 +2,8 @@
 import * as yargs from 'yargs';
 import { InferArgs } from '../../types';
 import { getProvider, getWallet } from './utils';
+import { ChainManager } from '@requestnetwork/chain/src';
+import { ChainTypes } from '@requestnetwork/types';
 
 export const command = 'nonce';
 export const describe = 'Gets a wallet nonce';
@@ -17,10 +19,11 @@ export const builder = (y: yargs.Argv) => {
 
 export const handler = async (argv: InferArgs<ReturnType<typeof builder>>) => {
   let address = argv.address;
-  const provider = await getProvider(argv.chainName);
+  const chain = ChainManager.current().fromName(argv.chainName, [ChainTypes.ECOSYSTEM.EVM]);
+  const provider = await getProvider(chain);
 
   if (!address) {
-    const wallet = await getWallet({ chainName: argv.chainName, provider });
+    const wallet = await getWallet({ chain, provider });
     address = wallet.address;
   }
   const nonce = await provider.getTransactionCount(address);

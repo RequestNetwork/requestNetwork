@@ -1,10 +1,13 @@
 import { ICurrencyManager } from '@requestnetwork/currency';
 import AnyToNearPaymentNetwork from './any-to-near';
+import { ChainTypes } from '@requestnetwork/types';
 
 export default class AnyToNearTestnetPaymentNetwork extends AnyToNearPaymentNetwork {
   public constructor(currencyManager: ICurrencyManager) {
     // testnet PN version is the same as mainnet, can be overridden here if needed
-    super(currencyManager, ['aurora-testnet', 'near-testnet']);
+    super(currencyManager, [
+      currencyManager.chainManager.fromName('aurora-testnet', [ChainTypes.ECOSYSTEM.NEAR]),
+    ]);
   }
 
   /**
@@ -14,6 +17,10 @@ export default class AnyToNearTestnetPaymentNetwork extends AnyToNearPaymentNetw
    * @returns {boolean} true if address is valid
    */
   protected isValidAddress(address: string): boolean {
-    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR-testnet', 'aurora-testnet');
+    return this.isValidAddressForSymbolAndNetwork(
+      address,
+      'NEAR-testnet',
+      this.currencyManager.chainManager.fromName('aurora-testnet', [ChainTypes.ECOSYSTEM.NEAR]),
+    );
   }
 }

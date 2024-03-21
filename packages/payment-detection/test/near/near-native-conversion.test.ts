@@ -69,7 +69,7 @@ const client = {
   GetAnyToNativePayments: jest.fn().mockImplementation(() => ({
     payments: [graphPaymentEvent],
   })),
-} as any as TheGraphClient<CurrencyTypes.NearChainName>;
+} as any as TheGraphClient<ChainTypes.INearChain>;
 
 const infoRetriever = new NearConversionInfoRetriever(client);
 const mockedGetSubgraphClient = jest.fn().mockImplementation(() => client);

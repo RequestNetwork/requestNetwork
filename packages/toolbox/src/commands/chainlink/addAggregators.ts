@@ -2,7 +2,8 @@ import * as yargs from 'yargs';
 import inquirer from 'inquirer';
 import { runUpdate } from './contractUtils';
 import { Aggregator, getAvailableAggregators, getCurrencyManager } from './aggregatorsUtils';
-import { conversionSupportedNetworks, EvmChains } from '@requestnetwork/currency';
+import { conversionSupportedNetworks } from '@requestnetwork/currency';
+import { ChainTypes } from '@requestnetwork/types';
 
 type Options = {
   dryRun: boolean;
@@ -68,21 +69,21 @@ const pickAggregators = async (aggregators: Aggregator[], pairs?: string[]) => {
 };
 
 export const handler = async (args: Options): Promise<void> => {
-  const { network, pair } = args;
+  const { network: chainName, pair } = args;
   const pairs = pair?.map((x) => x.toLowerCase().trim());
 
   const currencyManager = await getCurrencyManager(args.list);
+  const chain = currencyManager.chainManager.fromName(chainName, [ChainTypes.ECOSYSTEM.EVM]);
 
-  EvmChains.assertChainSupported(network);
-  if (!conversionSupportedNetworks.includes(network)) {
+  if (!conversionSupportedNetworks.includes(chainName)) {
     console.warn(
-      `WARNING: ${network} is missing in conversionSupportedNetworks from the Currency package.`,
-      `Add '${network}: {}' to chainlinkCurrencyPairs, in currency/src/conversion-aggregators.ts.`,
+      `WARNING: ${chainName} is missing in conversionSupportedNetworks from the Currency package.`,
+      `Add '${chainName}: {}' to chainlinkCurrencyPairs, in currency/src/conversion-aggregators.ts.`,
     );
   }
 
   const availableAggregators = await getAvailableAggregators(
-    network,
+    chain,
     currencyManager,
     pairs,
     args.listAll,

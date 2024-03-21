@@ -1,4 +1,4 @@
-import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
+import { ChainTypes, DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 import { SubgraphClient } from '@requestnetwork/thegraph-data-access';
 
 /**
@@ -13,7 +13,7 @@ export default class ConfirmedTransactionStore {
    */
   constructor(
     private readonly subgraphClient: SubgraphClient,
-    private readonly networkName: string,
+    private readonly storageChain: ChainTypes.IEvmChain,
   ) {}
 
   public async getConfirmedTransaction(
@@ -37,7 +37,7 @@ export default class ConfirmedTransactionStore {
             blockConfirmation: blockNumber - transaction.blockNumber,
             blockTimestamp: transaction.blockTimestamp,
             blockNumber: transaction.blockNumber,
-            networkName: this.networkName,
+            networkName: this.storageChain.name,
             smartContractAddress: transaction.smartContractAddress,
             transactionHash: transaction.transactionHash,
           },

@@ -1,4 +1,4 @@
-import { PaymentTypes } from '@requestnetwork/types';
+import { ChainTypes, PaymentTypes } from '@requestnetwork/types';
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
 import { BigNumber, ethers } from 'ethers';
 import { IEventRetriever } from '../types';
@@ -51,7 +51,7 @@ export class EscrowERC20InfoRetriever
     private escrowCreationBlockNumber: number,
     private tokenContractAddress: string,
     private toAddress: string,
-    private network: string,
+    private network: ChainTypes.IEvmChain,
     private eventName?: PaymentTypes.ESCROW_EVENTS_NAMES,
   ) {
     // Creates a local or default provider.

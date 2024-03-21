@@ -1,4 +1,4 @@
-import { PaymentTypes } from '@requestnetwork/types';
+import { ChainTypes, PaymentTypes } from '@requestnetwork/types';
 import { IPaymentRetriever } from '../types';
 import { BigNumber, ethers } from 'ethers';
 import { parseLogArgs } from '../utils';
@@ -49,7 +49,7 @@ export default class ProxyERC20InfoRetriever
     private tokenContractAddress: string,
     private toAddress: string,
     private eventName: PaymentTypes.EVENTS_NAMES,
-    private network: string,
+    private network: ChainTypes.IVmChain,
   ) {
     // Creates a local or default provider
     this.provider = getDefaultProvider(this.network);

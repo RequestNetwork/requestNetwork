@@ -2,12 +2,14 @@ import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { BtcMainnetAddressBasedDetector } from '../src/btc';
 import {
+  AnyToERC20PaymentDetector,
   DeclarativePaymentDetector,
   EthInputDataPaymentDetector,
   PaymentNetworkFactory,
 } from '../src';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { ERC20FeeProxyPaymentDetector } from '../src/erc20/fee-proxy-contract';
+import { IRequest } from '@requestnetwork/types/src/request-logic-types';
 
 const currencyManager = CurrencyManager.getDefault();
 const advancedLogic = new AdvancedLogic(currencyManager);
@@ -81,6 +83,30 @@ describe('api/payment-network/payment-network-factory', () => {
         BtcMainnetAddressBasedDetector,
       );
     });
+
+    it('can getPaymentNetworkFromRequest for payment with conversion', async () => {
+      const request: any = {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ISO4217,
+          value: 'USD',
+        },
+        extensions: {
+          [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY as string]: {
+            id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+            type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+            values: {
+              network: 'mainnet',
+            },
+          },
+        },
+      };
+
+      // 'createPayment createPaymentNetwork'
+      expect(paymentNetworkFactory.getPaymentNetworkFromRequest(request)).toBeInstanceOf(
+        AnyToERC20PaymentDetector,
+      );
+    });
+
     it('can getPaymentNetworkFromRequest with a request without payment network', async () => {
       const request: any = {
         currency: {

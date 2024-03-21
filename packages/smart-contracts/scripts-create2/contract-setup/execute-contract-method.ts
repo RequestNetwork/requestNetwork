@@ -3,7 +3,6 @@ import { Contract, Overrides, Wallet } from 'ethers';
 import { safeAdminArtifact } from '../../src/lib/';
 import Safe, { EthersAdapter, EthersAdapterConfig } from '@safe-global/protocol-kit';
 import { ethers } from 'ethers';
-import { CurrencyTypes } from '@requestnetwork/types';
 
 const txServiceUrls: Record<string, string> = {
   mainnet: 'https://safe-transaction-mainnet.safe.global/',
@@ -36,7 +35,7 @@ export const executeContractMethod = async ({
   signer: Wallet;
   signWithEoa?: boolean;
 }): Promise<void> => {
-  const safeAddress = safeAdminArtifact.getAddress(network as CurrencyTypes.VMChainName);
+  const safeAddress = safeAdminArtifact.getAddress(network);
   const txServiceUrl = txServiceUrls[network];
   if (!signWithEoa && !!safeAddress && !!txServiceUrl) {
     const ethAdapter = new EthersAdapter({

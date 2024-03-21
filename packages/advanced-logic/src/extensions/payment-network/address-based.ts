@@ -1,6 +1,6 @@
 import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import {
-  CurrencyTypes,
+  ChainTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
@@ -151,7 +151,11 @@ export default abstract class AddressBasedPaymentNetwork<
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
       case RequestLogicTypes.CURRENCY.ERC777:
-        return this.isValidAddressForSymbolAndNetwork(address, 'ETH', 'mainnet');
+        return this.isValidAddressForSymbolAndNetwork(
+          address,
+          'ETH',
+          this.currencyManager.chainManager.fromName('mainnet', [ChainTypes.ECOSYSTEM.EVM]),
+        );
       default:
         throw new Error(
           `Default implementation of isValidAddressForNetwork() does not support currency type ${this.supportedCurrencyType}. Please override this method if needed.`,
@@ -162,11 +166,11 @@ export default abstract class AddressBasedPaymentNetwork<
   protected isValidAddressForSymbolAndNetwork(
     address: string,
     symbol: string,
-    network: CurrencyTypes.ChainName,
+    network: ChainTypes.IChain,
   ): boolean {
     const currency = this.currencyManager.from(symbol, network);
     if (!currency) {
-      throw new UnsupportedCurrencyError({ value: symbol, network });
+      throw new UnsupportedCurrencyError({ value: symbol, network: network.name });
     }
     return this.currencyManager.validateAddress(address, currency);
   }
@@ -276,10 +280,21 @@ export default abstract class AddressBasedPaymentNetwork<
     this.throwIfInvalidNetwork(request.currency.network);
   }
 
-  protected throwIfInvalidNetwork(network?: string): asserts network is string {
-    if (!network) {
+  protected throwIfInvalidNetwork(chain?: string | ChainTypes.IChain): ChainTypes.IChain {
+    if (!chain) {
       throw Error('network is required');
     }
+    const supportedEcosystems = this.currencyManager.chainManager.getEcosystemsByCurrencyType(
+      this.supportedCurrencyType,
+    );
+    if (typeof chain === 'string') {
+      // throws if network not found
+      return this.currencyManager.chainManager.fromName(chain, supportedEcosystems);
+    }
+    if (!supportedEcosystems.includes(chain.ecosystem)) {
+      throw Error(`Payment network ${this.constructor.name} does not support chain ${chain.name}`);
+    }
+    return chain;
   }
 }
 
@@ -291,12 +306,20 @@ export class InvalidPaymentAddressError extends Error {
 }
 
 export class UnsupportedNetworkError extends Error {
-  constructor(unsupportedNetworkName: string, supportedNetworks?: string[]) {
-    const supportedNetworkDetails = supportedNetworks
-      ? ` (only ${supportedNetworks.join(', ')})`
+  constructor(
+    extension: string,
+    unsupportedChain: string | ChainTypes.IChain,
+    supportedChains?: string[] | ChainTypes.IChain[],
+  ) {
+    const unsupportedChainName =
+      typeof unsupportedChain === 'string' ? unsupportedChain : unsupportedChain.name;
+    const supportedNetworkDetails = supportedChains
+      ? ` (only "${supportedChains
+          .map((chain) => (typeof chain === 'string' ? chain : chain.name))
+          .join(', ')}")`
       : '';
     super(
-      `Payment network '${unsupportedNetworkName}' is not supported by this extension${supportedNetworkDetails}`,
+      `The extension "${extension}" does not support the chain "${unsupportedChainName}"${supportedNetworkDetails}`,
     );
   }
 }

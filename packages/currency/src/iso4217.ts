@@ -4,7 +4,10 @@
 	Data last updated 2018-08-29
 */
 
-export default [
+import { ISO4217CurrencyInput } from './types';
+import { RequestLogicTypes } from '@requestnetwork/types';
+
+const iso4217Currencies = [
   {
     code: 'AED',
     number: '784',
@@ -1354,3 +1357,19 @@ export default [
     countries: ['Zimbabwe'],
   },
 ];
+
+export default iso4217Currencies;
+
+/**
+ * Returns a list of supported ISO-4217 currencies
+ *
+ * @returns List of supported ISO-4217 currencies
+ */
+export function getSupportedIso4217Currencies(): ISO4217CurrencyInput[] {
+  return iso4217Currencies.map((cc) => ({
+    type: RequestLogicTypes.CURRENCY.ISO4217,
+    decimals: cc.digits,
+    name: cc.currency,
+    symbol: cc.code,
+  }));
+}

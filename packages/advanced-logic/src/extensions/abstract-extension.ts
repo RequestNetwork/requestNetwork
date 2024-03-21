@@ -1,4 +1,9 @@
-import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  ChainTypes,
+  ExtensionTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
 
 /**
@@ -6,6 +11,7 @@ import { deepCopy } from '@requestnetwork/utils';
  */
 export abstract class AbstractExtension<TCreationParameters> implements ExtensionTypes.IExtension {
   protected actions: ExtensionTypes.SupportedActions;
+  static supportedEcosystems: ChainTypes.ECOSYSTEM[] = [ChainTypes.ECOSYSTEM.EVM];
 
   protected constructor(
     public readonly extensionType: ExtensionTypes.TYPE,

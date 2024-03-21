@@ -11,7 +11,7 @@ import {
 } from '../../utils/payment-network/mocked_native_data';
 import { AdvancedLogic } from '../../../src';
 import { arbitraryTimestamp, payeeRaw } from '../../utils/test-data-generator';
-import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import NearTestnetNativeNativePaymentNetwork from '../../../src/extensions/payment-network/near/near-testnet-native';
 
@@ -154,10 +154,10 @@ describe('extensions/payment-network/native-token', () => {
       expect(() => {
         new NearNativePaymentNetwork(currencyManager).createCreationAction({
           ...partialCreationParams,
-          paymentNetworkName: 'another-chain' as CurrencyTypes.NearChainName,
+          paymentNetworkName: 'another-chain',
         });
       }).toThrowError(
-        `Payment network 'another-chain' is not supported by this extension (only aurora)`,
+        `No chain found with "name=another-chain" for ecosystem(s) "DECLARATIVE,EVM,NEAR"`,
       );
     });
     it('createCreationAction() throws without payment network', () => {
@@ -274,7 +274,7 @@ describe('extensions/payment-network/native-token', () => {
           arbitraryTimestamp,
         );
       }).toThrowError(
-        'Cannot apply action for network aurora-testnet on state with payment network: aurora',
+        'Cannot apply action for extension aurora-testnet on state with chain: aurora',
       );
     });
     it('throws when adding a payment address a different network', () => {
@@ -331,7 +331,7 @@ describe('extensions/payment-network/native-token', () => {
     });
     it('throws on a wrong payment network', () => {
       const advancedLogic = new AdvancedLogic(currencyManager);
-      const wrongNetwork = `wrong network` as CurrencyTypes.EvmChainName;
+      const wrongNetwork = `wrong network`;
 
       const wrongNativeTokenRequestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,
@@ -357,7 +357,7 @@ describe('extensions/payment-network/native-token', () => {
           payeeRaw.identity,
           arbitraryTimestamp,
         ),
-      ).toThrowError('extension with id: pn-native-token not found for network: wrong network');
+      ).toThrowError('No chain found with "name=wrong network" for ecosystem(s) "NEAR"');
     });
     it('throws on a different payment network', () => {
       const advancedLogic = new AdvancedLogic(currencyManager);
@@ -384,7 +384,7 @@ describe('extensions/payment-network/native-token', () => {
           arbitraryTimestamp,
         ),
       ).toThrowError(
-        `Cannot apply action for network ${mainnetTestCase.wrongCurrency.network} on state with payment network: ${mainnetTestCase.currency.network}`,
+        `Cannot apply action for extension ${mainnetTestCase.wrongCurrency.network} on state with chain: ${mainnetTestCase.currency.network}`,
       );
     });
 

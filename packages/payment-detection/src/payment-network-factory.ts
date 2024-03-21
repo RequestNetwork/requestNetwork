@@ -1,6 +1,6 @@
 import {
   AdvancedLogicTypes,
-  CurrencyTypes,
+  ChainTypes,
   ExtensionTypes,
   PaymentTypes,
   RequestLogicTypes,
@@ -27,11 +27,13 @@ import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetecto
 import { getPaymentNetworkExtension } from './utils';
 import { defaultGetTheGraphClient } from './thegraph';
 import { getDefaultProvider } from 'ethers';
+import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 
 const PN_ID = ExtensionTypes.PAYMENT_NETWORK_ID;
 
 /** Register the payment network by currency and type */
 const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
+  ISO4217: {},
   BTC: {
     mainnet: {
       [PN_ID.BITCOIN_ADDRESS_BASED]: BtcMainnetAddressBasedDetector,
@@ -47,13 +49,13 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
   },
   ERC20: {
     aurora: {
-      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>,
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<ChainTypes.INearChain>,
     },
     'aurora-testnet': {
-      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>,
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<ChainTypes.INearChain>,
     },
     'near-testnet': {
-      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>,
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<ChainTypes.INearChain>,
     },
 
     '*': {
@@ -117,21 +119,24 @@ export class PaymentNetworkFactory {
    *
    * @param paymentNetworkId the ID of the payment network to instantiate
    * @param currencyType the currency type of the request
-   * @param paymentChain Different from request.currency.network for on-chain conversion payment networks (any-to-something)
+   * @param paymentChainName Different from request.currency.network for on-chain conversion payment networks (any-to-something)
    * @returns the module to handle the payment network
    */
   public createPaymentNetwork<PN_ID extends ExtensionTypes.PAYMENT_NETWORK_ID>(
     paymentNetworkId: PN_ID,
     currencyType: RequestLogicTypes.CURRENCY,
-    paymentChain?: CurrencyTypes.ChainName,
+    paymentChainName?: string,
     paymentNetworkVersion?: string,
   ): PaymentTypes.IPaymentNetwork<
     PaymentTypes.GenericEventParameters,
     Extract<PaymentTypes.PaymentNetworkCreateParameters, { id: PN_ID }>['parameters']
   > {
-    const network = paymentChain ?? 'mainnet';
+    const paymentChain = this.currencyManager.chainManager.fromName(
+      paymentChainName ?? 'mainnet',
+      AdvancedLogic.supportedEcosystemsForExtension[paymentNetworkId],
+    );
     const currencyPaymentMap =
-      supportedPaymentNetwork[currencyType]?.[network] ||
+      supportedPaymentNetwork[currencyType]?.[paymentChain.name] ||
       supportedPaymentNetwork[currencyType]?.['*'] ||
       {};
     const paymentNetworkMap = {
@@ -143,12 +148,12 @@ export class PaymentNetworkFactory {
 
     if (!detectorClass) {
       throw new Error(
-        `the payment network id: ${paymentNetworkId} is not supported for the currency: ${currencyType} on network ${network}`,
+        `the extension id: ${paymentNetworkId} is not supported for the currency: ${currencyType} on network ${paymentChain.name}`,
       );
     }
 
     const detector = new detectorClass({
-      network,
+      network: paymentChain,
       advancedLogic: this.advancedLogic,
       currencyManager: this.currencyManager,
       ...this.options,
@@ -157,7 +162,7 @@ export class PaymentNetworkFactory {
     if (detector.extension && 'getDeploymentInformation' in detectorClass) {
       // this throws when the contract isn't deployed and was mandatory for payment detection
       (detectorClass as ContractBasedDetector).getDeploymentInformation(
-        network as CurrencyTypes.VMChainName,
+        paymentChain as ChainTypes.IVmChain,
         paymentNetworkVersion || detector.extension.currentVersion,
       );
     }

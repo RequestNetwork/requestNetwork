@@ -1,4 +1,4 @@
-import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { InvalidPaymentAddressError, UnsupportedNetworkError } from './address-based';
 
 import ReferenceBasedPaymentNetwork from './reference-based';
@@ -12,7 +12,7 @@ export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPa
     currencyManager: ICurrencyManager,
     extensionId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currentVersion: string,
-    public readonly supportedNetworks: CurrencyTypes.ChainName[],
+    public readonly supportedNetworks: ChainTypes.IChain[],
   ) {
     super(currencyManager, extensionId, currentVersion, RequestLogicTypes.CURRENCY.ETH);
   }
@@ -52,12 +52,14 @@ export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPa
     );
   }
 
-  protected throwIfInvalidNetwork(
-    network?: CurrencyTypes.ChainName,
-  ): asserts network is CurrencyTypes.ChainName {
-    super.throwIfInvalidNetwork(network);
-    if (this.supportedNetworks && !this.supportedNetworks.includes(network)) {
-      throw new UnsupportedNetworkError(network, this.supportedNetworks);
+  protected throwIfInvalidNetwork(chain?: string | ChainTypes.IChain): ChainTypes.IChain {
+    const _chain = super.throwIfInvalidNetwork(chain);
+    if (
+      this.supportedNetworks &&
+      !this.supportedNetworks.some((supportedChain) => supportedChain.eq(_chain))
+    ) {
+      throw new UnsupportedNetworkError(this.constructor.name, _chain, this.supportedNetworks);
     }
+    return _chain;
   }
 }

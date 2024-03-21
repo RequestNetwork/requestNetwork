@@ -4,6 +4,7 @@ import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20EscrowToPay__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import {
+  ensureEvmChain,
   getAmountToPay,
   getProvider,
   getRequestPaymentValues,
@@ -13,7 +14,6 @@ import {
 import { ITransactionOverrides } from './transaction-overrides';
 import { encodeApproveAnyErc20 } from './erc20';
 import { IPreparedTransaction } from './prepared-transaction';
-import { EvmChains } from '@requestnetwork/currency';
 
 /**
  * Returns the EscrowToPay contract address corresponding to the request payment network
@@ -21,7 +21,7 @@ import { EvmChains } from '@requestnetwork/currency';
  */
 function getContractAddress(request: ClientTypes.IRequestData) {
   const { network } = request.currencyInfo;
-  EvmChains.assertChainSupported(network!);
+  ensureEvmChain(network);
   return erc20EscrowToPayArtifact.getAddress(network);
 }
 

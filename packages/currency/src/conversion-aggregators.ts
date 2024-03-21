@@ -8,7 +8,6 @@ import sepoliaAggregator from './aggregators/sepolia.json';
 import rinkebyAggregator from './aggregators/rinkeby.json';
 import maticAggregator from './aggregators/matic.json';
 import fantomAggregator from './aggregators/fantom.json';
-import { CurrencyTypes } from '@requestnetwork/types';
 
 /**
  * currencyFrom => currencyTo => cost
@@ -16,16 +15,14 @@ import { CurrencyTypes } from '@requestnetwork/types';
 export type CurrencyPairs = Record<string, Record<string, number>>;
 
 /**
- * Aggregators maps define pairs of currencies for which an onchain oracle exists, by network.
+ * Aggregator maps define pairs of currencies for which an onchain oracle exists, by network.
  *
  * Network => currencyFrom => currencyTo => cost
  */
-export type AggregatorsMap<T extends CurrencyTypes.ChainName = CurrencyTypes.ChainName> = Partial<
-  Record<T, CurrencyPairs>
->;
+export type AggregatorsMap = Partial<Record<string, CurrencyPairs>>;
 
 // Pairs supported by Chainlink (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
-const chainlinkCurrencyPairs: AggregatorsMap<CurrencyTypes.EvmChainName> = {
+const chainlinkCurrencyPairs: AggregatorsMap = {
   private: privateAggregator,
   goerli: goerliAggregator,
   rinkeby: rinkebyAggregator,
@@ -59,9 +56,7 @@ export const defaultConversionPairs: AggregatorsMap = {
   ...noConversionNetworks,
 };
 
-export const conversionSupportedNetworks = Object.keys(
-  defaultConversionPairs,
-) as CurrencyTypes.ChainName[];
+export const conversionSupportedNetworks = Object.keys(defaultConversionPairs);
 
 /**
  * Gets the on-chain conversion path between two currencies.
@@ -76,7 +71,7 @@ export const conversionSupportedNetworks = Object.keys(
 export function getPath(
   currencyFrom: Pick<CurrencyDefinition, 'hash'>,
   currencyTo: Pick<CurrencyDefinition, 'hash'>,
-  network: CurrencyTypes.ChainName = 'mainnet',
+  network = 'mainnet',
   pairs = defaultConversionPairs,
 ): string[] | null {
   if (!pairs[network]) {

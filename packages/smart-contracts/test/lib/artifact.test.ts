@@ -1,7 +1,6 @@
 import { BigNumber, providers } from 'ethers';
 import { RequestOpenHashSubmitter } from '../../src/types';
 import { erc20FeeProxyArtifact, erc20ProxyArtifact } from '../../src/lib';
-import { CurrencyTypes } from '@requestnetwork/types';
 
 describe('Artifact', () => {
   it('can get the contract info for latest version', () => {
@@ -56,9 +55,9 @@ describe('Artifact', () => {
   });
 
   it('throws for a non-existing network', () => {
-    expect(() =>
-      erc20ProxyArtifact.getDeploymentInformation('fakenetwork' as CurrencyTypes.EvmChainName),
-    ).toThrowError(`No deployment for network: fakenetwork`);
+    expect(() => erc20ProxyArtifact.getDeploymentInformation('fakenetwork')).toThrowError(
+      `No deployment for network: fakenetwork`,
+    );
   });
 
   it('throws for a non-existing version', () => {

@@ -1,6 +1,7 @@
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import AddressBasedPaymentNetwork from '../../../src/extensions/payment-network/address-based';
+import { ChainManager } from '@requestnetwork/chain';
 
 describe('extensions/payment-network/address-based', () => {
   it('address validation should throw when using unsupported currency type', () => {
@@ -37,7 +38,11 @@ describe('extensions/payment-network/address-based', () => {
         super(CurrencyManager.getDefault(), extensionId, currentVersion, supportedCurrencyType);
       }
       public testIsValidAddress() {
-        this.isValidAddressForSymbolAndNetwork('test', 'test', 'mainnet');
+        this.isValidAddressForSymbolAndNetwork(
+          'test',
+          'test',
+          ChainManager.current().fromName('mainnet', [ChainTypes.ECOSYSTEM.EVM]),
+        );
       }
     }
     expect(() => {

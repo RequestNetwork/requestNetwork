@@ -1,5 +1,5 @@
 import {
-  CurrencyTypes,
+  ChainTypes,
   ExtensionTypes,
   PaymentTypes,
   RequestLogicTypes,
@@ -25,11 +25,13 @@ export abstract class ReferenceBasedDetector<
    * @param paymentNetworkId Example : ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
    * @param extension The advanced logic payment network extension, reference based
    * @param currencyManager The currency manager
+   * @param allowedEcosystems The ecosystems that this payment detector supports
    */
   protected constructor(
     paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
     protected readonly currencyManager: ICurrencyManager,
+    protected readonly allowedEcosystems: readonly ChainTypes.ECOSYSTEM[],
   ) {
     super(paymentNetworkId, extension);
     if (!TypesUtils.isPaymentNetworkId(paymentNetworkId)) {
@@ -147,7 +149,7 @@ export abstract class ReferenceBasedDetector<
     address: string | undefined,
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: CurrencyTypes.ChainName,
+    paymentChain: ChainTypes.IChain,
     paymentNetwork: TExtension extends ExtensionTypes.IExtension<infer X>
       ? ExtensionTypes.IState<X>
       : never,
@@ -157,12 +159,12 @@ export abstract class ReferenceBasedDetector<
    * Get the network of the payment
    * @returns The network of payment
    */
-  protected getPaymentChain(request: RequestLogicTypes.IRequest): CurrencyTypes.ChainName {
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): ChainTypes.IChain {
     const network = request.currency.network;
     if (!network) {
       throw Error(`request.currency.network must be defined for ${this.paymentNetworkId}`);
     }
-    return network;
+    return this.currencyManager.chainManager.fromName(network, this.allowedEcosystems);
   }
 
   protected getPaymentReference(request: RequestLogicTypes.IRequest): string {

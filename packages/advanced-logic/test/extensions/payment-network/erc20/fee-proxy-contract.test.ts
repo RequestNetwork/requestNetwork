@@ -1,4 +1,4 @@
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import * as DataERC20FeeAddData from '../../../utils/payment-network/erc20/fee-proxy-contract-add-data-generator';
 import * as DataERC20FeeCreate from '../../../utils/payment-network/erc20/fee-proxy-contract-create-data-generator';
@@ -7,6 +7,7 @@ import * as TestData from '../../../utils/test-data-generator';
 import { deepCopy } from '@requestnetwork/utils';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { AdvancedLogic } from '../../../../src';
+import { ChainManager } from '@requestnetwork/chain';
 
 const currencyManager = new CurrencyManager(CurrencyManager.getDefaultList());
 
@@ -118,7 +119,9 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
     });
 
     describe('on Near testnet', () => {
-      const extension = advancedLogic.getFeeProxyContractErc20ForNetwork('near-testnet');
+      const extension = advancedLogic.getFeeProxyContractErc20ForNetwork(
+        ChainManager.current().fromName('near-testnet', [ChainTypes.ECOSYSTEM.NEAR]),
+      );
       it('can create a create action with all parameters', () => {
         expect(
           extension.createCreationAction({
@@ -382,7 +385,9 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       });
 
       describe('on Near testnet', () => {
-        const extension = advancedLogic.getFeeProxyContractErc20ForNetwork('near-testnet');
+        const extension = advancedLogic.getFeeProxyContractErc20ForNetwork(
+          ChainManager.current().fromName('near-testnet', [ChainTypes.ECOSYSTEM.NEAR]),
+        );
         it('can applyActionToExtensions of creation', () => {
           expect(
             extension.applyActionToExtension(
@@ -406,7 +411,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
               TestData.arbitraryTimestamp,
             ),
           ).toThrowError(
-            "Payment network 'mainnet' is not supported by this extension (only near-testnet)",
+            `The extension "Erc20FeeProxyPaymentNetwork" does not support the chain "mainnet" (only "near-testnet")`,
           );
         });
       });

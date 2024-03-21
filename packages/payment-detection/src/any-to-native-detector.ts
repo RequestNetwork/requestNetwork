@@ -1,4 +1,4 @@
-import { ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { AnyToAnyDetector } from './any-to-any-detector';
 import { NativeDetectorOptions } from './types';
@@ -18,6 +18,6 @@ export abstract class AnyToNativeDetector extends AnyToAnyDetector<
     if (!extension) {
       throw new Error(`the ${extensionId} extension is not supported for the network ${network}`);
     }
-    super(extensionId, extension, currencyManager);
+    super(extensionId, extension, currencyManager, [ChainTypes.ECOSYSTEM.NEAR]);
   }
 }

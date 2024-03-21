@@ -1,10 +1,5 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
-import {
-  CurrencyTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ChainTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { EthInputDataInfoRetriever } from './info-retriever';
 import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
@@ -31,8 +26,8 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
   PaymentTypes.IETHPaymentEventParameters
 > {
-  private explorerApiKeys: Partial<Record<CurrencyTypes.ChainName, string>>;
-  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.EvmChainName>;
+  private explorerApiKeys: Partial<Record<string, string>>;
+  private readonly getSubgraphClient: TGetSubGraphClient<ChainTypes.IEvmChain>;
 
   /**
    * @param extension The advanced logic payment network extensions
@@ -43,14 +38,12 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
     explorerApiKeys,
     getSubgraphClient,
   }: ReferenceBasedDetectorOptions &
-    Pick<
-      PaymentNetworkOptions<CurrencyTypes.EvmChainName>,
-      'explorerApiKeys' | 'getSubgraphClient'
-    >) {
+    Pick<PaymentNetworkOptions<ChainTypes.IEvmChain>, 'explorerApiKeys' | 'getSubgraphClient'>) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       advancedLogic.extensions.ethereumInputData,
       currencyManager,
+      [ChainTypes.ECOSYSTEM.EVM],
     );
     this.explorerApiKeys = explorerApiKeys || {};
     this.getSubgraphClient = getSubgraphClient;
@@ -71,7 +64,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
     toAddress: string | undefined,
     paymentReference: string,
     _requestCurrency: RequestLogicTypes.ICurrency,
-    paymentChain: CurrencyTypes.EvmChainName,
+    paymentChain: ChainTypes.IEvmChain,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
   ): Promise<
     PaymentTypes.AllNetworkEvents<
@@ -88,7 +81,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
       eventName,
       paymentChain,
       paymentReference,
-      this.explorerApiKeys[paymentChain],
+      this.explorerApiKeys[paymentChain.name],
     );
     const events = await infoRetriever.getTransferEvents();
     const proxyContractArtifact = EthInputDataPaymentDetector.getDeploymentInformation(

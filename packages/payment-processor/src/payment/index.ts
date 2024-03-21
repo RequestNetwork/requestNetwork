@@ -1,6 +1,6 @@
 import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 'ethers';
 
-import { ClientTypes, ExtensionTypes, TypesUtils } from '@requestnetwork/types';
+import { ChainTypes, ClientTypes, ExtensionTypes, TypesUtils } from '@requestnetwork/types';
 
 import { getBtcPaymentUrl } from './btc-address-based';
 import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
@@ -16,7 +16,7 @@ import { payAnyToErc20ProxyRequest } from './any-to-erc20-proxy';
 import { payAnyToEthProxyRequest } from './any-to-eth-proxy';
 import { WalletConnection } from 'near-api-js';
 import { isNearAccountSolvent } from './utils-near';
-import { ICurrencyManager, NearChains } from '@requestnetwork/currency';
+import { CurrencyManager, ICurrencyManager } from '@requestnetwork/currency';
 import { encodeRequestErc20Approval } from './encoder-approval';
 import { encodeRequestPayment } from './encoder-payment';
 import { IPreparedTransaction } from './prepared-transaction';
@@ -260,7 +260,12 @@ export async function isSolvent({
   needsGas?: boolean;
 }): Promise<boolean> {
   // Near case
-  if (NearChains.isChainSupported(currency.network) && providerOptions?.nearWalletConnection) {
+  if (
+    CurrencyManager.getDefault().chainManager.ecosystems[
+      ChainTypes.ECOSYSTEM.NEAR
+    ].isChainSupported(currency.network) &&
+    providerOptions?.nearWalletConnection
+  ) {
     return isNearAccountSolvent(amount, providerOptions.nearWalletConnection, currency);
   }
   // Main case (EVM)
@@ -343,7 +348,12 @@ export function _getPaymentUrl(request: ClientTypes.IRequestData, amount?: BigNu
 // FIXME: should also compare the signer.chainId with the request.currencyInfo.network...
 const throwIfNotWeb3 = (request: ClientTypes.IRequestData) => {
   // FIXME: there is a near web3Provider equivalent: https://github.com/aurora-is-near/near-web3-provider
-  if (request.currencyInfo?.network && NearChains.isChainSupported(request.currencyInfo.network)) {
+  if (
+    request.currencyInfo?.network &&
+    CurrencyManager.getDefault().chainManager.ecosystems[
+      ChainTypes.ECOSYSTEM.NEAR
+    ].isChainSupported(request.currencyInfo.network)
+  ) {
     throw new UnsupportedPaymentChain(request.currencyInfo.network);
   }
 };

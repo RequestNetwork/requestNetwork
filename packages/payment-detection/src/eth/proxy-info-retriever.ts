@@ -1,4 +1,4 @@
-import { PaymentTypes } from '@requestnetwork/types';
+import { ChainTypes, PaymentTypes } from '@requestnetwork/types';
 import { IPaymentRetriever } from '../types';
 import { BigNumber, ethers } from 'ethers';
 import { parseLogArgs } from '../utils';
@@ -46,7 +46,7 @@ export class EthProxyInfoRetriever
     private proxyCreationBlockNumber: number,
     private toAddress: string,
     private eventName: PaymentTypes.EVENTS_NAMES,
-    private network: string,
+    private network: ChainTypes.IChain,
   ) {
     // Creates a local or default provider
     this.provider = getDefaultProvider(this.network);

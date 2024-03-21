@@ -1,4 +1,4 @@
-import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { chainlinkConversionPath } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
@@ -24,7 +24,6 @@ export const setupChainlinkConversionPath = async ({
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network: string) => {
       try {
-        EvmChains.assertChainSupported(network);
         if (!contractAddress) {
           contractAddress = chainlinkConversionPath.getAddress(network);
         }

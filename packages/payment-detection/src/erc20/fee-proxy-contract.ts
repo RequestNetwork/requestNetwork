@@ -1,24 +1,17 @@
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
-import {
-  CurrencyTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
-import {
-  CurrencyDefinition,
-  EvmChains,
-  ICurrencyManager,
-  NearChains,
-  isSameChain,
-} from '@requestnetwork/currency';
+import { ChainTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyDefinition, ICurrencyManager } from '@requestnetwork/currency';
 import ProxyInfoRetriever from './proxy-info-retriever';
 
 import { loadCurrencyFromContract } from './currency';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
 import { TheGraphClient, TheGraphInfoRetriever } from '../thegraph';
-import { ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
+import {
+  ITheGraphBaseInfoRetriever,
+  ReferenceBasedDetectorOptions,
+  TGetSubGraphClient,
+} from '../types';
 import { NearInfoRetriever } from '../near';
 import { NetworkNotSupported } from '../balance-error';
 
@@ -44,7 +37,7 @@ export abstract class ERC20FeeProxyPaymentDetectorBase<
     extension: TExtension,
     currencyManager: ICurrencyManager,
   ) {
-    super(paymentNetworkId, extension, currencyManager);
+    super(paymentNetworkId, extension, currencyManager, ChainTypes.VM_ECOSYSTEMS);
   }
 
   protected async getCurrency(
@@ -81,13 +74,14 @@ export abstract class ERC20FeeProxyPaymentDetectorBase<
  * Handle payment networks with ERC20 fee proxy contract extension on EVM (default) or Near chains
  */
 export class ERC20FeeProxyPaymentDetector<
-  TChain extends CurrencyTypes.VMChainName = CurrencyTypes.EvmChainName,
+  TChain extends ChainTypes.IVmChain = ChainTypes.IEvmChain,
 > extends ERC20FeeProxyPaymentDetectorBase<
   ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
   PaymentTypes.IERC20FeePaymentEventParameters
 > {
   private readonly getSubgraphClient: TGetSubGraphClient<TChain>;
   protected readonly network: TChain | undefined;
+
   constructor({
     advancedLogic,
     currencyManager,
@@ -118,7 +112,7 @@ export class ERC20FeeProxyPaymentDetector<
     paymentChain: TChain,
     paymentNetwork: ExtensionTypes.IState,
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
-    if (this.network && !isSameChain(paymentChain, this.network)) {
+    if (this.network && paymentChain.eq(this.network)) {
       throw new NetworkNotSupported(
         `Unsupported network '${paymentChain}' for payment detector instanciated with '${this.network}'`,
       );
@@ -132,53 +126,49 @@ export class ERC20FeeProxyPaymentDetector<
     const { address: proxyContractAddress, creationBlockNumber: proxyCreationBlockNumber } =
       ERC20FeeProxyPaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
 
-    const subgraphClient = this.getSubgraphClient(paymentChain);
-    if (subgraphClient) {
-      const graphInfoRetriever = this.getTheGraphInfoRetriever(paymentChain, subgraphClient);
+    // with TheGraph
+    const graphInfoRetriever = this.getTheGraphInfoRetriever(paymentChain);
+    if (graphInfoRetriever) {
       return graphInfoRetriever.getTransferEvents({
         eventName,
         paymentReference,
         toAddress,
         contractAddress: proxyContractAddress,
-        paymentChain,
         acceptedTokens: [requestCurrency.value],
-      });
-    } else {
-      if (!EvmChains.isChainSupported(paymentChain)) {
-        throw new Error(
-          `Could not get a TheGraph-based info retriever for chain ${paymentChain} and RPC-based info retrievers are only compatible with EVM chains.`,
-        );
-      }
-      const proxyInfoRetriever = new ProxyInfoRetriever(
-        paymentReference,
-        proxyContractAddress,
-        proxyCreationBlockNumber,
-        requestCurrency.value,
-        toAddress,
-        eventName,
         paymentChain,
-      );
-      const paymentEvents = await proxyInfoRetriever.getTransferEvents();
-      return {
-        paymentEvents,
-      };
+      });
     }
+
+    if (paymentChain.ecosystem !== ChainTypes.ECOSYSTEM.EVM) {
+      throw new Error(
+        `Could not get a TheGraph-based info retriever for chain ${paymentChain} and RPC-based info retrievers are only compatible with EVM chains.`,
+      );
+    }
+
+    // without TheGraph
+    const proxyInfoRetriever = new ProxyInfoRetriever(
+      paymentReference,
+      proxyContractAddress,
+      proxyCreationBlockNumber,
+      requestCurrency.value,
+      toAddress,
+      eventName,
+      paymentChain,
+    );
+    const paymentEvents = await proxyInfoRetriever.getTransferEvents();
+    return {
+      paymentEvents,
+    };
   }
 
   protected getTheGraphInfoRetriever(
     paymentChain: TChain,
-    subgraphClient: TheGraphClient | TheGraphClient<CurrencyTypes.NearChainName>,
-  ): TheGraphInfoRetriever | NearInfoRetriever {
-    const graphInfoRetriever = EvmChains.isChainSupported(paymentChain)
-      ? new TheGraphInfoRetriever(subgraphClient as TheGraphClient, this.currencyManager)
-      : NearChains.isChainSupported(paymentChain) && this.network
-      ? new NearInfoRetriever(subgraphClient as TheGraphClient<CurrencyTypes.NearChainName>)
+  ): ITheGraphBaseInfoRetriever<PaymentTypes.IERC20FeePaymentEventParameters> | undefined {
+    const subgraphClient = this.getSubgraphClient(paymentChain);
+    return subgraphClient
+      ? paymentChain.ecosystem === ChainTypes.ECOSYSTEM.NEAR
+        ? new NearInfoRetriever(subgraphClient as TheGraphClient<ChainTypes.INearChain>)
+        : new TheGraphInfoRetriever(subgraphClient as TheGraphClient, this.currencyManager)
       : undefined;
-    if (!graphInfoRetriever) {
-      throw new Error(
-        `Could not find graphInfoRetriever for chain ${paymentChain} in payment detector`,
-      );
-    }
-    return graphInfoRetriever;
   }
 }
