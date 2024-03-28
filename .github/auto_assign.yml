@@ -10,9 +10,7 @@ reviewers:
   - yomarion
   - kevindavee
   - alexandre-abrioux
-  - KolevDarko
   - leoslr
-  - olivier7delf
   - MantisClone
 
 # A list of keywords to be skipped the process that add reviewers if pull requests include it
