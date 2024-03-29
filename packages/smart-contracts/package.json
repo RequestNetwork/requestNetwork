@@ -63,7 +63,7 @@
     "@nomiclabs/hardhat-ethers": "2.0.2",
     "@nomiclabs/hardhat-waffle": "2.0.1",
     "@nomiclabs/hardhat-web3": "2.0.0",
-    "@openzeppelin/contracts": "4.9.5",
+    "@openzeppelin/contracts": "4.9.6",
     "@rainbow-me/fee-suggestions": "2.1.0",
     "@requestnetwork/currency": "0.14.0",
     "@requestnetwork/types": "0.41.0",
