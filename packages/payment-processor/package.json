@@ -39,7 +39,7 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "4.9.5",
+    "@openzeppelin/contracts": "4.9.6",
     "@requestnetwork/currency": "0.16.0",
     "@requestnetwork/payment-detection": "0.43.0",
     "@requestnetwork/smart-contracts": "0.36.0",
