@@ -33,7 +33,7 @@ export default class RequestNetwork {
 
   public requestLogic: RequestLogicTypes.IRequestLogic;
   public transaction: TransactionTypes.ITransactionManager;
-  private advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+  public advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 
   private contentData: ContentDataExtension;
   private currencyManager: ICurrencyManager;
