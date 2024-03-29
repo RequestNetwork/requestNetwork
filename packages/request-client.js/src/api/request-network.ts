@@ -31,8 +31,8 @@ export default class RequestNetwork {
   public paymentNetworkFactory: PaymentNetworkFactory;
   public supportedIdentities: IdentityTypes.TYPE[] = supportedIdentities;
 
-  private requestLogic: RequestLogicTypes.IRequestLogic;
-  private transaction: TransactionTypes.ITransactionManager;
+  public requestLogic: RequestLogicTypes.IRequestLogic;
+  public transaction: TransactionTypes.ITransactionManager;
   private advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 
   private contentData: ContentDataExtension;
@@ -374,7 +374,7 @@ export default class RequestNetwork {
    * @param parameters Parameters to create a request
    * @returns the parameters, ready for request creation, the topics, and the paymentNetwork
    */
-  private async prepareRequestParameters(parameters: Types.ICreateRequestParameters): Promise<{
+  public async prepareRequestParameters(parameters: Types.ICreateRequestParameters): Promise<{
     requestParameters: RequestLogicTypes.ICreateParameters;
     topics: any[];
     paymentNetwork: PaymentTypes.IPaymentNetwork | null;
