@@ -86,6 +86,5 @@
     "typechain": "5.1.1",
     "web3": "1.7.3",
     "zksync-web3": "0.14.3"
-  },
-  "gitHead": "7d1f620a5bf3cb2b88e33925e20ecaf788ccb25d"
+  }
 }
