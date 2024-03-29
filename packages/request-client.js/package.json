@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-client.js",
-  "version": "0.44.0",
+  "version": "0.45.0",
   "publishConfig": {
     "access": "public"
   },
@@ -42,18 +42,18 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.39.0",
-    "@requestnetwork/currency": "0.13.0",
-    "@requestnetwork/data-access": "0.31.0",
-    "@requestnetwork/data-format": "0.14.0",
-    "@requestnetwork/epk-signature": "0.5.39",
-    "@requestnetwork/multi-format": "0.15.14",
-    "@requestnetwork/payment-detection": "0.40.0",
-    "@requestnetwork/request-logic": "0.30.0",
-    "@requestnetwork/smart-contracts": "0.33.0",
-    "@requestnetwork/transaction-manager": "0.31.0",
-    "@requestnetwork/types": "0.40.0",
-    "@requestnetwork/utils": "0.40.0",
+    "@requestnetwork/advanced-logic": "0.40.0",
+    "@requestnetwork/currency": "0.14.0",
+    "@requestnetwork/data-access": "0.32.0",
+    "@requestnetwork/data-format": "0.15.0",
+    "@requestnetwork/epk-signature": "0.5.40",
+    "@requestnetwork/multi-format": "0.15.15",
+    "@requestnetwork/payment-detection": "0.41.0",
+    "@requestnetwork/request-logic": "0.31.0",
+    "@requestnetwork/smart-contracts": "0.34.0",
+    "@requestnetwork/transaction-manager": "0.32.0",
+    "@requestnetwork/types": "0.41.0",
+    "@requestnetwork/utils": "0.41.0",
     "ethers": "5.5.1",
     "qs": "6.11.2",
     "tslib": "2.5.0"
