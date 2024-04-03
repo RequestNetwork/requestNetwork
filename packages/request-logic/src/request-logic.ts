@@ -16,8 +16,8 @@ import { normalizeKeccak256Hash, notNull, uniqueByProperty } from '@requestnetwo
  * Implementation of Request Logic
  */
 export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
-  private advancedLogic: AdvancedLogicTypes.IAdvancedLogic | undefined;
-  private transactionManager: TransactionTypes.ITransactionManager;
+  public advancedLogic: AdvancedLogicTypes.IAdvancedLogic | undefined;
+  public transactionManager: TransactionTypes.ITransactionManager;
   private signatureProvider: SignatureProviderTypes.ISignatureProvider | undefined;
 
   public constructor(
@@ -386,7 +386,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    *
    * @returns the request id, the action and the hashed topics
    */
-  private async createCreationActionRequestIdAndTopics(
+  public async createCreationActionRequestIdAndTopics(
     requestParameters: RequestLogicTypes.ICreateParameters,
     signerIdentity: IdentityTypes.IIdentity,
     topics: any[],
@@ -665,7 +665,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    *
    * @returns void, throws if the action is invalid
    */
-  private async validateAction(
+  public async validateAction(
     requestId: RequestLogicTypes.RequestId,
     action: RequestLogicTypes.IAction,
   ): Promise<void> {
