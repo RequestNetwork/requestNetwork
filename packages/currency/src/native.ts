@@ -165,6 +165,12 @@ export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthC
       name: 'Ether',
       network: 'zksynceratestnet',
     },
+    {
+      symbol: 'ETH-base',
+      decimals: 18,
+      name: 'Base Ether',
+      network: 'base',
+    },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [
     {
