@@ -83,6 +83,10 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
           address: '0xaD61121DAfAAe495095Cd466022b519Cb7503a4E',
           creationBlockNumber: 4733467,
         },
+        base: {
+          address: '0x8296D56321cf207925a7804E5A8E3F579838e6Ad',
+          creationBlockNumber: 10827277,
+        },
       },
     },
     '0.1.1': {
