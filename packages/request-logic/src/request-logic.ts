@@ -16,8 +16,8 @@ import { normalizeKeccak256Hash, notNull, uniqueByProperty } from '@requestnetwo
  * Implementation of Request Logic
  */
 export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
-  public advancedLogic: AdvancedLogicTypes.IAdvancedLogic | undefined;
-  public transactionManager: TransactionTypes.ITransactionManager;
+  private advancedLogic: AdvancedLogicTypes.IAdvancedLogic | undefined;
+  private transactionManager: TransactionTypes.ITransactionManager;
   private signatureProvider: SignatureProviderTypes.ISignatureProvider | undefined;
 
   public constructor(

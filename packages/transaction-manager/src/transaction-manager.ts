@@ -16,8 +16,8 @@ import TransactionsFactory from './transactions-factory';
  * Implementation of TransactionManager layer without encryption
  */
 export default class TransactionManager implements TransactionTypes.ITransactionManager {
-  public dataAccess: DataAccessTypes.IDataAccess;
-  public channelParser: ChannelParser;
+  private dataAccess: DataAccessTypes.IDataAccess;
+  private channelParser: ChannelParser;
 
   public constructor(
     dataAccess: DataAccessTypes.IDataAccess,
