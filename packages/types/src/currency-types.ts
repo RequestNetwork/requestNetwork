@@ -6,6 +6,7 @@ export type EvmChainName =
   | 'arbitrum-one'
   | 'arbitrum-rinkeby'
   | 'avalanche'
+  | 'base'
   | 'bsc'
   | 'bsctest'
   | 'celo'
@@ -28,8 +29,7 @@ export type EvmChainName =
   | 'tombchain'
   | 'xdai'
   | 'zksynceratestnet'
-  | 'zksyncera'
-  | 'base';
+  | 'zksyncera';
 
 /**
  * List of supported BTC chains
