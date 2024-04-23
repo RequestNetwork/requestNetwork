@@ -13,12 +13,12 @@ import {
 import { AdvancedLogic } from '../../../src';
 import { arbitraryTimestamp, payeeRaw } from '../../utils/test-data-generator';
 import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { CurrencyManager } from '@requestnetwork/currency';
 import NearTestnetNativeNativePaymentNetwork from '../../../src/extensions/payment-network/near/near-testnet-native';
 
 const salt = arbitrarySalt;
 
-const advancedLogic = new AdvancedLogic(CurrencyManager.getDefault());
+const currencyManager = CurrencyManager.getDefault();
+const advancedLogic = new AdvancedLogic(currencyManager);
 
 describe('extensions/payment-network/native-token', () => {
   const nearCurrency = {
@@ -222,7 +222,7 @@ describe('extensions/payment-network/native-token', () => {
       expect(newExtensionState).toEqual(extensionStateWithNativeTokenPaymentAndRefund);
     });
     it('works when adding a payment address to a created state', () => {
-      const nearPn = new NearNativePaymentNetwork();
+      const nearPn = new NearNativePaymentNetwork(currencyManager);
 
       const requestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,
@@ -254,7 +254,7 @@ describe('extensions/payment-network/native-token', () => {
       expect(newExtensionState).toEqual(extensionStateWithPaymentAddressAdded);
     });
     it('throws when creating the extension on a different network from the request network', () => {
-      const nearPn = new NearTestnetNativeNativePaymentNetwork();
+      const nearPn = new NearTestnetNativeNativePaymentNetwork(currencyManager);
 
       const requestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,
@@ -274,7 +274,7 @@ describe('extensions/payment-network/native-token', () => {
       );
     });
     it('throws when adding a payment address a different network', () => {
-      const nearPn = new NearNativePaymentNetwork();
+      const nearPn = new NearNativePaymentNetwork(currencyManager);
 
       const requestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,
