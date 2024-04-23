@@ -6,7 +6,6 @@ import * as DataDeclarativeCreate from './utils/payment-network/any/generator-da
 import * as DataTestnetBTCCreate from './utils/payment-network/bitcoin/testnet-generator-data-create';
 
 import { deepCopy } from '@requestnetwork/utils';
-import { CurrencyManager } from '@requestnetwork/currency';
 
 import { AdvancedLogic } from '../src/index';
 
