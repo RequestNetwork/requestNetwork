@@ -1,4 +1,4 @@
-import { AggregatorsMap, CurrencyInput, CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 type Feed = {
@@ -87,10 +87,10 @@ export const getAvailableAggregators = async (
 const CURRENCY_API_URL = 'https://api.request.finance/currency';
 
 export const getCurrencyManager = async (list?: string): Promise<CurrencyManager> => {
-  const aggregators: AggregatorsMap = await fetch(`${CURRENCY_API_URL}/aggregators`).then((r) =>
-    r.json(),
-  );
-  const currencyList: CurrencyInput[] = list
+  const aggregators: CurrencyTypes.AggregatorsMap = await fetch(
+    `${CURRENCY_API_URL}/aggregators`,
+  ).then((r) => r.json());
+  const currencyList: CurrencyTypes.CurrencyInput[] = list
     ? await fetch(`${CURRENCY_API_URL}/list/${list}`).then((r) => r.json())
     : CurrencyManager.getDefaultList();
   return new CurrencyManager(currencyList, undefined, aggregators);

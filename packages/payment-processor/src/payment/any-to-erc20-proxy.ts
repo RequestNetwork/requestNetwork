@@ -1,13 +1,9 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
-import {
-  CurrencyDefinition,
-  CurrencyManager,
-  UnsupportedCurrencyError,
-} from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { Erc20ConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ClientTypes, CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
@@ -96,7 +92,7 @@ export function encodePayAnyToErc20ProxyRequest(
 export function getConversionPathForErc20Request(
   request: ClientTypes.IRequestData,
   paymentSettings: IConversionPaymentSettings,
-): { path: string[]; requestCurrency: CurrencyDefinition<unknown> } {
+): { path: string[]; requestCurrency: CurrencyTypes.CurrencyDefinition<unknown> } {
   if (!paymentSettings.currency) {
     throw new Error('currency must be provided in the paymentSettings');
   }

@@ -7,12 +7,13 @@ import {
   PaymentTypes,
   RequestLogicTypes,
   ExtensionTypes,
+  CurrencyTypes,
 } from '@requestnetwork/types';
 import {
   payRequest,
   approveErc20ForProxyConversionIfNeeded,
 } from '@requestnetwork/payment-processor';
-import { CurrencyInput, CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 import { Wallet, providers, BigNumber } from 'ethers';
 import {
@@ -561,7 +562,7 @@ describe('ERC20 localhost request creation and detection test', () => {
   it('can create ERC20 requests with any to erc20 proxy', async () => {
     const tokenContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 
-    const currencies: CurrencyInput[] = [
+    const currencies: CurrencyTypes.CurrencyInput[] = [
       ...CurrencyManager.getDefaultList(),
       {
         address: tokenContractAddress,
@@ -574,7 +575,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     const requestNetwork = new RequestNetwork({
       signatureProvider,
       useMockStorage: true,
-      currencies,
+      currencyManager: new CurrencyManager(currencies),
     });
 
     const paymentNetworkAnyToERC20: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -658,7 +659,7 @@ describe('ETH localhost request creation and detection test', () => {
     const requestNetwork = new RequestNetwork({
       signatureProvider,
       useMockStorage: true,
-      currencies,
+      currencyManager: new CurrencyManager(currencies),
     });
 
     const paymentNetworkETHFeeProxy: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -702,7 +703,7 @@ describe('ETH localhost request creation and detection test', () => {
   });
 
   it('can create & pay a request with any to eth proxy', async () => {
-    const currencies: CurrencyInput[] = [
+    const currencies: CurrencyTypes.CurrencyInput[] = [
       ...CurrencyManager.getDefaultList(),
       {
         network: 'private',
@@ -715,7 +716,7 @@ describe('ETH localhost request creation and detection test', () => {
     const requestNetwork = new RequestNetwork({
       signatureProvider,
       useMockStorage: true,
-      currencies,
+      currencyManager: new CurrencyManager(currencies),
     });
 
     const paymentNetworkAnyToETH: PaymentTypes.PaymentNetworkCreateParameters = {

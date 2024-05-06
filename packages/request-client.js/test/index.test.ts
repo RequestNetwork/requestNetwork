@@ -2000,7 +2000,7 @@ describe('request-client.js', () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
         useMockStorage: true,
-        currencies: [
+        currencyManager: new CurrencyManager([
           {
             network: 'mainnet',
             type: RequestLogicTypes.CURRENCY.ETH,
@@ -2014,7 +2014,7 @@ describe('request-client.js', () => {
             decimals: 18,
             symbol: '_TEST',
           },
-        ],
+        ]),
       });
 
       it('allows creating a request by currency properties', async () => {

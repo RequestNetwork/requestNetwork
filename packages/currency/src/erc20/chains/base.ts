@@ -1,7 +1,7 @@
-import { TokenMap } from '../../types';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 // List of the supported base network tokens
-export const supportedBaseERC20: TokenMap = {
+export const supportedBaseERC20: CurrencyTypes.TokenMap = {
   '0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb': {
     name: 'Dai Stablecoin',
     symbol: 'DAI',

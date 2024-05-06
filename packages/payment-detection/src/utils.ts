@@ -1,4 +1,4 @@
-import { CurrencyDefinition, isValidNearAddress } from '@requestnetwork/currency';
+import { isValidNearAddress } from '@requestnetwork/currency';
 import {
   CurrencyTypes,
   ExtensionTypes,
@@ -26,7 +26,7 @@ export const parseLogArgs = <T>({ args, eventFragment }: LogDescription): T => {
  */
 export const padAmountForChainlink = (
   amount: BigNumberish,
-  currency: Pick<CurrencyDefinition, 'decimals' | 'type'>,
+  currency: Pick<CurrencyTypes.CurrencyDefinition, 'decimals' | 'type'>,
 ): BigNumber => {
   // eslint-disable-next-line no-magic-numbers
   return BigNumber.from(amount).mul(10 ** getChainlinkPaddingSize(currency));
@@ -34,7 +34,7 @@ export const padAmountForChainlink = (
 
 export const unpadAmountFromChainlink = (
   amount: BigNumberish,
-  currency: Pick<CurrencyDefinition, 'decimals' | 'type'>,
+  currency: Pick<CurrencyTypes.CurrencyDefinition, 'decimals' | 'type'>,
 ): BigNumber => {
   // eslint-disable-next-line no-magic-numbers
   return BigNumber.from(amount).div(10 ** getChainlinkPaddingSize(currency));
@@ -43,7 +43,7 @@ export const unpadAmountFromChainlink = (
 const getChainlinkPaddingSize = ({
   type,
   decimals,
-}: Pick<CurrencyDefinition, 'decimals' | 'type'>): number => {
+}: Pick<CurrencyTypes.CurrencyDefinition, 'decimals' | 'type'>): number => {
   switch (type) {
     case RequestLogicTypes.CURRENCY.ISO4217: {
       const chainlinkFiatDecimal = 8;

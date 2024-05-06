@@ -1,5 +1,4 @@
 import { CurrencyTypes } from '@requestnetwork/types';
-import { Chain } from '../../types';
 
 import * as AlfajoresDefinition from './data/alfajores';
 import * as ArbitrumOneDefinition from './data/arbitrum-one';
@@ -30,7 +29,7 @@ import * as ZkSyncEraTestnetDefinition from './data/zksync-era-testnet';
 import * as ZkSyncEraDefinition from './data/zksync-era';
 import * as BaseDefinition from './data/base';
 
-export type EvmChain = Chain & {
+export type EvmChain = CurrencyTypes.Chain & {
   chainId: number;
 };
 
