@@ -23,6 +23,7 @@ import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import Request from './request';
 import localUtils from './utils';
+import { NoConfirmHttpDataAccess } from '../no-confirm-http-data-access';
 
 /**
  * Entry point of the request-client.js library. Create requests, get requests, manipulate requests.
@@ -34,6 +35,7 @@ export default class RequestNetwork {
   private requestLogic: RequestLogicTypes.IRequestLogic;
   private transaction: TransactionTypes.ITransactionManager;
   private advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+  private dataAccess: DataAccessTypes.IDataAccess;
 
   private contentData: ContentDataExtension;
   private currencyManager: ICurrencyManager;
@@ -58,6 +60,7 @@ export default class RequestNetwork {
     paymentOptions?: Partial<PaymentNetworkOptions>;
   }) {
     this.currencyManager = currencyManager || CurrencyManager.getDefault();
+    this.dataAccess = dataAccess;
     this.advancedLogic = new AdvancedLogic(this.currencyManager);
     this.transaction = new TransactionManager(dataAccess, decryptionProvider);
     this.requestLogic = new RequestLogic(this.transaction, signatureProvider, this.advancedLogic);
@@ -99,6 +102,8 @@ export default class RequestNetwork {
         requestLogicCreateResult,
         skipPaymentDetection: parameters.disablePaymentDetection,
         disableEvents: parameters.disableEvents,
+        topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
+        transactionData: requestLogicCreateResult.meta?.transactionManagerMeta.transactionData,
       },
     );
 
@@ -108,6 +113,22 @@ export default class RequestNetwork {
     }
 
     return request;
+  }
+
+  public async persistRequest(
+    transactionData: DataAccessTypes.ITransaction,
+    channelId: string,
+    topics?: string[],
+  ): Promise<DataAccessTypes.IReturnPersistTransaction> {
+    if (this.dataAccess instanceof NoConfirmHttpDataAccess) {
+      throw new Error(
+        'Cannot persist request when skipCreateConfirmation is used. Create a new instance of RequestNetwork without skipCreateConfirmation to persist the request.',
+      );
+    }
+    const result: DataAccessTypes.IReturnPersistTransaction =
+      await this.dataAccess.persistTransaction(transactionData, channelId, topics);
+
+    return result;
   }
 
   /**
@@ -143,6 +164,8 @@ export default class RequestNetwork {
         requestLogicCreateResult,
         skipPaymentDetection: parameters.disablePaymentDetection,
         disableEvents: parameters.disableEvents,
+        topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
+        transactionData: requestLogicCreateResult.meta?.transactionManagerMeta.transactionData,
       },
     );
 

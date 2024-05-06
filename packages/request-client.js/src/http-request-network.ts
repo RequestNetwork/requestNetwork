@@ -10,6 +10,7 @@ import RequestNetwork from './api/request-network';
 import HttpDataAccess, { NodeConnectionConfig } from './http-data-access';
 import { MockDataAccess } from '@requestnetwork/data-access';
 import { MockStorage } from './mock-storage';
+import { NoConfirmHttpDataAccess } from './no-confirm-http-data-access';
 
 /**
  * Exposes RequestNetwork module configured to use http-data-access.
@@ -23,7 +24,8 @@ export default class HttpRequestNetwork extends RequestNetwork {
    * @param options.useMockStorage When true, will use a mock storage in memory. Meant to simplify local development and should never be used in production.
    * @param options.signatureProvider Module to handle the signature. If not given it will be impossible to create new transaction (it requires to sign).
    * @param options.currencies custom currency list
-   * @param options.currencyManager custom currency manager (will override `currencies`)
+   * @param options.currencyManager custom currency manager (will override `currencies`)http
+   * @param options.skipCreateConfirmation allows to create a transaction without persisting it.
    */
   constructor(
     {
@@ -35,6 +37,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       currencies,
       currencyManager,
       paymentOptions,
+      skipCreateConfirmation,
     }: {
       decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
       httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
@@ -44,13 +47,20 @@ export default class HttpRequestNetwork extends RequestNetwork {
       currencies?: CurrencyInput[];
       currencyManager?: ICurrencyManager;
       paymentOptions?: Partial<PaymentNetworkOptions>;
+      skipCreateConfirmation?: boolean;
     } = {
       httpConfig: {},
       useMockStorage: false,
+      skipCreateConfirmation: false,
     },
   ) {
     const dataAccess: DataAccessTypes.IDataAccess = useMockStorage
       ? new MockDataAccess(new MockStorage())
+      : skipCreateConfirmation
+      ? new NoConfirmHttpDataAccess({
+          httpConfig,
+          nodeConnectionConfig,
+        })
       : new HttpDataAccess({ httpConfig, nodeConnectionConfig });
 
     if (!currencyManager) {

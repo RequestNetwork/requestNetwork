@@ -5,6 +5,7 @@ import {
 } from '@requestnetwork/payment-detection';
 import {
   CurrencyTypes,
+  DataAccessTypes,
   EncryptionTypes,
   IdentityTypes,
   PaymentTypes,
@@ -80,6 +81,16 @@ export default class Request {
   private currencyManager: ICurrencyManager;
 
   /**
+   * Transaction data of a in-memory request, necesary for persisting the request later on.
+   */
+  private transactionData: DataAccessTypes.ITransaction | undefined;
+
+  /**
+   * Topics of a in-memory request, necesary for persisting the request later on.
+   */
+  private topics: string[] | undefined;
+
+  /**
    * Creates an instance of Request
    *
    * @param requestLogic Instance of the request-logic layer
@@ -99,6 +110,8 @@ export default class Request {
       requestLogicCreateResult?: RequestLogicTypes.IReturnCreateRequest;
       skipPaymentDetection?: boolean;
       disableEvents?: boolean;
+      transactionData?: DataAccessTypes.ITransaction;
+      topics?: string[];
     },
   ) {
     this.requestLogic = requestLogic;
@@ -109,6 +122,8 @@ export default class Request {
     this.skipPaymentDetection = options?.skipPaymentDetection || false;
     this.disableEvents = options?.disableEvents || false;
     this.currencyManager = currencyManager;
+    this.topics = options?.topics;
+    this.transactionData = options?.transactionData;
 
     if (options?.requestLogicCreateResult && !this.disableEvents) {
       const originalEmitter = options.requestLogicCreateResult;
