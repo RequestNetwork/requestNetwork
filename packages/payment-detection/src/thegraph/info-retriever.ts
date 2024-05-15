@@ -1,5 +1,4 @@
-import { PaymentTypes } from '@requestnetwork/types';
-import { ICurrencyManager } from '@requestnetwork/currency';
+import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
 import type { TheGraphClient } from './client';
 import type { EscrowEventResultFragment, PaymentEventResultFragment } from './generated/graphql';
@@ -14,7 +13,7 @@ export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = Tr
 {
   constructor(
     protected readonly client: TheGraphClient,
-    protected readonly currencyManager: ICurrencyManager,
+    protected readonly currencyManager: CurrencyTypes.ICurrencyManager,
   ) {}
 
   public async getTransferEvents(

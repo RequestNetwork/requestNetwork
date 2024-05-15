@@ -1,4 +1,4 @@
-import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 import {
   CurrencyTypes,
   ExtensionTypes,
@@ -17,7 +17,7 @@ export default abstract class AddressBasedPaymentNetwork<
     ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters,
 > extends DeclarativePaymentNetwork<TCreationParameters> {
   protected constructor(
-    protected currencyManager: ICurrencyManager,
+    protected currencyManager: CurrencyTypes.ICurrencyManager,
     extensionId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currentVersion: string,
     public readonly supportedCurrencyType: RequestLogicTypes.CURRENCY,

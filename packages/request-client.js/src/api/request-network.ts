@@ -4,6 +4,7 @@ import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
   AdvancedLogicTypes,
+  CurrencyTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
@@ -14,11 +15,7 @@ import {
   TransactionTypes,
 } from '@requestnetwork/types';
 import { deepCopy, supportedIdentities } from '@requestnetwork/utils';
-import {
-  CurrencyManager,
-  ICurrencyManager,
-  UnsupportedCurrencyError,
-} from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import Request from './request';
@@ -36,7 +33,7 @@ export default class RequestNetwork {
   private advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 
   private contentData: ContentDataExtension;
-  private currencyManager: ICurrencyManager;
+  private currencyManager: CurrencyTypes.ICurrencyManager;
 
   /**
    * @param dataAccess instance of data-access layer
@@ -54,7 +51,7 @@ export default class RequestNetwork {
     dataAccess: DataAccessTypes.IDataAccess;
     signatureProvider?: SignatureProviderTypes.ISignatureProvider;
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
-    currencyManager?: ICurrencyManager;
+    currencyManager?: CurrencyTypes.ICurrencyManager;
     paymentOptions?: Partial<PaymentNetworkOptions>;
   }) {
     this.currencyManager = currencyManager || CurrencyManager.getDefault();

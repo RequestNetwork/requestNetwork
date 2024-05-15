@@ -9,14 +9,16 @@ import { RequestConfig } from 'graphql-request/src/types';
 const HOSTED_THE_GRAPH_URL =
   'https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-';
 
+const STUDIO_THE_GRAPH_URL = 'https://api.studio.thegraph.com/query/35843/request-payments-';
+
 const THE_GRAPH_URL_MANTLE_TESTNET =
   'https://graph.testnet.mantle.xyz/subgraphs/name/requestnetwork/request-payments-mantle-testnet';
 
 const THE_GRAPH_URL_MANTLE =
   'https://graph.fusionx.finance/subgraphs/name/requestnetwork/request-payments-mantle';
 
-const THE_GRAPH_URL_STUDIO_ZKSYNC =
-  'https://api.studio.thegraph.com/query/35843/request-payment-zksyncera/version/latest';
+const THE_GRAPH_URL_CORE =
+  'https://thegraph.coredao.org/subgraphs/name/requestnetwork/request-payments-core';
 
 // NB: the GraphQL client is automatically generated based on files present in ./queries,
 // using graphql-codegen.
@@ -56,8 +58,8 @@ const extractClientOptions = (
   if (minIndexedBlock) {
     queryOptions.blockFilter = { number_gte: minIndexedBlock };
   } else if (url.match(/^https:\/\/gateway-\w+\.network\.thegraph\.com\//)) {
-    // the decentralized network expects an empty object, and doesn't support "undefined"
-    queryOptions.blockFilter = {};
+    // the decentralized network doesn't support "undefined"
+    queryOptions.blockFilter = { number_gte: 0 };
   }
 
   // build client options
@@ -99,7 +101,9 @@ export const defaultGetTheGraphClient = (
     ? getTheGraphEvmClient(THE_GRAPH_URL_MANTLE, options)
     : network === 'mantle-testnet'
     ? getTheGraphEvmClient(THE_GRAPH_URL_MANTLE_TESTNET, options)
-    : network === 'zksyncera'
-    ? getTheGraphEvmClient(THE_GRAPH_URL_STUDIO_ZKSYNC, options)
+    : network === 'core'
+    ? getTheGraphEvmClient(THE_GRAPH_URL_CORE, options)
+    : network === 'zksyncera' || network === 'base'
+    ? getTheGraphEvmClient(`${STUDIO_THE_GRAPH_URL}${network}/version/latest`, options)
     : getTheGraphEvmClient(`${HOSTED_THE_GRAPH_URL}${network}`, options);
 };

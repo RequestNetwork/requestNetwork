@@ -36,39 +36,41 @@ export const executeContractMethod = async ({
   signer: Wallet;
   signWithEoa?: boolean;
 }): Promise<void> => {
-  const safeAddress = safeAdminArtifact.getAddress(network as CurrencyTypes.VMChainName);
-  const txServiceUrl = txServiceUrls[network];
-  if (!signWithEoa && !!safeAddress && !!txServiceUrl) {
-    const ethAdapter = new EthersAdapter({
-      ethers,
-      signerOrProvider: signer,
-    } as unknown as EthersAdapterConfig);
-    const safeService = new SafeApiKit({ txServiceUrl, ethAdapter });
-    const safeSdk = await Safe.create({ ethAdapter, safeAddress });
+  if (!signWithEoa) {
+    const safeAddress = safeAdminArtifact.getAddress(network as CurrencyTypes.VMChainName);
+    const txServiceUrl = txServiceUrls[network];
+    if (!!safeAddress && !!txServiceUrl) {
+      const ethAdapter = new EthersAdapter({
+        ethers,
+        signerOrProvider: signer,
+      } as unknown as EthersAdapterConfig);
+      const safeService = new SafeApiKit({ txServiceUrl, ethAdapter });
+      const safeSdk = await Safe.create({ ethAdapter, safeAddress });
 
-    const safeTransactionData = [
-      {
-        to: contract.address,
-        data: contract.interface.encodeFunctionData(method, props),
-        value: '0',
-      },
-    ];
-    const nonce = await safeService.getNextNonce(safeAddress);
-    const safeTransaction = await safeSdk.createTransaction({
-      safeTransactionData,
-      options: { nonce },
-    });
-    const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
-    const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
+      const safeTransactionData = [
+        {
+          to: contract.address,
+          data: contract.interface.encodeFunctionData(method, props),
+          value: '0',
+        },
+      ];
+      const nonce = await safeService.getNextNonce(safeAddress);
+      const safeTransaction = await safeSdk.createTransaction({
+        safeTransactionData,
+        options: { nonce },
+      });
+      const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
+      const senderSignature = await safeSdk.signTransactionHash(safeTxHash);
 
-    await safeService.proposeTransaction({
-      safeAddress,
-      safeTransactionData: safeTransaction.data,
-      safeTxHash,
-      senderAddress: signer.address,
-      senderSignature: senderSignature.data,
-    });
-    console.log(`Transaction to be confirmed in Safe ${safeAddress} on ${network}`);
+      await safeService.proposeTransaction({
+        safeAddress,
+        safeTransactionData: safeTransaction.data,
+        safeTxHash,
+        senderAddress: signer.address,
+        senderSignature: senderSignature.data,
+      });
+      console.log(`Transaction to be confirmed in Safe ${safeAddress} on ${network}`);
+    }
   } else {
     const contractConnected = contract.connect(signer);
     const tx = await contractConnected[method](...props, txOverrides);
