@@ -4,9 +4,9 @@ export const PaytrConfig = {
   '0.1.0': {
     abi: ABI_0_1_0,
     deployment: {
-      mumbai: {
-        address: '0xFEA88FA17289Ff811073CA9243463D33Cb81eBd1',
-        creationBlockNumber: 45666294,
+      sepolia: {
+        address: '0xdc7e3c54cde09d6211d59f91258ec2407ebf2d49',
+        creationBlockNumber: 5828444,
       },
     },
   },
