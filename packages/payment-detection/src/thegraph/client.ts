@@ -7,7 +7,7 @@ import { getSdk as getNearSdk } from './generated/graphql-near';
 import { RequestConfig } from 'graphql-request/src/types';
 
 const THE_GRAPH_URL =
-  'https://api.studio.thegraph.com/query/35843/request-payments-$NETWORK/version/latest';
+  'https://api.studio.thegraph.com/query/67444/request-payments-$NETWORK/version/latest';
 
 const THE_GRAPH_URL_MANTLE_TESTNET =
   'https://graph.testnet.mantle.xyz/subgraphs/name/requestnetwork/request-payments-mantle-testnet';
