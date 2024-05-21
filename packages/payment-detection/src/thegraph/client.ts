@@ -6,10 +6,10 @@ import { Block_Height, Maybe, getSdk } from './generated/graphql';
 import { getSdk as getNearSdk } from './generated/graphql-near';
 import { RequestConfig } from 'graphql-request/src/types';
 
-const THE_GRAPH_URL =
+const THE_GRAPH_STUDIO_URL =
   'https://api.studio.thegraph.com/query/67444/request-payments-$NETWORK/version/latest';
 
-const THE_GRAPH_URL_LEGACY =
+const THE_GRAPH_STUDIO_URL_RF =
   'https://api.studio.thegraph.com/query/35843/request-payments-$NETWORK/version/latest';
 
 const THE_GRAPH_URL_MANTLE_TESTNET =
@@ -98,7 +98,7 @@ export const defaultGetTheGraphClient = (
     ? undefined
     : NearChains.isChainSupported(network)
     ? getTheGraphNearClient(
-        `${THE_GRAPH_URL.replace('$NETWORK', network.replace('aurora', 'near'))}`,
+        `${THE_GRAPH_STUDIO_URL.replace('$NETWORK', network.replace('aurora', 'near'))}`,
         options,
       )
     : network === 'mantle'
@@ -108,6 +108,6 @@ export const defaultGetTheGraphClient = (
     : network === 'core'
     ? getTheGraphEvmClient(THE_GRAPH_URL_CORE, options)
     : ['mainnet', 'xdai'].includes(network)
-    ? getTheGraphEvmClient(`${THE_GRAPH_URL_LEGACY.replace('$NETWORK', network)}`, options)
-    : getTheGraphEvmClient(`${THE_GRAPH_URL.replace('$NETWORK', network)}`, options);
+    ? getTheGraphEvmClient(`${THE_GRAPH_STUDIO_URL_RF.replace('$NETWORK', network)}`, options)
+    : getTheGraphEvmClient(`${THE_GRAPH_STUDIO_URL.replace('$NETWORK', network)}`, options);
 };
