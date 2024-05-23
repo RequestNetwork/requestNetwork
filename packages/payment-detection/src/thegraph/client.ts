@@ -108,12 +108,12 @@ export const defaultGetTheGraphClient = (
     : network === 'core'
     ? getTheGraphEvmClient(THE_GRAPH_URL_CORE, options)
     : /**
-     * These two subgraphs could not be transferred from the RF Studio account to the RN Studio account,
-     * because of an issue with TheGraph Studio and the fact that they were created before the
+     * This subgraph could not be transferred from the RF Studio account to the RN Studio account,
+     * because of an issue with TheGraph Studio and the fact that it was created before the
      * migration to TheGraph decentralized network based on Arbitrum.
-     * FIXME: transfer these two subgraphs to the RN Studio account
+     * FIXME: transfer this subgraph to the RN Studio account
      */
-    ['mainnet', 'xdai'].includes(network)
+    network === 'mainnet'
     ? getTheGraphEvmClient(`${THE_GRAPH_STUDIO_URL_RF.replace('$NETWORK', network)}`, options)
     : getTheGraphEvmClient(`${THE_GRAPH_STUDIO_URL.replace('$NETWORK', network)}`, options);
 };
