@@ -9,9 +9,6 @@ import { RequestConfig } from 'graphql-request/src/types';
 const THE_GRAPH_STUDIO_URL =
   'https://api.studio.thegraph.com/query/67444/request-payments-$NETWORK/version/latest';
 
-const THE_GRAPH_STUDIO_URL_RF =
-  'https://api.studio.thegraph.com/query/35843/request-payments-$NETWORK/version/latest';
-
 const THE_GRAPH_URL_MANTLE_TESTNET =
   'https://graph.testnet.mantle.xyz/subgraphs/name/requestnetwork/request-payments-mantle-testnet';
 
@@ -107,13 +104,5 @@ export const defaultGetTheGraphClient = (
     ? getTheGraphEvmClient(THE_GRAPH_URL_MANTLE_TESTNET, options)
     : network === 'core'
     ? getTheGraphEvmClient(THE_GRAPH_URL_CORE, options)
-    : /**
-     * This subgraph could not be transferred from the RF Studio account to the RN Studio account,
-     * because of an issue with TheGraph Studio and the fact that it was created before the
-     * migration to TheGraph decentralized network based on Arbitrum.
-     * FIXME: transfer this subgraph to the RN Studio account
-     */
-    network === 'mainnet'
-    ? getTheGraphEvmClient(`${THE_GRAPH_STUDIO_URL_RF.replace('$NETWORK', network)}`, options)
     : getTheGraphEvmClient(`${THE_GRAPH_STUDIO_URL.replace('$NETWORK', network)}`, options);
 };
