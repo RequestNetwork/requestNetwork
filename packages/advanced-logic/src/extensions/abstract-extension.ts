@@ -13,7 +13,6 @@ export interface ICreationContext {
  */
 export abstract class AbstractExtension<TCreationParameters> implements ExtensionTypes.IExtension {
   protected actions: ExtensionTypes.SupportedActions;
-  protected createActions: ExtensionTypes.SupportedActionsToCreate;
 
   protected constructor(
     public readonly extensionType: ExtensionTypes.TYPE,
@@ -21,9 +20,6 @@ export abstract class AbstractExtension<TCreationParameters> implements Extensio
     public readonly currentVersion: string,
   ) {
     this.actions = {};
-    this.createActions = {
-      [ExtensionTypes.PnAnyDeclarative.ACTION.CREATE]: this.createCreationAction.bind(this),
-    };
   }
 
   /**
@@ -42,24 +38,6 @@ export abstract class AbstractExtension<TCreationParameters> implements Extensio
       parameters: creationParameters,
       version: this.currentVersion,
     };
-  }
-
-  /**
-   * Create an action to apply to an extension
-   *
-   * @param action The action to create
-   * @param parameters Action parameters
-   *
-   * @returns The created Action
-   */
-  public createExtensionAction(action: string, parameters: any): ExtensionTypes.IAction {
-    const actionCreator: ExtensionTypes.CreateAction = this.createActions[action];
-
-    if (!actionCreator) {
-      throw Error(`Unknown action: ${action}`);
-    }
-
-    return actionCreator(parameters);
   }
 
   /**
