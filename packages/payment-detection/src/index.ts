@@ -28,6 +28,7 @@ import { EscrowERC20InfoRetriever } from './erc20/escrow-info-retriever';
 import { SuperFluidInfoRetriever } from './erc777/superfluid-retriever';
 import { PaymentNetworkOptions } from './types';
 import { ERC20TransferableReceivablePaymentDetector } from './erc20';
+import { MetaDetector } from './meta-payment-detector';
 
 export type { TheGraphClient } from './thegraph';
 
@@ -49,6 +50,7 @@ export {
   NearConversionNativeTokenPaymentDetector,
   EscrowERC20InfoRetriever,
   SuperFluidInfoRetriever,
+  MetaDetector,
   setProviderFactory,
   initPaymentDetectionApiKeys,
   getDefaultProvider,

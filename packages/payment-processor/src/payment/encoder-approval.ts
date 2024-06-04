@@ -13,6 +13,7 @@ import {
   prepareApprovalErc20ForSwapWithConversionToPay,
 } from './swap-conversion-erc20';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
+import { getFormattedRequest } from './utils';
 
 /**
  * For a given request and user, encode an approval transaction if it is needed.
@@ -27,10 +28,11 @@ export async function encodeRequestErc20ApprovalIfNeeded(
   from: string,
   options?: IRequestPaymentOptions,
 ): Promise<IPreparedTransaction | void> {
+  const formattedRequest = getFormattedRequest({ request, options });
   if (options && options.swap) {
-    return encodeRequestErc20ApprovalWithSwapIfNeeded(request, provider, from, options);
+    return encodeRequestErc20ApprovalWithSwapIfNeeded(formattedRequest, provider, from, options);
   } else {
-    return encodeRequestErc20ApprovalWithoutSwapIfNeeded(request, provider, from, options);
+    return encodeRequestErc20ApprovalWithoutSwapIfNeeded(formattedRequest, provider, from, options);
   }
 }
 
@@ -45,10 +47,11 @@ export function encodeRequestErc20Approval(
   provider: providers.Provider,
   options?: IRequestPaymentOptions,
 ): IPreparedTransaction | void {
+  const formattedRequest = getFormattedRequest({ request, options });
   if (options && options.swap) {
-    return encodeRequestErc20ApprovalWithSwap(request, provider, options);
+    return encodeRequestErc20ApprovalWithSwap(formattedRequest, provider, options);
   } else {
-    return encodeRequestErc20ApprovalWithoutSwap(request, provider, options);
+    return encodeRequestErc20ApprovalWithoutSwap(formattedRequest, provider, options);
   }
 }
 

@@ -66,6 +66,8 @@ export interface IRequestPaymentOptions {
   skipFeeUSDLimit?: boolean;
   /** Optional, only for batch payment to define the proxy to use. */
   version?: string;
+  /** Payment network identifier - used for MetaPn */
+  pnIdentifier?: string;
 }
 
 export type BatchPaymentNetworks =

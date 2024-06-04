@@ -13,6 +13,7 @@ import { prepareEthFeeProxyPaymentTransaction } from './eth-fee-proxy';
 import { prepareAnyToEthProxyPaymentTransaction } from './any-to-eth-proxy';
 import { IConversionPaymentSettings } from '.';
 import { prepareErc777StreamPaymentTransaction } from './erc777-stream';
+import { getFormattedRequest } from './utils';
 
 /**
  * Encodes a transaction to pay a Request in generic way. ERC777 stream excepted.
@@ -25,10 +26,11 @@ export function encodeRequestPayment(
   provider: providers.Provider,
   options?: IRequestPaymentOptions,
 ): IPreparedTransaction {
+  const formattedRequest = getFormattedRequest({ request, options });
   if (options && options.swap) {
-    return encodeRequestPaymentWithSwap(request, provider, options);
+    return encodeRequestPaymentWithSwap(formattedRequest, provider, options);
   } else {
-    return encodeRequestPaymentWithoutSwap(request, options);
+    return encodeRequestPaymentWithoutSwap(formattedRequest, options);
   }
 }
 

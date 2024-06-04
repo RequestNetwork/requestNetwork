@@ -55,6 +55,7 @@ const approvalSettings = {
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const mnemonicPath = `m/44'/60'/0'/0/19`;
 const paymentAddress = '0x821aEa9a577a9b44299B9c15c88cf3087F3b5544';
+const otherPaymentAddress = '0x821aEa9a577a9b44299B9c15c88cf3087F3b5545';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 let wallet = Wallet.fromMnemonic(mnemonic, mnemonicPath).connect(provider);
 const erc20ApprovalData = (proxy: string, approvedHexValue?: BigNumber) => {
@@ -222,6 +223,61 @@ const validRequestEthConversionProxy: ClientTypes.IRequestData = {
         paymentAddress,
         salt: 'salt',
         network: 'private',
+      },
+      version: '0.1.0',
+    },
+  },
+};
+
+export const validMetaRequest: ClientTypes.IRequestData = {
+  ...validRequestEthConversionProxy,
+  extensions: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.META]: {
+      events: [],
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.META,
+      type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+      values: {
+        salt1: {
+          events: [],
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            feeAddress,
+            feeAmount: '2',
+            paymentAddress,
+            salt: 'salt1',
+            network: 'private',
+            acceptedTokens: [erc20ContractAddress],
+          },
+          version: '0.1.0',
+        },
+        salt2: {
+          events: [],
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            feeAddress,
+            feeAmount: '2',
+            paymentAddress: otherPaymentAddress,
+            salt: 'salt2',
+            network: 'private',
+          },
+          version: '0.1.0',
+        },
+        salt3: {
+          events: [],
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            feeAddress,
+            feeAmount: '2',
+            paymentAddress: otherPaymentAddress,
+            salt: 'salt3',
+            network: 'mainnet',
+            acceptedTokens: [erc20ContractAddress],
+          },
+          version: '0.1.0',
+        },
       },
       version: '0.1.0',
     },
@@ -593,5 +649,125 @@ describe('Approval encoder handles Eth Requests', () => {
       wallet.address,
     );
     expect(approvalTransaction).toBeUndefined();
+  });
+});
+
+describe('Approval encoder handles Meta PN', () => {
+  describe('Error cases', () => {
+    it('Should not be possible to encode a transaction when passing an invalid pn identifier', async () => {
+      await expect(
+        encodeRequestErc20ApprovalIfNeeded(validMetaRequest, provider, wallet.address, {
+          conversion: alphaConversionSettings,
+          pnIdentifier: 'unknown',
+        }),
+      ).rejects.toThrowError('Invalid pn identifier');
+    });
+
+    it('Should not be possible to encode a transaction without passing a pn identifier', async () => {
+      await expect(
+        encodeRequestErc20ApprovalIfNeeded(validMetaRequest, provider, wallet.address, {
+          conversion: alphaConversionSettings,
+        }),
+      ).rejects.toThrowError('Missing pn identifier');
+    });
+
+    it('Should not be possible to encode a conversion transaction without passing conversion options', async () => {
+      await expect(
+        encodeRequestErc20ApprovalIfNeeded(
+          validRequestERC20ConversionProxy,
+          provider,
+          wallet.address,
+          {
+            pnIdentifier: 'salt1',
+          },
+        ),
+      ).rejects.toThrowError('Conversion settings missing');
+    });
+  });
+
+  describe('Approval encoder handles Sub pn for ERC20 Conversion Proxy', () => {
+    beforeEach(async () => {
+      proxyERC20Conv = getProxyAddress(
+        validRequestERC20ConversionProxy,
+        AnyToERC20PaymentDetector.getDeploymentInformation,
+      );
+      await revokeErc20Approval(proxyERC20Conv, alphaContractAddress, wallet);
+
+      proxyERC20SwapConv = erc20SwapConversionArtifact.getAddress(
+        validRequestERC20FeeProxy.currencyInfo.network! as CurrencyTypes.EvmChainName,
+      );
+      await revokeErc20Approval(proxyERC20SwapConv, alphaContractAddress, wallet);
+    });
+
+    it('Should return a valid transaction', async () => {
+      let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
+        validMetaRequest,
+        provider,
+        wallet.address,
+        {
+          conversion: alphaConversionSettings,
+          pnIdentifier: 'salt1',
+        },
+      );
+
+      expect(approvalTransaction).toEqual({
+        data: erc20ApprovalData(proxyERC20Conv),
+        to: alphaContractAddress,
+        value: 0,
+      });
+    });
+    it('Should return a valid transaction with specific approval value', async () => {
+      let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
+        validMetaRequest,
+        provider,
+        wallet.address,
+        {
+          conversion: alphaConversionSettings,
+          approval: approvalSettings,
+          pnIdentifier: 'salt1',
+        },
+      );
+
+      expect(approvalTransaction).toEqual({
+        data: erc20ApprovalData(proxyERC20Conv, arbitraryApprovalValue),
+        to: alphaContractAddress,
+        value: 0,
+      });
+    });
+    it('Should return undefined - approval already made', async () => {
+      let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
+        validMetaRequest,
+        provider,
+        wallet.address,
+        {
+          conversion: alphaConversionSettings,
+          pnIdentifier: 'salt1',
+        },
+      );
+      await wallet.sendTransaction(approvalTransaction as IPreparedTransaction);
+
+      approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
+        validMetaRequest,
+        provider,
+        wallet.address,
+        {
+          conversion: alphaConversionSettings,
+          pnIdentifier: 'salt1',
+        },
+      );
+      expect(approvalTransaction).toBeUndefined();
+    });
+
+    it('Should not return anything - native pn', async () => {
+      const approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
+        validMetaRequest,
+        provider,
+        wallet.address,
+        {
+          pnIdentifier: 'salt2',
+        },
+      );
+      expect(approvalTransaction).toBeUndefined();
+    });
   });
 });
