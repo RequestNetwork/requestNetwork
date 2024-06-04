@@ -1,10 +1,10 @@
 import {
   AdvancedLogicTypes,
+  CurrencyTypes,
   ExtensionTypes,
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { ICurrencyManager } from '@requestnetwork/currency';
 import { deepCopy, generate8randomBytes } from '@requestnetwork/utils';
 import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
 import {
@@ -42,7 +42,7 @@ export class MetaDetector extends DeclarativePaymentDetectorBase<
   | PaymentTypes.IDeclarativePaymentEventParameters
 > {
   private readonly advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
-  private readonly currencyManager: ICurrencyManager;
+  private readonly currencyManager: CurrencyTypes.ICurrencyManager;
   private readonly options: Partial<PaymentNetworkOptions>;
   /**
    * @param paymentNetworkId Example : ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA

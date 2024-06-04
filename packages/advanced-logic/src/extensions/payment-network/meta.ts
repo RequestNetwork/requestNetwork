@@ -1,5 +1,9 @@
-import { ICurrencyManager } from '@requestnetwork/currency';
-import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import { ICreationContext } from '../abstract-extension';
 import AnyToErc20ProxyPaymentNetwork from './any-to-erc20-proxy';
 import AnyToEthProxyPaymentNetwork from './any-to-eth-proxy';
@@ -13,7 +17,7 @@ export default class MetaPaymentNetwork<
     ExtensionTypes.PnMeta.ICreationParameters = ExtensionTypes.PnMeta.ICreationParameters,
 > extends DeclarativePaymentNetwork<TCreationParameters> {
   public constructor(
-    protected currencyManager: ICurrencyManager,
+    protected currencyManager: CurrencyTypes.ICurrencyManager,
     public extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID.META,
     public currentVersion: string = CURRENT_VERSION,
   ) {
