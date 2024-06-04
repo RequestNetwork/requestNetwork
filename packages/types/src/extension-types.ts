@@ -36,7 +36,6 @@ export interface IExtension<TCreationParameters = any> {
     actionSigner: Identity.IIdentity,
     timestamp: number,
   ) => RequestLogic.IExtensionStates;
-  createExtensionAction: (action: string, parameters: any) => IAction;
 }
 
 export type CreateAction<T = any> = (parameters: any) => IAction<T>;
