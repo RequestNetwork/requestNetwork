@@ -1,11 +1,19 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
 
+export interface ICreationContext {
+  extensionsState: RequestLogicTypes.IExtensionStates;
+  extensionAction: ExtensionTypes.IAction;
+  requestState: RequestLogicTypes.IRequest;
+  actionSigner: IdentityTypes.IIdentity;
+}
+
 /**
  * Abstract class to create extension
  */
 export abstract class AbstractExtension<TCreationParameters> implements ExtensionTypes.IExtension {
   protected actions: ExtensionTypes.SupportedActions;
+  protected createActions: ExtensionTypes.SupportedActionsToCreate;
 
   protected constructor(
     public readonly extensionType: ExtensionTypes.TYPE,
@@ -13,6 +21,9 @@ export abstract class AbstractExtension<TCreationParameters> implements Extensio
     public readonly currentVersion: string,
   ) {
     this.actions = {};
+    this.createActions = {
+      [ExtensionTypes.PnAnyDeclarative.ACTION.CREATE]: this.createCreationAction.bind(this),
+    };
   }
 
   /**
@@ -31,6 +42,24 @@ export abstract class AbstractExtension<TCreationParameters> implements Extensio
       parameters: creationParameters,
       version: this.currentVersion,
     };
+  }
+
+  /**
+   * Create an action to apply to an extension
+   *
+   * @param action The action to create
+   * @param parameters Action parameters
+   *
+   * @returns The created Action
+   */
+  public createExtensionAction(action: string, parameters: any): ExtensionTypes.IAction {
+    const actionCreator: ExtensionTypes.CreateAction = this.createActions[action];
+
+    if (!actionCreator) {
+      throw Error(`Unknown action: ${action}`);
+    }
+
+    return actionCreator(parameters);
   }
 
   /**
@@ -60,7 +89,12 @@ export abstract class AbstractExtension<TCreationParameters> implements Extensio
         throw Error(`This extension has already been created`);
       }
 
-      copiedExtensionState[extensionAction.id] = this.applyCreation(extensionAction, timestamp);
+      copiedExtensionState[extensionAction.id] = this.applyCreation(extensionAction, timestamp, {
+        extensionsState,
+        extensionAction,
+        requestState,
+        actionSigner,
+      });
 
       return copiedExtensionState;
     }
@@ -99,6 +133,8 @@ export abstract class AbstractExtension<TCreationParameters> implements Extensio
     extensionAction: ExtensionTypes.IAction,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _timestamp: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    context?: ICreationContext,
   ): ExtensionTypes.IState {
     if (!extensionAction.version) {
       throw Error('version is required at creation');

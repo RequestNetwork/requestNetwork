@@ -21,6 +21,7 @@ export interface IAdvancedLogicExtensions {
   anyToEthProxy: Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnAnyToEth.ICreationParameters>;
   anyToNativeToken: Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>[];
   erc20TransferableReceivable: Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>;
+  metaPn: Extension.PnMeta.IMeta<Extension.PnMeta.ICreationParameters>;
 }
 
 /** Advanced Logic layer */

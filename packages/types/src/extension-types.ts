@@ -6,6 +6,7 @@ import * as PnFeeReferenceBased from './extensions/pn-any-fee-reference-based-ty
 import * as PnReferenceBased from './extensions/pn-any-reference-based-types';
 import * as PnAnyToErc20 from './extensions/pn-any-to-erc20-types';
 import * as PnAnyToEth from './extensions/pn-any-to-eth-types';
+import * as PnMeta from './extensions/pn-meta';
 import * as PnAnyToAnyConversion from './extensions/pn-any-to-any-conversion-types';
 import * as Identity from './identity-types';
 import * as RequestLogic from './request-logic-types';
@@ -20,6 +21,7 @@ export {
   PnAnyToErc20,
   PnAnyToEth,
   PnAnyToAnyConversion,
+  PnMeta,
 };
 
 /** Extension interface is extended by the extensions implementation */
@@ -34,7 +36,10 @@ export interface IExtension<TCreationParameters = any> {
     actionSigner: Identity.IIdentity,
     timestamp: number,
   ) => RequestLogic.IExtensionStates;
+  createExtensionAction: (action: string, parameters: any) => IAction;
 }
+
+export type CreateAction<T = any> = (parameters: any) => IAction<T>;
 
 export type ApplyAction<T = any> = (
   extensionState: IState<T>,
@@ -97,6 +102,7 @@ export enum PAYMENT_NETWORK_ID {
   ANY_TO_ERC20_PROXY = 'pn-any-to-erc20-proxy',
   ANY_TO_ETH_PROXY = 'pn-any-to-eth-proxy',
   ERC20_TRANSFERABLE_RECEIVABLE = 'pn-erc20-transferable-receivable',
+  META = 'pn-meta',
 }
 
 export const ID = {
@@ -119,3 +125,6 @@ export enum ACTION {
 }
 
 export type SupportedActions = { [actionId: string]: ApplyAction };
+export type SupportedActionsToCreate = {
+  [actionId: string]: CreateAction;
+};

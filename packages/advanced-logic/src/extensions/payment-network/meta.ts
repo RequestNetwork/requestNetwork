@@ -1,0 +1,244 @@
+import { ICurrencyManager } from '@requestnetwork/currency';
+import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ICreationContext } from '../abstract-extension';
+import AnyToErc20ProxyPaymentNetwork from './any-to-erc20-proxy';
+import AnyToEthProxyPaymentNetwork from './any-to-eth-proxy';
+import { deepCopy } from '@requestnetwork/utils';
+import DeclarativePaymentNetwork from './declarative';
+
+const CURRENT_VERSION = '0.1.0';
+
+export default class MetaPaymentNetwork<
+  TCreationParameters extends
+    ExtensionTypes.PnMeta.ICreationParameters = ExtensionTypes.PnMeta.ICreationParameters,
+> extends DeclarativePaymentNetwork<TCreationParameters> {
+  public constructor(
+    protected currencyManager: ICurrencyManager,
+    public extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID.META,
+    public currentVersion: string = CURRENT_VERSION,
+  ) {
+    super(extensionId, currentVersion);
+    this.actions = {
+      ...this.actions,
+      [ExtensionTypes.PnMeta.ACTION.APPLY_ACTION_TO_PN]:
+        this.applyApplyActionToExtension.bind(this),
+    };
+  }
+
+  /**
+   * Creates the extensionsData to create the meta extension payment detection
+   *
+   * @param creationParameters extensions parameters to create
+   *
+   * @returns IExtensionCreationAction the extensionsData to be stored in the request
+   */
+  public createCreationAction(
+    creationParameters: TCreationParameters,
+  ): ExtensionTypes.IAction<TCreationParameters> {
+    Object.entries(creationParameters).forEach(([pnId, creationParameters]) => {
+      const pn = this.getExtension(pnId);
+
+      if (!pn) throw new Error('Invalid PN');
+
+      // This is to perform validations on each input
+      for (const param of creationParameters) {
+        pn.createExtensionAction('create', param);
+      }
+    });
+
+    return super.createCreationAction(creationParameters);
+  }
+
+  /**
+   * Creates the extensionsData to perform an action on a sub-pn
+   *
+   * @param parameters parameters to create the action to perform
+   *
+   * @returns IAction the extensionsData to be stored in the request
+   */
+  public createApplyActionToPn(
+    parameters: ExtensionTypes.PnMeta.IApplyActionToPn,
+  ): ExtensionTypes.IAction {
+    return {
+      action: ExtensionTypes.PnMeta.ACTION.APPLY_ACTION_TO_PN,
+      id: this.extensionId,
+      parameters: {
+        pnIdentifier: parameters.pnIdentifier,
+        action: parameters.action,
+        parameters: parameters.parameters,
+      },
+    };
+  }
+
+  /**
+   * Applies a creation extension action
+   *
+   * @param extensionAction action to apply
+   * @param timestamp action timestamp
+   *
+   * @returns state of the extension created
+   */
+  protected applyCreation(
+    extensionAction: ExtensionTypes.IAction<TCreationParameters>,
+    timestamp: number,
+  ): ExtensionTypes.IState;
+  protected applyCreation(
+    extensionAction: ExtensionTypes.IAction<TCreationParameters>,
+    timestamp: number,
+    context: ICreationContext,
+  ): ExtensionTypes.IState;
+  protected applyCreation(
+    extensionAction: ExtensionTypes.IAction,
+    timestamp: number,
+    context?: ICreationContext,
+  ): ExtensionTypes.IState {
+    if (!context) {
+      throw new Error('Context is required');
+    }
+    const values: Record<string, ExtensionTypes.IState> = {};
+    Object.entries(extensionAction.parameters).forEach(([pnId, parameters]) => {
+      const pn = this.getExtension(pnId);
+      if (!pn) throw new Error('Invalid PN');
+
+      (parameters as any[]).forEach((params) => {
+        console.log(params);
+        values[params.salt] = pn.applyActionToExtension(
+          {},
+          {
+            action: 'create',
+            id: pnId as ExtensionTypes.PAYMENT_NETWORK_ID,
+            parameters: params,
+            version: pn.currentVersion,
+          },
+          context.requestState,
+          context.actionSigner,
+          timestamp,
+        )[pnId];
+      });
+    });
+
+    return {
+      ...super.applyCreation(extensionAction, timestamp),
+      events: [
+        {
+          name: 'create',
+          parameters: {
+            ...extensionAction.parameters,
+          },
+          timestamp,
+        },
+      ],
+      values,
+    };
+  }
+
+  /** Applies an action on a sub-payment network
+   *
+   * @param extensionsState previous state of the extensions
+   * @param extensionAction action to apply
+   * @param requestState request state read-only
+   * @param actionSigner identity of the signer
+   * @param timestamp timestamp of the action
+   *
+   * @returns state of the extension created
+   */
+  protected applyApplyActionToExtension(
+    extensionState: ExtensionTypes.IState,
+    extensionAction: ExtensionTypes.IAction,
+    requestState: RequestLogicTypes.IRequest,
+    actionSigner: IdentityTypes.IIdentity,
+    timestamp: number,
+  ): ExtensionTypes.IState {
+    const copiedExtensionState: ExtensionTypes.IState<any> = deepCopy(extensionState);
+    const { pnIdentifier, action, parameters } = extensionAction.parameters;
+    const extensionToActOn: ExtensionTypes.IState = copiedExtensionState.values[pnIdentifier];
+    // increment sentPaymentAmount
+
+    const pn = this.getExtension(extensionToActOn.id);
+    if (!pn) throw new Error('Invalid PN');
+
+    const subExtensionState = {
+      [extensionToActOn.id]: extensionToActOn,
+    };
+
+    copiedExtensionState.values[pnIdentifier] = pn.applyActionToExtension(
+      subExtensionState,
+      {
+        id: extensionToActOn.id,
+        action,
+        parameters,
+      },
+      requestState,
+      actionSigner,
+      timestamp,
+    )[extensionToActOn.id];
+
+    // update events
+    copiedExtensionState.events.push({
+      name: ExtensionTypes.PnMeta.ACTION.APPLY_ACTION_TO_PN,
+      parameters: {
+        pnIdentifier,
+        action,
+        parameters,
+      },
+      timestamp,
+      from: actionSigner,
+    });
+    return copiedExtensionState;
+  }
+
+  /**
+   * Validate the extension action regarding the currency and network
+   * It must throw in case of error
+   */
+  protected validate(
+    request: RequestLogicTypes.IRequest,
+    extensionAction: ExtensionTypes.IAction,
+  ): void {
+    const pnIdentifiers: string[] = [];
+    if (extensionAction.action === ExtensionTypes.PnMeta.ACTION.CREATE) {
+      Object.entries(extensionAction.parameters).forEach(([pnId, parameters]: [string, any]) => {
+        const pn = this.getExtension(pnId);
+        if (!pn) throw new Error('Invalid PN');
+
+        if (parameters.action) {
+          throw new Error('Invalid action');
+        }
+
+        for (const param of parameters) {
+          if (pnIdentifiers.includes(param.salt)) {
+            throw new Error('Duplicate payment network identifier');
+          }
+          pnIdentifiers.push(param.salt);
+        }
+
+        request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.META]?.values;
+      });
+    } else if (extensionAction.action === ExtensionTypes.PnMeta.ACTION.APPLY_ACTION_TO_PN) {
+      const { pnIdentifier } = extensionAction.parameters;
+
+      const subPnState: ExtensionTypes.IState =
+        request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.META]?.values?.[pnIdentifier];
+      if (!subPnState) {
+        throw new Error(`No payment network with identifier ${pnIdentifier}`);
+      }
+
+      const pn = this.getExtension(subPnState.id);
+      if (!pn) {
+        throw new Error(`Payment network ${subPnState.id} not supported`);
+      }
+    }
+  }
+
+  private getExtension(pnId: string): ExtensionTypes.IExtension | undefined {
+    return {
+      [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE]: new DeclarativePaymentNetwork(),
+      [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: new AnyToErc20ProxyPaymentNetwork(
+        this.currencyManager,
+      ),
+      [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: new AnyToEthProxyPaymentNetwork(
+        this.currencyManager,
+      ),
+    }[pnId];
+  }
+}
