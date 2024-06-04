@@ -96,7 +96,6 @@ export default class MetaPaymentNetwork<
       if (!pn) throw new Error('Invalid PN');
 
       (parameters as any[]).forEach((params) => {
-        console.log(params);
         values[params.salt] = pn.applyActionToExtension(
           {},
           {
