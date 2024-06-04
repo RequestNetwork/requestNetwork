@@ -35,10 +35,15 @@ export default class MetaPaymentNetwork<
   public createCreationAction(
     creationParameters: TCreationParameters,
   ): ExtensionTypes.IAction<TCreationParameters> {
-    Object.entries(creationParameters).forEach(([pnId]) => {
+    Object.entries(creationParameters).forEach(([pnId, creationParameters]) => {
       const pn = this.getExtension(pnId);
 
       if (!pn) throw new Error('Invalid PN');
+
+      // Perform validation on sub-pn creation parameters
+      for (const param of creationParameters) {
+        pn.createCreationAction(param);
+      }
     });
 
     return super.createCreationAction(creationParameters);
