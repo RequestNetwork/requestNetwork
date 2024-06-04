@@ -151,7 +151,6 @@ export default class MetaPaymentNetwork<
     const copiedExtensionState: ExtensionTypes.IState<any> = deepCopy(extensionState);
     const { pnIdentifier, action, parameters } = extensionAction.parameters;
     const extensionToActOn: ExtensionTypes.IState = copiedExtensionState.values[pnIdentifier];
-    // increment sentPaymentAmount
 
     const pn = this.getExtension(extensionToActOn.id);
     if (!pn) throw new Error('Invalid PN');
@@ -210,8 +209,6 @@ export default class MetaPaymentNetwork<
           }
           pnIdentifiers.push(param.salt);
         }
-
-        request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.META]?.values;
       });
     } else if (extensionAction.action === ExtensionTypes.PnMeta.ACTION.APPLY_ACTION_TO_PN) {
       const { pnIdentifier } = extensionAction.parameters;
