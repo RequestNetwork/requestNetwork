@@ -39,8 +39,6 @@ export interface IExtension<TCreationParameters = any> {
   createCreationAction: (parameters: TCreationParameters) => IAction<TCreationParameters>;
 }
 
-export type CreateAction<T = any> = (parameters: any) => IAction<T>;
-
 export type ApplyAction<T = any> = (
   extensionState: IState<T>,
   extensionAction: IAction<T>,
@@ -125,6 +123,3 @@ export enum ACTION {
 }
 
 export type SupportedActions = { [actionId: string]: ApplyAction };
-export type SupportedActionsToCreate = {
-  [actionId: string]: CreateAction;
-};

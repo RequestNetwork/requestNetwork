@@ -162,7 +162,9 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
 
   public getAnyToNativeTokenExtensionForNetwork(
     network?: CurrencyTypes.ChainName,
-  ): AnyToNative | undefined {
+  ):
+    | ExtensionTypes.IExtension<ExtensionTypes.PnAnyToAnyConversion.ICreationParameters>
+    | undefined {
     return network
       ? this.extensions.anyToNativeToken.find((anyToNativeTokenExtension) =>
           anyToNativeTokenExtension.supportedNetworks.includes(network),
