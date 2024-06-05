@@ -1,13 +1,10 @@
-import { RequestLogicTypes } from '@requestnetwork/types';
-import {
-  CurrencyInput,
-  CurrencyDefinition,
-  CurrencyManager,
-  ERC20Currency,
-  StorageCurrency,
-} from '../src';
+import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyManager } from '../src';
 
-const testCasesPerNetwork: Record<string, Record<string, Partial<CurrencyDefinition>>> = {
+const testCasesPerNetwork: Record<
+  string,
+  Record<string, Partial<CurrencyTypes.CurrencyDefinition>>
+> = {
   mainnet: {
     ETH: { symbol: 'ETH', network: 'mainnet' },
     SAI: {
@@ -116,7 +113,7 @@ describe('CurrencyManager', () => {
     });
 
     it('can instantiate a currency manager based on a currency list', () => {
-      const list: CurrencyInput[] = [
+      const list: CurrencyTypes.CurrencyInput[] = [
         { type: RequestLogicTypes.CURRENCY.ETH, decimals: 18, network: 'mainnet', symbol: 'ANY' },
       ];
       currencyManager = new CurrencyManager(list);
@@ -126,7 +123,7 @@ describe('CurrencyManager', () => {
     it('fails if there is a duplicate token in the list', () => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const dai = CurrencyManager.getDefaultList().find((x) => x.id === 'DAI-mainnet')!;
-      const list: CurrencyInput[] = [dai, dai, dai, dai];
+      const list: CurrencyTypes.CurrencyInput[] = [dai, dai, dai, dai];
       expect(() => new CurrencyManager(list)).toThrowError('Duplicate found: DAI-mainnet');
     });
 
@@ -140,7 +137,7 @@ describe('CurrencyManager', () => {
           network: 'private',
         },
       ]);
-      const fake = currencyManager.from('FAKE') as ERC20Currency;
+      const fake = currencyManager.from('FAKE') as CurrencyTypes.ERC20Currency;
       // right case
       expect(fake.address).toBe('0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35');
 
@@ -495,7 +492,7 @@ describe('CurrencyManager', () => {
 
     const extendedTestCasesPerNetwork: Record<
       string,
-      Record<string, Partial<CurrencyDefinition>>
+      Record<string, Partial<CurrencyTypes.CurrencyDefinition>>
     > = {
       ...testCasesPerNetwork,
       aurora: {
@@ -521,7 +518,7 @@ describe('CurrencyManager', () => {
 
     const testValidateAddressForCurrency = (
       address: string,
-      currency: CurrencyDefinition | undefined,
+      currency: CurrencyTypes.CurrencyDefinition | undefined,
       expectedResult = true,
     ) => {
       if (!currency) {
@@ -599,7 +596,7 @@ describe('CurrencyManager', () => {
 
   describe('Validate currencies', () => {
     describe('Valid cases', () => {
-      const currencies: { currency: StorageCurrency; label: string }[] = [
+      const currencies: { currency: CurrencyTypes.StorageCurrency; label: string }[] = [
         {
           currency: {
             type: RequestLogicTypes.CURRENCY.ISO4217,
@@ -655,7 +652,7 @@ describe('CurrencyManager', () => {
     });
 
     describe('Invalid cases', () => {
-      const currencies: { currency: StorageCurrency; label: string }[] = [
+      const currencies: { currency: CurrencyTypes.StorageCurrency; label: string }[] = [
         {
           currency: {
             type: RequestLogicTypes.CURRENCY.ERC20,
@@ -689,7 +686,9 @@ describe('CurrencyManager', () => {
   });
 
   describe('Conversion paths', () => {
-    let eur: CurrencyDefinition, usd: CurrencyDefinition, dai: CurrencyDefinition;
+    let eur: CurrencyTypes.CurrencyDefinition,
+      usd: CurrencyTypes.CurrencyDefinition,
+      dai: CurrencyTypes.CurrencyDefinition;
     beforeEach(() => {
       eur = currencyManager.from('EUR')!;
       usd = currencyManager.from('USD')!;
@@ -728,7 +727,7 @@ describe('CurrencyManager', () => {
         id: 'USDC-matic',
         decimals: 6,
         type: RequestLogicTypes.CURRENCY.ERC20,
-      } as CurrencyInput,
+      } as CurrencyTypes.CurrencyInput,
       {
         address: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
         name: 'USD Coin',
@@ -737,7 +736,7 @@ describe('CurrencyManager', () => {
         id: 'USDCn-matic',
         decimals: 6,
         type: RequestLogicTypes.CURRENCY.ERC20,
-      } as CurrencyInput,
+      } as CurrencyTypes.CurrencyInput,
     ];
     const currencyManager = new CurrencyManager(USDC_LIST);
     it('Detects USDCe matic by USDC-matic id', () => {

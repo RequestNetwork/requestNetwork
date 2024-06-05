@@ -1,6 +1,5 @@
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import AddressBasedPaymentNetwork from '../address-based';
-import { ICurrencyManager } from '@requestnetwork/currency';
 
 const CURRENT_VERSION = '0.1.0';
 const BITCOIN_NETWORK = 'mainnet';
@@ -13,7 +12,7 @@ const BITCOIN_NETWORK = 'mainnet';
  */
 export default class BitcoinAddressBasedPaymentNetwork extends AddressBasedPaymentNetwork {
   public constructor(
-    currencyManager: ICurrencyManager,
+    currencyManager: CurrencyTypes.ICurrencyManager,
     extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
       .BITCOIN_ADDRESS_BASED,
   ) {

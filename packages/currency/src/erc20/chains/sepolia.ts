@@ -1,7 +1,7 @@
-import { TokenMap } from '../../types';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 // List of the supported goerli ERC20 tokens
-export const supportedSepoliaERC20: TokenMap = {
+export const supportedSepoliaERC20: CurrencyTypes.TokenMap = {
   // Faucet Token on goerli network.
   '0x370DE27fdb7D1Ff1e1BaA7D11c5820a324Cf623C': {
     decimals: 18,

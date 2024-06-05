@@ -1,6 +1,5 @@
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import ReferenceBasedPaymentNetwork from '../reference-based';
-import { ICurrencyManager } from '@requestnetwork/currency';
 
 const CURRENT_VERSION = '0.3.0';
 
@@ -10,7 +9,7 @@ const CURRENT_VERSION = '0.3.0';
  */
 export default class EthInputPaymentNetwork extends ReferenceBasedPaymentNetwork {
   public constructor(
-    currencyManager: ICurrencyManager,
+    currencyManager: CurrencyTypes.ICurrencyManager,
     extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
       .ETH_INPUT_DATA,
     currentVersion: string = CURRENT_VERSION,

@@ -1,6 +1,5 @@
-import { ExtensionTypes } from '@requestnetwork/types';
+import { CurrencyTypes, ExtensionTypes } from '@requestnetwork/types';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
-import { ICurrencyManager } from '@requestnetwork/currency';
 import { generate8randomBytes } from '@requestnetwork/utils';
 
 /**
@@ -16,7 +15,7 @@ export abstract class AnyToAnyDetector<
   protected constructor(
     paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
-    currencyManager: ICurrencyManager,
+    currencyManager: CurrencyTypes.ICurrencyManager,
   ) {
     super(paymentNetworkId, extension, currencyManager);
   }

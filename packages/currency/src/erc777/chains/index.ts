@@ -1,7 +1,8 @@
 import { supportedRinkebyERC777 } from './rinkeby';
-import { TokenMap } from '../../types';
 import { CurrencyTypes } from '@requestnetwork/types';
 
-export const supportedNetworks: Partial<Record<CurrencyTypes.EvmChainName, TokenMap>> = {
+export const supportedNetworks: Partial<
+  Record<CurrencyTypes.EvmChainName, CurrencyTypes.TokenMap>
+> = {
   rinkeby: supportedRinkebyERC777,
 };

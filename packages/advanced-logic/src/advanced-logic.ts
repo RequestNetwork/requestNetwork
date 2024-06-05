@@ -5,7 +5,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { ICurrencyManager, NearChains, isSameChain } from '@requestnetwork/currency';
+import { NearChains, isSameChain } from '@requestnetwork/currency';
 
 import ContentData from './extensions/content-data';
 import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
@@ -53,9 +53,9 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     metaPn: MetaPaymentNetwork;
   };
 
-  private currencyManager: ICurrencyManager;
+  private currencyManager: CurrencyTypes.ICurrencyManager;
 
-  constructor(currencyManager: ICurrencyManager) {
+  constructor(currencyManager: CurrencyTypes.ICurrencyManager) {
     this.currencyManager = currencyManager;
     this.extensions = {
       addressBasedBtc: new AddressBasedBtc(currencyManager),
