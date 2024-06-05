@@ -4,6 +4,7 @@ import {
   EscrowERC20InfoRetriever,
 } from '@requestnetwork/payment-detection';
 import {
+  ClientTypes,
   CurrencyTypes,
   DataAccessTypes,
   EncryptionTypes,
@@ -82,12 +83,17 @@ export default class Request {
   /**
    * Transaction data of a in-memory request, necesary for persisting the request later on.
    */
-  private transactionData: DataAccessTypes.ITransaction | undefined;
+  public readonly transactionData: DataAccessTypes.ITransaction | undefined;
 
   /**
    * Topics of a in-memory request, necesary for persisting the request later on.
    */
-  private topics: string[] | undefined;
+  public readonly topics: string[] | undefined;
+
+  /**
+   * Structured data for an in-memory request, primarily used for processing payments before the request is persisted.
+   */
+  public readonly paymentRequest: ClientTypes.IRequestData | undefined;
 
   /**
    * Creates an instance of Request
@@ -111,6 +117,7 @@ export default class Request {
       disableEvents?: boolean;
       transactionData?: DataAccessTypes.ITransaction;
       topics?: string[];
+      paymentRequest?: ClientTypes.IRequestData | undefined;
     },
   ) {
     this.requestLogic = requestLogic;
@@ -123,6 +130,7 @@ export default class Request {
     this.currencyManager = currencyManager;
     this.topics = options?.topics;
     this.transactionData = options?.transactionData;
+    this.paymentRequest = options?.paymentRequest;
 
     if (options?.requestLogicCreateResult && !this.disableEvents) {
       const originalEmitter = options.requestLogicCreateResult;

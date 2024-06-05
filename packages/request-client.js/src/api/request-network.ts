@@ -165,21 +165,19 @@ export default class RequestNetwork {
       topics,
     );
 
+    const transactionData = requestLogicCreateResult.meta?.transactionManagerMeta.transactionData;
+    const requestId = requestLogicCreateResult.result.requestId;
     // create the request object
-    const request = new Request(
-      requestLogicCreateResult.result.requestId,
-      this.requestLogic,
-      this.currencyManager,
-      {
-        contentDataExtension: this.contentData,
-        paymentNetwork,
-        requestLogicCreateResult,
-        skipPaymentDetection: parameters.disablePaymentDetection,
-        disableEvents: parameters.disableEvents,
-        topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
-        transactionData: requestLogicCreateResult.meta?.transactionManagerMeta.transactionData,
-      },
-    );
+    const request = new Request(requestId, this.requestLogic, this.currencyManager, {
+      contentDataExtension: this.contentData,
+      paymentNetwork,
+      requestLogicCreateResult,
+      skipPaymentDetection: parameters.disablePaymentDetection,
+      disableEvents: parameters.disableEvents,
+      topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
+      transactionData: transactionData,
+      paymentRequest: this.preparePaymentRequest(transactionData, requestId),
+    });
 
     if (!options?.skipRefresh) {
       // refresh the local request data
