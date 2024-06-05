@@ -1,5 +1,5 @@
 import * as metamaskContractMap from '@metamask/contract-metadata';
-import { TokenMap } from '../../types';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 // These interfaces are declared here because they should be used only in this context
 // A Token description from the eth-contract-metadata list
@@ -74,7 +74,7 @@ export const extraERC20Tokens = {
 };
 
 // Merge metamask contracts list with our own
-export const supportedMainnetERC20: TokenMap = {
+export const supportedMainnetERC20: CurrencyTypes.TokenMap = {
   ...Object.entries(metamaskContractMap as IMetamaskTokenMap)
     .filter(([, val]) => val.erc20)
     .reduce(
