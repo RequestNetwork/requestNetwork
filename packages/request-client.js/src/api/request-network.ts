@@ -4,10 +4,12 @@ import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
   AdvancedLogicTypes,
+  ClientTypes,
   CurrencyTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
+  ExtensionTypes,
   IdentityTypes,
   PaymentTypes,
   RequestLogicTypes,
@@ -67,6 +69,81 @@ export default class RequestNetwork {
       this.currencyManager,
       paymentOptions,
     );
+  }
+
+  /**
+   * Prepares a payment request structure from transaction data.
+   *
+   * This method is used to create a request structure similar to a persisted request,
+   * allowing users to pay before the request is persisted. This is useful in scenarios
+   * where a request is created, paid, and then persisted, as opposed to the normal flow
+   * of creating, persisting, and then paying the request.
+   *
+   * @param transactionData The transaction data containing the request information
+   * @param requestId The ID of the request
+   * @returns The prepared payment request structure or undefined if transaction data is missing
+   */
+  private preparePaymentRequest(
+    transactionData: DataAccessTypes.ITransaction,
+    requestId: string,
+  ): ClientTypes.IRequestData | undefined {
+    if (!transactionData.data) return undefined;
+
+    const requestData = JSON.parse(transactionData.data).data;
+    const originalExtensionsData = requestData.parameters.extensionsData;
+    const newExtensions: RequestLogicTypes.IExtensionStates = {};
+
+    for (const extension of originalExtensionsData) {
+      if (extension.id !== ExtensionTypes.OTHER_ID.CONTENT_DATA) {
+        newExtensions[extension.id] = {
+          events: [
+            {
+              name: extension.action,
+              parameters: {
+                paymentAddress: extension.parameters.paymentAddress,
+                salt: extension.parameters.salt,
+              },
+              timestamp: requestData.parameters.timestamp,
+            },
+          ],
+          id: extension.id,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            salt: extension.parameters.salt,
+            receivedPaymentAmount: '0',
+            receivedRefundAmount: '0',
+            sentPaymentAmount: '0',
+            sentRefundAmount: '0',
+            paymentAddress: extension.parameters.paymentAddress,
+          },
+          version: extension.version,
+        };
+      }
+    }
+
+    return {
+      requestId: requestId,
+      currency: requestData.parameters.currency.type,
+      meta: null,
+      balance: null,
+      expectedAmount: requestData.parameters.expectedAmount,
+      contentData: requestData.parameters.extensionsData.find(
+        (ext: ExtensionTypes.IAction) => ext.id === ExtensionTypes.OTHER_ID.CONTENT_DATA,
+      )?.parameters.content,
+      currencyInfo: {
+        type: requestData.parameters.currency.type,
+        network: requestData.parameters.currency.network,
+        value: requestData.parameters.currency.value || '',
+      },
+      pending: null,
+      extensions: newExtensions,
+      extensionsData: requestData.parameters.extensionsData,
+      timestamp: requestData.parameters.timestamp,
+      version: requestData.parameters.version,
+      creator: requestData.parameters.creator,
+      state: requestData.parameters.state,
+      events: requestData.parameters.events,
+    };
   }
 
   /**
