@@ -187,6 +187,15 @@ export default class RequestNetwork {
     return request;
   }
 
+  /**
+   * Persists an in-memory request to the data-access layer.
+   *
+   * @param transactionData The transaction data containing the request information
+   * @param channelId The ID of the channel
+   * @param topics Optional topics for indexing the request
+   * @returns The result of the persist transaction operation
+   * @throws Error if the data access instance does not support persistence
+   */
   public async persistRequest(
     transactionData: DataAccessTypes.ITransaction,
     channelId: string,
