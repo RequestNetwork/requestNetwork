@@ -191,14 +191,14 @@ export default class RequestNetwork {
    * Persists an in-memory request to the data-access layer.
    *
    * @param transactionData The transaction data containing the request information
-   * @param channelId The ID of the channel
+   * @param requestId The ID of the request
    * @param topics Optional topics for indexing the request
    * @returns The result of the persist transaction operation
    * @throws Error if the data access instance does not support persistence
    */
   public async persistRequest(
     transactionData: DataAccessTypes.ITransaction,
-    channelId: string,
+    requestId: string,
     topics?: string[],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
     if (this.dataAccess instanceof NoConfirmHttpDataAccess) {
@@ -207,7 +207,7 @@ export default class RequestNetwork {
       );
     }
     const result: DataAccessTypes.IReturnPersistTransaction =
-      await this.dataAccess.persistTransaction(transactionData, channelId, topics);
+      await this.dataAccess.persistTransaction(transactionData, requestId, topics);
 
     return result;
   }
@@ -234,21 +234,20 @@ export default class RequestNetwork {
       topics,
     );
 
+    const transactionData = requestLogicCreateResult.meta?.transactionManagerMeta.transactionData;
+    const requestId = requestLogicCreateResult.result.requestId;
+
     // create the request object
-    const request = new Request(
-      requestLogicCreateResult.result.requestId,
-      this.requestLogic,
-      this.currencyManager,
-      {
-        contentDataExtension: this.contentData,
-        paymentNetwork,
-        requestLogicCreateResult,
-        skipPaymentDetection: parameters.disablePaymentDetection,
-        disableEvents: parameters.disableEvents,
-        topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
-        transactionData: requestLogicCreateResult.meta?.transactionManagerMeta.transactionData,
-      },
-    );
+    const request = new Request(requestId, this.requestLogic, this.currencyManager, {
+      contentDataExtension: this.contentData,
+      paymentNetwork,
+      requestLogicCreateResult,
+      skipPaymentDetection: parameters.disablePaymentDetection,
+      disableEvents: parameters.disableEvents,
+      topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
+      transactionData: transactionData,
+      paymentRequest: this.preparePaymentRequest(transactionData, requestId),
+    });
 
     if (!options?.skipRefresh) {
       // refresh the local request data

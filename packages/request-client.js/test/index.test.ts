@@ -1149,6 +1149,108 @@ describe('request-client.js', () => {
     });
   });
 
+  describe('handle in-memory request', () => {
+    let requestNetwork: RequestNetwork;
+    let spyPersistTransaction: jest.Mock;
+    let mockServer: SetupServer;
+
+    beforeAll(() => {
+      spyPersistTransaction = jest.fn();
+
+      mockServer = setupServer(
+        http.post('*/persistTransaction', ({ request }) => {
+          if (!request.headers.get(config.requestClientVersionHeader)) {
+            throw new Error('Missing version header');
+          }
+          return HttpResponse.json(spyPersistTransaction());
+        }),
+        http.get('*/getTransactionsByChannelId', () =>
+          HttpResponse.json({
+            result: { transactions: [TestData.timestampedTransactionWithoutPaymentInfo] },
+          }),
+        ),
+        http.post('*/ipfsAdd', () => HttpResponse.json({})),
+        http.get('*/getConfirmedTransaction', () => HttpResponse.json({ result: {} })),
+      );
+      mockServer.listen({ onUnhandledRequest: 'bypass' });
+    });
+
+    beforeEach(() => {
+      spyPersistTransaction.mockReturnValue({});
+    });
+
+    afterAll(() => {
+      mockServer.close();
+    });
+
+    const requestCreationParams = {
+      paymentNetwork: TestData.declarativePaymentNetworkNoPaymentInfo,
+      requestInfo: TestData.parametersWithoutExtensionsData,
+      signer: TestData.payee.identity,
+    };
+
+    it('creates a request without persisting it.', async () => {
+      requestNetwork = new RequestNetwork({
+        skipCreateConfirmation: true,
+        signatureProvider: TestData.fakeSignatureProvider,
+      });
+
+      const request = await requestNetwork.createRequest(requestCreationParams);
+
+      expect(request).toBeDefined();
+      expect(request.requestId).toBeDefined();
+      expect(request.transactionData).toBeDefined();
+      expect(request.topics).toBeDefined();
+      expect(request.paymentRequest).toBeDefined();
+      expect(spyPersistTransaction).not.toHaveBeenCalled();
+    });
+
+    it('throws an error when trying to persist a request with skipCreateConfirmation as true', async () => {
+      requestNetwork = new RequestNetwork({
+        skipCreateConfirmation: true,
+        signatureProvider: TestData.fakeSignatureProvider,
+      });
+
+      const request = await requestNetwork.createRequest(requestCreationParams);
+
+      expect(request.transactionData).toBeDefined();
+      expect(request.topics).toBeDefined();
+      expect(request.requestId).toBeDefined();
+
+      await expect(
+        requestNetwork.persistRequest(request.transactionData!, request.requestId, request.topics),
+      ).rejects.toThrow(
+        'Cannot persist request when skipCreateConfirmation is used. Create a new instance of RequestNetwork without skipCreateConfirmation to persist the request.',
+      );
+    });
+
+    it('persists the in-memory request', async () => {
+      requestNetwork = new RequestNetwork({
+        skipCreateConfirmation: true,
+        signatureProvider: TestData.fakeSignatureProvider,
+      });
+
+      const request = await requestNetwork.createRequest(requestCreationParams);
+
+      expect(request.transactionData).toBeDefined();
+      expect(request.topics).toBeDefined();
+      expect(request.requestId).toBeDefined();
+
+      const newRequestNetwork = new RequestNetwork({
+        signatureProvider: TestData.fakeSignatureProvider,
+      });
+
+      const persistResult = await newRequestNetwork.persistRequest(
+        request.transactionData!,
+        request.requestId,
+        request.topics,
+      );
+
+      expect(persistResult).toBeDefined();
+      expect(spyPersistTransaction).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('ETH requests', () => {
     beforeEach(() => {
       jest.clearAllMocks();
