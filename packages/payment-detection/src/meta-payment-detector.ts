@@ -34,7 +34,8 @@ const advancedLogicMap = {
 };
 
 /**
- * Abstract class to extend to get the payment balance of reference based requests
+ * Detect payment for the meta payment network.
+ * Recursively detects payments on each sub payment network
  */
 export class MetaDetector extends DeclarativePaymentDetectorBase<
   ExtensionTypes.PnMeta.IMeta<any>,
@@ -45,8 +46,8 @@ export class MetaDetector extends DeclarativePaymentDetectorBase<
   private readonly currencyManager: CurrencyTypes.ICurrencyManager;
   private readonly options: Partial<PaymentNetworkOptions>;
   /**
-   * @param paymentNetworkId Example : ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
-   * @param extension The advanced logic payment network extension, reference based
+   * @param paymentNetworkId
+   * @param extension
    */
   public constructor({
     advancedLogic,
@@ -61,7 +62,6 @@ export class MetaDetector extends DeclarativePaymentDetectorBase<
 
   /**
    * Creates the extensions data for the creation of this extension.
-   * Will set a salt if none is already given
    *
    * @param paymentNetworkCreationParameters Parameters to create the extension
    * @returns The extensionData object
@@ -78,7 +78,7 @@ export class MetaDetector extends DeclarativePaymentDetectorBase<
           this.advancedLogic.extensions[extensionKey as keyof typeof this.advancedLogic.extensions];
 
         if (!detectorClass || !extension) {
-          throw new Error(`the payment network id: ${key} is not supported`);
+          throw new Error(`The payment network id: ${key} is not supported for meta-pn detection`);
         }
 
         const detector = new detectorClass({
@@ -142,7 +142,9 @@ export class MetaDetector extends DeclarativePaymentDetectorBase<
           this.advancedLogic.extensions[extensionKey as keyof typeof this.advancedLogic.extensions];
 
         if (!detectorClass || !extension) {
-          throw new Error(`the payment network id: ${value.id} is not supported`);
+          throw new Error(
+            `The payment network id: ${value.id} is not supported for meta-pn detection`,
+          );
         }
 
         const detector = new detectorClass({
