@@ -82,11 +82,8 @@ export const extensionFullState = (
           feeAddress,
           feeAmount,
           network,
-          paymentAddress: paymentAddressOverride
-            ? paymentAddressOverride
-            : paymentAddressOverride === null
-            ? undefined
-            : paymentAddress,
+          paymentAddress:
+            paymentAddressOverride === null ? undefined : paymentAddressOverride ?? paymentAddress,
           refundAddress,
           salt: saltOverride || salt,
           acceptedTokens: [tokenAddress],
@@ -101,11 +98,8 @@ export const extensionFullState = (
       feeAddress,
       feeAmount,
       network,
-      paymentAddress: paymentAddressOverride
-        ? paymentAddressOverride
-        : paymentAddressOverride === null
-        ? undefined
-        : paymentAddress,
+      paymentAddress:
+        paymentAddressOverride === null ? undefined : paymentAddressOverride ?? paymentAddress,
       refundAddress,
       salt: saltOverride || salt,
       acceptedTokens: [tokenAddress],
