@@ -152,6 +152,7 @@ export class PaymentNetworkFactory {
       network,
       advancedLogic: this.advancedLogic,
       currencyManager: this.currencyManager,
+      options: this.options,
       ...this.options,
     });
 

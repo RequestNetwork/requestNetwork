@@ -5,7 +5,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { deepCopy, generate8randomBytes } from '@requestnetwork/utils';
+import { deepCopy } from '@requestnetwork/utils';
 import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
 import {
   IPaymentNetworkModuleByType,
@@ -69,10 +69,6 @@ export class MetaDetector extends DeclarativePaymentDetectorBase<
   public async createExtensionsDataForCreation(
     paymentNetworkCreationParameters: ExtensionTypes.PnMeta.ICreationParameters,
   ): Promise<ExtensionTypes.IAction> {
-    // If no salt is given, generate one
-    paymentNetworkCreationParameters.salt =
-      paymentNetworkCreationParameters.salt || (await generate8randomBytes());
-
     // Do the same for each sub-extension
     for (const [key, value] of Object.entries(paymentNetworkCreationParameters)) {
       if (supportedPns.includes(key as ExtensionTypes.PAYMENT_NETWORK_ID)) {
@@ -96,7 +92,7 @@ export class MetaDetector extends DeclarativePaymentDetectorBase<
         for (let index = 0; index < value.length; index++) {
           paymentNetworkCreationParameters[key as keyof ExtensionTypes.PnMeta.ICreationParameters][
             index
-          ] = await detector.createExtensionsDataForCreation(value[index]);
+          ] = (await detector.createExtensionsDataForCreation(value[index])).parameters;
         }
       }
     }
@@ -135,7 +131,6 @@ export class MetaDetector extends DeclarativePaymentDetectorBase<
     const paymentExtension = this.getPaymentExtension(request);
     const events: PaymentTypes.IBalanceWithEvents<PaymentTypes.GenericEventParameters>[] = [];
     const feeBalances: PaymentTypes.IBalanceWithEvents<PaymentTypes.GenericEventParameters>[] = [];
-    this.checkRequiredParameter(paymentExtension.values.salt, 'salt');
 
     for (const value of Object.values(
       paymentExtension.values as Record<string, ExtensionTypes.IState<any>>,
