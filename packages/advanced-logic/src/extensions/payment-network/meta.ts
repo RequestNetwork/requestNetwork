@@ -42,8 +42,6 @@ export default class MetaPaymentNetwork<
     Object.entries(creationParameters).forEach(([pnId, creationParameters]) => {
       const pn = this.getExtension(pnId);
 
-      if (!pn) throw new Error('Invalid PN');
-
       // Perform validation on sub-pn creation parameters
       for (const param of creationParameters) {
         pn.createCreationAction(param);
@@ -102,7 +100,6 @@ export default class MetaPaymentNetwork<
     const values: Record<string, ExtensionTypes.IState> = {};
     Object.entries(extensionAction.parameters).forEach(([pnId, parameters]) => {
       const pn = this.getExtension(pnId);
-      if (!pn) throw new Error('Invalid PN');
 
       (parameters as any[]).forEach((params) => {
         values[params.salt] = pn.applyActionToExtension(
@@ -157,7 +154,6 @@ export default class MetaPaymentNetwork<
     const extensionToActOn: ExtensionTypes.IState = copiedExtensionState.values[pnIdentifier];
 
     const pn = this.getExtension(extensionToActOn.id);
-    if (!pn) throw new Error('Invalid PN');
 
     const subExtensionState = {
       [extensionToActOn.id]: extensionToActOn,
@@ -200,8 +196,8 @@ export default class MetaPaymentNetwork<
     const pnIdentifiers: string[] = [];
     if (extensionAction.action === ExtensionTypes.PnMeta.ACTION.CREATE) {
       Object.entries(extensionAction.parameters).forEach(([pnId, parameters]: [string, any]) => {
-        const pn = this.getExtension(pnId);
-        if (!pn) throw new Error('Invalid PN');
+        // Checks that the PN is supported
+        this.getExtension(pnId);
 
         if (parameters.action) {
           throw new Error('Invalid action');
@@ -223,22 +219,25 @@ export default class MetaPaymentNetwork<
         throw new Error(`No payment network with identifier ${pnIdentifier}`);
       }
 
-      const pn = this.getExtension(subPnState.id);
-      if (!pn) {
-        throw new Error(`Payment network ${subPnState.id} not supported`);
-      }
+      // Checks that the PN is supported
+      this.getExtension(subPnState.id);
     }
   }
 
-  private getExtension(pnId: string): ExtensionTypes.IExtension | undefined {
-    return {
-      [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE]: new DeclarativePaymentNetwork(),
-      [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: new AnyToErc20ProxyPaymentNetwork(
-        this.currencyManager,
-      ),
-      [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: new AnyToEthProxyPaymentNetwork(
-        this.currencyManager,
-      ),
-    }[pnId];
+  private getExtension(pnId: string): ExtensionTypes.IExtension {
+    switch (pnId) {
+      case ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE: {
+        return new DeclarativePaymentNetwork();
+      }
+      case ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY: {
+        return new AnyToErc20ProxyPaymentNetwork(this.currencyManager);
+      }
+      case ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY: {
+        return new AnyToEthProxyPaymentNetwork(this.currencyManager);
+      }
+      default: {
+        throw new Error(`Invalid PN: ${pnId}`);
+      }
+    }
   }
 }

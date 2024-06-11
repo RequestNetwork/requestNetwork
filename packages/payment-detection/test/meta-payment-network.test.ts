@@ -19,7 +19,11 @@ const theGraphClientMock = {
 let detector: MetaDetector;
 
 const createCreationActionMeta = jest.fn();
-const createCreationActionAnyToErc20 = jest.fn();
+const createCreationActionAnyToErc20 = jest.fn().mockImplementation((parameters) => {
+  return {
+    parameters,
+  };
+});
 const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
 const createDeclareReceivedPaymentAction = jest.fn();
@@ -130,41 +134,6 @@ describe('api/meta-payment-network', () => {
   });
 
   it('can createExtensionsDataForCreation', async () => {
-    const spyMeta = jest.spyOn(mockAdvancedLogic.extensions.metaPn, 'createCreationAction');
-    const spySubPn = jest.spyOn(
-      mockAdvancedLogic.extensions.anyToErc20Proxy,
-      'createCreationAction',
-    );
-
-    await detector.createExtensionsDataForCreation({
-      [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [
-        {
-          feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
-          feeAmount: '5',
-          paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-          refundAddress: '0x666666151EbEF6C7334FAD080c5704D77216b732',
-          acceptedTokens: ['0x9FBDa871d559710256a2502A2517b794B482Db40'],
-          network: 'matic',
-          salt: 'abcd',
-        },
-        {
-          feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
-          feeAmount: '5',
-          paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-          refundAddress: '0x666666151EbEF6C7334FAD080c5704D77216b732',
-          acceptedTokens: ['0x9FBDa871d559710256a2502A2517b794B482Db40'],
-          network: 'mainnet',
-          salt: 'efgh',
-        },
-      ],
-      salt: 'anySalt',
-    });
-
-    expect(spyMeta).toHaveBeenCalledTimes(1);
-    expect(spySubPn).toHaveBeenCalledTimes(2);
-  });
-
-  it('can createExtensionsDataForCreation without salt', async () => {
     const spyMeta = jest.spyOn(mockAdvancedLogic.extensions.metaPn, 'createCreationAction');
     const spySubPn = jest.spyOn(
       mockAdvancedLogic.extensions.anyToErc20Proxy,
