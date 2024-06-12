@@ -18,6 +18,10 @@ const baseParams = {
   acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
   maxRateTimespan: 1000000,
 } as ExtensionTypes.PnAnyToErc20.ICreationParameters;
+const otherBaseParams = {
+  ...baseParams,
+  salt: 'ea3bc7caf64110cb',
+} as ExtensionTypes.PnAnyToErc20.ICreationParameters;
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/meta', () => {
@@ -25,13 +29,13 @@ describe('extensions/payment-network/meta', () => {
     it('can create a create action with all parameters', () => {
       expect(
         metaPn.createCreationAction({
-          [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [baseParams, baseParams],
+          [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [baseParams, otherBaseParams],
         }),
       ).toEqual({
         action: 'create',
         id: ExtensionTypes.PAYMENT_NETWORK_ID.META,
         parameters: {
-          [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [baseParams, baseParams],
+          [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [baseParams, otherBaseParams],
         },
         version: '0.1.0',
       });
@@ -42,7 +46,7 @@ describe('extensions/payment-network/meta', () => {
         metaPn.createCreationAction({
           [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [
             { ...baseParams, feeAddress: undefined, feeAmount: undefined },
-            baseParams,
+            otherBaseParams,
           ],
         }),
       ).toEqual({
@@ -51,11 +55,20 @@ describe('extensions/payment-network/meta', () => {
         parameters: {
           [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [
             { ...baseParams, feeAddress: undefined, feeAmount: undefined },
-            baseParams,
+            otherBaseParams,
           ],
         },
         version: '0.1.0',
       });
+    });
+
+    it('cannot createCreationAction with duplicated salt', () => {
+      // 'must throw'
+      expect(() => {
+        metaPn.createCreationAction({
+          [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [baseParams, baseParams],
+        });
+      }).toThrowError('Duplicate payment network identifier (salt)');
     });
 
     it('cannot createCreationAction with payment address not an ethereum address', () => {
@@ -64,7 +77,7 @@ describe('extensions/payment-network/meta', () => {
         metaPn.createCreationAction({
           [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [
             { ...baseParams, paymentAddress: 'not an ethereum address' },
-            baseParams,
+            otherBaseParams,
           ],
         });
       }).toThrowError("paymentAddress 'not an ethereum address' is not a valid address");
@@ -76,7 +89,7 @@ describe('extensions/payment-network/meta', () => {
         metaPn.createCreationAction({
           [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [
             { ...baseParams, refundAddress: 'not an ethereum address' },
-            baseParams,
+            otherBaseParams,
           ],
         });
       }).toThrowError("refundAddress 'not an ethereum address' is not a valid address");
@@ -88,7 +101,7 @@ describe('extensions/payment-network/meta', () => {
         metaPn.createCreationAction({
           [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [
             { ...baseParams, feeAddress: 'not an ethereum address' },
-            baseParams,
+            otherBaseParams,
           ],
         });
       }).toThrowError('feeAddress is not a valid address');
@@ -100,7 +113,7 @@ describe('extensions/payment-network/meta', () => {
         metaPn.createCreationAction({
           [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [
             { ...baseParams, feeAmount: '-2000' },
-            baseParams,
+            otherBaseParams,
           ],
         });
       }).toThrowError('feeAmount is not a valid amount');

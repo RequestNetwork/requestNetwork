@@ -15,7 +15,7 @@ import {
 import { DeclarativePaymentDetector, DeclarativePaymentDetectorBase } from './declarative';
 import { BigNumber } from 'ethers';
 
-const supportedPns = [
+const supportedPns: (keyof ExtensionTypes.PnMeta.ICreationParameters)[] = [
   ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
   ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
   ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
@@ -27,7 +27,12 @@ const detectorMap: IPaymentNetworkModuleByType = {
   [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: AnyToEthFeeProxyPaymentDetector,
 };
 
-const advancedLogicMap = {
+const advancedLogicMap: Partial<
+  Record<
+    keyof ExtensionTypes.PnMeta.ICreationParameters,
+    keyof AdvancedLogicTypes.IAdvancedLogicExtensions
+  >
+> = {
   [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE]: 'declarative',
   [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: 'anyToErc20Proxy',
   [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: 'anyToEthProxy',
@@ -71,7 +76,7 @@ export class MetaDetector extends DeclarativePaymentDetectorBase<
   ): Promise<ExtensionTypes.IAction> {
     // Do the same for each sub-extension
     for (const [key, value] of Object.entries(paymentNetworkCreationParameters)) {
-      if (supportedPns.includes(key as ExtensionTypes.PAYMENT_NETWORK_ID)) {
+      if (supportedPns.includes(key as keyof ExtensionTypes.PnMeta.ICreationParameters)) {
         const detectorClass = detectorMap[key as keyof typeof detectorMap];
         const extensionKey = advancedLogicMap[key as keyof typeof advancedLogicMap];
         const extension =
@@ -135,7 +140,7 @@ export class MetaDetector extends DeclarativePaymentDetectorBase<
     for (const value of Object.values(
       paymentExtension.values as Record<string, ExtensionTypes.IState<any>>,
     )) {
-      if (supportedPns.includes(value.id as ExtensionTypes.PAYMENT_NETWORK_ID)) {
+      if (supportedPns.includes(value.id as keyof ExtensionTypes.PnMeta.ICreationParameters)) {
         const detectorClass = detectorMap[value.id as keyof typeof detectorMap];
         const extensionKey = advancedLogicMap[value.id as keyof typeof advancedLogicMap];
         const extension =

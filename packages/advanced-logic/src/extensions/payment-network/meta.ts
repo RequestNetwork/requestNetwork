@@ -41,10 +41,15 @@ export default class MetaPaymentNetwork<
   ): ExtensionTypes.IAction<TCreationParameters> {
     Object.entries(creationParameters).forEach(([pnId, creationParameters]) => {
       const pn = this.getExtension(pnId);
+      const subPnIdentifiers: string[] = [];
 
       // Perform validation on sub-pn creation parameters
       for (const param of creationParameters) {
         pn.createCreationAction(param);
+        if (subPnIdentifiers.includes(param.salt)) {
+          throw new Error('Duplicate payment network identifier (salt)');
+        }
+        subPnIdentifiers.push(param.salt);
       }
     });
 

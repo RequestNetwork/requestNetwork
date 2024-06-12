@@ -425,7 +425,7 @@ export async function revokeErc20Approval(
 
 /**
  * Format a request we wish to build a payment for.
- * If the request does not use the meta-pn, returns it as it.
+ * If the request does not use the meta-pn, it returns it as is.
  * Otherwise, returns the request formatted with the pn of interest
  */
 export function getFormattedRequest({
