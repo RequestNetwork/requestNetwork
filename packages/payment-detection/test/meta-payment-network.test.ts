@@ -167,7 +167,7 @@ describe('api/meta-payment-network', () => {
     expect(spySubPn).toHaveBeenCalledTimes(2);
   });
 
-  it('can createExtensionsDataForCreation without sub-salt', async () => {
+  it('can createExtensionsDataForCreation without sub-pn salt', async () => {
     const spyMeta = jest.spyOn(mockAdvancedLogic.extensions.metaPn, 'createCreationAction');
     const spySubPn = jest.spyOn(
       mockAdvancedLogic.extensions.anyToErc20Proxy,

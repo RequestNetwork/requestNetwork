@@ -63,7 +63,6 @@ describe('extensions/payment-network/meta', () => {
     });
 
     it('cannot createCreationAction with duplicated salt', () => {
-      // 'must throw'
       expect(() => {
         metaPn.createCreationAction({
           [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [baseParams, baseParams],
@@ -72,7 +71,6 @@ describe('extensions/payment-network/meta', () => {
     });
 
     it('cannot createCreationAction with payment address not an ethereum address', () => {
-      // 'must throw'
       expect(() => {
         metaPn.createCreationAction({
           [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [
@@ -84,7 +82,6 @@ describe('extensions/payment-network/meta', () => {
     });
 
     it('cannot createCreationAction with refund address not an ethereum address', () => {
-      // 'must throw'
       expect(() => {
         metaPn.createCreationAction({
           [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [
@@ -96,7 +93,6 @@ describe('extensions/payment-network/meta', () => {
     });
 
     it('cannot createCreationAction with fee address not an ethereum address', () => {
-      // 'must throw'
       expect(() => {
         metaPn.createCreationAction({
           [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [
@@ -108,7 +104,6 @@ describe('extensions/payment-network/meta', () => {
     });
 
     it('cannot createCreationAction with invalid fee amount', () => {
-      // 'must throw'
       expect(() => {
         metaPn.createCreationAction({
           [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [
@@ -127,20 +122,19 @@ describe('extensions/payment-network/meta', () => {
         expect(
           metaPn.applyActionToExtension(
             MetaCreate.requestStateNoExtensions.extensions,
-            MetaCreate.actionCreationFull,
+            MetaCreate.actionCreationMultipleAnyToErc20,
             MetaCreate.requestStateNoExtensions,
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(MetaCreate.extensionFullState);
+        ).toEqual(MetaCreate.extensionFullStateMultipleAnyToErc20);
       });
 
       it('cannot applyActionToExtensions of creation with a previous state', () => {
-        // 'must throw'
         expect(() => {
           metaPn.applyActionToExtension(
             MetaCreate.requestFullStateCreated.extensions,
-            MetaCreate.actionCreationFull,
+            MetaCreate.actionCreationMultipleAnyToErc20,
             MetaCreate.requestFullStateCreated,
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
@@ -156,11 +150,11 @@ describe('extensions/payment-network/meta', () => {
           type: RequestLogicTypes.CURRENCY.BTC,
           value: 'BTC',
         };
-        // 'must throw'
+
         expect(() => {
           metaPn.applyActionToExtension(
             TestData.requestCreatedNoExtension.extensions,
-            MetaCreate.actionCreationFull,
+            MetaCreate.actionCreationMultipleAnyToErc20,
             requestCreatedNoExtension,
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
@@ -171,11 +165,11 @@ describe('extensions/payment-network/meta', () => {
       });
 
       it('cannot applyActionToExtensions of creation with payment address not valid', () => {
-        const actionWithInvalidAddress = deepCopy(MetaCreate.actionCreationFull);
+        const actionWithInvalidAddress = deepCopy(MetaCreate.actionCreationMultipleAnyToErc20);
         actionWithInvalidAddress.parameters[
           ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
         ][0].paymentAddress = DataConversionERC20FeeAddData.invalidAddress;
-        // 'must throw'
+
         expect(() => {
           metaPn.applyActionToExtension(
             MetaCreate.requestStateNoExtensions.extensions,
@@ -190,11 +184,11 @@ describe('extensions/payment-network/meta', () => {
       });
 
       it('cannot applyActionToExtensions of creation with no tokens accepted', () => {
-        const actionWithInvalidToken = deepCopy(MetaCreate.actionCreationFull);
+        const actionWithInvalidToken = deepCopy(MetaCreate.actionCreationMultipleAnyToErc20);
         actionWithInvalidToken.parameters[
           ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
         ][0].acceptedTokens = [];
-        // 'must throw'
+
         expect(() => {
           metaPn.applyActionToExtension(
             MetaCreate.requestStateNoExtensions.extensions,
@@ -207,11 +201,11 @@ describe('extensions/payment-network/meta', () => {
       });
 
       it('cannot applyActionToExtensions of creation with token address not valid', () => {
-        const actionWithInvalidToken = deepCopy(MetaCreate.actionCreationFull);
+        const actionWithInvalidToken = deepCopy(MetaCreate.actionCreationMultipleAnyToErc20);
         actionWithInvalidToken.parameters[
           ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
         ][0].acceptedTokens = ['invalid address'];
-        // 'must throw'
+
         expect(() => {
           metaPn.applyActionToExtension(
             MetaCreate.requestStateNoExtensions.extensions,
@@ -224,11 +218,11 @@ describe('extensions/payment-network/meta', () => {
       });
 
       it('cannot applyActionToExtensions of creation with refund address not valid', () => {
-        const testnetRefundAddress = deepCopy(MetaCreate.actionCreationFull);
+        const testnetRefundAddress = deepCopy(MetaCreate.actionCreationMultipleAnyToErc20);
         testnetRefundAddress.parameters[
           ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
         ][0].refundAddress = DataConversionERC20FeeAddData.invalidAddress;
-        // 'must throw'
+
         expect(() => {
           metaPn.applyActionToExtension(
             MetaCreate.requestStateNoExtensions.extensions,
@@ -244,7 +238,7 @@ describe('extensions/payment-network/meta', () => {
       it('keeps the version used at creation', () => {
         const newState = metaPn.applyActionToExtension(
           {},
-          { ...MetaCreate.actionCreationFull, version: 'ABCD' },
+          { ...MetaCreate.actionCreationMultipleAnyToErc20, version: 'ABCD' },
           MetaCreate.requestStateNoExtensions,
           TestData.otherIdRaw.identity,
           TestData.arbitraryTimestamp,
@@ -256,7 +250,7 @@ describe('extensions/payment-network/meta', () => {
         expect(() => {
           metaPn.applyActionToExtension(
             {},
-            { ...MetaCreate.actionCreationFull, version: '' },
+            { ...MetaCreate.actionCreationMultipleAnyToErc20, version: '' },
             MetaCreate.requestStateNoExtensions,
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
@@ -266,7 +260,7 @@ describe('extensions/payment-network/meta', () => {
     });
 
     describe('applyActionToExtension/applyApplyActionToExtension', () => {
-      it('can applyActionToExtensions of applyApplyActionToExtension addPaymentAddress', () => {
+      it('can applyActionToExtensions of applyApplyActionToExtension for addPaymentAddress', () => {
         expect(
           metaPn.applyActionToExtension(
             MetaCreate.requestStateCreatedMissingAddress.extensions,
@@ -278,8 +272,7 @@ describe('extensions/payment-network/meta', () => {
         ).toEqual(MetaCreate.extensionStateWithApplyAddPaymentAddressAfterCreation);
       });
 
-      it('cannot applyActionToExtensions of addPaymentAddress without a previous state', () => {
-        // 'must throw'
+      it('cannot applyActionToExtensions of applyApplyActionToExtension for addPaymentAddress without a previous state', () => {
         expect(() => {
           metaPn.applyActionToExtension(
             MetaCreate.requestStateNoExtensions.extensions,
@@ -291,10 +284,10 @@ describe('extensions/payment-network/meta', () => {
         }).toThrowError(`No payment network with identifier ${MetaCreate.salt2}`);
       });
 
-      it('cannot applyActionToExtensions of addPaymentAddress without a payee', () => {
+      it('cannot applyActionToExtensions of applyApplyActionToExtension for addPaymentAddress without a payee', () => {
         const previousState = deepCopy(MetaCreate.requestStateCreatedMissingAddress);
         previousState.payee = undefined;
-        // 'must throw'
+
         expect(() => {
           metaPn.applyActionToExtension(
             previousState.extensions,
@@ -306,9 +299,9 @@ describe('extensions/payment-network/meta', () => {
         }).toThrowError(`The request must have a payee`);
       });
 
-      it('cannot applyActionToExtensions of addPaymentAddress signed by someone else than the payee', () => {
+      it('cannot applyActionToExtensions of applyApplyActionToExtension for addPaymentAddress signed by someone else than the payee', () => {
         const previousState = deepCopy(MetaCreate.requestStateCreatedMissingAddress);
-        // 'must throw'
+
         expect(() => {
           metaPn.applyActionToExtension(
             previousState.extensions,
@@ -320,8 +313,7 @@ describe('extensions/payment-network/meta', () => {
         }).toThrowError(`The signer must be the payee`);
       });
 
-      it('cannot applyActionToExtensions of addPaymentAddress with payment address already given', () => {
-        // 'must throw'
+      it('cannot applyActionToExtensions of applyApplyActionToExtension for addPaymentAddress with payment address already given', () => {
         expect(() => {
           metaPn.applyActionToExtension(
             MetaCreate.requestFullStateCreated.extensions,
@@ -333,11 +325,11 @@ describe('extensions/payment-network/meta', () => {
         }).toThrowError(`Payment address already given`);
       });
 
-      it('cannot applyActionToExtensions of addPaymentAddress with payment address not valid', () => {
+      it('cannot applyActionToExtensions of applyApplyActionToExtension for addPaymentAddress with payment address not valid', () => {
         const actionWithInvalidAddress = deepCopy(MetaCreate.actionApplyActionToPn);
         actionWithInvalidAddress.parameters.parameters.paymentAddress =
           DataConversionERC20FeeAddData.invalidAddress;
-        // 'must throw'
+
         expect(() => {
           metaPn.applyActionToExtension(
             MetaCreate.requestStateCreatedMissingAddress.extensions,
@@ -351,10 +343,10 @@ describe('extensions/payment-network/meta', () => {
         );
       });
 
-      it('cannot applyActionToExtensions when the pn identifier is wrong', () => {
+      it('cannot applyActionToExtensions applyApplyActionToExtension when the pn identifier is wrong', () => {
         const actionWithInvalidPnIdentifier = deepCopy(MetaCreate.actionApplyActionToPn);
         actionWithInvalidPnIdentifier.parameters.pnIdentifier = 'wrongId';
-        // 'must throw'
+
         expect(() => {
           metaPn.applyActionToExtension(
             MetaCreate.requestStateCreatedMissingAddress.extensions,
@@ -366,10 +358,10 @@ describe('extensions/payment-network/meta', () => {
         }).toThrowError(`No payment network with identifier wrongId`);
       });
 
-      it('cannot applyActionToExtensions when the action does not exists on the sub pn', () => {
+      it('cannot applyActionToExtensions applyApplyActionToExtension when the action does not exists on the sub pn', () => {
         const actionWithInvalidPnAction = deepCopy(MetaCreate.actionApplyActionToPn);
         actionWithInvalidPnAction.parameters.action = 'wrongAction' as ExtensionTypes.ACTION;
-        // 'must throw'
+
         expect(() => {
           metaPn.applyActionToExtension(
             MetaCreate.requestStateCreatedMissingAddress.extensions,

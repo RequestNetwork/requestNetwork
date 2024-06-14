@@ -43,7 +43,7 @@ export const extendedParams = (salt: string) => ({
   sentRefundAmount: '0',
 });
 // actions
-export const actionCreationFull = {
+export const actionCreationMultipleAnyToErc20 = {
   action: 'create',
   id: ExtensionTypes.PAYMENT_NETWORK_ID.META,
   parameters: {
@@ -51,43 +51,14 @@ export const actionCreationFull = {
   },
   version: '0.1.0',
 };
-export const actionCreationOnlyPayment = {
-  action: 'create',
-  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
-  parameters: {
-    paymentAddress,
-    acceptedTokens: [tokenAddress],
-    network,
-  },
-  version: '0.1.0',
-};
-export const actionCreationOnlyRefund = {
-  action: 'create',
-  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
-  parameters: {
-    refundAddress,
-    acceptedTokens: [tokenAddress],
-    network,
-  },
-  version: '0.1.0',
-};
-export const actionCreationOnlyFee = {
-  action: 'create',
-  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
-  parameters: {
-    feeAddress,
-    feeAmount,
-    acceptedTokens: [tokenAddress],
-    network,
-  },
-  version: '0.1.0',
-};
+
 export const actionCreationEmpty = {
   action: 'create',
   id: ExtensionTypes.PAYMENT_NETWORK_ID.META,
   parameters: {},
   version: '0.1.0',
 };
+
 export const actionApplyActionToPn = {
   action: ExtensionTypes.PnMeta.ACTION.APPLY_ACTION_TO_PN,
   id: ExtensionTypes.PAYMENT_NETWORK_ID.META,
@@ -102,7 +73,7 @@ export const actionApplyActionToPn = {
 
 // ---------------------------------------------------------------------
 // extensions states
-export const extensionFullState = {
+export const extensionFullStateMultipleAnyToErc20 = {
   [ExtensionTypes.PAYMENT_NETWORK_ID.META as string]: {
     events: [
       {
@@ -308,8 +279,8 @@ export const requestFullStateCreated: RequestLogicTypes.IRequest = {
     },
   ],
   expectedAmount: TestData.arbitraryExpectedAmount,
-  extensions: extensionFullState,
-  extensionsData: [actionCreationFull],
+  extensions: extensionFullStateMultipleAnyToErc20,
+  extensionsData: [actionCreationMultipleAnyToErc20],
   payee: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,

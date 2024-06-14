@@ -427,7 +427,7 @@ export async function revokeErc20Approval(
  * If the request does not use the meta-pn, it returns it as is.
  * Otherwise, returns the request formatted with the pn of interest
  */
-export function getFormattedRequest({
+export function flattenRequestByPnId({
   request,
   pnIdentifier,
 }: {
