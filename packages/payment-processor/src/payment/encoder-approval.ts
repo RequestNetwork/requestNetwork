@@ -28,7 +28,7 @@ export async function encodeRequestErc20ApprovalIfNeeded(
   from: string,
   options?: IRequestPaymentOptions,
 ): Promise<IPreparedTransaction | void> {
-  const formattedRequest = getFormattedRequest({ request, options });
+  const formattedRequest = getFormattedRequest({ request, pnIdentifier: options?.pnIdentifier });
   if (options && options.swap) {
     return encodeRequestErc20ApprovalWithSwapIfNeeded(formattedRequest, provider, from, options);
   } else {
@@ -47,7 +47,7 @@ export function encodeRequestErc20Approval(
   provider: providers.Provider,
   options?: IRequestPaymentOptions,
 ): IPreparedTransaction | void {
-  const formattedRequest = getFormattedRequest({ request, options });
+  const formattedRequest = getFormattedRequest({ request, pnIdentifier: options?.pnIdentifier });
   if (options && options.swap) {
     return encodeRequestErc20ApprovalWithSwap(formattedRequest, provider, options);
   } else {

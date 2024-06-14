@@ -26,7 +26,7 @@ export function encodeRequestPayment(
   provider: providers.Provider,
   options?: IRequestPaymentOptions,
 ): IPreparedTransaction {
-  const formattedRequest = getFormattedRequest({ request, options });
+  const formattedRequest = getFormattedRequest({ request, pnIdentifier: options?.pnIdentifier });
   if (options && options.swap) {
     return encodeRequestPaymentWithSwap(formattedRequest, provider, options);
   } else {

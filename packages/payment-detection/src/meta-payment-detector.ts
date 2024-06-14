@@ -50,15 +50,12 @@ export class MetaDetector extends DeclarativePaymentDetectorBase<
   private readonly advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
   private readonly currencyManager: CurrencyTypes.ICurrencyManager;
   private readonly options: Partial<PaymentNetworkOptions>;
-  /**
-   * @param paymentNetworkId
-   * @param extension
-   */
+
   public constructor({
     advancedLogic,
     currencyManager,
     options,
-  }: ReferenceBasedDetectorOptions & { options?: Partial<PaymentNetworkOptions> }) {
+  }: ReferenceBasedDetectorOptions & { options: Partial<PaymentNetworkOptions> }) {
     super(ExtensionTypes.PAYMENT_NETWORK_ID.META, advancedLogic.extensions.metaPn);
     this.options = options || {};
     this.currencyManager = currencyManager;
@@ -109,7 +106,7 @@ export class MetaDetector extends DeclarativePaymentDetectorBase<
   /**
    * Creates the extensions data to apply an action on a sub pn
    *
-   * @param Parameters to add refund information
+   * @param Parameters to apply an action on a sub pn
    * @returns The extensionData object
    */
   public createExtensionsDataForApplyActionOnPn(

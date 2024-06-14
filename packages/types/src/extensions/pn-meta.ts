@@ -20,7 +20,10 @@ export interface ICreationParameters extends PnAnyDeclarative.ICreationParameter
   [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]?: PnAnyToEth.ICreationParameters[];
 }
 
-/** Parameters of declareSentPayment and declareSentRefund action */
+/**
+ * Parameters of of apply-action-to-pn action
+ * Supports all actions supported by sub payment networks
+ */
 export interface IApplyActionToPn {
   pnIdentifier: string;
   action: string;

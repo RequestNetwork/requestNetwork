@@ -11,7 +11,6 @@ import { EvmChains, getCurrencyHash } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 import { getReceivableTokenIdForRequest } from './erc20-transferable-receivable';
-import { IRequestPaymentOptions } from '../types';
 import { deepCopy } from '@requestnetwork/utils';
 
 /** @constant MAX_ALLOWANCE set to the max uint256 value */
@@ -430,16 +429,16 @@ export async function revokeErc20Approval(
  */
 export function getFormattedRequest({
   request,
-  options,
+  pnIdentifier,
 }: {
   request: ClientTypes.IRequestData;
-  options?: IRequestPaymentOptions;
+  pnIdentifier?: string;
 }): ClientTypes.IRequestData {
   const pn = getPaymentNetworkExtension(request);
   if (!pn?.id || pn.id !== ExtensionTypes.PAYMENT_NETWORK_ID.META) return request;
-  if (!options?.pnIdentifier) throw new Error('Missing pn identifier');
+  if (!pnIdentifier) throw new Error('Missing pn identifier');
 
-  const extensionOfInterest: ExtensionTypes.IState | undefined = pn.values[options.pnIdentifier];
+  const extensionOfInterest: ExtensionTypes.IState | undefined = pn.values[pnIdentifier];
   if (!extensionOfInterest) throw new Error('Invalid pn identifier');
 
   const formattedRequest = {

@@ -86,15 +86,6 @@ export default class MetaPaymentNetwork<
    * @returns state of the extension created
    */
   protected applyCreation(
-    extensionAction: ExtensionTypes.IAction<TCreationParameters>,
-    timestamp: number,
-  ): ExtensionTypes.IState;
-  protected applyCreation(
-    extensionAction: ExtensionTypes.IAction<TCreationParameters>,
-    timestamp: number,
-    context: ICreationContext,
-  ): ExtensionTypes.IState;
-  protected applyCreation(
     extensionAction: ExtensionTypes.IAction,
     timestamp: number,
     context?: ICreationContext,
