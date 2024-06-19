@@ -28,6 +28,8 @@ import * as SepoliaDefinition from './data/sepolia';
 import * as ZkSyncEraTestnetDefinition from './data/zksync-era-testnet';
 import * as ZkSyncEraDefinition from './data/zksync-era';
 import * as BaseDefinition from './data/base';
+import * as FraxDefinition from './data/frax';
+import * as FraxTestnetDefinition from './data/fraxtestnet';
 
 export type EvmChain = CurrencyTypes.Chain & {
   chainId: number;
@@ -62,4 +64,6 @@ export const chains: Record<CurrencyTypes.EvmChainName, EvmChain> = {
   zksynceratestnet: ZkSyncEraTestnetDefinition,
   zksyncera: ZkSyncEraDefinition,
   base: BaseDefinition,
+  frax: FraxDefinition,
+  fraxtestnet: FraxTestnetDefinition,
 };
