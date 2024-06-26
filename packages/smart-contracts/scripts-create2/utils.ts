@@ -8,18 +8,18 @@ import { EvmChains } from '@requestnetwork/currency';
  * If you want to skip deploying one or more, then comment them out in the list bellow.
  */
 export const create2ContractDeploymentList = [
-  'ChainlinkConversionPath',
-  'EthereumProxy',
-  'EthereumFeeProxy',
-  'EthConversionProxy',
-  'ERC20Proxy',
-  'ERC20FeeProxy',
-  'Erc20ConversionProxy',
-  'ERC20SwapToPay',
-  'ERC20SwapToConversion',
-  'BatchConversionPayments',
-  'ERC20EscrowToPay',
-  // 'ERC20TransferableReceivable',
+  // 'ChainlinkConversionPath',
+  // 'EthereumProxy',
+  // 'EthereumFeeProxy',
+  // 'EthConversionProxy',
+  // 'ERC20Proxy',
+  // 'ERC20FeeProxy',
+  // 'Erc20ConversionProxy',
+  // 'ERC20SwapToPay',
+  // 'ERC20SwapToConversion',
+  // 'BatchConversionPayments',
+  // 'ERC20EscrowToPay',
+  'ERC20TransferableReceivable',
 ];
 
 /**
