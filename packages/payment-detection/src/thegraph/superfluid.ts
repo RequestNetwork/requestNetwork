@@ -2,7 +2,7 @@ import { GraphQLClient } from 'graphql-request';
 import { getSdk } from './generated/graphql-superfluid';
 import { RequestConfig } from 'graphql-request/src/types';
 
-const BASE_URL = `https://api.thegraph.com`;
+const BASE_URL = `https://subgraph-endpoints.superfluid.dev`;
 const NETWORK_TO_URL: Record<string, string> = {
   optimism: 'optimism-mainnet',
   avalanche: 'avalanche-c',
@@ -31,8 +31,6 @@ export const getTheGraphSuperfluidClient = (
   //  which is a better security but would require an update of the
   //  library each time the subgraph is updated, which isn't ideal
   //  for early testing.
-  const url = `${baseUrl}/subgraphs/name/superfluid-finance/protocol-v1-${
-    NETWORK_TO_URL[network] || network
-  }`;
+  const url = `${baseUrl}/${NETWORK_TO_URL[network] || network}/protocol-v1`;
   return getSdk(new GraphQLClient(url, clientOptions));
 };
