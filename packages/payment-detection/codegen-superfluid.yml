@@ -1,5 +1,5 @@
 overwrite: true
-schema: 'https://api.thegraph.com/subgraphs/name/superfluid-finance/protocol-v1-goerli'
+schema: 'https://subgraph-endpoints.superfluid.dev/eth-sepolia/protocol-v1'
 documents: src/thegraph/queries/superfluid/*.graphql
 generates:
   src/thegraph/generated/graphql-superfluid.ts:
