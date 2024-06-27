@@ -17110,7 +17110,7 @@ near-abi@0.1.1:
   dependencies:
     "@types/json-schema" "^7.0.11"
 
-near-api-js@^4.0.2:
+near-api-js@4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/near-api-js/-/near-api-js-4.0.2.tgz#80ebe802508c0b5caee80214a42f0a4cee571bb3"
   integrity sha512-E39xsjWykxOAY6bqVl4q8+TYCfJHKzXEQD8ek82gf58IX8P1STKOS/x0c4yBO9wmSMdv7ZSymmENAozetgdzNQ==
