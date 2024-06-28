@@ -37,14 +37,14 @@ export const getTheGraphSuperfluidClient = (
 };
 
 export const buildTheGraphSuperfluidUrl = (
-  _baseUrl: string | undefined,
+  baseUrl: string | undefined,
   network: string,
 ): string => {
-  const baseUrl = _baseUrl || network === 'private' ? 'http://localhost:8000' : BASE_URL;
+  const _baseUrl = baseUrl || (network === 'private' ? 'http://localhost:8000' : BASE_URL);
   // Note: it is also possible to use the IPFS hash of the subgraph
   //  eg. /subgraphs/id/QmcCaSkefrmhe4xQj6Y6BBbHiFkbrn6UGDEBUWER7nt399
   //  which is a better security but would require an update of the
   //  library each time the subgraph is updated, which isn't ideal
   //  for early testing.
-  return `${baseUrl}/${NETWORK_TO_URL[network]}/protocol-v1`;
+  return `${_baseUrl}/${NETWORK_TO_URL[network]}/protocol-v1`;
 };
