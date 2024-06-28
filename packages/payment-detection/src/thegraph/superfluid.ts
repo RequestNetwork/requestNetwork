@@ -4,8 +4,16 @@ import { RequestConfig } from 'graphql-request/src/types';
 
 const BASE_URL = `https://subgraph-endpoints.superfluid.dev`;
 const NETWORK_TO_URL: Record<string, string> = {
-  optimism: 'optimism-mainnet',
+  'arbitrum-one': 'arbitrum-one',
   avalanche: 'avalanche-c',
+  matic: 'polygon-mainnet',
+  optimism: 'optimism-mainnet',
+  sepolia: 'eth-sepolia',
+  xdai: 'xdai-mainnet',
+  bsc: 'bsc-mainnet',
+  mainnet: 'eth-mainnet',
+  celo: 'celo-mainnet',
+  base: 'base-mainnet',
 };
 
 // NB: the GraphQL client is automatically generated based on files present in ./queries,
@@ -31,6 +39,6 @@ export const getTheGraphSuperfluidClient = (
   //  which is a better security but would require an update of the
   //  library each time the subgraph is updated, which isn't ideal
   //  for early testing.
-  const url = `${baseUrl}/${NETWORK_TO_URL[network] || network}/protocol-v1`;
+  const url = `${baseUrl}/${NETWORK_TO_URL[network]}/protocol-v1`;
   return getSdk(new GraphQLClient(url, clientOptions));
 };
