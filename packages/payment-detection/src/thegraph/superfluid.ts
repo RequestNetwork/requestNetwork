@@ -40,11 +40,12 @@ export const buildTheGraphSuperfluidUrl = (
   baseUrl: string | undefined,
   network: string,
 ): string => {
-  const _baseUrl = baseUrl || (network === 'private' ? 'http://localhost:8000' : BASE_URL);
   // Note: it is also possible to use the IPFS hash of the subgraph
   //  eg. /subgraphs/id/QmcCaSkefrmhe4xQj6Y6BBbHiFkbrn6UGDEBUWER7nt399
   //  which is a better security but would require an update of the
   //  library each time the subgraph is updated, which isn't ideal
   //  for early testing.
-  return `${_baseUrl}/${NETWORK_TO_URL[network]}/protocol-v1`;
+  return network === 'private'
+    ? 'http://localhost:8000/subgraphs/name/superfluid-finance/protocol-v1-goerli'
+    : `${baseUrl || BASE_URL}/${NETWORK_TO_URL[network]}/protocol-v1`;
 };

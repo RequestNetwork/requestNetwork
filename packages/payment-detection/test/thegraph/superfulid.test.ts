@@ -11,6 +11,6 @@ describe('buildTheGraphSuperfluidUrl', () => {
   });
   it('should build the correct URL when network is private', () => {
     const url = buildTheGraphSuperfluidUrl(undefined, 'private');
-    expect(url).toBe('http://localhost:8000/protocol-v1');
+    expect(url).toBe('http://localhost:8000/subgraphs/name/superfluid-finance/protocol-v1-goerli');
   });
 });
