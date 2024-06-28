@@ -48,6 +48,10 @@ export const erc20TransferableReceivableArtifact =
             address: '0xcE80D17d38cfee8E5E6c682F7712bfb5A04Ae912',
             creationBlockNumber: 17735969,
           },
+          sepolia: {
+            address: '0xB5E53C3d145Cbaa61C7028736A1fF0bC6817A4c5',
+            creationBlockNumber: 6194071,
+          },
         },
       },
     },
