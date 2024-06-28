@@ -6,14 +6,14 @@ const BASE_URL = `https://subgraph-endpoints.superfluid.dev`;
 const NETWORK_TO_URL: Record<string, string> = {
   'arbitrum-one': 'arbitrum-one',
   avalanche: 'avalanche-c',
+  base: 'base-mainnet',
+  bsc: 'bsc-mainnet',
+  celo: 'celo-mainnet',
+  mainnet: 'eth-mainnet',
   matic: 'polygon-mainnet',
   optimism: 'optimism-mainnet',
   sepolia: 'eth-sepolia',
   xdai: 'xdai-mainnet',
-  bsc: 'bsc-mainnet',
-  mainnet: 'eth-mainnet',
-  celo: 'celo-mainnet',
-  base: 'base-mainnet',
 };
 
 // NB: the GraphQL client is automatically generated based on files present in ./queries,
