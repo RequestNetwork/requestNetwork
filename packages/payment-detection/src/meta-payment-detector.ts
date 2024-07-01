@@ -40,7 +40,8 @@ const advancedLogicMap: Partial<
 
 /**
  * Detect payment for the meta payment network.
- * Recursively detects payments on each sub payment network
+ * Recursively detects payments on each sub payment network.
+ * For each sub payment network we check for payments with the paymentReference associated to the sub payment network.
  */
 export class MetaDetector extends DeclarativePaymentDetectorBase<
   ExtensionTypes.PnMeta.IMeta<any>,
