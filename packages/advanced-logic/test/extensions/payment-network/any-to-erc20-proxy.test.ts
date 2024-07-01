@@ -353,7 +353,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(DataConversionERC20FeeCreate.extensionFullState);
+        ).toEqual(DataConversionERC20FeeCreate.extensionFullState());
       });
 
       it('can applyActionToExtensions of creation when address is checksumed', () => {
@@ -372,7 +372,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(DataConversionERC20FeeCreate.extensionFullState);
+        ).toEqual(DataConversionERC20FeeCreate.extensionFullState());
       });
 
       it('cannot applyActionToExtensions of creation with a previous state', () => {
