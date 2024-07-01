@@ -11,7 +11,6 @@ import { EvmChains, getCurrencyHash } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 import { getReceivableTokenIdForRequest } from './erc20-transferable-receivable';
-import { deepCopy } from '@requestnetwork/utils';
 
 /** @constant MAX_ALLOWANCE set to the max uint256 value */
 export const MAX_ALLOWANCE = BigNumber.from(2).pow(256).sub(1);
@@ -420,32 +419,4 @@ export async function revokeErc20Approval(
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction(preparedTx);
   return tx;
-}
-
-/**
- * Format a request we wish to build a payment for.
- * If the request does not use the meta-pn, it returns it as is.
- * Otherwise, returns the request formatted with the pn of interest
- */
-export function flattenRequestByPnId({
-  request,
-  pnIdentifier,
-}: {
-  request: ClientTypes.IRequestData;
-  pnIdentifier?: string;
-}): ClientTypes.IRequestData {
-  const pn = getPaymentNetworkExtension(request);
-  if (!pn?.id || pn.id !== ExtensionTypes.PAYMENT_NETWORK_ID.META) return request;
-  if (!pnIdentifier) throw new Error('Missing pn identifier');
-
-  const extensionOfInterest: ExtensionTypes.IState | undefined = pn.values[pnIdentifier];
-  if (!extensionOfInterest) throw new Error('Invalid pn identifier');
-
-  const formattedRequest = {
-    ...deepCopy(request),
-    extensions: {
-      [extensionOfInterest.id]: extensionOfInterest,
-    },
-  };
-  return formattedRequest;
 }

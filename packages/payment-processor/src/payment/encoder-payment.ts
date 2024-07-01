@@ -2,7 +2,10 @@ import { IRequestPaymentOptions } from '../types';
 import { IPreparedTransaction } from './prepared-transaction';
 import { providers } from 'ethers';
 import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
+import {
+  getPaymentNetworkExtension,
+  flattenRequestByPnId,
+} from '@requestnetwork/payment-detection';
 import { prepareErc20ProxyPaymentTransaction } from './erc20-proxy';
 import { prepareErc20FeeProxyPaymentTransaction } from './erc20-fee-proxy';
 import { prepareAnyToErc20ProxyPaymentTransaction } from './any-to-erc20-proxy';
@@ -13,7 +16,6 @@ import { prepareEthFeeProxyPaymentTransaction } from './eth-fee-proxy';
 import { prepareAnyToEthProxyPaymentTransaction } from './any-to-eth-proxy';
 import { IConversionPaymentSettings } from '.';
 import { prepareErc777StreamPaymentTransaction } from './erc777-stream';
-import { flattenRequestByPnId } from './utils';
 
 /**
  * Encodes a transaction to pay a Request in generic way. ERC777 stream excepted.
