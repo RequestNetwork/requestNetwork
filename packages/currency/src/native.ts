@@ -172,6 +172,11 @@ export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthC
       name: 'Base Ether',
       network: 'base',
     },
+    {
+      symbol: 'FRAX-ETH',
+      decimals: 18,
+      name: 'Frax',
+    }
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [
     {
