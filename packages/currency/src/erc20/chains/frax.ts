@@ -1,7 +1,7 @@
 import { CurrencyTypes } from '@requestnetwork/types';
 
 // List of the supported  network tokens
-export const supportedFrax: CurrencyTypes.TokenMap = {
+export const supportedFraxerc20: CurrencyTypes.TokenMap = {
   '0x4d15EA9C2573ADDAeD814e48C148b5262694646A': {
     name: 'FRAX USDT Token',
     symbol: 'USDT',
