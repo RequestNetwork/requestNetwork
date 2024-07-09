@@ -65,6 +65,7 @@ const alphaSwapConversionSettings = {
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
+const otherPaymentAddress = '0xfA9154CAA55c83a6941696785B1cae6386611721';
 const expectedFlowRate = '100000';
 const expectedStartDate = '1643041225';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
@@ -245,6 +246,61 @@ const validRequestEthConversionProxy: ClientTypes.IRequestData = {
         paymentAddress,
         salt: 'salt',
         network: 'private',
+      },
+      version: '0.1.0',
+    },
+  },
+};
+
+export const validMetaRequest: ClientTypes.IRequestData = {
+  ...validRequestEthConversionProxy,
+  extensions: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.META]: {
+      events: [],
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.META,
+      type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+      values: {
+        salt: {
+          events: [],
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            feeAddress,
+            feeAmount: '2',
+            paymentAddress,
+            salt: 'salt',
+            network: 'private',
+            acceptedTokens: [alphaContractAddress],
+          },
+          version: '0.1.0',
+        },
+        salt2: {
+          events: [],
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            feeAddress,
+            feeAmount: '2',
+            paymentAddress: otherPaymentAddress,
+            salt: 'salt2',
+            network: 'private',
+          },
+          version: '0.1.0',
+        },
+        salt3: {
+          events: [],
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            feeAddress,
+            feeAmount: '2',
+            paymentAddress: otherPaymentAddress,
+            salt: 'salt3',
+            network: 'mainnet',
+            acceptedTokens: [erc20ContractAddress],
+          },
+          version: '0.1.0',
+        },
       },
       version: '0.1.0',
     },
@@ -443,6 +499,93 @@ describe('Payment encoder handles ERC777 Stream', () => {
       data: '0x6ad3ca7d00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000c90000000000000000000000000dd64f3458f32a277ccd94bfbdb31952b84d99ee000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000001600000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000a4b4b333c60000000000000000000000007d782d2cc2755ca324de57d42e28cc63278dfe12000000000000000000000000627306090abab3a6e1400e9345bc60c78a8bef57000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000bbeefac86dfbccad783599a000000000000000000000000000000000000000000',
       to: '0x75076e4fbba61f65efB41D64e45cFF340b1e518A',
       value: 0,
+    });
+  });
+});
+
+describe('Payment encoder handles Meta PN', () => {
+  describe('Error cases', () => {
+    it('Should not be possible to encode a transaction when passing an invalid pn identifier', () => {
+      expect(() =>
+        encodeRequestPayment(validMetaRequest, provider, {
+          conversion: alphaConversionSettings,
+          pnIdentifier: 'unknown',
+        }),
+      ).toThrowError('Invalid pn identifier');
+    });
+
+    it('Should not be possible to encode a transaction without passing a pn identifier', () => {
+      expect(() =>
+        encodeRequestPayment(validMetaRequest, provider, {
+          conversion: alphaConversionSettings,
+        }),
+      ).toThrowError('Missing pn identifier');
+    });
+
+    it('Should not be possible to encode a conversion transaction without passing conversion options', () => {
+      expect(() =>
+        encodeRequestPayment(validRequestERC20ConversionProxy, provider, {
+          pnIdentifier: 'salt1',
+        }),
+      ).toThrowError('Conversion settings missing');
+    });
+  });
+
+  describe('Payment encoder handles Sub pn for ERC20 Conversion Proxy', () => {
+    it('Should return a valid transaction', async () => {
+      const paymentTransaction = encodeRequestPayment(validMetaRequest, provider, {
+        conversion: alphaConversionSettings,
+        pnIdentifier: 'salt',
+      });
+
+      const proxyAddress = getProxyAddress(
+        validRequestERC20ConversionProxy,
+        AnyToERC20PaymentDetector.getDeploymentInformation,
+      );
+
+      // The data payload is the same in the ERC20 Conversion proxy case (standalone PN) as requestId, salt and paymentAddress are the same
+      expect(paymentTransaction).toEqual({
+        data: '0x3af2c012000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000005f5e1000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000000000001e8480000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fefffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000300000000000000000000000017b4158805772ced11225e77339f90beb5aae968000000000000000000000000775eb53d00dd0acd3ec1696472105d579b9b386b00000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa35000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
+        to: proxyAddress,
+        value: 0,
+      });
+    });
+
+    it('Should not be possible to encode a conversion transaction without passing conversion options', () => {
+      expect(() =>
+        encodeRequestPayment(validRequestERC20ConversionProxy, provider, {
+          pnIdentifier: 'salt',
+        }),
+      ).toThrowError('Conversion settings missing');
+    });
+  });
+
+  describe('Payment encoder handles Sub pn for ETH Conversion Proxy', () => {
+    it('Should return a valid transaction', async () => {
+      let paymentTransaction = await encodeRequestPayment(validMetaRequest, provider, {
+        conversion: ethConversionSettings,
+        pnIdentifier: 'salt2',
+      });
+
+      const proxyAddress = getProxyAddress(
+        validRequestEthConversionProxy,
+        AnyToEthFeeProxyPaymentDetector.getDeploymentInformation,
+      );
+
+      // The data payload is not the same in the ETH Conversion proxy case (standalone PN) as salt and paymentAddress are different
+      expect(paymentTransaction).toEqual({
+        data: '0xac473c8a000000000000000000000000fa9154caa55c83a6941696785b1cae63866117210000000000000000000000000000000000000000000000000000000005f5e10000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000001e8480000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000300000000000000000000000017b4158805772ced11225e77339f90beb5aae968000000000000000000000000775eb53d00dd0acd3ec1696472105d579b9b386b000000000000000000000000a65ded58a0afee8241e788c5115ca53ef3925fd2000000000000000000000000000000000000000000000000000000000000000863033c01472fcb07000000000000000000000000000000000000000000000000',
+        to: proxyAddress,
+        value: BigNumber.from(ethConversionSettings.maxToSpend),
+      });
+    });
+
+    it('Should not be possible to encode a conversion transaction without passing conversion options', () => {
+      expect(() =>
+        encodeRequestPayment(validMetaRequest, provider, {
+          pnIdentifier: 'salt2',
+        }),
+      ).toThrowError('Conversion settings missing');
     });
   });
 });
