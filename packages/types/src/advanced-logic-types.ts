@@ -21,6 +21,7 @@ export interface IAdvancedLogicExtensions {
   anyToEthProxy: Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnAnyToEth.ICreationParameters>;
   anyToNativeToken: Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>[];
   erc20TransferableReceivable: Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>;
+  metaPn: Extension.PnMeta.IMeta<Extension.PnMeta.ICreationParameters>;
 }
 
 /** Advanced Logic layer */
@@ -36,8 +37,8 @@ export interface IAdvancedLogic {
     network: ChainName,
   ) => Extension.IExtension<Extension.PnReferenceBased.ICreationParameters> | undefined;
   getAnyToNativeTokenExtensionForNetwork: (
-    network: ChainName,
-  ) => Extension.IExtension<Extension.PnAnyToEth.ICreationParameters> | undefined;
+    network?: ChainName,
+  ) => Extension.IExtension<Extension.PnAnyToAnyConversion.ICreationParameters> | undefined;
   getFeeProxyContractErc20ForNetwork: (
     network?: ChainName,
   ) => Extension.PnFeeReferenceBased.IFeeReferenceBased | undefined;

@@ -19,7 +19,7 @@ export const create2ContractDeploymentList = [
   'ERC20SwapToConversion',
   'BatchConversionPayments',
   'ERC20EscrowToPay',
-  // 'ERC20TransferableReceivable',
+  'ERC20TransferableReceivable',
 ];
 
 /**
