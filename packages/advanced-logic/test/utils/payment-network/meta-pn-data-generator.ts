@@ -15,6 +15,9 @@ export const feeAmount = '2000000000000000000';
 export const invalidAddress = '0x not and address';
 export const tokenAddress = '0x6b175474e89094c44da98b954eedeac495271d0f';
 export const network = 'mainnet';
+export const amount = '12345';
+export const note = '123456789';
+export const txHash = '0x123456789';
 export const saltMain = 'ea3bc7caf64110ca';
 export const salt1 = 'ea3bc7caf64110cb';
 export const salt2 = 'ea3bc7caf64110cc';
@@ -71,6 +74,17 @@ export const actionApplyActionToPn = {
   },
 };
 
+export const actionDeclareSentPayment = {
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.META,
+  parameters: {
+    amount,
+    note,
+    txHash,
+    network,
+  },
+};
+
 // ---------------------------------------------------------------------
 // extensions states
 export const extensionFullStateMultipleAnyToErc20 = {
@@ -98,6 +112,10 @@ export const extensionFullStateMultipleAnyToErc20 = {
         AnyToErc20Create.extensionFullState(salt2)[
           ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
         ],
+      receivedPaymentAmount: '0',
+      receivedRefundAmount: '0',
+      sentPaymentAmount: '0',
+      sentRefundAmount: '0',
     },
     version: '0.1.0',
   },
@@ -142,6 +160,10 @@ export const extensionStateCreatedMissingAddress = {
       [salt2]: AnyToErc20Create.extensionFullState(salt2, null)[
         ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
       ],
+      receivedPaymentAmount: '0',
+      receivedRefundAmount: '0',
+      sentPaymentAmount: '0',
+      sentRefundAmount: '0',
     },
     version: '0.1.0',
   },
@@ -206,6 +228,55 @@ export const extensionStateWithApplyAddPaymentAddressAfterCreation = {
           paymentAddress,
         },
       },
+      receivedPaymentAmount: '0',
+      receivedRefundAmount: '0',
+      sentPaymentAmount: '0',
+      sentRefundAmount: '0',
+    },
+    version: '0.1.0',
+  },
+};
+
+export const extensionStateWithDeclaredSent: RequestLogicTypes.IExtensionStates = {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.META as string]: {
+    events: [
+      {
+        name: 'create',
+        parameters: {
+          [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [
+            baseParams(salt1),
+            baseParams(salt2),
+          ],
+        },
+        timestamp: arbitraryTimestamp,
+      },
+      {
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
+        parameters: {
+          amount,
+          note,
+          txHash,
+          network,
+        },
+        timestamp: arbitraryTimestamp,
+        from: TestData.payerRaw.identity,
+      },
+    ],
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.META,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      [salt1]:
+        AnyToErc20Create.extensionFullState(salt1)[
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
+        ],
+      [salt2]:
+        AnyToErc20Create.extensionFullState(salt2)[
+          ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
+        ],
+      receivedPaymentAmount: '0',
+      receivedRefundAmount: '0',
+      sentRefundAmount: '0',
+      sentPaymentAmount: amount,
     },
     version: '0.1.0',
   },
