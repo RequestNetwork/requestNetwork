@@ -11,10 +11,12 @@ import {
   processNearFungiblePayment,
 } from './utils-near';
 import { NearChains } from '@requestnetwork/currency';
+import { validatePaymentReference } from '../utils/validation';
 
 /**
  * Processes the transaction to pay a request in fungible token on NEAR with fee (Erc20FeeProxy).
  * @param request the request to pay
+ * @param walletConnection the Near provider.
  */
 export async function payNearFungibleRequest(
   request: ClientTypes.IRequestData,
@@ -27,13 +29,8 @@ export async function payNearFungibleRequest(
   const { paymentReference, paymentAddress, feeAddress, feeAmount, network } =
     getRequestPaymentValues(request);
 
-  if (!paymentReference) {
-    throw new Error('Cannot pay without a paymentReference');
-  }
+  validatePaymentReference(paymentReference);
 
-  if (!network || !NearChains.isChainSupported(network)) {
-    throw new Error('Should be a Near network');
-  }
   NearChains.assertChainSupported(network);
 
   const amountToPay = getAmountToPay(request, amount).toString();
