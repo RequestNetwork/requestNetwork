@@ -11,11 +11,12 @@ import {
 } from './utils';
 import { INearTransactionCallback, processNearPayment } from './utils-near';
 import { NearChains } from '@requestnetwork/currency';
+import { validatePaymentReference } from '../utils/validation';
 
 /**
  * processes the transaction to pay a Near request.
  * @param request the request to pay
- * @param walletConnection the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param walletConnection the Near provider.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
 export async function payNearInputDataRequest(
@@ -34,9 +35,7 @@ export async function payNearInputDataRequest(
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, amount).toString();
   const version = getPaymentExtensionVersion(request);
-  if (!paymentReference) {
-    throw new Error('Cannot pay without a paymentReference');
-  }
+  validatePaymentReference(paymentReference);
 
   return processNearPayment(
     walletConnection,

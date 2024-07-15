@@ -170,7 +170,7 @@ describe('payNearWithConversionRequest', () => {
 
     await expect(
       payNearConversionRequest(invalidRequest, mockedNearWalletConnection, conversionSettings),
-    ).rejects.toThrowError('Should be a Near network');
+    ).rejects.toThrowError('Unsupported chain unknown-network');
     expect(paymentSpy).not.toHaveBeenCalled();
   });
 });
