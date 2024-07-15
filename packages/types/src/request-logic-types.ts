@@ -5,6 +5,8 @@ import * as Extension from './extension-types';
 import * as Identity from './identity-types';
 import * as Signature from './signature-types';
 import * as Transaction from './transaction-types';
+import * as DataAccess from './data-access-types';
+import * as Client from './client-types';
 import { CurrencyTypes } from './index';
 
 /** Request Logic layer */
@@ -210,6 +212,13 @@ export interface ICreateParameters {
 export interface IAcceptParameters {
   requestId: RequestId;
   extensionsData?: any[];
+}
+
+// ** Parameters added to the request when it is created with skipping persistence */
+export interface IInMemoryInfo {
+  transactionData: DataAccess.ITransaction;
+  topics: string[];
+  paymentRequest: Client.IRequestData;
 }
 
 /** Parameters to cancel a request */

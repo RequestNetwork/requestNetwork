@@ -2,7 +2,7 @@ import HttpDataAccess, { NodeConnectionConfig } from './http-data-access';
 import { ClientTypes, DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 import { EventEmitter } from 'events';
 
-export class NoConfirmHttpDataAccess extends HttpDataAccess {
+export class NoPersistHttpDataAccess extends HttpDataAccess {
   constructor(
     {
       httpConfig,

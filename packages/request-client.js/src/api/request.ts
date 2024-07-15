@@ -4,9 +4,7 @@ import {
   EscrowERC20InfoRetriever,
 } from '@requestnetwork/payment-detection';
 import {
-  ClientTypes,
   CurrencyTypes,
-  DataAccessTypes,
   EncryptionTypes,
   IdentityTypes,
   PaymentTypes,
@@ -81,19 +79,15 @@ export default class Request {
   private currencyManager: CurrencyTypes.ICurrencyManager;
 
   /**
-   * Transaction data of a in-memory request, necesary for persisting the request later on.
+   * Information for an in-memory request, including transaction data, topics, and payment request data.
+   * This is used for requests that haven't been persisted yet, allowing for operations like payments
+   * before the request is stored in the data access layer.
+   *
+   * @property transactionData - Transaction data necessary for persisting the request later on.
+   * @property topics - Topics of the request, used for indexing and retrieval when persisting.
+   * @property paymentRequest - Structured data primarily used for processing payments before the request is persisted.
    */
-  public readonly transactionData: DataAccessTypes.ITransaction | undefined;
-
-  /**
-   * Topics of a in-memory request, necesary for persisting the request later on.
-   */
-  public readonly topics: string[] | undefined;
-
-  /**
-   * Structured data for an in-memory request, primarily used for processing payments before the request is persisted.
-   */
-  public readonly paymentRequest: ClientTypes.IRequestData | undefined;
+  public readonly inMemoryInfo: RequestLogicTypes.IInMemoryInfo | null = null;
 
   /**
    * Creates an instance of Request
@@ -115,9 +109,7 @@ export default class Request {
       requestLogicCreateResult?: RequestLogicTypes.IReturnCreateRequest;
       skipPaymentDetection?: boolean;
       disableEvents?: boolean;
-      transactionData?: DataAccessTypes.ITransaction;
-      topics?: string[];
-      paymentRequest?: ClientTypes.IRequestData | undefined;
+      inMemoryInfo?: RequestLogicTypes.IInMemoryInfo | null;
     },
   ) {
     this.requestLogic = requestLogic;
@@ -128,9 +120,7 @@ export default class Request {
     this.skipPaymentDetection = options?.skipPaymentDetection || false;
     this.disableEvents = options?.disableEvents || false;
     this.currencyManager = currencyManager;
-    this.topics = options?.topics;
-    this.transactionData = options?.transactionData;
-    this.paymentRequest = options?.paymentRequest;
+    this.inMemoryInfo = options?.inMemoryInfo || null;
 
     if (options?.requestLogicCreateResult && !this.disableEvents) {
       const originalEmitter = options.requestLogicCreateResult;

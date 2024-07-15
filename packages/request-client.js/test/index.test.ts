@@ -1173,9 +1173,7 @@ describe('request-client.js', () => {
         http.get('*/getConfirmedTransaction', () => HttpResponse.json({ result: {} })),
       );
       mockServer.listen({ onUnhandledRequest: 'bypass' });
-    });
 
-    beforeEach(() => {
       spyPersistTransaction.mockReturnValue({});
     });
 
@@ -1191,7 +1189,7 @@ describe('request-client.js', () => {
 
     it('creates a request without persisting it.', async () => {
       requestNetwork = new RequestNetwork({
-        skipCreateConfirmation: true,
+        skipPersistence: true,
         signatureProvider: TestData.fakeSignatureProvider,
       });
 
@@ -1199,52 +1197,65 @@ describe('request-client.js', () => {
 
       expect(request).toBeDefined();
       expect(request.requestId).toBeDefined();
-      expect(request.transactionData).toBeDefined();
-      expect(request.topics).toBeDefined();
-      expect(request.paymentRequest).toBeDefined();
+      expect(request.inMemoryInfo).toBeDefined();
+      expect(request.inMemoryInfo?.paymentRequest).toBeDefined();
+      expect(request.inMemoryInfo?.topics).toBeDefined();
+      expect(request.inMemoryInfo?.transactionData).toBeDefined();
       expect(spyPersistTransaction).not.toHaveBeenCalled();
     });
 
-    it('throws an error when trying to persist a request with skipCreateConfirmation as true', async () => {
+    it('throws an error when trying to persist a request with skipPersistence as true', async () => {
       requestNetwork = new RequestNetwork({
-        skipCreateConfirmation: true,
+        skipPersistence: true,
         signatureProvider: TestData.fakeSignatureProvider,
       });
 
       const request = await requestNetwork.createRequest(requestCreationParams);
 
-      expect(request.transactionData).toBeDefined();
-      expect(request.topics).toBeDefined();
+      expect(request.inMemoryInfo).toBeDefined();
+      expect(request.inMemoryInfo?.paymentRequest).toBeDefined();
+      expect(request.inMemoryInfo?.topics).toBeDefined();
+      expect(request.inMemoryInfo?.transactionData).toBeDefined();
       expect(request.requestId).toBeDefined();
 
-      await expect(
-        requestNetwork.persistRequest(request.transactionData!, request.requestId, request.topics),
-      ).rejects.toThrow(
-        'Cannot persist request when skipCreateConfirmation is used. Create a new instance of RequestNetwork without skipCreateConfirmation to persist the request.',
+      await expect(requestNetwork.persistRequest(request)).rejects.toThrow(
+        'Cannot persist request when skipPersistence is enabled. Create a new instance of RequestNetwork without skipPersistence to persist the request.',
       );
     });
 
-    it('persists the in-memory request', async () => {
+    it('throw an error when trying to persist a request without inMemoryInfo', async () => {
       requestNetwork = new RequestNetwork({
-        skipCreateConfirmation: true,
         signatureProvider: TestData.fakeSignatureProvider,
       });
 
       const request = await requestNetwork.createRequest(requestCreationParams);
 
-      expect(request.transactionData).toBeDefined();
-      expect(request.topics).toBeDefined();
+      expect(request.inMemoryInfo).not.toBeDefined();
+
+      await expect(requestNetwork.persistRequest(request)).rejects.toThrow(
+        'Cannot persist request without inMemoryInfo',
+      );
+    });
+
+    it('persists a previously created in-memory request', async () => {
+      requestNetwork = new RequestNetwork({
+        skipPersistence: true,
+        signatureProvider: TestData.fakeSignatureProvider,
+      });
+
+      const request = await requestNetwork.createRequest(requestCreationParams);
+
+      expect(request.inMemoryInfo).toBeDefined();
+      expect(request.inMemoryInfo?.paymentRequest).toBeDefined();
+      expect(request.inMemoryInfo?.topics).toBeDefined();
+      expect(request.inMemoryInfo?.transactionData).toBeDefined();
       expect(request.requestId).toBeDefined();
 
       const newRequestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
       });
 
-      const persistResult = await newRequestNetwork.persistRequest(
-        request.transactionData!,
-        request.requestId,
-        request.topics,
-      );
+      const persistResult = await newRequestNetwork.persistRequest(request);
 
       expect(persistResult).toBeDefined();
       expect(spyPersistTransaction).toHaveBeenCalledTimes(1);

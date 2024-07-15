@@ -22,7 +22,7 @@ import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import Request from './request';
 import localUtils from './utils';
-import { NoConfirmHttpDataAccess } from '../no-confirm-http-data-access';
+import { NoPersistHttpDataAccess } from '../no-persist-http-data-access';
 
 /**
  * Entry point of the request-client.js library. Create requests, get requests, manipulate requests.
@@ -86,10 +86,8 @@ export default class RequestNetwork {
   private preparePaymentRequest(
     transactionData: DataAccessTypes.ITransaction,
     requestId: string,
-  ): ClientTypes.IRequestData | undefined {
-    if (!transactionData.data) return undefined;
-
-    const requestData = JSON.parse(transactionData.data).data;
+  ): ClientTypes.IRequestData {
+    const requestData = JSON.parse(transactionData.data as string).data;
     const originalExtensionsData = requestData.parameters.extensionsData;
     const newExtensions: RequestLogicTypes.IExtensionStates = {};
 
@@ -174,9 +172,15 @@ export default class RequestNetwork {
       requestLogicCreateResult,
       skipPaymentDetection: parameters.disablePaymentDetection,
       disableEvents: parameters.disableEvents,
-      topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
-      transactionData: transactionData,
-      paymentRequest: this.preparePaymentRequest(transactionData, requestId),
+      // inMemoryInfo is only used when skipPersistence is enabled
+      inMemoryInfo:
+        this.dataAccess instanceof NoPersistHttpDataAccess
+          ? {
+              topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
+              transactionData: transactionData,
+              paymentRequest: this.preparePaymentRequest(transactionData, requestId),
+            }
+          : null,
     });
 
     if (!options?.skipRefresh) {
@@ -190,24 +194,31 @@ export default class RequestNetwork {
   /**
    * Persists an in-memory request to the data-access layer.
    *
-   * @param transactionData The transaction data containing the request information
-   * @param requestId The ID of the request
-   * @param topics Optional topics for indexing the request
-   * @returns The result of the persist transaction operation
-   * @throws Error if the data access instance does not support persistence
+   * This method is used to persist requests that were initially created with skipPersistence enabled.
+   *
+   * @param request The Request object to persist. This must be a request that was created with skipPersistence enabled.
+   * @returns A promise that resolves to the result of the persist transaction operation.
+   * @throws {Error} If the request's `inMemoryInfo` is not provided, indicating it wasn't created with skipPersistence.
+   * @throws {Error} If the current data access instance does not support persistence (e.g., NoPersistHttpDataAccess).
    */
   public async persistRequest(
-    transactionData: DataAccessTypes.ITransaction,
-    requestId: string,
-    topics?: string[],
+    request: Request,
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
-    if (this.dataAccess instanceof NoConfirmHttpDataAccess) {
+    if (!request.inMemoryInfo) {
+      throw new Error('Cannot persist request without inMemoryInfo');
+    }
+
+    if (this.dataAccess instanceof NoPersistHttpDataAccess) {
       throw new Error(
-        'Cannot persist request when skipCreateConfirmation is used. Create a new instance of RequestNetwork without skipCreateConfirmation to persist the request.',
+        'Cannot persist request when skipPersistence is enabled. Create a new instance of RequestNetwork without skipPersistence to persist the request.',
       );
     }
     const result: DataAccessTypes.IReturnPersistTransaction =
-      await this.dataAccess.persistTransaction(transactionData, requestId, topics);
+      await this.dataAccess.persistTransaction(
+        request.inMemoryInfo.transactionData,
+        request.requestId,
+        request.inMemoryInfo.topics,
+      );
 
     return result;
   }
@@ -244,9 +255,14 @@ export default class RequestNetwork {
       requestLogicCreateResult,
       skipPaymentDetection: parameters.disablePaymentDetection,
       disableEvents: parameters.disableEvents,
-      topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
-      transactionData: transactionData,
-      paymentRequest: this.preparePaymentRequest(transactionData, requestId),
+      inMemoryInfo:
+        this.dataAccess instanceof NoPersistHttpDataAccess
+          ? {
+              topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
+              transactionData: transactionData,
+              paymentRequest: this.preparePaymentRequest(transactionData, requestId),
+            }
+          : null,
     });
 
     if (!options?.skipRefresh) {
