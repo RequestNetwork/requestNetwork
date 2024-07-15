@@ -374,4 +374,32 @@ describe('extensions/payment-network/meta', () => {
       });
     });
   });
+
+  describe('declarative tests', () => {
+    describe('applyActionToExtension/declareSentPayment', () => {
+      it('can applyActionToExtensions of declareSentPayment', () => {
+        expect(
+          metaPn.applyActionToExtension(
+            MetaCreate.requestFullStateCreated.extensions,
+            MetaCreate.actionDeclareSentPayment,
+            MetaCreate.requestFullStateCreated,
+            TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
+          ),
+        ).toEqual(MetaCreate.extensionStateWithDeclaredSent);
+      });
+
+      it('cannot applyActionToExtensions of declareSentPayment without a previous state', () => {
+        expect(() => {
+          metaPn.applyActionToExtension(
+            MetaCreate.requestStateNoExtensions.extensions,
+            MetaCreate.actionDeclareSentPayment,
+            MetaCreate.requestStateNoExtensions,
+            TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError(`The extension should be created before receiving any other action`);
+      });
+    });
+  });
 });

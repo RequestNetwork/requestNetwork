@@ -138,7 +138,11 @@ export class MetaDetector extends DeclarativePaymentDetectorBase<
     for (const value of Object.values(
       paymentExtension.values as Record<string, ExtensionTypes.IState<any>>,
     )) {
-      if (supportedPns.includes(value.id as keyof ExtensionTypes.PnMeta.ICreationParameters)) {
+      if (
+        !!value &&
+        value.type === ExtensionTypes.TYPE.PAYMENT_NETWORK &&
+        supportedPns.includes(value.id as keyof ExtensionTypes.PnMeta.ICreationParameters)
+      ) {
         const detectorClass = detectorMap[value.id as keyof typeof detectorMap];
         const extensionKey = advancedLogicMap[value.id as keyof typeof advancedLogicMap];
         const extension =
