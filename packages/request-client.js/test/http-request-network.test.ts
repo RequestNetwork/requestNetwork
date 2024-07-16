@@ -12,7 +12,7 @@ beforeAll(() => {
 
   // FIXME: Remove this line when the issue is fixed
   // log all request handlers
-  console.log(`beforeAll ${mockServer.listHandlers()}`);
+  console.log(`beforeAll ${mockServer.listHandlers().toString()}`);
 });
 
 afterAll(() => {
@@ -24,7 +24,7 @@ afterAll(() => {
 afterEach(() => {
   // FIXME: Remove this line when the issue is fixed
   // log all request handlers
-  console.log(`afterEach ${mockServer.listHandlers()}`);
+  console.log(`afterEach ${mockServer.listHandlers().toString()}`);
 
   mockServer.restoreHandlers();
 });
@@ -103,7 +103,7 @@ describe('HttpRequestNetwork', () => {
 
       // FIXME: Remove this line when the issue is fixed
       // log all request handlers
-      console.log(`after failAtCall ${mockServer.listHandlers()}`);
+      console.log(`after failAtCall ${mockServer.listHandlers().toString()}`);
 
       const request = await createRequest();
       await request.waitForConfirmation();
