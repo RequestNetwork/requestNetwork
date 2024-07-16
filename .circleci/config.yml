@@ -525,63 +525,63 @@ workflows:
       - test-request-client:
           requires:
             - build
-      # - test-transaction-manager:
-      #     requires:
-      #       - build
-      # - test-data-access:
-      #     requires:
-      #       - build
-      # - test-data-format:
-      #     requires:
-      #       - build
-      # - test-ethereum-storage:
-      #     requires:
-      #       - build
-      # - test-smart-contracts:
-      #     requires:
-      #       - build
-      # - test-request-logic:
-      #     requires:
-      #       - build
-      # - test-multi-format:
-      #     requires:
-      #       - build
-      # - test-advanced-logic:
-      #     requires:
-      #       - build
-      # - test-request-node:
-      #     requires:
-      #       - build
-      # - test-utils:
-      #     requires:
-      #       - build
-      # - test-currency:
-      #     requires:
-      #       - build
-      # - test-epk-signature:
-      #     requires:
-      #       - build
-      # - test-epk-decryption:
-      #     requires:
-      #       - build
-      # - test-web3-signature:
-      #     requires:
-      #       - build
-      # - test-usage-examples:
-      #     requires:
-      #       - build
-      # - test-toolbox:
-      #     requires:
-      #       - build
-      # - test-integration-test:
-      #     requires:
-      #       - build
-      # - test-payment-detection:
-      #     requires:
-      #       - build
-      # - test-payment-processor:
-      # requires:
-      #   - build
+      - test-transaction-manager:
+          requires:
+            - build
+      - test-data-access:
+          requires:
+            - build
+      - test-data-format:
+          requires:
+            - build
+      - test-ethereum-storage:
+          requires:
+            - build
+      - test-smart-contracts:
+          requires:
+            - build
+      - test-request-logic:
+          requires:
+            - build
+      - test-multi-format:
+          requires:
+            - build
+      - test-advanced-logic:
+          requires:
+            - build
+      - test-request-node:
+          requires:
+            - build
+      - test-utils:
+          requires:
+            - build
+      - test-currency:
+          requires:
+            - build
+      - test-epk-signature:
+          requires:
+            - build
+      - test-epk-decryption:
+          requires:
+            - build
+      - test-web3-signature:
+          requires:
+            - build
+      - test-usage-examples:
+          requires:
+            - build
+      - test-toolbox:
+          requires:
+            - build
+      - test-integration-test:
+          requires:
+            - build
+      - test-payment-detection:
+          requires:
+            - build
+      - test-payment-processor:
+          requires:
+            - build
 
       # Release a next version package everytime we merge to master
       - next-release:
