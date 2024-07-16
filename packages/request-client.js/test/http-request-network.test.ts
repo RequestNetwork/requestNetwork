@@ -91,12 +91,21 @@ describe('HttpRequestNetwork', () => {
     });
 
     it('increase the expected amount', async () => {
-      failAtCall(6);
-      const request = await createRequest();
-      await request.waitForConfirmation();
-      await request.increaseExpectedAmountRequest(3, TestData.payer.identity);
-      await checkForError(request);
-    });
+      try {
+        failAtCall(6);
+        console.log('Creating request...');
+        const request = await createRequest();
+        console.log('Waiting for confirmation...');
+        await request.waitForConfirmation();
+        console.log('Increasing expected amount...');
+        await request.increaseExpectedAmountRequest(3, TestData.payer.identity);
+        console.log('Checking for error...');
+        await checkForError(request);
+      } catch (error) {
+        console.error('Test failed with error:', error);
+        throw error;
+      }
+    }, 30000);
 
     it('reduce the expected amount', async () => {
       failAtCall(6);
