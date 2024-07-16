@@ -280,6 +280,6 @@ export const mockRequestNode = (): SetupServer => {
     ),
     http.get('*/getConfirmedTransaction', () => HttpResponse.json({ result: {} })),
   );
-  mockServer.listen({ onUnhandledRequest: 'bypass' });
+  mockServer.listen({ onUnhandledRequest: 'error' });
   return mockServer;
 };
