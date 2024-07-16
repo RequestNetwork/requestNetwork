@@ -1173,7 +1173,9 @@ describe('request-client.js', () => {
         http.get('*/getConfirmedTransaction', () => HttpResponse.json({ result: {} })),
       );
       mockServer.listen({ onUnhandledRequest: 'bypass' });
+    });
 
+    beforeEach(() => {
       spyPersistTransaction.mockReturnValue({});
     });
 
@@ -1230,7 +1232,7 @@ describe('request-client.js', () => {
 
       const request = await requestNetwork.createRequest(requestCreationParams);
 
-      expect(request.inMemoryInfo).not.toBeDefined();
+      expect(request.inMemoryInfo).toBeNull();
 
       await expect(requestNetwork.persistRequest(request)).rejects.toThrow(
         'Cannot persist request without inMemoryInfo',
