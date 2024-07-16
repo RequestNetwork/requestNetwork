@@ -25,7 +25,7 @@ afterEach(() => {
   // FIXME: Remove this line when the issue is fixed
   // log all request handlers
   console.log(`afterEach ${JSON.stringify(mockServer.listHandlers(), null, 2)}`);
-
+  mockServer.resetHandlers();
   mockServer.restoreHandlers();
 });
 
