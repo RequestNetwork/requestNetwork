@@ -65,9 +65,6 @@ describe('HttpRequestNetwork', () => {
           r(e);
         });
       });
-
-      console.log('Error :', error.message);
-
       expect(error.message).toBe('Internal Server Error');
     };
 
@@ -95,16 +92,11 @@ describe('HttpRequestNetwork', () => {
 
     it('increase the expected amount', async () => {
       failAtCall(6);
-      console.log('Creating request...');
       const request = await createRequest();
-      console.log('Waiting for confirmation...');
       await request.waitForConfirmation();
-      console.log('Increasing expected amount...');
       await request.increaseExpectedAmountRequest(3, TestData.payer.identity);
-      console.log('Checking for error...');
       await checkForError(request);
-      console.log('Test should have passed by now');
-    }, 100000);
+    });
 
     it('reduce the expected amount', async () => {
       failAtCall(6);
