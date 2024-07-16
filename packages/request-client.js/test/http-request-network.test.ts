@@ -94,7 +94,7 @@ describe('HttpRequestNetwork', () => {
     });
 
     it('increase the expected amount', async () => {
-      failAtCall(9);
+      failAtCall(2);
       console.log('Creating request...');
       const request = await createRequest();
       console.log('Waiting for confirmation...');
