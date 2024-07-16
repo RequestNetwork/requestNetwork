@@ -17,6 +17,7 @@ import {
 import { padAmountForChainlink } from '@requestnetwork/payment-detection';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IConversionPaymentSettings } from './index';
+import { validatePaymentReference } from '../utils/validation';
 
 /**
  * Processes a transaction to pay a request with an ERC20 currency that is different from the request currency (eg. fiat).
@@ -153,9 +154,7 @@ function prepareAnyToErc20Arguments(
 
   const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan } =
     getRequestPaymentValues(request);
-  if (!paymentReference) {
-    throw new Error('paymentReference is missing');
-  }
+  validatePaymentReference(paymentReference);
   const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
   const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
   return {

@@ -113,8 +113,10 @@ export default class MetaPaymentNetwork<
       });
     });
 
+    const genericCreationAction = super.applyCreation(extensionAction, timestamp);
+
     return {
-      ...super.applyCreation(extensionAction, timestamp),
+      ...genericCreationAction,
       events: [
         {
           name: 'create',
@@ -124,7 +126,10 @@ export default class MetaPaymentNetwork<
           timestamp,
         },
       ],
-      values,
+      values: {
+        ...genericCreationAction.values,
+        ...values,
+      },
     };
   }
 
