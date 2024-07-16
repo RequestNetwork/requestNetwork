@@ -11,7 +11,7 @@ import RequestNetwork from './api/request-network';
 import HttpDataAccess, { NodeConnectionConfig } from './http-data-access';
 import { MockDataAccess } from '@requestnetwork/data-access';
 import { MockStorage } from './mock-storage';
-import { NoPersistHttpDataAccess } from './no-persist-http-data-access';
+// import { NoPersistHttpDataAccess } from './no-persist-http-data-access';
 
 /**
  * Exposes RequestNetwork module configured to use http-data-access.
@@ -36,8 +36,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       signatureProvider,
       useMockStorage,
       currencyManager,
-      paymentOptions,
-      skipPersistence,
+      paymentOptions, // skipPersistence,
     }: {
       decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
       httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
@@ -55,11 +54,6 @@ export default class HttpRequestNetwork extends RequestNetwork {
   ) {
     const dataAccess: DataAccessTypes.IDataAccess = useMockStorage
       ? new MockDataAccess(new MockStorage())
-      : skipPersistence
-      ? new NoPersistHttpDataAccess({
-          httpConfig,
-          nodeConnectionConfig,
-        })
       : new HttpDataAccess({ httpConfig, nodeConnectionConfig });
 
     if (!currencyManager) {
