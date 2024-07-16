@@ -40,6 +40,8 @@ export class NoPersistHttpDataAccess extends HttpDataAccess {
       data,
     );
 
+    result.emit('confirmed', result);
+
     return result;
   }
 }

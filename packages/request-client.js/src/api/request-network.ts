@@ -4,10 +4,12 @@ import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
   AdvancedLogicTypes,
+  ClientTypes,
   CurrencyTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
+  ExtensionTypes,
   IdentityTypes,
   PaymentTypes,
   RequestLogicTypes,
@@ -20,6 +22,7 @@ import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import Request from './request';
 import localUtils from './utils';
+import { NoPersistHttpDataAccess } from '../no-persist-http-data-access';
 
 /**
  * Entry point of the request-client.js library. Create requests, get requests, manipulate requests.
@@ -31,6 +34,7 @@ export default class RequestNetwork {
   private requestLogic: RequestLogicTypes.IRequestLogic;
   private transaction: TransactionTypes.ITransactionManager;
   private advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+  private dataAccess: DataAccessTypes.IDataAccess;
 
   private contentData: ContentDataExtension;
   private currencyManager: CurrencyTypes.ICurrencyManager;
@@ -55,6 +59,7 @@ export default class RequestNetwork {
     paymentOptions?: Partial<PaymentNetworkOptions>;
   }) {
     this.currencyManager = currencyManager || CurrencyManager.getDefault();
+    this.dataAccess = dataAccess;
     this.advancedLogic = new AdvancedLogic(this.currencyManager);
     this.transaction = new TransactionManager(dataAccess, decryptionProvider);
     this.requestLogic = new RequestLogic(this.transaction, signatureProvider, this.advancedLogic);
@@ -64,6 +69,79 @@ export default class RequestNetwork {
       this.currencyManager,
       paymentOptions,
     );
+  }
+
+  /**
+   * Prepares a payment request structure from transaction data.
+   *
+   * This method is used to create a request structure similar to a persisted request,
+   * allowing users to pay before the request is persisted. This is useful in scenarios
+   * where a request is created, paid, and then persisted, as opposed to the normal flow
+   * of creating, persisting, and then paying the request.
+   *
+   * @param transactionData The transaction data containing the request information
+   * @param requestId The ID of the request
+   * @returns The prepared payment request structure or undefined if transaction data is missing
+   */
+  private preparePaymentRequest(
+    transactionData: DataAccessTypes.ITransaction,
+    requestId: string,
+  ): ClientTypes.IRequestData {
+    const requestData = JSON.parse(transactionData.data as string).data;
+    const originalExtensionsData = requestData.parameters.extensionsData;
+    const newExtensions: RequestLogicTypes.IExtensionStates = {};
+
+    for (const extension of originalExtensionsData) {
+      if (extension.id !== ExtensionTypes.OTHER_ID.CONTENT_DATA) {
+        newExtensions[extension.id] = {
+          events: [
+            {
+              name: extension.action,
+              parameters: {
+                paymentAddress: extension.parameters.paymentAddress,
+                salt: extension.parameters.salt,
+              },
+              timestamp: requestData.parameters.timestamp,
+            },
+          ],
+          id: extension.id,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            salt: extension.parameters.salt,
+            receivedPaymentAmount: '0',
+            receivedRefundAmount: '0',
+            sentPaymentAmount: '0',
+            sentRefundAmount: '0',
+            paymentAddress: extension.parameters.paymentAddress,
+          },
+          version: extension.version,
+        };
+      }
+    }
+
+    return {
+      requestId: requestId,
+      currency: requestData.parameters.currency.type,
+      meta: null,
+      balance: null,
+      expectedAmount: requestData.parameters.expectedAmount,
+      contentData: requestData.parameters.extensionsData.find(
+        (ext: ExtensionTypes.IAction) => ext.id === ExtensionTypes.OTHER_ID.CONTENT_DATA,
+      )?.parameters.content,
+      currencyInfo: {
+        type: requestData.parameters.currency.type,
+        network: requestData.parameters.currency.network,
+        value: requestData.parameters.currency.value || '',
+      },
+      pending: null,
+      extensions: newExtensions,
+      extensionsData: requestData.parameters.extensionsData,
+      timestamp: requestData.parameters.timestamp,
+      version: requestData.parameters.version,
+      creator: requestData.parameters.creator,
+      state: requestData.parameters.state,
+      events: requestData.parameters.events,
+    };
   }
 
   /**
@@ -85,26 +163,65 @@ export default class RequestNetwork {
       topics,
     );
 
-    // create the request object
-    const request = new Request(
-      requestLogicCreateResult.result.requestId,
-      this.requestLogic,
-      this.currencyManager,
-      {
-        contentDataExtension: this.contentData,
-        paymentNetwork,
-        requestLogicCreateResult,
-        skipPaymentDetection: parameters.disablePaymentDetection,
-        disableEvents: parameters.disableEvents,
-      },
-    );
+    const transactionData = requestLogicCreateResult.meta?.transactionManagerMeta.transactionData;
+    const requestId = requestLogicCreateResult.result.requestId;
+    const isSkipingPersistence = this.dataAccess instanceof NoPersistHttpDataAccess;
 
-    if (!options?.skipRefresh) {
+    // create the request object
+    const request = new Request(requestId, this.requestLogic, this.currencyManager, {
+      contentDataExtension: this.contentData,
+      paymentNetwork,
+      requestLogicCreateResult,
+      skipPaymentDetection: parameters.disablePaymentDetection,
+      disableEvents: parameters.disableEvents,
+      // inMemoryInfo is only used when skipPersistence is enabled
+      inMemoryInfo: isSkipingPersistence
+        ? {
+            topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
+            transactionData: transactionData,
+            paymentRequest: this.preparePaymentRequest(transactionData, requestId),
+          }
+        : null,
+    });
+
+    if (!options?.skipRefresh && !isSkipingPersistence) {
       // refresh the local request data
       await request.refresh();
     }
 
     return request;
+  }
+
+  /**
+   * Persists an in-memory request to the data-access layer.
+   *
+   * This method is used to persist requests that were initially created with skipPersistence enabled.
+   *
+   * @param request The Request object to persist. This must be a request that was created with skipPersistence enabled.
+   * @returns A promise that resolves to the result of the persist transaction operation.
+   * @throws {Error} If the request's `inMemoryInfo` is not provided, indicating it wasn't created with skipPersistence.
+   * @throws {Error} If the current data access instance does not support persistence (e.g., NoPersistHttpDataAccess).
+   */
+  public async persistRequest(
+    request: Request,
+  ): Promise<DataAccessTypes.IReturnPersistTransaction> {
+    if (!request.inMemoryInfo) {
+      throw new Error('Cannot persist request without inMemoryInfo');
+    }
+
+    if (this.dataAccess instanceof NoPersistHttpDataAccess) {
+      throw new Error(
+        'Cannot persist request when skipPersistence is enabled. Create a new instance of RequestNetwork without skipPersistence to persist the request.',
+      );
+    }
+    const result: DataAccessTypes.IReturnPersistTransaction =
+      await this.dataAccess.persistTransaction(
+        request.inMemoryInfo.transactionData,
+        request.requestId,
+        request.inMemoryInfo.topics,
+      );
+
+    return result;
   }
 
   /**
@@ -129,21 +246,27 @@ export default class RequestNetwork {
       topics,
     );
 
-    // create the request object
-    const request = new Request(
-      requestLogicCreateResult.result.requestId,
-      this.requestLogic,
-      this.currencyManager,
-      {
-        contentDataExtension: this.contentData,
-        paymentNetwork,
-        requestLogicCreateResult,
-        skipPaymentDetection: parameters.disablePaymentDetection,
-        disableEvents: parameters.disableEvents,
-      },
-    );
+    const transactionData = requestLogicCreateResult.meta?.transactionManagerMeta.transactionData;
+    const requestId = requestLogicCreateResult.result.requestId;
+    const isSkipingPersistence = this.dataAccess instanceof NoPersistHttpDataAccess;
 
-    if (!options?.skipRefresh) {
+    // create the request object
+    const request = new Request(requestId, this.requestLogic, this.currencyManager, {
+      contentDataExtension: this.contentData,
+      paymentNetwork,
+      requestLogicCreateResult,
+      skipPaymentDetection: parameters.disablePaymentDetection,
+      disableEvents: parameters.disableEvents,
+      inMemoryInfo: isSkipingPersistence
+        ? {
+            topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
+            transactionData: transactionData,
+            paymentRequest: this.preparePaymentRequest(transactionData, requestId),
+          }
+        : null,
+    });
+
+    if (!options?.skipRefresh && !isSkipingPersistence) {
       // refresh the local request data
       await request.refresh();
     }
