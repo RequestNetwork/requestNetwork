@@ -9,6 +9,10 @@ let mockServer: SetupServer;
 
 beforeAll(() => {
   mockServer = TestData.mockRequestNode();
+
+  // FIXME: Remove this line when the issue is fixed
+  // log all request handlers
+  console.log(`beforeAll ${mockServer.listHandlers()}`);
 });
 
 afterAll(() => {
@@ -18,6 +22,10 @@ afterAll(() => {
 });
 
 afterEach(() => {
+  // FIXME: Remove this line when the issue is fixed
+  // log all request handlers
+  console.log(`afterEach ${mockServer.listHandlers()}`);
+
   mockServer.restoreHandlers();
 });
 
@@ -92,6 +100,11 @@ describe('HttpRequestNetwork', () => {
 
     it('increase the expected amount', async () => {
       failAtCall(6);
+
+      // FIXME: Remove this line when the issue is fixed
+      // log all request handlers
+      console.log(`after failAtCall ${mockServer.listHandlers()}`);
+
       const request = await createRequest();
       await request.waitForConfirmation();
       await request.increaseExpectedAmountRequest(3, TestData.payer.identity);
