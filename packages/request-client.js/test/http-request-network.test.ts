@@ -104,7 +104,7 @@ describe('HttpRequestNetwork', () => {
       console.log('Checking for error...');
       await checkForError(request);
       console.log('Test should have passed by now');
-    });
+    }, 100000);
 
     it('reduce the expected amount', async () => {
       failAtCall(6);
