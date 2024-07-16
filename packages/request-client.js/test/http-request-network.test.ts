@@ -65,6 +65,9 @@ describe('HttpRequestNetwork', () => {
           r(e);
         });
       });
+
+      console.log('Error :', error.message);
+
       expect(error.message).toBe('Internal Server Error');
     };
 
