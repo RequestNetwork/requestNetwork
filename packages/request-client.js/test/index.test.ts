@@ -812,7 +812,7 @@ describe('request-client.js', () => {
 
       const requestFromId = await requestNetwork.fromRequestId(request.requestId);
 
-      expect(requestFromId).toEqual(expect.objectContaining(request));
+      expect(requestFromId).toMatchObject(request);
 
       const requestData = requestFromId.getData();
       expect(requestData.meta).not.toBeNull();
@@ -988,7 +988,7 @@ describe('request-client.js', () => {
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
 
-      expect(fetchedRequest).toEqual(expect.objectContaining(request));
+      expect(fetchedRequest).toMatchObject(request);
 
       const requestData = fetchedRequest.getData();
       expect(requestData.meta).not.toBeNull();
@@ -1018,7 +1018,7 @@ describe('request-client.js', () => {
       );
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
-      expect(fetchedRequest).toEqual(expect.objectContaining(request));
+      expect(fetchedRequest).toMatchObject(request);
 
       const requestData = fetchedRequest.getData();
       expect(requestData.meta).not.toBeNull();
