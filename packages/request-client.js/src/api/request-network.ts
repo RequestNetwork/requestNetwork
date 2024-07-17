@@ -205,12 +205,12 @@ export default class RequestNetwork {
     request: Request,
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
     if (!request.inMemoryInfo) {
-      throw new Error('Cannot persist request without inMemoryInfo');
+      throw new Error('Cannot persist request without inMemoryInfo.');
     }
 
     if (this.dataAccess instanceof NoPersistHttpDataAccess) {
       throw new Error(
-        'To persist the request, create a new instance of RequestNetwork without skipPersistence being set to true.',
+        'Cannot persist request when skipPersistence is enabled. To persist the request, create a new instance of RequestNetwork without skipPersistence being set to true.',
       );
     }
     const result: DataAccessTypes.IReturnPersistTransaction =
