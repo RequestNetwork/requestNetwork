@@ -29,6 +29,10 @@ describe('handle in-memory request', () => {
       http.get('*/getConfirmedTransaction', () => HttpResponse.json({ result: {} })),
     );
     mockServer.listen({ onUnhandledRequest: 'bypass' });
+
+    mockServer.events.on('request:unhandled', (error) => {
+      console.error('Found an unhandled %s request to %s', error.request.method, error.request.url);
+    });
   });
 
   beforeEach(() => {
@@ -39,9 +43,9 @@ describe('handle in-memory request', () => {
     mockServer.resetHandlers();
   });
 
-  afterAll(() => {
+  afterAll(async () => {
+    await mockServer.close();
     mockServer.resetHandlers();
-    mockServer.close();
   });
 
   const requestCreationParams = {
@@ -92,7 +96,7 @@ describe('handle in-memory request', () => {
     });
 
     const request = await requestNetwork.createRequest(requestCreationParams);
-
+    await request.waitForConfirmation();
     expect(request.inMemoryInfo).toBeNull();
 
     await expect(requestNetwork.persistRequest(request)).rejects.toThrow(
@@ -116,6 +120,7 @@ describe('handle in-memory request', () => {
 
     const newRequestNetwork = new RequestNetwork({
       signatureProvider: TestData.fakeSignatureProvider,
+      useMockStorage: true,
     });
 
     const persistResult = await newRequestNetwork.persistRequest(request);

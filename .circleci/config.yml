@@ -130,7 +130,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
           name: 'Test request-client.js'
-          command: 'yarn workspace @requestnetwork/request-client.js run test --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/request-client.js run test --ci --maxWorkers=1  --detectOpenHandles'
       - store_test_results:
           path: packages/request-client.js/reports/
   test-data-access:
