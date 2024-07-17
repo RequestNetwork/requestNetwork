@@ -165,6 +165,7 @@ export default class RequestNetwork {
 
     const transactionData = requestLogicCreateResult.meta?.transactionManagerMeta.transactionData;
     const requestId = requestLogicCreateResult.result.requestId;
+    const isSkipingPersistence = this.dataAccess instanceof NoPersistHttpDataAccess;
     // create the request object
     const request = new Request(requestId, this.requestLogic, this.currencyManager, {
       contentDataExtension: this.contentData,
@@ -173,17 +174,16 @@ export default class RequestNetwork {
       skipPaymentDetection: parameters.disablePaymentDetection,
       disableEvents: parameters.disableEvents,
       // inMemoryInfo is only used when skipPersistence is enabled
-      inMemoryInfo:
-        this.dataAccess instanceof NoPersistHttpDataAccess
-          ? {
-              topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
-              transactionData: transactionData,
-              paymentRequest: this.preparePaymentRequest(transactionData, requestId),
-            }
-          : null,
+      inMemoryInfo: isSkipingPersistence
+        ? {
+            topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
+            transactionData: transactionData,
+            paymentRequest: this.preparePaymentRequest(transactionData, requestId),
+          }
+        : null,
     });
 
-    if (!options?.skipRefresh) {
+    if (!options?.skipRefresh && !isSkipingPersistence) {
       // refresh the local request data
       await request.refresh();
     }
@@ -247,6 +247,7 @@ export default class RequestNetwork {
 
     const transactionData = requestLogicCreateResult.meta?.transactionManagerMeta.transactionData;
     const requestId = requestLogicCreateResult.result.requestId;
+    const isSkipingPersistence = this.dataAccess instanceof NoPersistHttpDataAccess;
 
     // create the request object
     const request = new Request(requestId, this.requestLogic, this.currencyManager, {
@@ -255,17 +256,16 @@ export default class RequestNetwork {
       requestLogicCreateResult,
       skipPaymentDetection: parameters.disablePaymentDetection,
       disableEvents: parameters.disableEvents,
-      inMemoryInfo:
-        this.dataAccess instanceof NoPersistHttpDataAccess
-          ? {
-              topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
-              transactionData: transactionData,
-              paymentRequest: this.preparePaymentRequest(transactionData, requestId),
-            }
-          : null,
+      inMemoryInfo: isSkipingPersistence
+        ? {
+            topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
+            transactionData: transactionData,
+            paymentRequest: this.preparePaymentRequest(transactionData, requestId),
+          }
+        : null,
     });
 
-    if (!options?.skipRefresh) {
+    if (!options?.skipRefresh && !isSkipingPersistence) {
       // refresh the local request data
       await request.refresh();
     }
