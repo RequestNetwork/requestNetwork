@@ -210,7 +210,7 @@ export default class RequestNetwork {
 
     if (this.dataAccess instanceof NoPersistHttpDataAccess) {
       throw new Error(
-        'Cannot persist request when skipPersistence is enabled. Create a new instance of RequestNetwork without skipPersistence to persist the request.',
+        'To persist the request, create a new instance of RequestNetwork without skipPersistence being set to true.',
       );
     }
     const result: DataAccessTypes.IReturnPersistTransaction =
