@@ -105,7 +105,7 @@ export default class RequestNetwork {
         ? {
             topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
             transactionData: transactionData,
-            paymentRequest: this.preparePaymentRequest(transactionData, requestId),
+            requestData: this.prepareRequestDataForPayment(transactionData, requestId),
           }
         : null,
     });
@@ -187,7 +187,7 @@ export default class RequestNetwork {
         ? {
             topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
             transactionData: transactionData,
-            paymentRequest: this.preparePaymentRequest(transactionData, requestId),
+            requestData: this.prepareRequestDataForPayment(transactionData, requestId),
           }
         : null,
     });
@@ -499,7 +499,7 @@ export default class RequestNetwork {
    * @param requestId The ID of the request
    * @returns The prepared payment request structure or undefined if transaction data is missing
    */
-  private preparePaymentRequest(
+  private prepareRequestDataForPayment(
     transactionData: DataAccessTypes.ITransaction,
     requestId: string,
   ): ClientTypes.IRequestData {

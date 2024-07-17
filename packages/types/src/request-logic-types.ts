@@ -218,7 +218,7 @@ export interface IAcceptParameters {
 export interface IInMemoryInfo {
   transactionData: DataAccess.ITransaction;
   topics: string[];
-  paymentRequest: Client.IRequestData;
+  requestData: Client.IRequestData;
 }
 
 /** Parameters to cancel a request */

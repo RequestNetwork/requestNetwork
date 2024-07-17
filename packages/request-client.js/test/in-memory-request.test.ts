@@ -54,7 +54,7 @@ describe('handle in-memory request', () => {
     expect(request).toBeDefined();
     expect(request.requestId).toBeDefined();
     expect(request.inMemoryInfo).toBeDefined();
-    expect(request.inMemoryInfo?.paymentRequest).toBeDefined();
+    expect(request.inMemoryInfo?.requestData).toBeDefined();
     expect(request.inMemoryInfo?.topics).toBeDefined();
     expect(request.inMemoryInfo?.transactionData).toBeDefined();
     expect(spyPersistTransaction).not.toHaveBeenCalled();
@@ -69,7 +69,7 @@ describe('handle in-memory request', () => {
     const request = await requestNetwork.createRequest(requestCreationParams);
 
     expect(request.inMemoryInfo).toBeDefined();
-    expect(request.inMemoryInfo?.paymentRequest).toBeDefined();
+    expect(request.inMemoryInfo?.requestData).toBeDefined();
     expect(request.inMemoryInfo?.topics).toBeDefined();
     expect(request.inMemoryInfo?.transactionData).toBeDefined();
     expect(request.requestId).toBeDefined();
@@ -102,7 +102,7 @@ describe('handle in-memory request', () => {
     const request = await requestNetwork.createRequest(requestCreationParams);
 
     expect(request.inMemoryInfo).toBeDefined();
-    expect(request.inMemoryInfo?.paymentRequest).toBeDefined();
+    expect(request.inMemoryInfo?.requestData).toBeDefined();
     expect(request.inMemoryInfo?.topics).toBeDefined();
     expect(request.inMemoryInfo?.transactionData).toBeDefined();
     expect(request.requestId).toBeDefined();

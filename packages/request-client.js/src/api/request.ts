@@ -85,7 +85,7 @@ export default class Request {
    *
    * @property transactionData - Transaction data necessary for persisting the request later on.
    * @property topics - Topics of the request, used for indexing and retrieval when persisting.
-   * @property paymentRequest - Structured data primarily used for processing payments before the request is persisted.
+   * @property requestData - Structured data primarily used for processing payments before the request is persisted.
    */
   public readonly inMemoryInfo: RequestLogicTypes.IInMemoryInfo | null = null;
 
