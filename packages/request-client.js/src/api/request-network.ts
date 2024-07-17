@@ -165,7 +165,7 @@ export default class RequestNetwork {
 
     const transactionData = requestLogicCreateResult.meta?.transactionManagerMeta.transactionData;
     const requestId = requestLogicCreateResult.result.requestId;
-    const isSkipingPersistence = this.dataAccess instanceof NoPersistHttpDataAccess;
+    const isSkippingPersistence = this.dataAccess instanceof NoPersistHttpDataAccess;
     // create the request object
     const request = new Request(requestId, this.requestLogic, this.currencyManager, {
       contentDataExtension: this.contentData,
@@ -174,7 +174,7 @@ export default class RequestNetwork {
       skipPaymentDetection: parameters.disablePaymentDetection,
       disableEvents: parameters.disableEvents,
       // inMemoryInfo is only used when skipPersistence is enabled
-      inMemoryInfo: isSkipingPersistence
+      inMemoryInfo: isSkippingPersistence
         ? {
             topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
             transactionData: transactionData,
@@ -183,7 +183,7 @@ export default class RequestNetwork {
         : null,
     });
 
-    if (!options?.skipRefresh && !isSkipingPersistence) {
+    if (!options?.skipRefresh && !isSkippingPersistence) {
       // refresh the local request data
       await request.refresh();
     }
@@ -247,7 +247,7 @@ export default class RequestNetwork {
 
     const transactionData = requestLogicCreateResult.meta?.transactionManagerMeta.transactionData;
     const requestId = requestLogicCreateResult.result.requestId;
-    const isSkipingPersistence = this.dataAccess instanceof NoPersistHttpDataAccess;
+    const isSkippingPersistence = this.dataAccess instanceof NoPersistHttpDataAccess;
 
     // create the request object
     const request = new Request(requestId, this.requestLogic, this.currencyManager, {
@@ -256,7 +256,7 @@ export default class RequestNetwork {
       requestLogicCreateResult,
       skipPaymentDetection: parameters.disablePaymentDetection,
       disableEvents: parameters.disableEvents,
-      inMemoryInfo: isSkipingPersistence
+      inMemoryInfo: isSkippingPersistence
         ? {
             topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
             transactionData: transactionData,
@@ -265,7 +265,7 @@ export default class RequestNetwork {
         : null,
     });
 
-    if (!options?.skipRefresh && !isSkipingPersistence) {
+    if (!options?.skipRefresh && !isSkippingPersistence) {
       // refresh the local request data
       await request.refresh();
     }
