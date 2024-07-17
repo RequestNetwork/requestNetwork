@@ -75,7 +75,7 @@ describe('handle in-memory request', () => {
     expect(request.requestId).toBeDefined();
 
     await expect(requestNetwork.persistRequest(request)).rejects.toThrow(
-      'Cannot persist request when skipPersistence is enabled. Create a new instance of RequestNetwork without skipPersistence to persist the request.',
+      'Cannot persist request when skipPersistence is enabled. To persist the request, create a new instance of RequestNetwork without skipPersistence being set to true.',
     );
   });
 
