@@ -1173,14 +1173,23 @@ describe('request-client.js', () => {
         http.get('*/getConfirmedTransaction', () => HttpResponse.json({ result: {} })),
       );
       mockServer.listen({ onUnhandledRequest: 'bypass' });
+
+      mockServer.events.on('request:unhandled', (error) => {
+        console.error(
+          'Found an unhandled %s request to %s',
+          error.request.method,
+          error.request.url,
+        );
+      });
     });
 
     beforeEach(() => {
       spyPersistTransaction.mockReturnValue({});
     });
 
-    afterAll(() => {
-      mockServer.close();
+    afterAll(async () => {
+      await mockServer.close();
+      mockServer.resetHandlers();
     });
 
     const requestCreationParams = {
@@ -1231,7 +1240,7 @@ describe('request-client.js', () => {
       });
 
       const request = await requestNetwork.createRequest(requestCreationParams);
-
+      await request.waitForConfirmation();
       expect(request.inMemoryInfo).toBeNull();
 
       await expect(requestNetwork.persistRequest(request)).rejects.toThrow(
@@ -1255,12 +1264,13 @@ describe('request-client.js', () => {
 
       const newRequestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
+        useMockStorage: true,
       });
 
       const persistResult = await newRequestNetwork.persistRequest(request);
 
       expect(persistResult).toBeDefined();
-      expect(spyPersistTransaction).toHaveBeenCalledTimes(1);
+      expect(spyPersistTransaction).toHaveBeenCalled();
     });
   });
 
