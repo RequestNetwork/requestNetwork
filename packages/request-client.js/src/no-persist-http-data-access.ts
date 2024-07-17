@@ -40,6 +40,9 @@ export class NoPersistHttpDataAccess extends HttpDataAccess {
       data,
     );
 
+    // Emit confirmation instantly since data is not going to be persisted
+    result.emit('confirmed', result);
+
     return result;
   }
 }
