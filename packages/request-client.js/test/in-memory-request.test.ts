@@ -29,18 +29,7 @@ describe('handle in-memory request', () => {
       http.get('*/getConfirmedTransaction', () => HttpResponse.json({ result: {} })),
     );
     mockServer.listen({ onUnhandledRequest: 'bypass' });
-
-    mockServer.events.on('request:unhandled', (error) => {
-      console.error('Found an unhandled %s request to %s', error.request.method, error.request.url);
-    });
-  });
-
-  beforeEach(() => {
     spyPersistTransaction.mockReturnValue({});
-  });
-
-  afterEach(() => {
-    mockServer.resetHandlers();
   });
 
   afterAll(async () => {
