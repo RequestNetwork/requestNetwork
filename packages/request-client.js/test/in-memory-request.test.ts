@@ -33,7 +33,7 @@ describe('handle in-memory request', () => {
   });
 
   afterAll(async () => {
-    await mockServer.close();
+    mockServer.close();
     mockServer.resetHandlers();
   });
 
