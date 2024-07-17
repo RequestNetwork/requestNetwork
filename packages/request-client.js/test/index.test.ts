@@ -1187,6 +1187,10 @@ describe('request-client.js', () => {
       spyPersistTransaction.mockReturnValue({});
     });
 
+    afterEach(() => {
+      mockServer.resetHandlers();
+    });
+
     afterAll(async () => {
       await mockServer.close();
       mockServer.resetHandlers();
