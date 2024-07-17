@@ -26,7 +26,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
    * @param options.signatureProvider Module to handle the signature. If not given it will be impossible to create new transaction (it requires to sign).
    * @param options.currencies custom currency list.
    * @param options.currencyManager custom currency manager (will override `currencies`).
-   * @param options.skipPersistence allows to create a transaction without persisting it.
+   * @param options.skipPersistence allows creating a transaction without immediate persistence.
    */
   constructor(
     {
