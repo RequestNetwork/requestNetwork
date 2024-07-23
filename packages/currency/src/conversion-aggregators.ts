@@ -34,6 +34,7 @@ const noConversionNetworks: CurrencyTypes.AggregatorsMap = {
   aurora: {},
   'aurora-testnet': {},
   base: {},
+  celo: {},
 };
 
 /**
