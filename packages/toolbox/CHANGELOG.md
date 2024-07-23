@@ -3,6 +3,68 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.14.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/toolbox@0.1.24...@requestnetwork/toolbox@0.14.0) (2024-07-21)
+
+### Bug Fixes
+
+- **security:** vulnerabilities + remove coveralls ([#1333](https://github.com/RequestNetwork/requestNetwork/issues/1333)) ([384818b](https://github.com/RequestNetwork/requestNetwork/commit/384818bceac7443e19a194a0209941b7f883c3be))
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+
+### Features
+
+- Publish ([#1374](https://github.com/RequestNetwork/requestNetwork/issues/1374)) ([04db0d1](https://github.com/RequestNetwork/requestNetwork/commit/04db0d12dde819183da31d471bbb56d319023714))
+- Publish ([#1375](https://github.com/RequestNetwork/requestNetwork/issues/1375)) ([ac7d0f2](https://github.com/RequestNetwork/requestNetwork/commit/ac7d0f254f2ad377bfc9c9afb931f7e82041c724))
+- Publish ([#1378](https://github.com/RequestNetwork/requestNetwork/issues/1378)) ([a306ecf](https://github.com/RequestNetwork/requestNetwork/commit/a306ecfcf4f92f55cfe918f54f2b8deef88a68d4))
+- remove lodash ([#1351](https://github.com/RequestNetwork/requestNetwork/issues/1351)) ([944d45a](https://github.com/RequestNetwork/requestNetwork/commit/944d45acdb97b2b11a31d2383ddbbdae64a19bfa))
+- sepolia network contracts ([#1260](https://github.com/RequestNetwork/requestNetwork/issues/1260)) ([0aa4241](https://github.com/RequestNetwork/requestNetwork/commit/0aa4241c5ee3c60f32e36a5107b58e55765bc395))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- arbitrum price feeds ([#992](https://github.com/RequestNetwork/requestNetwork/issues/992)) ([5b4c656](https://github.com/RequestNetwork/requestNetwork/commit/5b4c656088c099c771b57cc82621824a7586daee))
+- toolbox cli ([#1006](https://github.com/RequestNetwork/requestNetwork/issues/1006)) ([781ae90](https://github.com/RequestNetwork/requestNetwork/commit/781ae909dc7db3748807d9bb7bc44f4b02024137))
+- **toolbox:** addAggregator fees ([#1010](https://github.com/RequestNetwork/requestNetwork/issues/1010)) ([8ff7690](https://github.com/RequestNetwork/requestNetwork/commit/8ff76906005ed42e7624e73d7e2b579731508a0d))
+
+### Features
+
+- moonbeam ([#1002](https://github.com/RequestNetwork/requestNetwork/issues/1002)) ([a9fe889](https://github.com/RequestNetwork/requestNetwork/commit/a9fe889ab1730ce62fa15e0bffbb5d66ac8e822a))
+- optimism config ([#985](https://github.com/RequestNetwork/requestNetwork/issues/985)) ([3882c31](https://github.com/RequestNetwork/requestNetwork/commit/3882c319ee1f597a26fb34d416fcd267727d1814))
+- **toolbox:** troubleshooting utilities ([#995](https://github.com/RequestNetwork/requestNetwork/issues/995)) ([1818e08](https://github.com/RequestNetwork/requestNetwork/commit/1818e080fee237aec3ba411e15bc864e82adaf7c))
+
+# 0.39.0 (2022-11-04)
+
+### Bug Fixes
+
+- chainlink paths on Matic ([#557](https://github.com/RequestNetwork/requestNetwork/issues/557)) ([ea5f7d8](https://github.com/RequestNetwork/requestNetwork/commit/ea5f7d86b313d5c73af3df0469447601e9d55ca9))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- update all chainlink conversion path version ([#980](https://github.com/RequestNetwork/requestNetwork/issues/980)) ([202eeb4](https://github.com/RequestNetwork/requestNetwork/commit/202eeb447d0d700bf336a8165c044594d79b70c6))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+
+### Features
+
+- Currency Manager ([#571](https://github.com/RequestNetwork/requestNetwork/issues/571)) ([3a68ad3](https://github.com/RequestNetwork/requestNetwork/commit/3a68ad31fc049e13f0f6dac4759b08c06b33416b))
+- currencyManager manages conversion paths ([#699](https://github.com/RequestNetwork/requestNetwork/issues/699)) ([7f6e1d1](https://github.com/RequestNetwork/requestNetwork/commit/7f6e1d1a6a06e5666ad7c784e5ab14a7b6f400a1))
+- defaultProvider ([#497](https://github.com/RequestNetwork/requestNetwork/issues/497)) ([96e9486](https://github.com/RequestNetwork/requestNetwork/commit/96e94866a888b621001f56299b8484f576622ad5))
+- deployments on bsc aggregator ([#815](https://github.com/RequestNetwork/requestNetwork/issues/815)) ([b38f14b](https://github.com/RequestNetwork/requestNetwork/commit/b38f14b6c78e836b5c91d7370ce17cc33181b42b))
+- Fantom aggregators for FTM, USD and CHF ([#655](https://github.com/RequestNetwork/requestNetwork/issues/655)) ([69326f7](https://github.com/RequestNetwork/requestNetwork/commit/69326f7598670c910c416f3a254ed4a0facbba02))
+- goerli aggregators ([#924](https://github.com/RequestNetwork/requestNetwork/issues/924)) ([c2e44c5](https://github.com/RequestNetwork/requestNetwork/commit/c2e44c5ffd77b6b754bfbd8a1295b9a3801e9a69))
+- improve aggregator toolbox ([#695](https://github.com/RequestNetwork/requestNetwork/issues/695)) ([562e24a](https://github.com/RequestNetwork/requestNetwork/commit/562e24a49b68e2d09d968581f93848fd8fa3fa3f))
+- Payment network any-to-eth rinkeby deployment ([#627](https://github.com/RequestNetwork/requestNetwork/issues/627)) ([1805446](https://github.com/RequestNetwork/requestNetwork/commit/1805446396af9e486d3d8d5533a95dc16ea3c915))
+- reference calculator command ([#802](https://github.com/RequestNetwork/requestNetwork/issues/802)) ([7e9b380](https://github.com/RequestNetwork/requestNetwork/commit/7e9b3801a5d2fab19ec05adcde13584f9b50a5f3))
+- SAND aggregator support for conversion ([#487](https://github.com/RequestNetwork/requestNetwork/issues/487)) ([46cbe1b](https://github.com/RequestNetwork/requestNetwork/commit/46cbe1bef7b703addb34d7f1d810fea4ff233f5b))
+- **toolbox:** add aggregators by name ([#978](https://github.com/RequestNetwork/requestNetwork/issues/978)) ([abc53c7](https://github.com/RequestNetwork/requestNetwork/commit/abc53c7d679fa3c4101110bb8a5930bc74e3ce45))
+- **toolbox:** manage onchain aggregators ([#731](https://github.com/RequestNetwork/requestNetwork/issues/731)) ([5fcf8a5](https://github.com/RequestNetwork/requestNetwork/commit/5fcf8a5d7820143e6dc3c0edc8e9cb7676b828b4))
+- updated aggregators for AUD and CAD ([#482](https://github.com/RequestNetwork/requestNetwork/issues/482)) ([9d6c143](https://github.com/RequestNetwork/requestNetwork/commit/9d6c1438e2b99189155e7264943357c72f35a459))
+- xDAI conversion ([#768](https://github.com/RequestNetwork/requestNetwork/issues/768)) ([ec14852](https://github.com/RequestNetwork/requestNetwork/commit/ec1485270f2a1c9b7b6adb810f38f3d0e9d451cb))
+
+# 0.36.0 (2021-03-25)
+
+### Features
+
+- tool to list all the aggregators supported by the protocol ([#443](https://github.com/RequestNetwork/requestNetwork/issues/443)) ([2206b0d](https://github.com/RequestNetwork/requestNetwork/commit/2206b0d900271b4b8da8b72ce53ab19c5181a960))
+
 # [0.13.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/toolbox@0.1.24...@requestnetwork/toolbox@0.13.0) (2024-03-29)
 
 ### Bug Fixes
