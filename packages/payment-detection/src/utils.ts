@@ -1,5 +1,6 @@
-import { CurrencyDefinition, isValidNearAddress } from '@requestnetwork/currency';
+import { isValidNearAddress } from '@requestnetwork/currency';
 import {
+  ClientTypes,
   CurrencyTypes,
   ExtensionTypes,
   PaymentTypes,
@@ -10,6 +11,7 @@ import { getAddress, keccak256, LogDescription } from 'ethers/lib/utils';
 import { ContractArtifact, DeploymentInformation } from '@requestnetwork/smart-contracts';
 import { NetworkNotSupported, VersionNotSupported } from './balance-error';
 import * as PaymentReferenceCalculator from './payment-reference-calculator';
+import { deepCopy } from '@requestnetwork/utils';
 
 /**
  * Converts the Log's args from array to an object with keys being the name of the arguments
@@ -26,7 +28,7 @@ export const parseLogArgs = <T>({ args, eventFragment }: LogDescription): T => {
  */
 export const padAmountForChainlink = (
   amount: BigNumberish,
-  currency: Pick<CurrencyDefinition, 'decimals' | 'type'>,
+  currency: Pick<CurrencyTypes.CurrencyDefinition, 'decimals' | 'type'>,
 ): BigNumber => {
   // eslint-disable-next-line no-magic-numbers
   return BigNumber.from(amount).mul(10 ** getChainlinkPaddingSize(currency));
@@ -34,7 +36,7 @@ export const padAmountForChainlink = (
 
 export const unpadAmountFromChainlink = (
   amount: BigNumberish,
-  currency: Pick<CurrencyDefinition, 'decimals' | 'type'>,
+  currency: Pick<CurrencyTypes.CurrencyDefinition, 'decimals' | 'type'>,
 ): BigNumber => {
   // eslint-disable-next-line no-magic-numbers
   return BigNumber.from(amount).div(10 ** getChainlinkPaddingSize(currency));
@@ -43,7 +45,7 @@ export const unpadAmountFromChainlink = (
 const getChainlinkPaddingSize = ({
   type,
   decimals,
-}: Pick<CurrencyDefinition, 'decimals' | 'type'>): number => {
+}: Pick<CurrencyTypes.CurrencyDefinition, 'decimals' | 'type'>): number => {
   switch (type) {
     case RequestLogicTypes.CURRENCY.ISO4217: {
       const chainlinkFiatDecimal = 8;
@@ -172,6 +174,51 @@ export function getPaymentReference(
 
   return PaymentReferenceCalculator.calculate(requestId, salt, info);
 }
+
+/**
+ * Format a request we wish to build a payment for.
+ * If the request does not use the meta-pn, it returns it as is.
+ * Otherwise, returns the request formatted with the pn of interest
+ */
+export function flattenRequestByPnId({
+  request,
+  pnIdentifier,
+}: {
+  request: ClientTypes.IRequestData;
+  pnIdentifier?: string;
+}): ClientTypes.IRequestData {
+  const pn = getPaymentNetworkExtension(request);
+  if (!pn?.id || pn.id !== ExtensionTypes.PAYMENT_NETWORK_ID.META) return request;
+  if (!pnIdentifier) throw new Error('Missing pn identifier');
+
+  const extensionOfInterest: ExtensionTypes.IState | undefined = pn.values[pnIdentifier];
+  if (!extensionOfInterest) throw new Error('Invalid pn identifier');
+
+  const formattedRequest = {
+    ...deepCopy(request),
+    extensions: {
+      [extensionOfInterest.id]: extensionOfInterest,
+    },
+  };
+  return formattedRequest;
+}
+
+/** Gets all payment references associated to a request using meta-pn  */
+export const getPaymentReferencesForMetaPnRequest = (request: ClientTypes.IRequestData) => {
+  if (!request?.extensions?.[ExtensionTypes.PAYMENT_NETWORK_ID.META])
+    throw new Error('This request does not have a meta-pn extension');
+
+  const pnKeys = Object.keys(request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.META].values);
+  const pnIdentifiers = pnKeys.filter(
+    (key) =>
+      request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.META].values[key].type ===
+      ExtensionTypes.TYPE.PAYMENT_NETWORK,
+  );
+
+  return pnIdentifiers.map((pnIdentifier) =>
+    getPaymentReference(flattenRequestByPnId({ request, pnIdentifier })),
+  );
+};
 
 /**
  * Returns the hash of a payment reference.

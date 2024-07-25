@@ -5,7 +5,6 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { ICurrencyManager } from '@requestnetwork/currency';
 import {
   ContractBasedDetector,
   IPaymentNetworkModuleByType,
@@ -14,6 +13,7 @@ import {
 } from './types';
 import { BtcMainnetAddressBasedDetector, BtcTestnetAddressBasedDetector } from './btc';
 import { DeclarativePaymentDetector } from './declarative';
+import { MetaDetector } from './meta-payment-detector';
 import {
   ERC20AddressBasedPaymentDetector,
   ERC20FeeProxyPaymentDetector,
@@ -83,6 +83,7 @@ const anyCurrencyPaymentNetwork: IPaymentNetworkModuleByType = {
   [PN_ID.ANY_DECLARATIVE]: DeclarativePaymentDetector,
   [PN_ID.ANY_TO_ETH_PROXY]: AnyToEthFeeProxyPaymentDetector,
   [PN_ID.ANY_TO_NATIVE_TOKEN]: NearConversionNativeTokenPaymentDetector,
+  [PN_ID.META]: MetaDetector,
 };
 
 /** Factory to create the payment network according to the currency and payment network type */
@@ -96,7 +97,7 @@ export class PaymentNetworkFactory {
    */
   constructor(
     private readonly advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    private readonly currencyManager: ICurrencyManager,
+    private readonly currencyManager: CurrencyTypes.ICurrencyManager,
     options?: Partial<PaymentNetworkOptions>,
   ) {
     this.options = this.buildOptions(options || {});
@@ -151,6 +152,7 @@ export class PaymentNetworkFactory {
       network,
       advancedLogic: this.advancedLogic,
       currencyManager: this.currencyManager,
+      options: this.options,
       ...this.options,
     });
 

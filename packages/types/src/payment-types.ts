@@ -100,6 +100,10 @@ export type PaymentNetworkCreateParameters =
   | {
       id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED;
       parameters: ExtensionTypes.PnAddressBased.ICreationParameters;
+    }
+  | {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.META;
+      parameters: ExtensionTypes.PnMeta.ICreationParameters;
     };
 
 /**

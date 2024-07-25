@@ -7,12 +7,15 @@ import {
   PaymentTypes,
   RequestLogicTypes,
   ExtensionTypes,
+  CurrencyTypes,
 } from '@requestnetwork/types';
 import {
   payRequest,
   approveErc20ForProxyConversionIfNeeded,
+  encodeRequestErc20Approval,
+  encodeRequestPayment,
 } from '@requestnetwork/payment-processor';
-import { CurrencyInput, CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 import { Wallet, providers, BigNumber } from 'ethers';
 import {
@@ -52,6 +55,37 @@ const encryptionData = {
   publicKey:
     '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
 };
+
+// Currencies and Currency Manager
+const tokenContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
+const localDai = {
+  type: Types.RequestLogic.CURRENCY.ERC20,
+  value: tokenContractAddress,
+  network: 'private' as CurrencyTypes.ChainName,
+};
+const localEth = {
+  type: Types.RequestLogic.CURRENCY.ETH,
+  value: 'ETH',
+  network: 'private' as CurrencyTypes.ChainName,
+};
+
+const currencies: CurrencyTypes.CurrencyInput[] = [
+  ...CurrencyManager.getDefaultList(),
+  {
+    network: 'private',
+    symbol: 'ETH',
+    decimals: 18,
+    type: RequestLogicTypes.CURRENCY.ETH,
+  },
+  {
+    address: tokenContractAddress,
+    decimals: 18,
+    network: 'private',
+    symbol: 'localDAI',
+    type: RequestLogicTypes.CURRENCY.ERC20,
+  },
+];
+const currencyManager = new CurrencyManager(currencies);
 
 // Decryption provider setup
 const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(
@@ -559,22 +593,10 @@ describe('ERC20 localhost request creation and detection test', () => {
   });
 
   it('can create ERC20 requests with any to erc20 proxy', async () => {
-    const tokenContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
-
-    const currencies: CurrencyInput[] = [
-      ...CurrencyManager.getDefaultList(),
-      {
-        address: tokenContractAddress,
-        decimals: 18,
-        network: 'private',
-        symbol: 'localDAI',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-      },
-    ];
     const requestNetwork = new RequestNetwork({
       signatureProvider,
       useMockStorage: true,
-      currencies,
+      currencyManager,
     });
 
     const paymentNetworkAnyToERC20: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -611,13 +633,9 @@ describe('ERC20 localhost request creation and detection test', () => {
     // USD => token
     const maxToSpend = BigNumber.from(2).pow(255);
     const paymentTx = await payRequest(data, wallet, undefined, undefined, {
-      currency: {
-        type: Types.RequestLogic.CURRENCY.ERC20,
-        value: tokenContractAddress,
-        network: 'private',
-      },
+      currency: localDai,
       maxToSpend,
-      currencyManager: new CurrencyManager(currencies),
+      currencyManager,
     });
     await paymentTx.wait();
 
@@ -654,11 +672,10 @@ describe('ETH localhost request creation and detection test', () => {
   };
 
   it('can create ETH requests and pay with ETH Fee proxy and cancel after paid', async () => {
-    const currencies = [...CurrencyManager.getDefaultList()];
     const requestNetwork = new RequestNetwork({
       signatureProvider,
       useMockStorage: true,
-      currencies,
+      currencyManager,
     });
 
     const paymentNetworkETHFeeProxy: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -702,20 +719,10 @@ describe('ETH localhost request creation and detection test', () => {
   });
 
   it('can create & pay a request with any to eth proxy', async () => {
-    const currencies: CurrencyInput[] = [
-      ...CurrencyManager.getDefaultList(),
-      {
-        network: 'private',
-        symbol: 'ETH',
-        decimals: 18,
-        type: RequestLogicTypes.CURRENCY.ETH,
-      },
-    ];
-
     const requestNetwork = new RequestNetwork({
       signatureProvider,
       useMockStorage: true,
-      currencies,
+      currencyManager,
     });
 
     const paymentNetworkAnyToETH: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -742,7 +749,7 @@ describe('ETH localhost request creation and detection test', () => {
     const maxToSpend = '30000000000000000';
     const paymentTx = await payRequest(data, wallet, undefined, undefined, {
       maxToSpend,
-      currencyManager: new CurrencyManager(currencies),
+      currencyManager,
     });
 
     await paymentTx.wait();
@@ -770,5 +777,125 @@ describe('ETH localhost request creation and detection test', () => {
     expect(event?.parameters?.to).toBe('0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB');
     // amount in crypto after apply the rates of the fake aggregators
     expect(event?.parameters?.maxRateTimespan).toBe('1000000');
+  });
+});
+
+describe('Localhost Meta request creation and detection test', () => {
+  const anyToErc20Salt = 'ea3bc7caf64110cb';
+  const anyToEthSalt = 'ea3bc7caf64110ca';
+  const anyToErc20PaymentAddress = '0xfA9154CAA55c83a6941696785B1cae6386611721';
+  const anyToEthPaymentAddress = '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB';
+  const metaPaymentNetworkParameters: PaymentTypes.PaymentNetworkCreateParameters = {
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.META,
+    parameters: {
+      [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: [
+        {
+          paymentAddress: anyToEthPaymentAddress,
+          feeAddress: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2',
+          feeAmount: '200',
+          network: 'private',
+          salt: anyToEthSalt,
+        },
+      ],
+      [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: [
+        {
+          paymentAddress: anyToErc20PaymentAddress,
+          refundAddress: '0x821aEa9a577a9b44299B9c15c88cf3087F3b5544',
+          feeAddress: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2',
+          feeAmount: '100',
+          network: 'private',
+          acceptedTokens: [tokenContractAddress],
+          maxRateTimespan: 1000000,
+          salt: anyToErc20Salt,
+        },
+      ],
+    },
+  };
+
+  it('can create meta-pn requests and pay with any-to-erc20', async () => {
+    const requestNetwork = new RequestNetwork({
+      signatureProvider,
+      useMockStorage: true,
+      currencyManager,
+    });
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork: metaPaymentNetworkParameters,
+      requestInfo: requestCreationHashUSD,
+      signer: payeeIdentity,
+    });
+
+    let data = await request.refresh();
+
+    const maxToSpend = BigNumber.from(2).pow(255);
+    const settings = {
+      conversion: {
+        maxToSpend,
+        currencyManager,
+        currency: localDai,
+      },
+      pnIdentifier: anyToErc20Salt,
+    };
+
+    const approvalTx = encodeRequestErc20Approval(data, provider, settings);
+    if (approvalTx) {
+      await wallet.sendTransaction(approvalTx);
+    }
+
+    const paymentTx = await encodeRequestPayment(data, provider, settings);
+    await wallet.sendTransaction(paymentTx);
+
+    data = await request.refresh();
+    expect(data.balance?.error).toBeUndefined();
+    expect(data.balance?.balance).toBe('1000');
+    expect(data.balance?.events.length).toBe(1);
+    const event = data.balance?.events[0];
+    expect(event?.amount).toBe('1000');
+    expect(event?.name).toBe('payment');
+
+    expect(event?.parameters?.feeAmount).toBe('100');
+    expect(event?.parameters?.feeAddress).toBe('0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2');
+    expect(event?.parameters?.to).toBe(anyToErc20PaymentAddress);
+  });
+
+  it('can create meta-pn requests and pay with any-to-eth', async () => {
+    const requestNetwork = new RequestNetwork({
+      signatureProvider,
+      useMockStorage: true,
+      currencyManager,
+    });
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork: metaPaymentNetworkParameters,
+      requestInfo: requestCreationHashUSD,
+      signer: payeeIdentity,
+    });
+
+    let data = await request.refresh();
+
+    const maxToSpend = '30000000000000000';
+    const settings = {
+      conversion: {
+        maxToSpend,
+        currencyManager,
+        currency: localEth,
+      },
+      pnIdentifier: anyToEthSalt,
+    };
+
+    const paymentTx = await encodeRequestPayment(data, provider, settings);
+    await wallet.sendTransaction(paymentTx);
+
+    data = await request.refresh();
+    expect(data.balance?.error).toBeUndefined();
+    expect(data.balance?.balance).toBe('1000');
+    expect(data.balance?.events.length).toBe(1);
+    const event = data.balance?.events[0];
+    expect(event?.amount).toBe('1000');
+    expect(event?.name).toBe('payment');
+
+    expect(event?.parameters?.feeAmount).toBe('200');
+    expect(event?.parameters?.feeAddress).toBe('0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2');
+    expect(event?.parameters?.to).toBe(anyToEthPaymentAddress);
   });
 });

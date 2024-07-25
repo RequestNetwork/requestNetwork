@@ -1,7 +1,7 @@
-import { TokenMap } from '../../types';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 // List of the supported celo network tokens
-export const supportedCeloERC20: TokenMap = {
+export const supportedCeloERC20: CurrencyTypes.TokenMap = {
   // https://explorer.celo.org/address/0x765de816845861e75a25fca122bb6898b8b1282a/read_contract
   '0x765DE816845861e75A25fCA122bb6898B8B1282a': {
     // FIXME: should be cUSD, need to work on the retrocompatibility

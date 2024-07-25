@@ -12,12 +12,13 @@ import {
 import { INearTransactionCallback, processNearPaymentWithConversion } from './utils-near';
 import { IConversionPaymentSettings } from '.';
 import { CurrencyManager, NearChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { validatePaymentReference } from '../utils/validation';
 
 /**
  * Processes the transaction to pay a request in NEAR with on-chain conversion.
  * @param request the request to pay
- * @param walletConnection the Web3 provider, or signer. Defaults to window.ethereum.
- * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param walletConnection the Near provider.
+ * @param amount optionally, the amount to pay in request currency. Defaults to remaining amount of the request.
  */
 export async function payNearConversionRequest(
   request: ClientTypes.IRequestData,
@@ -37,13 +38,7 @@ export async function payNearConversionRequest(
     throw new UnsupportedCurrencyError(request.currencyInfo);
   }
 
-  if (!paymentReference) {
-    throw new Error('Cannot pay without a paymentReference');
-  }
-
-  if (!network || !NearChains.isChainSupported(network)) {
-    throw new Error('Should be a Near network');
-  }
+  validatePaymentReference(paymentReference);
   NearChains.assertChainSupported(network);
 
   const amountToPay = getAmountToPay(request, amount).toString();

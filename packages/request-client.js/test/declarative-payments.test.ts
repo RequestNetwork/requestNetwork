@@ -338,7 +338,7 @@ describe('request-client.js: declarative payments', () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
         useMockStorage: true,
-        currencies: [
+        currencyManager: new CurrencyManager([
           ...CurrencyManager.getDefaultList(),
           {
             type: RequestLogicTypes.CURRENCY.ERC20,
@@ -347,7 +347,7 @@ describe('request-client.js: declarative payments', () => {
             network: 'private', // private network forces RPC-based `getLogs`
             symbol: 'FAKE',
           },
-        ],
+        ]),
       });
 
       // provider data is irrelevant in this test

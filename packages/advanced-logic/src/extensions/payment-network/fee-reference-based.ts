@@ -1,7 +1,11 @@
-import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import ReferenceBasedPaymentNetwork from './reference-based';
 import { areEqualIdentities, deepCopy, isValidAmount } from '@requestnetwork/utils';
-import { ICurrencyManager } from '@requestnetwork/currency';
 
 /**
  * Core of the reference based with fee payment networks
@@ -12,7 +16,7 @@ export abstract class FeeReferenceBasedPaymentNetwork<
     ExtensionTypes.PnFeeReferenceBased.ICreationParameters = ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
 > extends ReferenceBasedPaymentNetwork<TCreationParameters> {
   protected constructor(
-    currencyManager: ICurrencyManager,
+    currencyManager: CurrencyTypes.ICurrencyManager,
     extensionId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currentVersion: string,
     supportedCurrencyType: RequestLogicTypes.CURRENCY,
