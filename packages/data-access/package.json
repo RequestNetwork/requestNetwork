@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/data-access",
-  "version": "0.35.0",
+  "version": "0.36.0",
   "publishConfig": {
     "access": "public"
   },
@@ -39,9 +39,9 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/multi-format": "0.18.0",
-    "@requestnetwork/types": "0.44.0",
-    "@requestnetwork/utils": "0.44.0",
+    "@requestnetwork/multi-format": "0.19.0",
+    "@requestnetwork/types": "0.45.0",
+    "@requestnetwork/utils": "0.45.0",
     "tslib": "2.5.0"
   },
   "devDependencies": {

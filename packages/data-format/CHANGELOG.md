@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.19.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-format@0.8.0...@requestnetwork/data-format@0.19.0) (2024-07-24)
+
+### Bug Fixes
+
+- **security:** vulnerabilities + remove coveralls ([#1333](https://github.com/RequestNetwork/requestNetwork/issues/1333)) ([384818b](https://github.com/RequestNetwork/requestNetwork/commit/384818bceac7443e19a194a0209941b7f883c3be))
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+
+### Features
+
+- Publish ([#1374](https://github.com/RequestNetwork/requestNetwork/issues/1374)) ([04db0d1](https://github.com/RequestNetwork/requestNetwork/commit/04db0d12dde819183da31d471bbb56d319023714))
+- Publish ([#1375](https://github.com/RequestNetwork/requestNetwork/issues/1375)) ([ac7d0f2](https://github.com/RequestNetwork/requestNetwork/commit/ac7d0f254f2ad377bfc9c9afb931f7e82041c724))
+- Publish ([#1378](https://github.com/RequestNetwork/requestNetwork/issues/1378)) ([a306ecf](https://github.com/RequestNetwork/requestNetwork/commit/a306ecfcf4f92f55cfe918f54f2b8deef88a68d4))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- allow currency with more than 6 decimals ([#820](https://github.com/RequestNetwork/requestNetwork/issues/820)) ([490303f](https://github.com/RequestNetwork/requestNetwork/commit/490303f07a0576c2cbdfdec22dcdee88d0673688))
+- **data-format:** remove invoice item currency constraints ([#852](https://github.com/RequestNetwork/requestNetwork/issues/852)) ([33b957d](https://github.com/RequestNetwork/requestNetwork/commit/33b957d31dea178ac10fee0df9d2a248ca8cc8b2))
+- enable tree-shaking on data-format ([#411](https://github.com/RequestNetwork/requestNetwork/issues/411)) ([c6e34ed](https://github.com/RequestNetwork/requestNetwork/commit/c6e34edc74417456fdec91a280a6a5905babffaf))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- price calculation ([#774](https://github.com/RequestNetwork/requestNetwork/issues/774)) ([6773e0c](https://github.com/RequestNetwork/requestNetwork/commit/6773e0c4353499dba3a8c27c70b51f2dc47e40c2))
+- tax calculation ([#775](https://github.com/RequestNetwork/requestNetwork/issues/775)) ([d1281e6](https://github.com/RequestNetwork/requestNetwork/commit/d1281e6f3c21f59bfd144fdae8a7b048f401a1ec))
+- tax calculation ([#777](https://github.com/RequestNetwork/requestNetwork/issues/777)) ([629b908](https://github.com/RequestNetwork/requestNetwork/commit/629b9089cde8e346c0b6705a4fd57feabedcc65a))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+
+### Features
+
+- **data-format:** increase currency maxLength to 6 ([#598](https://github.com/RequestNetwork/requestNetwork/issues/598)) ([a35da28](https://github.com/RequestNetwork/requestNetwork/commit/a35da284adb26bb5e4e8c9f3128e9e881b157cf0))
+- invoice utils ([#513](https://github.com/RequestNetwork/requestNetwork/issues/513)) ([b1d2064](https://github.com/RequestNetwork/requestNetwork/commit/b1d206476dfb031df8b970d4f46f80a571faafde))
+
 # [0.18.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-format@0.8.0...@requestnetwork/data-format@0.18.0) (2024-07-21)
 
 ### Bug Fixes
