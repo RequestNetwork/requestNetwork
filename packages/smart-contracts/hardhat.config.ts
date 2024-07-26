@@ -115,6 +115,16 @@ export default {
       chainId: 42220,
       accounts,
     },
+    frax: {
+      url: url('frax'),
+      chainId: 252,
+      accounts,
+    },
+    fraxtestnet: {
+      url: url('fraxtestnet'),
+      chainId: 2522,
+      accounts,
+    },
     bsctest: {
       url: url('bsctest'),
       chainId: 97,
