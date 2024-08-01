@@ -29,8 +29,8 @@
     "test": "lerna run test",
     "format": "prettier . -w",
     "format:check": "prettier . -c",
-    "link:all": "for d in packages/*; do pushd $d; yarn link; popd; done",
-    "unlink:all": "for d in packages/*; do pushd $d; yarn unlink; popd; done"
+    "link:all": "for d in packages/*; do cd $d; yarn link; cd -; done",
+    "unlink:all": "for d in packages/*; do cd $d; yarn unlink; cd -; done"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "4.18.0",
