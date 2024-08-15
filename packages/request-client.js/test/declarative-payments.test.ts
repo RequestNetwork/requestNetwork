@@ -190,7 +190,7 @@ describe('request-client.js: declarative payments', () => {
       expect(requestData.balance!.balance).toEqual('10');
     });
 
-    it('allows to create a request and declare a received payment at the same time', async () => {
+    it('allows to create a request and declare a received payment in the same transaction', async () => {
       const requestNetwork = new RequestNetwork({
         useMockStorage: true,
         signatureProvider: TestData.fakeSignatureProvider,
