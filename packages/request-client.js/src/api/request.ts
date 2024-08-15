@@ -79,6 +79,17 @@ export default class Request {
   private currencyManager: CurrencyTypes.ICurrencyManager;
 
   /**
+   * Information for an in-memory request, including transaction data, topics, and payment request data.
+   * This is used for requests that haven't been persisted yet, allowing for operations like payments
+   * before the request is stored in the data access layer.
+   *
+   * @property transactionData - Transaction data necessary for persisting the request later on.
+   * @property topics - Topics of the request, used for indexing and retrieval when persisting.
+   * @property requestData - Structured data primarily used for processing payments before the request is persisted.
+   */
+  public readonly inMemoryInfo: RequestLogicTypes.IInMemoryInfo | null = null;
+
+  /**
    * Creates an instance of Request
    *
    * @param requestLogic Instance of the request-logic layer
@@ -98,6 +109,7 @@ export default class Request {
       requestLogicCreateResult?: RequestLogicTypes.IReturnCreateRequest;
       skipPaymentDetection?: boolean;
       disableEvents?: boolean;
+      inMemoryInfo?: RequestLogicTypes.IInMemoryInfo | null;
     },
   ) {
     this.requestLogic = requestLogic;
@@ -108,6 +120,7 @@ export default class Request {
     this.skipPaymentDetection = options?.skipPaymentDetection || false;
     this.disableEvents = options?.disableEvents || false;
     this.currencyManager = currencyManager;
+    this.inMemoryInfo = options?.inMemoryInfo || null;
 
     if (options?.requestLogicCreateResult && !this.disableEvents) {
       const originalEmitter = options.requestLogicCreateResult;

@@ -6,13 +6,11 @@ addAssignees: false
 
 # A list of reviewers to be added to pull requests (GitHub user name)
 reviewers:
-  - benjlevesque
   - yomarion
   - kevindavee
   - alexandre-abrioux
   - leoslr
   - MantisClone
-  - skiv71
   - sstefdev
   - aimensahnoun
 

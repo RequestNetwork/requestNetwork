@@ -353,21 +353,19 @@ export function validateERC20TransferableReceivable(
 }
 
 /**
- * Computes the amount to pay.
- * If `amount` is specified, it will return it.
- * Otherwise, it will return the amount left to pay in the request.
+ * It returns the amount left to pay in the request, unless an amount is specified.
  *
- * @param request the request to pay
- * @param amount the optional amount to pay.
+ * @param request the request to pay.
+ * @param amount optionally override the returned amount to pay, in request currency.
+ * @returns the amount to pay, in request currency.
  */
 export function getAmountToPay(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
 ): BigNumber {
-  const amountToPay =
-    amount === undefined
-      ? BigNumber.from(request.expectedAmount).sub(request.balance?.balance || 0)
-      : BigNumber.from(amount);
+  const amountToPay = amount
+    ? BigNumber.from(amount)
+    : BigNumber.from(request.expectedAmount).sub(request.balance?.balance || 0);
 
   if (amountToPay.lt(0)) {
     throw new Error('cannot pay a negative amount');

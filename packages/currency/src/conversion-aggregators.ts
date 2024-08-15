@@ -33,6 +33,8 @@ const noConversionNetworks: CurrencyTypes.AggregatorsMap = {
   // FIXME: Near should get conversion again with Pyth. See './aggregators/near-testnet.json' and './aggregators/near.json';
   aurora: {},
   'aurora-testnet': {},
+  base: {},
+  celo: {},
 };
 
 /**

@@ -109,6 +109,8 @@ export default class TransactionManager implements TransactionTypes.ITransaction
       meta: {
         dataAccessMeta: persistResult.meta,
         encryptionMethod: channelEncryptionMethod,
+        transactionData: transaction,
+        topics: topics.concat([hash]),
       },
       result: {},
     });

@@ -97,10 +97,12 @@ describe('index', () => {
         // 'ret.result is wrong'
         expect(ret.result).toEqual({});
         // 'ret.meta is wrong'
-        expect(ret.meta).toEqual({
-          dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
-          encryptionMethod: undefined,
-        });
+        expect(ret.meta).toEqual(
+          expect.objectContaining({
+            dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
+            encryptionMethod: undefined,
+          }),
+        );
         expect(fakeDataAccess.persistTransaction).toHaveBeenCalledWith(
           await TransactionsFactory.createClearTransaction(data),
           channelId,
@@ -120,10 +122,12 @@ describe('index', () => {
         // 'ret.result is wrong'
         expect(ret.result).toEqual({});
         // 'ret.meta is wrong'
-        expect(ret.meta).toEqual({
-          dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
-          encryptionMethod: 'ecies-aes256-gcm',
-        });
+        expect(ret.meta).toEqual(
+          expect.objectContaining({
+            dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
+            encryptionMethod: 'ecies-aes256-gcm',
+          }),
+        );
         expect(fakeDataAccess.persistTransaction).toHaveBeenCalledTimes(1);
       });
 
@@ -153,10 +157,12 @@ describe('index', () => {
         // 'ret.result is wrong'
         expect(ret.result).toEqual({});
         // 'ret.meta is wrong'
-        expect(ret.meta).toEqual({
-          dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
-          encryptionMethod: undefined,
-        });
+        expect(ret.meta).toEqual(
+          expect.objectContaining({
+            dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
+            encryptionMethod: undefined,
+          }),
+        );
         expect(fakeDataAccess.persistTransaction).toHaveBeenCalledWith(
           await TransactionsFactory.createClearTransaction(data),
           channelId,
@@ -177,10 +183,12 @@ describe('index', () => {
         // 'ret.result is wrong'
         expect(ret.result).toEqual({});
         // 'ret.meta is wrong'
-        expect(ret.meta).toEqual({
-          dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
-          encryptionMethod: undefined,
-        });
+        expect(ret.meta).toEqual(
+          expect.objectContaining({
+            dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
+            encryptionMethod: undefined,
+          }),
+        );
         expect(fakeDataAccess.persistTransaction).toHaveBeenCalledWith(
           await TransactionsFactory.createClearTransaction(data2),
           channelId,
@@ -230,10 +238,12 @@ describe('index', () => {
         // 'ret.result is wrong'
         expect(ret.result).toEqual({});
         // 'ret.meta is wrong'
-        expect(ret.meta).toEqual({
-          dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
-          encryptionMethod: 'ecies-aes256-gcm',
-        });
+        expect(ret.meta).toEqual(
+          expect.objectContaining({
+            dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
+            encryptionMethod: 'ecies-aes256-gcm',
+          }),
+        );
 
         expect(fakeDataAccess.persistTransaction).toHaveBeenCalledTimes(1);
         expect(fakeDataAccess.persistTransaction).toHaveBeenCalledWith(
@@ -319,10 +329,12 @@ describe('index', () => {
         // 'ret.result is wrong'
         expect(ret.result).toEqual({});
         // 'ret.meta is wrong'
-        expect(ret.meta).toEqual({
-          dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
-          encryptionMethod: 'ecies-aes256-gcm',
-        });
+        expect(ret.meta).toEqual(
+          expect.objectContaining({
+            dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
+            encryptionMethod: 'ecies-aes256-gcm',
+          }),
+        );
 
         expect(fakeDataAccess.persistTransaction).toHaveBeenCalledTimes(1);
         expect(fakeDataAccess.persistTransaction).toHaveBeenCalledWith(
@@ -348,10 +360,12 @@ describe('index', () => {
       // 'ret.result is wrong'
       expect(ret.result).toEqual(fakeMetaDataAccessGetReturn.result);
       // 'ret.meta is wrong'
-      expect(ret.meta).toEqual({
-        dataAccessMeta: fakeMetaDataAccessGetReturn.meta,
-        ignoredTransactions: [null, null],
-      });
+      expect(ret.meta).toEqual(
+        expect.objectContaining({
+          dataAccessMeta: fakeMetaDataAccessGetReturn.meta,
+          ignoredTransactions: [null, null],
+        }),
+      );
       expect(fakeDataAccess.getTransactionsByChannelId).toHaveBeenCalledWith(channelId, undefined);
     });
 
@@ -384,17 +398,20 @@ describe('index', () => {
       const ret = await transactionManager.getTransactionsByChannelId(channelId);
 
       // 'ret.meta is wrong'
-      expect(ret.meta).toEqual({
-        dataAccessMeta: fakeMetaDataAccessGetReturnFirstHashWrong.meta,
-        ignoredTransactions: [
-          {
-            reason: 'as first transaction, the hash of the transaction do not match the channelId',
-            transaction: txWrongHash,
-          },
-          null,
-          null,
-        ],
-      });
+      expect(ret.meta).toEqual(
+        expect.objectContaining({
+          dataAccessMeta: fakeMetaDataAccessGetReturnFirstHashWrong.meta,
+          ignoredTransactions: [
+            {
+              reason:
+                'as first transaction, the hash of the transaction do not match the channelId',
+              transaction: txWrongHash,
+            },
+            null,
+            null,
+          ],
+        }),
+      );
 
       // 'ret.result is wrong'
       expect(ret.result).toEqual({
@@ -432,17 +449,19 @@ describe('index', () => {
       const ret = await transactionManager.getTransactionsByChannelId(channelId);
 
       // 'ret.meta is wrong'
-      expect(ret.meta).toEqual({
-        dataAccessMeta: fakeMetaDataAccessGetReturnFirstHashWrong.meta,
-        ignoredTransactions: [
-          {
-            reason: 'Impossible to JSON parse the transaction',
-            transaction: txWrongHash,
-          },
-          null,
-          null,
-        ],
-      });
+      expect(ret.meta).toEqual(
+        expect.objectContaining({
+          dataAccessMeta: fakeMetaDataAccessGetReturnFirstHashWrong.meta,
+          ignoredTransactions: [
+            {
+              reason: 'Impossible to JSON parse the transaction',
+              transaction: txWrongHash,
+            },
+            null,
+            null,
+          ],
+        }),
+      );
 
       // 'ret.result is wrong'
       expect(ret.result).toEqual({
@@ -1099,12 +1118,14 @@ describe('index', () => {
       // 'ret.result is wrong'
       expect(ret.result).toEqual(fakeMetaDataAccessGetChannelsReturn.result);
       // 'ret.meta is wrong'
-      expect(ret.meta).toEqual({
-        dataAccessMeta: fakeMetaDataAccessGetChannelsReturn.meta,
-        ignoredTransactions: {
-          '01a98f126de3fab2b5130af5161998bf6e59b2c380deafeff938ff3f798281bf23': [null, null],
-        },
-      });
+      expect(ret.meta).toEqual(
+        expect.objectContaining({
+          dataAccessMeta: fakeMetaDataAccessGetChannelsReturn.meta,
+          ignoredTransactions: {
+            '01a98f126de3fab2b5130af5161998bf6e59b2c380deafeff938ff3f798281bf23': [null, null],
+          },
+        }),
+      );
       expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
     });
 
@@ -1160,12 +1181,14 @@ describe('index', () => {
         },
       });
       // 'ret.meta is wrong'
-      expect(ret.meta).toEqual({
-        dataAccessMeta: fakeMetaDataAccessGetReturnWithEncryptedTransaction.meta,
-        ignoredTransactions: {
-          [channelId]: [null],
-        },
-      });
+      expect(ret.meta).toEqual(
+        expect.objectContaining({
+          dataAccessMeta: fakeMetaDataAccessGetReturnWithEncryptedTransaction.meta,
+          ignoredTransactions: {
+            [channelId]: [null],
+          },
+        }),
+      );
       expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
     });
 
@@ -1218,21 +1241,23 @@ describe('index', () => {
         },
       });
       // 'ret.meta is wrong'
-      expect(ret.meta).toEqual({
-        dataAccessMeta: fakeMetaDataAccessGetReturnWithEncryptedTransaction.meta,
-        ignoredTransactions: {
-          [channelId]: [
-            {
-              reason: 'No decryption provider given',
-              transaction: {
-                state: TransactionTypes.TransactionState.PENDING,
-                timestamp: 1,
-                transaction: encryptedTx,
+      expect(ret.meta).toEqual(
+        expect.objectContaining({
+          dataAccessMeta: fakeMetaDataAccessGetReturnWithEncryptedTransaction.meta,
+          ignoredTransactions: {
+            [channelId]: [
+              {
+                reason: 'No decryption provider given',
+                transaction: {
+                  state: TransactionTypes.TransactionState.PENDING,
+                  timestamp: 1,
+                  transaction: encryptedTx,
+                },
               },
-            },
-          ],
-        },
-      });
+            ],
+          },
+        }),
+      );
       expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
     });
 
@@ -1297,22 +1322,24 @@ describe('index', () => {
         },
       });
       // 'ret.meta is wrong'
-      expect(ret.meta).toEqual({
-        dataAccessMeta: fakeMetaDataAccessGetReturnWithEncryptedTransaction.meta,
-        ignoredTransactions: {
-          [channelId]: [
-            {
-              reason: 'No decryption provider given',
-              transaction: {
-                state: TransactionTypes.TransactionState.PENDING,
-                timestamp: 1,
-                transaction: encryptedTx,
+      expect(ret.meta).toEqual(
+        expect.objectContaining({
+          dataAccessMeta: fakeMetaDataAccessGetReturnWithEncryptedTransaction.meta,
+          ignoredTransactions: {
+            [channelId]: [
+              {
+                reason: 'No decryption provider given',
+                transaction: {
+                  state: TransactionTypes.TransactionState.PENDING,
+                  timestamp: 1,
+                  transaction: encryptedTx,
+                },
               },
-            },
-            null,
-          ],
-        },
-      });
+              null,
+            ],
+          },
+        }),
+      );
       expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
     });
 
@@ -1350,20 +1377,22 @@ describe('index', () => {
         transactions: { [channelId]: [null, tx, tx2] },
       });
       // 'ret.meta is wrong'
-      expect(ret.meta).toEqual({
-        dataAccessMeta: fakeMetaDataAccessGetReturnFirstHashWrong.meta,
-        ignoredTransactions: {
-          [channelId]: [
-            {
-              reason:
-                'as first transaction, the hash of the transaction do not match the channelId',
-              transaction: txWrongHash,
-            },
-            null,
-            null,
-          ],
-        },
-      });
+      expect(ret.meta).toEqual(
+        expect.objectContaining({
+          dataAccessMeta: fakeMetaDataAccessGetReturnFirstHashWrong.meta,
+          ignoredTransactions: {
+            [channelId]: [
+              {
+                reason:
+                  'as first transaction, the hash of the transaction do not match the channelId',
+                transaction: txWrongHash,
+              },
+              null,
+              null,
+            ],
+          },
+        }),
+      );
       expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
     });
 
@@ -1428,13 +1457,15 @@ describe('index', () => {
         },
       });
       // 'ret.meta is wrong'
-      expect(ret.meta).toEqual({
-        dataAccessMeta: fakeMetaDataAccessGetReturnWithEncryptedTransaction.meta,
-        ignoredTransactions: {
-          [channelId]: [null],
-          [channelId2]: [null],
-        },
-      });
+      expect(ret.meta).toEqual(
+        expect.objectContaining({
+          dataAccessMeta: fakeMetaDataAccessGetReturnWithEncryptedTransaction.meta,
+          ignoredTransactions: {
+            [channelId]: [null],
+            [channelId2]: [null],
+          },
+        }),
+      );
       expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
     });
   });
@@ -1448,12 +1479,14 @@ describe('index', () => {
       // 'ret.result is wrong'
       expect(ret.result).toEqual(fakeMetaDataAccessGetChannelsReturn.result);
       // 'ret.meta is wrong'
-      expect(ret.meta).toEqual({
-        dataAccessMeta: fakeMetaDataAccessGetChannelsReturn.meta,
-        ignoredTransactions: {
-          '01a98f126de3fab2b5130af5161998bf6e59b2c380deafeff938ff3f798281bf23': [null, null],
-        },
-      });
+      expect(ret.meta).toEqual(
+        expect.objectContaining({
+          dataAccessMeta: fakeMetaDataAccessGetChannelsReturn.meta,
+          ignoredTransactions: {
+            '01a98f126de3fab2b5130af5161998bf6e59b2c380deafeff938ff3f798281bf23': [null, null],
+          },
+        }),
+      );
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(fakeDataAccess.getChannelsByMultipleTopics).toHaveBeenCalledWith(
         [extraTopics[0]],

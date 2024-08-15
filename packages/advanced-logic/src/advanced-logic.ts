@@ -26,6 +26,7 @@ import AnyToNearTestnet from './extensions/payment-network/near/any-to-near-test
 import NativeToken from './extensions/payment-network/native-token';
 import AnyToNative from './extensions/payment-network/any-to-native';
 import Erc20TransferableReceivablePaymentNetwork from './extensions/payment-network/erc20/transferable-receivable';
+import MetaPaymentNetwork from './extensions/payment-network/meta';
 
 /**
  * Module to manage Advanced logic extensions
@@ -49,6 +50,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     anyToEthProxy: AnyToEthProxy;
     anyToNativeToken: AnyToNative[];
     erc20TransferableReceivable: Erc20TransferableReceivablePaymentNetwork;
+    metaPn: MetaPaymentNetwork;
   };
 
   private currencyManager: CurrencyTypes.ICurrencyManager;
@@ -71,6 +73,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       nativeToken: [new NearNative(currencyManager), new NearTestnetNative(currencyManager)],
       anyToNativeToken: [new AnyToNear(currencyManager), new AnyToNearTestnet(currencyManager)],
       erc20TransferableReceivable: new Erc20TransferableReceivablePaymentNetwork(currencyManager),
+      metaPn: new MetaPaymentNetwork(currencyManager),
     };
   }
 
@@ -131,6 +134,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
         this.getAnyToNativeTokenExtensionForNetwork(network),
       [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE]:
         this.extensions.erc20TransferableReceivable,
+      [ExtensionTypes.PAYMENT_NETWORK_ID.META]: this.extensions.metaPn,
     }[id];
 
     if (!extension) {
@@ -158,7 +162,9 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
 
   public getAnyToNativeTokenExtensionForNetwork(
     network?: CurrencyTypes.ChainName,
-  ): AnyToNative | undefined {
+  ):
+    | ExtensionTypes.IExtension<ExtensionTypes.PnAnyToAnyConversion.ICreationParameters>
+    | undefined {
     return network
       ? this.extensions.anyToNativeToken.find((anyToNativeTokenExtension) =>
           anyToNativeTokenExtension.supportedNetworks.includes(network),

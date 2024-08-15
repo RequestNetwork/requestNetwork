@@ -18,7 +18,7 @@ afterAll(() => {
 });
 
 afterEach(() => {
-  mockServer.restoreHandlers();
+  mockServer.resetHandlers();
 });
 
 describe('HttpRequestNetwork', () => {
