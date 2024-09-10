@@ -89,10 +89,9 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
           address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
           creationBlockNumber: 28548259,
         },
-        // v0.1.0 contract - v0.2.0 required if/when we support EthConversionProxy on this chain
         xdai: {
-          address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
-          creationBlockNumber: 18326897,
+          address: '0x05D782aD6D6556179A6387Ff1D2fA104FD5c515a',
+          creationBlockNumber: 35928984,
         },
         'arbitrum-one': {
           address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
