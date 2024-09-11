@@ -104,6 +104,10 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
           address: '0xEdfD8386d5DE52072B4Ad8dC69BBD0bB89f9A1fb',
           creationBlockNumber: 10827267,
         },
+        xdai: {
+          address: '0x3E3B04e1bF170522a5c5DDE628C4d365c0342239',
+          creationBlockNumber: 35929105,
+        },
       },
     },
     '0.2.1': {
@@ -117,6 +121,10 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
         base: {
           address: '0xEdfD8386d5DE52072B4Ad8dC69BBD0bB89f9A1fb',
           creationBlockNumber: 10827267,
+        },
+        xdai: {
+          address: '0x3E3B04e1bF170522a5c5DDE628C4d365c0342239',
+          creationBlockNumber: 35929105,
         },
       },
     },
