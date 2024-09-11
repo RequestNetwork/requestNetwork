@@ -16,7 +16,7 @@ const THE_GRAPH_URL_MANTLE_TESTNET =
   'https://graph.testnet.mantle.xyz/subgraphs/name/requestnetwork/request-payments-mantle-testnet';
 
 const THE_GRAPH_URL_MANTLE =
-  'https://graph.fusionx.finance/subgraphs/name/requestnetwork/request-payments-mantle';
+  'https://subgraph-api.mantle.xyz/api/public/555176e7-c1f4-49f9-9180-f2f03538b039/subgraphs/requestnetwork/request-payments-mantle/v0.1.0/gn';
 
 const THE_GRAPH_URL_CORE =
   'https://thegraph.coredao.org/subgraphs/name/requestnetwork/request-payments-core';
