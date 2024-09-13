@@ -14,6 +14,9 @@ contract EthereumSingleRequestProxy {
   uint256 public feeAmount;
   IEthereumFeeProxy public ethereumFeeProxy;
 
+  address private originalSender;
+  bool private locked;
+
   constructor(
     address _payee,
     bytes memory _paymentReference,
@@ -28,12 +31,44 @@ contract EthereumSingleRequestProxy {
     ethereumFeeProxy = IEthereumFeeProxy(_ethereumFeeProxy);
   }
 
-  receive() external payable {
-    ethereumFeeProxy.transferWithReferenceAndFee{value: msg.value}(
-      payable(payee),
-      paymentReference,
-      feeAmount,
-      payable(feeAddress)
-    );
+  modifier noReentrant() {
+    if (msg.sender != address(ethereumFeeProxy)) {
+      require(!locked, 'Reentrant call detected');
+      locked = true;
+      _;
+      locked = false;
+    } else {
+      // Allow the call if it's from Contract B
+      _;
+    }
+  }
+
+  receive() external payable noReentrant {
+    if (msg.sender == address(ethereumFeeProxy)) {
+      // Funds are being sent back from EthereumFeeProxy
+      require(originalSender != address(0), 'No original sender stored');
+
+      // Forward the funds to the original sender
+      (bool forwardSuccess, ) = payable(originalSender).call{value: msg.value}('');
+      require(forwardSuccess, 'Forwarding to original sender failed');
+
+      // Clear the stored original sender
+      originalSender = address(0);
+    } else {
+      require(originalSender == address(0), 'Another request is in progress');
+
+      originalSender = msg.sender;
+
+      bytes memory data = abi.encodeWithSignature(
+        'transferWithReferenceAndFee(address,bytes,uint256,address)',
+        payable(payee),
+        paymentReference,
+        feeAmount,
+        payable(feeAddress)
+      );
+
+      (bool callSuccess, ) = address(ethereumFeeProxy).call{value: msg.value}(data);
+      require(callSuccess, 'Call to EthereumFeeProxy failed');
+    }
   }
 }
