@@ -43,7 +43,7 @@ contract ERC20SingleRequestProxy {
     erc20FeeProxy.transferFromWithReferenceAndFee(
       tokenAddress,
       payee,
-      transferAmount,
+      balance,
       paymentReference,
       feeAmount,
       feeAddress
