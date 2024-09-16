@@ -15,7 +15,11 @@ contract EthereumSingleRequestProxy {
   IEthereumFeeProxy public ethereumFeeProxy;
 
   address private originalSender;
-  bool private locked;
+
+  // Reentrancy guard
+  uint256 private constant _NOT_ENTERED = 1;
+  uint256 private constant _ENTERED = 2;
+  uint256 private _status;
 
   constructor(
     address _payee,
@@ -29,21 +33,24 @@ contract EthereumSingleRequestProxy {
     feeAddress = _feeAddress;
     feeAmount = _feeAmount;
     ethereumFeeProxy = IEthereumFeeProxy(_ethereumFeeProxy);
+    _status = _NOT_ENTERED;
   }
 
-  modifier noReentrant() {
+  modifier nonReentrant() {
     if (msg.sender != address(ethereumFeeProxy)) {
-      require(!locked, 'Reentrant call detected');
-      locked = true;
-      _;
-      locked = false;
-    } else {
-      // Allow the call if it's from Contract B
-      _;
+      // On the first call to nonReentrant, _status will be _NOT_ENTERED
+      require(_status != _ENTERED, 'ReentrancyGuard: reentrant call');
+      // Any calls to nonReentrant after this point will fail
+      _status = _ENTERED;
+    }
+    _;
+    if (msg.sender != address(ethereumFeeProxy)) {
+      // By storing the original value once again, a refund is triggered
+      _status = _NOT_ENTERED;
     }
   }
 
-  receive() external payable noReentrant {
+  receive() external payable nonReentrant {
     if (msg.sender == address(ethereumFeeProxy)) {
       // Funds are being sent back from EthereumFeeProxy
       require(originalSender != address(0), 'No original sender stored');
