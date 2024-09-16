@@ -26,7 +26,7 @@ contract SingleRequestProxyFactory is Ownable {
     bytes indexed paymentReference
   );
 
-  constructor(address _ethereumFeeProxy, address _erc20FeeProxy) {
+  constructor(address _ethereumFeeProxy, address _erc20FeeProxy) Ownable(msg.sender) {
     ethereumFeeProxy = _ethereumFeeProxy;
     erc20FeeProxy = _erc20FeeProxy;
   }
