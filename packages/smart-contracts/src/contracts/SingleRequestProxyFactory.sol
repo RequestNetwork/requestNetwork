@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.27;
+pragma solidity 0.8.9;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
 import './ERC20SingleRequestProxy.sol';
@@ -26,7 +26,7 @@ contract SingleRequestProxyFactory is Ownable {
     bytes indexed paymentReference
   );
 
-  constructor(address _ethereumFeeProxy, address _erc20FeeProxy) Ownable(msg.sender) {
+  constructor(address _ethereumFeeProxy, address _erc20FeeProxy) Ownable() {
     ethereumFeeProxy = _ethereumFeeProxy;
     erc20FeeProxy = _erc20FeeProxy;
   }
