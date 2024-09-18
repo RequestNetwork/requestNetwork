@@ -37,13 +37,18 @@ contract ERC20SingleRequestProxy {
     require(msg.value == 0, 'This function is only for triggering the transfer');
     IERC20 token = IERC20(tokenAddress);
     uint256 balance = token.balanceOf(address(this));
+    uint256 paymentAmount = balance;
+    if (feeAmount > 0 && feeAddress != address(0)) {
+      require(balance > feeAmount, 'Insufficient balance to cover fee');
+      paymentAmount = balance - feeAmount;
+    }
 
     token.approve(address(erc20FeeProxy), balance);
 
     erc20FeeProxy.transferFromWithReferenceAndFee(
       tokenAddress,
       payee,
-      balance,
+      paymentAmount,
       paymentReference,
       feeAmount,
       feeAddress
