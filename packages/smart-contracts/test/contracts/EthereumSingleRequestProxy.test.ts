@@ -51,7 +51,17 @@ describe('contract : EthereumSingleRequestProxy', () => {
 
   it('should process a payment correctly and emit event', async () => {
     const paymentAmount = ethers.utils.parseEther('1');
-    const totalAmount = paymentAmount.add(feeAmount);
+    const totalAmount = BigNumber.from(paymentAmount).add(BigNumber.from(feeAmount));
+
+    await expect(
+      await owner.sendTransaction({
+        to: ethereumSingleRequestProxy.address,
+        value: totalAmount,
+      }),
+    ).to.changeEtherBalances(
+      [owner, payee, feeRecipient],
+      [totalAmount.mul(-1), paymentAmount, feeAmount],
+    );
 
     await expect(
       owner.sendTransaction({
@@ -59,11 +69,7 @@ describe('contract : EthereumSingleRequestProxy', () => {
         value: totalAmount,
       }),
     )
-      .to.changeEtherBalances(
-        [owner, payee, feeRecipient],
-        [totalAmount.mul(-1), paymentAmount, feeAmount],
-      )
-      .and.to.emit(ethereumFeeProxy, 'TransferWithReferenceAndFee')
+      .to.emit(ethereumFeeProxy, 'TransferWithReferenceAndFee')
       .withArgs(payeeAddress, paymentAmount, paymentReference, feeAmount, feeRecipientAddress);
 
     expect(await ethers.provider.getBalance(ethereumSingleRequestProxy.address)).to.equal(0);
