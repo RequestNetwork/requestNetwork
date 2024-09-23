@@ -97,7 +97,7 @@ contract SingleRequestProxyFactory is Ownable {
    * @notice Updates the EthereumFeeProxy address
    * @param _newEthereumFeeProxy The new EthereumFeeProxy address
    */
-  function updateEthereumFeeProxy(address _newEthereumFeeProxy) external onlyOwner {
+  function setEthereumFeeProxy(address _newEthereumFeeProxy) external onlyOwner {
     ethereumFeeProxy = _newEthereumFeeProxy;
   }
 }

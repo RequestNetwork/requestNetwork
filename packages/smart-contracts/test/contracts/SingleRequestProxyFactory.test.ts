@@ -158,7 +158,7 @@ describe('contract: SingleRequestProxyFactory', () => {
     ).deploy();
     await newEthereumFeeProxy.deployed();
 
-    await singleRequestProxyFactory.updateEthereumFeeProxy(newEthereumFeeProxy.address);
+    await singleRequestProxyFactory.setEthereumFeeProxy(newEthereumFeeProxy.address);
     expect(await singleRequestProxyFactory.ethereumFeeProxy()).to.equal(
       newEthereumFeeProxy.address,
     );
@@ -170,7 +170,7 @@ describe('contract: SingleRequestProxyFactory', () => {
       await newEthereumFeeProxy.deployed();
 
       await expect(
-        singleRequestProxyFactory.connect(user).updateEthereumFeeProxy(newEthereumFeeProxy.address),
+        singleRequestProxyFactory.connect(user).setEthereumFeeProxy(newEthereumFeeProxy.address),
       ).to.be.revertedWith('Ownable: caller is not the owner');
     });
   });
