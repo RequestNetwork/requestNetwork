@@ -33,6 +33,80 @@ export const uniswapV2RouterAddresses: Record<string, string> = {
   core: '0x0000000000000000000000000000000000000000',
 };
 
+export const feeProxyAddresses: Record<
+  string,
+  { ethereumFeeProxyAddress: string; erc20FeeProxyAddress: string }
+> = {
+  mainnet: {
+    ethereumFeeProxyAddress: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+    erc20FeeProxyAddress: '0x370DE27fdb7D1Ff1e1BaA7D11c5820a324Cf623C',
+  },
+  sepolia: {
+    ethereumFeeProxyAddress: '0xe11BF2fDA23bF0A98365e1A4c04A87C9339e8687',
+    erc20FeeProxyAddress: '0x399F5EE127ce7432E4921a61b8CF52b0af52cbfE',
+  },
+  optimism: {
+    ethereumFeeProxyAddress: '0xe11BF2fDA23bF0A98365e1A4c04A87C9339e8687',
+    erc20FeeProxyAddress: '0x399F5EE127ce7432E4921a61b8CF52b0af52cbfE',
+  },
+  'arbitrum-one': {
+    ethereumFeeProxyAddress: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+    erc20FeeProxyAddress: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
+  },
+  base: {
+    ethereumFeeProxyAddress: '0xd9C3889eB8DA6ce449bfFE3cd194d08A436e96f2',
+    erc20FeeProxyAddress: '0x1892196E80C4c17ea5100Da765Ab48c1fE2Fb814',
+  },
+  'zksync-era': {
+    ethereumFeeProxyAddress: '0xE9A708db0D30409e39810C44cA240fd15cdA9b1a',
+    erc20FeeProxyAddress: '0x6e28Cc56C2E64c9250f39Cb134686C87dB196532',
+  },
+  gnosis: {
+    ethereumFeeProxyAddress: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+    erc20FeeProxyAddress: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
+  },
+  polygon: {
+    ethereumFeeProxyAddress: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+    erc20FeeProxyAddress: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
+  },
+  bsc: {
+    ethereumFeeProxyAddress: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+    erc20FeeProxyAddress: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
+  },
+  celo: {
+    ethereumFeeProxyAddress: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+    erc20FeeProxyAddress: '0x2171a0dc12a9E5b1659feF2BB20E54c84Fa7dB0C',
+  },
+  fantom: {
+    ethereumFeeProxyAddress: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+    erc20FeeProxyAddress: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
+  },
+  core: {
+    ethereumFeeProxyAddress: '0xe11BF2fDA23bF0A98365e1A4c04A87C9339e8687',
+    erc20FeeProxyAddress: '0x399F5EE127ce7432E4921a61b8CF52b0af52cbfE',
+  },
+  avalanche: {
+    ethereumFeeProxyAddress: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+    erc20FeeProxyAddress: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
+  },
+  fuse: {
+    ethereumFeeProxyAddress: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+    erc20FeeProxyAddress: '0xee07ef5B414955188d2A9fF50bdCE784A49031Fc',
+  },
+  moonbeam: {
+    ethereumFeeProxyAddress: '0xe11BF2fDA23bF0A98365e1A4c04A87C9339e8687',
+    erc20FeeProxyAddress: '0x399F5EE127ce7432E4921a61b8CF52b0af52cbfE',
+  },
+  ronin: {
+    ethereumFeeProxyAddress: '0xe9cbD1Aa5496628F4302426693Ad63006C56959F',
+    erc20FeeProxyAddress: '0xAe23992483FeDA6E718a808Ce824f6864F13B64B',
+  },
+  mantle: {
+    ethereumFeeProxyAddress: '0xe11BF2fDA23bF0A98365e1A4c04A87C9339e8687',
+    erc20FeeProxyAddress: '0x399F5EE127ce7432E4921a61b8CF52b0af52cbfE',
+  },
+};
+
 /**
  * Executes as many empty transactions as needed for the nonce goes up to a certain target.
  * Assuming that the deployer is the first signer.
