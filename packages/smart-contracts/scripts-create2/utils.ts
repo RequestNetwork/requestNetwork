@@ -20,6 +20,7 @@ export const create2ContractDeploymentList = [
   'BatchConversionPayments',
   'ERC20EscrowToPay',
   'ERC20TransferableReceivable',
+  'SingleRequestProxyFactory',
 ];
 
 /**
