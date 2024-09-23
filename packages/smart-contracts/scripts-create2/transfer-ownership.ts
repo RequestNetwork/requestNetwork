@@ -12,7 +12,8 @@ export const transferOwnership = async (
       case 'Erc20ConversionProxy':
       case 'BatchConversionPayments':
       case 'ERC20SwapToPay':
-      case 'ERC20SwapToConversion': {
+      case 'ERC20SwapToConversion':
+      case 'SingleRequestProxyFactory': {
         await updateOwner({ contract, hre, signWithEoa });
         break;
       }
