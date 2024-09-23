@@ -64,7 +64,8 @@ export const computeCreate2DeploymentAddressesFromList = async (
         case 'BatchConversionPayments':
         case 'ERC20SwapToPay':
         case 'ERC20SwapToConversion':
-        case 'ERC20TransferableReceivable': {
+        case 'ERC20TransferableReceivable':
+        case 'SingleRequestProxyFactory': {
           try {
             const constructorArgs = getConstructorArgs(contract, chain);
             address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
