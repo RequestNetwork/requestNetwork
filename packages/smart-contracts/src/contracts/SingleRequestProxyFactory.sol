@@ -13,7 +13,7 @@ contract SingleRequestProxyFactory is Ownable {
   address public ethereumFeeProxy;
   address public erc20FeeProxy;
 
-  event EtheruemSingleRequestProxyCreated(
+  event EthereumSingleRequestProxyCreated(
     address indexed proxyAddress,
     address indexed payee,
     bytes indexed paymentReference
@@ -26,7 +26,12 @@ contract SingleRequestProxyFactory is Ownable {
     bytes indexed paymentReference
   );
 
+  event ERC20FeeProxyUpdated(address indexed newERC20FeeProxy);
+  event EthereumFeeProxyUpdated(address indexed newEthereumFeeProxy);
+
   constructor(address _ethereumFeeProxy, address _erc20FeeProxy) Ownable() {
+    require(_ethereumFeeProxy != address(0), 'EthereumFeeProxy address cannot be zero');
+    require(_erc20FeeProxy != address(0), 'ERC20FeeProxy address cannot be zero');
     ethereumFeeProxy = _ethereumFeeProxy;
     erc20FeeProxy = _erc20FeeProxy;
   }
@@ -52,7 +57,7 @@ contract SingleRequestProxyFactory is Ownable {
       _feeAddress,
       _feeAmount
     );
-    emit EtheruemSingleRequestProxyCreated(address(proxy), _payee, _paymentReference);
+    emit EthereumSingleRequestProxyCreated(address(proxy), _payee, _paymentReference);
     return address(proxy);
   }
 
@@ -90,7 +95,9 @@ contract SingleRequestProxyFactory is Ownable {
    * @param _newERC20FeeProxy The new ERC20FeeProxy address
    */
   function setERC20FeeProxy(address _newERC20FeeProxy) external onlyOwner {
+    require(_newERC20FeeProxy != address(0), 'ERC20FeeProxy address cannot be zero');
     erc20FeeProxy = _newERC20FeeProxy;
+    emit ERC20FeeProxyUpdated(_newERC20FeeProxy);
   }
 
   /**
@@ -98,6 +105,8 @@ contract SingleRequestProxyFactory is Ownable {
    * @param _newEthereumFeeProxy The new EthereumFeeProxy address
    */
   function setEthereumFeeProxy(address _newEthereumFeeProxy) external onlyOwner {
+    require(_newEthereumFeeProxy != address(0), 'EthereumFeeProxy address cannot be zero');
     ethereumFeeProxy = _newEthereumFeeProxy;
+    emit EthereumFeeProxyUpdated(_newEthereumFeeProxy);
   }
 }

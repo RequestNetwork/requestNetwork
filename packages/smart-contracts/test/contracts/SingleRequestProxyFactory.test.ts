@@ -75,7 +75,7 @@ describe('contract: SingleRequestProxyFactory', () => {
 
     expect(receipt.events).to.exist;
     expect(receipt.events).to.have.length(1);
-    expect(receipt.events?.[0]?.event).to.equal('EtheruemSingleRequestProxyCreated');
+    expect(receipt.events?.[0]?.event).to.equal('EthereumSingleRequestProxyCreated');
 
     const proxyAddress = receipt.events?.[0]?.args?.[0];
 
@@ -84,7 +84,7 @@ describe('contract: SingleRequestProxyFactory', () => {
 
     // Check if the event was emitted with correct parameters
     await expect(tx)
-      .to.emit(singleRequestProxyFactory, 'EtheruemSingleRequestProxyCreated')
+      .to.emit(singleRequestProxyFactory, 'EthereumSingleRequestProxyCreated')
       .withArgs(proxyAddress, payeeAddress, paymentReference);
 
     const proxy = (await ethers.getContractAt(
@@ -143,7 +143,7 @@ describe('contract: SingleRequestProxyFactory', () => {
     expect(await singleRequestProxyFactory.erc20FeeProxy()).to.equal(newERC20FeeProxy.address);
   });
 
-  it('should revert when called by non-owner', async () => {
+  it('should revert when non-owner tries to set ERC20FeeProxy address', async () => {
     const newERC20FeeProxy = await (await ethers.getContractFactory('ERC20FeeProxy')).deploy();
     await newERC20FeeProxy.deployed();
 
@@ -162,17 +162,17 @@ describe('contract: SingleRequestProxyFactory', () => {
     expect(await singleRequestProxyFactory.ethereumFeeProxy()).to.equal(
       newEthereumFeeProxy.address,
     );
+  });
 
-    it('should revert when called by non-owner', async () => {
-      const newEthereumFeeProxy = await (
-        await ethers.getContractFactory('EthereumFeeProxy')
-      ).deploy();
-      await newEthereumFeeProxy.deployed();
+  it('should revert when non-owner tries to set EthereumFeeProxy address', async () => {
+    const newEthereumFeeProxy = await (
+      await ethers.getContractFactory('EthereumFeeProxy')
+    ).deploy();
+    await newEthereumFeeProxy.deployed();
 
-      await expect(
-        singleRequestProxyFactory.connect(user).setEthereumFeeProxy(newEthereumFeeProxy.address),
-      ).to.be.revertedWith('Ownable: caller is not the owner');
-    });
+    await expect(
+      singleRequestProxyFactory.connect(user).setEthereumFeeProxy(newEthereumFeeProxy.address),
+    ).to.be.revertedWith('Ownable: caller is not the owner');
   });
 
   it('should allow owner to transfer ownership', async () => {
