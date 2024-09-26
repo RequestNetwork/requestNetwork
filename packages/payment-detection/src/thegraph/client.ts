@@ -113,7 +113,10 @@ export const defaultGetTheGraphClient = (
       network === 'bsc' ||
       network === 'optimism' ||
       network === 'arbitrum-one' ||
-      network === 'base'
+      network === 'base' ||
+      network === 'zksyncera' ||
+      network === 'avalanche' ||
+      network === 'fantom'
     ? getTheGraphEvmClient(`${THE_GRAPH_ALCHEMY_URL.replace('$NETWORK', network)}`, options)
     : getTheGraphEvmClient(`${THE_GRAPH_STUDIO_URL.replace('$NETWORK', network)}`, options);
 };
