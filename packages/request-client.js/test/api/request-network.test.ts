@@ -1,4 +1,4 @@
-import MultiFormat from '@requestnetwork/multi-format';
+import * as MultiFormat from '@requestnetwork/multi-format';
 import { DataAccessTypes, SignatureTypes, TransactionTypes } from '@requestnetwork/types';
 
 import RequestNetwork from '../../src/api/request-network';

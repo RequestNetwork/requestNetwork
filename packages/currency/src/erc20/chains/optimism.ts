@@ -1,7 +1,7 @@
-import { TokenMap } from '../../types';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 // List of the supported bsc network tokens
-export const supportedOptimismERC20: TokenMap = {
+export const supportedOptimismERC20: CurrencyTypes.TokenMap = {
   '0x7F5c764cBc14f9669B88837ca1490cCa17c31607': {
     name: 'USD Coin',
     symbol: 'USDC',

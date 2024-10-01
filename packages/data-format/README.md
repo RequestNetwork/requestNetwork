@@ -12,7 +12,7 @@ npm install @requestnetwork/data-format
 ### Usage
 
 ```js
-import dataFormat from '@requestnetwork/data-format';
+import * as dataFormat from '@requestnetwork/data-format';
 
 let result = data - format.validate(A_JSON_OBJECT);
 

@@ -5,19 +5,21 @@ import { GraphQLClient } from 'graphql-request';
 import { Block_Height, Maybe, getSdk } from './generated/graphql';
 import { getSdk as getNearSdk } from './generated/graphql-near';
 import { RequestConfig } from 'graphql-request/src/types';
-import { omit } from 'lodash';
 
-const HOSTED_THE_GRAPH_URL =
-  'https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-';
+const THE_GRAPH_STUDIO_URL =
+  'https://api.studio.thegraph.com/query/67444/request-payments-$NETWORK/version/latest';
+
+const THE_GRAPH_ALCHEMY_URL =
+  'https://subgraph.satsuma-prod.com/e2e4905ab7c8/request-network--434873/request-payments-$NETWORK/api';
 
 const THE_GRAPH_URL_MANTLE_TESTNET =
   'https://graph.testnet.mantle.xyz/subgraphs/name/requestnetwork/request-payments-mantle-testnet';
 
 const THE_GRAPH_URL_MANTLE =
-  'https://graph.fusionx.finance/subgraphs/name/requestnetwork/request-payments-mantle';
+  'https://subgraph-api.mantle.xyz/api/public/555176e7-c1f4-49f9-9180-f2f03538b039/subgraphs/requestnetwork/request-payments-mantle/v0.1.0/gn';
 
-const THE_GRAPH_URL_STUDIO_ZKSYNC =
-  'https://api.studio.thegraph.com/query/35843/request-payment-zksyncera/version/latest';
+const THE_GRAPH_URL_CORE =
+  'https://thegraph.coredao.org/subgraphs/name/requestnetwork/request-payments-core';
 
 // NB: the GraphQL client is automatically generated based on files present in ./queries,
 // using graphql-codegen.
@@ -53,16 +55,15 @@ const extractClientOptions = (
 
   // build query options
   const queryOptions: TheGraphQueryOptions = {};
-  const { minIndexedBlock } = optionsObject;
+  const { minIndexedBlock, ...clientOptions } = optionsObject;
   if (minIndexedBlock) {
     queryOptions.blockFilter = { number_gte: minIndexedBlock };
   } else if (url.match(/^https:\/\/gateway-\w+\.network\.thegraph\.com\//)) {
-    // the decentralized network expects an empty object, and doesn't support "undefined"
-    queryOptions.blockFilter = {};
+    // the decentralized network doesn't support "undefined"
+    queryOptions.blockFilter = { number_gte: 0 };
   }
 
   // build client options
-  const clientOptions: RequestConfig = omit(optionsObject, 'minIndexedBlock');
   return [clientOptions, queryOptions];
 };
 
@@ -96,12 +97,26 @@ export const defaultGetTheGraphClient = (
   return network === 'private'
     ? undefined
     : NearChains.isChainSupported(network)
-    ? getTheGraphNearClient(`${HOSTED_THE_GRAPH_URL}${network.replace('aurora', 'near')}`, options)
+    ? getTheGraphNearClient(
+        `${THE_GRAPH_STUDIO_URL.replace('$NETWORK', network.replace('aurora', 'near'))}`,
+        options,
+      )
     : network === 'mantle'
     ? getTheGraphEvmClient(THE_GRAPH_URL_MANTLE, options)
     : network === 'mantle-testnet'
     ? getTheGraphEvmClient(THE_GRAPH_URL_MANTLE_TESTNET, options)
-    : network === 'zksyncera'
-    ? getTheGraphEvmClient(THE_GRAPH_URL_STUDIO_ZKSYNC, options)
-    : getTheGraphEvmClient(`${HOSTED_THE_GRAPH_URL}${network}`, options);
+    : network === 'core'
+    ? getTheGraphEvmClient(THE_GRAPH_URL_CORE, options)
+    : network === 'mainnet' ||
+      network === 'sepolia' ||
+      network === 'matic' ||
+      network === 'bsc' ||
+      network === 'optimism' ||
+      network === 'arbitrum-one' ||
+      network === 'base' ||
+      network === 'zksyncera' ||
+      network === 'avalanche' ||
+      network === 'fantom'
+    ? getTheGraphEvmClient(`${THE_GRAPH_ALCHEMY_URL.replace('$NETWORK', network)}`, options)
+    : getTheGraphEvmClient(`${THE_GRAPH_STUDIO_URL.replace('$NETWORK', network)}`, options);
 };

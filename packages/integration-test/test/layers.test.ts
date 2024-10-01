@@ -1,5 +1,4 @@
 import { getCurrentTimestampInSecond } from '@requestnetwork/utils';
-
 import { CurrencyManager } from '@requestnetwork/currency';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
@@ -11,7 +10,7 @@ import {
   EthereumTransactionSubmitter,
   IpfsStorage,
 } from '@requestnetwork/ethereum-storage';
-import MultiFormat from '@requestnetwork/multi-format';
+import * as MultiFormat from '@requestnetwork/multi-format';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
@@ -130,7 +129,7 @@ describe('Request system', () => {
     const transactionManager = new TransactionManager(dataAccess, decryptionProvider);
 
     // Advanced Logic setup
-    advancedLogic = new AdvancedLogic(new CurrencyManager(CurrencyManager.getDefaultList()));
+    advancedLogic = new AdvancedLogic(CurrencyManager.getDefault());
 
     // Logic setup
     requestLogic = new RequestLogic(transactionManager, signatureProvider, advancedLogic);

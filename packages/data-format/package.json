@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/data-format",
-  "version": "0.13.0",
+  "version": "0.19.0",
   "publishConfig": {
     "access": "public"
   },
@@ -33,7 +33,7 @@
   ],
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "test": "jest",
@@ -47,9 +47,6 @@
   "devDependencies": {
     "@types/node": "18.11.9",
     "jest-junit": "16.0.0",
-    "nyc": "15.1.0",
-    "rimraf": "3.0.2",
-    "shx": "0.3.2",
     "ts-node": "10.9.1",
     "typescript": "5.1.3"
   },

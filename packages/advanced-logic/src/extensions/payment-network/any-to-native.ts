@@ -1,11 +1,10 @@
 import { FeeReferenceBasedPaymentNetwork } from './fee-reference-based';
 import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { InvalidPaymentAddressError, UnsupportedNetworkError } from './address-based';
-import { ICurrencyManager } from '@requestnetwork/currency';
 
-export default abstract class AnyToNativeTokenPaymentNetwork extends FeeReferenceBasedPaymentNetwork {
+export default abstract class AnyToNativeTokenPaymentNetwork extends FeeReferenceBasedPaymentNetwork<ExtensionTypes.PnAnyToAnyConversion.ICreationParameters> {
   protected constructor(
-    currencyManager: ICurrencyManager,
+    currencyManager: CurrencyTypes.ICurrencyManager,
     extensionId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currentVersion: string,
     public readonly supportedNetworks: CurrencyTypes.ChainName[],

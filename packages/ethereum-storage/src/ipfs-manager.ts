@@ -1,10 +1,7 @@
-import { UnixFS } from 'ipfs-unixfs';
 import * as qs from 'qs';
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 
 import { getDefaultIpfsTimeout, getDefaultIpfsUrl, getIpfsErrorHandlingConfig } from './config';
-import * as FormData from 'form-data';
 import { retry, SimpleLogger } from '@requestnetwork/utils';
 
 /** A mapping between IPFS Paths and the response type */
@@ -30,7 +27,7 @@ export type IpfsOptions = {
  */
 export default class IpfsManager {
   private readonly logger: LogTypes.ILogger;
-  private readonly axiosInstance: AxiosInstance;
+  private readonly httpOptions: { baseURL: string; timeout: number };
   private readonly ipfsErrorHandling: StorageTypes.IIpfsErrorHandlingConfiguration;
 
   public readonly BASE_PATH: string = 'api/v0';
@@ -47,29 +44,62 @@ export default class IpfsManager {
     this.ipfsErrorHandling = options?.ipfsErrorHandling || getIpfsErrorHandlingConfig();
     this.logger = options?.logger || new SimpleLogger();
 
-    this.axiosInstance = axios.create({
+    this.httpOptions = {
       baseURL: `${ipfsUrl}/${this.BASE_PATH}/`,
       timeout: ipfsTimeout,
-      paramsSerializer: function (params) {
-        return qs.stringify(params, { arrayFormat: 'repeat' });
-      },
-    });
+    };
   }
 
-  private async ipfs<T extends keyof IpfsPaths>(path: T, config?: AxiosRequestConfig) {
-    const _post = retry(this.axiosInstance.post, {
-      context: this.axiosInstance,
+  private async ipfs<T extends keyof IpfsPaths>(
+    path: T,
+    config?: {
+      data?: unknown;
+      params?: Record<string, unknown>;
+      timeout?: number;
+      headers?: Record<string, unknown>;
+    },
+  ): Promise<IpfsPaths[T]> {
+    const url = new URL(path, this.httpOptions.baseURL);
+    if (config?.params) {
+      url.search = qs.stringify(config.params, { arrayFormat: 'repeat' });
+    }
+    const timeout = config?.timeout || this.httpOptions.timeout;
+
+    const fetchWithRetry = retry(fetch, {
       maxRetries: this.ipfsErrorHandling.maxRetries,
       retryDelay: this.ipfsErrorHandling.delayBetweenRetries,
     });
     try {
-      const { data, ...rest } = config || {};
-      const response = await _post<IpfsPaths[T]>(path, data, rest);
-      return response.data;
+      const response = await fetchWithRetry(url.toString(), {
+        method: 'POST',
+        body: config?.data
+          ? config.data instanceof FormData
+            ? config.data
+            : JSON.stringify(config?.data)
+          : undefined,
+        headers: (config?.headers as Record<string, string>) || {},
+        signal: AbortSignal.timeout(timeout),
+      });
+
+      if (!response.ok) {
+        try {
+          const json = await response.json();
+          if (json?.Message) {
+            throw new Error(json.Message);
+          }
+        } catch {
+          throw new Error(await response.text());
+        }
+        throw new Error(`${response.status} ${response.statusText}`);
+      }
+
+      return await response.json();
     } catch (e) {
-      const axiosError = e as AxiosError<{ Message?: string }>;
-      if (axiosError.isAxiosError && axiosError.response?.data?.Message) {
-        throw new Error(axiosError.response.data.Message);
+      if (e.name === 'TimeoutError') {
+        throw new Error(`timeout of ${timeout}ms exceeded`);
+      }
+      if (e.message === 'fetch failed' && e.cause) {
+        throw e.cause;
       }
       throw e;
     }
@@ -96,10 +126,9 @@ export default class IpfsManager {
   public async add(content: string): Promise<string> {
     try {
       const addForm = new FormData();
-      addForm.append('file', Buffer.from(content));
+      addForm.append('file', new Blob([content]));
       const response = await this.ipfs('add', {
         data: addForm,
-        headers: addForm.getHeaders(),
       });
       // Return the hash of the response
       const hash = response.Hash;
@@ -109,46 +138,6 @@ export default class IpfsManager {
       return hash;
     } catch (e) {
       this.logger.error(`Failed to add IPFS file: ${e.message}`, ['ipfs']);
-      throw e;
-    }
-  }
-
-  /**
-   * Retrieve content from ipfs from its hash
-   * @param hash Hash of the content
-   * @param maxSize The maximum size of the file to read, in bytes. This is the unixfs file size, as represented on IPFS.
-   * @returns Promise resolving retrieved ipfs object
-   */
-  public async read(
-    hash: string,
-    maxSize: number = Number.POSITIVE_INFINITY,
-  ): Promise<StorageTypes.IIpfsObject> {
-    try {
-      if (maxSize !== Number.POSITIVE_INFINITY) {
-        // In order to prevent downloading a file that is too big, we can set maxContentLength in axios options.
-        // maxContentLength defines the maximum allowed size of the HTTP response in bytes.
-        // The IPFS HTTP RPC API returns a JSON with some metadata around the actual file itself, so we need to take that into consideration.
-        const jsonMetadataSize = 500;
-        // We ask the IPFS node to return a file encoded in base64 to avoid JSON in JSON, and in case of binary data.
-        // Let's transform the max file size in bytes, to the max length of the base64 string that represents the file.
-        // This will be our max content length in bytes, since each base64 string characters is encoded as one byte in UTF-8.
-        const base64StringMaxLength = ((4 * maxSize) / 3 + 3) & ~3; // https://stackoverflow.com/a/32140193/16270345
-        maxSize = base64StringMaxLength + jsonMetadataSize;
-      }
-      const response = await this.ipfs('object/get', {
-        params: { arg: hash, 'data-encoding': 'base64' },
-        maxContentLength: maxSize,
-      });
-      if (response.Type === 'error') {
-        throw new Error(response.Message);
-      }
-      const ipfsDataBuffer = Buffer.from(response.Data, 'base64');
-      const content = IpfsManager.getContentFromMarshaledData(ipfsDataBuffer);
-      const ipfsSize = ipfsDataBuffer.length;
-      const ipfsLinks = response.Links;
-      return { content, ipfsSize, ipfsLinks };
-    } catch (e) {
-      this.logger.error(`Failed to read IPFS file: ${e.message}`, ['ipfs']);
       throw e;
     }
   }
@@ -221,21 +210,10 @@ export default class IpfsManager {
   public async getConfig(): Promise<StorageTypes.IIpfsConfig> {
     return {
       delayBetweenRetries: this.ipfsErrorHandling.delayBetweenRetries,
-      url: this.axiosInstance.defaults.baseURL || '',
-      timeout: this.axiosInstance.defaults.timeout,
+      url: this.httpOptions.baseURL || '',
+      timeout: this.httpOptions.timeout,
       id: await this.getIpfsNodeId(),
       maxRetries: this.ipfsErrorHandling.maxRetries,
     };
-  }
-
-  /**
-   * Removes the Unicode special characters from an IPFS content
-   * @param marshaledData marshaled data
-   * @returns the content without the padding
-   */
-  private static getContentFromMarshaledData(marshaledData: Buffer): string {
-    const { data } = UnixFS.unmarshal(marshaledData);
-    if (!data) throw new Error('Cannot unmarshal data');
-    return data.toString();
   }
 }

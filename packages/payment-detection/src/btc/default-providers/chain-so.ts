@@ -1,5 +1,4 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import Axios from 'axios';
 import * as converterBTC from 'satoshi-bitcoin';
 import { BigNumber } from 'ethers';
 import { retry } from '@requestnetwork/utils';
@@ -31,16 +30,16 @@ export class ChainSoProvider implements PaymentTypes.IBitcoinDetectionProvider {
     const queryUrl = `${baseUrl}${address}`;
 
     try {
-      const res = await retry(async () => Axios.get(queryUrl), {
+      const res = await retry(fetch, {
         maxRetries: CHAINSO_REQUEST_MAX_RETRY,
         retryDelay: CHAINSO_REQUEST_RETRY_DELAY,
-      })();
+      })(queryUrl);
 
       // eslint-disable-next-line no-magic-numbers
       if (res.status >= 400) {
         throw new Error(`Error ${res.status}. Bad response from server ${queryUrl}`);
       }
-      const data = res.data;
+      const data = await res.json();
 
       if (data.status === 'fail') {
         throw new Error(`Error bad response from ${baseUrl}: ${data.message}`);

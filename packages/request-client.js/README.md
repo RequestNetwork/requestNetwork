@@ -56,8 +56,6 @@ const requestNetwork = new RequestNetwork({
 });
 ```
 
-It can be further configured with option from [Axios](https://github.com/axios/axios#request-config).
-
 By default, it uses a local node, on http://localhost:3000.
 
 ### Use in development, without a node

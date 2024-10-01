@@ -1,5 +1,6 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { AggregatorsMap, getPath } from '../src/conversion-aggregators';
+import { CurrencyTypes } from '@requestnetwork/types';
+
+import { getPath } from '../src/conversion-aggregators';
 import { CurrencyManager } from '../src';
 const currencyManager = CurrencyManager.getDefault();
 const USD = currencyManager.from('USD')!;
@@ -8,7 +9,7 @@ const EUR = currencyManager.from('EUR')!;
 const fakeDAI = { hash: '0x38cf23c52bb4b13f051aec09580a2de845a7fa35' };
 
 describe('getPath', () => {
-  const mockAggregatorPaths: AggregatorsMap = {
+  const mockAggregatorPaths: CurrencyTypes.AggregatorsMap = {
     private: {
       [fakeDAI.hash]: {
         [USD.hash]: 1,

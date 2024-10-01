@@ -4,7 +4,7 @@ import { MultiFormatTypes } from '@requestnetwork/types';
  * Class to serialize and deserialize multi-format data
  * This class is meant to be inherited by all the multi-format
  */
-export default class SerializableMultiFormat {
+export class SerializableMultiFormat {
   protected prefix: string;
   protected type: any;
 

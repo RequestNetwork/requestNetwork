@@ -77,6 +77,15 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
           address: '0x9959F193498e75A2a46A04647fC15a031e308a0b',
           creationBlockNumber: 13769945,
         },
+        base: {
+          address: '0x1aF3f22685AcdDc788B3730ed415912d8f654420',
+          creationBlockNumber: 10827288,
+        },
+        // Caution: no ETHConversion, ERC20Conversion, and chainlinkConversionPath proxies on core
+        core: {
+          address: '0x02561967c48e87cfB079763F3BEf6424A5A166A7',
+          creationBlockNumber: 12950451,
+        },
       },
     },
   },

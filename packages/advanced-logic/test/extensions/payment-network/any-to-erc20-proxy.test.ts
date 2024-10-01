@@ -123,7 +123,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           paymentAddress: '0x0000000000000000000000000000000000000001',
           network: 'rinkeby',
           salt: 'ea3bc7caf64110ca',
-        });
+        } as any);
       }).toThrowError('acceptedTokens is required');
     });
 
@@ -353,7 +353,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(DataConversionERC20FeeCreate.extensionFullState);
+        ).toEqual(DataConversionERC20FeeCreate.extensionFullState());
       });
 
       it('can applyActionToExtensions of creation when address is checksumed', () => {
@@ -372,7 +372,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(DataConversionERC20FeeCreate.extensionFullState);
+        ).toEqual(DataConversionERC20FeeCreate.extensionFullState());
       });
 
       it('cannot applyActionToExtensions of creation with a previous state', () => {

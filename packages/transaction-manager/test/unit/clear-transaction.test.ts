@@ -1,4 +1,4 @@
-import MultiFormat from '@requestnetwork/multi-format';
+import * as MultiFormat from '@requestnetwork/multi-format';
 import ClearTransaction from '../../src/clear-transaction';
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 

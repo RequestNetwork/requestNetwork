@@ -1,5 +1,4 @@
 import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
-import { CurrencyDefinition } from '@requestnetwork/currency';
 import { NearInfoRetriever, NearPaymentEvent } from './near-info-retriever';
 import { TheGraphClient } from '../../thegraph';
 
@@ -7,7 +6,7 @@ export type TransferEventsParams = {
   /** The reference to identify the payment*/
   paymentReference: string;
   /** Request denomination (usually fiat) */
-  requestCurrency: CurrencyDefinition;
+  requestCurrency: CurrencyTypes.CurrencyDefinition;
   /** The recipient of the transfer */
   toAddress: string;
   /** The address of the payment proxy */

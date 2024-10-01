@@ -1,16 +1,16 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
 
-import SerializableMultiFormat from './serializable-multi-format';
+import { SerializableMultiFormat } from './serializable-multi-format';
 
 /**
  * Class to group multi-formats to make the code more maintainable (see index.ts)
  */
-export default class GroupMultiFormat {
+export class MultiFormatGroup {
   /** All the format in the group */
   private availableFormats: SerializableMultiFormat[] = [];
 
   /**
-   * Creates an instance of GroupMultiFormat.
+   * Creates an instance of MultiFormatGroup.
    *
    * @param formats all the formats of this group
    */

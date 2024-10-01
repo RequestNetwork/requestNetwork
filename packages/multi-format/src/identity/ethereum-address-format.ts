@@ -1,11 +1,11 @@
 import { IdentityTypes, MultiFormatTypes } from '@requestnetwork/types';
 
-import HexadecimalSerializableMultiFormat from '../hexadecimal-serializable-multi-format';
+import { HexadecimalSerializableMultiFormat } from '../hexadecimal-serializable-multi-format';
 
 /**
  * Class to serialize and deserialize multi-format identity ethereum address
  */
-export default class EthereumAddressMultiFormat extends HexadecimalSerializableMultiFormat {
+export class EthereumAddressMultiFormat extends HexadecimalSerializableMultiFormat {
   constructor() {
     super(MultiFormatTypes.prefix.IDENTITY_ETHEREUM_ADDRESS, IdentityTypes.TYPE.ETHEREUM_ADDRESS);
   }

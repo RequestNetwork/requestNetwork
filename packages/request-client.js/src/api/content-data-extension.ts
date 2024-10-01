@@ -1,4 +1,4 @@
-import DataFormat from '@requestnetwork/data-format';
+import * as DataFormat from '@requestnetwork/data-format';
 import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 // Extension ID for this class: content data

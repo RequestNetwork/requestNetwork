@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/types",
-  "version": "0.39.0",
+  "version": "0.45.0",
   "publishConfig": {
     "access": "public"
   },
@@ -32,7 +32,7 @@
   ],
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "prepare": "yarn run build"
@@ -41,7 +41,6 @@
     "ethers": "5.5.1"
   },
   "devDependencies": {
-    "shx": "0.3.2",
     "ts-node": "10.9.1",
     "typed-emitter": "2.1.0",
     "typescript": "5.1.3"

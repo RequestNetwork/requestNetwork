@@ -1,6 +1,5 @@
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { FeeReferenceBasedPaymentNetwork } from '../fee-reference-based';
-import { ICurrencyManager } from '@requestnetwork/currency';
 
 const CURRENT_VERSION = '0.2.0';
 
@@ -12,7 +11,7 @@ export default class Erc20TransferableReceivablePaymentNetwork<
     ExtensionTypes.PnFeeReferenceBased.ICreationParameters = ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
 > extends FeeReferenceBasedPaymentNetwork<TCreationParameters> {
   public constructor(
-    currencyManager: ICurrencyManager,
+    currencyManager: CurrencyTypes.ICurrencyManager,
     extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
       .ERC20_TRANSFERABLE_RECEIVABLE,
     currentVersion: string = CURRENT_VERSION,

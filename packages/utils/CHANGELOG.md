@@ -3,6 +3,267 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.45.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.28.0...@requestnetwork/utils@0.45.0) (2024-07-24)
+
+### Bug Fixes
+
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+- zksync networks names to lowercase ([#1261](https://github.com/RequestNetwork/requestNetwork/issues/1261)) ([9c9a2c1](https://github.com/RequestNetwork/requestNetwork/commit/9c9a2c14b159ad4483c96c2a1220e17e6690aa60))
+
+### Features
+
+- core dao ([#1216](https://github.com/RequestNetwork/requestNetwork/issues/1216)) ([a782146](https://github.com/RequestNetwork/requestNetwork/commit/a7821466ef4d47cab70a8df8509c4159045701ba))
+- **ethereum-storage:** gas fee multiplier & max gas fee ([#1318](https://github.com/RequestNetwork/requestNetwork/issues/1318)) ([98997ed](https://github.com/RequestNetwork/requestNetwork/commit/98997ed16aee7d09184c98bc88c337745d2aa928))
+- Publish ([#1374](https://github.com/RequestNetwork/requestNetwork/issues/1374)) ([04db0d1](https://github.com/RequestNetwork/requestNetwork/commit/04db0d12dde819183da31d471bbb56d319023714))
+- Publish ([#1375](https://github.com/RequestNetwork/requestNetwork/issues/1375)) ([ac7d0f2](https://github.com/RequestNetwork/requestNetwork/commit/ac7d0f254f2ad377bfc9c9afb931f7e82041c724))
+- Publish ([#1378](https://github.com/RequestNetwork/requestNetwork/issues/1378)) ([a306ecf](https://github.com/RequestNetwork/requestNetwork/commit/a306ecfcf4f92f55cfe918f54f2b8deef88a68d4))
+- support zkSyncEra and zkSyndTestnet chains ([#1259](https://github.com/RequestNetwork/requestNetwork/issues/1259)) ([624a636](https://github.com/RequestNetwork/requestNetwork/commit/624a636624a8c17e93f1ea271d0e986447f3532b))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- **eip1559:** use hex number for eth_feehistory 'blockcount' parameter ([#765](https://github.com/RequestNetwork/requestNetwork/issues/765)) ([139fb70](https://github.com/RequestNetwork/requestNetwork/commit/139fb70f38a15b1a8ae6efec87ef123f2eeb65b3))
+- **gas-fee:** catch estimation errors ([#1121](https://github.com/RequestNetwork/requestNetwork/issues/1121)) ([e0e9151](https://github.com/RequestNetwork/requestNetwork/commit/e0e91517759e404faf3be4d3811ffd9245f31dc9))
+- **integration-tests:** unskip tests ([#1107](https://github.com/RequestNetwork/requestNetwork/issues/1107)) ([af5c902](https://github.com/RequestNetwork/requestNetwork/commit/af5c90292376a4c841d621e22b12c38d2c61efb6))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- min priority fee ([#998](https://github.com/RequestNetwork/requestNetwork/issues/998)) ([21e1bbd](https://github.com/RequestNetwork/requestNetwork/commit/21e1bbdfd7cafe593a938462cffd0360108ef4b7))
+- private key without trailing 0x ([#479](https://github.com/RequestNetwork/requestNetwork/issues/479)) ([4d71cae](https://github.com/RequestNetwork/requestNetwork/commit/4d71caec912e3adbab99cf029b07ee007d7c39bb))
+- **request-node:** Add exponential backoff in fetchAndRetry ([#1077](https://github.com/RequestNetwork/requestNetwork/issues/1077)) ([0629e45](https://github.com/RequestNetwork/requestNetwork/commit/0629e45ac39eee0a1cc44d35ff4fe03e116c4840))
+- **smart-contracts:** deploy and verify batch contract ([#868](https://github.com/RequestNetwork/requestNetwork/issues/868)) ([a71eb58](https://github.com/RequestNetwork/requestNetwork/commit/a71eb581de2199892ee44fcb8b162a9ae0c44a10))
+- swap to conversion ([#826](https://github.com/RequestNetwork/requestNetwork/issues/826)) ([cdb4b99](https://github.com/RequestNetwork/requestNetwork/commit/cdb4b999a059c86e5b9ff59d144fb7236060460a))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+- xdai rpc url ([#1071](https://github.com/RequestNetwork/requestNetwork/issues/1071)) ([4de265c](https://github.com/RequestNetwork/requestNetwork/commit/4de265cc97772638feeda056eebf3083573910e7))
+
+### Features
+
+- create2 deployer ([#806](https://github.com/RequestNetwork/requestNetwork/issues/806)) ([453f5b5](https://github.com/RequestNetwork/requestNetwork/commit/453f5b5ec74cdd216fd6b872e3cf105113447dde))
+- deploy on mantle and mantle testnet ([#1127](https://github.com/RequestNetwork/requestNetwork/issues/1127)) ([d539717](https://github.com/RequestNetwork/requestNetwork/commit/d539717009de82fe1195a73cb9f4ddbb0f59cd46))
+- implementation of delegation in declarative pn ([#535](https://github.com/RequestNetwork/requestNetwork/issues/535)) ([cf4eac7](https://github.com/RequestNetwork/requestNetwork/commit/cf4eac7665f5d797e2768c888fc87f470fe4f8cf))
+- moonbeam ([#1002](https://github.com/RequestNetwork/requestNetwork/issues/1002)) ([a9fe889](https://github.com/RequestNetwork/requestNetwork/commit/a9fe889ab1730ce62fa15e0bffbb5d66ac8e822a))
+- optimism deployment ([#983](https://github.com/RequestNetwork/requestNetwork/issues/983)) ([6f5b6ec](https://github.com/RequestNetwork/requestNetwork/commit/6f5b6eca81cdaa3778b5324a939825190c04ef10))
+- payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+- replace hardhat ganache ([#1072](https://github.com/RequestNetwork/requestNetwork/issues/1072)) ([bf2f542](https://github.com/RequestNetwork/requestNetwork/commit/bf2f542f78a47f1e871dd37c529f4877f2dd511b))
+- **smart-contracts:** xdeployer gas fee eip1559 ([#1014](https://github.com/RequestNetwork/requestNetwork/issues/1014)) ([054fc63](https://github.com/RequestNetwork/requestNetwork/commit/054fc6307177d9dd56f690e37fdaf4a965bbfbfe))
+- tombchain ([#1024](https://github.com/RequestNetwork/requestNetwork/issues/1024)) ([7ba9b80](https://github.com/RequestNetwork/requestNetwork/commit/7ba9b803160cf8b5a80a7db817142a1999bd385a))
+
+# [0.44.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.28.0...@requestnetwork/utils@0.44.0) (2024-07-21)
+
+### Bug Fixes
+
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+- zksync networks names to lowercase ([#1261](https://github.com/RequestNetwork/requestNetwork/issues/1261)) ([9c9a2c1](https://github.com/RequestNetwork/requestNetwork/commit/9c9a2c14b159ad4483c96c2a1220e17e6690aa60))
+
+### Features
+
+- core dao ([#1216](https://github.com/RequestNetwork/requestNetwork/issues/1216)) ([a782146](https://github.com/RequestNetwork/requestNetwork/commit/a7821466ef4d47cab70a8df8509c4159045701ba))
+- **ethereum-storage:** gas fee multiplier & max gas fee ([#1318](https://github.com/RequestNetwork/requestNetwork/issues/1318)) ([98997ed](https://github.com/RequestNetwork/requestNetwork/commit/98997ed16aee7d09184c98bc88c337745d2aa928))
+- Publish ([#1374](https://github.com/RequestNetwork/requestNetwork/issues/1374)) ([04db0d1](https://github.com/RequestNetwork/requestNetwork/commit/04db0d12dde819183da31d471bbb56d319023714))
+- Publish ([#1375](https://github.com/RequestNetwork/requestNetwork/issues/1375)) ([ac7d0f2](https://github.com/RequestNetwork/requestNetwork/commit/ac7d0f254f2ad377bfc9c9afb931f7e82041c724))
+- Publish ([#1378](https://github.com/RequestNetwork/requestNetwork/issues/1378)) ([a306ecf](https://github.com/RequestNetwork/requestNetwork/commit/a306ecfcf4f92f55cfe918f54f2b8deef88a68d4))
+- support zkSyncEra and zkSyndTestnet chains ([#1259](https://github.com/RequestNetwork/requestNetwork/issues/1259)) ([624a636](https://github.com/RequestNetwork/requestNetwork/commit/624a636624a8c17e93f1ea271d0e986447f3532b))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- **eip1559:** use hex number for eth_feehistory 'blockcount' parameter ([#765](https://github.com/RequestNetwork/requestNetwork/issues/765)) ([139fb70](https://github.com/RequestNetwork/requestNetwork/commit/139fb70f38a15b1a8ae6efec87ef123f2eeb65b3))
+- **gas-fee:** catch estimation errors ([#1121](https://github.com/RequestNetwork/requestNetwork/issues/1121)) ([e0e9151](https://github.com/RequestNetwork/requestNetwork/commit/e0e91517759e404faf3be4d3811ffd9245f31dc9))
+- **integration-tests:** unskip tests ([#1107](https://github.com/RequestNetwork/requestNetwork/issues/1107)) ([af5c902](https://github.com/RequestNetwork/requestNetwork/commit/af5c90292376a4c841d621e22b12c38d2c61efb6))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- min priority fee ([#998](https://github.com/RequestNetwork/requestNetwork/issues/998)) ([21e1bbd](https://github.com/RequestNetwork/requestNetwork/commit/21e1bbdfd7cafe593a938462cffd0360108ef4b7))
+- private key without trailing 0x ([#479](https://github.com/RequestNetwork/requestNetwork/issues/479)) ([4d71cae](https://github.com/RequestNetwork/requestNetwork/commit/4d71caec912e3adbab99cf029b07ee007d7c39bb))
+- **request-node:** Add exponential backoff in fetchAndRetry ([#1077](https://github.com/RequestNetwork/requestNetwork/issues/1077)) ([0629e45](https://github.com/RequestNetwork/requestNetwork/commit/0629e45ac39eee0a1cc44d35ff4fe03e116c4840))
+- **smart-contracts:** deploy and verify batch contract ([#868](https://github.com/RequestNetwork/requestNetwork/issues/868)) ([a71eb58](https://github.com/RequestNetwork/requestNetwork/commit/a71eb581de2199892ee44fcb8b162a9ae0c44a10))
+- swap to conversion ([#826](https://github.com/RequestNetwork/requestNetwork/issues/826)) ([cdb4b99](https://github.com/RequestNetwork/requestNetwork/commit/cdb4b999a059c86e5b9ff59d144fb7236060460a))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+- xdai rpc url ([#1071](https://github.com/RequestNetwork/requestNetwork/issues/1071)) ([4de265c](https://github.com/RequestNetwork/requestNetwork/commit/4de265cc97772638feeda056eebf3083573910e7))
+
+### Features
+
+- create2 deployer ([#806](https://github.com/RequestNetwork/requestNetwork/issues/806)) ([453f5b5](https://github.com/RequestNetwork/requestNetwork/commit/453f5b5ec74cdd216fd6b872e3cf105113447dde))
+- deploy on mantle and mantle testnet ([#1127](https://github.com/RequestNetwork/requestNetwork/issues/1127)) ([d539717](https://github.com/RequestNetwork/requestNetwork/commit/d539717009de82fe1195a73cb9f4ddbb0f59cd46))
+- implementation of delegation in declarative pn ([#535](https://github.com/RequestNetwork/requestNetwork/issues/535)) ([cf4eac7](https://github.com/RequestNetwork/requestNetwork/commit/cf4eac7665f5d797e2768c888fc87f470fe4f8cf))
+- moonbeam ([#1002](https://github.com/RequestNetwork/requestNetwork/issues/1002)) ([a9fe889](https://github.com/RequestNetwork/requestNetwork/commit/a9fe889ab1730ce62fa15e0bffbb5d66ac8e822a))
+- optimism deployment ([#983](https://github.com/RequestNetwork/requestNetwork/issues/983)) ([6f5b6ec](https://github.com/RequestNetwork/requestNetwork/commit/6f5b6eca81cdaa3778b5324a939825190c04ef10))
+- payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+- replace hardhat ganache ([#1072](https://github.com/RequestNetwork/requestNetwork/issues/1072)) ([bf2f542](https://github.com/RequestNetwork/requestNetwork/commit/bf2f542f78a47f1e871dd37c529f4877f2dd511b))
+- **smart-contracts:** xdeployer gas fee eip1559 ([#1014](https://github.com/RequestNetwork/requestNetwork/issues/1014)) ([054fc63](https://github.com/RequestNetwork/requestNetwork/commit/054fc6307177d9dd56f690e37fdaf4a965bbfbfe))
+- tombchain ([#1024](https://github.com/RequestNetwork/requestNetwork/issues/1024)) ([7ba9b80](https://github.com/RequestNetwork/requestNetwork/commit/7ba9b803160cf8b5a80a7db817142a1999bd385a))
+
+# [0.43.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.28.0...@requestnetwork/utils@0.43.0) (2024-03-29)
+
+### Bug Fixes
+
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+- zksync networks names to lowercase ([#1261](https://github.com/RequestNetwork/requestNetwork/issues/1261)) ([9c9a2c1](https://github.com/RequestNetwork/requestNetwork/commit/9c9a2c14b159ad4483c96c2a1220e17e6690aa60))
+
+### Features
+
+- core dao ([#1216](https://github.com/RequestNetwork/requestNetwork/issues/1216)) ([a782146](https://github.com/RequestNetwork/requestNetwork/commit/a7821466ef4d47cab70a8df8509c4159045701ba))
+- **ethereum-storage:** gas fee multiplier & max gas fee ([#1318](https://github.com/RequestNetwork/requestNetwork/issues/1318)) ([98997ed](https://github.com/RequestNetwork/requestNetwork/commit/98997ed16aee7d09184c98bc88c337745d2aa928))
+- Publish ([#1374](https://github.com/RequestNetwork/requestNetwork/issues/1374)) ([04db0d1](https://github.com/RequestNetwork/requestNetwork/commit/04db0d12dde819183da31d471bbb56d319023714))
+- Publish ([#1375](https://github.com/RequestNetwork/requestNetwork/issues/1375)) ([ac7d0f2](https://github.com/RequestNetwork/requestNetwork/commit/ac7d0f254f2ad377bfc9c9afb931f7e82041c724))
+- support zkSyncEra and zkSyndTestnet chains ([#1259](https://github.com/RequestNetwork/requestNetwork/issues/1259)) ([624a636](https://github.com/RequestNetwork/requestNetwork/commit/624a636624a8c17e93f1ea271d0e986447f3532b))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- **eip1559:** use hex number for eth_feehistory 'blockcount' parameter ([#765](https://github.com/RequestNetwork/requestNetwork/issues/765)) ([139fb70](https://github.com/RequestNetwork/requestNetwork/commit/139fb70f38a15b1a8ae6efec87ef123f2eeb65b3))
+- **gas-fee:** catch estimation errors ([#1121](https://github.com/RequestNetwork/requestNetwork/issues/1121)) ([e0e9151](https://github.com/RequestNetwork/requestNetwork/commit/e0e91517759e404faf3be4d3811ffd9245f31dc9))
+- **integration-tests:** unskip tests ([#1107](https://github.com/RequestNetwork/requestNetwork/issues/1107)) ([af5c902](https://github.com/RequestNetwork/requestNetwork/commit/af5c90292376a4c841d621e22b12c38d2c61efb6))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- min priority fee ([#998](https://github.com/RequestNetwork/requestNetwork/issues/998)) ([21e1bbd](https://github.com/RequestNetwork/requestNetwork/commit/21e1bbdfd7cafe593a938462cffd0360108ef4b7))
+- private key without trailing 0x ([#479](https://github.com/RequestNetwork/requestNetwork/issues/479)) ([4d71cae](https://github.com/RequestNetwork/requestNetwork/commit/4d71caec912e3adbab99cf029b07ee007d7c39bb))
+- **request-node:** Add exponential backoff in fetchAndRetry ([#1077](https://github.com/RequestNetwork/requestNetwork/issues/1077)) ([0629e45](https://github.com/RequestNetwork/requestNetwork/commit/0629e45ac39eee0a1cc44d35ff4fe03e116c4840))
+- **smart-contracts:** deploy and verify batch contract ([#868](https://github.com/RequestNetwork/requestNetwork/issues/868)) ([a71eb58](https://github.com/RequestNetwork/requestNetwork/commit/a71eb581de2199892ee44fcb8b162a9ae0c44a10))
+- swap to conversion ([#826](https://github.com/RequestNetwork/requestNetwork/issues/826)) ([cdb4b99](https://github.com/RequestNetwork/requestNetwork/commit/cdb4b999a059c86e5b9ff59d144fb7236060460a))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+- xdai rpc url ([#1071](https://github.com/RequestNetwork/requestNetwork/issues/1071)) ([4de265c](https://github.com/RequestNetwork/requestNetwork/commit/4de265cc97772638feeda056eebf3083573910e7))
+
+### Features
+
+- create2 deployer ([#806](https://github.com/RequestNetwork/requestNetwork/issues/806)) ([453f5b5](https://github.com/RequestNetwork/requestNetwork/commit/453f5b5ec74cdd216fd6b872e3cf105113447dde))
+- deploy on mantle and mantle testnet ([#1127](https://github.com/RequestNetwork/requestNetwork/issues/1127)) ([d539717](https://github.com/RequestNetwork/requestNetwork/commit/d539717009de82fe1195a73cb9f4ddbb0f59cd46))
+- implementation of delegation in declarative pn ([#535](https://github.com/RequestNetwork/requestNetwork/issues/535)) ([cf4eac7](https://github.com/RequestNetwork/requestNetwork/commit/cf4eac7665f5d797e2768c888fc87f470fe4f8cf))
+- moonbeam ([#1002](https://github.com/RequestNetwork/requestNetwork/issues/1002)) ([a9fe889](https://github.com/RequestNetwork/requestNetwork/commit/a9fe889ab1730ce62fa15e0bffbb5d66ac8e822a))
+- optimism deployment ([#983](https://github.com/RequestNetwork/requestNetwork/issues/983)) ([6f5b6ec](https://github.com/RequestNetwork/requestNetwork/commit/6f5b6eca81cdaa3778b5324a939825190c04ef10))
+- payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+- replace hardhat ganache ([#1072](https://github.com/RequestNetwork/requestNetwork/issues/1072)) ([bf2f542](https://github.com/RequestNetwork/requestNetwork/commit/bf2f542f78a47f1e871dd37c529f4877f2dd511b))
+- **smart-contracts:** xdeployer gas fee eip1559 ([#1014](https://github.com/RequestNetwork/requestNetwork/issues/1014)) ([054fc63](https://github.com/RequestNetwork/requestNetwork/commit/054fc6307177d9dd56f690e37fdaf4a965bbfbfe))
+- tombchain ([#1024](https://github.com/RequestNetwork/requestNetwork/issues/1024)) ([7ba9b80](https://github.com/RequestNetwork/requestNetwork/commit/7ba9b803160cf8b5a80a7db817142a1999bd385a))
+
+# [0.42.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.28.0...@requestnetwork/utils@0.42.0) (2024-03-29)
+
+### Bug Fixes
+
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+- zksync networks names to lowercase ([#1261](https://github.com/RequestNetwork/requestNetwork/issues/1261)) ([9c9a2c1](https://github.com/RequestNetwork/requestNetwork/commit/9c9a2c14b159ad4483c96c2a1220e17e6690aa60))
+
+### Features
+
+- core dao ([#1216](https://github.com/RequestNetwork/requestNetwork/issues/1216)) ([a782146](https://github.com/RequestNetwork/requestNetwork/commit/a7821466ef4d47cab70a8df8509c4159045701ba))
+- **ethereum-storage:** gas fee multiplier & max gas fee ([#1318](https://github.com/RequestNetwork/requestNetwork/issues/1318)) ([98997ed](https://github.com/RequestNetwork/requestNetwork/commit/98997ed16aee7d09184c98bc88c337745d2aa928))
+- Publish ([#1374](https://github.com/RequestNetwork/requestNetwork/issues/1374)) ([04db0d1](https://github.com/RequestNetwork/requestNetwork/commit/04db0d12dde819183da31d471bbb56d319023714))
+- support zkSyncEra and zkSyndTestnet chains ([#1259](https://github.com/RequestNetwork/requestNetwork/issues/1259)) ([624a636](https://github.com/RequestNetwork/requestNetwork/commit/624a636624a8c17e93f1ea271d0e986447f3532b))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- **eip1559:** use hex number for eth_feehistory 'blockcount' parameter ([#765](https://github.com/RequestNetwork/requestNetwork/issues/765)) ([139fb70](https://github.com/RequestNetwork/requestNetwork/commit/139fb70f38a15b1a8ae6efec87ef123f2eeb65b3))
+- **gas-fee:** catch estimation errors ([#1121](https://github.com/RequestNetwork/requestNetwork/issues/1121)) ([e0e9151](https://github.com/RequestNetwork/requestNetwork/commit/e0e91517759e404faf3be4d3811ffd9245f31dc9))
+- **integration-tests:** unskip tests ([#1107](https://github.com/RequestNetwork/requestNetwork/issues/1107)) ([af5c902](https://github.com/RequestNetwork/requestNetwork/commit/af5c90292376a4c841d621e22b12c38d2c61efb6))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- min priority fee ([#998](https://github.com/RequestNetwork/requestNetwork/issues/998)) ([21e1bbd](https://github.com/RequestNetwork/requestNetwork/commit/21e1bbdfd7cafe593a938462cffd0360108ef4b7))
+- private key without trailing 0x ([#479](https://github.com/RequestNetwork/requestNetwork/issues/479)) ([4d71cae](https://github.com/RequestNetwork/requestNetwork/commit/4d71caec912e3adbab99cf029b07ee007d7c39bb))
+- **request-node:** Add exponential backoff in fetchAndRetry ([#1077](https://github.com/RequestNetwork/requestNetwork/issues/1077)) ([0629e45](https://github.com/RequestNetwork/requestNetwork/commit/0629e45ac39eee0a1cc44d35ff4fe03e116c4840))
+- **smart-contracts:** deploy and verify batch contract ([#868](https://github.com/RequestNetwork/requestNetwork/issues/868)) ([a71eb58](https://github.com/RequestNetwork/requestNetwork/commit/a71eb581de2199892ee44fcb8b162a9ae0c44a10))
+- swap to conversion ([#826](https://github.com/RequestNetwork/requestNetwork/issues/826)) ([cdb4b99](https://github.com/RequestNetwork/requestNetwork/commit/cdb4b999a059c86e5b9ff59d144fb7236060460a))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+- xdai rpc url ([#1071](https://github.com/RequestNetwork/requestNetwork/issues/1071)) ([4de265c](https://github.com/RequestNetwork/requestNetwork/commit/4de265cc97772638feeda056eebf3083573910e7))
+
+### Features
+
+- create2 deployer ([#806](https://github.com/RequestNetwork/requestNetwork/issues/806)) ([453f5b5](https://github.com/RequestNetwork/requestNetwork/commit/453f5b5ec74cdd216fd6b872e3cf105113447dde))
+- deploy on mantle and mantle testnet ([#1127](https://github.com/RequestNetwork/requestNetwork/issues/1127)) ([d539717](https://github.com/RequestNetwork/requestNetwork/commit/d539717009de82fe1195a73cb9f4ddbb0f59cd46))
+- implementation of delegation in declarative pn ([#535](https://github.com/RequestNetwork/requestNetwork/issues/535)) ([cf4eac7](https://github.com/RequestNetwork/requestNetwork/commit/cf4eac7665f5d797e2768c888fc87f470fe4f8cf))
+- moonbeam ([#1002](https://github.com/RequestNetwork/requestNetwork/issues/1002)) ([a9fe889](https://github.com/RequestNetwork/requestNetwork/commit/a9fe889ab1730ce62fa15e0bffbb5d66ac8e822a))
+- optimism deployment ([#983](https://github.com/RequestNetwork/requestNetwork/issues/983)) ([6f5b6ec](https://github.com/RequestNetwork/requestNetwork/commit/6f5b6eca81cdaa3778b5324a939825190c04ef10))
+- payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+- replace hardhat ganache ([#1072](https://github.com/RequestNetwork/requestNetwork/issues/1072)) ([bf2f542](https://github.com/RequestNetwork/requestNetwork/commit/bf2f542f78a47f1e871dd37c529f4877f2dd511b))
+- **smart-contracts:** xdeployer gas fee eip1559 ([#1014](https://github.com/RequestNetwork/requestNetwork/issues/1014)) ([054fc63](https://github.com/RequestNetwork/requestNetwork/commit/054fc6307177d9dd56f690e37fdaf4a965bbfbfe))
+- tombchain ([#1024](https://github.com/RequestNetwork/requestNetwork/issues/1024)) ([7ba9b80](https://github.com/RequestNetwork/requestNetwork/commit/7ba9b803160cf8b5a80a7db817142a1999bd385a))
+
+# [0.41.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.28.0...@requestnetwork/utils@0.41.0) (2024-03-28)
+
+### Bug Fixes
+
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+- zksync networks names to lowercase ([#1261](https://github.com/RequestNetwork/requestNetwork/issues/1261)) ([9c9a2c1](https://github.com/RequestNetwork/requestNetwork/commit/9c9a2c14b159ad4483c96c2a1220e17e6690aa60))
+
+### Features
+
+- core dao ([#1216](https://github.com/RequestNetwork/requestNetwork/issues/1216)) ([a782146](https://github.com/RequestNetwork/requestNetwork/commit/a7821466ef4d47cab70a8df8509c4159045701ba))
+- **ethereum-storage:** gas fee multiplier & max gas fee ([#1318](https://github.com/RequestNetwork/requestNetwork/issues/1318)) ([98997ed](https://github.com/RequestNetwork/requestNetwork/commit/98997ed16aee7d09184c98bc88c337745d2aa928))
+- support zkSyncEra and zkSyndTestnet chains ([#1259](https://github.com/RequestNetwork/requestNetwork/issues/1259)) ([624a636](https://github.com/RequestNetwork/requestNetwork/commit/624a636624a8c17e93f1ea271d0e986447f3532b))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- **eip1559:** use hex number for eth_feehistory 'blockcount' parameter ([#765](https://github.com/RequestNetwork/requestNetwork/issues/765)) ([139fb70](https://github.com/RequestNetwork/requestNetwork/commit/139fb70f38a15b1a8ae6efec87ef123f2eeb65b3))
+- **gas-fee:** catch estimation errors ([#1121](https://github.com/RequestNetwork/requestNetwork/issues/1121)) ([e0e9151](https://github.com/RequestNetwork/requestNetwork/commit/e0e91517759e404faf3be4d3811ffd9245f31dc9))
+- **integration-tests:** unskip tests ([#1107](https://github.com/RequestNetwork/requestNetwork/issues/1107)) ([af5c902](https://github.com/RequestNetwork/requestNetwork/commit/af5c90292376a4c841d621e22b12c38d2c61efb6))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- min priority fee ([#998](https://github.com/RequestNetwork/requestNetwork/issues/998)) ([21e1bbd](https://github.com/RequestNetwork/requestNetwork/commit/21e1bbdfd7cafe593a938462cffd0360108ef4b7))
+- private key without trailing 0x ([#479](https://github.com/RequestNetwork/requestNetwork/issues/479)) ([4d71cae](https://github.com/RequestNetwork/requestNetwork/commit/4d71caec912e3adbab99cf029b07ee007d7c39bb))
+- **request-node:** Add exponential backoff in fetchAndRetry ([#1077](https://github.com/RequestNetwork/requestNetwork/issues/1077)) ([0629e45](https://github.com/RequestNetwork/requestNetwork/commit/0629e45ac39eee0a1cc44d35ff4fe03e116c4840))
+- **smart-contracts:** deploy and verify batch contract ([#868](https://github.com/RequestNetwork/requestNetwork/issues/868)) ([a71eb58](https://github.com/RequestNetwork/requestNetwork/commit/a71eb581de2199892ee44fcb8b162a9ae0c44a10))
+- swap to conversion ([#826](https://github.com/RequestNetwork/requestNetwork/issues/826)) ([cdb4b99](https://github.com/RequestNetwork/requestNetwork/commit/cdb4b999a059c86e5b9ff59d144fb7236060460a))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+- xdai rpc url ([#1071](https://github.com/RequestNetwork/requestNetwork/issues/1071)) ([4de265c](https://github.com/RequestNetwork/requestNetwork/commit/4de265cc97772638feeda056eebf3083573910e7))
+
+### Features
+
+- create2 deployer ([#806](https://github.com/RequestNetwork/requestNetwork/issues/806)) ([453f5b5](https://github.com/RequestNetwork/requestNetwork/commit/453f5b5ec74cdd216fd6b872e3cf105113447dde))
+- deploy on mantle and mantle testnet ([#1127](https://github.com/RequestNetwork/requestNetwork/issues/1127)) ([d539717](https://github.com/RequestNetwork/requestNetwork/commit/d539717009de82fe1195a73cb9f4ddbb0f59cd46))
+- implementation of delegation in declarative pn ([#535](https://github.com/RequestNetwork/requestNetwork/issues/535)) ([cf4eac7](https://github.com/RequestNetwork/requestNetwork/commit/cf4eac7665f5d797e2768c888fc87f470fe4f8cf))
+- moonbeam ([#1002](https://github.com/RequestNetwork/requestNetwork/issues/1002)) ([a9fe889](https://github.com/RequestNetwork/requestNetwork/commit/a9fe889ab1730ce62fa15e0bffbb5d66ac8e822a))
+- optimism deployment ([#983](https://github.com/RequestNetwork/requestNetwork/issues/983)) ([6f5b6ec](https://github.com/RequestNetwork/requestNetwork/commit/6f5b6eca81cdaa3778b5324a939825190c04ef10))
+- payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+- replace hardhat ganache ([#1072](https://github.com/RequestNetwork/requestNetwork/issues/1072)) ([bf2f542](https://github.com/RequestNetwork/requestNetwork/commit/bf2f542f78a47f1e871dd37c529f4877f2dd511b))
+- **smart-contracts:** xdeployer gas fee eip1559 ([#1014](https://github.com/RequestNetwork/requestNetwork/issues/1014)) ([054fc63](https://github.com/RequestNetwork/requestNetwork/commit/054fc6307177d9dd56f690e37fdaf4a965bbfbfe))
+- tombchain ([#1024](https://github.com/RequestNetwork/requestNetwork/issues/1024)) ([7ba9b80](https://github.com/RequestNetwork/requestNetwork/commit/7ba9b803160cf8b5a80a7db817142a1999bd385a))
+
+# [0.40.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.28.0...@requestnetwork/utils@0.40.0) (2024-01-26)
+
+### Bug Fixes
+
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+- zksync networks names to lowercase ([#1261](https://github.com/RequestNetwork/requestNetwork/issues/1261)) ([9c9a2c1](https://github.com/RequestNetwork/requestNetwork/commit/9c9a2c14b159ad4483c96c2a1220e17e6690aa60))
+
+### Features
+
+- core dao ([#1216](https://github.com/RequestNetwork/requestNetwork/issues/1216)) ([a782146](https://github.com/RequestNetwork/requestNetwork/commit/a7821466ef4d47cab70a8df8509c4159045701ba))
+- **ethereum-storage:** gas fee multiplier & max gas fee ([#1318](https://github.com/RequestNetwork/requestNetwork/issues/1318)) ([98997ed](https://github.com/RequestNetwork/requestNetwork/commit/98997ed16aee7d09184c98bc88c337745d2aa928))
+- support zkSyncEra and zkSyndTestnet chains ([#1259](https://github.com/RequestNetwork/requestNetwork/issues/1259)) ([624a636](https://github.com/RequestNetwork/requestNetwork/commit/624a636624a8c17e93f1ea271d0e986447f3532b))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- **eip1559:** use hex number for eth_feehistory 'blockcount' parameter ([#765](https://github.com/RequestNetwork/requestNetwork/issues/765)) ([139fb70](https://github.com/RequestNetwork/requestNetwork/commit/139fb70f38a15b1a8ae6efec87ef123f2eeb65b3))
+- **gas-fee:** catch estimation errors ([#1121](https://github.com/RequestNetwork/requestNetwork/issues/1121)) ([e0e9151](https://github.com/RequestNetwork/requestNetwork/commit/e0e91517759e404faf3be4d3811ffd9245f31dc9))
+- **integration-tests:** unskip tests ([#1107](https://github.com/RequestNetwork/requestNetwork/issues/1107)) ([af5c902](https://github.com/RequestNetwork/requestNetwork/commit/af5c90292376a4c841d621e22b12c38d2c61efb6))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- min priority fee ([#998](https://github.com/RequestNetwork/requestNetwork/issues/998)) ([21e1bbd](https://github.com/RequestNetwork/requestNetwork/commit/21e1bbdfd7cafe593a938462cffd0360108ef4b7))
+- private key without trailing 0x ([#479](https://github.com/RequestNetwork/requestNetwork/issues/479)) ([4d71cae](https://github.com/RequestNetwork/requestNetwork/commit/4d71caec912e3adbab99cf029b07ee007d7c39bb))
+- **request-node:** Add exponential backoff in fetchAndRetry ([#1077](https://github.com/RequestNetwork/requestNetwork/issues/1077)) ([0629e45](https://github.com/RequestNetwork/requestNetwork/commit/0629e45ac39eee0a1cc44d35ff4fe03e116c4840))
+- **smart-contracts:** deploy and verify batch contract ([#868](https://github.com/RequestNetwork/requestNetwork/issues/868)) ([a71eb58](https://github.com/RequestNetwork/requestNetwork/commit/a71eb581de2199892ee44fcb8b162a9ae0c44a10))
+- swap to conversion ([#826](https://github.com/RequestNetwork/requestNetwork/issues/826)) ([cdb4b99](https://github.com/RequestNetwork/requestNetwork/commit/cdb4b999a059c86e5b9ff59d144fb7236060460a))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+- xdai rpc url ([#1071](https://github.com/RequestNetwork/requestNetwork/issues/1071)) ([4de265c](https://github.com/RequestNetwork/requestNetwork/commit/4de265cc97772638feeda056eebf3083573910e7))
+
+### Features
+
+- create2 deployer ([#806](https://github.com/RequestNetwork/requestNetwork/issues/806)) ([453f5b5](https://github.com/RequestNetwork/requestNetwork/commit/453f5b5ec74cdd216fd6b872e3cf105113447dde))
+- deploy on mantle and mantle testnet ([#1127](https://github.com/RequestNetwork/requestNetwork/issues/1127)) ([d539717](https://github.com/RequestNetwork/requestNetwork/commit/d539717009de82fe1195a73cb9f4ddbb0f59cd46))
+- implementation of delegation in declarative pn ([#535](https://github.com/RequestNetwork/requestNetwork/issues/535)) ([cf4eac7](https://github.com/RequestNetwork/requestNetwork/commit/cf4eac7665f5d797e2768c888fc87f470fe4f8cf))
+- moonbeam ([#1002](https://github.com/RequestNetwork/requestNetwork/issues/1002)) ([a9fe889](https://github.com/RequestNetwork/requestNetwork/commit/a9fe889ab1730ce62fa15e0bffbb5d66ac8e822a))
+- optimism deployment ([#983](https://github.com/RequestNetwork/requestNetwork/issues/983)) ([6f5b6ec](https://github.com/RequestNetwork/requestNetwork/commit/6f5b6eca81cdaa3778b5324a939825190c04ef10))
+- payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+- replace hardhat ganache ([#1072](https://github.com/RequestNetwork/requestNetwork/issues/1072)) ([bf2f542](https://github.com/RequestNetwork/requestNetwork/commit/bf2f542f78a47f1e871dd37c529f4877f2dd511b))
+- **smart-contracts:** xdeployer gas fee eip1559 ([#1014](https://github.com/RequestNetwork/requestNetwork/issues/1014)) ([054fc63](https://github.com/RequestNetwork/requestNetwork/commit/054fc6307177d9dd56f690e37fdaf4a965bbfbfe))
+- tombchain ([#1024](https://github.com/RequestNetwork/requestNetwork/issues/1024)) ([7ba9b80](https://github.com/RequestNetwork/requestNetwork/commit/7ba9b803160cf8b5a80a7db817142a1999bd385a))
+
 # [0.39.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.28.0...@requestnetwork/utils@0.39.0) (2023-12-14)
 
 ### Bug Fixes

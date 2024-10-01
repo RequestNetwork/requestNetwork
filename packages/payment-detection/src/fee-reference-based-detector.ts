@@ -1,6 +1,10 @@
 import { BigNumber } from 'ethers';
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { ICurrencyManager } from '@requestnetwork/currency';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import { ReferenceBasedDetector } from './reference-based-detector';
 import { generate8randomBytes } from '@requestnetwork/utils';
 
@@ -8,7 +12,7 @@ import { generate8randomBytes } from '@requestnetwork/utils';
  * Abstract class to extend to get the payment balance of reference based requests
  */
 export abstract class FeeReferenceBasedDetector<
-  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
+  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased<any>,
   TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters<string> & {
     feeAddress?: string;
     feeAmount?: string;
@@ -21,7 +25,7 @@ export abstract class FeeReferenceBasedDetector<
   protected constructor(
     paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
-    currencyManager: ICurrencyManager,
+    currencyManager: CurrencyTypes.ICurrencyManager,
   ) {
     super(paymentNetworkId, extension, currencyManager);
   }

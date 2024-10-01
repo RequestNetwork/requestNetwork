@@ -5,7 +5,6 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { ICurrencyManager } from '@requestnetwork/currency';
 import {
   ContractBasedDetector,
   IPaymentNetworkModuleByType,
@@ -14,6 +13,7 @@ import {
 } from './types';
 import { BtcMainnetAddressBasedDetector, BtcTestnetAddressBasedDetector } from './btc';
 import { DeclarativePaymentDetector } from './declarative';
+import { MetaDetector } from './meta-payment-detector';
 import {
   ERC20AddressBasedPaymentDetector,
   ERC20FeeProxyPaymentDetector,
@@ -83,6 +83,7 @@ const anyCurrencyPaymentNetwork: IPaymentNetworkModuleByType = {
   [PN_ID.ANY_DECLARATIVE]: DeclarativePaymentDetector,
   [PN_ID.ANY_TO_ETH_PROXY]: AnyToEthFeeProxyPaymentDetector,
   [PN_ID.ANY_TO_NATIVE_TOKEN]: NearConversionNativeTokenPaymentDetector,
+  [PN_ID.META]: MetaDetector,
 };
 
 /** Factory to create the payment network according to the currency and payment network type */
@@ -96,7 +97,7 @@ export class PaymentNetworkFactory {
    */
   constructor(
     private readonly advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    private readonly currencyManager: ICurrencyManager,
+    private readonly currencyManager: CurrencyTypes.ICurrencyManager,
     options?: Partial<PaymentNetworkOptions>,
   ) {
     this.options = this.buildOptions(options || {});
@@ -120,12 +121,15 @@ export class PaymentNetworkFactory {
    * @param paymentChain Different from request.currency.network for on-chain conversion payment networks (any-to-something)
    * @returns the module to handle the payment network
    */
-  public createPaymentNetwork(
-    paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
+  public createPaymentNetwork<PN_ID extends ExtensionTypes.PAYMENT_NETWORK_ID>(
+    paymentNetworkId: PN_ID,
     currencyType: RequestLogicTypes.CURRENCY,
     paymentChain?: CurrencyTypes.ChainName,
     paymentNetworkVersion?: string,
-  ): PaymentTypes.IPaymentNetwork {
+  ): PaymentTypes.IPaymentNetwork<
+    PaymentTypes.GenericEventParameters,
+    Extract<PaymentTypes.PaymentNetworkCreateParameters, { id: PN_ID }>['parameters']
+  > {
     const network = paymentChain ?? 'mainnet';
     const currencyPaymentMap =
       supportedPaymentNetwork[currencyType]?.[network] ||
@@ -148,6 +152,7 @@ export class PaymentNetworkFactory {
       network,
       advancedLogic: this.advancedLogic,
       currencyManager: this.currencyManager,
+      options: this.options,
       ...this.options,
     });
 
@@ -171,7 +176,7 @@ export class PaymentNetworkFactory {
    */
   public getPaymentNetworkFromRequest(
     request: RequestLogicTypes.IRequest,
-  ): PaymentTypes.IPaymentNetwork | null {
+  ): PaymentTypes.IPaymentNetwork<PaymentTypes.GenericEventParameters, any> | null {
     const pn = getPaymentNetworkExtension(request);
     if (!pn) {
       return null;
@@ -180,11 +185,6 @@ export class PaymentNetworkFactory {
     const detectionChain = pn.values?.network ?? request.currency.network;
 
     const { id, version } = pn;
-    return this.createPaymentNetwork(
-      id as unknown as ExtensionTypes.PAYMENT_NETWORK_ID,
-      request.currency.type,
-      detectionChain,
-      version,
-    );
+    return this.createPaymentNetwork(id, request.currency.type, detectionChain, version);
   }
 }

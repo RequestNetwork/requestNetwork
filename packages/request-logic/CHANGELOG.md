@@ -3,6 +3,144 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.35.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.26.0...@requestnetwork/request-logic@0.35.0) (2024-07-24)
+
+### Bug Fixes
+
+- Pay before Persist experiment (Part 2) ([#1376](https://github.com/RequestNetwork/requestNetwork/issues/1376)) ([9c0ade7](https://github.com/RequestNetwork/requestNetwork/commit/9c0ade7c257e160ea9157fc75d91e9311de0b06b))
+- Revert Pay before Persist experiment ([#1387](https://github.com/RequestNetwork/requestNetwork/issues/1387)) ([6cf66fb](https://github.com/RequestNetwork/requestNetwork/commit/6cf66fbce0cc1df8acbbfb7eb754c1ad8ef77a36))
+- **security:** vulnerabilities + remove coveralls ([#1333](https://github.com/RequestNetwork/requestNetwork/issues/1333)) ([384818b](https://github.com/RequestNetwork/requestNetwork/commit/384818bceac7443e19a194a0209941b7f883c3be))
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+
+### Features
+
+- Pay before Persist experiment ([#1373](https://github.com/RequestNetwork/requestNetwork/issues/1373)) ([bdc6eb4](https://github.com/RequestNetwork/requestNetwork/commit/bdc6eb42fe9546c70aa3f5c68708345f9fffd6d4))
+- Publish ([#1374](https://github.com/RequestNetwork/requestNetwork/issues/1374)) ([04db0d1](https://github.com/RequestNetwork/requestNetwork/commit/04db0d12dde819183da31d471bbb56d319023714))
+- Publish ([#1375](https://github.com/RequestNetwork/requestNetwork/issues/1375)) ([ac7d0f2](https://github.com/RequestNetwork/requestNetwork/commit/ac7d0f254f2ad377bfc9c9afb931f7e82041c724))
+- Publish ([#1378](https://github.com/RequestNetwork/requestNetwork/issues/1378)) ([a306ecf](https://github.com/RequestNetwork/requestNetwork/commit/a306ecfcf4f92f55cfe918f54f2b8deef88a68d4))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+
+### Features
+
+- add `addStakeholders` ([#1025](https://github.com/RequestNetwork/requestNetwork/issues/1025)) ([5e00068](https://github.com/RequestNetwork/requestNetwork/commit/5e000689d25581ec93a0489be6e728dbe9e913c9))
+- ERC20FeeProxy on Near testnet ([#1086](https://github.com/RequestNetwork/requestNetwork/issues/1086)) ([6ac8c28](https://github.com/RequestNetwork/requestNetwork/commit/6ac8c287b8838af93e9384bc30352b334dba116a))
+
+# [0.34.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.26.0...@requestnetwork/request-logic@0.34.0) (2024-07-21)
+
+### Bug Fixes
+
+- Pay before Persist experiment (Part 2) ([#1376](https://github.com/RequestNetwork/requestNetwork/issues/1376)) ([9c0ade7](https://github.com/RequestNetwork/requestNetwork/commit/9c0ade7c257e160ea9157fc75d91e9311de0b06b))
+- Revert Pay before Persist experiment ([#1387](https://github.com/RequestNetwork/requestNetwork/issues/1387)) ([6cf66fb](https://github.com/RequestNetwork/requestNetwork/commit/6cf66fbce0cc1df8acbbfb7eb754c1ad8ef77a36))
+- **security:** vulnerabilities + remove coveralls ([#1333](https://github.com/RequestNetwork/requestNetwork/issues/1333)) ([384818b](https://github.com/RequestNetwork/requestNetwork/commit/384818bceac7443e19a194a0209941b7f883c3be))
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+
+### Features
+
+- Pay before Persist experiment ([#1373](https://github.com/RequestNetwork/requestNetwork/issues/1373)) ([bdc6eb4](https://github.com/RequestNetwork/requestNetwork/commit/bdc6eb42fe9546c70aa3f5c68708345f9fffd6d4))
+- Publish ([#1374](https://github.com/RequestNetwork/requestNetwork/issues/1374)) ([04db0d1](https://github.com/RequestNetwork/requestNetwork/commit/04db0d12dde819183da31d471bbb56d319023714))
+- Publish ([#1375](https://github.com/RequestNetwork/requestNetwork/issues/1375)) ([ac7d0f2](https://github.com/RequestNetwork/requestNetwork/commit/ac7d0f254f2ad377bfc9c9afb931f7e82041c724))
+- Publish ([#1378](https://github.com/RequestNetwork/requestNetwork/issues/1378)) ([a306ecf](https://github.com/RequestNetwork/requestNetwork/commit/a306ecfcf4f92f55cfe918f54f2b8deef88a68d4))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+
+### Features
+
+- add `addStakeholders` ([#1025](https://github.com/RequestNetwork/requestNetwork/issues/1025)) ([5e00068](https://github.com/RequestNetwork/requestNetwork/commit/5e000689d25581ec93a0489be6e728dbe9e913c9))
+- ERC20FeeProxy on Near testnet ([#1086](https://github.com/RequestNetwork/requestNetwork/issues/1086)) ([6ac8c28](https://github.com/RequestNetwork/requestNetwork/commit/6ac8c287b8838af93e9384bc30352b334dba116a))
+
+# [0.33.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.26.0...@requestnetwork/request-logic@0.33.0) (2024-03-29)
+
+### Bug Fixes
+
+- Pay before Persist experiment (Part 2) ([#1376](https://github.com/RequestNetwork/requestNetwork/issues/1376)) ([9c0ade7](https://github.com/RequestNetwork/requestNetwork/commit/9c0ade7c257e160ea9157fc75d91e9311de0b06b))
+- **security:** vulnerabilities + remove coveralls ([#1333](https://github.com/RequestNetwork/requestNetwork/issues/1333)) ([384818b](https://github.com/RequestNetwork/requestNetwork/commit/384818bceac7443e19a194a0209941b7f883c3be))
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+
+### Features
+
+- Pay before Persist experiment ([#1373](https://github.com/RequestNetwork/requestNetwork/issues/1373)) ([bdc6eb4](https://github.com/RequestNetwork/requestNetwork/commit/bdc6eb42fe9546c70aa3f5c68708345f9fffd6d4))
+- Publish ([#1374](https://github.com/RequestNetwork/requestNetwork/issues/1374)) ([04db0d1](https://github.com/RequestNetwork/requestNetwork/commit/04db0d12dde819183da31d471bbb56d319023714))
+- Publish ([#1375](https://github.com/RequestNetwork/requestNetwork/issues/1375)) ([ac7d0f2](https://github.com/RequestNetwork/requestNetwork/commit/ac7d0f254f2ad377bfc9c9afb931f7e82041c724))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+
+### Features
+
+- add `addStakeholders` ([#1025](https://github.com/RequestNetwork/requestNetwork/issues/1025)) ([5e00068](https://github.com/RequestNetwork/requestNetwork/commit/5e000689d25581ec93a0489be6e728dbe9e913c9))
+- ERC20FeeProxy on Near testnet ([#1086](https://github.com/RequestNetwork/requestNetwork/issues/1086)) ([6ac8c28](https://github.com/RequestNetwork/requestNetwork/commit/6ac8c287b8838af93e9384bc30352b334dba116a))
+
+# [0.32.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.26.0...@requestnetwork/request-logic@0.32.0) (2024-03-29)
+
+### Bug Fixes
+
+- **security:** vulnerabilities + remove coveralls ([#1333](https://github.com/RequestNetwork/requestNetwork/issues/1333)) ([384818b](https://github.com/RequestNetwork/requestNetwork/commit/384818bceac7443e19a194a0209941b7f883c3be))
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+
+### Features
+
+- Pay before Persist experiment ([#1373](https://github.com/RequestNetwork/requestNetwork/issues/1373)) ([bdc6eb4](https://github.com/RequestNetwork/requestNetwork/commit/bdc6eb42fe9546c70aa3f5c68708345f9fffd6d4))
+- Publish ([#1374](https://github.com/RequestNetwork/requestNetwork/issues/1374)) ([04db0d1](https://github.com/RequestNetwork/requestNetwork/commit/04db0d12dde819183da31d471bbb56d319023714))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+
+### Features
+
+- add `addStakeholders` ([#1025](https://github.com/RequestNetwork/requestNetwork/issues/1025)) ([5e00068](https://github.com/RequestNetwork/requestNetwork/commit/5e000689d25581ec93a0489be6e728dbe9e913c9))
+- ERC20FeeProxy on Near testnet ([#1086](https://github.com/RequestNetwork/requestNetwork/issues/1086)) ([6ac8c28](https://github.com/RequestNetwork/requestNetwork/commit/6ac8c287b8838af93e9384bc30352b334dba116a))
+
+# [0.31.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.26.0...@requestnetwork/request-logic@0.31.0) (2024-03-28)
+
+### Bug Fixes
+
+- **security:** vulnerabilities + remove coveralls ([#1333](https://github.com/RequestNetwork/requestNetwork/issues/1333)) ([384818b](https://github.com/RequestNetwork/requestNetwork/commit/384818bceac7443e19a194a0209941b7f883c3be))
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+
+### Features
+
+- add `addStakeholders` ([#1025](https://github.com/RequestNetwork/requestNetwork/issues/1025)) ([5e00068](https://github.com/RequestNetwork/requestNetwork/commit/5e000689d25581ec93a0489be6e728dbe9e913c9))
+- ERC20FeeProxy on Near testnet ([#1086](https://github.com/RequestNetwork/requestNetwork/issues/1086)) ([6ac8c28](https://github.com/RequestNetwork/requestNetwork/commit/6ac8c287b8838af93e9384bc30352b334dba116a))
+
+# [0.30.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.26.0...@requestnetwork/request-logic@0.30.0) (2024-01-26)
+
+### Bug Fixes
+
+- **security:** vulnerabilities + remove coveralls ([#1333](https://github.com/RequestNetwork/requestNetwork/issues/1333)) ([384818b](https://github.com/RequestNetwork/requestNetwork/commit/384818bceac7443e19a194a0209941b7f883c3be))
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+
+### Features
+
+- add `addStakeholders` ([#1025](https://github.com/RequestNetwork/requestNetwork/issues/1025)) ([5e00068](https://github.com/RequestNetwork/requestNetwork/commit/5e000689d25581ec93a0489be6e728dbe9e913c9))
+- ERC20FeeProxy on Near testnet ([#1086](https://github.com/RequestNetwork/requestNetwork/issues/1086)) ([6ac8c28](https://github.com/RequestNetwork/requestNetwork/commit/6ac8c287b8838af93e9384bc30352b334dba116a))
+
 # [0.29.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.26.0...@requestnetwork/request-logic@0.29.0) (2023-12-14)
 
 # 0.41.0 (2023-10-06)

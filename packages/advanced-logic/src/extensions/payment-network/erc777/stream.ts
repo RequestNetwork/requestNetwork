@@ -1,7 +1,11 @@
-import { ExtensionTypes, RequestLogicTypes, TypesUtils } from '@requestnetwork/types';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  RequestLogicTypes,
+  TypesUtils,
+} from '@requestnetwork/types';
 import ReferenceBasedPaymentNetwork from '../reference-based';
 import { isValidAmount } from '@requestnetwork/utils';
-import { ICurrencyManager } from '@requestnetwork/currency';
 const CURRENT_VERSION = '0.1.0';
 
 /**
@@ -11,7 +15,7 @@ export default class Erc777StreamPaymentNetwork<
   TCreationParameters extends
     ExtensionTypes.PnStreamReferenceBased.ICreationParameters = ExtensionTypes.PnStreamReferenceBased.ICreationParameters,
 > extends ReferenceBasedPaymentNetwork<TCreationParameters> {
-  public constructor(currencyManager: ICurrencyManager) {
+  public constructor(currencyManager: CurrencyTypes.ICurrencyManager) {
     super(
       currencyManager,
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,

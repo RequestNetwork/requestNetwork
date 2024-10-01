@@ -10,7 +10,6 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { ICurrencyManager } from '@requestnetwork/currency';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import localUtils from './utils';
@@ -77,7 +76,18 @@ export default class Request {
   /**
    * A list of known tokens
    */
-  private currencyManager: ICurrencyManager;
+  private currencyManager: CurrencyTypes.ICurrencyManager;
+
+  /**
+   * Information for an in-memory request, including transaction data, topics, and payment request data.
+   * This is used for requests that haven't been persisted yet, allowing for operations like payments
+   * before the request is stored in the data access layer.
+   *
+   * @property transactionData - Transaction data necessary for persisting the request later on.
+   * @property topics - Topics of the request, used for indexing and retrieval when persisting.
+   * @property requestData - Structured data primarily used for processing payments before the request is persisted.
+   */
+  public readonly inMemoryInfo: RequestLogicTypes.IInMemoryInfo | null = null;
 
   /**
    * Creates an instance of Request
@@ -92,13 +102,14 @@ export default class Request {
   constructor(
     requestId: RequestLogicTypes.RequestId,
     requestLogic: RequestLogicTypes.IRequestLogic,
-    currencyManager: ICurrencyManager,
+    currencyManager: CurrencyTypes.ICurrencyManager,
     options?: {
       paymentNetwork?: PaymentTypes.IPaymentNetwork | null;
       contentDataExtension?: ContentDataExtension | null;
       requestLogicCreateResult?: RequestLogicTypes.IReturnCreateRequest;
       skipPaymentDetection?: boolean;
       disableEvents?: boolean;
+      inMemoryInfo?: RequestLogicTypes.IInMemoryInfo | null;
     },
   ) {
     this.requestLogic = requestLogic;
@@ -109,6 +120,7 @@ export default class Request {
     this.skipPaymentDetection = options?.skipPaymentDetection || false;
     this.disableEvents = options?.disableEvents || false;
     this.currencyManager = currencyManager;
+    this.inMemoryInfo = options?.inMemoryInfo || null;
 
     if (options?.requestLogicCreateResult && !this.disableEvents) {
       const originalEmitter = options.requestLogicCreateResult;

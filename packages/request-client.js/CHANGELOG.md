@@ -3,6 +3,441 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.49.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-client.js@0.30.0...@requestnetwork/request-client.js@0.49.0) (2024-07-24)
+
+# 0.48.0 (2024-07-17)
+
+### Bug Fixes
+
+- Pay before Persist experiment (Part 2) ([#1376](https://github.com/RequestNetwork/requestNetwork/issues/1376)) ([9c0ade7](https://github.com/RequestNetwork/requestNetwork/commit/9c0ade7c257e160ea9157fc75d91e9311de0b06b))
+- Revert Pay before Persist experiment ([#1387](https://github.com/RequestNetwork/requestNetwork/issues/1387)) ([6cf66fb](https://github.com/RequestNetwork/requestNetwork/commit/6cf66fbce0cc1df8acbbfb7eb754c1ad8ef77a36))
+- **security:** vulnerabilities + remove coveralls ([#1333](https://github.com/RequestNetwork/requestNetwork/issues/1333)) ([384818b](https://github.com/RequestNetwork/requestNetwork/commit/384818bceac7443e19a194a0209941b7f883c3be))
+- sunset NEAR conversion for now ([#1302](https://github.com/RequestNetwork/requestNetwork/issues/1302)) ([afdb449](https://github.com/RequestNetwork/requestNetwork/commit/afdb44941c333032227b78e4ac21fb5adb105fbc))
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+
+### Features
+
+- Create new data access to allow for in-memory transactions. ([#1386](https://github.com/RequestNetwork/requestNetwork/issues/1386)) ([0320158](https://github.com/RequestNetwork/requestNetwork/commit/0320158c77b69f3255106df8ab0b649faac21f04))
+- improve payment network types ([#1355](https://github.com/RequestNetwork/requestNetwork/issues/1355)) ([716b498](https://github.com/RequestNetwork/requestNetwork/commit/716b498ec1e3b352f51400b0d0356e893befd3d1))
+- Pay before Persist experiment ([#1373](https://github.com/RequestNetwork/requestNetwork/issues/1373)) ([bdc6eb4](https://github.com/RequestNetwork/requestNetwork/commit/bdc6eb42fe9546c70aa3f5c68708345f9fffd6d4))
+- Publish ([#1374](https://github.com/RequestNetwork/requestNetwork/issues/1374)) ([04db0d1](https://github.com/RequestNetwork/requestNetwork/commit/04db0d12dde819183da31d471bbb56d319023714))
+- Publish ([#1375](https://github.com/RequestNetwork/requestNetwork/issues/1375)) ([ac7d0f2](https://github.com/RequestNetwork/requestNetwork/commit/ac7d0f254f2ad377bfc9c9afb931f7e82041c724))
+- Publish ([#1378](https://github.com/RequestNetwork/requestNetwork/issues/1378)) ([a306ecf](https://github.com/RequestNetwork/requestNetwork/commit/a306ecfcf4f92f55cfe918f54f2b8deef88a68d4))
+- **request-client:** expose txHash and network for declareSent ([#1311](https://github.com/RequestNetwork/requestNetwork/issues/1311)) ([d2ce64c](https://github.com/RequestNetwork/requestNetwork/commit/d2ce64c7f5c1a0c07ff8b96aaa77461b858fbcac))
+
+# 0.42.0 (2023-11-10)
+
+### Bug Fixes
+
+- persistTransaction timeout ([#1224](https://github.com/RequestNetwork/requestNetwork/issues/1224)) ([b341203](https://github.com/RequestNetwork/requestNetwork/commit/b34120355df39b56859621148b7773c46673215f))
+- **storage:** in memory indexer metadata ([#1234](https://github.com/RequestNetwork/requestNetwork/issues/1234)) ([9088c79](https://github.com/RequestNetwork/requestNetwork/commit/9088c793db4acb9afabcf1f0e3767f30927618bc))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- currencyManager in PN factory from request ([#584](https://github.com/RequestNetwork/requestNetwork/issues/584)) ([df223c1](https://github.com/RequestNetwork/requestNetwork/commit/df223c11bad0a05efc75efed0ff7dc56460565b4))
+- default getTheGraphClient accounts for Near ([#1095](https://github.com/RequestNetwork/requestNetwork/issues/1095)) ([750908c](https://github.com/RequestNetwork/requestNetwork/commit/750908c6c094ae512d9a09b87b7ffb3b7c3bce18))
+- ethereum proxy ([#807](https://github.com/RequestNetwork/requestNetwork/issues/807)) ([bcda36d](https://github.com/RequestNetwork/requestNetwork/commit/bcda36dee054504310aaaa98f9d870682893efcc))
+- getDataIdMeta heavy load ([#613](https://github.com/RequestNetwork/requestNetwork/issues/613)) ([fa8bf9e](https://github.com/RequestNetwork/requestNetwork/commit/fa8bf9e77a98d27ad6e21a8118995e6930a99407))
+- **http-data-access:** do not throw in setTimeout ([#644](https://github.com/RequestNetwork/requestNetwork/issues/644)) ([b03f136](https://github.com/RequestNetwork/requestNetwork/commit/b03f136c239f83129ecdbc3423c51ccb27974c75))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- replace requesthub slack with discord ([#1032](https://github.com/RequestNetwork/requestNetwork/issues/1032)) ([880ccd7](https://github.com/RequestNetwork/requestNetwork/commit/880ccd760bca8d0372db8da6791813d0c2d36f86))
+- request-client should support conversion and network checks ([#975](https://github.com/RequestNetwork/requestNetwork/issues/975)) ([9ff30cd](https://github.com/RequestNetwork/requestNetwork/commit/9ff30cdc8e1237c488be039dbbfabac07960fb32))
+- **request-client:** emit error event on refresh rejection ([#653](https://github.com/RequestNetwork/requestNetwork/issues/653)) ([990c650](https://github.com/RequestNetwork/requestNetwork/commit/990c65025da585cbf0c0709a8ba308e912bcc730))
+- **request-client:** remove useLocalEthereumBroadcast from tests ([#937](https://github.com/RequestNetwork/requestNetwork/issues/937)) ([a9e3f3e](https://github.com/RequestNetwork/requestNetwork/commit/a9e3f3e093843a1187f624be21833a2dbae0f87b))
+- **request-node:** Add exponential backoff in fetchAndRetry ([#1077](https://github.com/RequestNetwork/requestNetwork/issues/1077)) ([0629e45](https://github.com/RequestNetwork/requestNetwork/commit/0629e45ac39eee0a1cc44d35ff4fe03e116c4840))
+- solana address validation ([#1184](https://github.com/RequestNetwork/requestNetwork/issues/1184)) ([aff90df](https://github.com/RequestNetwork/requestNetwork/commit/aff90dfb7df7cc5e8e166c731552e5fef21bf339))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- update currency validation ([#1018](https://github.com/RequestNetwork/requestNetwork/issues/1018)) ([0e7778f](https://github.com/RequestNetwork/requestNetwork/commit/0e7778f4f1c10fac9dfe96931d3e53ddaf4c9c04))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+- webpack for postgre ([#568](https://github.com/RequestNetwork/requestNetwork/issues/568)) ([ecc2611](https://github.com/RequestNetwork/requestNetwork/commit/ecc2611b0ff4b84dca22e2c956c24dae0f25e47f))
+- webpack ts-loader build conf ([#779](https://github.com/RequestNetwork/requestNetwork/issues/779)) ([4288234](https://github.com/RequestNetwork/requestNetwork/commit/4288234726248ebabdc6d01e0fb3c6222e41f58a))
+
+### Features
+
+- add `addStakeholders` ([#1025](https://github.com/RequestNetwork/requestNetwork/issues/1025)) ([5e00068](https://github.com/RequestNetwork/requestNetwork/commit/5e000689d25581ec93a0489be6e728dbe9e913c9))
+- add declarative payment network for erc20 ([#635](https://github.com/RequestNetwork/requestNetwork/issues/635)) ([ecf4a9d](https://github.com/RequestNetwork/requestNetwork/commit/ecf4a9d5515d5eea59e017b9aaf89c133421d71b)), closes [#631](https://github.com/RequestNetwork/requestNetwork/issues/631) [#633](https://github.com/RequestNetwork/requestNetwork/issues/633) [#636](https://github.com/RequestNetwork/requestNetwork/issues/636) [#637](https://github.com/RequestNetwork/requestNetwork/issues/637) [#638](https://github.com/RequestNetwork/requestNetwork/issues/638) [#550](https://github.com/RequestNetwork/requestNetwork/issues/550)
+- add delegate in request client ([#541](https://github.com/RequestNetwork/requestNetwork/issues/541)) ([253b308](https://github.com/RequestNetwork/requestNetwork/commit/253b30847f261840508a14cabf5dea93bb7c5dba))
+- add extension data at request creation ([#897](https://github.com/RequestNetwork/requestNetwork/issues/897)) ([1ca2363](https://github.com/RequestNetwork/requestNetwork/commit/1ca2363b08284fe04e481cccdf768db0f5016e24))
+- Add extra support erc20 tokens ([#388](https://github.com/RequestNetwork/requestNetwork/issues/388)) ([6fe92a1](https://github.com/RequestNetwork/requestNetwork/commit/6fe92a155e3ee9c287b5d2ab584a33c8cffb1e6a))
+- add network as declarative params ([#665](https://github.com/RequestNetwork/requestNetwork/issues/665)) ([e3a4515](https://github.com/RequestNetwork/requestNetwork/commit/e3a4515e23261b79a377ff8ce3d7a5c8d8e84127))
+- add txhash in request-client.js ([#626](https://github.com/RequestNetwork/requestNetwork/issues/626)) ([c670a38](https://github.com/RequestNetwork/requestNetwork/commit/c670a384feff3700b99c8c8f549d1c6634bd5f3b))
+- Currency Manager ([#571](https://github.com/RequestNetwork/requestNetwork/issues/571)) ([3a68ad3](https://github.com/RequestNetwork/requestNetwork/commit/3a68ad31fc049e13f0f6dac4759b08c06b33416b))
+- currency manager near erc20 support ([#1020](https://github.com/RequestNetwork/requestNetwork/issues/1020)) ([0af020b](https://github.com/RequestNetwork/requestNetwork/commit/0af020b8d2efd9c46ce8c8002d3f655bdb61b42f))
+- currencyManager manages conversion paths ([#699](https://github.com/RequestNetwork/requestNetwork/issues/699)) ([7f6e1d1](https://github.com/RequestNetwork/requestNetwork/commit/7f6e1d1a6a06e5666ad7c784e5ab14a7b6f400a1))
+- custom currencyManager ([#723](https://github.com/RequestNetwork/requestNetwork/issues/723)) ([834a0f9](https://github.com/RequestNetwork/requestNetwork/commit/834a0f9fade79a03d43787ce863c2a973da37ff3))
+- **declarative:** payment reference ([#901](https://github.com/RequestNetwork/requestNetwork/issues/901)) ([2679368](https://github.com/RequestNetwork/requestNetwork/commit/2679368241ea8e34fc88f60eb395459c3c277029))
+- ERC20TransferableReceivable payment network ([#1033](https://github.com/RequestNetwork/requestNetwork/issues/1033)) ([cfea8a3](https://github.com/RequestNetwork/requestNetwork/commit/cfea8a31e39ba4315b8ffc9971cbb3155be2dde1))
+- fantom/fuse RPC url & remove default etherscan API key ([#551](https://github.com/RequestNetwork/requestNetwork/issues/551)) ([5ce4413](https://github.com/RequestNetwork/requestNetwork/commit/5ce44139276afde9f7a5ec1c642e68fd2266d255))
+- flexible escrow contract ([#825](https://github.com/RequestNetwork/requestNetwork/issues/825)) ([c80b48f](https://github.com/RequestNetwork/requestNetwork/commit/c80b48fcbc99605b2054a352feb21dc028d0c604))
+- Near detection with autobahn ([#576](https://github.com/RequestNetwork/requestNetwork/issues/576)) ([86e0145](https://github.com/RequestNetwork/requestNetwork/commit/86e01459a6b32dacfa778434226f374f7668786c))
+- optionally disable events ([#469](https://github.com/RequestNetwork/requestNetwork/issues/469)) ([e16a926](https://github.com/RequestNetwork/requestNetwork/commit/e16a926cc182a0048909de5cfe1cdd5f9772a153))
+- payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+- payment reference utils ([#906](https://github.com/RequestNetwork/requestNetwork/issues/906)) ([f0ee19f](https://github.com/RequestNetwork/requestNetwork/commit/f0ee19f1fc9b2fd2ae36bc2c8d4305fade06771b))
+- pn to smart-contract version mapping ([#649](https://github.com/RequestNetwork/requestNetwork/issues/649)) ([d45ab85](https://github.com/RequestNetwork/requestNetwork/commit/d45ab85c2c47b8d7325fef78965ad94272250598))
+- **request-client:** add option to skip refresh ([#1085](https://github.com/RequestNetwork/requestNetwork/issues/1085)) ([4153cbf](https://github.com/RequestNetwork/requestNetwork/commit/4153cbff9aa2a33b453459977d2759af8047e404))
+- retrieve active escrow data ([#818](https://github.com/RequestNetwork/requestNetwork/issues/818)) ([0bcf58c](https://github.com/RequestNetwork/requestNetwork/commit/0bcf58cdad76d42320f22065207f82455d4a12fe))
+- split data-access read and write for TheGraph ([#875](https://github.com/RequestNetwork/requestNetwork/issues/875)) ([8fdf34d](https://github.com/RequestNetwork/requestNetwork/commit/8fdf34d280a5c277125fa431d74976be69768d38))
+- update token list ([#384](https://github.com/RequestNetwork/requestNetwork/issues/384)) ([4913626](https://github.com/RequestNetwork/requestNetwork/commit/4913626c74458e17c27b1b21e2a7f4937fe2e841))
+
+# [0.48.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-client.js@0.30.0...@requestnetwork/request-client.js@0.48.0) (2024-07-21)
+
+### Bug Fixes
+
+- Pay before Persist experiment (Part 2) ([#1376](https://github.com/RequestNetwork/requestNetwork/issues/1376)) ([9c0ade7](https://github.com/RequestNetwork/requestNetwork/commit/9c0ade7c257e160ea9157fc75d91e9311de0b06b))
+- Revert Pay before Persist experiment ([#1387](https://github.com/RequestNetwork/requestNetwork/issues/1387)) ([6cf66fb](https://github.com/RequestNetwork/requestNetwork/commit/6cf66fbce0cc1df8acbbfb7eb754c1ad8ef77a36))
+- **security:** vulnerabilities + remove coveralls ([#1333](https://github.com/RequestNetwork/requestNetwork/issues/1333)) ([384818b](https://github.com/RequestNetwork/requestNetwork/commit/384818bceac7443e19a194a0209941b7f883c3be))
+- sunset NEAR conversion for now ([#1302](https://github.com/RequestNetwork/requestNetwork/issues/1302)) ([afdb449](https://github.com/RequestNetwork/requestNetwork/commit/afdb44941c333032227b78e4ac21fb5adb105fbc))
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+
+### Features
+
+- Create new data access to allow for in-memory transactions. ([#1386](https://github.com/RequestNetwork/requestNetwork/issues/1386)) ([0320158](https://github.com/RequestNetwork/requestNetwork/commit/0320158c77b69f3255106df8ab0b649faac21f04))
+- improve payment network types ([#1355](https://github.com/RequestNetwork/requestNetwork/issues/1355)) ([716b498](https://github.com/RequestNetwork/requestNetwork/commit/716b498ec1e3b352f51400b0d0356e893befd3d1))
+- Pay before Persist experiment ([#1373](https://github.com/RequestNetwork/requestNetwork/issues/1373)) ([bdc6eb4](https://github.com/RequestNetwork/requestNetwork/commit/bdc6eb42fe9546c70aa3f5c68708345f9fffd6d4))
+- Publish ([#1374](https://github.com/RequestNetwork/requestNetwork/issues/1374)) ([04db0d1](https://github.com/RequestNetwork/requestNetwork/commit/04db0d12dde819183da31d471bbb56d319023714))
+- Publish ([#1375](https://github.com/RequestNetwork/requestNetwork/issues/1375)) ([ac7d0f2](https://github.com/RequestNetwork/requestNetwork/commit/ac7d0f254f2ad377bfc9c9afb931f7e82041c724))
+- Publish ([#1378](https://github.com/RequestNetwork/requestNetwork/issues/1378)) ([a306ecf](https://github.com/RequestNetwork/requestNetwork/commit/a306ecfcf4f92f55cfe918f54f2b8deef88a68d4))
+- **request-client:** expose txHash and network for declareSent ([#1311](https://github.com/RequestNetwork/requestNetwork/issues/1311)) ([d2ce64c](https://github.com/RequestNetwork/requestNetwork/commit/d2ce64c7f5c1a0c07ff8b96aaa77461b858fbcac))
+
+# 0.42.0 (2023-11-10)
+
+### Bug Fixes
+
+- persistTransaction timeout ([#1224](https://github.com/RequestNetwork/requestNetwork/issues/1224)) ([b341203](https://github.com/RequestNetwork/requestNetwork/commit/b34120355df39b56859621148b7773c46673215f))
+- **storage:** in memory indexer metadata ([#1234](https://github.com/RequestNetwork/requestNetwork/issues/1234)) ([9088c79](https://github.com/RequestNetwork/requestNetwork/commit/9088c793db4acb9afabcf1f0e3767f30927618bc))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- currencyManager in PN factory from request ([#584](https://github.com/RequestNetwork/requestNetwork/issues/584)) ([df223c1](https://github.com/RequestNetwork/requestNetwork/commit/df223c11bad0a05efc75efed0ff7dc56460565b4))
+- default getTheGraphClient accounts for Near ([#1095](https://github.com/RequestNetwork/requestNetwork/issues/1095)) ([750908c](https://github.com/RequestNetwork/requestNetwork/commit/750908c6c094ae512d9a09b87b7ffb3b7c3bce18))
+- ethereum proxy ([#807](https://github.com/RequestNetwork/requestNetwork/issues/807)) ([bcda36d](https://github.com/RequestNetwork/requestNetwork/commit/bcda36dee054504310aaaa98f9d870682893efcc))
+- getDataIdMeta heavy load ([#613](https://github.com/RequestNetwork/requestNetwork/issues/613)) ([fa8bf9e](https://github.com/RequestNetwork/requestNetwork/commit/fa8bf9e77a98d27ad6e21a8118995e6930a99407))
+- **http-data-access:** do not throw in setTimeout ([#644](https://github.com/RequestNetwork/requestNetwork/issues/644)) ([b03f136](https://github.com/RequestNetwork/requestNetwork/commit/b03f136c239f83129ecdbc3423c51ccb27974c75))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- replace requesthub slack with discord ([#1032](https://github.com/RequestNetwork/requestNetwork/issues/1032)) ([880ccd7](https://github.com/RequestNetwork/requestNetwork/commit/880ccd760bca8d0372db8da6791813d0c2d36f86))
+- request-client should support conversion and network checks ([#975](https://github.com/RequestNetwork/requestNetwork/issues/975)) ([9ff30cd](https://github.com/RequestNetwork/requestNetwork/commit/9ff30cdc8e1237c488be039dbbfabac07960fb32))
+- **request-client:** emit error event on refresh rejection ([#653](https://github.com/RequestNetwork/requestNetwork/issues/653)) ([990c650](https://github.com/RequestNetwork/requestNetwork/commit/990c65025da585cbf0c0709a8ba308e912bcc730))
+- **request-client:** remove useLocalEthereumBroadcast from tests ([#937](https://github.com/RequestNetwork/requestNetwork/issues/937)) ([a9e3f3e](https://github.com/RequestNetwork/requestNetwork/commit/a9e3f3e093843a1187f624be21833a2dbae0f87b))
+- **request-node:** Add exponential backoff in fetchAndRetry ([#1077](https://github.com/RequestNetwork/requestNetwork/issues/1077)) ([0629e45](https://github.com/RequestNetwork/requestNetwork/commit/0629e45ac39eee0a1cc44d35ff4fe03e116c4840))
+- solana address validation ([#1184](https://github.com/RequestNetwork/requestNetwork/issues/1184)) ([aff90df](https://github.com/RequestNetwork/requestNetwork/commit/aff90dfb7df7cc5e8e166c731552e5fef21bf339))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- update currency validation ([#1018](https://github.com/RequestNetwork/requestNetwork/issues/1018)) ([0e7778f](https://github.com/RequestNetwork/requestNetwork/commit/0e7778f4f1c10fac9dfe96931d3e53ddaf4c9c04))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+- webpack for postgre ([#568](https://github.com/RequestNetwork/requestNetwork/issues/568)) ([ecc2611](https://github.com/RequestNetwork/requestNetwork/commit/ecc2611b0ff4b84dca22e2c956c24dae0f25e47f))
+- webpack ts-loader build conf ([#779](https://github.com/RequestNetwork/requestNetwork/issues/779)) ([4288234](https://github.com/RequestNetwork/requestNetwork/commit/4288234726248ebabdc6d01e0fb3c6222e41f58a))
+
+### Features
+
+- add `addStakeholders` ([#1025](https://github.com/RequestNetwork/requestNetwork/issues/1025)) ([5e00068](https://github.com/RequestNetwork/requestNetwork/commit/5e000689d25581ec93a0489be6e728dbe9e913c9))
+- add declarative payment network for erc20 ([#635](https://github.com/RequestNetwork/requestNetwork/issues/635)) ([ecf4a9d](https://github.com/RequestNetwork/requestNetwork/commit/ecf4a9d5515d5eea59e017b9aaf89c133421d71b)), closes [#631](https://github.com/RequestNetwork/requestNetwork/issues/631) [#633](https://github.com/RequestNetwork/requestNetwork/issues/633) [#636](https://github.com/RequestNetwork/requestNetwork/issues/636) [#637](https://github.com/RequestNetwork/requestNetwork/issues/637) [#638](https://github.com/RequestNetwork/requestNetwork/issues/638) [#550](https://github.com/RequestNetwork/requestNetwork/issues/550)
+- add delegate in request client ([#541](https://github.com/RequestNetwork/requestNetwork/issues/541)) ([253b308](https://github.com/RequestNetwork/requestNetwork/commit/253b30847f261840508a14cabf5dea93bb7c5dba))
+- add extension data at request creation ([#897](https://github.com/RequestNetwork/requestNetwork/issues/897)) ([1ca2363](https://github.com/RequestNetwork/requestNetwork/commit/1ca2363b08284fe04e481cccdf768db0f5016e24))
+- Add extra support erc20 tokens ([#388](https://github.com/RequestNetwork/requestNetwork/issues/388)) ([6fe92a1](https://github.com/RequestNetwork/requestNetwork/commit/6fe92a155e3ee9c287b5d2ab584a33c8cffb1e6a))
+- add network as declarative params ([#665](https://github.com/RequestNetwork/requestNetwork/issues/665)) ([e3a4515](https://github.com/RequestNetwork/requestNetwork/commit/e3a4515e23261b79a377ff8ce3d7a5c8d8e84127))
+- add txhash in request-client.js ([#626](https://github.com/RequestNetwork/requestNetwork/issues/626)) ([c670a38](https://github.com/RequestNetwork/requestNetwork/commit/c670a384feff3700b99c8c8f549d1c6634bd5f3b))
+- Currency Manager ([#571](https://github.com/RequestNetwork/requestNetwork/issues/571)) ([3a68ad3](https://github.com/RequestNetwork/requestNetwork/commit/3a68ad31fc049e13f0f6dac4759b08c06b33416b))
+- currency manager near erc20 support ([#1020](https://github.com/RequestNetwork/requestNetwork/issues/1020)) ([0af020b](https://github.com/RequestNetwork/requestNetwork/commit/0af020b8d2efd9c46ce8c8002d3f655bdb61b42f))
+- currencyManager manages conversion paths ([#699](https://github.com/RequestNetwork/requestNetwork/issues/699)) ([7f6e1d1](https://github.com/RequestNetwork/requestNetwork/commit/7f6e1d1a6a06e5666ad7c784e5ab14a7b6f400a1))
+- custom currencyManager ([#723](https://github.com/RequestNetwork/requestNetwork/issues/723)) ([834a0f9](https://github.com/RequestNetwork/requestNetwork/commit/834a0f9fade79a03d43787ce863c2a973da37ff3))
+- **declarative:** payment reference ([#901](https://github.com/RequestNetwork/requestNetwork/issues/901)) ([2679368](https://github.com/RequestNetwork/requestNetwork/commit/2679368241ea8e34fc88f60eb395459c3c277029))
+- ERC20TransferableReceivable payment network ([#1033](https://github.com/RequestNetwork/requestNetwork/issues/1033)) ([cfea8a3](https://github.com/RequestNetwork/requestNetwork/commit/cfea8a31e39ba4315b8ffc9971cbb3155be2dde1))
+- fantom/fuse RPC url & remove default etherscan API key ([#551](https://github.com/RequestNetwork/requestNetwork/issues/551)) ([5ce4413](https://github.com/RequestNetwork/requestNetwork/commit/5ce44139276afde9f7a5ec1c642e68fd2266d255))
+- flexible escrow contract ([#825](https://github.com/RequestNetwork/requestNetwork/issues/825)) ([c80b48f](https://github.com/RequestNetwork/requestNetwork/commit/c80b48fcbc99605b2054a352feb21dc028d0c604))
+- Near detection with autobahn ([#576](https://github.com/RequestNetwork/requestNetwork/issues/576)) ([86e0145](https://github.com/RequestNetwork/requestNetwork/commit/86e01459a6b32dacfa778434226f374f7668786c))
+- optionally disable events ([#469](https://github.com/RequestNetwork/requestNetwork/issues/469)) ([e16a926](https://github.com/RequestNetwork/requestNetwork/commit/e16a926cc182a0048909de5cfe1cdd5f9772a153))
+- payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+- payment reference utils ([#906](https://github.com/RequestNetwork/requestNetwork/issues/906)) ([f0ee19f](https://github.com/RequestNetwork/requestNetwork/commit/f0ee19f1fc9b2fd2ae36bc2c8d4305fade06771b))
+- pn to smart-contract version mapping ([#649](https://github.com/RequestNetwork/requestNetwork/issues/649)) ([d45ab85](https://github.com/RequestNetwork/requestNetwork/commit/d45ab85c2c47b8d7325fef78965ad94272250598))
+- **request-client:** add option to skip refresh ([#1085](https://github.com/RequestNetwork/requestNetwork/issues/1085)) ([4153cbf](https://github.com/RequestNetwork/requestNetwork/commit/4153cbff9aa2a33b453459977d2759af8047e404))
+- retrieve active escrow data ([#818](https://github.com/RequestNetwork/requestNetwork/issues/818)) ([0bcf58c](https://github.com/RequestNetwork/requestNetwork/commit/0bcf58cdad76d42320f22065207f82455d4a12fe))
+- split data-access read and write for TheGraph ([#875](https://github.com/RequestNetwork/requestNetwork/issues/875)) ([8fdf34d](https://github.com/RequestNetwork/requestNetwork/commit/8fdf34d280a5c277125fa431d74976be69768d38))
+- update token list ([#384](https://github.com/RequestNetwork/requestNetwork/issues/384)) ([4913626](https://github.com/RequestNetwork/requestNetwork/commit/4913626c74458e17c27b1b21e2a7f4937fe2e841))
+
+# [0.47.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-client.js@0.30.0...@requestnetwork/request-client.js@0.47.0) (2024-03-29)
+
+### Bug Fixes
+
+- Pay before Persist experiment (Part 2) ([#1376](https://github.com/RequestNetwork/requestNetwork/issues/1376)) ([9c0ade7](https://github.com/RequestNetwork/requestNetwork/commit/9c0ade7c257e160ea9157fc75d91e9311de0b06b))
+- **security:** vulnerabilities + remove coveralls ([#1333](https://github.com/RequestNetwork/requestNetwork/issues/1333)) ([384818b](https://github.com/RequestNetwork/requestNetwork/commit/384818bceac7443e19a194a0209941b7f883c3be))
+- sunset NEAR conversion for now ([#1302](https://github.com/RequestNetwork/requestNetwork/issues/1302)) ([afdb449](https://github.com/RequestNetwork/requestNetwork/commit/afdb44941c333032227b78e4ac21fb5adb105fbc))
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+
+### Features
+
+- improve payment network types ([#1355](https://github.com/RequestNetwork/requestNetwork/issues/1355)) ([716b498](https://github.com/RequestNetwork/requestNetwork/commit/716b498ec1e3b352f51400b0d0356e893befd3d1))
+- Pay before Persist experiment ([#1373](https://github.com/RequestNetwork/requestNetwork/issues/1373)) ([bdc6eb4](https://github.com/RequestNetwork/requestNetwork/commit/bdc6eb42fe9546c70aa3f5c68708345f9fffd6d4))
+- Publish ([#1374](https://github.com/RequestNetwork/requestNetwork/issues/1374)) ([04db0d1](https://github.com/RequestNetwork/requestNetwork/commit/04db0d12dde819183da31d471bbb56d319023714))
+- Publish ([#1375](https://github.com/RequestNetwork/requestNetwork/issues/1375)) ([ac7d0f2](https://github.com/RequestNetwork/requestNetwork/commit/ac7d0f254f2ad377bfc9c9afb931f7e82041c724))
+- **request-client:** expose txHash and network for declareSent ([#1311](https://github.com/RequestNetwork/requestNetwork/issues/1311)) ([d2ce64c](https://github.com/RequestNetwork/requestNetwork/commit/d2ce64c7f5c1a0c07ff8b96aaa77461b858fbcac))
+
+# 0.42.0 (2023-11-10)
+
+### Bug Fixes
+
+- persistTransaction timeout ([#1224](https://github.com/RequestNetwork/requestNetwork/issues/1224)) ([b341203](https://github.com/RequestNetwork/requestNetwork/commit/b34120355df39b56859621148b7773c46673215f))
+- **storage:** in memory indexer metadata ([#1234](https://github.com/RequestNetwork/requestNetwork/issues/1234)) ([9088c79](https://github.com/RequestNetwork/requestNetwork/commit/9088c793db4acb9afabcf1f0e3767f30927618bc))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- currencyManager in PN factory from request ([#584](https://github.com/RequestNetwork/requestNetwork/issues/584)) ([df223c1](https://github.com/RequestNetwork/requestNetwork/commit/df223c11bad0a05efc75efed0ff7dc56460565b4))
+- default getTheGraphClient accounts for Near ([#1095](https://github.com/RequestNetwork/requestNetwork/issues/1095)) ([750908c](https://github.com/RequestNetwork/requestNetwork/commit/750908c6c094ae512d9a09b87b7ffb3b7c3bce18))
+- ethereum proxy ([#807](https://github.com/RequestNetwork/requestNetwork/issues/807)) ([bcda36d](https://github.com/RequestNetwork/requestNetwork/commit/bcda36dee054504310aaaa98f9d870682893efcc))
+- getDataIdMeta heavy load ([#613](https://github.com/RequestNetwork/requestNetwork/issues/613)) ([fa8bf9e](https://github.com/RequestNetwork/requestNetwork/commit/fa8bf9e77a98d27ad6e21a8118995e6930a99407))
+- **http-data-access:** do not throw in setTimeout ([#644](https://github.com/RequestNetwork/requestNetwork/issues/644)) ([b03f136](https://github.com/RequestNetwork/requestNetwork/commit/b03f136c239f83129ecdbc3423c51ccb27974c75))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- replace requesthub slack with discord ([#1032](https://github.com/RequestNetwork/requestNetwork/issues/1032)) ([880ccd7](https://github.com/RequestNetwork/requestNetwork/commit/880ccd760bca8d0372db8da6791813d0c2d36f86))
+- request-client should support conversion and network checks ([#975](https://github.com/RequestNetwork/requestNetwork/issues/975)) ([9ff30cd](https://github.com/RequestNetwork/requestNetwork/commit/9ff30cdc8e1237c488be039dbbfabac07960fb32))
+- **request-client:** emit error event on refresh rejection ([#653](https://github.com/RequestNetwork/requestNetwork/issues/653)) ([990c650](https://github.com/RequestNetwork/requestNetwork/commit/990c65025da585cbf0c0709a8ba308e912bcc730))
+- **request-client:** remove useLocalEthereumBroadcast from tests ([#937](https://github.com/RequestNetwork/requestNetwork/issues/937)) ([a9e3f3e](https://github.com/RequestNetwork/requestNetwork/commit/a9e3f3e093843a1187f624be21833a2dbae0f87b))
+- **request-node:** Add exponential backoff in fetchAndRetry ([#1077](https://github.com/RequestNetwork/requestNetwork/issues/1077)) ([0629e45](https://github.com/RequestNetwork/requestNetwork/commit/0629e45ac39eee0a1cc44d35ff4fe03e116c4840))
+- solana address validation ([#1184](https://github.com/RequestNetwork/requestNetwork/issues/1184)) ([aff90df](https://github.com/RequestNetwork/requestNetwork/commit/aff90dfb7df7cc5e8e166c731552e5fef21bf339))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- update currency validation ([#1018](https://github.com/RequestNetwork/requestNetwork/issues/1018)) ([0e7778f](https://github.com/RequestNetwork/requestNetwork/commit/0e7778f4f1c10fac9dfe96931d3e53ddaf4c9c04))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+- webpack for postgre ([#568](https://github.com/RequestNetwork/requestNetwork/issues/568)) ([ecc2611](https://github.com/RequestNetwork/requestNetwork/commit/ecc2611b0ff4b84dca22e2c956c24dae0f25e47f))
+- webpack ts-loader build conf ([#779](https://github.com/RequestNetwork/requestNetwork/issues/779)) ([4288234](https://github.com/RequestNetwork/requestNetwork/commit/4288234726248ebabdc6d01e0fb3c6222e41f58a))
+
+### Features
+
+- add `addStakeholders` ([#1025](https://github.com/RequestNetwork/requestNetwork/issues/1025)) ([5e00068](https://github.com/RequestNetwork/requestNetwork/commit/5e000689d25581ec93a0489be6e728dbe9e913c9))
+- add declarative payment network for erc20 ([#635](https://github.com/RequestNetwork/requestNetwork/issues/635)) ([ecf4a9d](https://github.com/RequestNetwork/requestNetwork/commit/ecf4a9d5515d5eea59e017b9aaf89c133421d71b)), closes [#631](https://github.com/RequestNetwork/requestNetwork/issues/631) [#633](https://github.com/RequestNetwork/requestNetwork/issues/633) [#636](https://github.com/RequestNetwork/requestNetwork/issues/636) [#637](https://github.com/RequestNetwork/requestNetwork/issues/637) [#638](https://github.com/RequestNetwork/requestNetwork/issues/638) [#550](https://github.com/RequestNetwork/requestNetwork/issues/550)
+- add delegate in request client ([#541](https://github.com/RequestNetwork/requestNetwork/issues/541)) ([253b308](https://github.com/RequestNetwork/requestNetwork/commit/253b30847f261840508a14cabf5dea93bb7c5dba))
+- add extension data at request creation ([#897](https://github.com/RequestNetwork/requestNetwork/issues/897)) ([1ca2363](https://github.com/RequestNetwork/requestNetwork/commit/1ca2363b08284fe04e481cccdf768db0f5016e24))
+- Add extra support erc20 tokens ([#388](https://github.com/RequestNetwork/requestNetwork/issues/388)) ([6fe92a1](https://github.com/RequestNetwork/requestNetwork/commit/6fe92a155e3ee9c287b5d2ab584a33c8cffb1e6a))
+- add network as declarative params ([#665](https://github.com/RequestNetwork/requestNetwork/issues/665)) ([e3a4515](https://github.com/RequestNetwork/requestNetwork/commit/e3a4515e23261b79a377ff8ce3d7a5c8d8e84127))
+- add txhash in request-client.js ([#626](https://github.com/RequestNetwork/requestNetwork/issues/626)) ([c670a38](https://github.com/RequestNetwork/requestNetwork/commit/c670a384feff3700b99c8c8f549d1c6634bd5f3b))
+- Currency Manager ([#571](https://github.com/RequestNetwork/requestNetwork/issues/571)) ([3a68ad3](https://github.com/RequestNetwork/requestNetwork/commit/3a68ad31fc049e13f0f6dac4759b08c06b33416b))
+- currency manager near erc20 support ([#1020](https://github.com/RequestNetwork/requestNetwork/issues/1020)) ([0af020b](https://github.com/RequestNetwork/requestNetwork/commit/0af020b8d2efd9c46ce8c8002d3f655bdb61b42f))
+- currencyManager manages conversion paths ([#699](https://github.com/RequestNetwork/requestNetwork/issues/699)) ([7f6e1d1](https://github.com/RequestNetwork/requestNetwork/commit/7f6e1d1a6a06e5666ad7c784e5ab14a7b6f400a1))
+- custom currencyManager ([#723](https://github.com/RequestNetwork/requestNetwork/issues/723)) ([834a0f9](https://github.com/RequestNetwork/requestNetwork/commit/834a0f9fade79a03d43787ce863c2a973da37ff3))
+- **declarative:** payment reference ([#901](https://github.com/RequestNetwork/requestNetwork/issues/901)) ([2679368](https://github.com/RequestNetwork/requestNetwork/commit/2679368241ea8e34fc88f60eb395459c3c277029))
+- ERC20TransferableReceivable payment network ([#1033](https://github.com/RequestNetwork/requestNetwork/issues/1033)) ([cfea8a3](https://github.com/RequestNetwork/requestNetwork/commit/cfea8a31e39ba4315b8ffc9971cbb3155be2dde1))
+- fantom/fuse RPC url & remove default etherscan API key ([#551](https://github.com/RequestNetwork/requestNetwork/issues/551)) ([5ce4413](https://github.com/RequestNetwork/requestNetwork/commit/5ce44139276afde9f7a5ec1c642e68fd2266d255))
+- flexible escrow contract ([#825](https://github.com/RequestNetwork/requestNetwork/issues/825)) ([c80b48f](https://github.com/RequestNetwork/requestNetwork/commit/c80b48fcbc99605b2054a352feb21dc028d0c604))
+- Near detection with autobahn ([#576](https://github.com/RequestNetwork/requestNetwork/issues/576)) ([86e0145](https://github.com/RequestNetwork/requestNetwork/commit/86e01459a6b32dacfa778434226f374f7668786c))
+- optionally disable events ([#469](https://github.com/RequestNetwork/requestNetwork/issues/469)) ([e16a926](https://github.com/RequestNetwork/requestNetwork/commit/e16a926cc182a0048909de5cfe1cdd5f9772a153))
+- payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+- payment reference utils ([#906](https://github.com/RequestNetwork/requestNetwork/issues/906)) ([f0ee19f](https://github.com/RequestNetwork/requestNetwork/commit/f0ee19f1fc9b2fd2ae36bc2c8d4305fade06771b))
+- pn to smart-contract version mapping ([#649](https://github.com/RequestNetwork/requestNetwork/issues/649)) ([d45ab85](https://github.com/RequestNetwork/requestNetwork/commit/d45ab85c2c47b8d7325fef78965ad94272250598))
+- **request-client:** add option to skip refresh ([#1085](https://github.com/RequestNetwork/requestNetwork/issues/1085)) ([4153cbf](https://github.com/RequestNetwork/requestNetwork/commit/4153cbff9aa2a33b453459977d2759af8047e404))
+- retrieve active escrow data ([#818](https://github.com/RequestNetwork/requestNetwork/issues/818)) ([0bcf58c](https://github.com/RequestNetwork/requestNetwork/commit/0bcf58cdad76d42320f22065207f82455d4a12fe))
+- split data-access read and write for TheGraph ([#875](https://github.com/RequestNetwork/requestNetwork/issues/875)) ([8fdf34d](https://github.com/RequestNetwork/requestNetwork/commit/8fdf34d280a5c277125fa431d74976be69768d38))
+- update token list ([#384](https://github.com/RequestNetwork/requestNetwork/issues/384)) ([4913626](https://github.com/RequestNetwork/requestNetwork/commit/4913626c74458e17c27b1b21e2a7f4937fe2e841))
+
+# [0.46.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-client.js@0.30.0...@requestnetwork/request-client.js@0.46.0) (2024-03-29)
+
+### Bug Fixes
+
+- **security:** vulnerabilities + remove coveralls ([#1333](https://github.com/RequestNetwork/requestNetwork/issues/1333)) ([384818b](https://github.com/RequestNetwork/requestNetwork/commit/384818bceac7443e19a194a0209941b7f883c3be))
+- sunset NEAR conversion for now ([#1302](https://github.com/RequestNetwork/requestNetwork/issues/1302)) ([afdb449](https://github.com/RequestNetwork/requestNetwork/commit/afdb44941c333032227b78e4ac21fb5adb105fbc))
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+
+### Features
+
+- improve payment network types ([#1355](https://github.com/RequestNetwork/requestNetwork/issues/1355)) ([716b498](https://github.com/RequestNetwork/requestNetwork/commit/716b498ec1e3b352f51400b0d0356e893befd3d1))
+- Pay before Persist experiment ([#1373](https://github.com/RequestNetwork/requestNetwork/issues/1373)) ([bdc6eb4](https://github.com/RequestNetwork/requestNetwork/commit/bdc6eb42fe9546c70aa3f5c68708345f9fffd6d4))
+- Publish ([#1374](https://github.com/RequestNetwork/requestNetwork/issues/1374)) ([04db0d1](https://github.com/RequestNetwork/requestNetwork/commit/04db0d12dde819183da31d471bbb56d319023714))
+- **request-client:** expose txHash and network for declareSent ([#1311](https://github.com/RequestNetwork/requestNetwork/issues/1311)) ([d2ce64c](https://github.com/RequestNetwork/requestNetwork/commit/d2ce64c7f5c1a0c07ff8b96aaa77461b858fbcac))
+
+# 0.42.0 (2023-11-10)
+
+### Bug Fixes
+
+- persistTransaction timeout ([#1224](https://github.com/RequestNetwork/requestNetwork/issues/1224)) ([b341203](https://github.com/RequestNetwork/requestNetwork/commit/b34120355df39b56859621148b7773c46673215f))
+- **storage:** in memory indexer metadata ([#1234](https://github.com/RequestNetwork/requestNetwork/issues/1234)) ([9088c79](https://github.com/RequestNetwork/requestNetwork/commit/9088c793db4acb9afabcf1f0e3767f30927618bc))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- currencyManager in PN factory from request ([#584](https://github.com/RequestNetwork/requestNetwork/issues/584)) ([df223c1](https://github.com/RequestNetwork/requestNetwork/commit/df223c11bad0a05efc75efed0ff7dc56460565b4))
+- default getTheGraphClient accounts for Near ([#1095](https://github.com/RequestNetwork/requestNetwork/issues/1095)) ([750908c](https://github.com/RequestNetwork/requestNetwork/commit/750908c6c094ae512d9a09b87b7ffb3b7c3bce18))
+- ethereum proxy ([#807](https://github.com/RequestNetwork/requestNetwork/issues/807)) ([bcda36d](https://github.com/RequestNetwork/requestNetwork/commit/bcda36dee054504310aaaa98f9d870682893efcc))
+- getDataIdMeta heavy load ([#613](https://github.com/RequestNetwork/requestNetwork/issues/613)) ([fa8bf9e](https://github.com/RequestNetwork/requestNetwork/commit/fa8bf9e77a98d27ad6e21a8118995e6930a99407))
+- **http-data-access:** do not throw in setTimeout ([#644](https://github.com/RequestNetwork/requestNetwork/issues/644)) ([b03f136](https://github.com/RequestNetwork/requestNetwork/commit/b03f136c239f83129ecdbc3423c51ccb27974c75))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- replace requesthub slack with discord ([#1032](https://github.com/RequestNetwork/requestNetwork/issues/1032)) ([880ccd7](https://github.com/RequestNetwork/requestNetwork/commit/880ccd760bca8d0372db8da6791813d0c2d36f86))
+- request-client should support conversion and network checks ([#975](https://github.com/RequestNetwork/requestNetwork/issues/975)) ([9ff30cd](https://github.com/RequestNetwork/requestNetwork/commit/9ff30cdc8e1237c488be039dbbfabac07960fb32))
+- **request-client:** emit error event on refresh rejection ([#653](https://github.com/RequestNetwork/requestNetwork/issues/653)) ([990c650](https://github.com/RequestNetwork/requestNetwork/commit/990c65025da585cbf0c0709a8ba308e912bcc730))
+- **request-client:** remove useLocalEthereumBroadcast from tests ([#937](https://github.com/RequestNetwork/requestNetwork/issues/937)) ([a9e3f3e](https://github.com/RequestNetwork/requestNetwork/commit/a9e3f3e093843a1187f624be21833a2dbae0f87b))
+- **request-node:** Add exponential backoff in fetchAndRetry ([#1077](https://github.com/RequestNetwork/requestNetwork/issues/1077)) ([0629e45](https://github.com/RequestNetwork/requestNetwork/commit/0629e45ac39eee0a1cc44d35ff4fe03e116c4840))
+- solana address validation ([#1184](https://github.com/RequestNetwork/requestNetwork/issues/1184)) ([aff90df](https://github.com/RequestNetwork/requestNetwork/commit/aff90dfb7df7cc5e8e166c731552e5fef21bf339))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- update currency validation ([#1018](https://github.com/RequestNetwork/requestNetwork/issues/1018)) ([0e7778f](https://github.com/RequestNetwork/requestNetwork/commit/0e7778f4f1c10fac9dfe96931d3e53ddaf4c9c04))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+- webpack for postgre ([#568](https://github.com/RequestNetwork/requestNetwork/issues/568)) ([ecc2611](https://github.com/RequestNetwork/requestNetwork/commit/ecc2611b0ff4b84dca22e2c956c24dae0f25e47f))
+- webpack ts-loader build conf ([#779](https://github.com/RequestNetwork/requestNetwork/issues/779)) ([4288234](https://github.com/RequestNetwork/requestNetwork/commit/4288234726248ebabdc6d01e0fb3c6222e41f58a))
+
+### Features
+
+- add `addStakeholders` ([#1025](https://github.com/RequestNetwork/requestNetwork/issues/1025)) ([5e00068](https://github.com/RequestNetwork/requestNetwork/commit/5e000689d25581ec93a0489be6e728dbe9e913c9))
+- add declarative payment network for erc20 ([#635](https://github.com/RequestNetwork/requestNetwork/issues/635)) ([ecf4a9d](https://github.com/RequestNetwork/requestNetwork/commit/ecf4a9d5515d5eea59e017b9aaf89c133421d71b)), closes [#631](https://github.com/RequestNetwork/requestNetwork/issues/631) [#633](https://github.com/RequestNetwork/requestNetwork/issues/633) [#636](https://github.com/RequestNetwork/requestNetwork/issues/636) [#637](https://github.com/RequestNetwork/requestNetwork/issues/637) [#638](https://github.com/RequestNetwork/requestNetwork/issues/638) [#550](https://github.com/RequestNetwork/requestNetwork/issues/550)
+- add delegate in request client ([#541](https://github.com/RequestNetwork/requestNetwork/issues/541)) ([253b308](https://github.com/RequestNetwork/requestNetwork/commit/253b30847f261840508a14cabf5dea93bb7c5dba))
+- add extension data at request creation ([#897](https://github.com/RequestNetwork/requestNetwork/issues/897)) ([1ca2363](https://github.com/RequestNetwork/requestNetwork/commit/1ca2363b08284fe04e481cccdf768db0f5016e24))
+- Add extra support erc20 tokens ([#388](https://github.com/RequestNetwork/requestNetwork/issues/388)) ([6fe92a1](https://github.com/RequestNetwork/requestNetwork/commit/6fe92a155e3ee9c287b5d2ab584a33c8cffb1e6a))
+- add network as declarative params ([#665](https://github.com/RequestNetwork/requestNetwork/issues/665)) ([e3a4515](https://github.com/RequestNetwork/requestNetwork/commit/e3a4515e23261b79a377ff8ce3d7a5c8d8e84127))
+- add txhash in request-client.js ([#626](https://github.com/RequestNetwork/requestNetwork/issues/626)) ([c670a38](https://github.com/RequestNetwork/requestNetwork/commit/c670a384feff3700b99c8c8f549d1c6634bd5f3b))
+- Currency Manager ([#571](https://github.com/RequestNetwork/requestNetwork/issues/571)) ([3a68ad3](https://github.com/RequestNetwork/requestNetwork/commit/3a68ad31fc049e13f0f6dac4759b08c06b33416b))
+- currency manager near erc20 support ([#1020](https://github.com/RequestNetwork/requestNetwork/issues/1020)) ([0af020b](https://github.com/RequestNetwork/requestNetwork/commit/0af020b8d2efd9c46ce8c8002d3f655bdb61b42f))
+- currencyManager manages conversion paths ([#699](https://github.com/RequestNetwork/requestNetwork/issues/699)) ([7f6e1d1](https://github.com/RequestNetwork/requestNetwork/commit/7f6e1d1a6a06e5666ad7c784e5ab14a7b6f400a1))
+- custom currencyManager ([#723](https://github.com/RequestNetwork/requestNetwork/issues/723)) ([834a0f9](https://github.com/RequestNetwork/requestNetwork/commit/834a0f9fade79a03d43787ce863c2a973da37ff3))
+- **declarative:** payment reference ([#901](https://github.com/RequestNetwork/requestNetwork/issues/901)) ([2679368](https://github.com/RequestNetwork/requestNetwork/commit/2679368241ea8e34fc88f60eb395459c3c277029))
+- ERC20TransferableReceivable payment network ([#1033](https://github.com/RequestNetwork/requestNetwork/issues/1033)) ([cfea8a3](https://github.com/RequestNetwork/requestNetwork/commit/cfea8a31e39ba4315b8ffc9971cbb3155be2dde1))
+- fantom/fuse RPC url & remove default etherscan API key ([#551](https://github.com/RequestNetwork/requestNetwork/issues/551)) ([5ce4413](https://github.com/RequestNetwork/requestNetwork/commit/5ce44139276afde9f7a5ec1c642e68fd2266d255))
+- flexible escrow contract ([#825](https://github.com/RequestNetwork/requestNetwork/issues/825)) ([c80b48f](https://github.com/RequestNetwork/requestNetwork/commit/c80b48fcbc99605b2054a352feb21dc028d0c604))
+- Near detection with autobahn ([#576](https://github.com/RequestNetwork/requestNetwork/issues/576)) ([86e0145](https://github.com/RequestNetwork/requestNetwork/commit/86e01459a6b32dacfa778434226f374f7668786c))
+- optionally disable events ([#469](https://github.com/RequestNetwork/requestNetwork/issues/469)) ([e16a926](https://github.com/RequestNetwork/requestNetwork/commit/e16a926cc182a0048909de5cfe1cdd5f9772a153))
+- payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+- payment reference utils ([#906](https://github.com/RequestNetwork/requestNetwork/issues/906)) ([f0ee19f](https://github.com/RequestNetwork/requestNetwork/commit/f0ee19f1fc9b2fd2ae36bc2c8d4305fade06771b))
+- pn to smart-contract version mapping ([#649](https://github.com/RequestNetwork/requestNetwork/issues/649)) ([d45ab85](https://github.com/RequestNetwork/requestNetwork/commit/d45ab85c2c47b8d7325fef78965ad94272250598))
+- **request-client:** add option to skip refresh ([#1085](https://github.com/RequestNetwork/requestNetwork/issues/1085)) ([4153cbf](https://github.com/RequestNetwork/requestNetwork/commit/4153cbff9aa2a33b453459977d2759af8047e404))
+- retrieve active escrow data ([#818](https://github.com/RequestNetwork/requestNetwork/issues/818)) ([0bcf58c](https://github.com/RequestNetwork/requestNetwork/commit/0bcf58cdad76d42320f22065207f82455d4a12fe))
+- split data-access read and write for TheGraph ([#875](https://github.com/RequestNetwork/requestNetwork/issues/875)) ([8fdf34d](https://github.com/RequestNetwork/requestNetwork/commit/8fdf34d280a5c277125fa431d74976be69768d38))
+- update token list ([#384](https://github.com/RequestNetwork/requestNetwork/issues/384)) ([4913626](https://github.com/RequestNetwork/requestNetwork/commit/4913626c74458e17c27b1b21e2a7f4937fe2e841))
+
+# [0.45.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-client.js@0.30.0...@requestnetwork/request-client.js@0.45.0) (2024-03-28)
+
+### Bug Fixes
+
+- **security:** vulnerabilities + remove coveralls ([#1333](https://github.com/RequestNetwork/requestNetwork/issues/1333)) ([384818b](https://github.com/RequestNetwork/requestNetwork/commit/384818bceac7443e19a194a0209941b7f883c3be))
+- sunset NEAR conversion for now ([#1302](https://github.com/RequestNetwork/requestNetwork/issues/1302)) ([afdb449](https://github.com/RequestNetwork/requestNetwork/commit/afdb44941c333032227b78e4ac21fb5adb105fbc))
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+
+### Features
+
+- improve payment network types ([#1355](https://github.com/RequestNetwork/requestNetwork/issues/1355)) ([716b498](https://github.com/RequestNetwork/requestNetwork/commit/716b498ec1e3b352f51400b0d0356e893befd3d1))
+- **request-client:** expose txHash and network for declareSent ([#1311](https://github.com/RequestNetwork/requestNetwork/issues/1311)) ([d2ce64c](https://github.com/RequestNetwork/requestNetwork/commit/d2ce64c7f5c1a0c07ff8b96aaa77461b858fbcac))
+
+# 0.42.0 (2023-11-10)
+
+### Bug Fixes
+
+- persistTransaction timeout ([#1224](https://github.com/RequestNetwork/requestNetwork/issues/1224)) ([b341203](https://github.com/RequestNetwork/requestNetwork/commit/b34120355df39b56859621148b7773c46673215f))
+- **storage:** in memory indexer metadata ([#1234](https://github.com/RequestNetwork/requestNetwork/issues/1234)) ([9088c79](https://github.com/RequestNetwork/requestNetwork/commit/9088c793db4acb9afabcf1f0e3767f30927618bc))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- currencyManager in PN factory from request ([#584](https://github.com/RequestNetwork/requestNetwork/issues/584)) ([df223c1](https://github.com/RequestNetwork/requestNetwork/commit/df223c11bad0a05efc75efed0ff7dc56460565b4))
+- default getTheGraphClient accounts for Near ([#1095](https://github.com/RequestNetwork/requestNetwork/issues/1095)) ([750908c](https://github.com/RequestNetwork/requestNetwork/commit/750908c6c094ae512d9a09b87b7ffb3b7c3bce18))
+- ethereum proxy ([#807](https://github.com/RequestNetwork/requestNetwork/issues/807)) ([bcda36d](https://github.com/RequestNetwork/requestNetwork/commit/bcda36dee054504310aaaa98f9d870682893efcc))
+- getDataIdMeta heavy load ([#613](https://github.com/RequestNetwork/requestNetwork/issues/613)) ([fa8bf9e](https://github.com/RequestNetwork/requestNetwork/commit/fa8bf9e77a98d27ad6e21a8118995e6930a99407))
+- **http-data-access:** do not throw in setTimeout ([#644](https://github.com/RequestNetwork/requestNetwork/issues/644)) ([b03f136](https://github.com/RequestNetwork/requestNetwork/commit/b03f136c239f83129ecdbc3423c51ccb27974c75))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- replace requesthub slack with discord ([#1032](https://github.com/RequestNetwork/requestNetwork/issues/1032)) ([880ccd7](https://github.com/RequestNetwork/requestNetwork/commit/880ccd760bca8d0372db8da6791813d0c2d36f86))
+- request-client should support conversion and network checks ([#975](https://github.com/RequestNetwork/requestNetwork/issues/975)) ([9ff30cd](https://github.com/RequestNetwork/requestNetwork/commit/9ff30cdc8e1237c488be039dbbfabac07960fb32))
+- **request-client:** emit error event on refresh rejection ([#653](https://github.com/RequestNetwork/requestNetwork/issues/653)) ([990c650](https://github.com/RequestNetwork/requestNetwork/commit/990c65025da585cbf0c0709a8ba308e912bcc730))
+- **request-client:** remove useLocalEthereumBroadcast from tests ([#937](https://github.com/RequestNetwork/requestNetwork/issues/937)) ([a9e3f3e](https://github.com/RequestNetwork/requestNetwork/commit/a9e3f3e093843a1187f624be21833a2dbae0f87b))
+- **request-node:** Add exponential backoff in fetchAndRetry ([#1077](https://github.com/RequestNetwork/requestNetwork/issues/1077)) ([0629e45](https://github.com/RequestNetwork/requestNetwork/commit/0629e45ac39eee0a1cc44d35ff4fe03e116c4840))
+- solana address validation ([#1184](https://github.com/RequestNetwork/requestNetwork/issues/1184)) ([aff90df](https://github.com/RequestNetwork/requestNetwork/commit/aff90dfb7df7cc5e8e166c731552e5fef21bf339))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- update currency validation ([#1018](https://github.com/RequestNetwork/requestNetwork/issues/1018)) ([0e7778f](https://github.com/RequestNetwork/requestNetwork/commit/0e7778f4f1c10fac9dfe96931d3e53ddaf4c9c04))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+- webpack for postgre ([#568](https://github.com/RequestNetwork/requestNetwork/issues/568)) ([ecc2611](https://github.com/RequestNetwork/requestNetwork/commit/ecc2611b0ff4b84dca22e2c956c24dae0f25e47f))
+- webpack ts-loader build conf ([#779](https://github.com/RequestNetwork/requestNetwork/issues/779)) ([4288234](https://github.com/RequestNetwork/requestNetwork/commit/4288234726248ebabdc6d01e0fb3c6222e41f58a))
+
+### Features
+
+- add `addStakeholders` ([#1025](https://github.com/RequestNetwork/requestNetwork/issues/1025)) ([5e00068](https://github.com/RequestNetwork/requestNetwork/commit/5e000689d25581ec93a0489be6e728dbe9e913c9))
+- add declarative payment network for erc20 ([#635](https://github.com/RequestNetwork/requestNetwork/issues/635)) ([ecf4a9d](https://github.com/RequestNetwork/requestNetwork/commit/ecf4a9d5515d5eea59e017b9aaf89c133421d71b)), closes [#631](https://github.com/RequestNetwork/requestNetwork/issues/631) [#633](https://github.com/RequestNetwork/requestNetwork/issues/633) [#636](https://github.com/RequestNetwork/requestNetwork/issues/636) [#637](https://github.com/RequestNetwork/requestNetwork/issues/637) [#638](https://github.com/RequestNetwork/requestNetwork/issues/638) [#550](https://github.com/RequestNetwork/requestNetwork/issues/550)
+- add delegate in request client ([#541](https://github.com/RequestNetwork/requestNetwork/issues/541)) ([253b308](https://github.com/RequestNetwork/requestNetwork/commit/253b30847f261840508a14cabf5dea93bb7c5dba))
+- add extension data at request creation ([#897](https://github.com/RequestNetwork/requestNetwork/issues/897)) ([1ca2363](https://github.com/RequestNetwork/requestNetwork/commit/1ca2363b08284fe04e481cccdf768db0f5016e24))
+- Add extra support erc20 tokens ([#388](https://github.com/RequestNetwork/requestNetwork/issues/388)) ([6fe92a1](https://github.com/RequestNetwork/requestNetwork/commit/6fe92a155e3ee9c287b5d2ab584a33c8cffb1e6a))
+- add network as declarative params ([#665](https://github.com/RequestNetwork/requestNetwork/issues/665)) ([e3a4515](https://github.com/RequestNetwork/requestNetwork/commit/e3a4515e23261b79a377ff8ce3d7a5c8d8e84127))
+- add txhash in request-client.js ([#626](https://github.com/RequestNetwork/requestNetwork/issues/626)) ([c670a38](https://github.com/RequestNetwork/requestNetwork/commit/c670a384feff3700b99c8c8f549d1c6634bd5f3b))
+- Currency Manager ([#571](https://github.com/RequestNetwork/requestNetwork/issues/571)) ([3a68ad3](https://github.com/RequestNetwork/requestNetwork/commit/3a68ad31fc049e13f0f6dac4759b08c06b33416b))
+- currency manager near erc20 support ([#1020](https://github.com/RequestNetwork/requestNetwork/issues/1020)) ([0af020b](https://github.com/RequestNetwork/requestNetwork/commit/0af020b8d2efd9c46ce8c8002d3f655bdb61b42f))
+- currencyManager manages conversion paths ([#699](https://github.com/RequestNetwork/requestNetwork/issues/699)) ([7f6e1d1](https://github.com/RequestNetwork/requestNetwork/commit/7f6e1d1a6a06e5666ad7c784e5ab14a7b6f400a1))
+- custom currencyManager ([#723](https://github.com/RequestNetwork/requestNetwork/issues/723)) ([834a0f9](https://github.com/RequestNetwork/requestNetwork/commit/834a0f9fade79a03d43787ce863c2a973da37ff3))
+- **declarative:** payment reference ([#901](https://github.com/RequestNetwork/requestNetwork/issues/901)) ([2679368](https://github.com/RequestNetwork/requestNetwork/commit/2679368241ea8e34fc88f60eb395459c3c277029))
+- ERC20TransferableReceivable payment network ([#1033](https://github.com/RequestNetwork/requestNetwork/issues/1033)) ([cfea8a3](https://github.com/RequestNetwork/requestNetwork/commit/cfea8a31e39ba4315b8ffc9971cbb3155be2dde1))
+- fantom/fuse RPC url & remove default etherscan API key ([#551](https://github.com/RequestNetwork/requestNetwork/issues/551)) ([5ce4413](https://github.com/RequestNetwork/requestNetwork/commit/5ce44139276afde9f7a5ec1c642e68fd2266d255))
+- flexible escrow contract ([#825](https://github.com/RequestNetwork/requestNetwork/issues/825)) ([c80b48f](https://github.com/RequestNetwork/requestNetwork/commit/c80b48fcbc99605b2054a352feb21dc028d0c604))
+- Near detection with autobahn ([#576](https://github.com/RequestNetwork/requestNetwork/issues/576)) ([86e0145](https://github.com/RequestNetwork/requestNetwork/commit/86e01459a6b32dacfa778434226f374f7668786c))
+- optionally disable events ([#469](https://github.com/RequestNetwork/requestNetwork/issues/469)) ([e16a926](https://github.com/RequestNetwork/requestNetwork/commit/e16a926cc182a0048909de5cfe1cdd5f9772a153))
+- payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+- payment reference utils ([#906](https://github.com/RequestNetwork/requestNetwork/issues/906)) ([f0ee19f](https://github.com/RequestNetwork/requestNetwork/commit/f0ee19f1fc9b2fd2ae36bc2c8d4305fade06771b))
+- pn to smart-contract version mapping ([#649](https://github.com/RequestNetwork/requestNetwork/issues/649)) ([d45ab85](https://github.com/RequestNetwork/requestNetwork/commit/d45ab85c2c47b8d7325fef78965ad94272250598))
+- **request-client:** add option to skip refresh ([#1085](https://github.com/RequestNetwork/requestNetwork/issues/1085)) ([4153cbf](https://github.com/RequestNetwork/requestNetwork/commit/4153cbff9aa2a33b453459977d2759af8047e404))
+- retrieve active escrow data ([#818](https://github.com/RequestNetwork/requestNetwork/issues/818)) ([0bcf58c](https://github.com/RequestNetwork/requestNetwork/commit/0bcf58cdad76d42320f22065207f82455d4a12fe))
+- split data-access read and write for TheGraph ([#875](https://github.com/RequestNetwork/requestNetwork/issues/875)) ([8fdf34d](https://github.com/RequestNetwork/requestNetwork/commit/8fdf34d280a5c277125fa431d74976be69768d38))
+- update token list ([#384](https://github.com/RequestNetwork/requestNetwork/issues/384)) ([4913626](https://github.com/RequestNetwork/requestNetwork/commit/4913626c74458e17c27b1b21e2a7f4937fe2e841))
+
+# [0.44.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-client.js@0.30.0...@requestnetwork/request-client.js@0.44.0) (2024-01-26)
+
+### Bug Fixes
+
+- **security:** vulnerabilities + remove coveralls ([#1333](https://github.com/RequestNetwork/requestNetwork/issues/1333)) ([384818b](https://github.com/RequestNetwork/requestNetwork/commit/384818bceac7443e19a194a0209941b7f883c3be))
+- sunset NEAR conversion for now ([#1302](https://github.com/RequestNetwork/requestNetwork/issues/1302)) ([afdb449](https://github.com/RequestNetwork/requestNetwork/commit/afdb44941c333032227b78e4ac21fb5adb105fbc))
+- yarn clean. Replace shx with native rm. Remove rimraf. ([#1343](https://github.com/RequestNetwork/requestNetwork/issues/1343)) ([62e3d7f](https://github.com/RequestNetwork/requestNetwork/commit/62e3d7f928fc531b831c7722d4dc401771b92ca3))
+
+### Features
+
+- **request-client:** expose txHash and network for declareSent ([#1311](https://github.com/RequestNetwork/requestNetwork/issues/1311)) ([d2ce64c](https://github.com/RequestNetwork/requestNetwork/commit/d2ce64c7f5c1a0c07ff8b96aaa77461b858fbcac))
+
+# 0.42.0 (2023-11-10)
+
+### Bug Fixes
+
+- persistTransaction timeout ([#1224](https://github.com/RequestNetwork/requestNetwork/issues/1224)) ([b341203](https://github.com/RequestNetwork/requestNetwork/commit/b34120355df39b56859621148b7773c46673215f))
+- **storage:** in memory indexer metadata ([#1234](https://github.com/RequestNetwork/requestNetwork/issues/1234)) ([9088c79](https://github.com/RequestNetwork/requestNetwork/commit/9088c793db4acb9afabcf1f0e3767f30927618bc))
+
+# 0.41.0 (2023-10-06)
+
+### Bug Fixes
+
+- currencyManager in PN factory from request ([#584](https://github.com/RequestNetwork/requestNetwork/issues/584)) ([df223c1](https://github.com/RequestNetwork/requestNetwork/commit/df223c11bad0a05efc75efed0ff7dc56460565b4))
+- default getTheGraphClient accounts for Near ([#1095](https://github.com/RequestNetwork/requestNetwork/issues/1095)) ([750908c](https://github.com/RequestNetwork/requestNetwork/commit/750908c6c094ae512d9a09b87b7ffb3b7c3bce18))
+- ethereum proxy ([#807](https://github.com/RequestNetwork/requestNetwork/issues/807)) ([bcda36d](https://github.com/RequestNetwork/requestNetwork/commit/bcda36dee054504310aaaa98f9d870682893efcc))
+- getDataIdMeta heavy load ([#613](https://github.com/RequestNetwork/requestNetwork/issues/613)) ([fa8bf9e](https://github.com/RequestNetwork/requestNetwork/commit/fa8bf9e77a98d27ad6e21a8118995e6930a99407))
+- **http-data-access:** do not throw in setTimeout ([#644](https://github.com/RequestNetwork/requestNetwork/issues/644)) ([b03f136](https://github.com/RequestNetwork/requestNetwork/commit/b03f136c239f83129ecdbc3423c51ccb27974c75))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- replace requesthub slack with discord ([#1032](https://github.com/RequestNetwork/requestNetwork/issues/1032)) ([880ccd7](https://github.com/RequestNetwork/requestNetwork/commit/880ccd760bca8d0372db8da6791813d0c2d36f86))
+- request-client should support conversion and network checks ([#975](https://github.com/RequestNetwork/requestNetwork/issues/975)) ([9ff30cd](https://github.com/RequestNetwork/requestNetwork/commit/9ff30cdc8e1237c488be039dbbfabac07960fb32))
+- **request-client:** emit error event on refresh rejection ([#653](https://github.com/RequestNetwork/requestNetwork/issues/653)) ([990c650](https://github.com/RequestNetwork/requestNetwork/commit/990c65025da585cbf0c0709a8ba308e912bcc730))
+- **request-client:** remove useLocalEthereumBroadcast from tests ([#937](https://github.com/RequestNetwork/requestNetwork/issues/937)) ([a9e3f3e](https://github.com/RequestNetwork/requestNetwork/commit/a9e3f3e093843a1187f624be21833a2dbae0f87b))
+- **request-node:** Add exponential backoff in fetchAndRetry ([#1077](https://github.com/RequestNetwork/requestNetwork/issues/1077)) ([0629e45](https://github.com/RequestNetwork/requestNetwork/commit/0629e45ac39eee0a1cc44d35ff4fe03e116c4840))
+- solana address validation ([#1184](https://github.com/RequestNetwork/requestNetwork/issues/1184)) ([aff90df](https://github.com/RequestNetwork/requestNetwork/commit/aff90dfb7df7cc5e8e166c731552e5fef21bf339))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- update currency validation ([#1018](https://github.com/RequestNetwork/requestNetwork/issues/1018)) ([0e7778f](https://github.com/RequestNetwork/requestNetwork/commit/0e7778f4f1c10fac9dfe96931d3e53ddaf4c9c04))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+- webpack for postgre ([#568](https://github.com/RequestNetwork/requestNetwork/issues/568)) ([ecc2611](https://github.com/RequestNetwork/requestNetwork/commit/ecc2611b0ff4b84dca22e2c956c24dae0f25e47f))
+- webpack ts-loader build conf ([#779](https://github.com/RequestNetwork/requestNetwork/issues/779)) ([4288234](https://github.com/RequestNetwork/requestNetwork/commit/4288234726248ebabdc6d01e0fb3c6222e41f58a))
+
+### Features
+
+- add `addStakeholders` ([#1025](https://github.com/RequestNetwork/requestNetwork/issues/1025)) ([5e00068](https://github.com/RequestNetwork/requestNetwork/commit/5e000689d25581ec93a0489be6e728dbe9e913c9))
+- add declarative payment network for erc20 ([#635](https://github.com/RequestNetwork/requestNetwork/issues/635)) ([ecf4a9d](https://github.com/RequestNetwork/requestNetwork/commit/ecf4a9d5515d5eea59e017b9aaf89c133421d71b)), closes [#631](https://github.com/RequestNetwork/requestNetwork/issues/631) [#633](https://github.com/RequestNetwork/requestNetwork/issues/633) [#636](https://github.com/RequestNetwork/requestNetwork/issues/636) [#637](https://github.com/RequestNetwork/requestNetwork/issues/637) [#638](https://github.com/RequestNetwork/requestNetwork/issues/638) [#550](https://github.com/RequestNetwork/requestNetwork/issues/550)
+- add delegate in request client ([#541](https://github.com/RequestNetwork/requestNetwork/issues/541)) ([253b308](https://github.com/RequestNetwork/requestNetwork/commit/253b30847f261840508a14cabf5dea93bb7c5dba))
+- add extension data at request creation ([#897](https://github.com/RequestNetwork/requestNetwork/issues/897)) ([1ca2363](https://github.com/RequestNetwork/requestNetwork/commit/1ca2363b08284fe04e481cccdf768db0f5016e24))
+- Add extra support erc20 tokens ([#388](https://github.com/RequestNetwork/requestNetwork/issues/388)) ([6fe92a1](https://github.com/RequestNetwork/requestNetwork/commit/6fe92a155e3ee9c287b5d2ab584a33c8cffb1e6a))
+- add network as declarative params ([#665](https://github.com/RequestNetwork/requestNetwork/issues/665)) ([e3a4515](https://github.com/RequestNetwork/requestNetwork/commit/e3a4515e23261b79a377ff8ce3d7a5c8d8e84127))
+- add txhash in request-client.js ([#626](https://github.com/RequestNetwork/requestNetwork/issues/626)) ([c670a38](https://github.com/RequestNetwork/requestNetwork/commit/c670a384feff3700b99c8c8f549d1c6634bd5f3b))
+- Currency Manager ([#571](https://github.com/RequestNetwork/requestNetwork/issues/571)) ([3a68ad3](https://github.com/RequestNetwork/requestNetwork/commit/3a68ad31fc049e13f0f6dac4759b08c06b33416b))
+- currency manager near erc20 support ([#1020](https://github.com/RequestNetwork/requestNetwork/issues/1020)) ([0af020b](https://github.com/RequestNetwork/requestNetwork/commit/0af020b8d2efd9c46ce8c8002d3f655bdb61b42f))
+- currencyManager manages conversion paths ([#699](https://github.com/RequestNetwork/requestNetwork/issues/699)) ([7f6e1d1](https://github.com/RequestNetwork/requestNetwork/commit/7f6e1d1a6a06e5666ad7c784e5ab14a7b6f400a1))
+- custom currencyManager ([#723](https://github.com/RequestNetwork/requestNetwork/issues/723)) ([834a0f9](https://github.com/RequestNetwork/requestNetwork/commit/834a0f9fade79a03d43787ce863c2a973da37ff3))
+- **declarative:** payment reference ([#901](https://github.com/RequestNetwork/requestNetwork/issues/901)) ([2679368](https://github.com/RequestNetwork/requestNetwork/commit/2679368241ea8e34fc88f60eb395459c3c277029))
+- ERC20TransferableReceivable payment network ([#1033](https://github.com/RequestNetwork/requestNetwork/issues/1033)) ([cfea8a3](https://github.com/RequestNetwork/requestNetwork/commit/cfea8a31e39ba4315b8ffc9971cbb3155be2dde1))
+- fantom/fuse RPC url & remove default etherscan API key ([#551](https://github.com/RequestNetwork/requestNetwork/issues/551)) ([5ce4413](https://github.com/RequestNetwork/requestNetwork/commit/5ce44139276afde9f7a5ec1c642e68fd2266d255))
+- flexible escrow contract ([#825](https://github.com/RequestNetwork/requestNetwork/issues/825)) ([c80b48f](https://github.com/RequestNetwork/requestNetwork/commit/c80b48fcbc99605b2054a352feb21dc028d0c604))
+- Near detection with autobahn ([#576](https://github.com/RequestNetwork/requestNetwork/issues/576)) ([86e0145](https://github.com/RequestNetwork/requestNetwork/commit/86e01459a6b32dacfa778434226f374f7668786c))
+- optionally disable events ([#469](https://github.com/RequestNetwork/requestNetwork/issues/469)) ([e16a926](https://github.com/RequestNetwork/requestNetwork/commit/e16a926cc182a0048909de5cfe1cdd5f9772a153))
+- payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+- payment reference utils ([#906](https://github.com/RequestNetwork/requestNetwork/issues/906)) ([f0ee19f](https://github.com/RequestNetwork/requestNetwork/commit/f0ee19f1fc9b2fd2ae36bc2c8d4305fade06771b))
+- pn to smart-contract version mapping ([#649](https://github.com/RequestNetwork/requestNetwork/issues/649)) ([d45ab85](https://github.com/RequestNetwork/requestNetwork/commit/d45ab85c2c47b8d7325fef78965ad94272250598))
+- **request-client:** add option to skip refresh ([#1085](https://github.com/RequestNetwork/requestNetwork/issues/1085)) ([4153cbf](https://github.com/RequestNetwork/requestNetwork/commit/4153cbff9aa2a33b453459977d2759af8047e404))
+- retrieve active escrow data ([#818](https://github.com/RequestNetwork/requestNetwork/issues/818)) ([0bcf58c](https://github.com/RequestNetwork/requestNetwork/commit/0bcf58cdad76d42320f22065207f82455d4a12fe))
+- split data-access read and write for TheGraph ([#875](https://github.com/RequestNetwork/requestNetwork/issues/875)) ([8fdf34d](https://github.com/RequestNetwork/requestNetwork/commit/8fdf34d280a5c277125fa431d74976be69768d38))
+- update token list ([#384](https://github.com/RequestNetwork/requestNetwork/issues/384)) ([4913626](https://github.com/RequestNetwork/requestNetwork/commit/4913626c74458e17c27b1b21e2a7f4937fe2e841))
+
 # [0.43.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-client.js@0.30.0...@requestnetwork/request-client.js@0.43.0) (2023-12-14)
 
 # 0.42.0 (2023-11-10)

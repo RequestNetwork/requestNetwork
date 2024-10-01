@@ -2,7 +2,10 @@ import { IRequestPaymentOptions } from '../types';
 import { IPreparedTransaction } from './prepared-transaction';
 import { providers } from 'ethers';
 import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
+import {
+  getPaymentNetworkExtension,
+  flattenRequestByPnId,
+} from '@requestnetwork/payment-detection';
 import { prepareErc20ProxyPaymentTransaction } from './erc20-proxy';
 import { prepareErc20FeeProxyPaymentTransaction } from './erc20-fee-proxy';
 import { prepareAnyToErc20ProxyPaymentTransaction } from './any-to-erc20-proxy';
@@ -25,10 +28,11 @@ export function encodeRequestPayment(
   provider: providers.Provider,
   options?: IRequestPaymentOptions,
 ): IPreparedTransaction {
+  const formattedRequest = flattenRequestByPnId({ request, pnIdentifier: options?.pnIdentifier });
   if (options && options.swap) {
-    return encodeRequestPaymentWithSwap(request, provider, options);
+    return encodeRequestPaymentWithSwap(formattedRequest, provider, options);
   } else {
-    return encodeRequestPaymentWithoutSwap(request, options);
+    return encodeRequestPaymentWithoutSwap(formattedRequest, options);
   }
 }
 

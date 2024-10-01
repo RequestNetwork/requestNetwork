@@ -5,8 +5,7 @@ import {
   RequestLogicTypes,
   TypesUtils,
 } from '@requestnetwork/types';
-import { ICurrencyManager } from '@requestnetwork/currency';
-import PaymentReferenceCalculator from './payment-reference-calculator';
+import * as PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { DeclarativePaymentDetectorBase } from './declarative';
 import { generate8randomBytes } from '@requestnetwork/utils';
@@ -15,7 +14,7 @@ import { generate8randomBytes } from '@requestnetwork/utils';
  * Abstract class to extend to get the payment balance of reference based requests
  */
 export abstract class ReferenceBasedDetector<
-  TExtension extends ExtensionTypes.PnReferenceBased.IReferenceBased,
+  TExtension extends ExtensionTypes.PnReferenceBased.IReferenceBased<any>,
   TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters<string>,
 > extends DeclarativePaymentDetectorBase<
   TExtension,
@@ -29,7 +28,7 @@ export abstract class ReferenceBasedDetector<
   protected constructor(
     paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
-    protected readonly currencyManager: ICurrencyManager,
+    protected readonly currencyManager: CurrencyTypes.ICurrencyManager,
   ) {
     super(paymentNetworkId, extension);
     if (!TypesUtils.isPaymentNetworkId(paymentNetworkId)) {

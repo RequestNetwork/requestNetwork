@@ -8,7 +8,7 @@ import { keccak256Hash } from '@requestnetwork/utils';
  * @param address Payment or refund address
  */
 
-function calculate(requestId: string, salt: string, address: string): string {
+export function calculate(requestId: string, salt: string, address: string): string {
   if (!requestId || !salt || !address) {
     throw new Error('RequestId, salt and address are mandatory to calculate the payment reference');
   }
@@ -16,5 +16,3 @@ function calculate(requestId: string, salt: string, address: string): string {
   /* eslint-disable no-magic-numbers */
   return keccak256Hash((requestId + salt + address).toLowerCase()).slice(-16);
 }
-
-export default { calculate };
