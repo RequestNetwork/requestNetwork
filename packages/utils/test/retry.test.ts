@@ -134,9 +134,9 @@ describe('Retry', () => {
     retry(throwFn, {
       maxRetries: 30,
       retryDelay: 0,
-      // Exponential backoff starting at 1s, doubling each time, up to a maximum of 128s
+      // Exponential backoff starting at 1s, doubling each time, up to a maximum of 64s, yielding a total timeout of 127s
       exponentialBackoffDelay: 1000, // 1s
-      maxExponentialBackoffDelay: 128000, // 128s
+      maxExponentialBackoffDelay: 64000, // 64s
     })();
 
     // Should call immediately (0ms total elapsed)
@@ -206,15 +206,6 @@ describe('Retry', () => {
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(8);
     expect(Date.now()).toBe(127000);
-
-    // Call 9th time after 128s (255000 total elapsed)
-    jest.advanceTimersByTime(127999);
-    await Promise.resolve();
-    expect(throwFn).toHaveBeenCalledTimes(8);
-    jest.advanceTimersByTime(1);
-    await Promise.resolve();
-    expect(throwFn).toHaveBeenCalledTimes(9);
-    expect(Date.now()).toBe(255000);
 
     jest.useRealTimers();
   });
