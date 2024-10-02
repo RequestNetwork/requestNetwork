@@ -131,15 +131,13 @@ describe('Retry', () => {
       throw new Error(`threw`);
     });
 
-    retry(throwFn, {
+    const retryPromise = retry(throwFn, {
       retryDelay: 0,
       // Exponential backoff starting at 1s, doubling after each retry, up to a maximum of 64s and max 7 retries, yielding a total of 8 call snad total timeout of 127s
       maxRetries: 7,
       exponentialBackoffDelay: 1000, // 1s
       maxExponentialBackoffDelay: 64000, // 64s
-    })().catch(() => {
-      // Do nothing
-    });
+    })();
 
     // Should call immediately (1 total calls, 0ms total elapsed)
     expect(throwFn).toHaveBeenCalledTimes(1);
@@ -212,6 +210,8 @@ describe('Retry', () => {
     // No further retries
     jest.advanceTimersByTime(1000000000);
     await Promise.resolve();
+    await expect(retryPromise).rejects.toThrow('threw');
+
     expect(throwFn).toHaveBeenCalledTimes(8);
     expect(Date.now()).toBe(1000127000);
 
