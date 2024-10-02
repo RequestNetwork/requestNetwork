@@ -134,94 +134,87 @@ describe('Retry', () => {
     retry(throwFn, {
       maxRetries: 30,
       retryDelay: 0,
+      // Exponential backoff starting at 1s, doubling each time, up to a maximum of 128s
       exponentialBackoffDelay: 1000, // 1s
-      maxExponentialBackoffDelay: 122000, // 122s
+      maxExponentialBackoffDelay: 128000, // 128s
     })();
 
     // Should call immediately (0ms total elapsed)
     expect(throwFn).toHaveBeenCalledTimes(1);
 
-    expect(jest.getRealSystemTime()).toBe(0);
+    expect(Date.now()).toBe(0);
 
     // Call 2nd time after 1s (1000ms total elapsed)
     jest.advanceTimersByTime(999);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(1);
-    jest.advanceTimersByTime(1000);
+    jest.advanceTimersByTime(1);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(2);
+    expect(Date.now()).toBe(1000);
 
-    expect(jest.getRealSystemTime()).toBe(1000);
-
-    // Call 3rd time after 2s (3000ms total elapsed)
+    // Call 3rd time after 3s (3000ms total elapsed)
     jest.advanceTimersByTime(1999);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(2);
-    jest.advanceTimersByTime(2000);
+    jest.advanceTimersByTime(1);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(3);
-
-    expect(jest.getRealSystemTime()).toBe(3000);
+    expect(Date.now()).toBe(3000);
 
     // Call 4th time after 4s (7000ms total elapsed)
     jest.advanceTimersByTime(3999);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(3);
-    jest.advanceTimersByTime(4000);
+    jest.advanceTimersByTime(1);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(4);
-
-    expect(jest.getRealSystemTime()).toBe(7000);
+    expect(Date.now()).toBe(7000);
 
     // Call 5th time after 8s (15000ms total elapsed)
     jest.advanceTimersByTime(7999);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(4);
-    jest.advanceTimersByTime(8000);
+    jest.advanceTimersByTime(1);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(5);
-
-    expect(jest.getRealSystemTime()).toBe(15000);
+    expect(Date.now()).toBe(15000);
 
     // Call 6th time after 16s (31000ms total elapsed)
     jest.advanceTimersByTime(15999);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(5);
-    jest.advanceTimersByTime(16000);
+    jest.advanceTimersByTime(1);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(6);
-
-    expect(jest.getRealSystemTime()).toBe(31000);
+    expect(Date.now()).toBe(31000);
 
     // Call 7th time after 32s (63000ms total elapsed)
     jest.advanceTimersByTime(31999);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(6);
-    jest.advanceTimersByTime(32000);
+    jest.advanceTimersByTime(1);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(7);
-
-    expect(jest.getRealSystemTime()).toBe(63000);
+    expect(Date.now()).toBe(63000);
 
     // Call 8th time after 64s (127000ms total elapsed)
     jest.advanceTimersByTime(63999);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(7);
-    jest.advanceTimersByTime(64000);
+    jest.advanceTimersByTime(1);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(8);
+    expect(Date.now()).toBe(127000);
 
-    expect(jest.getRealSystemTime()).toBe(127000);
-
-    // Call 9th time after 120s (247000ms total elapsed)
+    // Call 9th time after 120s (255000 total elapsed)
     jest.advanceTimersByTime(119999);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(8);
-    jest.advanceTimersByTime(120000);
+    jest.advanceTimersByTime(1);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(9);
-
-    expect(jest.getRealSystemTime()).toBe(247000);
+    expect(Date.now()).toBe(255000);
 
     jest.useRealTimers();
   });
