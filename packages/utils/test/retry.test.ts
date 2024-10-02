@@ -207,8 +207,8 @@ describe('Retry', () => {
     expect(throwFn).toHaveBeenCalledTimes(8);
     expect(Date.now()).toBe(127000);
 
-    // Call 9th time after 120s (255000 total elapsed)
-    jest.advanceTimersByTime(119999);
+    // Call 9th time after 128s (255000 total elapsed)
+    jest.advanceTimersByTime(127999);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(8);
     jest.advanceTimersByTime(1);
