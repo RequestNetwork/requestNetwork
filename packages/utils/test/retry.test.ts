@@ -133,7 +133,7 @@ describe('Retry', () => {
 
     retry(throwFn, {
       retryDelay: 0,
-      // Exponential backoff starting at 1s, doubling each time, up to a maximum of 64s and max 8 retries, yielding a total timeout of 127s
+      // Exponential backoff starting at 1s, doubling after each retry, up to a maximum of 64s and max 7 retries, yielding a total of 8 call snad total timeout of 127s
       maxRetries: 7,
       exponentialBackoffDelay: 1000, // 1s
       maxExponentialBackoffDelay: 64000, // 64s
