@@ -83,6 +83,12 @@ Test all the packages in the monorepo.
 yarn run test
 ```
 
+Test a specific package.
+
+```bash
+yarn workspace @requestnetwork/package-name test
+```
+
 ## License
 
 [MIT](https://github.com/RequestNetwork/requestNetwork/blob/master/LICENSE)
