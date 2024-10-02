@@ -115,7 +115,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
         let error: Error = e;
         if (e.status === 404) {
           error = new Error(
-            `The Request Network SDK timed-out while polling the Request Node to confirm that the Request was persisted successfully. It is likely that the persisted Request will be confirmed eventually. App Builders are discouraged from calling persistTransaction() a second time, which would create a duplicate Request. Instead, App Builders are recommended to catch this error and continue polling the Request Node using getConfirmedTransaction() or by calling the /getConfirmedTransaction endpoint.  To avoid timeouts in the future, try adjusting the httpConfig values when instantiating the RequestNetwork object. The current httpConfig settings are: getConfirmationDeferDelay: ${this.httpConfig.getConfirmationDeferDelay}ms, getConfirmationMaxRetry: ${this.httpConfig.getConfirmationMaxRetry}, getConfirmationRetryDelay: ${this.httpConfig.getConfirmationRetryDelay}ms, getConfirmationExponentialBackoffDelay: ${this.httpConfig.getConfirmationExponentialBackoffDelay}ms, getConfirmationMaxExponentialBackoffDelay: ${this.httpConfig.getConfirmationMaxExponentialBackoffDelay}ms`,
+            `Timeout while confirming the Request was persisted. It is likely that the Request will be confirmed eventually. Recommend catching this error and using getConfirmedTransaction() to continue polling for confirmation. Consider adjusting the httpConfig settings on the RequestNetwork object to avoid future timeouts. Discourage calling persistTransaction() again as this would create a duplicate Request.`,
           );
         }
         result.emit('error', error);
