@@ -115,7 +115,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
         let error: Error = e;
         if (e.status === 404) {
           error = new Error(
-            `Timeout while confirming the Request was persisted. It is likely that the Request will be confirmed eventually. Recommend catching this error and using getConfirmedTransaction() to continue polling for confirmation. Consider adjusting the httpConfig settings on the RequestNetwork object to avoid future timeouts. Discourage calling persistTransaction() again as this would create a duplicate Request.`,
+            `Timeout while confirming the Request was persisted. It is likely that the Request will be confirmed eventually. Catch this error and use getConfirmedTransaction() to continue polling for confirmation. Adjusting the httpConfig settings on the RequestNetwork object to avoid future timeouts. Avoid calling persistTransaction() again to prevent creating a duplicate Request.`,
           );
         }
         result.emit('error', error);
