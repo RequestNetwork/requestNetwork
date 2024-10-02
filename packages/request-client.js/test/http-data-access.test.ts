@@ -30,14 +30,17 @@ describe('HttpDataAccess', () => {
         },
       });
       const returnPersistTransaction = await httpDataAccess.persistTransaction({}, '', []);
-      await new Promise<void>((resolve) => {
-        returnPersistTransaction.on('error', (e: any) => {
-          expect(e.message).toBe(
-            `The Request Network SDK timed-out while polling the Request Node to confirm that the Request was persisted successfully. It is likely that the persisted Request will be confirmed eventually. App Builders are discouraged from calling persistTransaction() a second time, which would create a duplicate Request. Instead, App Builders are recommended to catch this error and continue polling the Request Node using getConfirmedTransaction() or by calling the /getConfirmedTransaction endpoint.  To avoid timeouts in the future, try adjusting the httpConfig values when instantiating the RequestNetwork object. The current httpConfig settings are: getConfirmationDeferDelay: 0ms, getConfirmationMaxRetries: 0, getConfirmationRetryDelay: 1000ms, getConfirmationExponentialBackoffDelay: 0ms, getConfirmationMaxExponentialBackoffDelay: 30000ms`,
-          );
-          resolve();
-        });
-      });
+      await Promise.race([
+        new Promise<void>((resolve) => {
+          returnPersistTransaction.on('error', (e: any) => {
+            expect(e.message).toBe(
+              'The Request Network SDK timed-out while polling the Request Node to confirm that the Request was persisted successfully. It is likely that the persisted Request will be confirmed eventually. App Builders are discouraged from calling persistTransaction() a second time, which would create a duplicate Request. Instead, App Builders are recommended to catch this error and continue polling the Request Node using getConfirmedTransaction() or by calling the /getConfirmedTransaction endpoint.  To avoid timeouts in the future, try adjusting the httpConfig values when instantiating the RequestNetwork object. The current httpConfig settings are: getConfirmationDeferDelay: 0ms, getConfirmationMaxRetries: 0, getConfirmationRetryDelay: 1000ms, getConfirmationExponentialBackoffDelay: 0ms, getConfirmationMaxExponentialBackoffDelay: 30000ms',
+            );
+            resolve();
+          });
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Test timed out')), 5000)),
+      ]);
     });
   });
 });
