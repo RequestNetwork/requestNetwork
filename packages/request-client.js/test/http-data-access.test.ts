@@ -29,22 +29,18 @@ describe('HttpDataAccess', () => {
           getConfirmationMaxRetry: 0,
         },
       });
-      await expect(
-        new Promise((resolve, reject) =>
-          httpDataAccess.persistTransaction({}, '', []).then((returnPersistTransaction) => {
-            returnPersistTransaction.on('confirmed', resolve);
-            returnPersistTransaction.on('error', reject);
-          }),
-        ),
-      ).rejects.toThrow(
-        new Error(`Transaction confirmation not received. Try polling
-          getTransactionsByChannelId() until the transaction is confirmed.
-          deferDelay: 0ms,
-          maxRetries: 0,
-          retryDelay: 1000ms,
-          exponentialBackoffDelay: 0ms,
-          maxExponentialBackoffDelay: 30000ms`),
-      );
+      const returnPersistTransaction = await httpDataAccess.persistTransaction({}, '', []);
+      await Promise.race([
+        new Promise<void>((resolve) => {
+          returnPersistTransaction.on('error', (e: any) => {
+            expect(e.message).toBe(
+              'Timeout while confirming the Request was persisted. It is likely that the Request will be confirmed eventually. Catch this error and use getConfirmedTransaction() to continue polling for confirmation. Adjusting the httpConfig settings on the RequestNetwork object to avoid future timeouts. Avoid calling persistTransaction() again to prevent creating a duplicate Request.',
+            );
+            resolve();
+          });
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Test timed out')), 5000)),
+      ]);
     });
   });
 });
