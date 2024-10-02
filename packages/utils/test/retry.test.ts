@@ -207,11 +207,12 @@ describe('Retry', () => {
     expect(throwFn).toHaveBeenCalledTimes(8);
     expect(Date.now()).toBe(127000);
 
+    // Reject and throw after the last retry
+    await expect(retryPromise).rejects.toThrow('threw');
+
     // No further retries
     jest.advanceTimersByTime(1000000000);
     await Promise.resolve();
-    await expect(retryPromise).rejects.toThrow('threw');
-
     expect(throwFn).toHaveBeenCalledTimes(8);
     expect(Date.now()).toBe(1000127000);
 
