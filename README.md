@@ -86,7 +86,7 @@ yarn run test
 Test a specific package.
 
 ```bash
-yarn workspace @requestnetwork/package-name test
+yarn workspace @requestnetwork/request-client.js test
 ```
 
 ## License
