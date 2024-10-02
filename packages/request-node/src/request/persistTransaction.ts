@@ -32,7 +32,10 @@ export default class PersistTransactionHandler {
 
     // Set the timeout from the value from config and convert seconds to milliseconds
     /* eslint-disable no-magic-numbers */
-    clientRequest.setTimeout(getPersistTransactionTimeout() * 1000);
+    clientRequest.setTimeout(getPersistTransactionTimeout() * 1000, () => {
+      this.logger.error('persistTransaction timeout');
+      serverResponse.status(StatusCodes.GATEWAY_TIMEOUT).send('persistTransaction timeout');
+    });
 
     // Verifies if data send from post are correct
     // clientRequest.body is expected to contain data for data-acces layer:
@@ -83,12 +86,27 @@ export default class PersistTransactionHandler {
           )}`);
       });
 
-      this.logger.debug(`persistTransaction successfully completed`, ['metric', 'successRate']);
+      this.logger.debug(
+        `persistTransaction successfully completed ${JSON.stringify({
+          transactionHash,
+          channelId: clientRequest.body.channelId,
+          topics: clientRequest.body.topics,
+          transactionData: clientRequest.body.transactionData,
+        })}`,
+        ['metric', 'successRate'],
+      );
 
       serverResponse.status(StatusCodes.OK).send(dataAccessResponse);
     } catch (e) {
       this.logger.error(`persistTransaction error: ${e}`);
-      this.logger.debug(`persistTransaction fail`, ['metric', 'successRate']);
+      this.logger.debug(
+        `persistTransaction fail ${JSON.stringify({
+          channelId: clientRequest.body.channelId,
+          topics: clientRequest.body.topics,
+          transactionData: clientRequest.body.transactionData,
+        })}`,
+        ['metric', 'successRate'],
+      );
 
       serverResponse.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
     }

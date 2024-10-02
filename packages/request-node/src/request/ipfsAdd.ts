@@ -26,7 +26,10 @@ export default class IpfsAddHandler {
 
     // Set the timeout from the value from config and convert seconds to milliseconds
     /* eslint-disable no-magic-numbers */
-    clientRequest.setTimeout(getPersistTransactionTimeout() * 1000);
+    clientRequest.setTimeout(getPersistTransactionTimeout() * 1000, () => {
+      this.logger.error('ipfs add timeout');
+      serverResponse.status(StatusCodes.GATEWAY_TIMEOUT).send('ipfs add timeout');
+    });
 
     // Verifies if data send from post are correct
     // clientRequest.body is expected to contain data for data-acces layer:
@@ -48,12 +51,23 @@ export default class IpfsAddHandler {
           JSON.stringify(clientRequest.body.data),
         );
 
-        this.logger.debug(`ipfsAdd successfully completed`, ['metric', 'successRate']);
+        this.logger.debug(
+          `ipfsAdd successfully completed ${JSON.stringify({
+            ipfsHash: dataAccessResponse.ipfsHash,
+            ipfsSize: dataAccessResponse.ipfsSize,
+          })}`,
+          ['metric', 'successRate'],
+        );
 
         serverResponse.status(StatusCodes.OK).send(dataAccessResponse);
       } catch (e) {
         this.logger.error(`ipfsAdd error: ${e}`);
-        this.logger.debug(`ipfsAdd fail`, ['metric', 'successRate']);
+        this.logger.debug(
+          `ipfsAdd fail  ${JSON.stringify({
+            data: clientRequest.body.data,
+          })}`,
+          ['metric', 'successRate'],
+        );
 
         serverResponse.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
       }

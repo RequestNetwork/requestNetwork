@@ -11,6 +11,7 @@ import PersistTransactionHandler from './request/persistTransaction';
 import GetChannelsByTopicHandler from './request/getChannelsByTopic';
 import GetStatusHandler from './request/getStatus';
 import IpfsAddHandler from './request/ipfsAdd';
+import morgan from 'morgan';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -132,6 +133,9 @@ export class RequestNode {
 
     // Enable all CORS requests
     this.express.use(cors());
+
+    // Enable logging of all requests
+    this.express.use(morgan('combined'));
 
     // Set the Request Node version to the header
     this.express.use((_, res, next) => {
