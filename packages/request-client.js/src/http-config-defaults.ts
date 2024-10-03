@@ -6,10 +6,12 @@ const config: ClientTypes.IHttpDataAccessConfig = {
   httpRequestRetryDelay: 100,
   httpRequestExponentialBackoffDelay: 0,
   httpRequestMaxExponentialBackoffDelay: 30000,
-  getConfirmationMaxRetry: 30,
-  getConfirmationRetryDelay: 1000,
-  getConfirmationExponentialBackoffDelay: 0,
-  getConfirmationMaxExponentialBackoffDelay: 30000,
+
+  // Exponential backoff starting at 1s, doubling after each retry, up to a maximum of 64s and max 7 retries with an initial 3s defer delay, yielding a total of 8 calls and total timeout of 130s
+  getConfirmationMaxRetry: 7,
+  getConfirmationRetryDelay: 0,
+  getConfirmationExponentialBackoffDelay: 1000,
+  getConfirmationMaxExponentialBackoffDelay: 64000,
   getConfirmationDeferDelay: 3000,
 };
 
