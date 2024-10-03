@@ -20,8 +20,7 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
   private readonly legacyTokens: CurrencyTypes.LegacyTokenMap;
   private readonly conversionPairs: CurrencyTypes.AggregatorsMap;
 
-  private readonly knownCurrenciesById: Map<string, CurrencyTypes.CurrencyDefinition<TMeta>> =
-    new Map();
+  private readonly knownCurrenciesById: Map<string, CurrencyTypes.CurrencyDefinition<TMeta>>;
 
   private static defaultInstance: CurrencyManager;
 
@@ -44,6 +43,10 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
       }
       this.knownCurrencies.push(currency);
     }
+
+    this.knownCurrenciesById = new Map(
+      this.knownCurrencies.map((knownCurrency) => [knownCurrency.id, knownCurrency]),
+    );
     this.legacyTokens = legacyTokens || CurrencyManager.getDefaultLegacyTokens();
     this.conversionPairs = conversionPairs || CurrencyManager.getDefaultConversionPairs();
   }
@@ -87,18 +90,7 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
    * Gets a supported currency from its CurrencyTypes.CurrencyDefinition id
    */
   fromId(id: string): CurrencyTypes.CurrencyDefinition<TMeta> | undefined {
-    const cachedCurrency = this.knownCurrenciesById.get(id);
-    if (cachedCurrency) {
-      return cachedCurrency;
-    }
-
-    const currency = this.knownCurrencies.find((knownCurrency) => knownCurrency.id === id);
-    if (!currency) {
-      return undefined;
-    }
-
-    this.knownCurrenciesById.set(id, currency);
-    return currency;
+    return this.knownCurrenciesById.get(id);
   }
 
   /**

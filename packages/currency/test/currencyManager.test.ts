@@ -158,12 +158,6 @@ describe('CurrencyManager', () => {
         symbol: 'USDC-multichain',
         decimals: 6,
       });
-
-      // Run the test twice to ensure caching result don't break things.
-      expect(currencyManager.fromId('USDC-multichain-moonbeam')).toMatchObject({
-        symbol: 'USDC-multichain',
-        decimals: 6,
-      });
     });
 
     it('access a common token by its symbol', () => {
