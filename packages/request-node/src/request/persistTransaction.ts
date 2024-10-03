@@ -30,6 +30,19 @@ export default class PersistTransactionHandler {
     // Retrieves data access layer
     let dataAccessResponse: DataAccessTypes.IReturnPersistTransaction;
 
+    // Verifies if data send from post are correct
+    // clientRequest.body is expected to contain data for data-acces layer:
+    // transactionData: data of the transaction
+    // topics (optional): arbitrary strings that reference the transaction
+    if (
+      !clientRequest.body ||
+      !clientRequest.body.transactionData ||
+      !clientRequest.body.channelId
+    ) {
+      serverResponse.status(StatusCodes.UNPROCESSABLE_ENTITY).send('Incorrect data');
+      return;
+    }
+
     const transactionHash: MultiFormatTypes.HashTypes.IHash = normalizeKeccak256Hash(
       clientRequest.body.transactionData,
     );
@@ -47,18 +60,6 @@ export default class PersistTransactionHandler {
       serverResponse.status(StatusCodes.GATEWAY_TIMEOUT).send('persistTransaction timeout');
     });
 
-    // Verifies if data send from post are correct
-    // clientRequest.body is expected to contain data for data-acces layer:
-    // transactionData: data of the transaction
-    // topics (optional): arbitrary strings that reference the transaction
-    if (
-      !clientRequest.body ||
-      !clientRequest.body.transactionData ||
-      !clientRequest.body.channelId
-    ) {
-      serverResponse.status(StatusCodes.UNPROCESSABLE_ENTITY).send('Incorrect data');
-      return;
-    }
     try {
       this.logger.debug(
         `Persisting Transaction: ${JSON.stringify({

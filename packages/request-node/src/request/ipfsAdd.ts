@@ -24,15 +24,6 @@ export default class IpfsAddHandler {
     // Retrieves data access layer
     let dataAccessResponse;
 
-    // Set the timeout from the value from config and convert seconds to milliseconds
-    /* eslint-disable no-magic-numbers */
-    clientRequest.setTimeout(getPersistTransactionTimeout() * 1000, () => {
-      this.logger.error(`ipfsAdd timeout. clientRequest.body.data: ${clientRequest.body.data}`, [
-        'timeout',
-      ]);
-      serverResponse.status(StatusCodes.GATEWAY_TIMEOUT).send('ipfsAdd timeout');
-    });
-
     // Verifies if data send from post are correct
     // clientRequest.body is expected to contain data for data-acces layer:
     // transactionData: data of the transaction
@@ -47,6 +38,15 @@ export default class IpfsAddHandler {
         serverResponse.status(StatusCodes.BAD_REQUEST).send('data must be a block');
         return;
       }
+
+      // Set the timeout from the value from config and convert seconds to milliseconds
+      /* eslint-disable no-magic-numbers */
+      clientRequest.setTimeout(getPersistTransactionTimeout() * 1000, () => {
+        this.logger.error(`ipfsAdd timeout. clientRequest.body.data: ${clientRequest.body.data}`, [
+          'timeout',
+        ]);
+        serverResponse.status(StatusCodes.GATEWAY_TIMEOUT).send('ipfsAdd timeout');
+      });
 
       try {
         dataAccessResponse = await this.ipfsStorage.ipfsAdd(
