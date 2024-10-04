@@ -24,10 +24,6 @@ export default class IpfsAddHandler {
     // Retrieves data access layer
     let dataAccessResponse;
 
-    // Set the timeout from the value from config and convert seconds to milliseconds
-    /* eslint-disable no-magic-numbers */
-    clientRequest.setTimeout(getPersistTransactionTimeout() * 1000);
-
     // Verifies if data send from post are correct
     // clientRequest.body is expected to contain data for data-acces layer:
     // transactionData: data of the transaction
@@ -43,17 +39,36 @@ export default class IpfsAddHandler {
         return;
       }
 
+      // Set the timeout from the value from config and convert seconds to milliseconds
+      /* eslint-disable no-magic-numbers */
+      clientRequest.setTimeout(getPersistTransactionTimeout() * 1000, () => {
+        this.logger.error(`ipfsAdd timeout. clientRequest.body.data: ${clientRequest.body.data}`, [
+          'timeout',
+        ]);
+        serverResponse.status(StatusCodes.GATEWAY_TIMEOUT).send('ipfsAdd timeout');
+      });
+
       try {
         dataAccessResponse = await this.ipfsStorage.ipfsAdd(
           JSON.stringify(clientRequest.body.data),
         );
 
-        this.logger.debug(`ipfsAdd successfully completed`, ['metric', 'successRate']);
+        this.logger.debug(
+          `ipfsAdd successfully completed ${JSON.stringify({
+            ipfsHash: dataAccessResponse.ipfsHash,
+            ipfsSize: dataAccessResponse.ipfsSize,
+          })}`,
+          ['metric', 'successRate'],
+        );
 
         serverResponse.status(StatusCodes.OK).send(dataAccessResponse);
       } catch (e) {
-        this.logger.error(`ipfsAdd error: ${e}`);
-        this.logger.debug(`ipfsAdd fail`, ['metric', 'successRate']);
+        this.logger.error(
+          `ipfsAdd fail  ${JSON.stringify({
+            error: e,
+            data: clientRequest.body.data,
+          })}`,
+        );
 
         serverResponse.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
       }
