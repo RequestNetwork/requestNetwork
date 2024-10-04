@@ -153,6 +153,13 @@ describe('CurrencyManager', () => {
   });
 
   describe('Accessing currencies', () => {
+    it('access a common token by its id', () => {
+      expect(currencyManager.fromId('USDC-multichain-moonbeam')).toMatchObject({
+        symbol: 'USDC-multichain',
+        decimals: 6,
+      });
+    });
+
     it('access a common token by its symbol', () => {
       expect(currencyManager.from('DAI')).toMatchObject({
         symbol: 'DAI',
