@@ -13,6 +13,10 @@ describe(EthereumTransactionSubmitter, () => {
     await txSubmitter.initialize();
   });
 
+  it('can retrieve whether the provider supports eip-1559', () => {
+    expect(txSubmitter.supportsEip1559()).toBe(true);
+  });
+
   it('can prepareSubmit', async () => {
     expect(await txSubmitter.prepareSubmit('hash', 1)).toMatchObject({
       to: '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
@@ -20,10 +24,12 @@ describe(EthereumTransactionSubmitter, () => {
       value: BigNumber.from(0),
     });
   });
+
   it('can submit', async () => {
     const tx = await txSubmitter.submit('hash', 1);
     expect(tx.hash).toMatch(/^0x.+/);
   });
+
   it('can debug transactions', async () => {
     const debugMock = jest.fn();
     const logger = {
