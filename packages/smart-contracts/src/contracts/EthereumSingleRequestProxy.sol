@@ -83,4 +83,16 @@ contract EthereumSingleRequestProxy {
       require(callSuccess, 'Call to EthereumFeeProxy failed');
     }
   }
+
+  /**
+   * @notice Rescues any trapped funds by sending them to the payee
+   * @dev Can be called by anyone, but funds are always sent to the payee
+   */
+  function rescueFunds() external nonReentrant {
+    uint256 balance = address(this).balance;
+    require(balance > 0, 'No funds to rescue');
+
+    (bool success, ) = payable(payee).call{value: balance}('');
+    require(success, 'Rescue failed');
+  }
 }
