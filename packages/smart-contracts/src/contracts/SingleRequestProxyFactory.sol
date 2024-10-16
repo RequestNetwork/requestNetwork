@@ -10,7 +10,12 @@ import './EthereumSingleRequestProxy.sol';
  * @notice This contract is used to create SingleRequestProxy instances
  */
 contract SingleRequestProxyFactory is Ownable {
+  /// @notice The address of the EthereumFeeProxy contract
+  /// @dev This proxy is used for handling Ethereum-based fee transactions
   address public ethereumFeeProxy;
+
+  /// @notice The address of the ERC20FeeProxy contract
+  /// @dev This proxy is used for handling ERC20-based fee transactions
   address public erc20FeeProxy;
 
   event EthereumSingleRequestProxyCreated(
