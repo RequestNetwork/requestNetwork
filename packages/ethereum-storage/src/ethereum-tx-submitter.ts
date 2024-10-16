@@ -75,7 +75,12 @@ export class EthereumTransactionSubmitter implements StorageTypes.ITransactionSu
     this.enableEip1559 = await isEip1559Supported(this.provider, this.logger);
   }
 
-  /** Submits an IPFS hash, with fees according to `ipfsSize`  */
+  /** Returns whether EIP-1559 is supported by the underlying provider. */
+  supportsEip1559() {
+    return this.enableEip1559;
+  }
+
+  /** Submits an IPFS hash, with fees according to `ipfsSize` */
   async submit(ipfsHash: string, ipfsSize: number): Promise<ContractTransaction> {
     const preparedTransaction = await this.prepareSubmit(ipfsHash, ipfsSize);
     return await this.hashSubmitter.signer.sendTransaction(preparedTransaction);
