@@ -16,7 +16,11 @@ contract EthereumSingleRequestProxy {
 
   address private originalSender;
 
-  // Reentrancy guard
+  /**
+   * @dev Custom reentrancy guard.
+   * Similar to OpenZeppelin's ReentrancyGuard, but allows reentrancy from ethereumFeeProxy.
+   * This enables controlled callbacks from ethereumFeeProxy while protecting against other reentrancy attacks.
+   */
   uint256 private constant _NOT_ENTERED = 1;
   uint256 private constant _ENTERED = 2;
   uint256 private _status;
@@ -36,16 +40,17 @@ contract EthereumSingleRequestProxy {
     _status = _NOT_ENTERED;
   }
 
+  /**
+   * @dev Modified nonReentrant guard.
+   * Prevents reentrancy except for calls from ethereumFeeProxy.
+   */
   modifier nonReentrant() {
     if (msg.sender != address(ethereumFeeProxy)) {
-      // On the first call to nonReentrant, _status will be _NOT_ENTERED
       require(_status != _ENTERED, 'ReentrancyGuard: reentrant call');
-      // Any calls to nonReentrant after this point will fail
       _status = _ENTERED;
     }
     _;
     if (msg.sender != address(ethereumFeeProxy)) {
-      // By storing the original value once again, a refund is triggered
       _status = _NOT_ENTERED;
     }
   }
