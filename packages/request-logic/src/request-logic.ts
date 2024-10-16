@@ -137,6 +137,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     requestParameters: RequestLogicTypes.IAcceptParameters,
     signerIdentity: IdentityTypes.IIdentity,
     validate = false,
+    topics: any[] = [],
   ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
@@ -151,7 +152,12 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       await this.validateAction(requestId, action);
     }
 
-    return this.persistTransaction(requestId, action, undefined);
+    // hash all the topics
+    const hashedTopics = topics.map((topic) =>
+      MultiFormat.serialize(normalizeKeccak256Hash(topic)),
+    );
+
+    return this.persistTransaction(requestId, action, undefined, hashedTopics);
   }
 
   /**
