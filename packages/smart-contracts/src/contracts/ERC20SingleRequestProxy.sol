@@ -3,6 +3,7 @@ pragma solidity 0.8.9;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import './interfaces/ERC20FeeProxy.sol';
+import './lib/SafeERC20.sol';
 
 /**
  * @title ERC20SingleRequestProxy
@@ -43,7 +44,7 @@ contract ERC20SingleRequestProxy {
       paymentAmount = balance - feeAmount;
     }
 
-    token.approve(address(erc20FeeProxy), balance);
+    require(SafeERC20.safeApprove(token, address(erc20FeeProxy), balance), 'Approval failed');
 
     erc20FeeProxy.transferFromWithReferenceAndFee(
       tokenAddress,
