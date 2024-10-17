@@ -2,6 +2,8 @@
 pragma solidity 0.8.9;
 
 import './interfaces/EthereumFeeProxy.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import './lib/SafeERC20.sol';
 
 /**
  * @title EthereumSingleRequestProxy
@@ -88,11 +90,25 @@ contract EthereumSingleRequestProxy {
    * @notice Rescues any trapped funds by sending them to the payee
    * @dev Can be called by anyone, but funds are always sent to the payee
    */
-  function rescueFunds() external nonReentrant {
+  function rescueNativeFunds() external nonReentrant {
     uint256 balance = address(this).balance;
     require(balance > 0, 'No funds to rescue');
 
     (bool success, ) = payable(payee).call{value: balance}('');
+    require(success, 'Rescue failed');
+  }
+
+  /**
+   * @notice Rescues any trapped ERC20 funds by sending them to the payee
+   * @dev Can be called by anyone, but funds are always sent to the payee
+   * @param _tokenAddress The address of the ERC20 token to rescue
+   */
+  function rescueERC20Funds(address _tokenAddress) external nonReentrant {
+    require(_tokenAddress != address(0), 'Invalid token address');
+    IERC20 token = IERC20(_tokenAddress);
+    uint256 balance = token.balanceOf(address(this));
+    require(balance > 0, 'No funds to rescue');
+    bool success = SafeERC20.safeTransfer(token, payee, balance);
     require(success, 'Rescue failed');
   }
 }

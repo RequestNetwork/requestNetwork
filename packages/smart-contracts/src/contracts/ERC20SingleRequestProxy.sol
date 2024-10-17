@@ -76,4 +76,16 @@ contract ERC20SingleRequestProxy {
     bool success = SafeERC20.safeTransfer(token, payee, balance);
     require(success, 'ERC20 rescue failed');
   }
+
+  /**
+   * @notice Rescues any trapped funds by sending them to the payee
+   * @dev Can be called by anyone, but funds are always sent to the payee
+   */
+  function rescueNativeFunds() external {
+    uint256 balance = address(this).balance;
+    require(balance > 0, 'No funds to rescue');
+
+    (bool success, ) = payable(payee).call{value: balance}('');
+    require(success, 'Rescue failed');
+  }
 }
