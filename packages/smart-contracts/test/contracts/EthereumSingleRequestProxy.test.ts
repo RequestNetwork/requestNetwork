@@ -54,7 +54,7 @@ describe('contract : EthereumSingleRequestProxy', () => {
     const totalAmount = BigNumber.from(paymentAmount).add(BigNumber.from(feeAmount));
 
     await expect(
-      owner.sendTransaction({
+      await owner.sendTransaction({
         to: ethereumSingleRequestProxy.address,
         value: totalAmount,
       }),
