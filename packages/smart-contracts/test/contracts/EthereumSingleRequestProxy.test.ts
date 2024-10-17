@@ -114,4 +114,30 @@ describe('contract : EthereumSingleRequestProxy', () => {
     expect(await ethers.provider.getBalance(newEthereumSingleRequestProxy.address)).to.equal(0);
     expect(await ethers.provider.getBalance(mockEthereumFeeProxy.address)).to.equal(0);
   });
+
+  it('should rescue funds', async () => {
+    const paymentAmount = ethers.utils.parseEther('1');
+    const totalAmount = paymentAmount.add(feeAmount);
+
+    const ForceSendFactory = await ethers.getContractFactory('ForceSend');
+    const forceSend = await ForceSendFactory.deploy();
+    await forceSend.deployed();
+
+    await forceSend.forceSend(ethereumSingleRequestProxy.address, { value: totalAmount });
+
+    const balanceAfterForceSend = await ethers.provider.getBalance(
+      ethereumSingleRequestProxy.address,
+    );
+    expect(balanceAfterForceSend).to.be.gt(0);
+    expect(balanceAfterForceSend).to.equal(totalAmount);
+
+    const initialPayeeBalance = await ethers.provider.getBalance(payeeAddress);
+
+    await ethereumSingleRequestProxy.rescueFunds();
+
+    expect(await ethers.provider.getBalance(ethereumSingleRequestProxy.address)).to.equal(0);
+
+    const finalPayeeBalance = await ethers.provider.getBalance(payeeAddress);
+    expect(finalPayeeBalance.sub(initialPayeeBalance)).to.equal(balanceAfterForceSend);
+  });
 });

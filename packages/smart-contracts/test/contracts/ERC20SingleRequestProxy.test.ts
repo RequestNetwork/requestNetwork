@@ -254,39 +254,23 @@ describe('contract: ERC20SingleRequestProxy', () => {
     ).to.be.reverted;
   });
 
-  // it('should work with USDT-like non-standard ERC20 tokens', async () => {
-  //   const usdtProxy = await new ERC20SingleRequestProxy__factory(deployer).deploy(
-  //     user2Addr,
-  //     usdtFake.address,
-  //     feeRecipientAddr,
-  //     feeAmount,
-  //     paymentReference,
-  //     erc20FeeProxy.address,
-  //   );
+  it('should rescue ERC20 tokens', async () => {
+    const rescueAmount = BN.from(100).mul(BASE_DECIMAL);
 
-  //   const paymentAmount = BN.from(100).mul(USDT_DECIMAL);
-  //   const totalAmount = paymentAmount.add(feeAmount);
+    // Transfer tokens directly to the contract
+    await testToken.transfer(erc20SingleRequestProxy.address, rescueAmount);
 
-  //   await usdtFake.transfer(usdtProxy.address, totalAmount);
+    const contractBalanceBefore = await testToken.balanceOf(erc20SingleRequestProxy.address);
+    expect(contractBalanceBefore).to.equal(rescueAmount);
 
-  //   const usdtProxyBalanceBefore = await usdtFake.balanceOf(usdtProxy.address);
-  //   expect(usdtProxyBalanceBefore).to.equal(totalAmount);
+    const payeeBalanceBefore = await testToken.balanceOf(user2Addr);
 
-  //   await expect(
-  //     user1.sendTransaction({
-  //       to: usdtProxy.address,
-  //       value: 0,
-  //     }),
-  //   )
-  //     .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
-  //     .withArgs(usdtFake.address, user2Addr, paymentAmount, paymentReference, feeAmount, feeRecipientAddr);
+    await erc20SingleRequestProxy.rescueFunds();
 
-  //   const usdtProxyBalanceAfter = await usdtFake.balanceOf(usdtProxy.address);
-  //   const user2BalanceAfter = await usdtFake.balanceOf(user2Addr);
-  //   const feeRecipientBalanceAfter = await usdtFake.balanceOf(feeRecipientAddr);
+    const contractBalanceAfter = await testToken.balanceOf(erc20SingleRequestProxy.address);
+    expect(contractBalanceAfter).to.equal(0);
 
-  //   expect(usdtProxyBalanceAfter).to.equal(0);
-  //   expect(user2BalanceAfter).to.equal(paymentAmount);
-  //   expect(feeRecipientBalanceAfter).to.equal(feeAmount);
-  // });
+    const payeeBalanceAfter = await testToken.balanceOf(user2Addr);
+    expect(payeeBalanceAfter.sub(payeeBalanceBefore)).to.equal(rescueAmount);
+  });
 });
