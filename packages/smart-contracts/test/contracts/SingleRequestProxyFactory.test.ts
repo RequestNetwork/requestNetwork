@@ -181,8 +181,12 @@ describe('contract: SingleRequestProxyFactory', () => {
   });
 
   it('should allow new owner to renounce ownership', async () => {
-    await singleRequestProxyFactory.transferOwnership(userAddress);
-    await singleRequestProxyFactory.connect(user).renounceOwnership();
+    await expect(singleRequestProxyFactory.transferOwnership(userAddress))
+      .to.emit(singleRequestProxyFactory, 'OwnershipTransferred')
+      .withArgs(ownerAddress, userAddress);
+    await expect(singleRequestProxyFactory.connect(user).renounceOwnership())
+      .to.emit(singleRequestProxyFactory, 'OwnershipTransferred')
+      .withArgs(userAddress, ethers.constants.AddressZero);
     expect(await singleRequestProxyFactory.owner()).to.equal(ethers.constants.AddressZero);
   });
 
@@ -190,5 +194,11 @@ describe('contract: SingleRequestProxyFactory', () => {
     await expect(
       singleRequestProxyFactory.connect(user).transferOwnership(userAddress),
     ).to.be.revertedWith('Ownable: caller is not the owner');
+  });
+
+  it('should revert when non-owner tries to renounce ownership', async () => {
+    await expect(singleRequestProxyFactory.connect(user).renounceOwnership()).to.be.revertedWith(
+      'Ownable: caller is not the owner',
+    );
   });
 });
