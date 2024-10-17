@@ -2,7 +2,7 @@ import { ethers } from 'hardhat';
 import { expect } from 'chai';
 import { BigNumber, Signer } from 'ethers';
 import { EthereumSingleRequestProxy, EthereumFeeProxy } from '../../src/types';
-
+import { BigNumber as BN } from 'ethers';
 describe('contract : EthereumSingleRequestProxy', () => {
   let ethereumSingleRequestProxy: EthereumSingleRequestProxy;
   let ethereumFeeProxy: EthereumFeeProxy;
@@ -13,7 +13,7 @@ describe('contract : EthereumSingleRequestProxy', () => {
   let feeRecipientAddress: string;
 
   const paymentReference: string = ethers.utils.formatBytes32String('payment_reference');
-  const feeAmount: string = ethers.utils.parseEther('0.1').toString();
+  const feeAmount: BN = ethers.utils.parseEther('0.1');
 
   beforeEach(async () => {
     [owner, payee, feeRecipient] = await ethers.getSigners();
@@ -54,7 +54,7 @@ describe('contract : EthereumSingleRequestProxy', () => {
     const totalAmount = BigNumber.from(paymentAmount).add(BigNumber.from(feeAmount));
 
     await expect(
-      await owner.sendTransaction({
+      owner.sendTransaction({
         to: ethereumSingleRequestProxy.address,
         value: totalAmount,
       }),
