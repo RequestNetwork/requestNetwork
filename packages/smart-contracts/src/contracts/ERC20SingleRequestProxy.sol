@@ -55,4 +55,16 @@ contract ERC20SingleRequestProxy {
       feeAddress
     );
   }
+
+  /**
+   * @notice Rescues any trapped  funds by sending them to the payee
+   * @dev Can be called by anyone, but funds are always sent to the payee
+   */
+  function rescueFunds() external {
+    IERC20 token = IERC20(tokenAddress);
+    uint256 balance = token.balanceOf(address(this));
+    require(balance > 0, 'No funds to rescue');
+    bool success = SafeERC20.safeTransfer(token, payee, balance);
+    require(success, 'ERC20 rescue failed');
+  }
 }
