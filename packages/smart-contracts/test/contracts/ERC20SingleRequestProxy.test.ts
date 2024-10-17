@@ -263,7 +263,7 @@ describe('contract: ERC20SingleRequestProxy', () => {
 
     const payeeBalanceBefore = await testToken.balanceOf(user2Addr);
 
-    await erc20SingleRequestProxy.rescueFunds(testToken.address);
+    await erc20SingleRequestProxy.rescueERC20Funds(testToken.address);
 
     const contractBalanceAfter = await testToken.balanceOf(erc20SingleRequestProxy.address);
     expect(contractBalanceAfter).to.equal(0);
