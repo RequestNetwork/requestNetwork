@@ -65,10 +65,11 @@ contract ERC20SingleRequestProxy {
   }
 
   /**
-   * @notice Rescues any trapped  funds by sending them to the payee
+   * @notice Rescues any trapped funds by sending them to the payee
    * @dev Can be called by anyone, but funds are always sent to the payee
    */
   function rescueFunds(address _tokenAddress) external {
+    require(_tokenAddress != address(0), 'Invalid token address');
     IERC20 token = IERC20(_tokenAddress);
     uint256 balance = token.balanceOf(address(this));
     require(balance > 0, 'No funds to rescue');
