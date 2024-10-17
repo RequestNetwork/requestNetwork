@@ -36,6 +36,14 @@ contract ERC20SingleRequestProxy {
 
   receive() external payable {
     require(msg.value == 0, 'This function is only for triggering the transfer');
+    _processPayment();
+  }
+
+  function triggerERC20Payment() external {
+    _processPayment();
+  }
+
+  function _processPayment() internal {
     IERC20 token = IERC20(tokenAddress);
     uint256 balance = token.balanceOf(address(this));
     uint256 paymentAmount = balance;
@@ -60,8 +68,8 @@ contract ERC20SingleRequestProxy {
    * @notice Rescues any trapped  funds by sending them to the payee
    * @dev Can be called by anyone, but funds are always sent to the payee
    */
-  function rescueFunds() external {
-    IERC20 token = IERC20(tokenAddress);
+  function rescueFunds(address _tokenAddress) external {
+    IERC20 token = IERC20(_tokenAddress);
     uint256 balance = token.balanceOf(address(this));
     require(balance > 0, 'No funds to rescue');
     bool success = SafeERC20.safeTransfer(token, payee, balance);

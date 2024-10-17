@@ -76,7 +76,7 @@ describe('contract: ERC20SingleRequestProxy', () => {
     expect(await erc20SingleRequestProxy.erc20FeeProxy()).to.equal(erc20FeeProxy.address);
   });
 
-  it('should process a payment correctly', async () => {
+  it('should process a payment correctly via recieve', async () => {
     const paymentAmount = BN.from(100).mul(BASE_DECIMAL);
     const totalAmount = paymentAmount.add(feeAmount);
 
@@ -114,9 +114,8 @@ describe('contract: ERC20SingleRequestProxy', () => {
     expect(feeRecipientBalanceAfter).to.equal(feeAmount);
   });
 
-  it('should process a partial payment correctly', async () => {
-    // Pay 10 tokens instead of 100
-    const paymentAmount = BN.from(10).mul(BASE_DECIMAL);
+  it('should process a payment correctly via triggerERC20Payment', async () => {
+    const paymentAmount = BN.from(100).mul(BASE_DECIMAL);
     const totalAmount = paymentAmount.add(feeAmount);
 
     await testToken.connect(user1).transfer(erc20SingleRequestProxy.address, totalAmount);
@@ -126,12 +125,7 @@ describe('contract: ERC20SingleRequestProxy', () => {
     );
     expect(erc20SingleRequestProxyBalanceBefore).to.equal(totalAmount);
 
-    await expect(
-      user1.sendTransaction({
-        to: erc20SingleRequestProxy.address,
-        value: 0,
-      }),
-    )
+    await expect(erc20SingleRequestProxy.triggerERC20Payment())
       .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
       .withArgs(
         testToken.address,
@@ -151,6 +145,10 @@ describe('contract: ERC20SingleRequestProxy', () => {
     expect(erc20SingleRequestProxyBalanceAfter).to.equal(0);
     expect(user2BalanceAfter).to.equal(paymentAmount);
     expect(feeRecipientBalanceAfter).to.equal(feeAmount);
+  });
+
+  it.skip('should process a partial payment correctly', async () => {
+    // Smart contract does not keep track of the payment amount, it accepts any amount of tokens
   });
 
   it('should process a payment with a non-standard ERC20', async () => {
@@ -265,7 +263,7 @@ describe('contract: ERC20SingleRequestProxy', () => {
 
     const payeeBalanceBefore = await testToken.balanceOf(user2Addr);
 
-    await erc20SingleRequestProxy.rescueFunds();
+    await erc20SingleRequestProxy.rescueFunds(testToken.address);
 
     const contractBalanceAfter = await testToken.balanceOf(erc20SingleRequestProxy.address);
     expect(contractBalanceAfter).to.equal(0);
