@@ -1,7 +1,7 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
 import { BigNumber, Signer } from 'ethers';
-import { EthereumSingleRequestProxy, EthereumFeeProxy } from '../../src/types';
+import { EthereumSingleRequestProxy, EthereumFeeProxy, TestToken__factory } from '../../src/types';
 import { BigNumber as BN } from 'ethers';
 describe('contract : EthereumSingleRequestProxy', () => {
   let ethereumSingleRequestProxy: EthereumSingleRequestProxy;
@@ -115,7 +115,7 @@ describe('contract : EthereumSingleRequestProxy', () => {
     expect(await ethers.provider.getBalance(mockEthereumFeeProxy.address)).to.equal(0);
   });
 
-  it('should rescue funds', async () => {
+  it('should rescue native funds', async () => {
     const paymentAmount = ethers.utils.parseEther('1');
     const totalAmount = paymentAmount.add(feeAmount);
 
@@ -133,11 +133,36 @@ describe('contract : EthereumSingleRequestProxy', () => {
 
     const initialPayeeBalance = await ethers.provider.getBalance(payeeAddress);
 
-    await ethereumSingleRequestProxy.rescueFunds();
+    await ethereumSingleRequestProxy.rescueNativeFunds();
 
     expect(await ethers.provider.getBalance(ethereumSingleRequestProxy.address)).to.equal(0);
 
     const finalPayeeBalance = await ethers.provider.getBalance(payeeAddress);
     expect(finalPayeeBalance.sub(initialPayeeBalance)).to.equal(balanceAfterForceSend);
+  });
+
+  it('should rescue ERC20 funds', async () => {
+    const rescueAmount = BN.from(100).mul(18);
+    const [deployer] = await ethers.getSigners();
+
+    const deployerAddr = await deployer.getAddress();
+    const testToken = await new TestToken__factory(deployer).deploy(deployerAddr);
+    await testToken.mint(deployerAddr, BN.from(1000000).mul(18));
+
+    await testToken.transfer(ethereumSingleRequestProxy.address, rescueAmount);
+
+    const contractBalanceBefore = await testToken.balanceOf(ethereumSingleRequestProxy.address);
+
+    const initialPayeeBalance = await testToken.balanceOf(payeeAddress);
+    expect(initialPayeeBalance).to.equal(0);
+    expect(contractBalanceBefore).to.equal(rescueAmount);
+
+    await ethereumSingleRequestProxy.rescueERC20Funds(testToken.address);
+
+    const contractBalanceAfter = await testToken.balanceOf(ethereumSingleRequestProxy.address);
+    ethereumSingleRequestProxy.address, expect(contractBalanceAfter).to.equal(0);
+
+    const finalPayeeBalance = await testToken.balanceOf(payeeAddress);
+    expect(finalPayeeBalance.sub(initialPayeeBalance)).to.equal(rescueAmount);
   });
 });

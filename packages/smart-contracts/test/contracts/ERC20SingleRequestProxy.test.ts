@@ -271,4 +271,23 @@ describe('contract: ERC20SingleRequestProxy', () => {
     const payeeBalanceAfter = await testToken.balanceOf(user2Addr);
     expect(payeeBalanceAfter.sub(payeeBalanceBefore)).to.equal(rescueAmount);
   });
+
+  it('should rescue native funds', async () => {
+    const paymentAmount = ethers.utils.parseEther('1');
+    const totalAmount = paymentAmount.add(feeAmount);
+
+    const ForceSendFactory = await ethers.getContractFactory('ForceSend');
+    const forceSend = await ForceSendFactory.deploy();
+    await forceSend.deployed();
+
+    await forceSend.forceSend(erc20SingleRequestProxy.address, { value: totalAmount });
+
+    const contractBalanceBefore = await ethers.provider.getBalance(erc20SingleRequestProxy.address);
+    expect(contractBalanceBefore).to.gt(0);
+
+    await erc20SingleRequestProxy.rescueNativeFunds();
+
+    const contractBalanceAfter = await ethers.provider.getBalance(erc20SingleRequestProxy.address);
+    expect(contractBalanceAfter).to.equal(0);
+  });
 });
