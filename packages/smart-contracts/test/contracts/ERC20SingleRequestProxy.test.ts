@@ -9,10 +9,13 @@ import {
   ERC20SingleRequestProxy,
   ERC20FeeProxy,
   ERC20FeeProxy__factory,
+  UsdtFake,
+  UsdtFake__factory,
 } from '../../src/types';
 import { BigNumber as BN } from 'ethers';
 
 const BASE_DECIMAL = BN.from(10).pow(BN.from(18));
+const USDT_DECIMAL = BN.from(10).pow(BN.from(6));
 
 describe('contract: ERC20SingleRequestProxy', () => {
   let deployer: Signer;
@@ -20,9 +23,10 @@ describe('contract: ERC20SingleRequestProxy', () => {
   let user2: Signer, user2Addr: string;
   let feeRecipient: Signer, feeRecipientAddr: string;
 
-  let testToken: TestToken,
-    erc20SingleRequestProxy: ERC20SingleRequestProxy,
-    erc20FeeProxy: ERC20FeeProxy;
+  let testToken: TestToken;
+  let erc20SingleRequestProxy: ERC20SingleRequestProxy;
+  let erc20FeeProxy: ERC20FeeProxy;
+  let usdtFake: UsdtFake;
 
   const paymentReference: BytesLike = '0xd0bc835c22f49e7e';
   const feeAmount: BN = BN.from(10).mul(BASE_DECIMAL);
@@ -53,6 +57,10 @@ describe('contract: ERC20SingleRequestProxy', () => {
     await testToken
       .connect(user1)
       .approve(erc20SingleRequestProxy.address, ethers.constants.MaxUint256);
+
+    // Deploy UsdtFake
+    usdtFake = await new UsdtFake__factory(deployer).deploy();
+    await usdtFake.mint(deployerAddr, BN.from(1000000).mul(USDT_DECIMAL));
   });
 
   it('should be deployed', async () => {
@@ -79,10 +87,21 @@ describe('contract: ERC20SingleRequestProxy', () => {
     );
     expect(erc20SingleRequestProxyBalanceBefore).to.equal(totalAmount);
 
-    await user1.sendTransaction({
-      to: erc20SingleRequestProxy.address,
-      value: 0,
-    });
+    await expect(
+      user1.sendTransaction({
+        to: erc20SingleRequestProxy.address,
+        value: 0,
+      }),
+    )
+      .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+      .withArgs(
+        testToken.address,
+        user2Addr,
+        paymentAmount,
+        paymentReference,
+        feeAmount,
+        feeRecipientAddr,
+      );
 
     const erc20SingleRequestProxyBalanceAfter = await testToken.balanceOf(
       erc20SingleRequestProxy.address,
@@ -93,6 +112,91 @@ describe('contract: ERC20SingleRequestProxy', () => {
     expect(erc20SingleRequestProxyBalanceAfter).to.equal(0);
     expect(user2BalanceAfter).to.equal(paymentAmount);
     expect(feeRecipientBalanceAfter).to.equal(feeAmount);
+  });
+
+  it('should process a partial payment correctly', async () => {
+    // Pay 10 tokens instead of 100
+    const paymentAmount = BN.from(10).mul(BASE_DECIMAL);
+    const totalAmount = paymentAmount.add(feeAmount);
+
+    await testToken.connect(user1).transfer(erc20SingleRequestProxy.address, totalAmount);
+
+    const erc20SingleRequestProxyBalanceBefore = await testToken.balanceOf(
+      erc20SingleRequestProxy.address,
+    );
+    expect(erc20SingleRequestProxyBalanceBefore).to.equal(totalAmount);
+
+    await expect(
+      user1.sendTransaction({
+        to: erc20SingleRequestProxy.address,
+        value: 0,
+      }),
+    )
+      .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+      .withArgs(
+        testToken.address,
+        user2Addr,
+        paymentAmount,
+        paymentReference,
+        feeAmount,
+        feeRecipientAddr,
+      );
+
+    const erc20SingleRequestProxyBalanceAfter = await testToken.balanceOf(
+      erc20SingleRequestProxy.address,
+    );
+    const user2BalanceAfter = await testToken.balanceOf(user2Addr);
+    const feeRecipientBalanceAfter = await testToken.balanceOf(feeRecipientAddr);
+
+    expect(erc20SingleRequestProxyBalanceAfter).to.equal(0);
+    expect(user2BalanceAfter).to.equal(paymentAmount);
+    expect(feeRecipientBalanceAfter).to.equal(feeAmount);
+  });
+
+  it('should process a payment with a non-standard ERC20', async () => {
+    const usdtFeeAmount = BN.from(10).mul(USDT_DECIMAL);
+    const usdtProxy = await new ERC20SingleRequestProxy__factory(deployer).deploy(
+      user2Addr,
+      usdtFake.address,
+      feeRecipientAddr,
+      usdtFeeAmount,
+      paymentReference,
+      erc20FeeProxy.address,
+    );
+
+    const paymentAmount = BN.from(50).mul(USDT_DECIMAL);
+    const totalAmount = paymentAmount.add(usdtFeeAmount);
+
+    await usdtFake.mint(user1Addr, BN.from(1000).mul(USDT_DECIMAL));
+
+    await usdtFake.connect(user1).transfer(usdtProxy.address, totalAmount);
+
+    const usdtProxyBalanceBefore = await usdtFake.balanceOf(usdtProxy.address);
+    expect(usdtProxyBalanceBefore).to.equal(totalAmount);
+
+    await expect(
+      user1.sendTransaction({
+        to: usdtProxy.address,
+        value: 0,
+      }),
+    )
+      .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+      .withArgs(
+        usdtFake.address,
+        user2Addr,
+        paymentAmount,
+        paymentReference,
+        usdtFeeAmount,
+        feeRecipientAddr,
+      );
+
+    const usdtProxyBalanceAfter = await usdtFake.balanceOf(usdtProxy.address);
+    const user2BalanceAfter = await usdtFake.balanceOf(user2Addr);
+    const feeRecipientBalanceAfter = await usdtFake.balanceOf(feeRecipientAddr);
+
+    expect(usdtProxyBalanceAfter).to.equal(0);
+    expect(user2BalanceAfter).to.equal(paymentAmount);
+    expect(feeRecipientBalanceAfter).to.equal(usdtFeeAmount);
   });
 
   it('should revert if called with non-zero value', async () => {
@@ -149,4 +253,40 @@ describe('contract: ERC20SingleRequestProxy', () => {
       }),
     ).to.be.reverted;
   });
+
+  // it('should work with USDT-like non-standard ERC20 tokens', async () => {
+  //   const usdtProxy = await new ERC20SingleRequestProxy__factory(deployer).deploy(
+  //     user2Addr,
+  //     usdtFake.address,
+  //     feeRecipientAddr,
+  //     feeAmount,
+  //     paymentReference,
+  //     erc20FeeProxy.address,
+  //   );
+
+  //   const paymentAmount = BN.from(100).mul(USDT_DECIMAL);
+  //   const totalAmount = paymentAmount.add(feeAmount);
+
+  //   await usdtFake.transfer(usdtProxy.address, totalAmount);
+
+  //   const usdtProxyBalanceBefore = await usdtFake.balanceOf(usdtProxy.address);
+  //   expect(usdtProxyBalanceBefore).to.equal(totalAmount);
+
+  //   await expect(
+  //     user1.sendTransaction({
+  //       to: usdtProxy.address,
+  //       value: 0,
+  //     }),
+  //   )
+  //     .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+  //     .withArgs(usdtFake.address, user2Addr, paymentAmount, paymentReference, feeAmount, feeRecipientAddr);
+
+  //   const usdtProxyBalanceAfter = await usdtFake.balanceOf(usdtProxy.address);
+  //   const user2BalanceAfter = await usdtFake.balanceOf(user2Addr);
+  //   const feeRecipientBalanceAfter = await usdtFake.balanceOf(feeRecipientAddr);
+
+  //   expect(usdtProxyBalanceAfter).to.equal(0);
+  //   expect(user2BalanceAfter).to.equal(paymentAmount);
+  //   expect(feeRecipientBalanceAfter).to.equal(feeAmount);
+  // });
 });
