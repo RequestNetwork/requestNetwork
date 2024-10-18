@@ -98,8 +98,6 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
       { channelId, topics, transactionData },
     );
 
-    const transactionHash: string = normalizeKeccak256Hash(transactionData).value;
-
     // Create the return result with EventEmitter
     const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(
       new EventEmitter() as DataAccessTypes.PersistTransactionEmitter,
@@ -109,39 +107,44 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     // Try to get the confirmation
     new Promise((r) => setTimeout(r, this.httpConfig.getConfirmationDeferDelay))
       .then(async () => {
-        const confirmedData =
-          await this.fetchAndRetry<DataAccessTypes.IReturnPersistTransactionRaw>(
-            '/getConfirmedTransaction',
-            {
-              transactionHash,
-            },
-            {
-              maxRetries: this.httpConfig.getConfirmationMaxRetry,
-              retryDelay: this.httpConfig.getConfirmationRetryDelay,
-              exponentialBackoffDelay: this.httpConfig.getConfirmationExponentialBackoffDelay,
-              maxExponentialBackoffDelay: this.httpConfig.getConfirmationMaxExponentialBackoffDelay,
-            },
-          );
+        const confirmedData = await this.getConfirmedTransaction(transactionData);
         // when found, emit the event 'confirmed'
         result.emit('confirmed', confirmedData);
       })
       .catch((e) => {
         let error: Error = e;
-        if (e.status === 404) {
+        if (e && 'status' in e && e.status === 404) {
           error = new Error(
-            `Transaction confirmation not received. Try polling
-          getTransactionsByChannelId() until the transaction is confirmed.
-          deferDelay: ${this.httpConfig.getConfirmationDeferDelay}ms,
-          maxRetries: ${this.httpConfig.getConfirmationMaxRetry},
-          retryDelay: ${this.httpConfig.getConfirmationRetryDelay}ms,
-          exponentialBackoffDelay: ${this.httpConfig.getConfirmationExponentialBackoffDelay}ms,
-          maxExponentialBackoffDelay: ${this.httpConfig.getConfirmationMaxExponentialBackoffDelay}ms`,
+            `Timeout while confirming the Request was persisted. It is likely that the Request will be confirmed eventually. Catch this error and use getConfirmedTransaction() to continue polling for confirmation. Adjusting the httpConfig settings on the RequestNetwork object to avoid future timeouts. Avoid calling persistTransaction() again to prevent creating a duplicate Request.`,
           );
         }
         result.emit('error', error);
       });
 
     return result;
+  }
+
+  /**
+   * Gets a transaction from the node through HTTP.
+   * @param transactionData The transaction data
+   */
+  public async getConfirmedTransaction(
+    transactionData: DataAccessTypes.ITransaction,
+  ): Promise<DataAccessTypes.IReturnPersistTransaction> {
+    const transactionHash: string = normalizeKeccak256Hash(transactionData).value;
+
+    return await this.fetchAndRetry(
+      '/getConfirmedTransaction',
+      {
+        transactionHash,
+      },
+      {
+        maxRetries: this.httpConfig.getConfirmationMaxRetry,
+        retryDelay: this.httpConfig.getConfirmationRetryDelay,
+        exponentialBackoffDelay: this.httpConfig.getConfirmationExponentialBackoffDelay,
+        maxExponentialBackoffDelay: this.httpConfig.getConfirmationMaxExponentialBackoffDelay,
+      },
+    );
   }
 
   /**

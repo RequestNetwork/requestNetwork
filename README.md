@@ -83,6 +83,12 @@ Test all the packages in the monorepo.
 yarn run test
 ```
 
+Test a specific package by replacing `@requestnetwork/request-client.js` with the desired package name:
+
+```bash
+yarn workspace @requestnetwork/request-client.js test
+```
+
 ## License
 
 [MIT](https://github.com/RequestNetwork/requestNetwork/blob/master/LICENSE)
