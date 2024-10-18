@@ -76,7 +76,7 @@ describe('contract: ERC20SingleRequestProxy', () => {
     expect(await erc20SingleRequestProxy.erc20FeeProxy()).to.equal(erc20FeeProxy.address);
   });
 
-  it('should process a payment correctly via recieve', async () => {
+  it('should process a payment correctly via receive', async () => {
     const paymentAmount = BN.from(100).mul(BASE_DECIMAL);
     const totalAmount = paymentAmount.add(feeAmount);
 
