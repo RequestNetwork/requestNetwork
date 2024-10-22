@@ -53,7 +53,6 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
             EvmChains.assertChainSupported(network);
             const constructorArgs = getConstructorArgs(contract, network);
             address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
-            console.log(`Contract at ${network} : ${address}`);
             await verifyOne(address, { contract, constructorArgs }, hre);
             break;
           }
