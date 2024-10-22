@@ -76,7 +76,7 @@ export const getConstructorArgs = (
       const ethereumFeeProxy = artifacts.ethereumFeeProxyArtifact;
       const ethereumFeeProxyAddress = ethereumFeeProxy.getAddress(network);
 
-      return [ethereumFeeProxyAddress, erc20FeeProxyAddress];
+      return [ethereumFeeProxyAddress, erc20FeeProxyAddress, getAdminWalletAddress(contract)];
     }
     default:
       return [];
