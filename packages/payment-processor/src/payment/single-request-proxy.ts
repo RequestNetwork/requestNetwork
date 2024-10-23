@@ -1,10 +1,11 @@
 import { Signer } from 'ethers';
-import { PaymentReferenceCalculator } from 'payment-detection/dist';
-import { getPaymentNetworkExtension } from 'payment-detection/src/utils';
-import { SingleRequestProxyFactory__factory } from 'smart-contracts/dist/src/types';
-import { singleRequestProxyFactoryArtifact } from 'smart-contracts/src/lib/artifacts';
-import { VMChainName } from 'types/dist/currency-types';
-import { ClientTypes, ExtensionTypes } from 'types/src';
+import {
+  PaymentReferenceCalculator,
+  getPaymentNetworkExtension,
+} from '@requestnetwork/payment-detection';
+import { ClientTypes, ExtensionTypes, CurrencyTypes } from '@requestnetwork/types';
+import { singleRequestProxyFactoryArtifact } from '@requestnetwork/smart-contracts';
+import { Contract } from 'ethers';
 
 interface TestOptions {
   factoryAddress?: string;
@@ -26,27 +27,26 @@ export async function deploySingleRequestProxy(
     throw new Error('Unsupported payment network');
   }
 
-  let factoryAddress: string;
+  let singleRequestProxyFactory;
 
-  // Get factory address, if provided in test options, otherwise get it from the artifacts
   if (testOptions?.factoryAddress) {
-    factoryAddress = testOptions.factoryAddress;
+    // Use custom address for testing, assuming it's on the local test network
+    singleRequestProxyFactory = new Contract(
+      testOptions.factoryAddress,
+      singleRequestProxyFactoryArtifact.getContractAbi(),
+      signer,
+    );
   } else {
     const paymentChain = request.currencyInfo.network;
     if (!paymentChain) {
       throw new Error('Payment chain not found');
     }
-    factoryAddress = singleRequestProxyFactoryArtifact.getAddress(paymentChain as VMChainName);
+    // Use artifact's default address for the payment chain
+    singleRequestProxyFactory = singleRequestProxyFactoryArtifact.connect(
+      paymentChain as CurrencyTypes.EvmChainName,
+      signer,
+    );
   }
-
-  if (!factoryAddress) {
-    throw new Error('Single request proxy factory address not found');
-  }
-
-  const signleRequestProxyFactory = SingleRequestProxyFactory__factory.connect(
-    factoryAddress,
-    signer,
-  );
 
   const payee = request.payee?.value;
   if (!payee) {
@@ -74,7 +74,7 @@ export async function deploySingleRequestProxy(
 
   if (isERC20) {
     const tokenAddress = request.currencyInfo.value;
-    tx = await signleRequestProxyFactory.createERC20SingleRequestProxy(
+    tx = await singleRequestProxyFactory.createERC20SingleRequestProxy(
       payee,
       tokenAddress,
       paymentReference,
@@ -82,7 +82,7 @@ export async function deploySingleRequestProxy(
       feeAmount,
     );
   } else {
-    tx = await signleRequestProxyFactory.createEthereumSingleRequestProxy(
+    tx = await singleRequestProxyFactory.createEthereumSingleRequestProxy(
       payee,
       paymentReference,
       feeAddress,
@@ -91,8 +91,9 @@ export async function deploySingleRequestProxy(
   }
 
   const receipt = await tx.wait();
+
   const event = receipt.events?.find(
-    (e) =>
+    (e: { event: string }) =>
       e.event ===
       (isERC20 ? 'ERC20SingleRequestProxyCreated' : 'EthereumSingleRequestProxyCreated'),
   );
@@ -101,5 +102,10 @@ export async function deploySingleRequestProxy(
     throw new Error('Single request proxy creation event not found');
   }
 
-  return event.args?.proxyAddress;
+  const proxyAddress = event.args?.[0];
+  if (!proxyAddress) {
+    throw new Error('Proxy address not found in event args');
+  }
+
+  return proxyAddress;
 }
