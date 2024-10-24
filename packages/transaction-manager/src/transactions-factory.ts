@@ -39,9 +39,6 @@ export default class TransactionsFactory {
     data: TransactionTypes.ITransactionData,
     encryptionParams: EncryptionTypes.IEncryptionParameters[],
   ): Promise<TransactionTypes.IPersistedTransaction> {
-    // format encryption method property
-    const encryptionMethod = `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`;
-
     // Generate a key for the AES encryption
     const symmetricKey: string = await generate32BufferKey();
 
@@ -57,52 +54,66 @@ export default class TransactionsFactory {
       throw new Error('Data not parsable');
     }
 
-    // Check that all the encryption parameters given are ECIES (the only encryption method supported for now)
+    let encryptionMethod = '';
+    let keys: TransactionTypes.IKeysDictionary = {};
+
     if (
-      !encryptionParams.every(
+      encryptionParams.every(
         (encryptionParam: EncryptionTypes.IEncryptionParameters) =>
           encryptionParam.method === EncryptionTypes.METHOD.ECIES,
       )
     ) {
-      throw new Error(`encryptionParams method must be all: ${EncryptionTypes.METHOD.ECIES}`);
-    }
-
-    // Compute key encryption and identity hash for every encryption parameters given
-    const encryptedKeyAndIdentityHashesPromises = encryptionParams.map(
-      async (
-        encryptionParam: EncryptionTypes.IEncryptionParameters,
-      ): Promise<{
-        encryptedKey: EncryptionTypes.IEncryptedData;
-        multiFormattedIdentity: string;
-      }> => {
-        const encryptedKey: EncryptionTypes.IEncryptedData = await encrypt(
-          symmetricKey,
-          encryptionParam,
-        );
-        const identityEncryption = getIdentityFromEncryptionParams(encryptionParam);
-        const multiFormattedIdentity: string = MultiFormat.serialize(identityEncryption);
-
-        return { encryptedKey, multiFormattedIdentity };
-      },
-    );
-    const encryptedKeyAndIdentityHashes = await Promise.all(encryptedKeyAndIdentityHashesPromises);
-
-    // Create the encrypted keys object - Encrypted keys indexed by identity multi-format
-    const keys: TransactionTypes.IKeysDictionary = encryptedKeyAndIdentityHashes.reduce(
-      (
-        allKeys: TransactionTypes.IKeysDictionary,
-        keyAndHash: {
+      encryptionMethod = `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`;
+      // Compute key encryption and identity hash for every encryption parameters given
+      const encryptedKeyAndIdentityHashesPromises = encryptionParams.map(
+        async (
+          encryptionParam: EncryptionTypes.IEncryptionParameters,
+        ): Promise<{
           encryptedKey: EncryptionTypes.IEncryptedData;
           multiFormattedIdentity: string;
-        },
-      ): TransactionTypes.IKeysDictionary => {
-        const encryptedKeySerialized: string = MultiFormat.serialize(keyAndHash.encryptedKey);
+        }> => {
+          const encryptedKey: EncryptionTypes.IEncryptedData = await encrypt(
+            symmetricKey,
+            encryptionParam,
+          );
+          const identityEncryption = getIdentityFromEncryptionParams(encryptionParam);
+          const multiFormattedIdentity: string = MultiFormat.serialize(identityEncryption);
 
-        allKeys[keyAndHash.multiFormattedIdentity] = encryptedKeySerialized;
-        return allKeys;
-      },
-      {},
-    );
+          return { encryptedKey, multiFormattedIdentity };
+        },
+      );
+      const encryptedKeyAndIdentityHashes = await Promise.all(
+        encryptedKeyAndIdentityHashesPromises,
+      );
+
+      // Create the encrypted keys object - Encrypted keys indexed by identity multi-format
+      keys = encryptedKeyAndIdentityHashes.reduce(
+        (
+          allKeys: TransactionTypes.IKeysDictionary,
+          keyAndHash: {
+            encryptedKey: EncryptionTypes.IEncryptedData;
+            multiFormattedIdentity: string;
+          },
+        ): TransactionTypes.IKeysDictionary => {
+          const encryptedKeySerialized: string = MultiFormat.serialize(keyAndHash.encryptedKey);
+
+          allKeys[keyAndHash.multiFormattedIdentity] = encryptedKeySerialized;
+          return allKeys;
+        },
+        {},
+      );
+    } else if (
+      encryptionParams.every(
+        (encryptionParam: EncryptionTypes.IEncryptionParameters) =>
+          encryptionParam.method === EncryptionTypes.METHOD.KMS,
+      )
+    ) {
+      encryptionMethod = `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`;
+    } else {
+      throw new Error(
+        `encryptionParams method must be all: ${EncryptionTypes.METHOD.ECIES} or ${EncryptionTypes.METHOD.KMS}`,
+      );
+    }
 
     const encryptedDataSerialized: string = MultiFormat.serialize(encryptedData);
 

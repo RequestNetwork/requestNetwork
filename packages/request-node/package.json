@@ -42,6 +42,9 @@
   },
   "dependencies": {
     "@ethersproject/experimental": "5.5.0",
+    "@lit-protocol/constants": "6.11.0",
+    "@lit-protocol/contracts-sdk": "6.11.0",
+    "@lit-protocol/lit-node-client": "6.11.0",
     "@requestnetwork/currency": "0.18.0",
     "@requestnetwork/data-access": "0.36.0",
     "@requestnetwork/ethereum-storage": "0.36.0",
