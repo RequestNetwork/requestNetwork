@@ -1,6 +1,6 @@
 import * as StorageTypes from './storage-types';
 import { ConfirmationEventEmitter } from './events';
-
+import { AuthSig } from '@lit-protocol/types';
 /** Data Access Layer */
 export interface IDataRead {
   initialize: () => Promise<void>;
@@ -18,6 +18,7 @@ export interface IDataRead {
     topics: string[],
     updatedBetween?: ITimestampBoundaries,
   ): Promise<IReturnGetChannelsByTopic>;
+  getLitCapacityDelegationAuthSig: (delegateeAddress: string) => Promise<AuthSig>;
 }
 
 export interface IDataWrite {
@@ -152,7 +153,6 @@ export type PendingItem = {
   transaction: ITransaction;
   storageResult: StorageTypes.IEntry;
 };
-
 export interface IPendingStore {
   get(channelId: string): PendingItem | undefined;
 
@@ -162,3 +162,5 @@ export interface IPendingStore {
 
   remove(channelId: string): void;
 }
+
+export { AuthSig };

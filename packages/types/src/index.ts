@@ -6,6 +6,7 @@ import * as DecryptionProviderTypes from './decryption-provider-types';
 import * as EncryptionTypes from './encryption-types';
 import * as ExtensionTypes from './extension-types';
 import * as IdentityTypes from './identity-types';
+import * as KmsProviderTypes from './kms-provider-types';
 import * as LogTypes from './logger-types';
 import * as MultiFormatTypes from './multi-format-types';
 import * as PaymentTypes from './payment-types';
@@ -26,6 +27,7 @@ export {
   EncryptionTypes,
   ExtensionTypes,
   IdentityTypes,
+  KmsProviderTypes,
   LogTypes,
   MultiFormatTypes,
   PaymentTypes,

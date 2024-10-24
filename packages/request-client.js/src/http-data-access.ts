@@ -1,5 +1,4 @@
 import { ClientTypes, DataAccessTypes } from '@requestnetwork/types';
-
 import { EventEmitter } from 'events';
 import httpConfigDefaults from './http-config-defaults';
 import { normalizeKeccak256Hash, retry } from '@requestnetwork/utils';
@@ -204,6 +203,17 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    */
   public async _getStatus(): Promise<any> {
     return await this.fetchAndRetry('/information', {});
+  }
+
+  /**
+   * Gets the Lit Protocol capacity delegation auth sig from the node through HTTP.
+   *
+   * @param delegateeAddress the address of the delegatee
+   */
+  public async getLitCapacityDelegationAuthSig(
+    delegateeAddress: string,
+  ): Promise<DataAccessTypes.AuthSig> {
+    return await this.fetch('GET', '/getLitCapacityDelegationAuthSig', { delegateeAddress });
   }
 
   /**

@@ -12,6 +12,7 @@ import GetChannelsByTopicHandler from './request/getChannelsByTopic';
 import GetStatusHandler from './request/getStatus';
 import IpfsAddHandler from './request/ipfsAdd';
 import morgan from 'morgan';
+import GetLitCapacityDelegationAuthSigHandler from './request/getLitCapacityDelegationAuthSig';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -46,6 +47,7 @@ export class RequestNode {
   private getChannelByTopicHandler: GetChannelsByTopicHandler;
   private getStatusHandler: GetStatusHandler;
   private ipfsAddHandler: IpfsAddHandler;
+  private getLitCapacityDelegationAuthSigHandler: GetLitCapacityDelegationAuthSigHandler;
   /**
    * Request Node constructor
    *
@@ -74,6 +76,9 @@ export class RequestNode {
     this.getStatusHandler = new GetStatusHandler(this.logger, this.dataAccess);
     this.ipfsAddHandler = new IpfsAddHandler(this.logger, ipfsStorage);
     this.persistTransactionHandler = new PersistTransactionHandler(this.dataAccess, this.logger);
+    this.getLitCapacityDelegationAuthSigHandler = new GetLitCapacityDelegationAuthSigHandler(
+      this.logger,
+    );
 
     this.express = express();
     this.mountRoutes();
@@ -156,6 +161,10 @@ export class RequestNode {
     router.get('/getConfirmedTransaction', this.getConfirmedTransactionHandler.handler);
     router.get('/getTransactionsByChannelId', this.getTransactionsByChannelIdHandler.handler);
     router.get('/getChannelsByTopic', this.getChannelByTopicHandler.handler);
+    router.get(
+      '/getLitCapacityDelegationAuthSig',
+      this.getLitCapacityDelegationAuthSigHandler.handler,
+    );
     this.express.use('/', router);
 
     // Any other route returns error 404
