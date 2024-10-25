@@ -81,9 +81,8 @@ export default class RequestNetwork {
     parameters: Types.ICreateRequestParameters,
     options?: Types.ICreateRequestOptions,
   ): Promise<Request> {
-    const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
-      parameters,
-    );
+    const { requestParameters, topics, paymentNetwork } =
+      await this.prepareRequestParameters(parameters);
 
     const requestLogicCreateResult = await this.requestLogic.createRequest(
       requestParameters,
@@ -141,11 +140,12 @@ export default class RequestNetwork {
         'Cannot persist request when skipPersistence is enabled. To persist the request, create a new instance of RequestNetwork without skipPersistence being set to true.',
       );
     }
-    const result: DataAccessTypes.IReturnPersistTransaction = await this.dataAccess.persistTransaction(
-      request.inMemoryInfo.transactionData,
-      request.requestId,
-      request.inMemoryInfo.topics,
-    );
+    const result: DataAccessTypes.IReturnPersistTransaction =
+      await this.dataAccess.persistTransaction(
+        request.inMemoryInfo.transactionData,
+        request.requestId,
+        request.inMemoryInfo.topics,
+      );
 
     return result;
   }
@@ -162,9 +162,8 @@ export default class RequestNetwork {
     encryptionParams: EncryptionTypes.IEncryptionParameters[],
     options?: Types.ICreateRequestOptions,
   ): Promise<Request> {
-    const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
-      parameters,
-    );
+    const { requestParameters, topics, paymentNetwork } =
+      await this.prepareRequestParameters(parameters);
 
     const requestLogicCreateResult = await this.requestLogic.createEncryptedRequest(
       requestParameters,
@@ -228,9 +227,8 @@ export default class RequestNetwork {
       disableEvents?: boolean;
     },
   ): Promise<Request> {
-    const requestAndMeta: RequestLogicTypes.IReturnGetRequestFromId = await this.requestLogic.getRequestFromId(
-      requestId,
-    );
+    const requestAndMeta: RequestLogicTypes.IReturnGetRequestFromId =
+      await this.requestLogic.getRequestFromId(requestId);
 
     // if no request found, throw a human readable message:
     if (!requestAndMeta.result.request && !requestAndMeta.result.pending) {
@@ -311,10 +309,8 @@ export default class RequestNetwork {
     options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
   ): Promise<Request[]> {
     // Gets all the requests indexed by the value of the identity
-    const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByTopic(
-      topic,
-      updatedBetween,
-    );
+    const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic =
+      await this.requestLogic.getRequestsByTopic(topic, updatedBetween);
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
     const requestPromises = requestsAndMeta.result.requests.map(
       async (requestFromLogic: {
@@ -326,9 +322,8 @@ export default class RequestNetwork {
           ? requestFromLogic.request
           : (requestFromLogic.pending as RequestLogicTypes.IRequest);
 
-        const paymentNetwork = this.paymentNetworkFactory.getPaymentNetworkFromRequest(
-          requestState,
-        );
+        const paymentNetwork =
+          this.paymentNetworkFactory.getPaymentNetworkFromRequest(requestState);
 
         // create the request object
         const request = new Request(
@@ -366,10 +361,8 @@ export default class RequestNetwork {
     options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
   ): Promise<Request[]> {
     // Gets all the requests indexed by the value of the identity
-    const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByMultipleTopics(
-      topics,
-      updatedBetween,
-    );
+    const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic =
+      await this.requestLogic.getRequestsByMultipleTopics(topics, updatedBetween);
 
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
     const requestPromises = requestsAndMeta.result.requests.map(
@@ -382,9 +375,8 @@ export default class RequestNetwork {
           ? requestFromLogic.request
           : (requestFromLogic.pending as RequestLogicTypes.IRequest);
 
-        const paymentNetwork = this.paymentNetworkFactory.getPaymentNetworkFromRequest(
-          requestState,
-        );
+        const paymentNetwork =
+          this.paymentNetworkFactory.getPaymentNetworkFromRequest(requestState);
 
         // create the request object
         const request = new Request(
@@ -428,9 +420,7 @@ export default class RequestNetwork {
    * @param parameters Parameters to create a request
    * @returns the parameters, ready for request creation, the topics, and the paymentNetwork
    */
-  private async prepareRequestParameters(
-    parameters: Types.ICreateRequestParameters,
-  ): Promise<{
+  private async prepareRequestParameters(parameters: Types.ICreateRequestParameters): Promise<{
     requestParameters: RequestLogicTypes.ICreateParameters;
     topics: any[];
     paymentNetwork: PaymentTypes.IPaymentNetwork | null;
