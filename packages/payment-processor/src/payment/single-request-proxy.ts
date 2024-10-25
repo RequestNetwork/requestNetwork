@@ -139,7 +139,7 @@ export async function deploySingleRequestProxy(
  * For Ethereum payments, it directly sends the Ether to the proxy contract.
  * The function automatically detects whether the proxy is for ERC20 or Ethereum based on the contract interface.
  */
-export async function payWithSingleRequestProxy(
+export async function payRequestWithSingleRequestProxy(
   singleRequestProxyAddress: string,
   signer: Signer,
   amount: string,
