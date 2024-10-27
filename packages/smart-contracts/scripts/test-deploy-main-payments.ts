@@ -88,14 +88,14 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment):
     console.log('EthereumFeeProxy Contract deployed: ' + EthereumFeeProxyAddress);
 
     // Deploy SingleRequestProxyFactory contract
-    const { address: SingleRequestProxyFactoryAddress } = await deployOne(
-      args,
-      hre,
-      'SingleRequestProxyFactory',
-      {
-        constructorArguments: [EthereumFeeProxyAddress, ERC20FeeProxyAddress, deployer.address],
-      },
-    );
+    // const { address: SingleRequestProxyFactoryAddress } = await deployOne(
+    //   args,
+    //   hre,
+    //   'SingleRequestProxyFactory',
+    //   {
+    //     constructorArguments: [EthereumFeeProxyAddress, ERC20FeeProxyAddress, deployer.address],
+    //   },
+    // );
 
     // ----------------------------------
     console.log('Contracts deployed');
@@ -113,7 +113,6 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment):
       ERC20Alpha:               ${erc20AlphaInstance.address}
       FakeSwapRouter:           ${FakeSwapRouterAddress}
       SwapToPay:                ${ERC20SwapToPayAddress}
-      SingleRequestProxyFactory: ${SingleRequestProxyFactoryAddress}
     `);
     return {
       DAIAddress: erc20AlphaInstance.address,
