@@ -10,7 +10,7 @@ import { deploySingleRequestProxy } from '../../src/payment/single-request-proxy
 import { singleRequestProxyFactoryArtifact } from '@requestnetwork/smart-contracts';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
-const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
+const paymentAddress = '0x1234567890123456789012345678901234567890';
 const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
@@ -24,6 +24,14 @@ const validRequest: ClientTypes.IRequestData = {
   creator: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: wallet.address,
+  },
+  payee: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: '0x1234567890123456789012345678901234567890',
+  },
+  payer: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: '0x9876543210987654321098765432109876543210',
   },
   currency: 'ETH-private',
   currencyInfo: {
