@@ -10,7 +10,7 @@ export const singleRequestProxyFactoryArtifact = new ContractArtifact<SingleRequ
       abi: ABI_0_1_0,
       deployment: {
         private: {
-          address: '0x2a504B5e7eC284ACa5b6f49716611237239F0b97',
+          address: '0x9d075ae44D859191C121d7522da0Cc3B104b8837',
           creationBlockNumber: 0,
         },
         sepolia: {

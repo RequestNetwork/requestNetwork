@@ -87,16 +87,6 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment):
     const { address: EthereumFeeProxyAddress } = await deployOne(args, hre, 'EthereumFeeProxy');
     console.log('EthereumFeeProxy Contract deployed: ' + EthereumFeeProxyAddress);
 
-    // Deploy SingleRequestProxyFactory contract
-    // const { address: SingleRequestProxyFactoryAddress } = await deployOne(
-    //   args,
-    //   hre,
-    //   'SingleRequestProxyFactory',
-    //   {
-    //     constructorArguments: [EthereumFeeProxyAddress, ERC20FeeProxyAddress, deployer.address],
-    //   },
-    // );
-
     // ----------------------------------
     console.log('Contracts deployed');
     console.log(`
