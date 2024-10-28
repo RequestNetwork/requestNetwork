@@ -230,7 +230,7 @@ describe('deploySingleRequestProxy', () => {
   it('should throw error when amount is not a positive number', async () => {
     const proxyAddress = await deploySingleRequestProxy(ethRequest, wallet);
 
-    await expect(payRequestWithSingleRequestProxy(proxyAddress, wallet, '1000')).rejects.toThrow(
+    await expect(payRequestWithSingleRequestProxy(proxyAddress, wallet, '0')).rejects.toThrow(
       'Amount must be a positive number',
     );
   });
