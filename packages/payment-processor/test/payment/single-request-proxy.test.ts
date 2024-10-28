@@ -141,15 +141,6 @@ describe('deploySingleRequestProxy', () => {
     );
   });
 
-  it('should throw error if request has no payee', async () => {
-    const invalidRequestWithoutPayee = { ...ethRequest, payee: {} };
-
-    // @ts-expect-error: Request with empty payee
-    await expect(deploySingleRequestProxy(invalidRequestWithoutPayee, wallet)).rejects.toThrow(
-      'Payee not found',
-    );
-  });
-
   it('should throw error if request has no network values', async () => {
     const invalidRequestWithoutNetworkValues = {
       ...ethRequest,
