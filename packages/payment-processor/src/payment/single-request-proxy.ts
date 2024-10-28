@@ -46,23 +46,19 @@ export async function deploySingleRequestProxy(
     signer,
   );
 
-  const payee = request.payee?.value;
-  if (!payee) {
-    throw new Error('Payee not found');
-  }
-
   const salt = requestPaymentNetwork?.values?.salt;
   const feeAddress = requestPaymentNetwork?.values?.feeAddress;
   const feeAmount = requestPaymentNetwork?.values?.feeAmount;
+  const paymentRecipient = requestPaymentNetwork?.values?.paymentAddress;
 
-  if (!salt || !feeAddress || !feeAmount) {
+  if (!salt || !feeAddress || !feeAmount || !paymentRecipient) {
     throw new Error('Invalid payment network values');
   }
 
   const paymentReference = `0x${PaymentReferenceCalculator.calculate(
     request.requestId,
     salt,
-    payee,
+    paymentRecipient,
   )}`;
 
   const isERC20 =
@@ -73,7 +69,7 @@ export async function deploySingleRequestProxy(
   if (isERC20) {
     const tokenAddress = request.currencyInfo.value;
     tx = await singleRequestProxyFactory.createERC20SingleRequestProxy(
-      payee,
+      paymentRecipient,
       tokenAddress,
       paymentReference,
       feeAddress,
@@ -81,7 +77,7 @@ export async function deploySingleRequestProxy(
     );
   } else {
     tx = await singleRequestProxyFactory.createEthereumSingleRequestProxy(
-      payee,
+      paymentRecipient,
       paymentReference,
       feeAddress,
       feeAmount,
