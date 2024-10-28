@@ -40,11 +40,16 @@ export async function deploySingleRequestProxy(
   if (!paymentChain) {
     throw new Error('Payment chain not found');
   }
+
   // Use artifact's default address for the payment chain
   const singleRequestProxyFactory = singleRequestProxyFactoryArtifact.connect(
     paymentChain as CurrencyTypes.EvmChainName,
     signer,
   );
+
+  if (!singleRequestProxyFactory.address) {
+    throw new Error(`SingleRequestProxyFactory not found on chain ${paymentChain}`);
+  }
 
   const salt = requestPaymentNetwork?.values?.salt;
   const feeAddress = requestPaymentNetwork?.values?.feeAddress;
@@ -125,18 +130,19 @@ export async function payRequestWithSingleRequestProxy(
   signer: Signer,
   amount: string,
 ): Promise<void> {
-  // Create contract interface with all required methods to validate SingleRequestProxy
-  const proxyContract = new Contract(
-    singleRequestProxyAddress,
-    [
-      'function payee() view returns (address)',
-      'function paymentReference() view returns (bytes)',
-      'function feeAddress() view returns (address)',
-      'function feeAmount() view returns (uint256)',
-      'function tokenAddress() view returns (address)',
-    ],
-    signer,
-  );
+  if (!amount || ethers.BigNumber.from(amount).lte(0)) {
+    throw new Error('Amount must be a positive number');
+  }
+
+  const proxyInterface = new ethers.utils.Interface([
+    'function payee() view returns (address)',
+    'function paymentReference() view returns (bytes)',
+    'function feeAddress() view returns (address)',
+    'function feeAmount() view returns (uint256)',
+    'function tokenAddress() view returns (address)',
+  ]);
+
+  const proxyContract = new Contract(singleRequestProxyAddress, proxyInterface, signer);
 
   // Validate that this is a SingleRequestProxy by checking required methods
   try {
@@ -167,7 +173,7 @@ export async function payRequestWithSingleRequestProxy(
     const transferTx = await erc20Contract.transfer(singleRequestProxyAddress, amount);
     await transferTx.wait();
 
-    // Trigger the receive function with 0 ETH
+    // This step finalizes the payment by calling the proxy's receive function
     const triggerTx = await signer.sendTransaction({
       to: singleRequestProxyAddress,
       value: ethers.constants.Zero,

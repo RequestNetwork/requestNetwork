@@ -19,14 +19,14 @@ contract SingleRequestProxyFactory is Ownable {
   address public erc20FeeProxy;
 
   event EthereumSingleRequestProxyCreated(
-    address indexed proxyAddress,
-    address indexed payee,
+    address proxyAddress,
+    address payee,
     bytes indexed paymentReference
   );
 
   event ERC20SingleRequestProxyCreated(
-    address indexed proxyAddress,
-    address indexed payee,
+    address proxyAddress,
+    address payee,
     address tokenAddress,
     bytes indexed paymentReference
   );

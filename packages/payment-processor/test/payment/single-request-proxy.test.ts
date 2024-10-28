@@ -21,7 +21,7 @@ const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 
-export const baseRequest: Omit<
+const baseRequest: Omit<
   ClientTypes.IRequestData,
   'currency' | 'currencyInfo' | 'extensions' | 'version'
 > = {
@@ -54,7 +54,7 @@ export const baseRequest: Omit<
   timestamp: 0,
 };
 
-export const ethRequest: ClientTypes.IRequestData = {
+const ethRequest: ClientTypes.IRequestData = {
   ...baseRequest,
   currency: 'ETH-private',
   currencyInfo: {
@@ -79,7 +79,7 @@ export const ethRequest: ClientTypes.IRequestData = {
   version: '2.0.3',
 };
 
-export const erc20Request: ClientTypes.IRequestData = {
+const erc20Request: ClientTypes.IRequestData = {
   ...baseRequest,
   currency: 'DAI',
   currencyInfo: {
@@ -107,7 +107,7 @@ export const erc20Request: ClientTypes.IRequestData = {
 describe('deploySingleRequestProxy', () => {
   it('should throw error if payment network not supported', async () => {
     // Create a request with an unsupported payment network
-    const invalidPaymentRequestNetwork = {
+    const invalidRequestUnsupportedPaymentNetwork = {
       ...baseRequest,
       currency: 'ETH-private',
       currencyInfo: {
@@ -127,9 +127,9 @@ describe('deploySingleRequestProxy', () => {
       },
     };
 
-    await expect(deploySingleRequestProxy(invalidPaymentRequestNetwork, wallet)).rejects.toThrow(
-      'Unsupported payment network',
-    );
+    await expect(
+      deploySingleRequestProxy(invalidRequestUnsupportedPaymentNetwork, wallet),
+    ).rejects.toThrow('Unsupported payment network');
   });
 
   it('should throw error if request has no network', async () => {
@@ -158,9 +158,9 @@ describe('deploySingleRequestProxy', () => {
   });
 
   it('should throw an error if the request has no extension', async () => {
-    const invalidRequest = { ...ethRequest, extensions: {} };
+    const invalidRequestWithoutExtensions = { ...ethRequest, extensions: {} };
 
-    await expect(deploySingleRequestProxy(invalidRequest, wallet)).rejects.toThrow(
+    await expect(deploySingleRequestProxy(invalidRequestWithoutExtensions, wallet)).rejects.toThrow(
       'Unsupported payment network',
     );
   });
@@ -224,6 +224,14 @@ describe('deploySingleRequestProxy', () => {
 
     await expect(payRequestWithSingleRequestProxy(invalidProxy, wallet, '100')).rejects.toThrow(
       'Invalid SingleRequestProxy contract',
+    );
+  });
+
+  it('should throw error when amount is not a positive number', async () => {
+    const proxyAddress = await deploySingleRequestProxy(ethRequest, wallet);
+
+    await expect(payRequestWithSingleRequestProxy(proxyAddress, wallet, '1000')).rejects.toThrow(
+      'Amount must be a positive number',
     );
   });
 
