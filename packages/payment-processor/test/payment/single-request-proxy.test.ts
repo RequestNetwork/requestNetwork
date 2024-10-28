@@ -1,13 +1,17 @@
-import { providers, Wallet } from 'ethers';
+import { singleRequestProxyFactoryArtifact } from '@requestnetwork/smart-contracts';
+import { TestERC20__factory } from '@requestnetwork/smart-contracts/types';
 import {
   ClientTypes,
+  CurrencyTypes,
   ExtensionTypes,
   IdentityTypes,
   RequestLogicTypes,
-  CurrencyTypes,
 } from '@requestnetwork/types';
-import { deploySingleRequestProxy } from '../../src/payment/single-request-proxy';
-import { singleRequestProxyFactoryArtifact } from '@requestnetwork/smart-contracts';
+import { providers, Wallet } from 'ethers';
+import {
+  deploySingleRequestProxy,
+  payRequestWithSingleRequestProxy,
+} from '../../src/payment/single-request-proxy';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0x1234567890123456789012345678901234567890';
@@ -222,5 +226,41 @@ describe('deploySingleRequestProxy', () => {
     expect(event).toBeDefined();
     expect(event?.args?.payee).toBe(paymentAddress);
     expect(event?.args?.paymentReference).toBeDefined();
+  });
+
+  it('should throw error when trying to pay with invalid single request proxy', async () => {
+    const invalidProxy = '0x1234567890123456789012345678901234567890';
+
+    await expect(payRequestWithSingleRequestProxy(invalidProxy, wallet, '100')).rejects.toThrow(
+      'Invalid SingleRequestProxy contract',
+    );
+  });
+
+  it('should pay with EthereumSingleRequestProxy', async () => {
+    const proxyAddress = await deploySingleRequestProxy(ethRequest, wallet);
+
+    const walletBalanceBefore = await provider.getBalance(wallet.address);
+
+    await payRequestWithSingleRequestProxy(proxyAddress, wallet, '1000');
+
+    const walletBalanceAfter = await provider.getBalance(wallet.address);
+
+    expect(walletBalanceAfter.toBigInt()).toBeLessThan(walletBalanceBefore.toBigInt());
+  });
+
+  it('should pay with ERC20SingleRequestProxy', async () => {
+    const amount = '1000';
+
+    const testERC20 = await new TestERC20__factory(wallet).deploy(1000);
+
+    const proxyAddress = await deploySingleRequestProxy(erc20Request, wallet);
+
+    const initialProxyBalance = await testERC20.balanceOf(wallet.address);
+
+    await payRequestWithSingleRequestProxy(proxyAddress, wallet, amount);
+
+    const finalProxyBalance = await testERC20.balanceOf(wallet.address);
+
+    expect(finalProxyBalance.toBigInt()).toBeLessThan(initialProxyBalance.toBigInt());
   });
 });
