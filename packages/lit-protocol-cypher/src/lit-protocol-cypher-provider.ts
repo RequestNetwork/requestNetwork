@@ -1,7 +1,12 @@
 import * as LitJsSdk from '@lit-protocol/lit-node-client';
-import { DataAccessTypes } from 'types/dist';
-import { KmsProviderTypes } from '@requestnetwork/types';
-import { SessionSigsMap, AccessControlConditions, EncryptResponse } from '@lit-protocol/types';
+import { DataAccessTypes, EncryptionTypes } from 'types/dist';
+import { CypherProviderTypes } from '@requestnetwork/types';
+import {
+  SessionSigsMap,
+  AccessControlConditions,
+  EncryptResponse,
+  AccsDefaultParams,
+} from '@lit-protocol/types';
 
 import {
   LitAccessControlConditionResource,
@@ -16,7 +21,7 @@ import {
  * This class can be used with both client-side and Node.js Lit clients.
  * It implements the `IKmsProvider` interface for a standardized KMS provider structure.
  */
-export default class LitProvider implements KmsProviderTypes.IKmsProvider {
+export default class LitProvider implements CypherProviderTypes.ICypherProvider {
   /**
    * @property {LitNodeClient|LitNodeClientNodeJs} client - The Lit Protocol client instance.
    */
@@ -65,7 +70,7 @@ export default class LitProvider implements KmsProviderTypes.IKmsProvider {
     const walletAddress = await signer.getAddress();
 
     const capacityDelegationAuthSig =
-      await this.dataAccess.getLitCapacityDelegationAuthSig(walletAddress);
+      await this.dataAccess.getLitCapacityDelegationAuthSig?.(walletAddress);
 
     // Get the latest blockhash
     const latestBlockhash = await this.client.getLatestBlockhash();
@@ -120,6 +125,43 @@ export default class LitProvider implements KmsProviderTypes.IKmsProvider {
     return sessionSigs;
   }
 
+  private async getLitAccessControlConditions(
+    encryptionParams: EncryptionTypes.IEncryptionParameters[],
+  ): Promise<AccessControlConditions> {
+    const accessControlConditions = [];
+
+    accessControlConditions.push({
+      contractAddress: '',
+      standardContractType: '' as AccsDefaultParams['standardContractType'],
+      chain: this.chain as AccsDefaultParams['chain'],
+      method: '',
+      parameters: [':userAddress'],
+      returnValueTest: {
+        comparator: '=' as AccsDefaultParams['returnValueTest']['comparator'],
+        value: encryptionParams[0].key,
+      },
+    });
+
+    for (let i = 1; i < encryptionParams.length; i++) {
+      accessControlConditions.push(
+        { operator: 'or' },
+        {
+          contractAddress: '',
+          standardContractType: '' as AccsDefaultParams['standardContractType'],
+          chain: this.chain as AccsDefaultParams['chain'],
+          method: '',
+          parameters: [':userAddress'],
+          returnValueTest: {
+            comparator: '=' as AccsDefaultParams['returnValueTest']['comparator'],
+            value: encryptionParams[i].key,
+          },
+        },
+      );
+    }
+
+    return accessControlConditions;
+  }
+
   /**
    * @async
    * @function encrypt
@@ -133,16 +175,20 @@ export default class LitProvider implements KmsProviderTypes.IKmsProvider {
   public async encrypt(
     data: string | { [key: string]: any },
     options: {
-      accessControlConditions: AccessControlConditions;
+      encryptionParams: EncryptionTypes.IEncryptionParameters[];
     },
   ): Promise<EncryptResponse> {
     await this.connect();
 
     const stringifiedData = typeof data === 'string' ? data : JSON.stringify(data);
 
+    const accessControlConditions = await this.getLitAccessControlConditions(
+      options.encryptionParams,
+    );
+
     return await LitJsSdk.encryptString(
       {
-        accessControlConditions: options.accessControlConditions,
+        accessControlConditions: accessControlConditions,
         dataToEncrypt: stringifiedData,
       },
       this.client,
@@ -161,24 +207,26 @@ export default class LitProvider implements KmsProviderTypes.IKmsProvider {
    * @returns {Promise<string>} The decrypted data as a string.
    */
   public async decrypt(
-    encryptedData: string,
+    encryptedData: EncryptResponse,
     options: {
       signer: any;
-      dataToEncryptHash: string;
-      accessControlConditions: AccessControlConditions[];
+      encryptionParams: EncryptionTypes.IEncryptionParameters[];
     },
   ): Promise<string> {
     await this.connect();
 
     const sessionSigs = await this.getSessionSignatures(options.signer);
+    const accessControlConditions = await this.getLitAccessControlConditions(
+      options.encryptionParams,
+    );
 
     // Decrypt the message
     return await LitJsSdk.decryptToString(
       {
-        accessControlConditions: options.accessControlConditions,
+        accessControlConditions: accessControlConditions,
         chain: this.chain,
-        ciphertext: encryptedData,
-        dataToEncryptHash: options.dataToEncryptHash,
+        ciphertext: encryptedData.ciphertext,
+        dataToEncryptHash: encryptedData.dataToEncryptHash,
         sessionSigs,
       },
       this.client,

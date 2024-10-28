@@ -3,10 +3,11 @@ import * as ClientTypes from './client-types';
 import * as CurrencyTypes from './currency-types';
 import * as DataAccessTypes from './data-access-types';
 import * as DecryptionProviderTypes from './decryption-provider-types';
+import * as EPKProviderTypes from './epk-provider-types';
 import * as EncryptionTypes from './encryption-types';
 import * as ExtensionTypes from './extension-types';
 import * as IdentityTypes from './identity-types';
-import * as KmsProviderTypes from './kms-provider-types';
+import * as CypherProviderTypes from './cypher-provider-types';
 import * as LogTypes from './logger-types';
 import * as MultiFormatTypes from './multi-format-types';
 import * as PaymentTypes from './payment-types';
@@ -22,12 +23,13 @@ export {
   AdvancedLogicTypes,
   ClientTypes,
   CurrencyTypes,
+  CypherProviderTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
+  EPKProviderTypes,
   ExtensionTypes,
   IdentityTypes,
-  KmsProviderTypes,
   LogTypes,
   MultiFormatTypes,
   PaymentTypes,

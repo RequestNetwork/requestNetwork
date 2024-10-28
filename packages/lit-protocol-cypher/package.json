@@ -1,13 +1,13 @@
 {
-  "name": "@requestnetwork/lit-protocol",
+  "name": "@requestnetwork/lit-protocol-cypher",
   "version": "0.0.1",
   "publishConfig": {
     "access": "public"
   },
-  "description": "Lit Protocol Provider",
+  "description": "Lit Protocol Cypher Provider",
   "keywords": [
     "requestnetwork",
-    "lit-protocol-provider"
+    "lit-protocol-cypher-provider"
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

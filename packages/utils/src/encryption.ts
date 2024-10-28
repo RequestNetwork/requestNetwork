@@ -37,6 +37,8 @@ function getIdentityFromEncryptionParams(
 /**
  * Encrypts data using encryption parameters
  *
+ * IMPORTANT: This must be used for test purpose only. A cypher provider must be used in production.
+ *
  * @param data the data to sign
  * @param encryptionParams Encryption parameters
  * @returns the encrypted data

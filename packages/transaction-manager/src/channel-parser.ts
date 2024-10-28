@@ -1,4 +1,10 @@
-import { DecryptionProviderTypes, EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
+import {
+  CypherProviderTypes,
+  DecryptionProviderTypes,
+  EncryptionTypes,
+  SignatureProviderTypes,
+  TransactionTypes,
+} from '@requestnetwork/types';
 
 import TransactionsParser from './transactions-parser';
 
@@ -8,8 +14,16 @@ import TransactionsParser from './transactions-parser';
 export default class ChannelParser {
   private transactionParser: TransactionsParser;
 
-  public constructor(decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider) {
-    this.transactionParser = new TransactionsParser(decryptionProvider);
+  public constructor(
+    decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
+    cypherProvider?: CypherProviderTypes.ICypherProvider,
+    signatureProvider?: SignatureProviderTypes.ISignatureProvider,
+  ) {
+    this.transactionParser = new TransactionsParser(
+      decryptionProvider,
+      cypherProvider,
+      signatureProvider,
+    );
   }
   /**
    * Decrypts and cleans a channel by removing the wrong transactions

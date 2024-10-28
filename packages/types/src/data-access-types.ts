@@ -18,7 +18,6 @@ export interface IDataRead {
     topics: string[],
     updatedBetween?: ITimestampBoundaries,
   ): Promise<IReturnGetChannelsByTopic>;
-  getLitCapacityDelegationAuthSig: (delegateeAddress: string) => Promise<AuthSig>;
 }
 
 export interface IDataWrite {
@@ -34,6 +33,7 @@ export interface IDataWrite {
 
 export interface IDataAccess extends IDataRead, IDataWrite {
   _getStatus?(): Promise<IDataAccessStatus>;
+  getLitCapacityDelegationAuthSig?: (delegateeAddress: string) => Promise<AuthSig>;
 }
 
 export interface IDataAccessStatus {

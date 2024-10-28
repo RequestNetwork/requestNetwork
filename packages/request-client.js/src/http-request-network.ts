@@ -2,6 +2,7 @@ import { CurrencyManager } from '@requestnetwork/currency';
 import {
   ClientTypes,
   CurrencyTypes,
+  CypherProviderTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
   SignatureProviderTypes,
@@ -31,6 +32,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
   constructor(
     {
       decryptionProvider,
+      cypherProvider,
       httpConfig,
       nodeConnectionConfig,
       signatureProvider,
@@ -40,6 +42,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       skipPersistence,
     }: {
       decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
+      cypherProvider?: CypherProviderTypes.ICypherProvider;
       httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
       nodeConnectionConfig?: Partial<NodeConnectionConfig>;
       signatureProvider?: SignatureProviderTypes.ISignatureProvider;
@@ -66,6 +69,13 @@ export default class HttpRequestNetwork extends RequestNetwork {
       currencyManager = CurrencyManager.getDefault();
     }
 
-    super({ dataAccess, signatureProvider, decryptionProvider, currencyManager, paymentOptions });
+    super({
+      dataAccess,
+      signatureProvider,
+      decryptionProvider,
+      cypherProvider,
+      currencyManager,
+      paymentOptions,
+    });
   }
 }

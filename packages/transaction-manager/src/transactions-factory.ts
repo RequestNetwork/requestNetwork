@@ -1,5 +1,10 @@
 import * as MultiFormat from '@requestnetwork/multi-format';
-import { EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
+import {
+  CypherProviderTypes,
+  EncryptionTypes,
+  EPKProviderTypes,
+  TransactionTypes,
+} from '@requestnetwork/types';
 import {
   encrypt,
   generate32BufferKey,
@@ -38,6 +43,7 @@ export default class TransactionsFactory {
   public static async createEncryptedTransactionInNewChannel(
     data: TransactionTypes.ITransactionData,
     encryptionParams: EncryptionTypes.IEncryptionParameters[],
+    cypherProvider?: CypherProviderTypes.ICypherProvider,
   ): Promise<TransactionTypes.IPersistedTransaction> {
     // Generate a key for the AES encryption
     const symmetricKey: string = await generate32BufferKey();
@@ -57,6 +63,7 @@ export default class TransactionsFactory {
     let encryptionMethod = '';
     let keys: TransactionTypes.IKeysDictionary = {};
 
+    // TODO: refactor this part once the decryption provider is deprecated and the cypher provider is used
     if (
       encryptionParams.every(
         (encryptionParam: EncryptionTypes.IEncryptionParameters) =>
@@ -72,14 +79,22 @@ export default class TransactionsFactory {
           encryptedKey: EncryptionTypes.IEncryptedData;
           multiFormattedIdentity: string;
         }> => {
-          const encryptedKey: EncryptionTypes.IEncryptedData = await encrypt(
-            symmetricKey,
-            encryptionParam,
-          );
           const identityEncryption = getIdentityFromEncryptionParams(encryptionParam);
           const multiFormattedIdentity: string = MultiFormat.serialize(identityEncryption);
 
-          return { encryptedKey, multiFormattedIdentity };
+          if (cypherProvider && cypherProvider instanceof EPKProviderTypes.IEPKProvider) {
+            const encryptedKey: EncryptionTypes.IEncryptedData = await cypherProvider.encrypt(
+              symmetricKey,
+              { encryptionParams },
+            );
+            return { encryptedKey, multiFormattedIdentity };
+          } else {
+            const encryptedKey: EncryptionTypes.IEncryptedData = await encrypt(
+              symmetricKey,
+              encryptionParam,
+            );
+            return { encryptedKey, multiFormattedIdentity };
+          }
         },
       );
       const encryptedKeyAndIdentityHashes = await Promise.all(
@@ -109,6 +124,15 @@ export default class TransactionsFactory {
       )
     ) {
       encryptionMethod = `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`;
+      if (!cypherProvider) {
+        throw new Error('No cypher provider given');
+      }
+      keys['kms'] = JSON.stringify({
+        encryptResponse: await cypherProvider.encrypt(symmetricKey, {
+          encryptionParams,
+        }),
+        encryptionParams,
+      });
     } else {
       throw new Error(
         `encryptionParams method must be all: ${EncryptionTypes.METHOD.ECIES} or ${EncryptionTypes.METHOD.KMS}`,
@@ -133,6 +157,7 @@ export default class TransactionsFactory {
     data: TransactionTypes.ITransactionData,
     channelKey: EncryptionTypes.IEncryptionParameters,
     encryptionParams: EncryptionTypes.IEncryptionParameters[] = [],
+    cypherProvider?: CypherProviderTypes.ICypherProvider,
   ): Promise<TransactionTypes.IPersistedTransaction> {
     // check if the encryption method is the good one
     if (channelKey.method !== EncryptionTypes.METHOD.AES256_GCM) {
@@ -149,6 +174,7 @@ export default class TransactionsFactory {
     }
 
     const encryptedDataSerialized: string = MultiFormat.serialize(encryptedData);
+    let keys: TransactionTypes.IKeysDictionary = {};
 
     if (encryptionParams.length === 0) {
       return { encryptedData: encryptedDataSerialized };
@@ -156,52 +182,77 @@ export default class TransactionsFactory {
       // FIXME: Refactor, duplicated from createEncryptedTransactionInNewChannel
       // Check that all the encryption parameters given are ECIES (the only encryption method supported for now)
       if (
-        !encryptionParams.every(
+        encryptionParams.every(
           (encryptionParam: EncryptionTypes.IEncryptionParameters) =>
             encryptionParam.method === EncryptionTypes.METHOD.ECIES,
         )
       ) {
-        throw new Error(`encryptionParams method must be all: ${EncryptionTypes.METHOD.ECIES}`);
-      }
-
-      // Compute key encryption and identity hash for every encryption parameters given
-      const encryptedKeyAndIdentityHashesPromises = encryptionParams.map(
-        async (
-          encryptionParam: EncryptionTypes.IEncryptionParameters,
-        ): Promise<{
-          encryptedKey: EncryptionTypes.IEncryptedData;
-          multiFormattedIdentity: string;
-        }> => {
-          const encryptedKey: EncryptionTypes.IEncryptedData = await encrypt(
-            channelKey.key,
-            encryptionParam,
-          );
-          const identityEncryption = getIdentityFromEncryptionParams(encryptionParam);
-          const multiFormattedIdentity: string = MultiFormat.serialize(identityEncryption);
-
-          return { encryptedKey, multiFormattedIdentity };
-        },
-      );
-      const encryptedKeyAndIdentityHashes = await Promise.all(
-        encryptedKeyAndIdentityHashesPromises,
-      );
-
-      // Create the encrypted keys object - Encrypted keys indexed by identity multi-format
-      const keys: TransactionTypes.IKeysDictionary = encryptedKeyAndIdentityHashes.reduce(
-        (
-          allKeys: TransactionTypes.IKeysDictionary,
-          keyAndHash: {
+        // Compute key encryption and identity hash for every encryption parameters given
+        const encryptedKeyAndIdentityHashesPromises = encryptionParams.map(
+          async (
+            encryptionParam: EncryptionTypes.IEncryptionParameters,
+          ): Promise<{
             encryptedKey: EncryptionTypes.IEncryptedData;
             multiFormattedIdentity: string;
-          },
-        ): TransactionTypes.IKeysDictionary => {
-          const encryptedKeySerialized: string = MultiFormat.serialize(keyAndHash.encryptedKey);
+          }> => {
+            const identityEncryption = getIdentityFromEncryptionParams(encryptionParam);
+            const multiFormattedIdentity: string = MultiFormat.serialize(identityEncryption);
 
-          allKeys[keyAndHash.multiFormattedIdentity] = encryptedKeySerialized;
-          return allKeys;
-        },
-        {},
-      );
+            if (cypherProvider && cypherProvider instanceof EPKProviderTypes.IEPKProvider) {
+              const encryptedKey: EncryptionTypes.IEncryptedData = await cypherProvider.encrypt(
+                channelKey.key,
+                { encryptionParams },
+              );
+              return { encryptedKey, multiFormattedIdentity };
+            } else {
+              const encryptedKey: EncryptionTypes.IEncryptedData = await encrypt(
+                channelKey.key,
+                encryptionParam,
+              );
+              return { encryptedKey, multiFormattedIdentity };
+            }
+          },
+        );
+        const encryptedKeyAndIdentityHashes = await Promise.all(
+          encryptedKeyAndIdentityHashesPromises,
+        );
+
+        // Create the encrypted keys object - Encrypted keys indexed by identity multi-format
+        keys = encryptedKeyAndIdentityHashes.reduce(
+          (
+            allKeys: TransactionTypes.IKeysDictionary,
+            keyAndHash: {
+              encryptedKey: EncryptionTypes.IEncryptedData;
+              multiFormattedIdentity: string;
+            },
+          ): TransactionTypes.IKeysDictionary => {
+            const encryptedKeySerialized: string = MultiFormat.serialize(keyAndHash.encryptedKey);
+
+            allKeys[keyAndHash.multiFormattedIdentity] = encryptedKeySerialized;
+            return allKeys;
+          },
+          {},
+        );
+      } else if (
+        encryptionParams.every(
+          (encryptionParam: EncryptionTypes.IEncryptionParameters) =>
+            encryptionParam.method === EncryptionTypes.METHOD.KMS,
+        )
+      ) {
+        if (!cypherProvider) {
+          throw new Error('No cypher provider given');
+        }
+        keys['kms'] = JSON.stringify({
+          encryptionData: await cypherProvider.encrypt(channelKey.key, {
+            encryptionParams,
+          }),
+          encryptionParams,
+        });
+      } else {
+        throw new Error(
+          `encryptionParams method must be all: ${EncryptionTypes.METHOD.ECIES} or ${EncryptionTypes.METHOD.KMS}`,
+        );
+      }
 
       return { encryptedData: encryptedDataSerialized, keys };
     }

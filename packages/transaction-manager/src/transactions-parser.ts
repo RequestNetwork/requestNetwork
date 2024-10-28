@@ -1,8 +1,11 @@
 import * as MultiFormat from '@requestnetwork/multi-format';
 import {
+  CypherProviderTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
+  EPKProviderTypes,
   IdentityTypes,
+  SignatureProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
 
@@ -14,9 +17,17 @@ import EncryptedTransaction from './encrypted-transaction';
  */
 export default class TransactionsParser {
   private decryptionProvider: DecryptionProviderTypes.IDecryptionProvider | undefined;
+  private cypherProvider: CypherProviderTypes.ICypherProvider | undefined;
+  private signatureProvider: SignatureProviderTypes.ISignatureProvider | undefined;
 
-  constructor(decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider) {
+  constructor(
+    decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
+    cypherProvider?: CypherProviderTypes.ICypherProvider,
+    signatureProvider?: SignatureProviderTypes.ISignatureProvider,
+  ) {
     this.decryptionProvider = decryptionProvider;
+    this.cypherProvider = cypherProvider;
+    this.signatureProvider = signatureProvider;
   }
 
   /**
@@ -124,63 +135,80 @@ export default class TransactionsParser {
     keys: TransactionTypes.IKeysDictionary,
     encryptionMethod: string,
   ): Promise<EncryptionTypes.IDecryptionParameters> {
-    // Check if the decryption provider is given
-    if (!this.decryptionProvider) {
-      throw new Error(`No decryption provider given`);
-    }
-
-    let channelKeyMethod: EncryptionTypes.METHOD;
-    // Check the encryption method
-    if (
-      encryptionMethod === `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_CBC}`
-    ) {
-      channelKeyMethod = EncryptionTypes.METHOD.AES256_CBC;
-    } else if (
-      encryptionMethod === `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`
-    ) {
-      channelKeyMethod = EncryptionTypes.METHOD.AES256_GCM;
-    } else {
-      throw new Error(`Encryption method not supported: ${encryptionMethod}`);
-    }
-
     let errorReason = '';
-    // Try to decrypt the channelKey
-    const channelKey = await Object.keys(keys || {}).reduce(
-      async (decryptedChannelKeyPromise, identityMultiFormatted: string) => {
-        let decryptedChannelKey = await decryptedChannelKeyPromise;
-        if (keys && decryptedChannelKey === '') {
-          let identity: IdentityTypes.IIdentity | undefined;
-          try {
-            identity = MultiFormat.deserialize(identityMultiFormatted);
-          } catch (e) {
-            // if we cannot deserialize it, just ignore this identity
-          }
-          // Ignore what is not an identity Ethereum address
-          if (identity && identity.type === IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
-            // Check if we can decrypt the key with this identity
-            if (
-              this.decryptionProvider &&
-              (await this.decryptionProvider.isIdentityRegistered(identity))
-            ) {
-              try {
-                const key = MultiFormat.deserialize(keys[identityMultiFormatted]);
-                decryptedChannelKey = await this.decryptionProvider.decrypt(key, identity);
-              } catch (e) {
-                errorReason = e.message;
+    let channelKey = '';
+    let channelKeyMethod: EncryptionTypes.METHOD | undefined;
+
+    if (this.cypherProvider && !(this.cypherProvider instanceof EPKProviderTypes.IEPKProvider)) {
+      if (
+        encryptionMethod === `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`
+      ) {
+        const { encryptResponse, encryptionParams } = JSON.parse(keys['kms']);
+
+        channelKey = await this.cypherProvider.decrypt(encryptResponse, {
+          signer: this.signatureProvider,
+          encryptionParams,
+        });
+        channelKeyMethod = EncryptionTypes.METHOD.AES256_GCM;
+      }
+    } else {
+      // Check if the decryption provider is given
+      if (!this.decryptionProvider) {
+        throw new Error(`No decryption provider given`);
+      }
+
+      // Check the encryption method
+      if (
+        encryptionMethod === `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_CBC}`
+      ) {
+        channelKeyMethod = EncryptionTypes.METHOD.AES256_CBC;
+      } else if (
+        encryptionMethod === `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`
+      ) {
+        channelKeyMethod = EncryptionTypes.METHOD.AES256_GCM;
+      } else {
+        throw new Error(`Encryption method not supported: ${encryptionMethod}`);
+      }
+
+      // Try to decrypt the channelKey
+      channelKey = await Object.keys(keys || {}).reduce(
+        async (decryptedChannelKeyPromise, identityMultiFormatted: string) => {
+          let decryptedChannelKey = await decryptedChannelKeyPromise;
+          if (keys && decryptedChannelKey === '') {
+            let identity: IdentityTypes.IIdentity | undefined;
+            try {
+              identity = MultiFormat.deserialize(identityMultiFormatted);
+            } catch (e) {
+              // if we cannot deserialize it, just ignore this identity
+            }
+            // Ignore what is not an identity Ethereum address
+            if (identity && identity.type === IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
+              // Check if we can decrypt the key with this identity
+              if (
+                this.decryptionProvider &&
+                (await this.decryptionProvider.isIdentityRegistered(identity))
+              ) {
+                try {
+                  const key = MultiFormat.deserialize(keys[identityMultiFormatted]);
+                  decryptedChannelKey = await this.decryptionProvider.decrypt(key, identity);
+                } catch (e) {
+                  errorReason = e.message;
+                }
               }
             }
           }
-        }
-        return decryptedChannelKey;
-      },
-      Promise.resolve(''),
-    );
+          return decryptedChannelKey;
+        },
+        Promise.resolve(''),
+      );
+    }
 
-    if (channelKey === '') {
+    if (channelKey === '' || !channelKeyMethod) {
       throw new Error(
         `Impossible to decrypt the channel key from this transaction (${errorReason})`,
       );
     }
+
     return {
       key: channelKey,
       method: channelKeyMethod,

@@ -1,8 +1,10 @@
 import * as MultiFormat from '@requestnetwork/multi-format';
 import {
+  CypherProviderTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
+  SignatureProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
@@ -18,13 +20,17 @@ import TransactionsFactory from './transactions-factory';
 export default class TransactionManager implements TransactionTypes.ITransactionManager {
   private dataAccess: DataAccessTypes.IDataAccess;
   private channelParser: ChannelParser;
+  private cypherProvider?: CypherProviderTypes.ICypherProvider;
 
   public constructor(
     dataAccess: DataAccessTypes.IDataAccess,
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
+    cypherProvider?: CypherProviderTypes.ICypherProvider,
+    signatureProvider?: SignatureProviderTypes.ISignatureProvider,
   ) {
     this.dataAccess = dataAccess;
-    this.channelParser = new ChannelParser(decryptionProvider);
+    this.channelParser = new ChannelParser(decryptionProvider, cypherProvider, signatureProvider);
+    this.cypherProvider = cypherProvider;
   }
 
   /**
@@ -59,6 +65,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
         transaction = await TransactionsFactory.createEncryptedTransactionInNewChannel(
           transactionData,
           encryptionParams,
+          this.cypherProvider,
         );
         channelEncryptionMethod = transaction.encryptionMethod;
       }
