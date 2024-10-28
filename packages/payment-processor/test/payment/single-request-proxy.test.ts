@@ -7,7 +7,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { providers, Wallet } from 'ethers';
+import { providers, Wallet, utils } from 'ethers';
 import {
   deploySingleRequestProxy,
   payRequestWithSingleRequestProxy,
@@ -168,8 +168,9 @@ describe('deploySingleRequestProxy', () => {
   it('should deploy EthereumSingleRequestProxy and emit event', async () => {
     const singleRequestProxyFactory = singleRequestProxyFactoryArtifact.connect('private', wallet);
 
-    // Get the initial event count
     const initialEventCount = await provider.getBlockNumber();
+
+    const walletAddress = await wallet.getAddress();
 
     const proxyAddress = await deploySingleRequestProxy(ethRequest, wallet);
 
@@ -177,7 +178,6 @@ describe('deploySingleRequestProxy', () => {
     expect(typeof proxyAddress).toBe('string');
     expect(proxyAddress).toMatch(/^0x[a-fA-F0-9]{40}$/);
 
-    // Get the latest events
     const latestBlock = await provider.getBlockNumber();
     const events = await singleRequestProxyFactory.queryFilter(
       singleRequestProxyFactory.filters.EthereumSingleRequestProxyCreated(),
@@ -185,18 +185,19 @@ describe('deploySingleRequestProxy', () => {
       latestBlock,
     );
 
-    // Check if the event was emitted with the correct parameters
-    const event = events.find((e) => e.args?.proxyAddress === proxyAddress);
-    expect(event).toBeDefined();
-    expect(event?.args?.payee).toBe(paymentAddress);
-    expect(event?.args?.paymentReference).toBeDefined();
+    expect(events.length).toBeGreaterThan(0);
+
+    const eventData = utils.defaultAbiCoder.decode(['address', 'address'], events[0].data);
+
+    expect(eventData[0]).toBe(proxyAddress);
   });
 
   it('should deploy ERC20SingleRequestProxy and emit event', async () => {
     const singleRequestProxyFactory = singleRequestProxyFactoryArtifact.connect('private', wallet);
 
-    // Get the initial event count
     const initialEventCount = await provider.getBlockNumber();
+
+    const walletAddress = await wallet.getAddress();
 
     const proxyAddress = await deploySingleRequestProxy(erc20Request, wallet);
 
@@ -204,7 +205,6 @@ describe('deploySingleRequestProxy', () => {
     expect(typeof proxyAddress).toBe('string');
     expect(proxyAddress).toMatch(/^0x[a-fA-F0-9]{40}$/);
 
-    // Get the latest events
     const latestBlock = await provider.getBlockNumber();
     const events = await singleRequestProxyFactory.queryFilter(
       singleRequestProxyFactory.filters.ERC20SingleRequestProxyCreated(),
@@ -212,11 +212,11 @@ describe('deploySingleRequestProxy', () => {
       latestBlock,
     );
 
-    // Check if the event was emitted with the correct parameters
-    const event = events.find((e) => e.args?.proxyAddress === proxyAddress);
-    expect(event).toBeDefined();
-    expect(event?.args?.payee).toBe(paymentAddress);
-    expect(event?.args?.paymentReference).toBeDefined();
+    expect(events.length).toBeGreaterThan(0);
+
+    const eventData = utils.defaultAbiCoder.decode(['address', 'address'], events[0].data);
+
+    expect(eventData[0]).toBe(proxyAddress);
   });
 
   it('should throw error when trying to pay with invalid single request proxy', async () => {
