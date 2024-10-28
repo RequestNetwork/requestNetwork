@@ -48,6 +48,7 @@ describe('contract: SingleRequestProxyFactory', () => {
     singleRequestProxyFactory = await SingleRequestProxyFactoryFactory.deploy(
       ethereumFeeProxy.address,
       erc20FeeProxy.address,
+      ownerAddress,
     );
     await singleRequestProxyFactory.deployed();
 
