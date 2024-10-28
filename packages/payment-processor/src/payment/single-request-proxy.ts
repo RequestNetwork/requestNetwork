@@ -115,6 +115,7 @@ export async function deploySingleRequestProxy(
  * @param signer - The Ethereum signer used to execute the payment transaction.
  * @param amount - The amount to be paid, as a string representation of the value.
  * @returns A Promise that resolves when the payment transaction is confirmed.
+ * @throws {Error} If the SingleRequestProxy contract is invalid.
  * @throws {Error} If the proxy contract type cannot be determined, or if any transaction fails.
  *
  * @remarks
@@ -128,11 +129,30 @@ export async function payRequestWithSingleRequestProxy(
   signer: Signer,
   amount: string,
 ): Promise<void> {
+  // Create contract interface with all required methods to validate SingleRequestProxy
   const proxyContract = new Contract(
     singleRequestProxyAddress,
-    ['function tokenAddress() view returns (address)'],
+    [
+      'function payee() view returns (address)',
+      'function paymentReference() view returns (bytes)',
+      'function feeAddress() view returns (address)',
+      'function feeAmount() view returns (uint256)',
+      'function tokenAddress() view returns (address)',
+    ],
     signer,
   );
+
+  // Validate that this is a SingleRequestProxy by checking required methods
+  try {
+    await Promise.all([
+      proxyContract.payee(),
+      proxyContract.paymentReference(),
+      proxyContract.feeAddress(),
+      proxyContract.feeAmount(),
+    ]);
+  } catch (error) {
+    throw new Error('Invalid SingleRequestProxy contract');
+  }
 
   let isERC20: boolean;
   let tokenAddress: string | null = null;

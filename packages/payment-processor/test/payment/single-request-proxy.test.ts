@@ -212,7 +212,7 @@ describe('deploySingleRequestProxy', () => {
     // Get the latest events
     const latestBlock = await provider.getBlockNumber();
     const events = await singleRequestProxyFactory.queryFilter(
-      singleRequestProxyFactory.filters.EthereumSingleRequestProxyCreated(),
+      singleRequestProxyFactory.filters.ERC20SingleRequestProxyCreated(),
       initialEventCount,
       latestBlock,
     );
