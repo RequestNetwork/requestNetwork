@@ -162,6 +162,14 @@ describe('deploySingleRequestProxy', () => {
     ).rejects.toThrow('Invalid payment network values');
   });
 
+  it('should throw an error if the request has no extension', async () => {
+    const invalidRequest = { ...ethRequest, extensions: {} };
+
+    await expect(deploySingleRequestProxy(invalidRequest, wallet)).rejects.toThrow(
+      'Unsupported payment network',
+    );
+  });
+
   it('should deploy EthereumSingleRequestProxy and emit event', async () => {
     const singleRequestProxyFactory = singleRequestProxyFactoryArtifact.connect('private', wallet);
 
@@ -189,11 +197,30 @@ describe('deploySingleRequestProxy', () => {
     expect(event?.args?.paymentReference).toBeDefined();
   });
 
-  it('should throw an error if the request has no extension', async () => {
-    const invalidRequest = { ...ethRequest, extensions: {} };
+  it('should deploy ERC20SingleRequestProxy and emit event', async () => {
+    const singleRequestProxyFactory = singleRequestProxyFactoryArtifact.connect('private', wallet);
 
-    await expect(deploySingleRequestProxy(invalidRequest, wallet)).rejects.toThrow(
-      'Unsupported payment network',
+    // Get the initial event count
+    const initialEventCount = await provider.getBlockNumber();
+
+    const proxyAddress = await deploySingleRequestProxy(erc20Request, wallet);
+
+    expect(proxyAddress).toBeDefined();
+    expect(typeof proxyAddress).toBe('string');
+    expect(proxyAddress).toMatch(/^0x[a-fA-F0-9]{40}$/);
+
+    // Get the latest events
+    const latestBlock = await provider.getBlockNumber();
+    const events = await singleRequestProxyFactory.queryFilter(
+      singleRequestProxyFactory.filters.EthereumSingleRequestProxyCreated(),
+      initialEventCount,
+      latestBlock,
     );
+
+    // Check if the event was emitted with the correct parameters
+    const event = events.find((e) => e.args?.proxyAddress === proxyAddress);
+    expect(event).toBeDefined();
+    expect(event?.args?.payee).toBe(paymentAddress);
+    expect(event?.args?.paymentReference).toBeDefined();
   });
 });
