@@ -249,11 +249,16 @@ describe('deploySingleRequestProxy', () => {
   });
 
   it('should pay with ERC20SingleRequestProxy', async () => {
-    const amount = '1000';
+    const amount = '200';
 
     const testERC20 = await new TestERC20__factory(wallet).deploy(1000);
 
-    const proxyAddress = await deploySingleRequestProxy(erc20Request, wallet);
+    const updatedERC20Request = {
+      ...erc20Request,
+      currencyInfo: { ...erc20Request.currencyInfo, value: testERC20.address },
+    };
+
+    const proxyAddress = await deploySingleRequestProxy(updatedERC20Request, wallet);
 
     const initialProxyBalance = await testERC20.balanceOf(wallet.address);
 
