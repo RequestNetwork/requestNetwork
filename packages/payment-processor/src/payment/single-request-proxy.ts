@@ -158,6 +158,7 @@ export async function payWithERC20SingleRequestProxy(
 
   let tokenAddress: string;
   try {
+    // Attempt to fetch the token address from the proxy contract, to determine if it's an ERC20 SingleRequestProxy.
     tokenAddress = await proxyContract.tokenAddress();
   } catch {
     throw new Error('Contract is not an ERC20SingleRequestProxy');
@@ -200,10 +201,15 @@ export async function payWithEthereumSingleRequestProxy(
   const proxyContract = new Contract(proxyAddress, proxyInterface, signer);
 
   try {
+    // Attempt to fetch the token address from the proxy contract, to determine if it's an Ethereum SingleRequestProxy.
     await proxyContract.tokenAddress();
+
+    // If the token address is fetched, it means the contract is an ERC20SingleRequestProxy.
     throw new Error('Contract is not an EthereumSingleRequestProxy');
   } catch (error) {
+    // If the token address is not fetched, it means the contract is an EthereumSingleRequestProxy.
     if (error.message === 'Contract is not an EthereumSingleRequestProxy') {
+      // If the error message is 'Contract is not an EthereumSingleRequestProxy', throw the error.
       throw error;
     }
   }
