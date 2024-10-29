@@ -27,6 +27,7 @@ import NativeToken from './extensions/payment-network/native-token';
 import AnyToNative from './extensions/payment-network/any-to-native';
 import Erc20TransferableReceivablePaymentNetwork from './extensions/payment-network/erc20/transferable-receivable';
 import MetaPaymentNetwork from './extensions/payment-network/meta';
+import HinkalWalletToAnyERC20 from './extensions/payment-network/hinkal-wallet-to-any';
 
 /**
  * Module to manage Advanced logic extensions
@@ -51,6 +52,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     anyToNativeToken: AnyToNative[];
     erc20TransferableReceivable: Erc20TransferableReceivablePaymentNetwork;
     metaPn: MetaPaymentNetwork;
+    hinkalWalletErc20: HinkalWalletToAnyERC20<ExtensionTypes.PnAnyHinkalWallet.ICreationParameters>;
   };
 
   private currencyManager: CurrencyTypes.ICurrencyManager;
@@ -74,6 +76,8 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       anyToNativeToken: [new AnyToNear(currencyManager), new AnyToNearTestnet(currencyManager)],
       erc20TransferableReceivable: new Erc20TransferableReceivablePaymentNetwork(currencyManager),
       metaPn: new MetaPaymentNetwork(currencyManager),
+      // TODO: Add optimistic-like differentiation
+      hinkalWalletErc20: new HinkalWalletToAnyERC20(currencyManager),
     };
   }
 
@@ -135,6 +139,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE]:
         this.extensions.erc20TransferableReceivable,
       [ExtensionTypes.PAYMENT_NETWORK_ID.META]: this.extensions.metaPn,
+      [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_HINKAL_WALLET]: this.extensions.hinkalWalletErc20,
     }[id];
 
     if (!extension) {

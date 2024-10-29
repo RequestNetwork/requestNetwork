@@ -167,6 +167,7 @@ const {
   ANY_TO_ERC20_PROXY,
   NATIVE_TOKEN,
   ERC20_TRANSFERABLE_RECEIVABLE,
+  ERC20_HINKAL_WALLET,
 } = ExtensionTypes.PAYMENT_NETWORK_ID;
 const currenciesMap: any = {
   [ERC777_STREAM]: RequestLogicTypes.CURRENCY.ERC777,
@@ -200,6 +201,7 @@ export function validateRequest(
     ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
     ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN,
     ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
+    ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_HINKAL_WALLET,
   ].includes(paymentNetworkId)
     ? // Any currency type is valid with Any to ERC20 / ETH / Native conversion
       true
@@ -214,6 +216,7 @@ export function validateRequest(
       ERC20_FEE_PROXY_CONTRACT,
       ERC777_STREAM,
       ERC20_TRANSFERABLE_RECEIVABLE,
+      ERC20_HINKAL_WALLET,
     ].includes(paymentNetworkId) || request.currencyInfo.value;
 
   // Payment network with fees should have both or none of fee address and fee amount

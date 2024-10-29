@@ -207,3 +207,6 @@ export type CurrencyPairs = Record<string, Record<string, number>>;
  * Network => currencyFrom => currencyTo => cost
  */
 export type AggregatorsMap<T extends ChainName = ChainName> = Partial<Record<T, CurrencyPairs>>;
+
+//For now only optimism is supported to work with Hinkal Wallet
+export type HinkalSupportedNetworks = 'optimism';

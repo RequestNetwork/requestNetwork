@@ -10,6 +10,7 @@ import * as PnMeta from './extensions/pn-meta';
 import * as PnAnyToAnyConversion from './extensions/pn-any-to-any-conversion-types';
 import * as Identity from './identity-types';
 import * as RequestLogic from './request-logic-types';
+import * as PnAnyHinkalWallet from './extensions/pn-any-hinkal-wallet-based-types';
 
 export {
   ContentData,
@@ -22,6 +23,7 @@ export {
   PnAnyToEth,
   PnAnyToAnyConversion,
   PnMeta,
+  PnAnyHinkalWallet,
 };
 
 /** Extension interface is extended by the extensions implementation */
@@ -89,6 +91,7 @@ export enum PAYMENT_NETWORK_ID {
   BITCOIN_ADDRESS_BASED = 'pn-bitcoin-address-based',
   TESTNET_BITCOIN_ADDRESS_BASED = 'pn-testnet-bitcoin-address-based',
   ERC20_ADDRESS_BASED = 'pn-erc20-address-based',
+  ERC20_HINKAL_WALLET = 'pn-erc20-hinkal-wallet',
   ERC20_PROXY_CONTRACT = 'pn-erc20-proxy-contract',
   ERC20_FEE_PROXY_CONTRACT = 'pn-erc20-fee-proxy-contract',
   ERC777_STREAM = 'pn-erc777-stream',

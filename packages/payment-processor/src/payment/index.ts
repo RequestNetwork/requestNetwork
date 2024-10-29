@@ -21,6 +21,7 @@ import { encodeRequestErc20Approval } from './encoder-approval';
 import { encodeRequestPayment } from './encoder-payment';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IRequestPaymentOptions } from '../types';
+import { payErc20RequestHinkalWallet } from './erc20-hinkal-wallet';
 export { INearTransactionCallback } from './utils-near';
 
 export const noConversionNetworks = [
@@ -71,6 +72,7 @@ export class UnsupportedPaymentChain extends Error {
  * Processes a transaction to pay a Request.
  * Supported networks:
  * - ERC20_PROXY_CONTRACT
+ * - ERC20_HINKAL_WALLET
  * - ETH_INPUT_DATA
  * - ERC20_FEE_PROXY_CONTRACT
  * - ANY_TO_ERC20_PROXY
@@ -99,6 +101,8 @@ export async function payRequest(
     case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT:
     case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE:
       return payErc20Request(request, signer, amount, undefined, overrides);
+    case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_HINKAL_WALLET:
+      return payErc20RequestHinkalWallet(request, signer, amount!);
     case ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM:
       return payErc777StreamRequest(request, signer);
     case ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY: {

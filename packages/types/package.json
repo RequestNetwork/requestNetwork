@@ -38,6 +38,7 @@
     "prepare": "yarn run build"
   },
   "dependencies": {
+    "@hinkal/data": "^0.1.3",
     "ethers": "5.5.1"
   },
   "devDependencies": {
