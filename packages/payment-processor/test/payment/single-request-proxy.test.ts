@@ -11,6 +11,8 @@ import { providers, Wallet, utils } from 'ethers';
 import {
   deploySingleRequestProxy,
   payRequestWithSingleRequestProxy,
+  payWithEthereumSingleRequestProxy,
+  payWithERC20SingleRequestProxy,
 } from '../../src/payment/single-request-proxy';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
@@ -266,5 +268,73 @@ describe('deploySingleRequestProxy', () => {
     const finalProxyBalance = await testERC20.balanceOf(wallet.address);
 
     expect(finalProxyBalance.toBigInt()).toBeLessThan(initialProxyBalance.toBigInt());
+  });
+});
+
+describe('payWithEthereumSingleRequestProxy', () => {
+  it('should throw error when amount is not a positive number', async () => {
+    const proxyAddress = await deploySingleRequestProxy(ethRequest, wallet);
+
+    await expect(payWithEthereumSingleRequestProxy(proxyAddress, wallet, '0')).rejects.toThrow(
+      'Amount must be a positive number',
+    );
+  });
+
+  it('should throw error when contract is an ERC20SingleRequestProxy', async () => {
+    const proxyAddress = await deploySingleRequestProxy(erc20Request, wallet);
+
+    await expect(payWithEthereumSingleRequestProxy(proxyAddress, wallet, '1000')).rejects.toThrow(
+      'Contract is not an EthereumSingleRequestProxy',
+    );
+  });
+
+  it('should successfully pay with ETH', async () => {
+    const proxyAddress = await deploySingleRequestProxy(ethRequest, wallet);
+    const amount = '1000';
+
+    const walletBalanceBefore = await provider.getBalance(wallet.address);
+
+    await payWithEthereumSingleRequestProxy(proxyAddress, wallet, amount);
+
+    const walletBalanceAfter = await provider.getBalance(wallet.address);
+
+    expect(walletBalanceAfter.toBigInt()).toBeLessThan(walletBalanceBefore.toBigInt());
+  });
+});
+
+describe('payWithERC20SingleRequestProxy', () => {
+  it('should throw error when amount is not a positive number', async () => {
+    const proxyAddress = await deploySingleRequestProxy(erc20Request, wallet);
+
+    await expect(payWithERC20SingleRequestProxy(proxyAddress, wallet, '0')).rejects.toThrow(
+      'Amount must be a positive number',
+    );
+  });
+
+  it('should throw error when contract is not an ERC20SingleRequestProxy', async () => {
+    const proxyAddress = await deploySingleRequestProxy(ethRequest, wallet);
+
+    await expect(payWithERC20SingleRequestProxy(proxyAddress, wallet, '1000')).rejects.toThrow(
+      'Contract is not an ERC20SingleRequestProxy',
+    );
+  });
+
+  it('should successfully pay with ERC20 tokens', async () => {
+    const amount = '200';
+    const testERC20 = await new TestERC20__factory(wallet).deploy(1000);
+
+    const updatedERC20Request = {
+      ...erc20Request,
+      currencyInfo: { ...erc20Request.currencyInfo, value: testERC20.address },
+    };
+
+    const proxyAddress = await deploySingleRequestProxy(updatedERC20Request, wallet);
+    const initialBalance = await testERC20.balanceOf(wallet.address);
+
+    await payWithERC20SingleRequestProxy(proxyAddress, wallet, amount);
+
+    const finalBalance = await testERC20.balanceOf(wallet.address);
+
+    expect(finalBalance.toBigInt()).toBeLessThan(initialBalance.toBigInt());
   });
 });

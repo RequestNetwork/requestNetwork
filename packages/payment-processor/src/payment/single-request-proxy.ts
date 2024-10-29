@@ -107,6 +107,115 @@ export async function deploySingleRequestProxy(
 }
 
 /**
+ * Validates that a contract is a SingleRequestProxy by checking required methods
+ * @param proxyAddress - The address of the contract to validate
+ * @param signer - The Ethereum signer used to interact with the contract
+ * @throws {Error} If the contract is not a valid SingleRequestProxy
+ */
+async function validateSingleRequestProxy(proxyAddress: string, signer: Signer): Promise<void> {
+  const proxyInterface = new ethers.utils.Interface([
+    'function payee() view returns (address)',
+    'function paymentReference() view returns (bytes)',
+    'function feeAddress() view returns (address)',
+    'function feeAmount() view returns (uint256)',
+  ]);
+
+  const proxyContract = new Contract(proxyAddress, proxyInterface, signer);
+
+  try {
+    await Promise.all([
+      proxyContract.payee(),
+      proxyContract.paymentReference(),
+      proxyContract.feeAddress(),
+      proxyContract.feeAmount(),
+    ]);
+  } catch (error) {
+    throw new Error('Invalid SingleRequestProxy contract');
+  }
+}
+
+/**
+ * Executes a payment through an ERC20SingleRequestProxy contract
+ * @param proxyAddress - The address of the SingleRequestProxy contract
+ * @param signer - The Ethereum signer used to execute the payment transaction
+ * @param amount - The amount to be paid
+ * @throws {Error} If the contract is not an ERC20SingleRequestProxy
+ */
+export async function payWithERC20SingleRequestProxy(
+  proxyAddress: string,
+  signer: Signer,
+  amount: string,
+): Promise<void> {
+  if (!amount || ethers.BigNumber.from(amount).lte(0)) {
+    throw new Error('Amount must be a positive number');
+  }
+
+  const proxyInterface = new ethers.utils.Interface([
+    'function tokenAddress() view returns (address)',
+  ]);
+
+  const proxyContract = new Contract(proxyAddress, proxyInterface, signer);
+
+  let tokenAddress: string;
+  try {
+    tokenAddress = await proxyContract.tokenAddress();
+  } catch {
+    throw new Error('Contract is not an ERC20SingleRequestProxy');
+  }
+
+  const erc20Contract = IERC20__factory.connect(tokenAddress, signer);
+
+  // Transfer tokens to the proxy
+  const transferTx = await erc20Contract.transfer(proxyAddress, amount);
+  await transferTx.wait();
+
+  // Trigger the proxy's receive function to finalize payment
+  const triggerTx = await signer.sendTransaction({
+    to: proxyAddress,
+    value: ethers.constants.Zero,
+  });
+  await triggerTx.wait();
+}
+
+/**
+ * Executes a payment through an EthereumSingleRequestProxy contract
+ * @param proxyAddress - The address of the SingleRequestProxy contract
+ * @param signer - The Ethereum signer used to execute the payment transaction
+ * @param amount - The amount to be paid
+ * @throws {Error} If the contract is an ERC20SingleRequestProxy
+ */
+export async function payWithEthereumSingleRequestProxy(
+  proxyAddress: string,
+  signer: Signer,
+  amount: string,
+): Promise<void> {
+  if (!amount || ethers.BigNumber.from(amount).lte(0)) {
+    throw new Error('Amount must be a positive number');
+  }
+
+  const proxyInterface = new ethers.utils.Interface([
+    'function tokenAddress() view returns (address)',
+  ]);
+
+  const proxyContract = new Contract(proxyAddress, proxyInterface, signer);
+
+  try {
+    await proxyContract.tokenAddress();
+    throw new Error('Contract is not an EthereumSingleRequestProxy');
+  } catch (error) {
+    if (error.message === 'Contract is not an EthereumSingleRequestProxy') {
+      throw error;
+    }
+  }
+
+  const tx = await signer.sendTransaction({
+    to: proxyAddress,
+    value: amount,
+  });
+  await tx.wait();
+}
+
+/**
  * Executes a payment through a Single Request Proxy contract.
  *
  * @param singleRequestProxyAddress - The address of the deployed Single Request Proxy contract.
@@ -131,57 +240,26 @@ export async function payRequestWithSingleRequestProxy(
     throw new Error('Amount must be a positive number');
   }
 
+  // Validate the SingleRequestProxy contract
+  await validateSingleRequestProxy(singleRequestProxyAddress, signer);
+
   const proxyInterface = new ethers.utils.Interface([
-    'function payee() view returns (address)',
-    'function paymentReference() view returns (bytes)',
-    'function feeAddress() view returns (address)',
-    'function feeAmount() view returns (uint256)',
     'function tokenAddress() view returns (address)',
   ]);
 
   const proxyContract = new Contract(singleRequestProxyAddress, proxyInterface, signer);
 
-  // Validate that this is a SingleRequestProxy by checking required methods
-  try {
-    await Promise.all([
-      proxyContract.payee(),
-      proxyContract.paymentReference(),
-      proxyContract.feeAddress(),
-      proxyContract.feeAmount(),
-    ]);
-  } catch (error) {
-    throw new Error('Invalid SingleRequestProxy contract');
-  }
-
   let isERC20: boolean;
-  let tokenAddress: string | null = null;
   try {
-    tokenAddress = await proxyContract.tokenAddress();
+    await proxyContract.tokenAddress();
     isERC20 = true;
   } catch {
     isERC20 = false;
   }
 
-  if (isERC20 && tokenAddress) {
-    // ERC20 payment
-    const erc20Contract = IERC20__factory.connect(tokenAddress, signer);
-
-    // Transfer tokens to the proxy
-    const transferTx = await erc20Contract.transfer(singleRequestProxyAddress, amount);
-    await transferTx.wait();
-
-    // This step finalizes the payment by calling the proxy's receive function
-    const triggerTx = await signer.sendTransaction({
-      to: singleRequestProxyAddress,
-      value: ethers.constants.Zero,
-    });
-    await triggerTx.wait();
+  if (isERC20) {
+    await payWithERC20SingleRequestProxy(singleRequestProxyAddress, signer, amount);
   } else {
-    // Ethereum payment
-    const tx = await signer.sendTransaction({
-      to: singleRequestProxyAddress,
-      value: amount,
-    });
-    await tx.wait();
+    await payWithEthereumSingleRequestProxy(singleRequestProxyAddress, signer, amount);
   }
 }
