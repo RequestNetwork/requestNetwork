@@ -2,7 +2,7 @@ import * as MultiFormat from '@requestnetwork/multi-format';
 import {
   CypherProviderTypes,
   EncryptionTypes,
-  EPKProviderTypes,
+  EpkProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
 import {
@@ -82,7 +82,7 @@ export default class TransactionsFactory {
           const identityEncryption = getIdentityFromEncryptionParams(encryptionParam);
           const multiFormattedIdentity: string = MultiFormat.serialize(identityEncryption);
 
-          if (cypherProvider && cypherProvider instanceof EPKProviderTypes.IEPKProvider) {
+          if (cypherProvider && cypherProvider instanceof (EpkProviderTypes as any).IEpkProvider) {
             const encryptedKey: EncryptionTypes.IEncryptedData = await cypherProvider.encrypt(
               symmetricKey,
               { encryptionParams },
@@ -198,7 +198,10 @@ export default class TransactionsFactory {
             const identityEncryption = getIdentityFromEncryptionParams(encryptionParam);
             const multiFormattedIdentity: string = MultiFormat.serialize(identityEncryption);
 
-            if (cypherProvider && cypherProvider instanceof EPKProviderTypes.IEPKProvider) {
+            if (
+              cypherProvider &&
+              cypherProvider instanceof (EpkProviderTypes as any).IEpkProvider
+            ) {
               const encryptedKey: EncryptionTypes.IEncryptedData = await cypherProvider.encrypt(
                 channelKey.key,
                 { encryptionParams },

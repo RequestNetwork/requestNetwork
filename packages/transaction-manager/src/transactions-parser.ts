@@ -3,7 +3,7 @@ import {
   CypherProviderTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
-  EPKProviderTypes,
+  EpkProviderTypes,
   IdentityTypes,
   SignatureProviderTypes,
   TransactionTypes,
@@ -139,7 +139,10 @@ export default class TransactionsParser {
     let channelKey = '';
     let channelKeyMethod: EncryptionTypes.METHOD | undefined;
 
-    if (this.cypherProvider && !(this.cypherProvider instanceof EPKProviderTypes.IEPKProvider)) {
+    if (
+      this.cypherProvider &&
+      !(this.cypherProvider instanceof (EpkProviderTypes as any).IEpkProvider)
+    ) {
       if (
         encryptionMethod === `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`
       ) {

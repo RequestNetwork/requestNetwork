@@ -3,7 +3,7 @@ import * as ClientTypes from './client-types';
 import * as CurrencyTypes from './currency-types';
 import * as DataAccessTypes from './data-access-types';
 import * as DecryptionProviderTypes from './decryption-provider-types';
-import * as EPKProviderTypes from './epk-provider-types';
+import * as EpkProviderTypes from './epk-provider-types';
 import * as EncryptionTypes from './encryption-types';
 import * as ExtensionTypes from './extension-types';
 import * as IdentityTypes from './identity-types';
@@ -27,7 +27,7 @@ export {
   DataAccessTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
-  EPKProviderTypes,
+  EpkProviderTypes,
   ExtensionTypes,
   IdentityTypes,
   LogTypes,
