@@ -14,6 +14,7 @@ export * from './ERC20EscrowToPay';
 export * from './BatchPayments';
 export * from './BatchNoConversionPayments';
 export * from './BatchConversionPayments';
+export * from './SingleRequestProxyFactory';
 /**
  * Request Storage
  */
