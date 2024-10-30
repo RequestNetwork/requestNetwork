@@ -67,6 +67,17 @@ export const getConstructorArgs = (
       const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
       return ['Request Network Transferable Receivable', 'tREC', erc20FeeProxyAddress];
     }
+    case 'SingleRequestProxyFactory': {
+      if (!network) {
+        throw new Error('SingleRequestProxyFactory requires network parameter');
+      }
+      const erc20FeeProxy = artifacts.erc20FeeProxyArtifact;
+      const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
+      const ethereumFeeProxy = artifacts.ethereumFeeProxyArtifact;
+      const ethereumFeeProxyAddress = ethereumFeeProxy.getAddress(network);
+
+      return [ethereumFeeProxyAddress, erc20FeeProxyAddress, getAdminWalletAddress(contract)];
+    }
     default:
       return [];
   }

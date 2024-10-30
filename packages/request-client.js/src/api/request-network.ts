@@ -512,10 +512,9 @@ export default class RequestNetwork {
     requestId: string,
   ): ClientTypes.IRequestData {
     const requestData = JSON.parse(transactionData.data as string).data;
-    const originalExtensionsData = requestData.parameters.extensionsData;
     const newExtensions: RequestLogicTypes.IExtensionStates = {};
 
-    for (const extension of originalExtensionsData) {
+    for (const extension of requestData.parameters.extensionsData) {
       if (extension.id !== ExtensionTypes.OTHER_ID.CONTENT_DATA) {
         newExtensions[extension.id] = {
           events: [
@@ -524,6 +523,8 @@ export default class RequestNetwork {
               parameters: {
                 paymentAddress: extension.parameters.paymentAddress,
                 salt: extension.parameters.salt,
+                feeAddress: extension.parameters.feeAddress,
+                feeAmount: extension.parameters.feeAmount,
               },
               timestamp: requestData.parameters.timestamp,
             },
@@ -537,6 +538,8 @@ export default class RequestNetwork {
             sentPaymentAmount: '0',
             sentRefundAmount: '0',
             paymentAddress: extension.parameters.paymentAddress,
+            feeAddress: extension.parameters.feeAddress,
+            feeAmount: extension.parameters.feeAmount,
           },
           version: extension.version,
         };
@@ -544,27 +547,21 @@ export default class RequestNetwork {
     }
 
     return {
-      requestId: requestId,
-      currency: requestData.parameters.currency.type,
+      ...requestData.parameters,
+      requestId,
       meta: null,
       balance: null,
-      expectedAmount: requestData.parameters.expectedAmount,
-      contentData: requestData.parameters.extensionsData.find(
-        (ext: ExtensionTypes.IAction) => ext.id === ExtensionTypes.OTHER_ID.CONTENT_DATA,
-      )?.parameters.content,
+      currency: requestData.parameters.currency.type,
       currencyInfo: {
         type: requestData.parameters.currency.type,
         network: requestData.parameters.currency.network,
         value: requestData.parameters.currency.value || '',
       },
+      contentData: requestData.parameters.extensionsData.find(
+        (ext: ExtensionTypes.IAction) => ext.id === ExtensionTypes.OTHER_ID.CONTENT_DATA,
+      )?.parameters.content,
       pending: null,
       extensions: newExtensions,
-      extensionsData: requestData.parameters.extensionsData,
-      timestamp: requestData.parameters.timestamp,
-      version: requestData.parameters.version,
-      creator: requestData.parameters.creator,
-      state: requestData.parameters.state,
-      events: requestData.parameters.events,
     };
   }
 }
