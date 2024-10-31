@@ -21,7 +21,7 @@ import { encodeRequestErc20Approval } from './encoder-approval';
 import { encodeRequestPayment } from './encoder-payment';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IRequestPaymentOptions } from '../types';
-import { payErc20RequestHinkalWallet } from './erc20-hinkal-wallet';
+import { payErc20HinkalWalletProxyRequest } from './erc20-hinkal-wallet';
 export { INearTransactionCallback } from './utils-near';
 
 export const noConversionNetworks = [
@@ -102,7 +102,7 @@ export async function payRequest(
     case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE:
       return payErc20Request(request, signer, amount, undefined, overrides);
     case ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_HINKAL_WALLET:
-      return payErc20RequestHinkalWallet(request, signer, amount!);
+      return payErc20HinkalWalletProxyRequest(request, signer, amount!);
     case ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM:
       return payErc777StreamRequest(request, signer);
     case ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY: {

@@ -10,7 +10,7 @@ import * as PnMeta from './extensions/pn-meta';
 import * as PnAnyToAnyConversion from './extensions/pn-any-to-any-conversion-types';
 import * as Identity from './identity-types';
 import * as RequestLogic from './request-logic-types';
-import * as PnAnyHinkalWallet from './extensions/pn-any-hinkal-wallet-based-types';
+import * as PnAnyToHinkalWalletErc20 from './extensions/pn-any-hinkal-wallet-based-types';
 
 export {
   ContentData,
@@ -23,7 +23,7 @@ export {
   PnAnyToEth,
   PnAnyToAnyConversion,
   PnMeta,
-  PnAnyHinkalWallet,
+  PnAnyToHinkalWalletErc20,
 };
 
 /** Extension interface is extended by the extensions implementation */
