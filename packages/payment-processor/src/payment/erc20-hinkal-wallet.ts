@@ -15,7 +15,7 @@ import { RelayerTransaction } from '@hinkal/client/dist/types/relay';
 import { emporiumOp } from '@hinkal/crypto';
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
-import { EvmChains } from 'currency/dist/chains';
+import { EvmChains } from '@requestnetwork/currency';
 
 export async function payErc20HinkalWalletProxyRequest(
   request: ClientTypes.IRequestData,
