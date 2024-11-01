@@ -38,7 +38,7 @@
     "prepare": "yarn run build"
   },
   "dependencies": {
-    "ethers": "5.5.1"
+    "ethers": "5.7.2"
   },
   "devDependencies": {
     "ts-node": "10.9.1",
