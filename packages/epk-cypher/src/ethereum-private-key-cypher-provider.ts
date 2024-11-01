@@ -1,12 +1,6 @@
 import { CypherProviderTypes, EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
 
-import {
-  decrypt,
-  ecEncrypt,
-  encryptWithAes256cbc,
-  encryptWithAes256gcm,
-  getAddressFromPrivateKey,
-} from '@requestnetwork/utils';
+import { decrypt, ecEncrypt, getAddressFromPrivateKey } from '@requestnetwork/utils';
 
 /** Type of the dictionary of decryptionParameters (private keys) indexed by ethereum address */
 type IDecryptionParametersDictionary = Map<string, EncryptionTypes.IDecryptionParameters>;
@@ -47,28 +41,6 @@ export default class EthereumPrivateKeyCypherProvider
       return {
         type: EncryptionTypes.METHOD.ECIES,
         value: encryptedData,
-      };
-    }
-
-    if (encryptionParams.method === EncryptionTypes.METHOD.AES256_CBC) {
-      const encryptedDataBuffer = await encryptWithAes256cbc(
-        Buffer.from(data, 'utf-8'),
-        Buffer.from(encryptionParams.key, 'base64'),
-      );
-      return {
-        type: EncryptionTypes.METHOD.AES256_CBC,
-        value: encryptedDataBuffer.toString('base64'),
-      };
-    }
-
-    if (encryptionParams.method === EncryptionTypes.METHOD.AES256_GCM) {
-      const encryptedDataBuffer = await encryptWithAes256gcm(
-        Buffer.from(data, 'utf-8'),
-        Buffer.from(encryptionParams.key, 'base64'),
-      );
-      return {
-        type: EncryptionTypes.METHOD.AES256_GCM,
-        value: encryptedDataBuffer.toString('base64'),
       };
     }
 
