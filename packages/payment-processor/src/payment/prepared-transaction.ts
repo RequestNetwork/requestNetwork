@@ -5,3 +5,9 @@ export interface IPreparedTransaction {
   data: string;
   to: string;
 }
+
+export interface IPreparedPrivateTransaction {
+  amountToPay: bigint;
+  tokenAddress: string;
+  ops: string[];
+}

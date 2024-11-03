@@ -25,7 +25,8 @@
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "start": "ts-node src/request-client-js-declarative-request.ts && ts-node src/request-client-js-erc20-request.ts && ts-node src/request-logic-clear-request.ts && ts-node src/request-logic-encrypted-request.ts && ts-node src/request-client-js-add-stakeholders.ts",
-    "prepare": "yarn run build"
+    "prepare": "yarn run build",
+    "start:hinkal": "ts-node src/hinkal/testPayErc20FeeProxyRequestHinkal.ts"
   },
   "dependencies": {
     "@requestnetwork/data-access": "0.36.0",
@@ -39,7 +40,8 @@
     "@requestnetwork/types": "0.45.0",
     "@requestnetwork/utils": "0.45.0",
     "ethers": "5.5.1",
-    "tslib": "2.5.0"
+    "tslib": "2.5.0",
+    "dotenv": "10.0.0"
   },
   "devDependencies": {
     "ts-node": "10.9.1",
