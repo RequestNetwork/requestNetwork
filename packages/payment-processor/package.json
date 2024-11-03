@@ -39,6 +39,7 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
+    "@hinkal/common": "0.0.167",
     "@openzeppelin/contracts": "4.9.6",
     "@requestnetwork/currency": "0.18.0",
     "@requestnetwork/payment-detection": "0.45.0",
@@ -48,8 +49,7 @@
     "@superfluid-finance/sdk-core": "0.5.0",
     "ethers": "5.5.1",
     "near-api-js": "4.0.2",
-    "tslib": "2.5.0",
-    "@hinkal/common": "0.0.167"
+    "tslib": "2.5.0"
   },
   "devDependencies": {
     "@types/jest": "29.5.6",
