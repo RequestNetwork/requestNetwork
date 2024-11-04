@@ -22,7 +22,6 @@ import { tenderlyImportAll } from './scripts-create2/tenderly';
 import { updateContractsFromList } from './scripts-create2/update-contracts-setup';
 import deployStorage from './scripts/deploy-storage';
 import { transferOwnership } from './scripts-create2/transfer-ownership';
-import { updateFeeProxies } from './scripts-create2/contract-setup/update-fee-proxies';
 
 config();
 
@@ -404,14 +403,3 @@ subtask(DEPLOYER_KEY_GUARD, 'prevent usage of the deployer master key').setActio
     throw new Error('The deployer master key should not be used for this action');
   }
 });
-
-task(
-  'update-fee-proxies-for-single-request-proxy-factory',
-  'Update the proxy addresses in SingleRequestProxyFactory',
-)
-  .addFlag('eoa', 'Is the update to be performed in an EOA context')
-  .setAction(async (args, hre) => {
-    const signWithEoa = args.eoa ?? false;
-    await hre.run(DEPLOYER_KEY_GUARD);
-    await updateFeeProxies(hre as HardhatRuntimeEnvironmentExtended, signWithEoa);
-  });
