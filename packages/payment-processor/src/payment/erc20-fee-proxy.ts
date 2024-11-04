@@ -52,7 +52,6 @@ export async function payErc20FeeProxyRequest(
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
- * @param overrides optionally, override default transaction values, like gas.
  */
 export async function payPrivateErc20FeeProxyRequest(
   request: ClientTypes.IRequestData,

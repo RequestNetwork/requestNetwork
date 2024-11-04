@@ -7,11 +7,14 @@ config();
 // Usage Example of Private Transactions using Hinkal on Optimism
 // You will need to pass PAYER_PRIVATE_KEY to .env file in usage_examples root (make sure dotenv is installed)
 // run --> yarn start:hinkal
+// IMPORTANT: Ensure your account has sufficient USDC balance before running
+// SECURITY: Handle private keys with extreme caution. Never commit .env file
+// NOTE: Ensure sufficient ETH for gas fees on Optimism network yarn start:hinkal
 
 void (async () => {
-  const RPC_URL = 'https://mainnet.optimism.io';
-  const { PAYER_PRIVATE_KEY } = process.env;
+  const { PAYER_PRIVATE_KEY, OPTIMISM_RPC_URL } = process.env;
   if (!PAYER_PRIVATE_KEY) throw new Error('PRIVATE_KEY_MISSING');
+  const RPC_URL = OPTIMISM_RPC_URL || 'https://mainnet.optimism.io';
 
   // Create Provider and Signer
   const provider = new ethers.providers.JsonRpcProvider(RPC_URL);

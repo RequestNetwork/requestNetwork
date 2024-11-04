@@ -1,21 +1,24 @@
 import { ethers } from 'ethers';
 import { RequestNetwork, Types, Utils } from '@requestnetwork/request-client.js';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
-import { CurrencyTypes } from '@requestnetwork/types';
+import {
+  contentData,
+  currencyAddress,
+  currencyAmount,
+  currentCurrenyType,
+  currentGateway,
+  currentNetwork,
+  fee,
+  payee,
+} from './hinkalRequestData';
 
-// Example Data:
-const currencyAddress = '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85'; // USDC
-const currencyAmount = ethers.utils.parseUnits('0.01', 6).toBigInt();
-const currentNetwork = 'sepolia' as CurrencyTypes.ChainName;
-const currentCurrenyType = Types.RequestLogic.CURRENCY.ERC20;
-const currentGateway = 'https://sepolia.gateway.request.network';
-const payee = '0xA4faFa5523F63EE58aE7b56ad8EB5a344A19F266'; // some random address
-const fee = '0';
-const contentData = {
-  reason: 'Hinkal Test',
-  dueDate: '2025.06.16',
-};
-
+/**
+ * Creates a payment request with the parameters specified in './hinkalRequestData.ts'
+ * used by testPayErc20FeeProxyRequestHinkal.ts
+ * @param payerWallet the wallet used by the payer
+ * @param privateKey the private of the user creating the request
+ * @returns Newly created request
+ */
 export const createRequestForHinkal = async (
   payerWallet: ethers.Wallet,
   privateKey: string,
