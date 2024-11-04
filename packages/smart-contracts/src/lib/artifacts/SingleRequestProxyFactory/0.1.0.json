@@ -38,13 +38,13 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "proxyAddress",
           "type": "address"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "payee",
           "type": "address"
@@ -82,13 +82,13 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "proxyAddress",
           "type": "address"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "payee",
           "type": "address"
