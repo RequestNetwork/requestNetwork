@@ -70,13 +70,13 @@ describe('getDefaultProvider', () => {
       'http://fakenet.fake',
     );
     // still works for standard providers
-    expect((getDefaultProvider('rinkeby') as providers.JsonRpcProvider).connection.url).toMatch(
-      /https:\/\/rinkeby\.infura.*/,
+    expect((getDefaultProvider('amoy') as providers.JsonRpcProvider).connection.url).toMatch(
+      /https:\/\/amoy\.infura.*/,
     );
   });
 
-  expect((getDefaultProvider('goerli') as providers.JsonRpcProvider).connection.url).toMatch(
-    /https:\/\/goerli\.infura.*/,
+  expect((getDefaultProvider('sepolia') as providers.JsonRpcProvider).connection.url).toMatch(
+    /https:\/\/rpc.sepolia\.org.*/,
   );
 });
 
