@@ -54,7 +54,7 @@ describe('ETH Fee proxy detection test-suite', () => {
     expect(balance.events[0].name).toBe('payment');
     expect(balance.events[0].amount).toBe('50000000000000000');
     expect(Math.abs(declarationTimestamp - (balance.events[0].timestamp ?? 0))).toBeLessThan(5);
-  }, 20000);
+  });
 
   it('getBalance = 0 if the payer declared the payment', async () => {
     // Create a request

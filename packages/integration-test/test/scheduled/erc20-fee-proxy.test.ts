@@ -119,7 +119,7 @@ describe('ERC20 Fee Proxy detection test-suite (with a TheGraph Retriever)', () 
     expect(balance.events[0].name).toBe('payment');
     expect(balance.events[0].amount).toBe('1');
     expect(Math.abs(declarationTimestamp - (balance.events[0].timestamp ?? 0))).toBeLessThan(5);
-  }, 15000);
+  });
 
   it('getBalance = 0 if the payer declared the payment', async () => {
     // Create a request
@@ -151,5 +151,5 @@ describe('ERC20 Fee Proxy detection test-suite (with a TheGraph Retriever)', () 
     const balance = await erc20FeeProxy.getBalance(updatedRequest);
     expect(balance.balance).toBe('0');
     expect(balance.events).toHaveLength(0);
-  }, 15000);
+  });
 });

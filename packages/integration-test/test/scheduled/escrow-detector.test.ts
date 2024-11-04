@@ -24,7 +24,7 @@ describe('ERC20 with Escrow detection test-suite', () => {
     const balance = await feeProxyDetector.getBalance(mockRequest);
 
     expect(balance.balance).toBe('1000000000000000000');
-  }, 15000);
+  });
 
   it('can getBalance on a rinkeby request', async () => {
     const mockRequest = createMockErc20FeeRequest({
