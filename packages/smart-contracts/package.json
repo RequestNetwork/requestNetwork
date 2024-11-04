@@ -82,7 +82,7 @@
     "ethereum-waffle": "4.0.10",
     "ethers": "5.7.2",
     "ganache-cli": "6.12.0",
-    "hardhat": "2.12.0",
+    "hardhat": "2.22.15",
     "solhint": "3.3.6",
     "typechain": "5.1.1",
     "web3": "1.7.3",
