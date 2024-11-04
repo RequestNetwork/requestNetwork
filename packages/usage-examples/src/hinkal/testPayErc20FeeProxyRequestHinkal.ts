@@ -22,7 +22,11 @@ void (async () => {
 
   // Create Request and submit private transfer
   const requestData = await createRequestForHinkal(payerWallet, PAYER_PRIVATE_KEY);
+  console.log('Request data created successfully');
   const tx = await payPrivateErc20FeeProxyRequest(requestData, payerWallet);
-  console.log('finish', { tx });
+  console.log('Private transaction submitted:', {
+    requestId: requestData.requestId,
+    relayerTx: tx,
+  });
   process.exit(0);
 })();

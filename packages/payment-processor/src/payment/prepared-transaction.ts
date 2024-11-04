@@ -8,7 +8,7 @@ export interface IPreparedTransaction {
 
 /** Interface for preparing private transactions using Hinkal middleware */
 export interface IPreparedPrivateTransaction {
-  /** Amount to pay in base units (wei or the smallest possible unit of ERC20 token) */
+  /** Amount to pay in base units (e.g., wei for ETH, smallest decimal unit for ERC20 tokens based on their decimals()) */
   amountToPay: bigint;
   /** ERC20 token contract address */
   tokenAddress: string;

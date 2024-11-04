@@ -9,7 +9,7 @@ import { Hinkal, exportEthersProvider, preProcessing } from '@hinkal/common';
  *
  * @param signer - The ethers.js Signer instance for transaction signing
  * @returns Promise<Hinkal<unknown>> - A configured Hinkal instance ready for private transactions
- * @throw If initialization of provider, user keys, or Merkle tree fails
+ * @throws If initialization of provider, user keys, or Merkle tree fails
  */
 export const prepareHinkal = async (signer: Signer): Promise<Hinkal<unknown>> => {
   await preProcessing();
