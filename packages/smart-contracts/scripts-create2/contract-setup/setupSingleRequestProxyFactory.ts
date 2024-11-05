@@ -3,8 +3,8 @@ import { singleRequestProxyFactoryArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import {
   getSignerAndGasFees,
-  updateERC20FeeProxyAddress,
-  updateEthereumFeeProxyAddress,
+  updateSRPFERC20FeeProxyAddress,
+  updateSRPFEthereumFeeProxyAddress,
 } from './adminTasks';
 
 /**
@@ -14,7 +14,7 @@ import {
  * @param hre Hardhat runtime environment
  * @param signWithEoa Are transactions to be signed by an EOA
  */
-export const setupSingleRequestProxyFactory = async ({
+export const setupSRPF = async ({
   contractAddress,
   hre,
   signWithEoa,
@@ -42,14 +42,14 @@ export const setupSingleRequestProxyFactory = async ({
         const { signer, txOverrides } = await getSignerAndGasFees(network, hre);
         const factoryConnected = factory.connect(signer);
 
-        await updateERC20FeeProxyAddress(
+        await updateSRPFERC20FeeProxyAddress(
           factoryConnected,
           network,
           txOverrides,
           signer,
           signWithEoa,
         );
-        await updateEthereumFeeProxyAddress(
+        await updateSRPFEthereumFeeProxyAddress(
           factoryConnected,
           network,
           txOverrides,

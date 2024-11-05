@@ -420,7 +420,7 @@ export const getSignerAndGasFees = async (
  * @param signer Who is performing the updating
  * @param signWithEoa Is the transaction to be signed by an EOA
  */
-export const updateERC20FeeProxyAddress = async (
+export const updateSRPFERC20FeeProxyAddress = async (
   contract: Contract,
   network: CurrencyTypes.EvmChainName,
   txOverrides: Overrides,
@@ -454,7 +454,7 @@ export const updateERC20FeeProxyAddress = async (
  * @param signer Who is performing the updating
  * @param signWithEoa Is the transaction to be signed by an EOA
  */
-export const updateEthereumFeeProxyAddress = async (
+export const updateSRPFEthereumFeeProxyAddress = async (
   contract: Contract,
   network: CurrencyTypes.EvmChainName,
   txOverrides: Overrides,
