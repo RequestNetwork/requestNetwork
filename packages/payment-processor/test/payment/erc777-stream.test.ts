@@ -201,7 +201,7 @@ describe('erc777-stream', () => {
         providerOrSigner: provider,
       });
       expect(paymentFlowRate).toBe(expectedFlowRate);
-    }, 20000);
+    });
 
     it('closeErc777StreamRequest should close an ERC777 request', async () => {
       let tx;
@@ -240,7 +240,7 @@ describe('erc777-stream', () => {
         providerOrSigner: provider,
       });
       expect(paymentFlowRate).toBe('0');
-    }, 10000);
+    });
   });
 
   describe('makeErc777OneOffPayment', () => {
