@@ -307,11 +307,9 @@ describe('extensions/payment-network/any-to-native-token', () => {
           arbitraryTimestamp,
         );
 
-        expect(newExtensionState).toEqual(
-          extensionStateWithAnyToNativeTokenPaymentAndRefundTGExtension,
-        );
+        expect(newExtensionState).toEqual(extensionStateWithAnyToNativeTokenPaymentAndRefund);
       });
-      it('throws when payment address extension is .tg', () => {
+      it('works when payment address extension is .tg', () => {
         const tgAddress = 'pay.tg';
         creationAction.parameters.paymentAddress = tgAddress;
 
@@ -323,7 +321,9 @@ describe('extensions/payment-network/any-to-native-token', () => {
           arbitraryTimestamp,
         );
 
-        expect(newExtensionState).toEqual(extensionStateWithAnyToNativeTokenPaymentAndRefund);
+        expect(newExtensionState).toEqual(
+          extensionStateWithAnyToNativeTokenPaymentAndRefundTGExtension,
+        );
       });
       it('throws when currency is not supported', () => {
         const invalidRequestState: typeof requestStateNoExtensions = {
