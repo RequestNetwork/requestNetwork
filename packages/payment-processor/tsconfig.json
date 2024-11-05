@@ -5,6 +5,6 @@
   "compilerOptions": {
     // workaround to fix conflict between `@types/mocha` and `@types/jest`
     // https://github.com/microsoft/TypeScript/issues/11437#issuecomment-252381205
-    "typeRoots": ["overrides", "node_modules/@types"]
+    "typeRoots": ["../../types-overrides", "node_modules/@types"]
   }
 }

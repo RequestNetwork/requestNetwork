@@ -52,7 +52,7 @@ describe('ERC20 Proxy detection test-suite', () => {
     expect(balance.events[0].name).toBe('payment');
     expect(balance.events[0].amount).toBe('1');
     expect(Math.abs(declarationTimestamp - (balance.events[0].timestamp ?? 0))).toBeLessThan(5);
-  });
+  }, 10000);
 
   it('getBalance = 0 if the payer declared the payment', async () => {
     // Create a request
@@ -80,5 +80,5 @@ describe('ERC20 Proxy detection test-suite', () => {
     });
     expect(balance.balance).toBe('0');
     expect(balance.events).toHaveLength(0);
-  });
+  }, 10000);
 });

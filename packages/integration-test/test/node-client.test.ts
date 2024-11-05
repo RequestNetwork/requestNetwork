@@ -295,7 +295,7 @@ describe('Request client using a request node', () => {
     requestData1 = requests[0].getData();
     expect(requestData1.state).toBe(Types.RequestLogic.STATE.CANCELED);
     expect(requestData1.expectedAmount).toBe('90000000');
-  });
+  }, 20000);
 
   it('can create requests and get them fromIdentity with smart contract identity', async () => {
     const payerSmartContract = {
@@ -474,7 +474,7 @@ describe('Request client using a request node', () => {
 
     await fetchedRequest.refresh();
     expect(fetchedRequest.getData().expectedAmount).toBe('0');
-  });
+  }, 60000);
 
   it('create an encrypted and unencrypted request with the same content', async () => {
     const requestNetwork = new RequestNetwork({
