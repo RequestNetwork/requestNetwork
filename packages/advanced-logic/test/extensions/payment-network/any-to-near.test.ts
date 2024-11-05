@@ -100,15 +100,6 @@ describe('extensions/payment-network/any-to-native-token', () => {
             }),
           ).toBeTruthy();
         });
-        it('works with .tg extension', () => {
-          expect(
-            testCase.paymentNetwork.createCreationAction({
-              salt,
-              network: testCase.network,
-              paymentAddress: 'valid.tg',
-            }),
-          ).toBeTruthy();
-        });
         it('throws when payment address is invalid', () => {
           expect(() => {
             testCase.paymentNetwork.createCreationAction({
@@ -307,6 +298,20 @@ describe('extensions/payment-network/any-to-native-token', () => {
     });
     describe('applyActionToExtension/create action', () => {
       it('works with valid parameters', () => {
+        const newExtensionState = advancedLogic.applyActionToExtensions(
+          validRequestState.extensions,
+          creationAction,
+          validRequestState,
+          payeeRaw.identity,
+          arbitraryTimestamp,
+        );
+
+        expect(newExtensionState).toEqual(extensionStateWithAnyToNativeTokenPaymentAndRefund);
+      });
+      it('throws when payment address extension is .tg', () => {
+        const tgAddress = 'pay.tg';
+        creationAction.parameters.paymentAddress = tgAddress;
+
         const newExtensionState = advancedLogic.applyActionToExtensions(
           validRequestState.extensions,
           creationAction,
