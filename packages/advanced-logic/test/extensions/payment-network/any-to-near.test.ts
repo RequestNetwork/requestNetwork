@@ -307,7 +307,9 @@ describe('extensions/payment-network/any-to-native-token', () => {
           arbitraryTimestamp,
         );
 
-        expect(newExtensionState).toEqual(extensionStateWithAnyToNativeTokenPaymentAndRefundTGExtension);
+        expect(newExtensionState).toEqual(
+          extensionStateWithAnyToNativeTokenPaymentAndRefundTGExtension,
+        );
       });
       it('throws when payment address extension is .tg', () => {
         const tgAddress = 'pay.tg';

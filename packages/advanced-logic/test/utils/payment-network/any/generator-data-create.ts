@@ -282,7 +282,7 @@ export const extensionStateWithAnyToNativeTokenPaymentAndRefund: RequestLogicTyp
       version: '0.1.0',
     },
   };
-  export const extensionStateWithAnyToNativeTokenPaymentAndRefundTGExtension: RequestLogicTypes.IExtensionStates =
+export const extensionStateWithAnyToNativeTokenPaymentAndRefundTGExtension: RequestLogicTypes.IExtensionStates =
   {
     [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN as string]: {
       events: [
