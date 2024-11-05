@@ -5,6 +5,7 @@ import { setupERC20SwapToConversion } from './setupERC20SwapToConversion';
 import { setupERC20SwapToPay } from './setupERC20SwapToPay';
 import { setupChainlinkConversionPath } from './setupChainlinkConversionPath';
 import { setupErc20ConversionProxy } from './setupErc20ConversionProxy';
+import { setupSRPF } from './setupSingleRequestProxyFactory';
 
 /**
  * Administrate the specified contract at the specified address
@@ -48,6 +49,10 @@ export const setupContract = async ({
     }
     case 'BatchConversionPayments': {
       await setupBatchConversionPayments({ contractAddress, hre, signWithEoa });
+      break;
+    }
+    case 'SingleRequestProxyFactory': {
+      await setupSRPF({ contractAddress, hre, signWithEoa });
       break;
     }
     default: {
