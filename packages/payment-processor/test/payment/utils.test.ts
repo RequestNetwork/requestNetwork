@@ -110,7 +110,7 @@ describe('getNetworkProvider', () => {
     });
   };
 
-  testProvider('rinkeby');
+  testProvider('sepolia');
   testProvider('goerli');
 
   it('fails for other network', () => {

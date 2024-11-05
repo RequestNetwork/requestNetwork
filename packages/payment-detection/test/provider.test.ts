@@ -22,7 +22,7 @@ describe('getDefaultProvider', () => {
     });
   };
 
-  testSuite('rinkeby', 4);
+  testSuite('sepolia', 11155111);
   testSuite('goerli', 5);
 
   it('Can take a private network', async () => {
