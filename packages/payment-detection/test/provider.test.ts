@@ -70,8 +70,8 @@ describe('getDefaultProvider', () => {
       'http://fakenet.fake',
     );
     // still works for standard providers
-    expect((getDefaultProvider('amoy') as providers.JsonRpcProvider).connection.url).toMatch(
-      /https:\/\/amoy\.infura.*/,
+    expect((getDefaultProvider('maticmum') as providers.JsonRpcProvider).connection.url).toMatch(
+      /https:\/\/polygon-mumbai\.infura.*/,
     );
   });
 
