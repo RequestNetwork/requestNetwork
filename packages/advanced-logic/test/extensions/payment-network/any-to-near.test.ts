@@ -100,6 +100,15 @@ describe('extensions/payment-network/any-to-native-token', () => {
             }),
           ).toBeTruthy();
         });
+        it('works with .tg extension', () => {
+          expect(
+            testCase.paymentNetwork.createCreationAction({
+              salt,
+              network: testCase.network,
+              paymentAddress: 'valid.tg',
+            }),
+          ).toBeTruthy();
+        });
         it('throws when payment address is invalid', () => {
           expect(() => {
             testCase.paymentNetwork.createCreationAction({
