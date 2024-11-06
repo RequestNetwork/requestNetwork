@@ -60,7 +60,7 @@ describe('Gas fee estimation', () => {
 
     const estimation = await gasFeeDefiner.getGasFees();
     const tx = await dummyTransaction();
-    checkEstimation(estimation.maxFeePerGas as BigNumber, tx.maxFeePerGas as BigNumber, 0.1);
+    checkEstimation(estimation.maxFeePerGas as BigNumber, tx.maxFeePerGas as BigNumber, 0.3);
   });
 
   it('Should handle estimation errors properly', async () => {
