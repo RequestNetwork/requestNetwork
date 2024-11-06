@@ -73,11 +73,10 @@ describe('getDefaultProvider', () => {
     expect((getDefaultProvider('maticmum') as providers.JsonRpcProvider).connection.url).toMatch(
       /https:\/\/polygon-mumbai\.infura.*/,
     );
+    expect((getDefaultProvider('sepolia') as providers.JsonRpcProvider).connection.url).toMatch(
+      /https:\/\/rpc.sepolia\.org.*/,
+    );
   });
-
-  expect((getDefaultProvider('sepolia') as providers.JsonRpcProvider).connection.url).toMatch(
-    /https:\/\/rpc.sepolia\.org.*/,
-  );
 });
 
 it('Can override the api key for a standard provider', async () => {
