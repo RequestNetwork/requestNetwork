@@ -43,18 +43,9 @@ export default class LitProvider implements CypherProviderTypes.ICypherProvider 
     chain: string,
     dataAccess: DataAccessTypes.IDataAccess,
   ) {
-    if (
-      litClient instanceof LitJsSdk.LitNodeClient ||
-      litClient instanceof LitJsSdk.LitNodeClientNodeJs
-    ) {
-      this.client = litClient;
-      this.chain = chain;
-      this.dataAccess = dataAccess;
-    } else {
-      throw new Error(
-        'Invalid Lit client provided. Must be an instance of LitNodeClient or LitNodeClientNodeJs.',
-      );
-    }
+    this.client = litClient;
+    this.chain = chain;
+    this.dataAccess = dataAccess;
   }
 
   /**
