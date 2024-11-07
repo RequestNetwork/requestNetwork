@@ -46,13 +46,13 @@
     "@requestnetwork/types": "0.45.0",
     "@requestnetwork/utils": "0.45.0",
     "@superfluid-finance/sdk-core": "0.5.0",
-    "ethers": "5.5.1",
+    "ethers": "5.7.2",
     "near-api-js": "4.0.2",
     "tslib": "2.5.0"
   },
   "devDependencies": {
-    "@types/jest": "29.5.6",
-    "jest": "29.5.0",
+    "@types/jest": "29.5.14",
+    "jest": "29.7.0",
     "jest-junit": "16.0.0",
     "source-map-support": "0.5.19",
     "ts-jest": "29.1.0",

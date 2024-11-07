@@ -1,7 +1,7 @@
 import { chainlinkConversionPath } from '../../src/lib';
 import { uniswapV2RouterAddresses } from '../../scripts/utils';
 import * as artifacts from '../../src/lib';
-import { BigNumber, Overrides, Wallet, Contract } from 'ethers';
+import { BigNumber, Overrides, Wallet, Contract, ethers } from 'ethers';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import { parseUnits } from 'ethers/lib/utils';
 import {
@@ -410,4 +410,74 @@ export const getSignerAndGasFees = async (
     signer,
     txOverrides,
   };
+};
+
+/**
+ * Updates the ERC20 fee proxy address in the SingleRequestProxyFactory contract
+ * @param contract SingleRequestProxyFactory contract
+ * @param network The network used
+ * @param txOverrides information related to gas fees
+ * @param signer Who is performing the updating
+ * @param signWithEoa Is the transaction to be signed by an EOA
+ */
+export const updateSRPFERC20FeeProxyAddress = async (
+  contract: Contract,
+  network: CurrencyTypes.EvmChainName,
+  txOverrides: Overrides,
+  signer: Wallet,
+  signWithEoa: boolean,
+): Promise<void> => {
+  const erc20ProxyAddress = artifacts.erc20FeeProxyArtifact.getAddress(network);
+  const currentErc20Proxy = await contract.erc20FeeProxy();
+
+  if (ethers.utils.getAddress(currentErc20Proxy) !== ethers.utils.getAddress(erc20ProxyAddress)) {
+    await executeContractMethod({
+      network,
+      contract,
+      method: 'setERC20FeeProxy',
+      props: [erc20ProxyAddress],
+      txOverrides,
+      signer,
+      signWithEoa,
+    });
+    console.log(`Updated ERC20FeeProxy to ${erc20ProxyAddress} on ${network}`);
+  } else {
+    console.log(`ERC20FeeProxy is already set to ${erc20ProxyAddress} on ${network}`);
+  }
+};
+
+/**
+ * Updates the Ethereum fee proxy address in the SingleRequestProxyFactory contract
+ * @param contract SingleRequestProxyFactory contract
+ * @param network The network used
+ * @param txOverrides information related to gas fees
+ * @param signer Who is performing the updating
+ * @param signWithEoa Is the transaction to be signed by an EOA
+ */
+export const updateSRPFEthereumFeeProxyAddress = async (
+  contract: Contract,
+  network: CurrencyTypes.EvmChainName,
+  txOverrides: Overrides,
+  signer: Wallet,
+  signWithEoa: boolean,
+): Promise<void> => {
+  const ethereumProxyAddress = artifacts.ethereumFeeProxyArtifact.getAddress(network);
+  const currentEthereumProxy = await contract.ethereumFeeProxy();
+
+  if (
+    ethers.utils.getAddress(currentEthereumProxy) !== ethers.utils.getAddress(ethereumProxyAddress)
+  ) {
+    await executeContractMethod({
+      network,
+      contract,
+      method: 'setEthereumFeeProxy',
+      props: [ethereumProxyAddress],
+      txOverrides,
+      signer,
+      signWithEoa,
+    });
+    console.log(`Updated EthereumFeeProxy to ${ethereumProxyAddress} on ${network}`);
+  } else {
+    console.log(`EthereumFeeProxy is already set to ${ethereumProxyAddress} on ${network}`);
+  }
 };
