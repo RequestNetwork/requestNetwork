@@ -27,7 +27,7 @@ export const isValidNearAddress = (address: string, network?: string): boolean =
   switch (network) {
     case 'aurora':
     case 'near':
-      return !!address.match(/\.near$/);
+      return !!address.match(/\.(?:near|tg)$/);
     case 'aurora-testnet':
     case 'near-testnet':
       return !!address.match(/\.testnet$/);
