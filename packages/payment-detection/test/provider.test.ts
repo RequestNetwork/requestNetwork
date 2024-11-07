@@ -22,7 +22,7 @@ describe('getDefaultProvider', () => {
     });
   };
 
-  testSuite('rinkeby', 4);
+  testSuite('maticmum', 80001);
   testSuite('goerli', 5);
 
   it('Can take a private network', async () => {
@@ -70,14 +70,13 @@ describe('getDefaultProvider', () => {
       'http://fakenet.fake',
     );
     // still works for standard providers
-    expect((getDefaultProvider('amoy') as providers.JsonRpcProvider).connection.url).toMatch(
-      /https:\/\/amoy\.infura.*/,
+    expect((getDefaultProvider('maticmum') as providers.JsonRpcProvider).connection.url).toMatch(
+      /https:\/\/polygon-mumbai\.infura.*/,
+    );
+    expect((getDefaultProvider('sepolia') as providers.JsonRpcProvider).connection.url).toMatch(
+      /https:\/\/rpc.sepolia\.org.*/,
     );
   });
-
-  expect((getDefaultProvider('sepolia') as providers.JsonRpcProvider).connection.url).toMatch(
-    /https:\/\/rpc.sepolia\.org.*/,
-  );
 });
 
 it('Can override the api key for a standard provider', async () => {
