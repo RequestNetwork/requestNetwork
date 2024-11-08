@@ -17,6 +17,10 @@ export const singleRequestProxyFactoryArtifact = new ContractArtifact<SingleRequ
           address: '0xf8cACE7EE4c03Eb4f225434B0709527938D365b4',
           creationBlockNumber: 7038199,
         },
+        zksyncera: {
+          address: '0xC52F0f36b4f0Cdf55D4349640C32929c5E85Ab1a',
+          creationBlockNumber: 48467338,
+        },
       },
     },
   },
