@@ -220,7 +220,7 @@ describe('deploySingleRequestProxy', () => {
     expect(events.length).toBeGreaterThan(0);
 
     const eventData = utils.defaultAbiCoder.decode(
-      ['address', 'address', 'address', 'uint256', 'address'],
+      ['address', 'address', 'address', 'address', 'uint256', 'address'],
       events[0].data,
     );
 
