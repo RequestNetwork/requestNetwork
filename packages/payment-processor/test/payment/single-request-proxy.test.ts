@@ -170,9 +170,7 @@ describe('deploySingleRequestProxy', () => {
   it('should deploy EthereumSingleRequestProxy and emit event', async () => {
     const singleRequestProxyFactory = singleRequestProxyFactoryArtifact.connect('private', wallet);
 
-    const initialEventCount = await provider.getBlockNumber();
-
-    const walletAddress = await wallet.getAddress();
+    const initialBlock = await provider.getBlockNumber();
 
     const proxyAddress = await deploySingleRequestProxy(ethRequest, wallet);
 
@@ -183,7 +181,7 @@ describe('deploySingleRequestProxy', () => {
     const latestBlock = await provider.getBlockNumber();
     const events = await singleRequestProxyFactory.queryFilter(
       singleRequestProxyFactory.filters.EthereumSingleRequestProxyCreated(),
-      initialEventCount,
+      initialBlock,
       latestBlock,
     );
 
@@ -211,9 +209,7 @@ describe('deploySingleRequestProxy', () => {
   it('should deploy ERC20SingleRequestProxy and emit event', async () => {
     const singleRequestProxyFactory = singleRequestProxyFactoryArtifact.connect('private', wallet);
 
-    const initialEventCount = await provider.getBlockNumber();
-
-    const walletAddress = await wallet.getAddress();
+    const initialBlock = await provider.getBlockNumber();
 
     const proxyAddress = await deploySingleRequestProxy(erc20Request, wallet);
 
@@ -224,7 +220,7 @@ describe('deploySingleRequestProxy', () => {
     const latestBlock = await provider.getBlockNumber();
     const events = await singleRequestProxyFactory.queryFilter(
       singleRequestProxyFactory.filters.ERC20SingleRequestProxyCreated(),
-      initialEventCount,
+      initialBlock,
       latestBlock,
     );
 
