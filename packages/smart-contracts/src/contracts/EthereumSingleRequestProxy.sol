@@ -31,8 +31,8 @@ contract EthereumSingleRequestProxy {
     address _payee,
     bytes memory _paymentReference,
     address _feeAddress,
-    uint256 _feeAmount
-    address _ethereumFeeProxy,
+    uint256 _feeAmount,
+    address _ethereumFeeProxy
   ) {
     payee = _payee;
     paymentReference = _paymentReference;
