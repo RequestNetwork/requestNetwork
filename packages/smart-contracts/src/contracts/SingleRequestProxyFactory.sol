@@ -21,14 +21,20 @@ contract SingleRequestProxyFactory is Ownable {
   event EthereumSingleRequestProxyCreated(
     address proxyAddress,
     address payee,
-    bytes indexed paymentReference
+    bytes indexed paymentReference,
+    address feeAddress,
+    uint256 feeAmount,
+    address feeProxyUsed
   );
 
   event ERC20SingleRequestProxyCreated(
     address proxyAddress,
     address payee,
     address tokenAddress,
-    bytes indexed paymentReference
+    bytes indexed paymentReference,
+    address feeAddress,
+    uint256 feeAmount,
+    address feeProxyUsed
   );
 
   event ERC20FeeProxyUpdated(address indexed newERC20FeeProxy);
@@ -64,7 +70,14 @@ contract SingleRequestProxyFactory is Ownable {
       _feeAddress,
       _feeAmount
     );
-    emit EthereumSingleRequestProxyCreated(address(proxy), _payee, _paymentReference);
+    emit EthereumSingleRequestProxyCreated(
+      address(proxy),
+      _payee,
+      _paymentReference,
+      _feeAddress,
+      _feeAmount,
+      ethereumFeeProxy
+    );
     return address(proxy);
   }
 
@@ -93,7 +106,15 @@ contract SingleRequestProxyFactory is Ownable {
       erc20FeeProxy
     );
 
-    emit ERC20SingleRequestProxyCreated(address(proxy), _payee, _tokenAddress, _paymentReference);
+    emit ERC20SingleRequestProxyCreated(
+      address(proxy),
+      _payee,
+      _tokenAddress,
+      _paymentReference,
+      _feeAddress,
+      _feeAmount,
+      erc20FeeProxy
+    );
     return address(proxy);
   }
 

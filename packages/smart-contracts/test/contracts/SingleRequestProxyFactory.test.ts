@@ -83,10 +83,16 @@ describe('contract: SingleRequestProxyFactory', () => {
     expect(proxyAddress).to.not.equal(ethers.constants.AddressZero);
     expect(proxyAddress).to.be.properAddress;
 
-    // Check if the event was emitted with correct parameters
     await expect(tx)
       .to.emit(singleRequestProxyFactory, 'EthereumSingleRequestProxyCreated')
-      .withArgs(proxyAddress, payeeAddress, paymentReference);
+      .withArgs(
+        proxyAddress,
+        payeeAddress,
+        paymentReference,
+        feeRecipientAddress,
+        feeAmount,
+        ethereumFeeProxy.address,
+      );
 
     const proxy = (await ethers.getContractAt(
       'EthereumSingleRequestProxy',
@@ -119,10 +125,17 @@ describe('contract: SingleRequestProxyFactory', () => {
     expect(proxyAddress).to.not.equal(ethers.constants.AddressZero);
     expect(proxyAddress).to.be.properAddress;
 
-    // Check if the event was emitted with correct parameters
     await expect(tx)
       .to.emit(singleRequestProxyFactory, 'ERC20SingleRequestProxyCreated')
-      .withArgs(proxyAddress, payeeAddress, testToken.address, paymentReference);
+      .withArgs(
+        proxyAddress,
+        payeeAddress,
+        testToken.address,
+        paymentReference,
+        feeRecipientAddress,
+        feeAmount,
+        erc20FeeProxy.address,
+      );
 
     const proxy = (await ethers.getContractAt(
       'ERC20SingleRequestProxy',
