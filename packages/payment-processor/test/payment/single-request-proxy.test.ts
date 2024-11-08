@@ -204,6 +204,8 @@ describe('deploySingleRequestProxy', () => {
       ethRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT].values
         .feeAmount,
     );
+    const feeProxyUsed = await singleRequestProxyFactory.ethereumFeeProxy();
+    expect(eventData[4]).toBe(feeProxyUsed);
   });
 
   it('should deploy ERC20SingleRequestProxy and emit event', async () => {
@@ -244,6 +246,8 @@ describe('deploySingleRequestProxy', () => {
       erc20Request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT].values
         .feeAmount,
     );
+    const feeProxyUsed = await singleRequestProxyFactory.erc20FeeProxy();
+    expect(eventData[5]).toBe(feeProxyUsed);
   });
 
   it('should throw error when trying to pay with invalid single request proxy', async () => {
