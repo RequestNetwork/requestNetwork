@@ -189,7 +189,10 @@ describe('deploySingleRequestProxy', () => {
 
     expect(events.length).toBeGreaterThan(0);
 
-    const eventData = utils.defaultAbiCoder.decode(['address', 'address'], events[0].data);
+    const eventData = utils.defaultAbiCoder.decode(
+      ['address', 'address', 'address', 'uint256', 'address'],
+      events[0].data,
+    );
 
     expect(eventData[0]).toBe(proxyAddress);
   });
@@ -216,7 +219,10 @@ describe('deploySingleRequestProxy', () => {
 
     expect(events.length).toBeGreaterThan(0);
 
-    const eventData = utils.defaultAbiCoder.decode(['address', 'address'], events[0].data);
+    const eventData = utils.defaultAbiCoder.decode(
+      ['address', 'address', 'address', 'uint256', 'address'],
+      events[0].data,
+    );
 
     expect(eventData[0]).toBe(proxyAddress);
   });
