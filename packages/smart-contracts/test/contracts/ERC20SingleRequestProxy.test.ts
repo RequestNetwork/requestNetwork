@@ -47,9 +47,9 @@ describe('contract: ERC20SingleRequestProxy', () => {
     erc20SingleRequestProxy = await new ERC20SingleRequestProxy__factory(deployer).deploy(
       user2Addr,
       testToken.address,
+      paymentReference,
       feeRecipientAddr,
       feeAmount,
-      paymentReference,
       erc20FeeProxy.address,
     );
 
@@ -156,9 +156,9 @@ describe('contract: ERC20SingleRequestProxy', () => {
     const usdtProxy = await new ERC20SingleRequestProxy__factory(deployer).deploy(
       user2Addr,
       usdtFake.address,
+      paymentReference,
       feeRecipientAddr,
       usdtFeeAmount,
-      paymentReference,
       erc20FeeProxy.address,
     );
 
@@ -210,9 +210,9 @@ describe('contract: ERC20SingleRequestProxy', () => {
     const zeroFeeProxy = await new ERC20SingleRequestProxy__factory(deployer).deploy(
       user2Addr,
       testToken.address,
+      paymentReference,
       feeRecipientAddr,
       0,
-      paymentReference,
       erc20FeeProxy.address,
     );
 
