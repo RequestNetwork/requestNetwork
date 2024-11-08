@@ -14,8 +14,8 @@ export const singleRequestProxyFactoryArtifact = new ContractArtifact<SingleRequ
           creationBlockNumber: 0,
         },
         sepolia: {
-          address: '0x435E81E12136414e2c09cAFe05E902E23bD46030',
-          creationBlockNumber: 6965557,
+          address: '0xf8cACE7EE4c03Eb4f225434B0709527938D365b4',
+          creationBlockNumber: 7038199,
         },
       },
     },

@@ -91,13 +91,17 @@ export async function deploySingleRequestProxy(
 
   const receipt = await tx.wait();
 
-  const event = receipt.events?.[0];
+  const event = receipt.events?.find(
+    (e) =>
+      e.event ===
+      (isERC20 ? 'ERC20SingleRequestProxyCreated' : 'EthereumSingleRequestProxyCreated'),
+  );
 
   if (!event) {
     throw new Error('Single request proxy creation event not found');
   }
 
-  const proxyAddress = ethers.utils.defaultAbiCoder.decode(['address', 'address'], event.data)[0];
+  const proxyAddress = event.args?.proxyAddress || event.args?.[0];
 
   if (!proxyAddress) {
     throw new Error('Proxy address not found in event data');

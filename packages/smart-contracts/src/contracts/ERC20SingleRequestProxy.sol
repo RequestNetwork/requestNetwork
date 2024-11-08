@@ -13,24 +13,24 @@ import './lib/SafeERC20.sol';
 contract ERC20SingleRequestProxy {
   address public payee;
   address public tokenAddress;
+  bytes public paymentReference;
   address public feeAddress;
   uint256 public feeAmount;
-  bytes public paymentReference;
   IERC20FeeProxy public erc20FeeProxy;
 
   constructor(
     address _payee,
     address _tokenAddress,
+    bytes memory _paymentReference,
     address _feeAddress,
     uint256 _feeAmount,
-    bytes memory _paymentReference,
     address _erc20FeeProxy
   ) {
     payee = _payee;
     tokenAddress = _tokenAddress;
+    paymentReference = _paymentReference;
     feeAddress = _feeAddress;
     feeAmount = _feeAmount;
-    paymentReference = _paymentReference;
     erc20FeeProxy = IERC20FeeProxy(_erc20FeeProxy);
   }
 

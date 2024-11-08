@@ -30,9 +30,9 @@ describe('contract : EthereumSingleRequestProxy', () => {
     ethereumSingleRequestProxy = await ethereumSingleRequestProxyFactory.deploy(
       payeeAddress,
       paymentReference,
-      ethereumFeeProxy.address,
       feeRecipientAddress,
       feeAmount,
+      ethereumFeeProxy.address,
     );
     await ethereumSingleRequestProxy.deployed();
   });
@@ -87,9 +87,9 @@ describe('contract : EthereumSingleRequestProxy', () => {
     const newEthereumSingleRequestProxy = await newEthereumSingleRequestProxyFactory.deploy(
       payeeAddress,
       paymentReference,
-      mockEthereumFeeProxy.address,
       feeRecipientAddress,
       feeAmount,
+      mockEthereumFeeProxy.address,
     );
     await newEthereumSingleRequestProxy.deployed();
 
