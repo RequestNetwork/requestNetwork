@@ -195,6 +195,15 @@ describe('deploySingleRequestProxy', () => {
     );
 
     expect(eventData[0]).toBe(proxyAddress);
+    expect(eventData[1]).toBe(ethRequest.payee?.value);
+    expect(eventData[2]).toBe(
+      ethRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT].values
+        .feeAddress,
+    );
+    expect(eventData[3]).toBe(
+      ethRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT].values
+        .feeAmount,
+    );
   });
 
   it('should deploy ERC20SingleRequestProxy and emit event', async () => {
@@ -225,6 +234,16 @@ describe('deploySingleRequestProxy', () => {
     );
 
     expect(eventData[0]).toBe(proxyAddress);
+    expect(eventData[1]).toBe(erc20Request.payee?.value);
+    expect(eventData[2]).toBe(erc20Request.currencyInfo.value);
+    expect(eventData[3]).toBe(
+      erc20Request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT].values
+        .feeAddress,
+    );
+    expect(eventData[4]).toBe(
+      erc20Request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT].values
+        .feeAmount,
+    );
   });
 
   it('should throw error when trying to pay with invalid single request proxy', async () => {

@@ -66,9 +66,9 @@ contract SingleRequestProxyFactory is Ownable {
     EthereumSingleRequestProxy proxy = new EthereumSingleRequestProxy(
       _payee,
       _paymentReference,
-      ethereumFeeProxy,
       _feeAddress,
-      _feeAmount
+      _feeAmount,
+      ethereumFeeProxy
     );
     emit EthereumSingleRequestProxyCreated(
       address(proxy),
@@ -100,9 +100,9 @@ contract SingleRequestProxyFactory is Ownable {
     ERC20SingleRequestProxy proxy = new ERC20SingleRequestProxy(
       _payee,
       _tokenAddress,
+      _paymentReference,
       _feeAddress,
       _feeAmount,
-      _paymentReference,
       erc20FeeProxy
     );
 
