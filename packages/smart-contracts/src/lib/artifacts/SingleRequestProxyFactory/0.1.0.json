@@ -60,6 +60,24 @@
           "internalType": "bytes",
           "name": "paymentReference",
           "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "feeAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "feeAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "feeProxyUsed",
+          "type": "address"
         }
       ],
       "name": "ERC20SingleRequestProxyCreated",
@@ -98,6 +116,24 @@
           "internalType": "bytes",
           "name": "paymentReference",
           "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "feeAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "feeAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "feeProxyUsed",
+          "type": "address"
         }
       ],
       "name": "EthereumSingleRequestProxyCreated",

@@ -187,23 +187,19 @@ describe('deploySingleRequestProxy', () => {
 
     expect(events.length).toBeGreaterThan(0);
 
-    const eventData = utils.defaultAbiCoder.decode(
-      ['address', 'address', 'address', 'uint256', 'address'],
-      events[0].data,
-    );
-
-    expect(eventData[0]).toBe(proxyAddress);
-    expect(eventData[1]).toBe(ethRequest.payee?.value);
-    expect(eventData[2]).toBe(
+    const event = events[0];
+    expect(event.args?.proxyAddress).toBe(proxyAddress);
+    expect(event.args?.payee).toBe(ethRequest.payee?.value);
+    expect(event.args?.feeAddress).toBe(
       ethRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT].values
         .feeAddress,
     );
-    expect(eventData[3]).toBe(
+    expect(event.args?.feeAmount.toString()).toBe(
       ethRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT].values
         .feeAmount,
     );
     const feeProxyUsed = await singleRequestProxyFactory.ethereumFeeProxy();
-    expect(eventData[4]).toBe(feeProxyUsed);
+    expect(event.args?.feeProxyUsed).toBe(feeProxyUsed);
   });
 
   it('should deploy ERC20SingleRequestProxy and emit event', async () => {
@@ -226,24 +222,20 @@ describe('deploySingleRequestProxy', () => {
 
     expect(events.length).toBeGreaterThan(0);
 
-    const eventData = utils.defaultAbiCoder.decode(
-      ['address', 'address', 'address', 'address', 'uint256', 'address'],
-      events[0].data,
-    );
-
-    expect(eventData[0]).toBe(proxyAddress);
-    expect(eventData[1]).toBe(erc20Request.payee?.value);
-    expect(eventData[2]).toBe(erc20Request.currencyInfo.value);
-    expect(eventData[3]).toBe(
+    const event = events[0];
+    expect(event.args?.proxyAddress).toBe(proxyAddress);
+    expect(event.args?.payee).toBe(erc20Request.payee?.value);
+    expect(event.args?.tokenAddress).toBe(erc20Request.currencyInfo.value);
+    expect(event.args?.feeAddress).toBe(
       erc20Request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT].values
         .feeAddress,
     );
-    expect(eventData[4]).toBe(
+    expect(event.args?.feeAmount.toString()).toBe(
       erc20Request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT].values
         .feeAmount,
     );
     const feeProxyUsed = await singleRequestProxyFactory.erc20FeeProxy();
-    expect(eventData[5]).toBe(feeProxyUsed);
+    expect(event.args?.feeProxyUsed).toBe(feeProxyUsed);
   });
 
   it('should throw error when trying to pay with invalid single request proxy', async () => {
