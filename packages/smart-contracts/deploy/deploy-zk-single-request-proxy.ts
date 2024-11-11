@@ -7,9 +7,9 @@ import { erc20FeeProxyArtifact, ethereumFeeProxyArtifact } from '../src/lib';
 export default async function () {
   console.log('Deploying SingleRequestProxyFactory to zkSync ...');
 
-  const ownerAdddress = process.env.ADMIN_WALLET_ADDRESS;
+  const ownerAddress = process.env.ADMIN_WALLET_ADDRESS;
 
-  if (!ownerAdddress) {
+  if (!ownerAddress) {
     throw new Error('ADMIN_WALLET_ADDRESS is not set');
   }
 
@@ -19,6 +19,6 @@ export default async function () {
   await deployContract('SingleRequestProxyFactory', [
     ethereumFeeProxy,
     erc20FeeProxy,
-    ownerAdddress,
+    ownerAddress,
   ]);
 }
