@@ -13,8 +13,8 @@ export default async function () {
     throw new Error('ADMIN_WALLET_ADDRESS is not set');
   }
 
-  const ethereumFeeProxy = erc20FeeProxyArtifact.getAddress('zksyncera');
-  const erc20FeeProxy = ethereumFeeProxyArtifact.getAddress('zksyncera');
+  const ethereumFeeProxy = ethereumFeeProxyArtifact.getAddress('zksyncera');
+  const erc20FeeProxy = erc20FeeProxyArtifact.getAddress('zksyncera');
 
   await deployContract('SingleRequestProxyFactory', [
     ethereumFeeProxy,
