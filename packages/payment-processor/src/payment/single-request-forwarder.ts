@@ -241,7 +241,7 @@ export async function payWithEthereumSingleRequestForwarder(
  * @remarks
  * This function supports both ERC20 and Ethereum payments.
  * For ERC20 payments, it first transfers the tokens to the forwarder contract and then triggers the payment.
- * For Ethereum payments, it directly sends the Ether to the proxy contract.
+ * For Ethereum payments, it directly sends the Ether to the forwarder contract.
  * The function automatically detects whether the proxy is for ERC20 or Ethereum based on the contract interface.
  */
 export async function payRequestWithSingleRequestForwarder(

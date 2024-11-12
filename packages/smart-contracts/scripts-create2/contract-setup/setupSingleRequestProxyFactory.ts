@@ -31,7 +31,7 @@ export const setupSRPF = async ({
           contractAddress = singleRequestForwarderFactoryArtifact.getAddress(network);
         }
         if (!contractAddress) {
-          console.warn(`Missing SingleRequestProxyFactory deployment on ${network}`);
+          console.warn(`Missing SingleRequestForwarderFactory deployment on ${network}`);
           return;
         }
 
@@ -57,10 +57,10 @@ export const setupSRPF = async ({
           signWithEoa,
         );
 
-        console.log(`Setup of SingleRequestProxyFactory successful on ${network}`);
+        console.log(`Setup of SingleRequestForwarderFactory successful on ${network}`);
       } catch (err) {
         console.warn(
-          `An error occurred during the setup of SingleRequestProxyFactory on ${network}`,
+          `An error occurred during the setup of SingleRequestForwarderFactory on ${network}`,
         );
         console.warn(err);
       }
