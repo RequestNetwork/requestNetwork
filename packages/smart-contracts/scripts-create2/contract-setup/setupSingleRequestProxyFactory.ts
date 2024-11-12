@@ -1,5 +1,5 @@
 import { EvmChains } from '@requestnetwork/currency';
-import { singleRequestProxyFactoryArtifact } from '../../src/lib';
+import { singleRequestForwarderFactoryArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import {
   getSignerAndGasFees,
@@ -28,16 +28,16 @@ export const setupSRPF = async ({
       try {
         EvmChains.assertChainSupported(network);
         if (!contractAddress) {
-          contractAddress = singleRequestProxyFactoryArtifact.getAddress(network);
+          contractAddress = singleRequestForwarderFactoryArtifact.getAddress(network);
         }
         if (!contractAddress) {
-          console.warn(`Missing SingleRequestProxyFactory deployment on ${network}`);
+          console.warn(`Missing SingleRequestForwarderFactory deployment on ${network}`);
           return;
         }
 
         const factory = new hre.ethers.Contract(
           contractAddress,
-          singleRequestProxyFactoryArtifact.getContractAbi(),
+          singleRequestForwarderFactoryArtifact.getContractAbi(),
         );
         const { signer, txOverrides } = await getSignerAndGasFees(network, hre);
         const factoryConnected = factory.connect(signer);
@@ -57,10 +57,10 @@ export const setupSRPF = async ({
           signWithEoa,
         );
 
-        console.log(`Setup of SingleRequestProxyFactory successful on ${network}`);
+        console.log(`Setup of SingleRequestForwarderFactory successful on ${network}`);
       } catch (err) {
         console.warn(
-          `An error occurred during the setup of SingleRequestProxyFactory on ${network}`,
+          `An error occurred during the setup of SingleRequestForwarderFactory on ${network}`,
         );
         console.warn(err);
       }

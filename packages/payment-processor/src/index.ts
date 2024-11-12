@@ -27,7 +27,7 @@ export * from './payment/encoder-approval';
 export * as Escrow from './payment/erc20-escrow-payment';
 export * from './payment/prepared-transaction';
 export * from './payment/utils-near';
-export * from './payment/single-request-proxy';
+export * from './payment/single-request-forwarder';
 
 import * as utils from './payment/utils';
 
