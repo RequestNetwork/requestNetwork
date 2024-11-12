@@ -138,7 +138,7 @@ describe('deploySingleRequestProxy', () => {
     const invalidRequestWithoutNetwork = { ...ethRequest, currencyInfo: {} };
 
     await expect(
-      // @ts-expect-error: invalid request
+      // @ts-expect-error: Request with empty currencyInfo
       deploySingleRequestForwarder(invalidRequestWithoutNetwork, wallet),
     ).rejects.toThrow('Payment chain not found');
   });
