@@ -308,7 +308,7 @@ describe('payWithEthereumSingleRequestProxy', () => {
 
     await expect(
       payWithEthereumSingleRequestForwarder(proxyAddress, wallet, '1000'),
-    ).rejects.toThrow('Contract is not an EthereumSingleRequestProxy');
+    ).rejects.toThrow('Contract is not an EthereumSingleRequestForwarder');
   });
 
   it('should successfully pay with ETH', async () => {
@@ -338,7 +338,7 @@ describe('payWithERC20SingleRequestProxy', () => {
     const proxyAddress = await deploySingleRequestForwarder(ethRequest, wallet);
 
     await expect(payWithERC20SingleRequestForwarder(proxyAddress, wallet, '1000')).rejects.toThrow(
-      'Contract is not an ERC20SingleRequestProxy',
+      'Contract is not an ERC20SingleRequestForwarder',
     );
   });
 
