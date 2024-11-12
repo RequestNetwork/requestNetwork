@@ -94,7 +94,7 @@ export async function deploySingleRequestForwarder(
   const event = receipt.events?.find(
     (e: ethers.Event) =>
       e.event ===
-      (isERC20 ? 'ERC20SingleRequestForwarderCreated' : 'EthereumSingleRequestForwarderCreated'),
+      (isERC20 ? 'ERC20SingleRequestProxyCreated' : 'EthereumSingleRequestProxyCreated'),
   );
 
   if (!event) {
