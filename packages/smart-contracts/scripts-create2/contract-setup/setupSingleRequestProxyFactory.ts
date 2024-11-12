@@ -1,5 +1,5 @@
 import { EvmChains } from '@requestnetwork/currency';
-import { singleRequestProxyFactoryArtifact } from '../../src/lib';
+import { singleRequestForwarderFactoryArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import {
   getSignerAndGasFees,
@@ -28,7 +28,7 @@ export const setupSRPF = async ({
       try {
         EvmChains.assertChainSupported(network);
         if (!contractAddress) {
-          contractAddress = singleRequestProxyFactoryArtifact.getAddress(network);
+          contractAddress = singleRequestForwarderFactoryArtifact.getAddress(network);
         }
         if (!contractAddress) {
           console.warn(`Missing SingleRequestProxyFactory deployment on ${network}`);
@@ -37,7 +37,7 @@ export const setupSRPF = async ({
 
         const factory = new hre.ethers.Contract(
           contractAddress,
-          singleRequestProxyFactoryArtifact.getContractAbi(),
+          singleRequestForwarderFactoryArtifact.getContractAbi(),
         );
         const { signer, txOverrides } = await getSignerAndGasFees(network, hre);
         const factoryConnected = factory.connect(signer);
