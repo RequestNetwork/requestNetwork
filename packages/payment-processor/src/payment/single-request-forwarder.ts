@@ -190,7 +190,7 @@ export async function payWithERC20SingleRequestForwarder(
  * @param forwarderAddress - The address of the SingleRequestForwarder contract
  * @param signer - The Ethereum signer used to execute the payment transaction
  * @param amount - The amount to be paid
- * @throws {Error} If the contract is an EthereumSingleRequestForwarder
+ * @throws {Error} If the contract is not an EthereumSingleRequestForwarder
  */
 export async function payWithEthereumSingleRequestForwarder(
   forwarderAddress: string,
