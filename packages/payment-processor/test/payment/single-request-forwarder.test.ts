@@ -1,4 +1,4 @@
-import { singleRequestProxyFactoryArtifact } from '@requestnetwork/smart-contracts';
+import { singleRequestForwarderFactoryArtifact } from '@requestnetwork/smart-contracts';
 import { TestERC20__factory } from '@requestnetwork/smart-contracts/types';
 import {
   ClientTypes,
@@ -138,6 +138,7 @@ describe('deploySingleRequestProxy', () => {
     const invalidRequestWithoutNetwork = { ...ethRequest, currencyInfo: {} };
 
     await expect(
+      // @ts-expect-error: invalid request
       deploySingleRequestForwarder(invalidRequestWithoutNetwork, wallet),
     ).rejects.toThrow('Payment chain not found');
   });
@@ -167,7 +168,10 @@ describe('deploySingleRequestProxy', () => {
   });
 
   it('should deploy EthereumSingleRequestProxy and emit event', async () => {
-    const singleRequestProxyFactory = singleRequestProxyFactoryArtifact.connect('private', wallet);
+    const singleRequestProxyFactory = singleRequestForwarderFactoryArtifact.connect(
+      'private',
+      wallet,
+    );
 
     const initialBlock = await provider.getBlockNumber();
 
@@ -202,7 +206,10 @@ describe('deploySingleRequestProxy', () => {
   });
 
   it('should deploy ERC20SingleRequestProxy and emit event', async () => {
-    const singleRequestProxyFactory = singleRequestProxyFactoryArtifact.connect('private', wallet);
+    const singleRequestProxyFactory = singleRequestForwarderFactoryArtifact.connect(
+      'private',
+      wallet,
+    );
 
     const initialBlock = await provider.getBlockNumber();
 
