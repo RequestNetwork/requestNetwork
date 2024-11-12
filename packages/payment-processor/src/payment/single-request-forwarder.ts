@@ -47,7 +47,7 @@ export async function deploySingleRequestForwarder(
     signer,
   );
 
-  if (!singleRequestProxyFactory.address) {
+  if (!singleRequestForwarderFactory.address) {
     throw new Error(`SingleRequestForwarderFactory not found on chain ${paymentChain}`);
   }
 
@@ -111,10 +111,10 @@ export async function deploySingleRequestForwarder(
 }
 
 /**
- * Validates that a contract is a SingleRequestProxy by checking required methods
+ * Validates that a contract is a SingleRequestForwarder by checking required methods
  * @param proxyAddress - The address of the contract to validate
  * @param signer - The Ethereum signer used to interact with the contract
- * @throws {Error} If the contract is not a valid SingleRequestProxy
+ * @throws {Error} If the contract is not a valid SingleRequestForwarder
  */
 async function validateSingleRequestForwarder(
   forwarderAddress: string,
@@ -212,11 +212,11 @@ export async function payWithEthereumSingleRequestForwarder(
     await forwarderContract.tokenAddress();
 
     // If the token address is fetched, it means the contract is an ERC20SingleRequestForwarder.
-    throw new Error('Contract is not an EthereumSingleRequestProxy');
+    throw new Error('Contract is not an EthereumSingleRequestForwarder');
   } catch (error) {
-    // If the token address is not fetched, it means the contract is an EthereumSingleRequestProxy.
-    if (error.message === 'Contract is not an EthereumSingleRequestProxy') {
-      // If the error message is 'Contract is not an EthereumSingleRequestProxy', throw the error.
+    // If the token address is not fetched, it means the contract is an EthereumSingleRequestForwarder.
+    if (error.message === 'Contract is not an EthereumSingleRequestForwarder') {
+      // If the error message is 'Contract is not an EthereumSingleRequestForwarder', throw the error.
       throw error;
     }
   }
