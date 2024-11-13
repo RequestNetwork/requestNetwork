@@ -3,7 +3,6 @@ import {
   CypherProviderTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
-  EpkProviderTypes,
   IdentityTypes,
   SignatureProviderTypes,
   TransactionTypes,
@@ -139,17 +138,21 @@ export default class TransactionsParser {
     let channelKey = '';
     let channelKeyMethod: EncryptionTypes.METHOD | undefined;
 
-    if (
-      this.cypherProvider &&
-      !(this.cypherProvider instanceof (EpkProviderTypes as any).IEpkProvider)
-    ) {
+    if (this.cypherProvider) {
       if (
         encryptionMethod === `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`
       ) {
-        const { encryptResponse, encryptionParams } = JSON.parse(keys['kms']);
+        const entries = Object.entries(keys);
+        const encryptResponse = JSON.parse(MultiFormat.deserialize(entries[0][1]).value);
+        const encryptionParams = entries.map((entry) => {
+          return {
+            method: EncryptionTypes.METHOD.KMS,
+            key: entry[0],
+          };
+        });
 
         channelKey = await this.cypherProvider.decrypt(encryptResponse, {
-          signer: this.signatureProvider,
+          provider: this.signatureProvider,
           encryptionParams,
         });
         channelKeyMethod = EncryptionTypes.METHOD.AES256_GCM;

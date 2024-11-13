@@ -6,6 +6,7 @@ import {
   AccessControlConditions,
   EncryptResponse,
   AccsDefaultParams,
+  AuthSig,
 } from '@lit-protocol/types';
 
 import {
@@ -46,6 +47,7 @@ export default class LitProvider implements CypherProviderTypes.ICypherProvider 
     this.client = litClient;
     this.chain = chain;
     this.dataAccess = dataAccess;
+    void this.connect();
   }
 
   /**
@@ -57,11 +59,12 @@ export default class LitProvider implements CypherProviderTypes.ICypherProvider 
     await this.client.connect();
   }
 
-  private async getSessionSignatures(signer: any): Promise<SessionSigsMap> {
-    const walletAddress = await signer.getAddress();
+  private async getSessionSignatures(provider: any): Promise<SessionSigsMap> {
+    const signer = provider.web3Provider.getSigner();
+    const walletAddress = signer.provider.provider.account.address;
 
-    const capacityDelegationAuthSig =
-      await this.dataAccess.getLitCapacityDelegationAuthSig?.(walletAddress);
+    const capacityDelegationAuthSig: AuthSig =
+      (await this.dataAccess.getLitCapacityDelegationAuthSig?.(walletAddress)) || ({} as AuthSig);
 
     // Get the latest blockhash
     const latestBlockhash = await this.client.getLatestBlockhash();
@@ -104,6 +107,7 @@ export default class LitProvider implements CypherProviderTypes.ICypherProvider 
     // Get the session signatures
     const sessionSigs = await this.client.getSessionSigs({
       chain: this.chain,
+      capabilityAuthSigs: [capacityDelegationAuthSig],
       resourceAbilityRequests: [
         {
           resource: litResource,
@@ -111,7 +115,6 @@ export default class LitProvider implements CypherProviderTypes.ICypherProvider 
         },
       ],
       authNeededCallback,
-      capacityDelegationAuthSig,
     });
     return sessionSigs;
   }
@@ -169,8 +172,6 @@ export default class LitProvider implements CypherProviderTypes.ICypherProvider 
       encryptionParams: EncryptionTypes.IEncryptionParameters[];
     },
   ): Promise<EncryptResponse> {
-    await this.connect();
-
     const stringifiedData = typeof data === 'string' ? data : JSON.stringify(data);
 
     const accessControlConditions = await this.getLitAccessControlConditions(
@@ -200,27 +201,30 @@ export default class LitProvider implements CypherProviderTypes.ICypherProvider 
   public async decrypt(
     encryptedData: EncryptResponse,
     options: {
-      signer: any;
+      provider: any;
       encryptionParams: EncryptionTypes.IEncryptionParameters[];
     },
   ): Promise<string> {
-    await this.connect();
-
-    const sessionSigs = await this.getSessionSignatures(options.signer);
+    const sessionSigs = await this.getSessionSignatures(options.provider);
     const accessControlConditions = await this.getLitAccessControlConditions(
       options.encryptionParams,
     );
 
-    // Decrypt the message
-    return await LitJsSdk.decryptToString(
-      {
-        accessControlConditions: accessControlConditions,
-        chain: this.chain,
-        ciphertext: encryptedData.ciphertext,
-        dataToEncryptHash: encryptedData.dataToEncryptHash,
-        sessionSigs,
-      },
-      this.client,
-    );
+    try {
+      const decryptedData = await LitJsSdk.decryptToString(
+        {
+          accessControlConditions: accessControlConditions,
+          chain: this.chain,
+          ciphertext: encryptedData.ciphertext,
+          dataToEncryptHash: encryptedData.dataToEncryptHash,
+          sessionSigs,
+        },
+        this.client,
+      );
+      return decryptedData;
+    } catch (error) {
+      console.error('Error decrypting data:', error);
+      return '';
+    }
   }
 }

@@ -63,7 +63,7 @@ export default class TransactionsFactory {
     let encryptionMethod = '';
     let keys: TransactionTypes.IKeysDictionary = {};
 
-    // TODO: refactor this part once the decryption provider is deprecated and the cypher provider is used
+    // TODO: refactor this part once the decryption provider is removed and the cypher provider is used
     if (
       encryptionParams.every(
         (encryptionParam: EncryptionTypes.IEncryptionParameters) =>
@@ -127,12 +127,22 @@ export default class TransactionsFactory {
       if (!cypherProvider) {
         throw new Error('No cypher provider given');
       }
-      keys['kms'] = JSON.stringify({
-        encryptResponse: await cypherProvider.encrypt(symmetricKey, {
-          encryptionParams,
-        }),
+
+      const encryptResponse = await cypherProvider.encrypt(symmetricKey, {
         encryptionParams,
       });
+
+      keys = Object.fromEntries(
+        encryptionParams.map((encryptionParam) => {
+          return [
+            encryptionParam.key,
+            MultiFormat.serialize({
+              type: EncryptionTypes.METHOD.KMS,
+              value: JSON.stringify(encryptResponse),
+            }),
+          ];
+        }),
+      );
     } else {
       throw new Error(
         `encryptionParams method must be all: ${EncryptionTypes.METHOD.ECIES} or ${EncryptionTypes.METHOD.KMS}`,
@@ -245,12 +255,21 @@ export default class TransactionsFactory {
         if (!cypherProvider) {
           throw new Error('No cypher provider given');
         }
-        keys['kms'] = JSON.stringify({
-          encryptionData: await cypherProvider.encrypt(channelKey.key, {
-            encryptionParams,
-          }),
+        const encryptResponse = await cypherProvider.encrypt(channelKey.key, {
           encryptionParams,
         });
+
+        keys = Object.fromEntries(
+          encryptionParams.map((encryptionParam) => {
+            return [
+              encryptionParam.key,
+              MultiFormat.serialize({
+                type: EncryptionTypes.METHOD.KMS,
+                value: JSON.stringify(encryptResponse),
+              }),
+            ];
+          }),
+        );
       } else {
         throw new Error(
           `encryptionParams method must be all: ${EncryptionTypes.METHOD.ECIES} or ${EncryptionTypes.METHOD.KMS}`,

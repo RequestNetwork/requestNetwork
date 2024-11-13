@@ -198,7 +198,7 @@ export default class ChannelParser {
         } catch (error) {
           // If the transaction is encrypted but the channel key is not found, save channelType and encryptionMethod
           if (
-            error.message.startsWith(
+            error?.message?.startsWith(
               'Impossible to decrypt the channel key from this transaction',
             ) &&
             result.channelType === TransactionTypes.ChannelType.UNKNOWN
