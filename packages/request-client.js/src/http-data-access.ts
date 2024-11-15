@@ -213,6 +213,14 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   public async getLitCapacityDelegationAuthSig(
     delegateeAddress: string,
   ): Promise<DataAccessTypes.AuthSig> {
+    if (!delegateeAddress || typeof delegateeAddress !== 'string') {
+      throw new Error('delegateeAddress must be a non-empty string');
+    }
+    if (!/^0x[a-fA-F0-9]{40}$/.test(delegateeAddress)) {
+      throw new Error('delegateeAddress must be a valid Ethereum address');
+    }
+    return await this.fetch('GET', '/getLitCapacityDelegationAuthSig', { delegateeAddress });
+  }
     return await this.fetch('GET', '/getLitCapacityDelegationAuthSig', { delegateeAddress });
   }
 
