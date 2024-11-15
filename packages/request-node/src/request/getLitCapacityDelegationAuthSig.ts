@@ -7,6 +7,7 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import * as config from '../config';
 import { LitContracts } from '@lit-protocol/contracts-sdk';
+import { utils } from 'ethers';
 
 /**
  * Handles getLitCapacityDelegationAuthSigHandler.
@@ -22,7 +23,7 @@ export default class GetLitCapacityDelegationAuthSigHandler {
     const { delegateeAddress } = clientRequest.query;
     // Verifies if data sent from get request are correct
     // clientRequest.query is expected to contain the delegateeAddress
-    if (!delegateeAddress || typeof delegateeAddress !== 'string') {
+    if (!delegateeAddress || !utils.isAddress(delegateeAddress as string)) {
       serverResponse.status(StatusCodes.UNPROCESSABLE_ENTITY).send('Incorrect data');
       return;
     }
