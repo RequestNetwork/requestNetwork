@@ -58,7 +58,7 @@ export default class GetLitCapacityDelegationAuthSigHandler {
       const { capacityDelegationAuthSig } = await litNodeClient.createCapacityDelegationAuthSig({
         capacityTokenId: existingTokens[existingTokens.length - 1].tokenId,
         dAppOwnerWallet: ethersSigner,
-        delegateeAddresses: [delegateeAddress],
+        delegateeAddresses: [delegateeAddress as string],
         uses: '1',
         expiration: new Date(Date.now() + 1000 * 60 * 10).toISOString(), // 10 minutes
       });
