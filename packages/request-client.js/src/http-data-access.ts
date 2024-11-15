@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 import httpConfigDefaults from './http-config-defaults';
 import { normalizeKeccak256Hash, retry } from '@requestnetwork/utils';
 import { stringify } from 'qs';
+import { utils } from 'ethers';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -216,11 +217,9 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     if (!delegateeAddress || typeof delegateeAddress !== 'string') {
       throw new Error('delegateeAddress must be a non-empty string');
     }
-    if (!/^0x[a-fA-F0-9]{40}$/.test(delegateeAddress)) {
+    if (!utils.isAddress(delegateeAddress)) {
       throw new Error('delegateeAddress must be a valid Ethereum address');
     }
-    return await this.fetch('GET', '/getLitCapacityDelegationAuthSig', { delegateeAddress });
-  }
     return await this.fetch('GET', '/getLitCapacityDelegationAuthSig', { delegateeAddress });
   }
 
