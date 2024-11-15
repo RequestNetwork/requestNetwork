@@ -7,14 +7,15 @@ import {
   EncryptResponse,
   AccsDefaultParams,
   AuthSig,
+  LIT_NETWORKS_KEYS,
 } from '@lit-protocol/types';
-
 import {
   LitAccessControlConditionResource,
   LitAbility,
   createSiweMessageWithRecaps,
   generateAuthSig,
 } from '@lit-protocol/auth-helpers';
+import { disconnectWeb3 } from '@lit-protocol/auth-browser';
 
 /**
  * @class LitProvider
@@ -24,99 +25,124 @@ import {
  */
 export default class LitProvider implements CypherProviderTypes.ICypherProvider {
   /**
-   * @property {LitNodeClient|LitNodeClientNodeJs} client - The Lit Protocol client instance.
+   * @property {string} chain - The blockchain to use for access control conditions.
    */
   private chain: string;
-  private client: LitJsSdk.LitNodeClient | LitJsSdk.LitNodeClientNodeJs;
+
+  /**
+   * @property {string} network - The network to use for access control conditions.
+   */
+  private network: LIT_NETWORKS_KEYS;
 
   /**
    * @property {DataAccessTypes.IDataAccess} dataAccess - The data access layer for Request Network.
    */
   private dataAccess: DataAccessTypes.IDataAccess;
 
+  private sessionSigs: SessionSigsMap | null = null;
+
   /**
    * @constructor
    * @param {LitNodeClient|LitNodeClientNodeJs} litClient - An instance of a Lit Protocol client (either client-side or Node.js).
    * @throws {Error} Throws an error if the provided Lit client is invalid.
    */
-  constructor(
-    litClient: LitJsSdk.LitNodeClient | LitJsSdk.LitNodeClientNodeJs,
-    chain: string,
-    dataAccess: DataAccessTypes.IDataAccess,
-  ) {
-    this.client = litClient;
+  constructor(chain: string, network: LIT_NETWORKS_KEYS, dataAccess: DataAccessTypes.IDataAccess) {
     this.chain = chain;
+    this.network = network;
     this.dataAccess = dataAccess;
-    void this.connect();
+  }
+
+  private initializeClient(): LitJsSdk.LitNodeClient | LitJsSdk.LitNodeClientNodeJs {
+    const isBrowser = new Function('try {return this===window;}catch(e){ return false;}');
+
+    if (isBrowser()) {
+      return new LitJsSdk.LitNodeClient({
+        litNetwork: this.network,
+      });
+    } else {
+      return new LitJsSdk.LitNodeClientNodeJs({
+        litNetwork: this.network,
+      });
+    }
   }
 
   /**
    * @async
-   * @function connect
-   * @description Connects to the Lit network if the client is not already connected.
+   * @function disconnectWallet
+   * @description Disconnects wallet from the Lit network.
    */
-  public async connect(): Promise<void> {
-    await this.client.connect();
+  public async disconnectWallet(): Promise<void> {
+    disconnectWeb3();
+    this.sessionSigs = null;
   }
 
-  private async getSessionSignatures(provider: any): Promise<SessionSigsMap> {
-    const signer = provider.web3Provider.getSigner();
-    const walletAddress = signer.provider.provider.account.address;
+  public async getSessionSignatures(signer: any, walletAddress: string): Promise<void> {
+    if (this.sessionSigs) {
+      return;
+    }
 
-    const capacityDelegationAuthSig: AuthSig =
-      (await this.dataAccess.getLitCapacityDelegationAuthSig?.(walletAddress)) || ({} as AuthSig);
+    let client!: LitJsSdk.LitNodeClient | LitJsSdk.LitNodeClientNodeJs;
 
-    // Get the latest blockhash
-    const latestBlockhash = await this.client.getLatestBlockhash();
+    try {
+      client = this.initializeClient();
+      await client.connect();
 
-    // Define the authNeededCallback function
-    const authNeededCallback = async (params: any) => {
-      if (!params.uri) {
-        throw new Error('uri is required');
-      }
-      if (!params.expiration) {
-        throw new Error('expiration is required');
-      }
+      const capacityDelegationAuthSig: AuthSig =
+        (await this.dataAccess.getLitCapacityDelegationAuthSig?.(walletAddress)) || ({} as AuthSig);
 
-      if (!params.resourceAbilityRequests) {
-        throw new Error('resourceAbilityRequests is required');
-      }
+      // Get the latest blockhash
+      const latestBlockhash = await client.getLatestBlockhash();
 
-      // Create the SIWE message
-      const toSign = await createSiweMessageWithRecaps({
-        uri: params.uri,
-        expiration: params.expiration,
-        resources: params.resourceAbilityRequests,
-        walletAddress: walletAddress,
-        nonce: latestBlockhash,
-        litNodeClient: this.client,
+      // Define the authNeededCallback function
+      const authNeededCallback = async (params: any) => {
+        if (!params.uri) {
+          throw new Error('uri is required');
+        }
+        if (!params.expiration) {
+          throw new Error('expiration is required');
+        }
+
+        if (!params.resourceAbilityRequests) {
+          throw new Error('resourceAbilityRequests is required');
+        }
+
+        // Create the SIWE message
+        const toSign = await createSiweMessageWithRecaps({
+          uri: params.uri,
+          expiration: params.expiration,
+          resources: params.resourceAbilityRequests,
+          walletAddress: walletAddress,
+          nonce: latestBlockhash,
+          litNodeClient: client,
+        });
+
+        // Generate the authSig
+        const authSig = await generateAuthSig({
+          signer: signer,
+          toSign,
+        });
+
+        return authSig;
+      };
+
+      // Define the Lit resource
+      const litResource = new LitAccessControlConditionResource('*');
+
+      // Get the session signatures
+      this.sessionSigs = await client.getSessionSigs({
+        chain: this.chain,
+        capabilityAuthSigs: [capacityDelegationAuthSig],
+        resourceAbilityRequests: [
+          {
+            resource: litResource,
+            ability: LitAbility.AccessControlConditionDecryption,
+          },
+        ],
+        authNeededCallback,
       });
-
-      // Generate the authSig
-      const authSig = await generateAuthSig({
-        signer: signer,
-        toSign,
-      });
-
-      return authSig;
-    };
-
-    // Define the Lit resource
-    const litResource = new LitAccessControlConditionResource('*');
-
-    // Get the session signatures
-    const sessionSigs = await this.client.getSessionSigs({
-      chain: this.chain,
-      capabilityAuthSigs: [capacityDelegationAuthSig],
-      resourceAbilityRequests: [
-        {
-          resource: litResource,
-          ability: LitAbility.AccessControlConditionDecryption,
-        },
-      ],
-      authNeededCallback,
-    });
-    return sessionSigs;
+    } catch (error) {
+      console.error('Error getting session signatures:', error);
+    }
   }
 
   private async getLitAccessControlConditions(
@@ -171,20 +197,32 @@ export default class LitProvider implements CypherProviderTypes.ICypherProvider 
     options: {
       encryptionParams: EncryptionTypes.IEncryptionParameters[];
     },
-  ): Promise<EncryptResponse> {
-    const stringifiedData = typeof data === 'string' ? data : JSON.stringify(data);
+  ): Promise<EncryptResponse | null> {
+    let client!: LitJsSdk.LitNodeClient | LitJsSdk.LitNodeClientNodeJs;
 
-    const accessControlConditions = await this.getLitAccessControlConditions(
-      options.encryptionParams,
-    );
+    try {
+      client = this.initializeClient();
 
-    return await LitJsSdk.encryptString(
-      {
-        accessControlConditions: accessControlConditions,
-        dataToEncrypt: stringifiedData,
-      },
-      this.client,
-    );
+      await client.connect();
+      const stringifiedData = typeof data === 'string' ? data : JSON.stringify(data);
+
+      const accessControlConditions = await this.getLitAccessControlConditions(
+        options.encryptionParams,
+      );
+
+      return await LitJsSdk.encryptString(
+        {
+          accessControlConditions: accessControlConditions,
+          dataToEncrypt: stringifiedData,
+        },
+        client,
+      );
+    } catch (error) {
+      console.error('Error encrypting data:', error);
+      return null;
+    } finally {
+      await client.disconnect();
+    }
   }
 
   /**
@@ -201,30 +239,38 @@ export default class LitProvider implements CypherProviderTypes.ICypherProvider 
   public async decrypt(
     encryptedData: EncryptResponse,
     options: {
-      provider: any;
       encryptionParams: EncryptionTypes.IEncryptionParameters[];
     },
-  ): Promise<string> {
-    const sessionSigs = await this.getSessionSignatures(options.provider);
-    const accessControlConditions = await this.getLitAccessControlConditions(
-      options.encryptionParams,
-    );
+  ): Promise<string | null> {
+    let client!: LitJsSdk.LitNodeClient | LitJsSdk.LitNodeClientNodeJs;
 
     try {
+      if (!this.sessionSigs) {
+        throw new Error('Session signatures are required to decrypt data');
+      }
+      client = this.initializeClient();
+      await client.connect();
+
+      const accessControlConditions = await this.getLitAccessControlConditions(
+        options.encryptionParams,
+      );
+
       const decryptedData = await LitJsSdk.decryptToString(
         {
           accessControlConditions: accessControlConditions,
           chain: this.chain,
           ciphertext: encryptedData.ciphertext,
           dataToEncryptHash: encryptedData.dataToEncryptHash,
-          sessionSigs,
+          sessionSigs: this.sessionSigs,
         },
-        this.client,
+        client,
       );
       return decryptedData;
     } catch (error) {
       console.error('Error decrypting data:', error);
-      return '';
+      return null;
+    } finally {
+      await client.disconnect();
     }
   }
 }

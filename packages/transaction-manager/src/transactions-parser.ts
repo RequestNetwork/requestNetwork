@@ -4,7 +4,6 @@ import {
   DecryptionProviderTypes,
   EncryptionTypes,
   IdentityTypes,
-  SignatureProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
 
@@ -17,16 +16,13 @@ import EncryptedTransaction from './encrypted-transaction';
 export default class TransactionsParser {
   private decryptionProvider: DecryptionProviderTypes.IDecryptionProvider | undefined;
   private cypherProvider: CypherProviderTypes.ICypherProvider | undefined;
-  private signatureProvider: SignatureProviderTypes.ISignatureProvider | undefined;
 
   constructor(
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
     cypherProvider?: CypherProviderTypes.ICypherProvider,
-    signatureProvider?: SignatureProviderTypes.ISignatureProvider,
   ) {
     this.decryptionProvider = decryptionProvider;
     this.cypherProvider = cypherProvider;
-    this.signatureProvider = signatureProvider;
   }
 
   /**
@@ -152,7 +148,6 @@ export default class TransactionsParser {
         });
 
         channelKey = await this.cypherProvider.decrypt(encryptResponse, {
-          provider: this.signatureProvider,
           encryptionParams,
         });
         channelKeyMethod = EncryptionTypes.METHOD.AES256_GCM;

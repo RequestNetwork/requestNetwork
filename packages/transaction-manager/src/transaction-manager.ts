@@ -4,7 +4,6 @@ import {
   DataAccessTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
-  SignatureProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
@@ -26,10 +25,9 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     dataAccess: DataAccessTypes.IDataAccess,
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
     cypherProvider?: CypherProviderTypes.ICypherProvider,
-    signatureProvider?: SignatureProviderTypes.ISignatureProvider,
   ) {
     this.dataAccess = dataAccess;
-    this.channelParser = new ChannelParser(decryptionProvider, cypherProvider, signatureProvider);
+    this.channelParser = new ChannelParser(decryptionProvider, cypherProvider);
     this.cypherProvider = cypherProvider;
   }
 

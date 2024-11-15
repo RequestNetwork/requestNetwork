@@ -64,12 +64,7 @@ export default class RequestNetwork {
     this.currencyManager = currencyManager || CurrencyManager.getDefault();
     this.dataAccess = dataAccess;
     this.advancedLogic = new AdvancedLogic(this.currencyManager);
-    this.transaction = new TransactionManager(
-      dataAccess,
-      decryptionProvider,
-      cypherProvider,
-      signatureProvider,
-    );
+    this.transaction = new TransactionManager(dataAccess, decryptionProvider, cypherProvider);
     this.requestLogic = new RequestLogic(this.transaction, signatureProvider, this.advancedLogic);
     this.contentData = new ContentDataExtension(this.advancedLogic);
     this.paymentNetworkFactory = new PaymentNetworkFactory(

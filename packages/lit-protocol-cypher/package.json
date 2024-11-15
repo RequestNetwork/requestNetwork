@@ -39,6 +39,7 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
+    "@lit-protocol/auth-browser": "6.11.0",
     "@lit-protocol/auth-helpers": "6.11.0",
     "@lit-protocol/constants": "6.11.0",
     "@lit-protocol/lit-node-client": "6.11.0",

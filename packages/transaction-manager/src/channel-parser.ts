@@ -2,7 +2,6 @@ import {
   CypherProviderTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
-  SignatureProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
 
@@ -17,13 +16,8 @@ export default class ChannelParser {
   public constructor(
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
     cypherProvider?: CypherProviderTypes.ICypherProvider,
-    signatureProvider?: SignatureProviderTypes.ISignatureProvider,
   ) {
-    this.transactionParser = new TransactionsParser(
-      decryptionProvider,
-      cypherProvider,
-      signatureProvider,
-    );
+    this.transactionParser = new TransactionsParser(decryptionProvider, cypherProvider);
   }
   /**
    * Decrypts and cleans a channel by removing the wrong transactions
