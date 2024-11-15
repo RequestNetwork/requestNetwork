@@ -242,6 +242,7 @@ export default {
       auroraTestnet: 'api-key',
       mantle: 'api-key',
       'mantle-testnet': 'api-key',
+      celo: process.env.CELOSCAN_API_KEY,
     },
     customChains: [
       {
@@ -274,6 +275,14 @@ export default {
         urls: {
           apiURL: 'https://openapi.coredao.org/api',
           browserURL: 'https://scan.coredao.org/',
+        },
+      },
+      {
+        network: 'celo',
+        chainId: 42220,
+        urls: {
+          apiURL: 'https://api.celoscan.io/api',
+          browserURL: 'https://celoscan.io/',
         },
       },
     ],

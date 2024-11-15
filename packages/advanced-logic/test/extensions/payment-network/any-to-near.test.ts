@@ -5,6 +5,7 @@ import {
   extensionStateWithAnyToNativeTokenPaymentAndRefund,
   extensionStateAnyToNativeWithPaymentAddressAdded,
   extensionStateAnyToNativeWithFeeAdded,
+  extensionStateWithAnyToNativeTokenPaymentAndRefundTGExtension,
 } from '../../utils/payment-network/any/generator-data-create';
 import { AdvancedLogic } from '../../../src';
 import { arbitraryTimestamp, payeeRaw, payerRaw } from '../../utils/test-data-generator';
@@ -307,6 +308,22 @@ describe('extensions/payment-network/any-to-native-token', () => {
         );
 
         expect(newExtensionState).toEqual(extensionStateWithAnyToNativeTokenPaymentAndRefund);
+      });
+      it('works when payment address extension is .tg', () => {
+        const tgAddress = 'pay.tg';
+        creationAction.parameters.paymentAddress = tgAddress;
+
+        const newExtensionState = advancedLogic.applyActionToExtensions(
+          validRequestState.extensions,
+          creationAction,
+          validRequestState,
+          payeeRaw.identity,
+          arbitraryTimestamp,
+        );
+
+        expect(newExtensionState).toEqual(
+          extensionStateWithAnyToNativeTokenPaymentAndRefundTGExtension,
+        );
       });
       it('throws when currency is not supported', () => {
         const invalidRequestState: typeof requestStateNoExtensions = {
