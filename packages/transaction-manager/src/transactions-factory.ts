@@ -1,10 +1,5 @@
 import * as MultiFormat from '@requestnetwork/multi-format';
-import {
-  CypherProviderTypes,
-  EncryptionTypes,
-  EpkProviderTypes,
-  TransactionTypes,
-} from '@requestnetwork/types';
+import { CypherProviderTypes, EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
 import {
   encrypt,
   generate32BufferKey,
@@ -82,7 +77,12 @@ export default class TransactionsFactory {
           const identityEncryption = getIdentityFromEncryptionParams(encryptionParam);
           const multiFormattedIdentity: string = MultiFormat.serialize(identityEncryption);
 
-          if (cypherProvider && cypherProvider instanceof (EpkProviderTypes as any).IEpkProvider) {
+          if (
+            cypherProvider &&
+            'supportedMethods' in cypherProvider &&
+            'supportedIdentityTypes' in cypherProvider &&
+            'isIdentityRegistered' in cypherProvider
+          ) {
             const encryptedKey: EncryptionTypes.IEncryptedData = await cypherProvider.encrypt(
               symmetricKey,
               { encryptionParams },
@@ -210,7 +210,9 @@ export default class TransactionsFactory {
 
             if (
               cypherProvider &&
-              cypherProvider instanceof (EpkProviderTypes as any).IEpkProvider
+              'supportedMethods' in cypherProvider &&
+              'supportedIdentityTypes' in cypherProvider &&
+              'isIdentityRegistered' in cypherProvider
             ) {
               const encryptedKey: EncryptionTypes.IEncryptedData = await cypherProvider.encrypt(
                 channelKey.key,
