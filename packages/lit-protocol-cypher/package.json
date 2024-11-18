@@ -4,13 +4,11 @@
   "publishConfig": {
     "access": "public"
   },
-  "description": "Lit Protocol Cypher Provider",
+  "description": "Lit Protocol Cypher Provider.",
   "keywords": [
     "requestnetwork",
     "lit-protocol-cypher-provider"
   ],
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
@@ -20,6 +18,8 @@
     "url": "https://github.com/RequestNetwork/requestNetwork/issues"
   },
   "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "engines": {
     "node": ">=18.0.0"
   },
