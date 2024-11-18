@@ -1,6 +1,9 @@
 import * as LitJsSdk from '@lit-protocol/lit-node-client';
-import { DataAccessTypes, EncryptionTypes } from 'types/dist';
-import { CypherProviderTypes } from '@requestnetwork/types';
+import { CypherProviderTypes, DataAccessTypes, EncryptionTypes } from '@requestnetwork/types';
+import HttpDataAccess, {
+  NodeConnectionConfig,
+} from '@requestnetwork/request-client.js/src/http-data-access';
+
 import {
   SessionSigsMap,
   AccessControlConditions,
@@ -46,10 +49,14 @@ export default class LitProvider implements CypherProviderTypes.ICypherProvider 
    * @param {LitNodeClient|LitNodeClientNodeJs} litClient - An instance of a Lit Protocol client (either client-side or Node.js).
    * @throws {Error} Throws an error if the provided Lit client is invalid.
    */
-  constructor(chain: string, network: LIT_NETWORKS_KEYS, dataAccess: DataAccessTypes.IDataAccess) {
+  constructor(
+    chain: string,
+    network: LIT_NETWORKS_KEYS,
+    nodeConnectionConfig: NodeConnectionConfig,
+  ) {
     this.chain = chain;
     this.network = network;
-    this.dataAccess = dataAccess;
+    this.dataAccess = new HttpDataAccess({ nodeConnectionConfig });
   }
 
   private initializeClient(): LitJsSdk.LitNodeClient | LitJsSdk.LitNodeClientNodeJs {
