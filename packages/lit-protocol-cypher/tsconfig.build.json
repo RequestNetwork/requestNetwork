@@ -4,5 +4,6 @@
     "outDir": "dist",
     "rootDir": "src"
   },
-  "exclude": ["test/", "**/*.test.ts", "**/*.spec.ts"]
+  "exclude": ["test/", "**/*.test.ts", "**/*.spec.ts"],
+  "references": [{ "path": "../types/tsconfig.build.json" }]
 }
