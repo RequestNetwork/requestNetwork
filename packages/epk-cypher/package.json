@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/epk-cypher",
-  "version": "0.7.0",
+  "version": "0.1.0",
   "publishConfig": {
     "access": "public"
   },
