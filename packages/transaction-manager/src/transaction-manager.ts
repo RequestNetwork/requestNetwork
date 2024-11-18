@@ -59,9 +59,6 @@ export default class TransactionManager implements TransactionTypes.ITransaction
         // create a clear channel
         transaction = await TransactionsFactory.createClearTransaction(transactionData);
       } else {
-        if (!this.cypherProvider) {
-          throw new Error('Encryption requested but no cypherProvider available');
-        }
         // create an encrypted channel
         transaction = await TransactionsFactory.createEncryptedTransactionInNewChannel(
           transactionData,
