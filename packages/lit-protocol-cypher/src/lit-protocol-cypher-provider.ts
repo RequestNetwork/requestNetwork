@@ -42,6 +42,9 @@ export default class LitProvider implements CypherProviderTypes.ICypherProvider 
    */
   private dataAccess: DataAccessTypes.IDataAccess;
 
+  /**
+   * @property {SessionSigsMap|null} sessionSigs - The session signatures required for encryption and decryption.
+   */
   private sessionSigs: SessionSigsMap | null = null;
 
   /**
@@ -59,6 +62,13 @@ export default class LitProvider implements CypherProviderTypes.ICypherProvider 
     this.dataAccess = new HttpDataAccess({ nodeConnectionConfig });
   }
 
+  /**
+   * @function initializeClient
+   * @description Initializes the Lit client based on the environment.
+   * @returns {LitNodeClient|LitNodeClientNodeJs} A Lit Protocol client instance.
+   * @throws {Error} Throws an error if the environment is not supported.
+   * @private
+   */
   private initializeClient(): LitJsSdk.LitNodeClient | LitJsSdk.LitNodeClientNodeJs {
     const isBrowser = new Function('try {return this===window;}catch(e){ return false;}');
 
@@ -79,10 +89,20 @@ export default class LitProvider implements CypherProviderTypes.ICypherProvider 
    * @description Disconnects wallet from the Lit network.
    */
   public async disconnectWallet(): Promise<void> {
-    disconnectWeb3();
+    if (typeof window !== 'undefined') {
+      disconnectWeb3();
+    }
     this.sessionSigs = null;
   }
 
+  /**
+   * @async
+   * @function getSessionSignatures
+   * @description Gets the session signatures required for encryption and decryption.
+   * @param {any} signer - The signer object to use for generating the auth sig.
+   * @param {string} walletAddress - The wallet address to use for generating the auth sig.
+   * @returns {Promise<void>}
+   */
   public async getSessionSignatures(signer: any, walletAddress: string): Promise<void> {
     if (this.sessionSigs) {
       return;
@@ -152,6 +172,14 @@ export default class LitProvider implements CypherProviderTypes.ICypherProvider 
     }
   }
 
+  /**
+   * @async
+   * @function getLitAccessControlConditions
+   * @description Gets the access control conditions required for Lit Protocol encryption and decryption.
+   * @param {Array} encryptionParams - An array of encryption parameters.
+   * @returns {Promise<AccessControlConditions>} An array of access control conditions.
+   * @private
+   */
   private async getLitAccessControlConditions(
     encryptionParams: EncryptionTypes.IEncryptionParameters[],
   ): Promise<AccessControlConditions> {
@@ -197,7 +225,7 @@ export default class LitProvider implements CypherProviderTypes.ICypherProvider 
    * @param {object} options - Encryption options.
    * @param {Array} options.accessControlConditions - An array of access control conditions that define who can decrypt the data.
    * @param {string} [options.chain="ethereum"] - The blockchain to use for access control conditions.
-   * @returns {Promise<{encryptedData: string, metadata: any}>} An object containing the encrypted data and metadata, including the encrypted symmetric key.
+   * @returns {Promise<EncryptResponse>} The encrypted data.
    */
   public async encrypt(
     data: string | { [key: string]: any },
