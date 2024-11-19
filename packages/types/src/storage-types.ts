@@ -28,7 +28,7 @@ export interface IStorageWrite {
   initialize: () => Promise<void>;
   append: (data: string) => Promise<IAppendResult>;
 }
-interface PaginationMetadata {
+export interface PaginationMetadata {
   total: number; // Total number of items available
   page?: number; // Current page number if pagination was used
   pageSize?: number; // Page size if pagination was used
