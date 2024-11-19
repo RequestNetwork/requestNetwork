@@ -152,12 +152,15 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
           },
           {} as Record<string, string[]>,
         ),
-        pagination: {
-          page: page,
-          pageSize: pageSize,
-          total: filteredTxs.length,
-          hasMore: filteredTxs.length > (page || 0) * (pageSize || 0),
-        },
+        pagination:
+          page && pageSize
+            ? {
+                total: filteredTxs.length,
+                page,
+                pageSize,
+                hasMore: page * pageSize < filteredTxs.length,
+              }
+            : undefined,
       },
       result: {
         transactions: finalTransactions,
