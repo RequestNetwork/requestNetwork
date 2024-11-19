@@ -67,8 +67,10 @@ export class InMemoryIndexer implements StorageTypes.IIndexer {
       throw new Error('Page size must be greater than 0');
     }
 
-    let channelIds = topics.map((topic) => this.#topicToChannelsIndex.get(topic)).flat();
-    const total = channelIds.length;
+    // Efficiently get total count without creating intermediate array
+    const channelIdsSet = new Set(topics.flatMap((topic) => this.#topicToChannelsIndex.get(topic)));
+    const total = channelIdsSet.size;
+    let channelIds = Array.from(channelIdsSet);
 
     if (page && pageSize) {
       const start = (page - 1) * pageSize;
@@ -77,7 +79,10 @@ export class InMemoryIndexer implements StorageTypes.IIndexer {
         return {
           blockNumber: 0,
           transactions: [],
-          pagination: { total, page, pageSize },
+          pagination:
+            page && pageSize
+              ? { total, page, pageSize, hasMore: page * pageSize < total }
+              : undefined,
         };
       }
       channelIds = channelIds.slice(start, start + pageSize);
