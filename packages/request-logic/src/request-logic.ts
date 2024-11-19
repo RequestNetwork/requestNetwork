@@ -346,6 +346,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async getRequestsByTopic(
     topic: string,
     updatedBetween?: RequestLogicTypes.ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
     // hash all the topics
     const hashedTopic = MultiFormat.serialize(normalizeKeccak256Hash(topic));
@@ -353,6 +355,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const getChannelsResult = await this.transactionManager.getChannelsByTopic(
       hashedTopic,
       updatedBetween,
+      page,
+      pageSize,
     );
     return this.computeMultipleRequestFromChannels(getChannelsResult);
   }
@@ -365,6 +369,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async getRequestsByMultipleTopics(
     topics: string[],
     updatedBetween?: RequestLogicTypes.ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
     // hash all the topics
     const hashedTopics = topics.map((topic) =>
@@ -374,6 +380,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const getChannelsResult = await this.transactionManager.getChannelsByMultipleTopics(
       hashedTopics,
       updatedBetween,
+      page,
+      pageSize,
     );
     return this.computeMultipleRequestFromChannels(getChannelsResult);
   }

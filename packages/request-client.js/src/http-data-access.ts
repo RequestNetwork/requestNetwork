@@ -175,10 +175,14 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   public async getChannelsByTopic(
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
     return await this.fetchAndRetry('/getChannelsByTopic', {
       topic,
       updatedBetween,
+      page,
+      pageSize,
     });
   }
 
@@ -191,10 +195,14 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   public async getChannelsByMultipleTopics(
     topics: string[],
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
     return await this.fetchAndRetry('/getChannelsByMultipleTopics', {
       topics,
       updatedBetween,
+      page,
+      pageSize,
     });
   }
 

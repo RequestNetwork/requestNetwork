@@ -53,7 +53,11 @@ export interface IIndexer {
     channel: string,
     updatedBetween?: ITimestampBoundaries,
   ): Promise<IGetTransactionsResponse>;
-  getTransactionsByTopics(topics: string[]): Promise<IGetTransactionsResponse>;
+  getTransactionsByTopics(
+    topics: string[],
+    page?: number,
+    pageSize?: number,
+  ): Promise<IGetTransactionsResponse>;
 }
 
 export type IIpfsConfig = {

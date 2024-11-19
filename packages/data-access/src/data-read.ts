@@ -49,15 +49,19 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
   async getChannelsByTopic(
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries | undefined,
+    page?: number | undefined,
+    pageSize?: number | undefined,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    return this.getChannelsByMultipleTopics([topic], updatedBetween);
+    return this.getChannelsByMultipleTopics([topic], updatedBetween, page, pageSize);
   }
 
   async getChannelsByMultipleTopics(
     topics: string[],
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    const result = await this.storage.getTransactionsByTopics(topics);
+    const result = await this.storage.getTransactionsByTopics(topics, page, pageSize);
     const pending = this.pendingStore?.findByTopics(topics) || [];
 
     const pendingItems = pending.map((item) => ({

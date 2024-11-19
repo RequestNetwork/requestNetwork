@@ -55,8 +55,15 @@ export class InMemoryIndexer implements StorageTypes.IIndexer {
     };
   }
 
-  async getTransactionsByTopics(topics: string[]): Promise<StorageTypes.IGetTransactionsResponse> {
-    const channelIds = topics.map((topic) => this.#topicToChannelsIndex.get(topic)).flat();
+  async getTransactionsByTopics(
+    topics: string[],
+    page?: number,
+    pageSize?: number,
+  ): Promise<StorageTypes.IGetTransactionsResponse> {
+    let channelIds = topics.map((topic) => this.#topicToChannelsIndex.get(topic)).flat();
+    if (page && pageSize) {
+      channelIds = channelIds.slice((page - 1) * pageSize, page * pageSize);
+    }
     const locations = channelIds
       .map((channel) => this.#channelToLocationsIndex.get(channel))
       .flat();

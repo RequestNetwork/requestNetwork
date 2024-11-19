@@ -61,10 +61,14 @@ export interface IRequestLogic {
   getRequestsByTopic: (
     topic: any,
     updatedBetween?: ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ) => Promise<IReturnGetRequestsByTopic>;
   getRequestsByMultipleTopics: (
     topics: any[],
     updatedBetween?: ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ) => Promise<IReturnGetRequestsByTopic>;
 }
 

@@ -1126,7 +1126,12 @@ describe('index', () => {
           },
         }),
       );
-      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
+      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(
+        extraTopics[0],
+        undefined,
+        undefined,
+        undefined,
+      );
     });
 
     it('can get an encrypted channel indexed by topic', async () => {
@@ -1189,7 +1194,12 @@ describe('index', () => {
           },
         }),
       );
-      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
+      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(
+        extraTopics[0],
+        undefined,
+        undefined,
+        undefined,
+      );
     });
 
     it('cannot get an encrypted channel indexed by topic without decryptionProvider', async () => {
@@ -1258,7 +1268,12 @@ describe('index', () => {
           },
         }),
       );
-      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
+      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(
+        extraTopics[0],
+        undefined,
+        undefined,
+        undefined,
+      );
     });
 
     it('can get an clear channel indexed by topic without decryptionProvider even if an encrypted transaction happen first', async () => {
@@ -1340,7 +1355,12 @@ describe('index', () => {
           },
         }),
       );
-      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
+      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(
+        extraTopics[0],
+        undefined,
+        undefined,
+        undefined,
+      );
     });
 
     it('can get channels indexed by topics with channelId not matching the first transaction hash', async () => {
@@ -1393,7 +1413,12 @@ describe('index', () => {
           },
         }),
       );
-      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
+      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(
+        extraTopics[0],
+        undefined,
+        undefined,
+        undefined,
+      );
     });
 
     it('can get channels encrypted and clear', async () => {
@@ -1466,7 +1491,12 @@ describe('index', () => {
           },
         }),
       );
-      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
+      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(
+        extraTopics[0],
+        undefined,
+        undefined,
+        undefined,
+      );
     });
   });
 
@@ -1490,6 +1520,8 @@ describe('index', () => {
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(fakeDataAccess.getChannelsByMultipleTopics).toHaveBeenCalledWith(
         [extraTopics[0]],
+        undefined,
+        undefined,
         undefined,
       );
     });

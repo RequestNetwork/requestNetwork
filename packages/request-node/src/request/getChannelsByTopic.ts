@@ -21,7 +21,7 @@ export default class GetChannelHandler {
     // Retrieves data access layer
     let transactions;
 
-    const { updatedBetween, topic } = clientRequest.query;
+    const { updatedBetween, topic, page, pageSize } = clientRequest.query;
     // Verifies if data sent from get request are correct
     // clientRequest.query is expected to contain the topic of the transactions to search for
     if (!topic || typeof topic !== 'string') {
@@ -34,6 +34,8 @@ export default class GetChannelHandler {
         updatedBetween && typeof updatedBetween === 'string'
           ? JSON.parse(updatedBetween)
           : undefined,
+        Number(page),
+        Number(pageSize),
       );
 
       serverResponse.status(StatusCodes.OK).send(transactions);
