@@ -53,6 +53,13 @@ export class SubgraphClient implements StorageTypes.IIndexer {
     page?: number,
     pageSize?: number,
   ): Promise<StorageTypes.IGetTransactionsResponse> {
+    if (page !== undefined && page < 1) {
+      throw new Error('Page must be greater than or equal to 1');
+    }
+    if (pageSize !== undefined && pageSize <= 0) {
+      throw new Error('Page size must be greater than 0');
+    }
+
     const skip = page && pageSize ? (page - 1) * pageSize : null;
     const first = pageSize || null;
     const { _meta, channels } = await this.graphql.request<
