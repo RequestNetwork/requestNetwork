@@ -61,9 +61,16 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
     page?: number,
     pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    const result = await this.storage.getTransactionsByTopics(topics, page, pageSize);
-    const pending = this.pendingStore?.findByTopics(topics) || [];
+    // Validate pagination parameters
+    if (page !== undefined && page < 1) {
+      throw new Error('Page number must be greater than or equal to 1');
+    }
+    if (pageSize !== undefined && pageSize <= 0) {
+      throw new Error('Page size must be positive');
+    }
 
+    // Get pending items first
+    const pending = this.pendingStore?.findByTopics(topics) || [];
     const pendingItems = pending.map((item) => ({
       hash: item.storageResult.id,
       channelId: item.channelId,
@@ -77,20 +84,47 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
       topics: item.topics || [],
     }));
 
-    const transactions = result.transactions.concat(...pendingItems);
+    // Adjust pagination to account for pending items
+    let adjustedPage = page;
+    let adjustedPageSize = pageSize;
+    if (page !== undefined && pageSize !== undefined) {
+      if (pendingItems.length >= (page - 1) * pageSize) {
+        // If pending items fill previous pages
+        adjustedPage = 0;
+        adjustedPageSize = 0;
+      } else {
+        // Adjust page size to account for pending items included
+        const pendingItemsInPreviousPages = Math.min(pendingItems.length, (page - 1) * pageSize);
+        const pendingItemsInCurrentPage = Math.min(
+          pendingItems.length - pendingItemsInPreviousPages,
+          pageSize,
+        );
+        adjustedPageSize = pageSize - pendingItemsInCurrentPage;
+        adjustedPage = Math.floor(
+          ((page - 1) * pageSize - pendingItemsInPreviousPages) / adjustedPageSize,
+        );
+      }
+    }
 
-    // list of channels having at least one tx updated during the updatedBetween boundaries
-    const channels = (
-      updatedBetween
-        ? transactions.filter(
-            (tx) =>
-              tx.blockTimestamp >= (updatedBetween.from || 0) &&
-              tx.blockTimestamp <= (updatedBetween.to || Number.MAX_SAFE_INTEGER),
-          )
-        : transactions
-    ).map((x) => x.channelId);
+    // Fetch transactions from storage with adjusted pagination
+    const result = await this.storage.getTransactionsByTopics(
+      topics,
+      adjustedPage,
+      adjustedPageSize,
+    );
 
-    const filteredTxs = transactions.filter((tx) => channels.includes(tx.channelId));
+    // Combine pending and stored transactions
+    const transactions = [...pendingItems, ...result.transactions];
+
+    // Proceed with filtering and mapping as per existing logic
+    const filteredTxs = transactions.filter((tx) => {
+      if (!updatedBetween) return true;
+      return (
+        tx.blockTimestamp >= (updatedBetween.from || 0) &&
+        tx.blockTimestamp <= (updatedBetween.to || Number.MAX_SAFE_INTEGER)
+      );
+    });
+
     const finalTransactions = filteredTxs.reduce((prev, curr) => {
       if (!prev[curr.channelId]) {
         prev[curr.channelId] = [];
