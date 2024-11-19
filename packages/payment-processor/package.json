@@ -39,7 +39,7 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@hinkal/common": "0.0.167",
+    "@hinkal/common": "0.1.2",
     "@openzeppelin/contracts": "4.9.6",
     "@requestnetwork/currency": "0.18.0",
     "@requestnetwork/payment-detection": "0.45.0",

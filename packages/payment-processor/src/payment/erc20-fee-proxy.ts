@@ -26,7 +26,7 @@ import {
   validateRequest,
 } from './utils';
 import { IPreparedPrivateTransaction, IPreparedTransaction } from './prepared-transaction';
-import { prepareHinkal } from './prepare-hinkal';
+import { prepareEthersHinkal } from '@hinkal/common/providers/prepareEthersHinkal';
 
 /**
  * Processes a transaction to pay an ERC20 Request with fees.
@@ -59,7 +59,7 @@ export async function payPrivateErc20FeeProxyRequest(
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
 ): Promise<RelayerTransaction> {
-  const hinkal = await prepareHinkal(getSigner(signerOrProvider));
+  const hinkal = await prepareEthersHinkal(getSigner(signerOrProvider));
 
   const { amountToPay, tokenAddress, ops } = preparePrivateErc20FeeProxyPaymentTransaction(
     request,
