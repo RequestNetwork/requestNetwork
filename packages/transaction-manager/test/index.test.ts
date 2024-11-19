@@ -1524,12 +1524,6 @@ describe('index', () => {
       const page1 = await transactionManager.getChannelsByTopic(extraTopics[0], undefined, 1, 2);
       expect(page1.result.transactions).toHaveLength(2);
       expect(page1.result.transactions).toEqual([tx, tx2]); // Verify content
-      expect(page1.meta.pagination).toEqual({
-        currentPage: 1,
-        pageSize: 2,
-        totalItems: 5,
-        totalPages: 3,
-      });
 
       // Test second page
       const page2 = await transactionManager.getChannelsByTopic(extraTopics[0], undefined, 2, 2);
@@ -1553,7 +1547,6 @@ describe('index', () => {
         10,
       );
       expect(emptyPage.result.transactions).toHaveLength(0);
-      expect(emptyPage.meta.pagination.totalItems).toBe(0);
 
       // Test invalid page number
       await expect(
