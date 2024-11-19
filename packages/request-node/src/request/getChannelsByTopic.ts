@@ -34,8 +34,8 @@ export default class GetChannelHandler {
         updatedBetween && typeof updatedBetween === 'string'
           ? JSON.parse(updatedBetween)
           : undefined,
-        Number(page),
-        Number(pageSize),
+        page && typeof page === 'string' ? parseInt(page, 10) : undefined,
+        pageSize && typeof pageSize === 'string' ? parseInt(pageSize, 10) : undefined,
       );
 
       serverResponse.status(StatusCodes.OK).send(transactions);
