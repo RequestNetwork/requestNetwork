@@ -60,9 +60,27 @@ export class InMemoryIndexer implements StorageTypes.IIndexer {
     page?: number,
     pageSize?: number,
   ): Promise<StorageTypes.IGetTransactionsResponse> {
+    if (page !== undefined && page < 1) {
+      throw new Error('Page must be greater than or equal to 1');
+    }
+    if (pageSize !== undefined && pageSize <= 0) {
+      throw new Error('Page size must be greater than 0');
+    }
+
     let channelIds = topics.map((topic) => this.#topicToChannelsIndex.get(topic)).flat();
+    const total = channelIds.length;
+
     if (page && pageSize) {
-      channelIds = channelIds.slice((page - 1) * pageSize, page * pageSize);
+      const start = (page - 1) * pageSize;
+      // Return empty result if page exceeds available data
+      if (start >= total) {
+        return {
+          blockNumber: 0,
+          transactions: [],
+          pagination: { total, page, pageSize },
+        };
+      }
+      channelIds = channelIds.slice(start, start + pageSize);
     }
     const locations = channelIds
       .map((channel) => this.#channelToLocationsIndex.get(channel))

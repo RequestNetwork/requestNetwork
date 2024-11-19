@@ -91,6 +91,14 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
     ).map((x) => x.channelId);
 
     const filteredTxs = transactions.filter((tx) => channels.includes(tx.channelId));
+    const finalTransactions = filteredTxs.reduce((prev, curr) => {
+      if (!prev[curr.channelId]) {
+        prev[curr.channelId] = [];
+      }
+      prev[curr.channelId].push(this.toTimestampedTransaction(curr));
+      return prev;
+    }, {} as DataAccessTypes.ITransactionsByChannelIds);
+
     return {
       meta: {
         storageMeta: filteredTxs.reduce(
@@ -110,15 +118,14 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
           },
           {} as Record<string, string[]>,
         ),
+        pagination: {
+          page: page,
+          pageSize: pageSize,
+          total: finalTransactions.length,
+        },
       },
       result: {
-        transactions: filteredTxs.reduce((prev, curr) => {
-          if (!prev[curr.channelId]) {
-            prev[curr.channelId] = [];
-          }
-          prev[curr.channelId].push(this.toTimestampedTransaction(curr));
-          return prev;
-        }, {} as DataAccessTypes.ITransactionsByChannelIds),
+        transactions: finalTransactions,
       },
     };
   }

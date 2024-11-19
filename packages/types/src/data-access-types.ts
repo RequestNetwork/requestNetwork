@@ -73,6 +73,12 @@ export type PersistTransactionEmitter = ConfirmationEventEmitter<IReturnPersistT
 
 export type IReturnPersistTransaction = PersistTransactionEmitter & IReturnPersistTransactionRaw;
 
+interface PaginationMetadata {
+  total: number; // Total number of items available
+  page?: number; // Current page number if pagination was used
+  pageSize?: number; // Page size if pagination was used
+}
+
 /** return interface for getTransactionsByChannelId */
 export interface IReturnGetTransactions {
   /** meta information */
@@ -81,6 +87,7 @@ export interface IReturnGetTransactions {
     transactionsStorageLocation: string[];
     /** meta-data from the layer below */
     storageMeta?: StorageTypes.IEntryMetadata[];
+    pagination?: PaginationMetadata;
   };
   /** result of the execution */
   result: { transactions: ITimestampedTransaction[] };

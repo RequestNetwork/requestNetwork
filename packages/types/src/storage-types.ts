@@ -28,10 +28,16 @@ export interface IStorageWrite {
   initialize: () => Promise<void>;
   append: (data: string) => Promise<IAppendResult>;
 }
+interface PaginationMetadata {
+  total: number; // Total number of items available
+  page?: number; // Current page number if pagination was used
+  pageSize?: number; // Page size if pagination was used
+}
 
 export type IGetTransactionsResponse = {
   transactions: IIndexedTransaction[];
   blockNumber: number;
+  pagination?: PaginationMetadata; // Optional pagination metadata
 };
 
 export interface IStorageRead {

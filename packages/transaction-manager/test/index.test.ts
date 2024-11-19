@@ -1498,6 +1498,22 @@ describe('index', () => {
         undefined,
       );
     });
+
+    it('should return paginated results when page and pageSize are specified', async () => {
+      const transactionManager = new TransactionManager(fakeDataAccess);
+
+      // Test first page
+      const page1 = await transactionManager.getChannelsByTopic(extraTopics[0], undefined, 1, 2);
+      expect(page1.result.transactions).toHaveLength(2);
+
+      // Test second page
+      const page2 = await transactionManager.getChannelsByTopic(extraTopics[0], undefined, 2, 2);
+      expect(page2.result.transactions).toHaveLength(2);
+
+      // Test last page
+      const lastPage = await transactionManager.getChannelsByTopic(extraTopics[0], undefined, 3, 2);
+      expect(lastPage.result.transactions).toHaveLength(1);
+    });
   });
 
   describe('getChannelsByMultipleTopic', () => {
@@ -1522,6 +1538,25 @@ describe('index', () => {
         [extraTopics[0]],
         undefined,
         undefined,
+        undefined,
+      );
+    });
+
+    it('should return paginated results when querying multiple topics', async () => {
+      const transactionManager = new TransactionManager(fakeDataAccess);
+
+      const result = await transactionManager.getChannelsByMultipleTopics(
+        [extraTopics[0], extraTopics[1]],
+        undefined,
+        1, // page
+        2, // pageSize
+      );
+
+      expect(result.result.transactions).toHaveLength(2);
+      expect(fakeDataAccess.getChannelsByMultipleTopics).toHaveBeenCalledWith(
+        [extraTopics[0], extraTopics[1]],
+        1,
+        2,
         undefined,
       );
     });

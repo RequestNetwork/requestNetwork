@@ -178,6 +178,13 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     page?: number,
     pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
+    if (page !== undefined && page < 1) {
+      throw new Error('Page must be greater than or equal to 1');
+    }
+    if (pageSize !== undefined && pageSize <= 0) {
+      throw new Error('Page size must be greater than 0');
+    }
+
     return await this.fetchAndRetry('/getChannelsByTopic', {
       topic,
       updatedBetween,
