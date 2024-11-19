@@ -28,14 +28,18 @@ export default class GetChannelHandler {
       serverResponse.status(StatusCodes.UNPROCESSABLE_ENTITY).send('Incorrect data');
       return;
     }
+
+    const formattedPage = page && typeof page === 'string' ? parseInt(page, 10) : undefined;
+    const formattedPageSize =
+      pageSize && typeof pageSize === 'string' ? parseInt(pageSize, 10) : undefined;
     try {
       transactions = await this.dataAccess.getChannelsByTopic(
         topic,
         updatedBetween && typeof updatedBetween === 'string'
           ? JSON.parse(updatedBetween)
           : undefined,
-        page && typeof page === 'string' ? parseInt(page, 10) : undefined,
-        pageSize && typeof pageSize === 'string' ? parseInt(pageSize, 10) : undefined,
+        formattedPage,
+        formattedPageSize,
       );
 
       serverResponse.status(StatusCodes.OK).send(transactions);

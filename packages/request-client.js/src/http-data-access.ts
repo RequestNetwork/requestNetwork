@@ -185,12 +185,24 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
       throw new Error('Page size must be greater than 0');
     }
 
-    return await this.fetchAndRetry('/getChannelsByTopic', {
+    const params: {
+      topic: string;
+      updatedBetween?: DataAccessTypes.ITimestampBoundaries;
+      page?: number;
+      pageSize?: number;
+    } = {
       topic,
       updatedBetween,
-      page,
-      pageSize,
-    });
+    };
+
+    if (page !== undefined) {
+      params.page = page;
+      if (pageSize !== undefined) {
+        params.pageSize = pageSize;
+      }
+    }
+
+    return await this.fetchAndRetry('/getChannelsByTopic', params);
   }
 
   /**
