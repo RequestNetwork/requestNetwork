@@ -155,7 +155,8 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
         pagination: {
           page: page,
           pageSize: pageSize,
-          total: finalTransactions.length,
+          total: filteredTxs.length,
+          hasMore: filteredTxs.length > (page || 0) * (pageSize || 0),
         },
       },
       result: {
