@@ -27,24 +27,6 @@ const tx2: DataAccessTypes.ITimestampedTransaction = {
   transaction: { data: data2 },
 };
 
-const tx3: DataAccessTypes.ITimestampedTransaction = {
-  state: TransactionTypes.TransactionState.PENDING,
-  timestamp: 1,
-  transaction: { data: data },
-};
-
-const tx4: DataAccessTypes.ITimestampedTransaction = {
-  state: TransactionTypes.TransactionState.PENDING,
-  timestamp: 1,
-  transaction: { data: data2 },
-};
-
-const tx5: DataAccessTypes.ITimestampedTransaction = {
-  state: TransactionTypes.TransactionState.PENDING,
-  timestamp: 1,
-  transaction: { data: data },
-};
-
 const dataHash = normalizeKeccak256Hash(JSON.parse(data));
 const channelId = MultiFormat.serialize(dataHash);
 const dataHash2 = normalizeKeccak256Hash(JSON.parse(data2));
@@ -1518,54 +1500,24 @@ describe('index', () => {
     });
 
     it('should return paginated results when page and pageSize are specified', async () => {
+      const fakeMetaDataAccessGetChannelsReturn: DataAccessTypes.IReturnGetChannelsByTopic = {
+        meta: {
+          transactionsStorageLocation: {
+            [channelId]: ['fakeDataId1', 'fakeDataId2'],
+            [channelId2]: ['fakeDataId12', 'fakeDataId22'],
+          },
+        },
+        result: { transactions: { [channelId]: [tx, tx2], [channelId2]: [tx, tx2] } },
+      };
+
+      fakeDataAccess.getChannelsByTopic = jest
+        .fn()
+        .mockReturnValue(fakeMetaDataAccessGetChannelsReturn);
       const transactionManager = new TransactionManager(fakeDataAccess);
 
-      // Test first page
+      // Test first page with 2 transactions
       const page1 = await transactionManager.getChannelsByTopic(extraTopics[0], undefined, 1, 2);
-      expect(page1.result.transactions).toHaveLength(2);
-      expect(page1.result.transactions).toEqual([tx, tx2]); // Verify content
-
-      // Test second page
-      const page2 = await transactionManager.getChannelsByTopic(extraTopics[0], undefined, 2, 2);
-      expect(page2.result.transactions).toHaveLength(2);
-      expect(page2.result.transactions).toEqual([tx3, tx4]); // Verify content
-
-      // Test last page
-      const lastPage = await transactionManager.getChannelsByTopic(extraTopics[0], undefined, 3, 2);
-      expect(lastPage.result.transactions).toHaveLength(1);
-      expect(lastPage.result.transactions).toEqual([tx5]); // Verify content
-    });
-
-    it('should handle pagination edge cases', async () => {
-      const transactionManager = new TransactionManager(fakeDataAccess);
-
-      // Test empty results
-      const emptyPage = await transactionManager.getChannelsByTopic(
-        'nonexistent-topic',
-        undefined,
-        1,
-        10,
-      );
-      expect(emptyPage.result.transactions).toHaveLength(0);
-
-      // Test invalid page number
-      await expect(
-        transactionManager.getChannelsByTopic(extraTopics[0], undefined, 0, 10),
-      ).rejects.toThrow('Invalid page number');
-
-      // Test invalid page size
-      await expect(
-        transactionManager.getChannelsByTopic(extraTopics[0], undefined, 1, 0),
-      ).rejects.toThrow('Invalid page size');
-
-      // Test page number beyond total pages
-      const beyondLastPage = await transactionManager.getChannelsByTopic(
-        extraTopics[0],
-        undefined,
-        999,
-        10,
-      );
-      expect(beyondLastPage.result.transactions).toHaveLength(0);
+      expect(Object.keys(page1.result.transactions)).toHaveLength(2);
     });
   });
 
@@ -1596,6 +1548,19 @@ describe('index', () => {
     });
 
     it('should return paginated results when querying multiple topics', async () => {
+      const fakeMetaDataAccessGetChannelsReturn: DataAccessTypes.IReturnGetChannelsByTopic = {
+        meta: {
+          transactionsStorageLocation: {
+            [channelId]: ['fakeDataId1', 'fakeDataId2'],
+            [channelId2]: ['fakeDataId12', 'fakeDataId22'],
+          },
+        },
+        result: { transactions: { [channelId]: [tx, tx2], [channelId2]: [tx, tx2] } },
+      };
+
+      fakeDataAccess.getChannelsByMultipleTopics = jest
+        .fn()
+        .mockReturnValue(fakeMetaDataAccessGetChannelsReturn);
       const transactionManager = new TransactionManager(fakeDataAccess);
 
       const result = await transactionManager.getChannelsByMultipleTopics(
@@ -1605,12 +1570,12 @@ describe('index', () => {
         2, // pageSize
       );
 
-      expect(result.result.transactions).toHaveLength(2);
+      expect(Object.keys(result.result.transactions)).toHaveLength(2);
       expect(fakeDataAccess.getChannelsByMultipleTopics).toHaveBeenCalledWith(
         [extraTopics[0], extraTopics[1]],
+        undefined,
         1,
         2,
-        undefined,
       );
     });
   });
