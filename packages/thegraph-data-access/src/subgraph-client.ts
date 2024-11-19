@@ -84,9 +84,16 @@ export class SubgraphClient implements StorageTypes.IIndexer {
       .flat()
       .sort((a, b) => a.blockTimestamp - b.blockTimestamp);
 
+    const indexedTransactions = transactionsByChannel.map(this.toIndexedTransaction);
     return {
-      transactions: transactionsByChannel.map(this.toIndexedTransaction),
+      transactions: indexedTransactions,
       blockNumber: _meta.block.number,
+      pagination: {
+        page: effectivePage,
+        pageSize: effectivePageSize,
+        total: indexedTransactions.length,
+        hasMore: skip + effectivePageSize < indexedTransactions.length,
+      },
     };
   }
 
