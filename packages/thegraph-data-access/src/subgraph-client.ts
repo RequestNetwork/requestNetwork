@@ -53,10 +53,11 @@ export class SubgraphClient implements StorageTypes.IIndexer {
     page?: number,
     pageSize?: number,
   ): Promise<StorageTypes.IGetTransactionsResponse> {
-    const skip = page && pageSize ? (page - 1) * pageSize : 0;
+    const skip = page && pageSize ? (page - 1) * pageSize : null;
+    const first = pageSize || null;
     const { _meta, channels } = await this.graphql.request<
       Meta & { channels: { transactions: Transaction[] }[] }
-    >(GetTransactionsByTopics, { topics, first: pageSize, skip });
+    >(GetTransactionsByTopics, { topics, first, skip });
 
     const transactionsByChannel = channels
       .map(({ transactions }) => transactions)
