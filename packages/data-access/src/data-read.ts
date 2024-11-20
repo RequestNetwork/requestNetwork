@@ -90,7 +90,7 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
     if (page !== undefined && pageSize !== undefined) {
       if (pendingItems.length >= (page - 1) * pageSize) {
         // If pending items fill previous pages
-        adjustedPage = 0;
+        adjustedPage = 1;
         adjustedPageSize = 0;
       } else {
         // Adjust page size to account for pending items included
