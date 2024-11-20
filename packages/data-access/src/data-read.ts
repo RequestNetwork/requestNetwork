@@ -109,11 +109,9 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
     }
 
     // Fetch transactions from storage
-    const result = await this.storage.getTransactionsByTopics(
-      topics,
-      adjustedPage,
-      adjustedPageSize,
-    );
+    const result = await (adjustedPageSize && adjustedPageSize > 0
+      ? this.storage.getTransactionsByTopics(topics, adjustedPage, adjustedPageSize)
+      : { transactions: [], blockNumber: 0 });
 
     // Combine and filter transactions
     let allTransactions = [...pendingItems, ...result.transactions];
@@ -142,10 +140,15 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
 
       transactionsByChannelIds[tx.channelId].push(this.toTimestampedTransaction(tx));
 
-      // Only add storage metadata for transactions fetched from storage
-      if (result.transactions.includes(tx)) {
+      // Check if the transaction is from the storage result
+      const isStorageTransaction = result.transactions.some(
+        (storageTx) => storageTx.hash === tx.hash,
+      );
+
+      if (isStorageTransaction) {
         storageMeta[tx.channelId].push(this.toStorageMeta(tx, result.blockNumber, this.network));
       }
+
       transactionsStorageLocation[tx.channelId].push(tx.hash);
     }
 
