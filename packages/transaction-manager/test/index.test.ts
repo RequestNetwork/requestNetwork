@@ -568,7 +568,7 @@ describe('index', () => {
           dataAccessMeta: { transactionsStorageLocation: ['fakeDataId1'] },
           ignoredTransactions: [
             {
-              reason: 'No decryption provider given',
+              reason: 'No decryption or cipher provider given',
               transaction: {
                 state: TransactionTypes.TransactionState.PENDING,
                 timestamp: 1,
@@ -1247,7 +1247,7 @@ describe('index', () => {
           ignoredTransactions: {
             [channelId]: [
               {
-                reason: 'No decryption provider given',
+                reason: 'No decryption or cipher provider given',
                 transaction: {
                   state: TransactionTypes.TransactionState.PENDING,
                   timestamp: 1,
@@ -1328,7 +1328,7 @@ describe('index', () => {
           ignoredTransactions: {
             [channelId]: [
               {
-                reason: 'No decryption provider given',
+                reason: 'No decryption or cipher provider given',
                 transaction: {
                   state: TransactionTypes.TransactionState.PENDING,
                   timestamp: 1,
