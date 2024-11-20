@@ -169,6 +169,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       });
     } catch (error) {
       console.error('Error getting session signatures:', error);
+      throw error;
     }
   }
 
@@ -252,9 +253,6 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
         },
         client,
       );
-    } catch (error) {
-      console.error('Error encrypting data:', error);
-      return null;
     } finally {
       await client.disconnect();
     }
@@ -301,9 +299,6 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
         client,
       );
       return decryptedData;
-    } catch (error) {
-      console.error('Error decrypting data:', error);
-      return null;
     } finally {
       await client.disconnect();
     }
