@@ -63,10 +63,10 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
     // Validate pagination parameters
     if (page !== undefined && page < 1) {
-      throw new Error(`Page number must be greater than or equal to 1 but it is ${page}`);
+      throw new Error(`Page number must be greater than or equal to 1, but it is ${page}`);
     }
     if (pageSize !== undefined && pageSize <= 0) {
-      throw new Error(`Page size must be positive but it is ${pageSize}`);
+      throw new Error(`Page size must be positive, but it is ${pageSize}`);
     }
 
     // Get pending items first
@@ -87,22 +87,17 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
     // Adjust pagination to account for pending items
     let adjustedPage = page;
     let adjustedPageSize = pageSize;
+    let pendingItemsOnCurrentPage = 0;
     if (page !== undefined && pageSize !== undefined) {
-      if (pendingItems.length >= (page - 1) * pageSize) {
-        // If pending items fill previous pages
+      const totalPending = pendingItems.length;
+      const itemsPerPage = (page - 1) * pageSize;
+
+      if (totalPending > itemsPerPage) {
         adjustedPage = 1;
-        adjustedPageSize = 0;
+        adjustedPageSize = pageSize - Math.min(totalPending - itemsPerPage, pageSize);
+        pendingItemsOnCurrentPage = pageSize - adjustedPageSize;
       } else {
-        // Adjust page size to account for pending items included
-        const pendingItemsInPreviousPages = Math.min(pendingItems.length, (page - 1) * pageSize);
-        const pendingItemsInCurrentPage = Math.min(
-          pendingItems.length - pendingItemsInPreviousPages,
-          pageSize,
-        );
-        adjustedPageSize = pageSize - pendingItemsInCurrentPage;
-        adjustedPage = Math.floor(
-          ((page - 1) * pageSize - pendingItemsInPreviousPages) / adjustedPageSize,
-        );
+        adjustedPage = page - Math.floor(totalPending / pageSize);
       }
     }
 
@@ -114,56 +109,51 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
     );
 
     // Combine pending and stored transactions
-    const transactions = [...pendingItems, ...result.transactions];
+    let transactions = [...pendingItems, ...result.transactions];
 
-    // Proceed with filtering and mapping as per existing logic
-    const filteredTxs = transactions.filter((tx) => {
-      if (!updatedBetween) return true;
-      return (
-        tx.blockTimestamp >= (updatedBetween.from || 0) &&
-        tx.blockTimestamp <= (updatedBetween.to || Number.MAX_SAFE_INTEGER)
+    // Apply updatedBetween filter (if provided) before further processing
+    if (updatedBetween) {
+      transactions = transactions.filter(
+        (tx) =>
+          tx.blockTimestamp >= (updatedBetween.from || 0) &&
+          tx.blockTimestamp <= (updatedBetween.to || Number.MAX_SAFE_INTEGER),
       );
-    });
+    }
 
-    const finalTransactions = filteredTxs.reduce((prev, curr) => {
-      if (!prev[curr.channelId]) {
-        prev[curr.channelId] = [];
+    // Group transactions by channelId
+    const transactionsByChannelIds: DataAccessTypes.ITransactionsByChannelIds = {};
+    const storageMeta: Record<string, StorageTypes.IEntryMetadata[]> = {};
+    const transactionsStorageLocation: Record<string, string[]> = {};
+
+    for (const tx of transactions) {
+      if (!transactionsByChannelIds[tx.channelId]) {
+        transactionsByChannelIds[tx.channelId] = [];
+        storageMeta[tx.channelId] = [];
+        transactionsStorageLocation[tx.channelId] = [];
       }
-      prev[curr.channelId].push(this.toTimestampedTransaction(curr));
-      return prev;
-    }, {} as DataAccessTypes.ITransactionsByChannelIds);
+      transactionsByChannelIds[tx.channelId].push(this.toTimestampedTransaction(tx));
+      storageMeta[tx.channelId].push(this.toStorageMeta(tx, result.blockNumber, this.network));
+      transactionsStorageLocation[tx.channelId].push(tx.hash);
+    }
 
     return {
       meta: {
-        storageMeta: filteredTxs.reduce(
-          (acc, tx) => {
-            acc[tx.channelId] = [this.toStorageMeta(tx, result.blockNumber, this.network)];
-            return acc;
-          },
-          {} as Record<string, StorageTypes.IEntryMetadata[]>,
-        ),
-        transactionsStorageLocation: filteredTxs.reduce(
-          (prev, curr) => {
-            if (!prev[curr.channelId]) {
-              prev[curr.channelId] = [];
-            }
-            prev[curr.channelId].push(curr.hash);
-            return prev;
-          },
-          {} as Record<string, string[]>,
-        ),
+        storageMeta: storageMeta,
+        transactionsStorageLocation: transactionsStorageLocation,
         pagination:
           page && pageSize
             ? {
-                total: filteredTxs.length,
+                total: result.transactions.length, // Use the actual count from storage
                 page,
                 pageSize,
-                hasMore: page * pageSize < filteredTxs.length,
+                hasMore:
+                  (page - 1) * pageSize + transactions.length - pendingItemsOnCurrentPage <
+                  result.transactions.length, // Adjust hasMore calculation
               }
             : undefined,
       },
       result: {
-        transactions: finalTransactions,
+        transactions: transactionsByChannelIds,
       },
     };
   }
