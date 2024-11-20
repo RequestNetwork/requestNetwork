@@ -135,22 +135,21 @@ export default class TransactionsParser {
     let channelKeyMethod: EncryptionTypes.METHOD | undefined;
 
     if (this.cipherProvider) {
-      if (
-        encryptionMethod === `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`
-      ) {
-        const entries = Object.entries(keys);
-        const encryptResponse = JSON.parse(MultiFormat.deserialize(entries[0][1]).value);
-        const encryptionParams = entries.map((entry) => {
-          return {
-            method: EncryptionTypes.METHOD.KMS,
-            key: entry[0],
-          };
-        });
-
+      const entries = Object.entries(keys);
+      const encryptResponse = JSON.parse(MultiFormat.deserialize(entries[0][1]).value);
+      const encryptionParams = entries.map((entry) => {
+        return {
+          method: channelKeyMethod?.split('-')[0], // Destructuring the method to get the first part e.g. `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`
+          key: entry[0],
+        };
+      });
+      try {
         channelKey = await this.cipherProvider.decrypt(encryptResponse, {
           encryptionParams,
         });
         channelKeyMethod = EncryptionTypes.METHOD.AES256_GCM;
+      } catch (e) {
+        errorReason = e.message;
       }
     } else {
       // Check if the decryption provider is given
