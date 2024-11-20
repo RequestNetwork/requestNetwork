@@ -167,9 +167,8 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
         ],
         authNeededCallback,
       });
-    } catch (error) {
-      console.error('Error getting session signatures:', error);
-      throw error;
+    } finally {
+      await client.disconnect();
     }
   }
 
