@@ -60,7 +60,6 @@ export class InMemoryIndexer implements StorageTypes.IIndexer {
     page?: number,
     pageSize?: number,
   ): Promise<StorageTypes.IGetTransactionsResponse> {
-    // Validate pagination parameters
     if (page !== undefined && page < 1) {
       throw new Error('Page must be greater than or equal to 1');
     }
@@ -71,36 +70,32 @@ export class InMemoryIndexer implements StorageTypes.IIndexer {
     // Efficiently get total count without creating intermediate array
     const channelIdsSet = new Set(topics.flatMap((topic) => this.#topicToChannelsIndex.get(topic)));
     const total = channelIdsSet.size;
-
-    // Apply pagination if requested
     let channelIds = Array.from(channelIdsSet);
-    if (page !== undefined && pageSize !== undefined) {
+
+    if (page && pageSize) {
       const start = (page - 1) * pageSize;
       // Return empty result if page exceeds available data
       if (start >= total) {
         return {
           blockNumber: 0,
           transactions: [],
-          pagination: { total, page, pageSize, hasMore: false }, // Explicitly set hasMore to false
+          pagination:
+            page && pageSize
+              ? { total, page, pageSize, hasMore: page * pageSize < total }
+              : undefined,
         };
       }
       channelIds = channelIds.slice(start, start + pageSize);
     }
+    const locations = channelIds
+      .map((channel) => this.#channelToLocationsIndex.get(channel))
+      .flat();
 
-    // Fetch and parse transactions
-    const locations = channelIds.flatMap(
-      (channel) => this.#channelToLocationsIndex.get(channel) || [],
-    );
     const transactions = await this.parseDocuments(locations);
 
-    // Construct the response
     return {
       blockNumber: 0,
       transactions,
-      pagination:
-        page !== undefined && pageSize !== undefined
-          ? { total, page, pageSize, hasMore: page * pageSize < total }
-          : undefined,
     };
   }
 
