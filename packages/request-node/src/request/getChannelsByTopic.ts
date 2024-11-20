@@ -32,6 +32,7 @@ export default class GetChannelHandler {
     const formattedPage = page && typeof page === 'string' ? parseInt(page, 10) : undefined;
     const formattedPageSize =
       pageSize && typeof pageSize === 'string' ? parseInt(pageSize, 10) : undefined;
+
     try {
       transactions = await this.dataAccess.getChannelsByTopic(
         topic,
@@ -41,11 +42,9 @@ export default class GetChannelHandler {
         formattedPage,
         formattedPageSize,
       );
-
       serverResponse.status(StatusCodes.OK).send(transactions);
     } catch (e) {
       this.logger.error(`getChannelsByTopic error: ${e}`);
-
       serverResponse.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
     }
   }
