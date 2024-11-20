@@ -1,5 +1,5 @@
 import * as LitJsSdk from '@lit-protocol/lit-node-client';
-import { CypherProviderTypes, DataAccessTypes, EncryptionTypes } from '@requestnetwork/types';
+import { CipherProviderTypes, DataAccessTypes, EncryptionTypes } from '@requestnetwork/types';
 import HttpDataAccess, {
   NodeConnectionConfig,
 } from '@requestnetwork/request-client.js/src/http-data-access';
@@ -26,7 +26,7 @@ import { disconnectWeb3 } from '@lit-protocol/auth-browser';
  * This class can be used with both client-side and Node.js Lit clients.
  * It implements the `IKmsProvider` interface for a standardized KMS provider structure.
  */
-export default class LitProvider implements CypherProviderTypes.ICypherProvider {
+export default class LitProvider implements CipherProviderTypes.ICipherProvider {
   /**
    * @property {string} chain - The blockchain to use for access control conditions.
    */

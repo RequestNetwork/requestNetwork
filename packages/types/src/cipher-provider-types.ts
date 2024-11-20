@@ -1,7 +1,7 @@
 /**
  * A generic interface for Key Management Service (KMS) providers.
  */
-export interface ICypherProvider {
+export interface ICipherProvider {
   /**
    * Encrypts the given data.
    * @param data - The data to encrypt.

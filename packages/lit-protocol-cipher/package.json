@@ -1,19 +1,19 @@
 {
-  "name": "@requestnetwork/lit-protocol-cypher",
+  "name": "@requestnetwork/lit-protocol-cipher",
   "version": "0.1.0",
   "publishConfig": {
     "access": "public"
   },
-  "description": "Lit Protocol Cypher Provider.",
+  "description": "Lit Protocol Cipher Provider.",
   "keywords": [
     "requestnetwork",
-    "lit-protocol-cypher-provider"
+    "lit-protocol-cipher-provider"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
   },
-  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/lit-protocol-cypher#readme",
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/lit-protocol-cipher#readme",
   "bugs": {
     "url": "https://github.com/RequestNetwork/requestNetwork/issues"
   },

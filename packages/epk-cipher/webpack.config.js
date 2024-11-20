@@ -9,14 +9,14 @@ const DuplicatePackageCheckerPlugin = require('duplicate-package-checker-webpack
 
 module.exports = {
   entry: {
-    'epk-cypher.min': './src/index.ts',
+    'epk-cipher.min': './src/index.ts',
   },
   mode: 'production',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
     libraryTarget: 'umd',
-    library: 'EthereumPrivateKeyCypherProvider',
+    library: 'EthereumPrivateKeyCipherProvider',
     umdNamedDefine: true,
   },
   resolve: {

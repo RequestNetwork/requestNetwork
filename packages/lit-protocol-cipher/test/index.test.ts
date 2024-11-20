@@ -1,4 +1,4 @@
-describe('lit-protocol-cypher', () => {
+describe('lit-protocol-cipher', () => {
   it('should be tested', () => {
     expect(true).toBeTruthy();
   });

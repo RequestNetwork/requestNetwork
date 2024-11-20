@@ -1,13 +1,13 @@
-# @requestnetwork/lit-protocol-cypher
+# @requestnetwork/lit-protocol-cipher
 
 Lit Protocol Provider.
 
-`@requestnetwork/lit-protocol-cypher` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
+`@requestnetwork/lit-protocol-cipher` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 
 ## Installation
 
 ```bash
-npm install @requestnetwork/lit-protocol-cypher
+npm install @requestnetwork/lit-protocol-cipher
 ```
 
 ## Usage

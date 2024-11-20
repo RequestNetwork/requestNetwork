@@ -1,19 +1,19 @@
 {
-  "name": "@requestnetwork/epk-cypher",
+  "name": "@requestnetwork/epk-cipher",
   "version": "0.1.0",
   "publishConfig": {
     "access": "public"
   },
-  "description": "Cypher provider using ethereum private keys.",
+  "description": "Cipher provider using ethereum private keys.",
   "keywords": [
     "requestnetwork",
-    "cypher-provider"
+    "cipher-provider"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
   },
-  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/epk-cypher#readme",
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/epk-cipher#readme",
   "bugs": {
     "url": "https://github.com/RequestNetwork/requestNetwork/issues"
   },

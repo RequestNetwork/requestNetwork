@@ -1,5 +1,5 @@
 import * as MultiFormat from '@requestnetwork/multi-format';
-import { CypherProviderTypes, EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
+import { CipherProviderTypes, EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
 import {
   encrypt,
   generate32BufferKey,
@@ -38,7 +38,7 @@ export default class TransactionsFactory {
   public static async createEncryptedTransactionInNewChannel(
     data: TransactionTypes.ITransactionData,
     encryptionParams: EncryptionTypes.IEncryptionParameters[],
-    cypherProvider?: CypherProviderTypes.ICypherProvider,
+    cipherProvider?: CipherProviderTypes.ICipherProvider,
   ): Promise<TransactionTypes.IPersistedTransaction> {
     // Generate a key for the AES encryption
     const symmetricKey: string = await generate32BufferKey();
@@ -58,7 +58,7 @@ export default class TransactionsFactory {
     let encryptionMethod = '';
     let keys: TransactionTypes.IKeysDictionary = {};
 
-    // TODO: refactor this part once the decryption provider is removed and the cypher provider is used
+    // TODO: refactor this part once the decryption provider is removed and the cipher provider is used
     if (
       encryptionParams.every(
         (encryptionParam: EncryptionTypes.IEncryptionParameters) =>
@@ -78,12 +78,12 @@ export default class TransactionsFactory {
           const multiFormattedIdentity: string = MultiFormat.serialize(identityEncryption);
 
           if (
-            cypherProvider &&
-            'supportedMethods' in cypherProvider &&
-            'supportedIdentityTypes' in cypherProvider &&
-            'isIdentityRegistered' in cypherProvider
+            cipherProvider &&
+            'supportedMethods' in cipherProvider &&
+            'supportedIdentityTypes' in cipherProvider &&
+            'isIdentityRegistered' in cipherProvider
           ) {
-            const encryptedKey: EncryptionTypes.IEncryptedData = await cypherProvider.encrypt(
+            const encryptedKey: EncryptionTypes.IEncryptedData = await cipherProvider.encrypt(
               symmetricKey,
               { encryptionParams },
             );
@@ -124,11 +124,11 @@ export default class TransactionsFactory {
       )
     ) {
       encryptionMethod = `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`;
-      if (!cypherProvider) {
-        throw new Error('No cypher provider given');
+      if (!cipherProvider) {
+        throw new Error('No cipher provider given');
       }
 
-      const encryptResponse = await cypherProvider.encrypt(symmetricKey, {
+      const encryptResponse = await cipherProvider.encrypt(symmetricKey, {
         encryptionParams,
       });
 
@@ -167,7 +167,7 @@ export default class TransactionsFactory {
     data: TransactionTypes.ITransactionData,
     channelKey: EncryptionTypes.IEncryptionParameters,
     encryptionParams: EncryptionTypes.IEncryptionParameters[] = [],
-    cypherProvider?: CypherProviderTypes.ICypherProvider,
+    cipherProvider?: CipherProviderTypes.ICipherProvider,
   ): Promise<TransactionTypes.IPersistedTransaction> {
     // check if the encryption method is the good one
     if (channelKey.method !== EncryptionTypes.METHOD.AES256_GCM) {
@@ -209,12 +209,12 @@ export default class TransactionsFactory {
             const multiFormattedIdentity: string = MultiFormat.serialize(identityEncryption);
 
             if (
-              cypherProvider &&
-              'supportedMethods' in cypherProvider &&
-              'supportedIdentityTypes' in cypherProvider &&
-              'isIdentityRegistered' in cypherProvider
+              cipherProvider &&
+              'supportedMethods' in cipherProvider &&
+              'supportedIdentityTypes' in cipherProvider &&
+              'isIdentityRegistered' in cipherProvider
             ) {
-              const encryptedKey: EncryptionTypes.IEncryptedData = await cypherProvider.encrypt(
+              const encryptedKey: EncryptionTypes.IEncryptedData = await cipherProvider.encrypt(
                 channelKey.key,
                 { encryptionParams },
               );
@@ -254,10 +254,10 @@ export default class TransactionsFactory {
             encryptionParam.method === EncryptionTypes.METHOD.KMS,
         )
       ) {
-        if (!cypherProvider) {
-          throw new Error('No cypher provider given');
+        if (!cipherProvider) {
+          throw new Error('No cipher provider given');
         }
-        const encryptResponse = await cypherProvider.encrypt(channelKey.key, {
+        const encryptResponse = await cipherProvider.encrypt(channelKey.key, {
           encryptionParams,
         });
 

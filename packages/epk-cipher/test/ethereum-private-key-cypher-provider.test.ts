@@ -1,6 +1,6 @@
 import { EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
 
-import EthereumPrivateKeyCypherProvider from '../src/ethereum-private-key-cypher-provider';
+import EthereumPrivateKeyCipherProvider from '../src/ethereum-private-key-cipher-provider';
 
 export const id1Raw = {
   address: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
@@ -49,7 +49,7 @@ const decryptedDataExpected = JSON.stringify({
 describe('ethereum-private-key-decryption-provider', () => {
   describe('constructor', () => {
     it('can construct', async () => {
-      const decryptionProvider = new EthereumPrivateKeyCypherProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyCipherProvider(id1Raw.decryptionParams);
 
       // 'decryptionProvider.supportedIdentityTypes is wrong'
       expect(decryptionProvider.supportedIdentityTypes).toEqual([
@@ -65,7 +65,7 @@ describe('ethereum-private-key-decryption-provider', () => {
       // 'should have thrown'
       expect(
         () =>
-          new EthereumPrivateKeyCypherProvider({
+          new EthereumPrivateKeyCipherProvider({
             key: '0x0',
             method: 'not_supported',
           } as any),
@@ -75,7 +75,7 @@ describe('ethereum-private-key-decryption-provider', () => {
       // 'should have thrown'
       expect(
         () =>
-          new EthereumPrivateKeyCypherProvider({
+          new EthereumPrivateKeyCipherProvider({
             key: '0x0',
             method: EncryptionTypes.METHOD.ECIES,
           }),
@@ -85,7 +85,7 @@ describe('ethereum-private-key-decryption-provider', () => {
 
   describe('addDecryptionParameters', () => {
     it('can addDecryptionParameters', () => {
-      const decryptionProvider = new EthereumPrivateKeyCypherProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyCipherProvider(id1Raw.decryptionParams);
 
       const identityAdded: IdentityTypes.IIdentity = decryptionProvider.addDecryptionParameters(
         id2Raw.decryptionParams,
@@ -101,7 +101,7 @@ describe('ethereum-private-key-decryption-provider', () => {
     });
 
     it('cannot addDecryptionParameters if method not supported', () => {
-      const decryptionProvider = new EthereumPrivateKeyCypherProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyCipherProvider(id1Raw.decryptionParams);
 
       const arbitraryParams: any = {
         method: 'unknown method',
@@ -115,7 +115,7 @@ describe('ethereum-private-key-decryption-provider', () => {
   });
   describe('removeDecryptionParameters', () => {
     it('can removeDecryptionParameters', () => {
-      const decryptionProvider = new EthereumPrivateKeyCypherProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyCipherProvider(id1Raw.decryptionParams);
       decryptionProvider.addDecryptionParameters(id2Raw.decryptionParams);
 
       decryptionProvider.removeRegisteredIdentity(id2Raw.identity);
@@ -125,7 +125,7 @@ describe('ethereum-private-key-decryption-provider', () => {
     });
 
     it('cannot removeDecryptionParameters if method not supported', () => {
-      const decryptionProvider = new EthereumPrivateKeyCypherProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyCipherProvider(id1Raw.decryptionParams);
 
       const arbitraryIdentity: any = {
         type: 'unknown type',
@@ -140,7 +140,7 @@ describe('ethereum-private-key-decryption-provider', () => {
 
   describe('clearAllDecryptionParameters', () => {
     it('can clearAllDecryptionParameters', () => {
-      const decryptionProvider = new EthereumPrivateKeyCypherProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyCipherProvider(id1Raw.decryptionParams);
       decryptionProvider.addDecryptionParameters(id2Raw.decryptionParams);
 
       decryptionProvider.clearAllRegisteredIdentities();
@@ -152,7 +152,7 @@ describe('ethereum-private-key-decryption-provider', () => {
 
   describe('encrypt', () => {
     it('can encrypt with ECIES', async () => {
-      const decryptionProvider = new EthereumPrivateKeyCypherProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyCipherProvider(id1Raw.decryptionParams);
       const encryptedData = await decryptionProvider.encrypt(decryptedDataExpected, {
         encryptionParams: id1Raw.encryptionParams,
       });
@@ -171,7 +171,7 @@ describe('ethereum-private-key-decryption-provider', () => {
 
   describe('decrypt', () => {
     it('can decrypt', async () => {
-      const decryptionProvider = new EthereumPrivateKeyCypherProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyCipherProvider(id1Raw.decryptionParams);
 
       const encryptedData = await decryptionProvider.encrypt(decryptedDataExpected, {
         encryptionParams: id1Raw.encryptionParams,
@@ -187,7 +187,7 @@ describe('ethereum-private-key-decryption-provider', () => {
 
     it('cannot decrypt if encryption not supported', async () => {
       const encryptedData = { type: EncryptionTypes.METHOD.AES256_CBC, value: '0000000' };
-      const decryptionProvider = new EthereumPrivateKeyCypherProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyCipherProvider(id1Raw.decryptionParams);
 
       await expect(
         decryptionProvider.decrypt(encryptedData, {
@@ -197,7 +197,7 @@ describe('ethereum-private-key-decryption-provider', () => {
     });
 
     it('cannot decrypt if identity not supported', async () => {
-      const decryptionProvider = new EthereumPrivateKeyCypherProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyCipherProvider(id1Raw.decryptionParams);
       const encryptedData = await decryptionProvider.encrypt(decryptedDataExpected, {
         encryptionParams: id1Raw.encryptionParams,
       });
@@ -209,7 +209,7 @@ describe('ethereum-private-key-decryption-provider', () => {
     });
 
     it('cannot decrypt if private key of the identity not given', async () => {
-      const decryptionProvider = new EthereumPrivateKeyCypherProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyCipherProvider(id1Raw.decryptionParams);
       const encryptedData = await decryptionProvider.encrypt(decryptedDataExpected, {
         encryptionParams: id1Raw.encryptionParams,
       });
@@ -227,14 +227,14 @@ describe('ethereum-private-key-decryption-provider', () => {
   });
   describe('isIdentityRegistered', () => {
     it('can check if an identity is registered', async () => {
-      const decryptionProvider = new EthereumPrivateKeyCypherProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyCipherProvider(id1Raw.decryptionParams);
 
       // 'id1Raw must be registered'
       expect(await decryptionProvider.isIdentityRegistered(id1Raw.identity)).toBe(true);
     });
 
     it('can check if an identity is NOT registered', async () => {
-      const decryptionProvider = new EthereumPrivateKeyCypherProvider(id1Raw.decryptionParams);
+      const decryptionProvider = new EthereumPrivateKeyCipherProvider(id1Raw.decryptionParams);
       // 'id2Raw must not be registered'
       expect(await decryptionProvider.isIdentityRegistered(id2Raw.identity)).toBe(false);
     });

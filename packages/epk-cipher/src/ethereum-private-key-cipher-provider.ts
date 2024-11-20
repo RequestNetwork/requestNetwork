@@ -1,4 +1,4 @@
-import { CypherProviderTypes, EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
+import { CipherProviderTypes, EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
 
 import { decrypt, ecEncrypt, getAddressFromPrivateKey } from '@requestnetwork/utils';
 
@@ -9,8 +9,8 @@ type IDecryptionParametersDictionary = Map<string, EncryptionTypes.IDecryptionPa
  * Implementation of the decryption provider from private key
  * Allows to decrypt() with "ethereumAddress" identities thanks to their private key given in constructor() or addDecryptionParameters()
  */
-export default class EthereumPrivateKeyCypherProvider
-  implements CypherProviderTypes.ICypherProvider
+export default class EthereumPrivateKeyCipherProvider
+  implements CipherProviderTypes.ICipherProvider
 {
   /** list of supported encryption method */
   public supportedMethods: EncryptionTypes.METHOD[] = [EncryptionTypes.METHOD.ECIES];

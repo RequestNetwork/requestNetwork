@@ -7,7 +7,7 @@ import * as EpkProviderTypes from './epk-provider-types';
 import * as EncryptionTypes from './encryption-types';
 import * as ExtensionTypes from './extension-types';
 import * as IdentityTypes from './identity-types';
-import * as CypherProviderTypes from './cypher-provider-types';
+import * as CipherProviderTypes from './cipher-provider-types';
 import * as LogTypes from './logger-types';
 import * as MultiFormatTypes from './multi-format-types';
 import * as PaymentTypes from './payment-types';
@@ -23,7 +23,7 @@ export {
   AdvancedLogicTypes,
   ClientTypes,
   CurrencyTypes,
-  CypherProviderTypes,
+  CipherProviderTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
   EncryptionTypes,

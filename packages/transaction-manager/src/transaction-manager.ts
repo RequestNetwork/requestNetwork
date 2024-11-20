@@ -1,6 +1,6 @@
 import * as MultiFormat from '@requestnetwork/multi-format';
 import {
-  CypherProviderTypes,
+  CipherProviderTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
@@ -19,16 +19,16 @@ import TransactionsFactory from './transactions-factory';
 export default class TransactionManager implements TransactionTypes.ITransactionManager {
   private dataAccess: DataAccessTypes.IDataAccess;
   private channelParser: ChannelParser;
-  private cypherProvider?: CypherProviderTypes.ICypherProvider;
+  private cipherProvider?: CipherProviderTypes.ICipherProvider;
 
   public constructor(
     dataAccess: DataAccessTypes.IDataAccess,
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
-    cypherProvider?: CypherProviderTypes.ICypherProvider,
+    cipherProvider?: CipherProviderTypes.ICipherProvider,
   ) {
     this.dataAccess = dataAccess;
-    this.channelParser = new ChannelParser(decryptionProvider, cypherProvider);
-    this.cypherProvider = cypherProvider;
+    this.channelParser = new ChannelParser(decryptionProvider, cipherProvider);
+    this.cipherProvider = cipherProvider;
   }
 
   /**
@@ -63,7 +63,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
         transaction = await TransactionsFactory.createEncryptedTransactionInNewChannel(
           transactionData,
           encryptionParams,
-          this.cypherProvider,
+          this.cipherProvider,
         );
         channelEncryptionMethod = transaction.encryptionMethod;
       }

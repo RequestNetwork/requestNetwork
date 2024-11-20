@@ -1,6 +1,6 @@
 import * as MultiFormat from '@requestnetwork/multi-format';
 import {
-  CypherProviderTypes,
+  CipherProviderTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
   IdentityTypes,
@@ -15,14 +15,14 @@ import EncryptedTransaction from './encrypted-transaction';
  */
 export default class TransactionsParser {
   private decryptionProvider: DecryptionProviderTypes.IDecryptionProvider | undefined;
-  private cypherProvider: CypherProviderTypes.ICypherProvider | undefined;
+  private cipherProvider: CipherProviderTypes.ICipherProvider | undefined;
 
   constructor(
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
-    cypherProvider?: CypherProviderTypes.ICypherProvider,
+    cipherProvider?: CipherProviderTypes.ICipherProvider,
   ) {
     this.decryptionProvider = decryptionProvider;
-    this.cypherProvider = cypherProvider;
+    this.cipherProvider = cipherProvider;
   }
 
   /**
@@ -134,7 +134,7 @@ export default class TransactionsParser {
     let channelKey = '';
     let channelKeyMethod: EncryptionTypes.METHOD | undefined;
 
-    if (this.cypherProvider) {
+    if (this.cipherProvider) {
       if (
         encryptionMethod === `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`
       ) {
@@ -147,7 +147,7 @@ export default class TransactionsParser {
           };
         });
 
-        channelKey = await this.cypherProvider.decrypt(encryptResponse, {
+        channelKey = await this.cipherProvider.decrypt(encryptResponse, {
           encryptionParams,
         });
         channelKeyMethod = EncryptionTypes.METHOD.AES256_GCM;
