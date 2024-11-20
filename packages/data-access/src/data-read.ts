@@ -93,9 +93,14 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
       const itemsPerPage = (page - 1) * pageSize;
 
       if (totalPending > itemsPerPage) {
-        adjustedPage = 1;
-        adjustedPageSize = pageSize - Math.min(totalPending - itemsPerPage, pageSize);
-        pendingItemsOnCurrentPage = pageSize - adjustedPageSize;
+        pendingItemsOnCurrentPage = Math.min(totalPending - itemsPerPage, pageSize);
+        adjustedPageSize = pageSize - pendingItemsOnCurrentPage;
+        adjustedPage = 1; // Reset to first page if pending items fill previous pages
+        if (adjustedPageSize === 0) {
+          // Ensure adjustedPageSize is at least 1
+          adjustedPageSize = 1;
+          pendingItemsOnCurrentPage--;
+        }
       } else {
         adjustedPage = page - Math.floor(totalPending / pageSize);
       }
