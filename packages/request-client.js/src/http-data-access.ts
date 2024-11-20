@@ -179,10 +179,10 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
     if (page !== undefined && page < 1) {
-      throw new Error('Page must be greater than or equal to 1');
+      throw new Error(`Page number must be greater than or equal to 1 but it is ${page}`);
     }
     if (pageSize !== undefined && pageSize <= 0) {
-      throw new Error('Page size must be greater than 0');
+      throw new Error(`Page size must be positive but it is ${pageSize}`);
     }
 
     const params: {

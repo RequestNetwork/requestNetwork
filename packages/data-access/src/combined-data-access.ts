@@ -26,8 +26,8 @@ export abstract class CombinedDataAccess implements DataAccessTypes.IDataAccess 
   async getChannelsByTopic(
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries | undefined,
-    page?: number | undefined,
-    pageSize?: number | undefined,
+    page?: number,
+    pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
     return await this.reader.getChannelsByTopic(topic, updatedBetween, page, pageSize);
   }

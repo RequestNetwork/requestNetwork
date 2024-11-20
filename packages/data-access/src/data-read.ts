@@ -49,8 +49,8 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
   async getChannelsByTopic(
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries | undefined,
-    page?: number | undefined,
-    pageSize?: number | undefined,
+    page?: number,
+    pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
     return this.getChannelsByMultipleTopics([topic], updatedBetween, page, pageSize);
   }
@@ -63,10 +63,10 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
     // Validate pagination parameters
     if (page !== undefined && page < 1) {
-      throw new Error('Page number must be greater than or equal to 1');
+      throw new Error(`Page number must be greater than or equal to 1 but it is ${page}`);
     }
     if (pageSize !== undefined && pageSize <= 0) {
-      throw new Error('Page size must be positive');
+      throw new Error(`Page size must be positive but it is ${pageSize}`);
     }
 
     // Get pending items first
