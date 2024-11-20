@@ -85,44 +85,42 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
       topics: item.topics || [],
     }));
 
-    // Adjust pagination logic
+    // Calculate adjusted pagination
     let adjustedPage = page;
     let adjustedPageSize = pageSize;
     let pendingItemsOnCurrentPage = 0;
-
     if (page !== undefined && pageSize !== undefined) {
-      // If there are pending items
-      if (pendingItems.length > 0) {
-        // Calculate how many pending items will be on the current page
-        pendingItemsOnCurrentPage = Math.min(pendingItems.length, pageSize);
+      const totalPending = pendingItems.length;
+      const itemsPerPage = (page - 1) * pageSize;
 
-        // If pending items fill or exceed the current page
-        if (pendingItemsOnCurrentPage === pageSize) {
-          // Return only pending items
-          adjustedPageSize = 0;
-        } else {
-          // Adjust page size for storage items
-          adjustedPageSize = pageSize - pendingItemsOnCurrentPage;
-          adjustedPage = 1;
+      if (totalPending > itemsPerPage) {
+        pendingItemsOnCurrentPage = Math.min(totalPending - itemsPerPage, pageSize);
+        adjustedPageSize = pageSize - pendingItemsOnCurrentPage;
+        adjustedPage = 1;
+        if (adjustedPageSize === 0) {
+          adjustedPageSize = 1;
+          pendingItemsOnCurrentPage--;
         }
+      } else {
+        adjustedPage = page - Math.floor(totalPending / pageSize);
       }
     }
 
     // Fetch transactions from storage
-    const result = await (adjustedPageSize && adjustedPageSize > 0
-      ? this.storage.getTransactionsByTopics(topics, adjustedPage, adjustedPageSize)
-      : { transactions: [], blockNumber: 0 });
+    const result = await this.storage.getTransactionsByTopics(
+      topics,
+      adjustedPage,
+      adjustedPageSize,
+    );
 
     // Combine and filter transactions
     let allTransactions = [...pendingItems, ...result.transactions];
     if (updatedBetween) {
-      allTransactions = allTransactions.filter((tx) => {
-        const isAfterFrom =
-          updatedBetween.from === undefined || tx.blockTimestamp >= updatedBetween.from;
-        const isBeforeTo =
-          updatedBetween.to === undefined || tx.blockTimestamp <= updatedBetween.to;
-        return isAfterFrom && isBeforeTo;
-      });
+      allTransactions = allTransactions.filter(
+        (tx) =>
+          tx.blockTimestamp >= (updatedBetween.from || 0) &&
+          tx.blockTimestamp <= (updatedBetween.to || Number.MAX_SAFE_INTEGER),
+      );
     }
 
     // Initialize data structures
@@ -140,15 +138,10 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
 
       transactionsByChannelIds[tx.channelId].push(this.toTimestampedTransaction(tx));
 
-      // Check if the transaction is from the storage result
-      const isStorageTransaction = result.transactions.some(
-        (storageTx) => storageTx.hash === tx.hash,
-      );
-
-      if (isStorageTransaction) {
+      // Only add storage metadata for transactions fetched from storage
+      if (result.transactions.includes(tx)) {
         storageMeta[tx.channelId].push(this.toStorageMeta(tx, result.blockNumber, this.network));
       }
-
       transactionsStorageLocation[tx.channelId].push(tx.hash);
     }
 
@@ -163,53 +156,14 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
                 total: result.transactions.length,
                 page,
                 pageSize,
-                hasMore: page * pageSize < result.transactions.length + pendingItemsOnCurrentPage,
+                hasMore:
+                  (page - 1) * pageSize + allTransactions.length - pendingItemsOnCurrentPage <
+                  result.transactions.length,
               }
             : undefined,
       },
       result: {
         transactions: transactionsByChannelIds,
-      },
-    };
-  }
-
-  private async getPending(channelId: string): Promise<DataAccessTypes.IReturnGetTransactions> {
-    const emptyResult = {
-      meta: {
-        transactionsStorageLocation: [],
-        storageMeta: [],
-      },
-      result: {
-        transactions: [],
-      },
-    };
-    const pending = this.pendingStore?.get(channelId);
-    if (!pending) {
-      return emptyResult;
-    }
-    const { storageResult, transaction } = pending;
-
-    const { transactions } = await this.storage.getTransactionsByStorageLocation(storageResult.id);
-
-    // if the pending tx is found, remove its state and fetch the real data
-    if (transactions.length > 0) {
-      this.pendingStore?.remove(channelId);
-      return emptyResult;
-    }
-
-    return {
-      meta: {
-        transactionsStorageLocation: [storageResult.id],
-        storageMeta: [storageResult.meta],
-      },
-      result: {
-        transactions: [
-          {
-            state: DataAccessTypes.TransactionState.PENDING,
-            timestamp: storageResult.meta.timestamp,
-            transaction,
-          },
-        ],
       },
     };
   }
