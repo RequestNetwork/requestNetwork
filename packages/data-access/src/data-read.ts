@@ -85,24 +85,26 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
       topics: item.topics || [],
     }));
 
-    // Calculate adjusted pagination
+    // Adjust pagination logic
     let adjustedPage = page;
     let adjustedPageSize = pageSize;
     let pendingItemsOnCurrentPage = 0;
-    if (page !== undefined && pageSize !== undefined) {
-      const totalPending = pendingItems.length;
-      const itemsPerPage = (page - 1) * pageSize;
 
-      if (totalPending > itemsPerPage) {
-        pendingItemsOnCurrentPage = Math.min(totalPending - itemsPerPage, pageSize);
-        adjustedPageSize = pageSize - pendingItemsOnCurrentPage;
-        adjustedPage = 1;
-        if (adjustedPageSize === 0) {
-          adjustedPageSize = 1;
-          pendingItemsOnCurrentPage--;
+    if (page !== undefined && pageSize !== undefined) {
+      // If there are pending items
+      if (pendingItems.length > 0) {
+        // Calculate how many pending items will be on the current page
+        pendingItemsOnCurrentPage = Math.min(pendingItems.length, pageSize);
+
+        // If pending items fill or exceed the current page
+        if (pendingItemsOnCurrentPage === pageSize) {
+          // Return only pending items
+          adjustedPageSize = 0;
+        } else {
+          // Adjust page size for storage items
+          adjustedPageSize = pageSize - pendingItemsOnCurrentPage;
+          adjustedPage = 1;
         }
-      } else {
-        adjustedPage = page - Math.floor(totalPending / pageSize);
       }
     }
 
@@ -116,11 +118,13 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
     // Combine and filter transactions
     let allTransactions = [...pendingItems, ...result.transactions];
     if (updatedBetween) {
-      allTransactions = allTransactions.filter(
-        (tx) =>
-          tx.blockTimestamp >= (updatedBetween.from || 0) &&
-          tx.blockTimestamp <= (updatedBetween.to || Number.MAX_SAFE_INTEGER),
-      );
+      allTransactions = allTransactions.filter((tx) => {
+        const isAfterFrom =
+          updatedBetween.from === undefined || tx.blockTimestamp >= updatedBetween.from;
+        const isBeforeTo =
+          updatedBetween.to === undefined || tx.blockTimestamp <= updatedBetween.to;
+        return isAfterFrom && isBeforeTo;
+      });
     }
 
     // Initialize data structures
@@ -156,9 +160,7 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
                 total: result.transactions.length,
                 page,
                 pageSize,
-                hasMore:
-                  (page - 1) * pageSize + allTransactions.length - pendingItemsOnCurrentPage <
-                  result.transactions.length,
+                hasMore: page * pageSize < result.transactions.length + pendingItemsOnCurrentPage,
               }
             : undefined,
       },
