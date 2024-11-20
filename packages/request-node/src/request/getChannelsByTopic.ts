@@ -29,9 +29,9 @@ export default class GetChannelHandler {
       return;
     }
 
-    const formattedPage = page && typeof page === 'string' ? parseInt(page, 10) : undefined;
+    const formattedPage = page && typeof page === 'string' ? Number(page) : undefined;
     const formattedPageSize =
-      pageSize && typeof pageSize === 'string' ? parseInt(pageSize, 10) : undefined;
+      pageSize && typeof pageSize === 'string' ? Number(pageSize) : undefined;
 
     try {
       transactions = await this.dataAccess.getChannelsByTopic(
