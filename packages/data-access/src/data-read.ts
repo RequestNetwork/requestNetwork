@@ -65,17 +65,18 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
     if (page !== undefined && page < 1) {
       throw new Error(`Page number must be greater than or equal to 1, but it is ${page}`);
     }
-    if (pageSize !== undefined && pageSize <= 0) {
-      throw new Error(`Page size must be positive, but it is ${pageSize}`);
+    if (pageSize !== undefined && pageSize < 1) {
+      throw new Error(`Page size must be greater than 0, but it is ${pageSize}`);
     }
 
-    // Get pending items first
+    // Get pending items
     const pending = this.pendingStore?.findByTopics(topics) || [];
+
+    // Map pending items to the desired format
     const pendingItems = pending.map((item) => ({
       hash: item.storageResult.id,
       channelId: item.channelId,
       ...item.transaction,
-
       blockNumber: item.storageResult.meta.ethereum?.blockNumber || -1,
       blockTimestamp: item.storageResult.meta.ethereum?.blockTimestamp || -1,
       transactionHash: item.storageResult.meta.ethereum?.transactionHash || '',
@@ -84,7 +85,7 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
       topics: item.topics || [],
     }));
 
-    // Adjust pagination to account for pending items
+    // Calculate adjusted pagination
     let adjustedPage = page;
     let adjustedPageSize = pageSize;
     let pendingItemsOnCurrentPage = 0;
@@ -95,9 +96,8 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
       if (totalPending > itemsPerPage) {
         pendingItemsOnCurrentPage = Math.min(totalPending - itemsPerPage, pageSize);
         adjustedPageSize = pageSize - pendingItemsOnCurrentPage;
-        adjustedPage = 1; // Reset to first page if pending items fill previous pages
+        adjustedPage = 1;
         if (adjustedPageSize === 0) {
-          // Ensure adjustedPageSize is at least 1
           adjustedPageSize = 1;
           pendingItemsOnCurrentPage--;
         }
@@ -106,54 +106,59 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
       }
     }
 
-    // Fetch transactions from storage with adjusted pagination
+    // Fetch transactions from storage
     const result = await this.storage.getTransactionsByTopics(
       topics,
       adjustedPage,
       adjustedPageSize,
     );
 
-    // Combine pending and stored transactions
-    let transactions = [...pendingItems, ...result.transactions];
-
-    // Apply updatedBetween filter (if provided) before further processing
+    // Combine and filter transactions
+    let allTransactions = [...pendingItems, ...result.transactions];
     if (updatedBetween) {
-      transactions = transactions.filter(
+      allTransactions = allTransactions.filter(
         (tx) =>
           tx.blockTimestamp >= (updatedBetween.from || 0) &&
           tx.blockTimestamp <= (updatedBetween.to || Number.MAX_SAFE_INTEGER),
       );
     }
 
-    // Group transactions by channelId
+    // Initialize data structures
     const transactionsByChannelIds: DataAccessTypes.ITransactionsByChannelIds = {};
     const storageMeta: Record<string, StorageTypes.IEntryMetadata[]> = {};
     const transactionsStorageLocation: Record<string, string[]> = {};
 
-    for (const tx of transactions) {
+    // Process transactions
+    for (const tx of allTransactions) {
       if (!transactionsByChannelIds[tx.channelId]) {
         transactionsByChannelIds[tx.channelId] = [];
         storageMeta[tx.channelId] = [];
         transactionsStorageLocation[tx.channelId] = [];
       }
+
       transactionsByChannelIds[tx.channelId].push(this.toTimestampedTransaction(tx));
-      storageMeta[tx.channelId].push(this.toStorageMeta(tx, result.blockNumber, this.network));
+
+      // Only add storage metadata for transactions fetched from storage
+      if (result.transactions.includes(tx)) {
+        storageMeta[tx.channelId].push(this.toStorageMeta(tx, result.blockNumber, this.network));
+      }
       transactionsStorageLocation[tx.channelId].push(tx.hash);
     }
 
+    // Construct the return object
     return {
       meta: {
-        storageMeta: storageMeta,
-        transactionsStorageLocation: transactionsStorageLocation,
+        storageMeta,
+        transactionsStorageLocation,
         pagination:
           page && pageSize
             ? {
-                total: result.transactions.length, // Use the actual count from storage
+                total: result.transactions.length,
                 page,
                 pageSize,
                 hasMore:
-                  (page - 1) * pageSize + transactions.length - pendingItemsOnCurrentPage <
-                  result.transactions.length, // Adjust hasMore calculation
+                  (page - 1) * pageSize + allTransactions.length - pendingItemsOnCurrentPage <
+                  result.transactions.length,
               }
             : undefined,
       },
