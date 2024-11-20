@@ -134,12 +134,15 @@ export default class TransactionsParser {
     let channelKey = '';
     let channelKeyMethod: EncryptionTypes.METHOD | undefined;
 
-    if (this.cipherProvider) {
+    if (
+      this.cipherProvider &&
+      encryptionMethod === `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`
+    ) {
       const entries = Object.entries(keys);
       const encryptResponse = JSON.parse(MultiFormat.deserialize(entries[0][1]).value);
       const encryptionParams = entries.map((entry) => {
         return {
-          method: channelKeyMethod?.split('-')[0], // Destructuring the method to get the first part e.g. `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`
+          method: EncryptionTypes.METHOD.KMS,
           key: entry[0],
         };
       });
@@ -153,8 +156,8 @@ export default class TransactionsParser {
       }
     } else {
       // Check if the decryption provider is given
-      if (!this.decryptionProvider) {
-        throw new Error(`No decryption provider given`);
+      if (!this.decryptionProvider && !this.cipherProvider) {
+        throw new Error(`No decryption or cipher provider given`);
       }
 
       // Check the encryption method
@@ -185,12 +188,22 @@ export default class TransactionsParser {
             if (identity && identity.type === IdentityTypes.TYPE.ETHEREUM_ADDRESS) {
               // Check if we can decrypt the key with this identity
               if (
-                this.decryptionProvider &&
-                (await this.decryptionProvider.isIdentityRegistered(identity))
+                (this.decryptionProvider &&
+                  (await this.decryptionProvider.isIdentityRegistered(identity))) ||
+                (this.cipherProvider &&
+                  (await (
+                    this.cipherProvider as CipherProviderTypes.ICipherProvider & {
+                      isIdentityRegistered: (identity: IdentityTypes.IIdentity) => Promise<boolean>;
+                    }
+                  ).isIdentityRegistered(identity)))
               ) {
                 try {
                   const key = MultiFormat.deserialize(keys[identityMultiFormatted]);
-                  decryptedChannelKey = await this.decryptionProvider.decrypt(key, identity);
+                  decryptedChannelKey = this.cipherProvider
+                    ? await this.cipherProvider.decrypt(key, {
+                        identity,
+                      })
+                    : await this.decryptionProvider?.decrypt(key, identity);
                 } catch (e) {
                   errorReason = e.message;
                 }

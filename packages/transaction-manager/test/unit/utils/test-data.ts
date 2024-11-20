@@ -1,5 +1,10 @@
-import { DecryptionProviderTypes, EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
-import { decrypt } from '@requestnetwork/utils';
+import {
+  CipherProviderTypes,
+  DecryptionProviderTypes,
+  EncryptionTypes,
+  IdentityTypes,
+} from '@requestnetwork/types';
+import { decrypt, ecEncrypt } from '@requestnetwork/utils';
 
 export const idRaw1 = {
   address: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
@@ -71,6 +76,40 @@ export const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider
       default:
         throw new Error('Identity not registered');
     }
+  },
+  isIdentityRegistered: async (identity: IdentityTypes.IIdentity): Promise<boolean> => {
+    return [idRaw1.address, idRaw2.address].includes(identity.value.toLowerCase());
+  },
+  supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
+  supportedMethods: [EncryptionTypes.METHOD.ECIES],
+};
+
+export const fakeEpkCipherProvider: CipherProviderTypes.ICipherProvider & {
+  isIdentityRegistered: (identity: IdentityTypes.IIdentity) => Promise<boolean>;
+  supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS];
+  supportedMethods: [EncryptionTypes.METHOD.ECIES];
+} = {
+  decrypt: (
+    data: EncryptionTypes.IEncryptedData,
+    options: { identity: IdentityTypes.IIdentity },
+  ): Promise<string> => {
+    switch (options.identity.value.toLowerCase()) {
+      case idRaw1.address:
+        return decrypt(data, idRaw1.decryptionParams);
+      case idRaw2.address:
+        return decrypt(data, idRaw2.decryptionParams);
+      default:
+        throw new Error('Identity not registered');
+    }
+  },
+  encrypt: (data: any, options: any): Promise<string> => {
+    const encryptionParams = options.encryptionParams;
+
+    if (encryptionParams.method === EncryptionTypes.METHOD.ECIES) {
+      return ecEncrypt(encryptionParams.key, data);
+    }
+
+    throw new Error('encryptionParams.method not supported');
   },
   isIdentityRegistered: async (identity: IdentityTypes.IIdentity): Promise<boolean> => {
     return [idRaw1.address, idRaw2.address].includes(identity.value.toLowerCase());
