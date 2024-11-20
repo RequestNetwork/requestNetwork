@@ -153,7 +153,7 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
         pagination:
           page && pageSize
             ? {
-                total: result.transactions.length,
+                total: result.transactions.length + pendingItems.length,
                 page,
                 pageSize,
                 hasMore:
@@ -164,6 +164,47 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
       },
       result: {
         transactions: transactionsByChannelIds,
+      },
+    };
+  }
+
+  private async getPending(channelId: string): Promise<DataAccessTypes.IReturnGetTransactions> {
+    const emptyResult = {
+      meta: {
+        transactionsStorageLocation: [],
+        storageMeta: [],
+      },
+      result: {
+        transactions: [],
+      },
+    };
+    const pending = this.pendingStore?.get(channelId);
+    if (!pending) {
+      return emptyResult;
+    }
+    const { storageResult, transaction } = pending;
+
+    const { transactions } = await this.storage.getTransactionsByStorageLocation(storageResult.id);
+
+    // if the pending tx is found, remove its state and fetch the real data
+    if (transactions.length > 0) {
+      this.pendingStore?.remove(channelId);
+      return emptyResult;
+    }
+
+    return {
+      meta: {
+        transactionsStorageLocation: [storageResult.id],
+        storageMeta: [storageResult.meta],
+      },
+      result: {
+        transactions: [
+          {
+            state: DataAccessTypes.TransactionState.PENDING,
+            timestamp: storageResult.meta.timestamp,
+            transaction,
+          },
+        ],
       },
     };
   }
