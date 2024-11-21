@@ -627,6 +627,8 @@ workflows:
             - test-currency
             - test-data-access
             - test-data-format
+            - test-epk-cipher
+            - test-lit-protocol-cipher
             - test-epk-decryption
             - test-epk-signature
             - test-ethereum-storage

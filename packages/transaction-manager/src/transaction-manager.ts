@@ -96,6 +96,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
           transactionData,
           channelKey,
           encryptionParams,
+          this.cipherProvider,
         );
 
         channelEncryptionMethod = encryptionMethod;

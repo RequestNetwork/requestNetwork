@@ -142,8 +142,10 @@ export default class TransactionsParser {
       if (entries.length === 0) {
         throw new Error('No encryption keys provided');
       }
-      const encryptResponse = JSON.parse(MultiFormat.deserialize(entries[0][1]).value);
-      if (!encryptResponse) {
+      let encryptResponse;
+      try {
+        encryptResponse = JSON.parse(MultiFormat.deserialize(entries[0][1]).value);
+      } catch (e) {
         throw new Error('Invalid encryption response format');
       }
       const encryptionParams = entries.map((entry) => {

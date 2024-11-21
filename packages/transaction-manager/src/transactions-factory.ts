@@ -255,7 +255,7 @@ export default class TransactionsFactory {
         )
       ) {
         if (!cipherProvider) {
-          throw new Error('No cipher provider given');
+          throw new Error('cipherProvider is required for KMS encryption');
         }
         const encryptResponse = await cipherProvider.encrypt(channelKey.key, {
           encryptionParams,
