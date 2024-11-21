@@ -311,6 +311,36 @@ jobs:
           command: 'yarn workspace @requestnetwork/epk-signature run test --ci --maxWorkers=1'
       - store_test_results:
           path: packages/epk-signature/reports/
+  test-epk-cipher:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Build epk-cipher'
+          command: 'yarn workspace @requestnetwork/epk-cipher run build'
+      - run:
+          name: 'Test epk-cipher'
+          command: 'yarn workspace @requestnetwork/epk-cipher run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/epk-cipher/reports/
+  test-lit-protocol-cipher:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Build lit-protocol-cipher'
+          command: 'yarn workspace @requestnetwork/lit-protocol-cipher run build'
+      - run:
+          name: 'Test lit-protocol-cipher'
+          command: 'yarn workspace @requestnetwork/lit-protocol-cipher run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/lit-protocol-cipher/reports/
   test-epk-decryption:
     docker:
       - *node_image
@@ -556,6 +586,12 @@ workflows:
           requires:
             - build
       - test-currency:
+          requires:
+            - build
+      - test-epk-cipher:
+          requires:
+            - build
+      - test-lit-protocol-cipher:
           requires:
             - build
       - test-epk-signature:
