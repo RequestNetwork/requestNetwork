@@ -105,15 +105,14 @@ export const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider
   supportedMethods: [EncryptionTypes.METHOD.ECIES],
 };
 
-export const fakeEpkCipherProvider: CipherProviderTypes.ICipherProvider & {
-  isIdentityRegistered: (identity: IdentityTypes.IIdentity) => Promise<boolean>;
-  supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS];
-  supportedMethods: [EncryptionTypes.METHOD.ECIES];
-} = {
-  decrypt: (
+export class FakeEpkCipherProvider implements CipherProviderTypes.ICipherProvider {
+  supportedIdentityTypes = [IdentityTypes.TYPE.ETHEREUM_ADDRESS];
+  supportedMethods = [EncryptionTypes.METHOD.ECIES];
+
+  public async decrypt(
     data: EncryptionTypes.IEncryptedData,
     options: { identity: IdentityTypes.IIdentity },
-  ): Promise<string> => {
+  ): Promise<string> {
     switch (options.identity.value.toLowerCase()) {
       case idRaw1.address:
         return decrypt(data, idRaw1.decryptionParams);
@@ -122,11 +121,12 @@ export const fakeEpkCipherProvider: CipherProviderTypes.ICipherProvider & {
       default:
         throw new Error('Identity not registered');
     }
-  },
-  encrypt: (
+  }
+
+  public async encrypt(
     data: string,
     options: { encryptionParams: EncryptionTypes.IEncryptionParameters },
-  ): Promise<string> => {
+  ): Promise<string> {
     const encryptionParams = options.encryptionParams;
 
     if (encryptionParams.method === EncryptionTypes.METHOD.ECIES) {
@@ -134,13 +134,14 @@ export const fakeEpkCipherProvider: CipherProviderTypes.ICipherProvider & {
     }
 
     throw new Error('encryptionParams.method not supported');
-  },
-  isIdentityRegistered: async (identity: IdentityTypes.IIdentity): Promise<boolean> => {
+  }
+
+  public async isIdentityRegistered(identity: IdentityTypes.IIdentity): Promise<boolean> {
     return [idRaw1.address, idRaw2.address].includes(identity.value.toLowerCase());
-  },
-  supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
-  supportedMethods: [EncryptionTypes.METHOD.ECIES],
-};
+  }
+}
+
+export const fakeEpkCipherProvider = new FakeEpkCipherProvider();
 
 export const id3DecryptionProvider: DecryptionProviderTypes.IDecryptionProvider = {
   decrypt: (
