@@ -139,7 +139,13 @@ export default class TransactionsParser {
       encryptionMethod === `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`
     ) {
       const entries = Object.entries(keys);
+      if (entries.length === 0) {
+        throw new Error('No encryption keys provided');
+      }
       const encryptResponse = JSON.parse(MultiFormat.deserialize(entries[0][1]).value);
+      if (!encryptResponse) {
+        throw new Error('Invalid encryption response format');
+      }
       const encryptionParams = entries.map((entry) => {
         return {
           method: EncryptionTypes.METHOD.KMS,
@@ -191,6 +197,11 @@ export default class TransactionsParser {
                 (this.decryptionProvider &&
                   (await this.decryptionProvider.isIdentityRegistered(identity))) ||
                 (this.cipherProvider &&
+                  typeof (
+                    this.cipherProvider as CipherProviderTypes.ICipherProvider & {
+                      isIdentityRegistered: (identity: IdentityTypes.IIdentity) => Promise<boolean>;
+                    }
+                  ).isIdentityRegistered === 'function' &&
                   (await (
                     this.cipherProvider as CipherProviderTypes.ICipherProvider & {
                       isIdentityRegistered: (identity: IdentityTypes.IIdentity) => Promise<boolean>;

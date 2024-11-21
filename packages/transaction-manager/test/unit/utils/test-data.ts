@@ -6,6 +6,27 @@ import {
 } from '@requestnetwork/types';
 import { decrypt, ecEncrypt } from '@requestnetwork/utils';
 
+export const kmsRaw1 = {
+  encryptionParams: {
+    key: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
+    method: EncryptionTypes.METHOD.KMS,
+  },
+};
+
+export const kmsRaw2 = {
+  encryptionParams: {
+    key: '0x740fc87bd3f41d07d23a01dec90623ebc5fed9d6',
+    method: EncryptionTypes.METHOD.KMS,
+  },
+};
+
+export const kmsRaw3 = {
+  encryptionParams: {
+    key: '0x818b6337657a23f58581715fc610577292e521d0',
+    method: EncryptionTypes.METHOD.KMS,
+  },
+};
+
 export const idRaw1 = {
   address: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
   decryptionParams: {
@@ -102,7 +123,10 @@ export const fakeEpkCipherProvider: CipherProviderTypes.ICipherProvider & {
         throw new Error('Identity not registered');
     }
   },
-  encrypt: (data: any, options: any): Promise<string> => {
+  encrypt: (
+    data: string,
+    options: { encryptionParams: EncryptionTypes.IEncryptionParameters },
+  ): Promise<string> => {
     const encryptionParams = options.encryptionParams;
 
     if (encryptionParams.method === EncryptionTypes.METHOD.ECIES) {
@@ -135,4 +159,26 @@ export const id3DecryptionProvider: DecryptionProviderTypes.IDecryptionProvider 
   },
   supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
   supportedMethods: [EncryptionTypes.METHOD.ECIES],
+};
+
+let storedRawData: string;
+
+export const fakeLitProtocolProvider: CipherProviderTypes.ICipherProvider = {
+  decrypt: async (
+    encryptedData: string,
+    options: {
+      encryptionParams: EncryptionTypes.IEncryptionParameters[];
+    },
+  ): Promise<string> => {
+    return storedRawData;
+  },
+  encrypt: async (
+    data: string,
+    options: {
+      encryptionParams: EncryptionTypes.IEncryptionParameters[];
+    },
+  ): Promise<string> => {
+    storedRawData = data;
+    return 'encrypted';
+  },
 };

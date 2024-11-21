@@ -221,5 +221,32 @@ describe('transaction-parser', () => {
 
     encryptedTests(TestData.fakeDecryptionProvider);
     encryptedTests(undefined, TestData.fakeEpkCipherProvider);
+
+    describe('parse encrypted persisted transaction with LitProtocol', () => {
+      beforeEach(() => {
+        transactionParser = new TransactionsParser(undefined, TestData.fakeLitProtocolProvider);
+      });
+      it('can parse encrypted transaction on an unknown channel', async () => {
+        const encryptedParsedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
+          data,
+          [
+            TestData.kmsRaw1.encryptionParams,
+            TestData.kmsRaw2.encryptionParams,
+            TestData.kmsRaw3.encryptionParams,
+          ],
+          TestData.fakeLitProtocolProvider,
+        );
+
+        const ret = await transactionParser.parsePersistedTransaction(
+          encryptedParsedTx,
+          TransactionTypes.ChannelType.UNKNOWN,
+        );
+
+        // 'transaction wrong'
+        expect(await ret.transaction.getData()).toBe(data);
+        // 'channelKey wrong'
+        expect(ret.channelKey).toBeDefined();
+      });
+    });
   });
 });

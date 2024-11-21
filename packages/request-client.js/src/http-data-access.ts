@@ -220,7 +220,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     if (!utils.isAddress(delegateeAddress)) {
       throw new Error('delegateeAddress must be a valid Ethereum address');
     }
-    return await this.fetch('GET', '/getLitCapacityDelegationAuthSig', { delegateeAddress });
+    return await this.fetchAndRetry('/getLitCapacityDelegationAuthSig', { delegateeAddress });
   }
 
   /**

@@ -39,7 +39,7 @@ export default class GetLitCapacityDelegationAuthSigHandler {
       });
       await litContractClient.connect();
 
-      const existingTokens: any[] =
+      const existingTokens: { tokenId: string }[] =
         await litContractClient.rateLimitNftContractUtils.read.getTokensByOwnerAddress(
           await ethersSigner.getAddress(),
         );
@@ -67,7 +67,7 @@ export default class GetLitCapacityDelegationAuthSigHandler {
     } catch (e) {
       this.logger.error(`GetLitCapacityDelegationAuthSigHandler error: ${e}`);
 
-      serverResponse.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
+      serverResponse.status(StatusCodes.INTERNAL_SERVER_ERROR).send('Internal Server Error');
     }
   }
 }

@@ -33,7 +33,10 @@ export default class EthereumPrivateKeyCipherProvider
    * @param data
    * @param options
    */
-  public async encrypt(data: any, options: any): Promise<EncryptionTypes.IEncryptedData> {
+  public async encrypt(
+    data: string,
+    options: { encryptionParams: EncryptionTypes.IEncryptionParameters },
+  ): Promise<EncryptionTypes.IEncryptedData> {
     const encryptionParams = options.encryptionParams;
 
     if (encryptionParams.method === EncryptionTypes.METHOD.ECIES) {
@@ -132,7 +135,7 @@ export default class EthereumPrivateKeyCipherProvider
       throw Error(`Identity type not supported ${identity.type}`);
     }
 
-    this.decryptionParametersDictionary.delete(identity.value);
+    this.decryptionParametersDictionary.delete(identity.value.toLowerCase());
   }
 
   /**

@@ -2,7 +2,7 @@ import { EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
 
 import EthereumPrivateKeyCipherProvider from '../src/ethereum-private-key-cipher-provider';
 
-export const id1Raw = {
+const id1Raw = {
   address: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
   decryptionParams: {
     key: '0x04674d2e53e0e14653487d7323cc5f0a7959c83067f5654cafe4094bde90fa8a',
@@ -21,7 +21,7 @@ export const id1Raw = {
     '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
 };
 
-export const id2Raw = {
+const id2Raw = {
   address: '0x818b6337657a23f58581715fc610577292e521d0',
   decryptionParams: {
     key: '0x4025da5692759add08f98f4b056c41c71916a671cedc7584a80d73adc7fb43c0',

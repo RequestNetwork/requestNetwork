@@ -132,6 +132,8 @@ export default class TransactionsFactory {
         encryptionParams,
       });
 
+      console.log('encryptResponse', encryptResponse);
+
       keys = Object.fromEntries(
         encryptionParams.map((encryptionParam) => {
           return [
