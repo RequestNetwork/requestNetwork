@@ -1,6 +1,5 @@
 import { Wallet, providers } from 'ethers';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
-import { LitNetwork } from '@lit-protocol/constants';
 import { LIT_RPC } from '@lit-protocol/constants';
 import { LogTypes } from '@requestnetwork/types';
 import { Request, Response } from 'express';
@@ -35,7 +34,7 @@ export default class GetLitCapacityDelegationAuthSigHandler {
 
       const litContractClient = new LitContracts({
         signer: ethersSigner,
-        network: LitNetwork.DatilTest,
+        network: config.getLitProtocolNetwork(),
       });
       await litContractClient.connect();
 
@@ -50,7 +49,7 @@ export default class GetLitCapacityDelegationAuthSigHandler {
       }
 
       const litNodeClient = new LitNodeClient({
-        litNetwork: LitNetwork.DatilTest,
+        litNetwork: config.getLitProtocolNetwork(),
         debug: false,
       });
       await litNodeClient.connect();
