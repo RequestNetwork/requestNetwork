@@ -37,6 +37,13 @@ export default class EthereumPrivateKeyCipherProvider
     data: string,
     options: { encryptionParams: EncryptionTypes.IEncryptionParameters },
   ): Promise<EncryptionTypes.IEncryptedData> {
+    if (!data) {
+      throw new Error('Data to encrypt cannot be empty');
+    }
+    if (!options?.encryptionParams?.key) {
+      throw new Error('Encryption key is required');
+    }
+
     const encryptionParams = options.encryptionParams;
 
     if (encryptionParams.method === EncryptionTypes.METHOD.ECIES) {
@@ -47,7 +54,11 @@ export default class EthereumPrivateKeyCipherProvider
       };
     }
 
-    throw new Error('encryptionParams.method not supported');
+    throw new Error(
+      `Encryption method '${
+        encryptionParams.method
+      }' is not supported. Supported methods: ${this.supportedMethods.join(', ')}`,
+    );
   }
 
   /**

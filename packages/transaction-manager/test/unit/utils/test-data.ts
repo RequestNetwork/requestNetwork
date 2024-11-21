@@ -161,24 +161,44 @@ export const id3DecryptionProvider: DecryptionProviderTypes.IDecryptionProvider 
   supportedMethods: [EncryptionTypes.METHOD.ECIES],
 };
 
-let storedRawData: string;
+export class FakeLitProtocolProvider implements CipherProviderTypes.ICipherProvider {
+  private storedRawData: string;
 
-export const fakeLitProtocolProvider: CipherProviderTypes.ICipherProvider = {
-  decrypt: async (
+  constructor() {
+    this.storedRawData = '';
+  }
+
+  public async decrypt(
     encryptedData: string,
     options: {
       encryptionParams: EncryptionTypes.IEncryptionParameters[];
     },
-  ): Promise<string> => {
-    return storedRawData;
-  },
-  encrypt: async (
+  ): Promise<string> {
+    if (!options.encryptionParams?.length) {
+      throw new Error('Encryption parameters are required');
+    }
+    if (encryptedData !== 'encrypted') {
+      throw new Error('Invalid encrypted data format');
+    }
+    return this.storedRawData;
+  }
+
+  public async encrypt(
     data: string,
     options: {
       encryptionParams: EncryptionTypes.IEncryptionParameters[];
     },
-  ): Promise<string> => {
-    storedRawData = data;
+  ): Promise<string> {
+    if (!options.encryptionParams?.length) {
+      throw new Error('Encryption parameters are required');
+    }
+    if (!data) {
+      throw new Error('Data is required');
+    }
+    this.storedRawData = data;
     return 'encrypted';
-  },
-};
+  }
+}
+
+export const fakeLitProtocolProvider: CipherProviderTypes.ICipherProvider =
+  new FakeLitProtocolProvider();

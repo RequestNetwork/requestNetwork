@@ -110,6 +110,16 @@ describe('transaction-factory', () => {
       ).toBe(true);
     });
 
+    it('should throw error when cipherProvider is not provided for KMS encryption', async () => {
+      await expect(
+        TransactionsFactory.createEncryptedTransactionInNewChannel(
+          data,
+          [TestData.kmsRaw1.encryptionParams],
+          undefined,
+        ),
+      ).rejects.toThrowError('cipherProvider is required for KMS encryption');
+    });
+
     it('cannot create encrypted transaction with encryption parameters not ECIES', async () => {
       await expect(
         TransactionsFactory.createEncryptedTransactionInNewChannel(data, [

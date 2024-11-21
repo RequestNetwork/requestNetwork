@@ -125,14 +125,12 @@ export default class TransactionsFactory {
     ) {
       encryptionMethod = `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`;
       if (!cipherProvider) {
-        throw new Error('No cipher provider given');
+        throw new Error('cipherProvider is required for KMS encryption');
       }
 
       const encryptResponse = await cipherProvider.encrypt(symmetricKey, {
         encryptionParams,
       });
-
-      console.log('encryptResponse', encryptResponse);
 
       keys = Object.fromEntries(
         encryptionParams.map((encryptionParam) => {
