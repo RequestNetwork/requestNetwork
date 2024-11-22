@@ -187,6 +187,19 @@ describe('LitProvider', () => {
         expect.any(Object),
       );
     });
+
+    it('should throw error when encryption fails', async () => {
+      // Correctly mock the encryptString method to reject
+      (LitJsSdk as any).encryptString.mockRejectedValueOnce(new Error('Encryption failed'));
+
+      try {
+        await litProvider.encrypt(mockData, {
+          encryptionParams: mockEncryptionParams,
+        });
+      } catch (error) {
+        expect(error.message).toBe('Encryption failed');
+      }
+    });
   });
 
   describe('decrypt', () => {
@@ -227,6 +240,17 @@ describe('LitProvider', () => {
       await expect(
         litProvider.decrypt(mockEncryptedData, { encryptionParams: mockEncryptionParams }),
       ).rejects.toThrow('Session signatures are required to decrypt data');
+    });
+
+    it('should throw error when decryption fails', async () => {
+      // Correctly mock the decryptString method to reject
+      (LitJsSdk as any).decryptToString.mockRejectedValueOnce(new Error('Decryption failed'));
+
+      try {
+        await litProvider.decrypt(mockEncryptedData, { encryptionParams: mockEncryptionParams });
+      } catch (error) {
+        expect(error.message).toBe('Decryption failed');
+      }
     });
   });
 });
