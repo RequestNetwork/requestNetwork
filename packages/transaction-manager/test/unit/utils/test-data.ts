@@ -197,7 +197,7 @@ export class FakeLitProtocolProvider implements CipherProviderTypes.ICipherProvi
       throw new Error('Data is required');
     }
     this.storedRawData = data;
-    return this.storedRawData;
+    return 'encrypted';
   }
 }
 
