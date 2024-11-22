@@ -163,10 +163,10 @@ export const id3DecryptionProvider: DecryptionProviderTypes.IDecryptionProvider 
 };
 
 export class FakeLitProtocolProvider implements CipherProviderTypes.ICipherProvider {
-  private storedRawData: string;
+  private storedRawData;
 
   constructor() {
-    this.storedRawData = '';
+    this.storedRawData = {};
   }
 
   public async decrypt(
@@ -174,7 +174,7 @@ export class FakeLitProtocolProvider implements CipherProviderTypes.ICipherProvi
     options: {
       encryptionParams: EncryptionTypes.IEncryptionParameters[];
     },
-  ): Promise<string> {
+  ): Promise<{}> {
     if (!options.encryptionParams?.length) {
       throw new Error('Encryption parameters are required');
     }
@@ -189,15 +189,15 @@ export class FakeLitProtocolProvider implements CipherProviderTypes.ICipherProvi
     options: {
       encryptionParams: EncryptionTypes.IEncryptionParameters[];
     },
-  ): Promise<string> {
+  ): Promise<{}> {
     if (!options.encryptionParams?.length) {
       throw new Error('Encryption parameters are required');
     }
     if (!data) {
       throw new Error('Data is required');
     }
-    this.storedRawData = data;
-    return 'encrypted';
+    this.storedRawData = { data };
+    return this.storedRawData;
   }
 }
 

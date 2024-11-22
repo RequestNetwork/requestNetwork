@@ -188,7 +188,6 @@ export default class TransactionsFactory {
 
     const encryptedDataSerialized: string = MultiFormat.serialize(encryptedData);
     let keys: TransactionTypes.IKeysDictionary = {};
-    let encryptionMethod = '';
 
     if (encryptionParams.length === 0) {
       return { encryptedData: encryptedDataSerialized };
@@ -201,7 +200,6 @@ export default class TransactionsFactory {
             encryptionParam.method === EncryptionTypes.METHOD.ECIES,
         )
       ) {
-        encryptionMethod = `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`;
         // Compute key encryption and identity hash for every encryption parameters given
         const encryptedKeyAndIdentityHashesPromises = encryptionParams.map(
           async (
@@ -259,7 +257,6 @@ export default class TransactionsFactory {
             encryptionParam.method === EncryptionTypes.METHOD.KMS,
         )
       ) {
-        encryptionMethod = `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`;
         if (!cipherProvider) {
           throw new Error('cipherProvider is required for KMS encryption');
         }
@@ -287,7 +284,7 @@ export default class TransactionsFactory {
         );
       }
 
-      return { encryptedData: encryptedDataSerialized, keys, encryptionMethod };
+      return { encryptedData: encryptedDataSerialized, keys };
     }
   }
 }
