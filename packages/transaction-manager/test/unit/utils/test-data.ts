@@ -163,10 +163,10 @@ export const id3DecryptionProvider: DecryptionProviderTypes.IDecryptionProvider 
 };
 
 export class FakeLitProtocolProvider implements CipherProviderTypes.ICipherProvider {
-  private storedRawData;
+  private storedRawData: string;
 
   constructor() {
-    this.storedRawData = {};
+    this.storedRawData = '';
   }
 
   public async decrypt(
@@ -196,7 +196,7 @@ export class FakeLitProtocolProvider implements CipherProviderTypes.ICipherProvi
     if (!data) {
       throw new Error('Data is required');
     }
-    this.storedRawData = { data };
+    this.storedRawData = data;
     return this.storedRawData;
   }
 }
