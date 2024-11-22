@@ -132,6 +132,9 @@ export default class TransactionsFactory {
         encryptionParams,
       });
 
+      if (!encryptResponse || typeof encryptResponse !== 'object') {
+        throw new Error('Invalid encryption response from cipher provider');
+      }
       keys = Object.fromEntries(
         encryptionParams.map((encryptionParam) => {
           return [
@@ -264,6 +267,9 @@ export default class TransactionsFactory {
           encryptionParams,
         });
 
+        if (!encryptResponse || typeof encryptResponse !== 'object') {
+          throw new Error('Invalid encryption response from cipher provider');
+        }
         keys = Object.fromEntries(
           encryptionParams.map((encryptionParam) => {
             return [

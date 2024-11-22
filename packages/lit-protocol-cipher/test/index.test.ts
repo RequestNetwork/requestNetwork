@@ -165,6 +165,28 @@ describe('LitProvider', () => {
         expect.any(Object),
       );
     });
+
+    it('should validate access control conditions', async () => {
+      await litProvider.encrypt(mockData, {
+        encryptionParams: mockEncryptionParams,
+      });
+
+      expect(LitJsSdk.encryptString).toHaveBeenCalledWith(
+        expect.objectContaining({
+          accessControlConditions: expect.arrayContaining([
+            expect.objectContaining({
+              contractAddress: '',
+              standardContractType: '',
+              chain: mockChain,
+              method: expect.any(String),
+              parameters: expect.any(Array),
+              returnValueTest: expect.any(Object),
+            }),
+          ]),
+        }),
+        expect.any(Object),
+      );
+    });
   });
 
   describe('decrypt', () => {
