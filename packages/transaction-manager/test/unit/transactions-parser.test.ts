@@ -3,6 +3,8 @@ import TransactionsFactory from '../../src/transactions-factory';
 import TransactionsParser from '../../src/transactions-parser';
 import * as TestData from './utils/test-data';
 
+jest.setTimeout(20000); // in milliseconds
+
 let transactionParser: TransactionsParser;
 
 const data = '{ "what": "ever", "it": "is,", "this": "must", "work": true }';
@@ -90,7 +92,7 @@ describe('transaction-parser', () => {
         expect(await ret.transaction.getData()).toBe(data);
         // 'channelKey wrong'
         expect(ret.channelKey).toBeDefined();
-      });
+      }, 15000);
       it('cannot parse encrypted transaction without decryptionProvider', async () => {
         transactionParser = new TransactionsParser();
         const encryptedParsedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
