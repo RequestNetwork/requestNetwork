@@ -1,7 +1,7 @@
 import { ClientTypes, DataAccessTypes } from '@requestnetwork/types';
 import { EventEmitter } from 'events';
 import httpConfigDefaults from './http-config-defaults';
-import { normalizeKeccak256Hash, retry } from '@requestnetwork/utils';
+import { normalizeKeccak256Hash, retry, validatePaginationParams } from '@requestnetwork/utils';
 import { stringify } from 'qs';
 import { utils } from 'ethers';
 
@@ -178,29 +178,14 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     page?: number,
     pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    if (page !== undefined && page < 1) {
-      throw new Error(`Page number must be greater than or equal to 1 but it is ${page}`);
-    }
-    if (pageSize !== undefined && pageSize <= 0) {
-      throw new Error(`Page size must be positive but it is ${pageSize}`);
-    }
+    validatePaginationParams(page, pageSize);
 
-    const params: {
-      topic: string;
-      updatedBetween?: DataAccessTypes.ITimestampBoundaries;
-      page?: number;
-      pageSize?: number;
-    } = {
+    const params = {
       topic,
       updatedBetween,
+      ...(page !== undefined && { page }),
+      ...(pageSize !== undefined && { pageSize }),
     };
-
-    if (page !== undefined) {
-      params.page = page;
-      if (pageSize !== undefined) {
-        params.pageSize = pageSize;
-      }
-    }
 
     return await this.fetchAndRetry('/getChannelsByTopic', params);
   }
@@ -217,6 +202,8 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     page?: number,
     pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
+    validatePaginationParams(page, pageSize);
+
     return await this.fetchAndRetry('/getChannelsByMultipleTopics', {
       topics,
       updatedBetween,
