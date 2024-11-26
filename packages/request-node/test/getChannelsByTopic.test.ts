@@ -5,6 +5,7 @@ import { RequestNode } from '../src/requestNode';
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 import { providers } from 'ethers';
 
+jest.setTimeout(30000);
 // enable re-running these tests on local environment by having a different channel ID each time.
 const time = Date.now();
 const channelId = `01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa${time}`;
@@ -116,7 +117,7 @@ describe('getChannelsByTopic', () => {
       });
     };
     await Promise.all([confirm(transactionData), confirm(otherTransactionData)]);
-  }, 10000);
+  });
 
   it('responds with no transaction to requests with a non-existent topic', async () => {
     const serverResponse = await request(server)

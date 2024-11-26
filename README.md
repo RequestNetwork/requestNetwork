@@ -79,6 +79,27 @@ yarn run lint
 
 Test all the packages in the monorepo.
 
+Some tests will require services to be running locally
+
+```bash
+docker compose up
+```
+
+Deploy Smart Contracts
+
+```bash
+yarn run deploy:contracts
+```
+
+Run request-node locally
+
+```bash
+cp ./packages/request-node/.env.example ./packages/request-node/.env
+yarn run start:request-node
+```
+
+Run all tests
+
 ```bash
 yarn run test
 ```
@@ -87,6 +108,12 @@ Test a specific package by replacing `@requestnetwork/request-client.js` with th
 
 ```bash
 yarn workspace @requestnetwork/request-client.js test
+```
+
+Clean Docker Volumes
+
+```bash
+dcoker compose down -v
 ```
 
 ## License

@@ -1,16 +1,20 @@
-FROM node:16-alpine
+FROM node:18-alpine
+RUN apk add --no-cache git
+RUN npm install -g solc
 
-WORKDIR /app
+## Warning! This Docker config is meant to be used for development and debugging, not in prod.
 
-RUN apk add --virtual .build-deps git python g++ bash make
+WORKDIR /base
 
 COPY package.json .
 COPY yarn.lock .
-
-RUN yarn
+RUN yarn install
 
 COPY . .
-RUN yarn
+RUN yarn install
+RUN yarn clean
 RUN yarn build
 
-RUN apk del .build-deps
+# Port configuration
+ENV PORT 3000
+EXPOSE 3000

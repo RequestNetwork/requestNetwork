@@ -4,6 +4,7 @@ import TransactionsFactory from '../../src/transactions-factory';
 import * as TestData from './utils/test-data';
 
 const data = '{ "what": "ever", "it": "is,", "this": "must", "work": true }';
+jest.setTimeout(20000); // in milliseconds
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('transaction-factory', () => {
@@ -67,7 +68,7 @@ describe('transaction-factory', () => {
           (ek) => ek.slice(0, 2) === MultiFormatTypes.prefix.ECIES_ENCRYPTED,
         ),
       ).toBe(true);
-    });
+    }, 10000);
 
     it('cannot create encrypted transaction with encryption parameters not ECIES', async () => {
       await expect(
@@ -117,7 +118,7 @@ describe('transaction-factory', () => {
 
       // 'keys not right'
       expect(encryptedTx.keys).toBeUndefined();
-    });
+    }, 10000);
 
     it('cannot create encrypted transaction with encryption parameters not AES256-CBC', async () => {
       const channelKeyWrong = {

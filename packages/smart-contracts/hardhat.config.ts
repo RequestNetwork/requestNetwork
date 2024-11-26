@@ -82,7 +82,7 @@ export default {
       hardfork: 'london',
     },
     private: {
-      url: 'http://127.0.0.1:8545',
+      url: url('private'),
       accounts: undefined,
     },
     mainnet: {

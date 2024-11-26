@@ -736,7 +736,7 @@ describe('batch-proxy', () => {
         ).toEqual(ETHTotal.toString());
         expect(toNewBalanceETH.sub(toOldBalanceETH)).toEqual(ETHAmount);
         expect(feeNewBalanceETH.sub(feeOldBalanceETH).toString()).toEqual(ETHFeesTotal.toString());
-      });
+      }, 20000);
     });
   });
 
