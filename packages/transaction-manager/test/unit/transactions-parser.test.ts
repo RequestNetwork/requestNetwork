@@ -69,18 +69,174 @@ describe('transaction-parser', () => {
       });
     });
 
-    describe('parse encrypted persisted transaction', () => {
+    const encryptedTests = (decryption?: any, provider?: any) => {
+      describe('parse encrypted persisted transaction', () => {
+        beforeEach(() => {
+          transactionParser = new TransactionsParser(decryption, provider);
+        });
+        it('can parse encrypted transaction on an unknown channel', async () => {
+          const encryptedParsedTx =
+            await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
+              TestData.idRaw1.encryptionParams,
+              TestData.idRaw2.encryptionParams,
+              TestData.idRaw3.encryptionParams,
+            ]);
+
+          const ret = await transactionParser.parsePersistedTransaction(
+            encryptedParsedTx,
+            TransactionTypes.ChannelType.UNKNOWN,
+          );
+
+          // 'transaction wrong'
+          expect(await ret.transaction.getData()).toBe(data);
+          // 'channelKey wrong'
+          expect(ret.channelKey).toBeDefined();
+        });
+        it('cannot parse encrypted transaction without decryptionProvider', async () => {
+          transactionParser = new TransactionsParser();
+          const encryptedParsedTx =
+            await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
+              TestData.idRaw1.encryptionParams,
+            ]);
+
+          await expect(
+            transactionParser.parsePersistedTransaction(
+              encryptedParsedTx,
+              TransactionTypes.ChannelType.UNKNOWN,
+            ),
+          ).rejects.toThrowError(`No decryption or cipher provider given`);
+        });
+        it('cannot parse encrypted transaction with keys corrupted', async () => {
+          const encryptedParsedTx =
+            await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
+              TestData.idRaw1.encryptionParams,
+            ]);
+
+          const addRaw1Formatted = `20${TestData.idRaw1.address.slice(2)}`;
+          encryptedParsedTx.keys = { [addRaw1Formatted]: '02Corrupted keys' };
+
+          await expect(
+            transactionParser.parsePersistedTransaction(
+              encryptedParsedTx,
+              TransactionTypes.ChannelType.UNKNOWN,
+            ),
+          ).rejects.toThrowError(
+            `Impossible to decrypt the channel key from this transaction (The encrypted data is not well formatted)`,
+          );
+        });
+        it('cannot parse encrypted transaction with a encryption method not supported', async () => {
+          await expect(
+            transactionParser.parsePersistedTransaction(
+              {
+                encryptedData: 'encryptedData',
+                encryptionMethod: 'encryptionMethod',
+                keys: {},
+              },
+              TransactionTypes.ChannelType.UNKNOWN,
+            ),
+          ).rejects.toThrowError(`Encryption method not supported: encryptionMethod`);
+        });
+        it('cannot parse encrypted transaction on an clear channel', async () => {
+          transactionParser = new TransactionsParser(TestData.fakeDecryptionProvider);
+
+          const encryptedParsedTx =
+            await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
+              TestData.idRaw1.encryptionParams,
+              TestData.idRaw2.encryptionParams,
+            ]);
+          await expect(
+            transactionParser.parsePersistedTransaction(
+              encryptedParsedTx,
+              TransactionTypes.ChannelType.CLEAR,
+            ),
+          ).rejects.toThrowError('Encrypted transactions are not allowed in clear channel');
+        });
+        it('cannot parse encrypted transaction without channelKey without encryptionMethod and transaction missing encryptionMethod or keys', async () => {
+          await expect(
+            transactionParser.parsePersistedTransaction(
+              { encryptedData: 'encryptedData', encryptionMethod: 'encryptionMethod' },
+              TransactionTypes.ChannelType.UNKNOWN,
+            ),
+          ).rejects.toThrowError(
+            'the properties "encryptionMethod" and "keys" are needed to compute the channel key',
+          );
+
+          await expect(
+            transactionParser.parsePersistedTransaction(
+              {
+                encryptedData: 'encryptedData',
+                keys: {},
+              },
+              TransactionTypes.ChannelType.UNKNOWN,
+            ),
+          ).rejects.toThrowError(
+            'the properties "encryptionMethod" and "keys" are needed to compute the channel key',
+          );
+        });
+        it('cannot parse encrypted transaction without channelKey with encryptionMethod and transaction contains encryptionMethod', async () => {
+          await expect(
+            transactionParser.parsePersistedTransaction(
+              { encryptedData: 'encryptedData', encryptionMethod: 'encryptionMethod' },
+              TransactionTypes.ChannelType.UNKNOWN,
+              undefined,
+              `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`,
+            ),
+          ).rejects.toThrowError(
+            'the "encryptionMethod" property has been already given for this channel',
+          );
+        });
+        it('cannot parse encrypted transaction without channelKey with encryptionMethod and transaction missing keys', async () => {
+          await expect(
+            transactionParser.parsePersistedTransaction(
+              { encryptedData: 'encryptedData' },
+              TransactionTypes.ChannelType.UNKNOWN,
+              undefined,
+              `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`,
+            ),
+          ).rejects.toThrowError('the "keys" property is needed to compute the channel key');
+        });
+        it('cannot parse encrypted transaction with channelKey without encryptionMethod and transaction missing encryptionMethod', async () => {
+          await expect(
+            transactionParser.parsePersistedTransaction(
+              { encryptedData: 'encryptedData' },
+              TransactionTypes.ChannelType.UNKNOWN,
+              { key: 'channelKey', method: EncryptionTypes.METHOD.AES256_GCM },
+            ),
+          ).rejects.toThrowError(
+            'the "encryptionMethod" property is needed to use the channel key',
+          );
+        });
+        it('cannot parse encrypted transaction with channelKey with encryptionMethod and transaction contains encryptionMethod', async () => {
+          await expect(
+            transactionParser.parsePersistedTransaction(
+              { encryptedData: 'encryptedData', encryptionMethod: 'encryptionMethod' },
+              TransactionTypes.ChannelType.UNKNOWN,
+              { key: 'channelKey', method: EncryptionTypes.METHOD.AES256_GCM },
+              `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`,
+            ),
+          ).rejects.toThrowError(
+            'the "encryptionMethod" property has been already given for this channel',
+          );
+        });
+      });
+    };
+
+    encryptedTests(TestData.fakeDecryptionProvider);
+    encryptedTests(undefined, TestData.fakeEpkCipherProvider);
+
+    describe('parse encrypted persisted transaction with LitProtocol', () => {
       beforeEach(() => {
-        transactionParser = new TransactionsParser(TestData.fakeDecryptionProvider);
+        transactionParser = new TransactionsParser(undefined, TestData.fakeLitProtocolProvider);
       });
       it('can parse encrypted transaction on an unknown channel', async () => {
         const encryptedParsedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
           data,
           [
-            TestData.idRaw1.encryptionParams,
-            TestData.idRaw2.encryptionParams,
-            TestData.idRaw3.encryptionParams,
+            TestData.kmsRaw1.encryptionParams,
+            TestData.kmsRaw2.encryptionParams,
+            TestData.kmsRaw3.encryptionParams,
           ],
+          TestData.fakeLitProtocolProvider,
         );
 
         const ret = await transactionParser.parsePersistedTransaction(
@@ -92,7 +248,8 @@ describe('transaction-parser', () => {
         expect(await ret.transaction.getData()).toBe(data);
         // 'channelKey wrong'
         expect(ret.channelKey).toBeDefined();
-      }, 15000);
+      });
+
       it('cannot parse encrypted transaction without decryptionProvider', async () => {
         transactionParser = new TransactionsParser();
         const encryptedParsedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
@@ -105,15 +262,17 @@ describe('transaction-parser', () => {
             encryptedParsedTx,
             TransactionTypes.ChannelType.UNKNOWN,
           ),
-        ).rejects.toThrowError(`No decryption provider given`);
+        ).rejects.toThrowError('No decryption or cipher provider given');
       });
+
       it('cannot parse encrypted transaction with keys corrupted', async () => {
         const encryptedParsedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
           data,
-          [TestData.idRaw1.encryptionParams],
+          [TestData.kmsRaw1.encryptionParams],
+          TestData.fakeLitProtocolProvider,
         );
 
-        const addRaw1Formatted = `20${TestData.idRaw1.address.slice(2)}`;
+        const addRaw1Formatted = `20${TestData.kmsRaw1.encryptionParams.key.slice(2)}`;
         encryptedParsedTx.keys = { [addRaw1Formatted]: '02Corrupted keys' };
 
         await expect(
@@ -121,9 +280,7 @@ describe('transaction-parser', () => {
             encryptedParsedTx,
             TransactionTypes.ChannelType.UNKNOWN,
           ),
-        ).rejects.toThrowError(
-          `Impossible to decrypt the channel key from this transaction (The encrypted data is not well formatted)`,
-        );
+        ).rejects.toThrowError(`Invalid encryption response format`);
       });
       it('cannot parse encrypted transaction with a encryption method not supported', async () => {
         await expect(
@@ -138,11 +295,10 @@ describe('transaction-parser', () => {
         ).rejects.toThrowError(`Encryption method not supported: encryptionMethod`);
       });
       it('cannot parse encrypted transaction on an clear channel', async () => {
-        transactionParser = new TransactionsParser(TestData.fakeDecryptionProvider);
-
         const encryptedParsedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
           data,
-          [TestData.idRaw1.encryptionParams, TestData.idRaw2.encryptionParams],
+          [TestData.kmsRaw1.encryptionParams, TestData.kmsRaw2.encryptionParams],
+          TestData.fakeLitProtocolProvider,
         );
         await expect(
           transactionParser.parsePersistedTransaction(
@@ -179,7 +335,7 @@ describe('transaction-parser', () => {
             { encryptedData: 'encryptedData', encryptionMethod: 'encryptionMethod' },
             TransactionTypes.ChannelType.UNKNOWN,
             undefined,
-            `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`,
+            `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`,
           ),
         ).rejects.toThrowError(
           'the "encryptionMethod" property has been already given for this channel',
@@ -191,7 +347,7 @@ describe('transaction-parser', () => {
             { encryptedData: 'encryptedData' },
             TransactionTypes.ChannelType.UNKNOWN,
             undefined,
-            `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`,
+            `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`,
           ),
         ).rejects.toThrowError('the "keys" property is needed to compute the channel key');
       });
@@ -210,7 +366,7 @@ describe('transaction-parser', () => {
             { encryptedData: 'encryptedData', encryptionMethod: 'encryptionMethod' },
             TransactionTypes.ChannelType.UNKNOWN,
             { key: 'channelKey', method: EncryptionTypes.METHOD.AES256_GCM },
-            `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`,
+            `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`,
           ),
         ).rejects.toThrowError(
           'the "encryptionMethod" property has been already given for this channel',

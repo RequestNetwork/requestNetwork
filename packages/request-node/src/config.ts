@@ -5,6 +5,7 @@ import { BigNumber } from 'ethers';
 import { LogTypes } from '@requestnetwork/types';
 
 import { LogMode } from './logger';
+import { LitNetwork } from '@lit-protocol/constants';
 
 const argv = yargs.option('help', { alias: 'h', type: 'boolean' }).parseSync();
 
@@ -46,6 +47,7 @@ const defaultValues = {
   wallet: {
     mnemonic: 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat',
   },
+  litProtocolNetwork: LitNetwork.DatilTest,
 };
 
 const getOption = <T extends string | number>(
@@ -68,6 +70,15 @@ export const isHelp = (): boolean => argv.help || false;
  * Get the port from command line argument, environment variables or default values to allow user to connect to the server
  */
 export const getServerPort = makeOption('port', 'PORT', defaultValues.server.port);
+
+/**
+ * Get the litProtocolNetwork from command line argument, environment variables or default values to send with the API responses
+ */
+export const getLitProtocolNetwork = makeOption(
+  'litProtocolNetwork',
+  'LIT_PROTOCOL_NETWORK',
+  defaultValues.litProtocolNetwork,
+);
 
 /**
  * Get network id of the Ethereum network from command line argument, environment variables or default values

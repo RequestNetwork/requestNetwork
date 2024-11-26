@@ -70,6 +70,57 @@ describe('transaction-factory', () => {
       ).toBe(true);
     }, 10000);
 
+    it('can create encrypted transaction with Lit Protocol', async () => {
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
+        data,
+        [
+          TestData.kmsRaw1.encryptionParams,
+          TestData.kmsRaw2.encryptionParams,
+          TestData.kmsRaw3.encryptionParams,
+        ],
+        TestData.fakeLitProtocolProvider,
+      );
+      // eslint-disable-next-line no-magic-numbers
+
+      if (encryptedTx.encryptedData) {
+        // eslint-disable-next-line no-magic-numbers
+        expect(encryptedTx.encryptedData.length).toBe(126);
+        expect(encryptedTx.encryptedData.slice(0, 2)).toEqual(
+          MultiFormatTypes.prefix.AES256_GCM_ENCRYPTED,
+        );
+      } else {
+        fail('encryptedData should not be undefined');
+      }
+
+      expect(encryptedTx.encryptionMethod).toEqual(
+        `${EncryptionTypes.METHOD.KMS}-${EncryptionTypes.METHOD.AES256_GCM}`,
+      );
+
+      expect(Object.keys(encryptedTx.keys || {}).length).toEqual(3);
+
+      expect(Object.keys(encryptedTx.keys || {})).toEqual([
+        TestData.kmsRaw1.encryptionParams.key,
+        TestData.kmsRaw2.encryptionParams.key,
+        TestData.kmsRaw3.encryptionParams.key,
+      ]);
+
+      expect(
+        Object.values(encryptedTx.keys || {}).every(
+          (ek) => ek.slice(0, 2) === MultiFormatTypes.prefix.KMS_ENCRYPTED,
+        ),
+      ).toBe(true);
+    });
+
+    it('should throw error when cipherProvider is not provided for KMS encryption', async () => {
+      await expect(
+        TransactionsFactory.createEncryptedTransactionInNewChannel(
+          data,
+          [TestData.kmsRaw1.encryptionParams],
+          undefined,
+        ),
+      ).rejects.toThrowError('cipherProvider is required for KMS encryption');
+    });
+
     it('cannot create encrypted transaction with encryption parameters not ECIES', async () => {
       await expect(
         TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
@@ -119,6 +170,74 @@ describe('transaction-factory', () => {
       // 'keys not right'
       expect(encryptedTx.keys).toBeUndefined();
     }, 10000);
+
+    it('can create encrypted transaction with Lit Protocol', async () => {
+      const channelKey = {
+        key: 'Vt6L0ppo7tOs9KdnTT6HSHZ/wW1Pfu/rgSs5NVTigN8=',
+        method: EncryptionTypes.METHOD.AES256_GCM,
+      };
+      const encryptedTx = await TransactionsFactory.createEncryptedTransaction(
+        data,
+        channelKey,
+        undefined,
+        TestData.fakeLitProtocolProvider,
+      );
+      // eslint-disable-next-line no-magic-numbers
+
+      if (encryptedTx.encryptedData) {
+        // eslint-disable-next-line no-magic-numbers
+        // 'encryptedData not right'
+        expect(encryptedTx.encryptedData.length).toBe(126);
+        // 'encryptedData not right'
+        expect(encryptedTx.encryptedData.slice(0, 2)).toEqual(
+          MultiFormatTypes.prefix.AES256_GCM_ENCRYPTED,
+        );
+      } else {
+        fail('encryptedData should not be undefined');
+      }
+
+      // 'encryptionMethod not right'
+      expect(encryptedTx.encryptionMethod).toBeUndefined();
+
+      // 'keys not right'
+      expect(encryptedTx.keys).toBeUndefined();
+    });
+
+    it('can create encrypted transaction with Lit Protocol and encryption parameters', async () => {
+      const channelKey = {
+        key: 'Vt6L0ppo7tOs9KdnTT6HSHZ/wW1Pfu/rgSs5NVTigN8=',
+        method: EncryptionTypes.METHOD.AES256_GCM,
+      };
+      const encryptedTx = await TransactionsFactory.createEncryptedTransaction(
+        data,
+        channelKey,
+        [
+          TestData.kmsRaw1.encryptionParams,
+          TestData.kmsRaw2.encryptionParams,
+          TestData.kmsRaw3.encryptionParams,
+        ],
+        TestData.fakeLitProtocolProvider,
+      );
+      // eslint-disable-next-line no-magic-numbers
+
+      if (encryptedTx.encryptedData) {
+        // eslint-disable-next-line no-magic-numbers
+        // 'encryptedData not right'
+        expect(encryptedTx.encryptedData.length).toBe(126);
+        // 'encryptedData not right'
+        expect(encryptedTx.encryptedData.slice(0, 2)).toEqual(
+          MultiFormatTypes.prefix.AES256_GCM_ENCRYPTED,
+        );
+      } else {
+        fail('encryptedData should not be undefined');
+      }
+
+      expect(
+        Object.values(encryptedTx.keys || {}).every(
+          (ek) => ek.slice(0, 2) === MultiFormatTypes.prefix.KMS_ENCRYPTED,
+        ),
+      ).toBe(true);
+    });
 
     it('cannot create encrypted transaction with encryption parameters not AES256-CBC', async () => {
       const channelKeyWrong = {

@@ -6,6 +6,7 @@ import {
   AdvancedLogicTypes,
   ClientTypes,
   CurrencyTypes,
+  CipherProviderTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
@@ -49,19 +50,21 @@ export default class RequestNetwork {
     dataAccess,
     signatureProvider,
     decryptionProvider,
+    cipherProvider,
     currencyManager,
     paymentOptions,
   }: {
     dataAccess: DataAccessTypes.IDataAccess;
     signatureProvider?: SignatureProviderTypes.ISignatureProvider;
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
+    cipherProvider?: CipherProviderTypes.ICipherProvider;
     currencyManager?: CurrencyTypes.ICurrencyManager;
     paymentOptions?: Partial<PaymentNetworkOptions>;
   }) {
     this.currencyManager = currencyManager || CurrencyManager.getDefault();
     this.dataAccess = dataAccess;
     this.advancedLogic = new AdvancedLogic(this.currencyManager);
-    this.transaction = new TransactionManager(dataAccess, decryptionProvider);
+    this.transaction = new TransactionManager(dataAccess, decryptionProvider, cipherProvider);
     this.requestLogic = new RequestLogic(this.transaction, signatureProvider, this.advancedLogic);
     this.contentData = new ContentDataExtension(this.advancedLogic);
     this.paymentNetworkFactory = new PaymentNetworkFactory(
