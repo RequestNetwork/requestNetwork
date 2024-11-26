@@ -256,6 +256,13 @@ describe('transaction-parser', () => {
           data,
           [TestData.idRaw1.encryptionParams],
         );
+
+        await expect(
+          transactionParser.parsePersistedTransaction(
+            encryptedParsedTx,
+            TransactionTypes.ChannelType.UNKNOWN,
+          ),
+        ).rejects.toThrowError('No decryption or cipher provider given');
       });
 
       it('cannot parse encrypted transaction with keys corrupted', async () => {
