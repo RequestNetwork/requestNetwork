@@ -28,10 +28,17 @@ export interface IStorageWrite {
   initialize: () => Promise<void>;
   append: (data: string) => Promise<IAppendResult>;
 }
+export interface PaginationMetadata {
+  total: number; // Total number of items available
+  page?: number; // Current page number if pagination was used
+  pageSize?: number; // Page size if pagination was used
+  hasMore?: boolean; // Whether there are more items available
+}
 
 export type IGetTransactionsResponse = {
   transactions: IIndexedTransaction[];
   blockNumber: number;
+  pagination?: PaginationMetadata; // Optional pagination metadata
 };
 
 export interface IStorageRead {
@@ -53,7 +60,11 @@ export interface IIndexer {
     channel: string,
     updatedBetween?: ITimestampBoundaries,
   ): Promise<IGetTransactionsResponse>;
-  getTransactionsByTopics(topics: string[]): Promise<IGetTransactionsResponse>;
+  getTransactionsByTopics(
+    topics: string[],
+    page?: number,
+    pageSize?: number,
+  ): Promise<IGetTransactionsResponse>;
 }
 
 export type IIpfsConfig = {

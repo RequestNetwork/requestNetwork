@@ -17,7 +17,7 @@ import {
   SignatureProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
-import { deepCopy, supportedIdentities } from '@requestnetwork/utils';
+import { deepCopy, supportedIdentities, validatePaginationParams } from '@requestnetwork/utils';
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
@@ -268,7 +268,12 @@ export default class RequestNetwork {
   public async fromIdentity(
     identity: IdentityTypes.IIdentity,
     updatedBetween?: Types.ITimestampBoundaries,
-    options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
+    options?: {
+      disablePaymentDetection?: boolean;
+      disableEvents?: boolean;
+      page?: number;
+      pageSize?: number;
+    },
   ): Promise<Request[]> {
     if (!this.supportedIdentities.includes(identity.type)) {
       throw new Error(`${identity.type} is not supported`);
@@ -286,7 +291,12 @@ export default class RequestNetwork {
   public async fromMultipleIdentities(
     identities: IdentityTypes.IIdentity[],
     updatedBetween?: Types.ITimestampBoundaries,
-    options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
+    options?: {
+      disablePaymentDetection?: boolean;
+      disableEvents?: boolean;
+      page?: number;
+      pageSize?: number;
+    },
   ): Promise<Request[]> {
     const identityNotSupported = identities.find(
       (identity) => !this.supportedIdentities.includes(identity.type),
@@ -309,11 +319,23 @@ export default class RequestNetwork {
   public async fromTopic(
     topic: any,
     updatedBetween?: Types.ITimestampBoundaries,
-    options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
+    options?: {
+      disablePaymentDetection?: boolean;
+      disableEvents?: boolean;
+      page?: number;
+      pageSize?: number;
+    },
   ): Promise<Request[]> {
+    validatePaginationParams(options?.page, options?.pageSize);
+
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic =
-      await this.requestLogic.getRequestsByTopic(topic, updatedBetween);
+      await this.requestLogic.getRequestsByTopic(
+        topic,
+        updatedBetween,
+        options?.page,
+        options?.pageSize,
+      );
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
     const requestPromises = requestsAndMeta.result.requests.map(
       async (requestFromLogic: {
@@ -361,11 +383,23 @@ export default class RequestNetwork {
   public async fromMultipleTopics(
     topics: any[],
     updatedBetween?: Types.ITimestampBoundaries,
-    options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
+    options?: {
+      disablePaymentDetection?: boolean;
+      disableEvents?: boolean;
+      page?: number;
+      pageSize?: number;
+    },
   ): Promise<Request[]> {
+    validatePaginationParams(options?.page, options?.pageSize);
+
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic =
-      await this.requestLogic.getRequestsByMultipleTopics(topics, updatedBetween);
+      await this.requestLogic.getRequestsByMultipleTopics(
+        topics,
+        updatedBetween,
+        options?.page,
+        options?.pageSize,
+      );
 
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
     const requestPromises = requestsAndMeta.result.requests.map(

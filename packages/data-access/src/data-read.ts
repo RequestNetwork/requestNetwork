@@ -49,15 +49,26 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
   async getChannelsByTopic(
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries | undefined,
+    page?: number | undefined,
+    pageSize?: number | undefined,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    return this.getChannelsByMultipleTopics([topic], updatedBetween);
+    return this.getChannelsByMultipleTopics([topic], updatedBetween, page, pageSize);
   }
 
   async getChannelsByMultipleTopics(
     topics: string[],
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    const result = await this.storage.getTransactionsByTopics(topics);
+    // Validate pagination parameters
+    if (page !== undefined && page < 1) {
+      throw new Error(`Page number must be greater than or equal to 1, but it is ${page}`);
+    }
+    if (pageSize !== undefined && pageSize < 1) {
+      throw new Error(`Page size must be greater than 0, but it is ${pageSize}`);
+    }
+
     const pending = this.pendingStore?.findByTopics(topics) || [];
 
     const pendingItems = pending.map((item) => ({
@@ -72,6 +83,33 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
       size: String(item.storageResult.meta.ipfs?.size || 0),
       topics: item.topics || [],
     }));
+
+    // Calculate adjusted pagination
+    let adjustedPage = page;
+    let adjustedPageSize = pageSize;
+    let pendingItemsOnCurrentPage = 0;
+    if (page !== undefined && pageSize !== undefined) {
+      const totalPending = pendingItems.length;
+      const itemsPerPage = (page - 1) * pageSize;
+
+      if (totalPending > itemsPerPage) {
+        pendingItemsOnCurrentPage = Math.min(totalPending - itemsPerPage, pageSize);
+        adjustedPageSize = pageSize - pendingItemsOnCurrentPage;
+        adjustedPage = 1;
+        if (adjustedPageSize === 0) {
+          adjustedPageSize = 1;
+          pendingItemsOnCurrentPage--;
+        }
+      } else {
+        adjustedPage = page - Math.floor(totalPending / pageSize);
+      }
+    }
+
+    const result = await this.storage.getTransactionsByTopics(
+      topics,
+      adjustedPage,
+      adjustedPageSize,
+    );
 
     const transactions = result.transactions.concat(...pendingItems);
 
@@ -106,6 +144,17 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
           },
           {} as Record<string, string[]>,
         ),
+        pagination:
+          page && pageSize
+            ? {
+                total: result.transactions.length + pendingItems.length,
+                page,
+                pageSize,
+                hasMore:
+                  (page - 1) * pageSize + filteredTxs.length - pendingItemsOnCurrentPage <
+                  result.transactions.length,
+              }
+            : undefined,
       },
       result: {
         transactions: filteredTxs.reduce((prev, curr) => {

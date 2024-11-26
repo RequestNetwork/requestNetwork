@@ -99,6 +99,19 @@ describe('getChannelsByTopic', () => {
       }),
     );
 
+    // If we search for the fisrt topic, by paginating, there should be one transaction
+    serverResponse = await request(server)
+      .get('/getChannelsByTopic')
+      .query({ topic: commonTopic, page: 1, pageSize: 1 })
+      .set('Accept', 'application/json')
+      .expect(StatusCodes.OK);
+
+    expect(serverResponse.body.result.transactions).toMatchObject(
+      expect.objectContaining({
+        [channelId]: [expect.objectContaining({ transaction: transactionData })],
+      }),
+    );
+
     // confirm the transactions for clean shutdown
     const provider = new providers.JsonRpcProvider();
     const confirm = (txData: unknown) => {
