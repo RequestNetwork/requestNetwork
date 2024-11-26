@@ -49,8 +49,8 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
   async getChannelsByTopic(
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries | undefined,
-    page?: number,
-    pageSize?: number,
+    page?: number | undefined,
+    pageSize?: number | undefined,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
     return this.getChannelsByMultipleTopics([topic], updatedBetween, page, pageSize);
   }
@@ -69,14 +69,13 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
       throw new Error(`Page size must be greater than 0, but it is ${pageSize}`);
     }
 
-    // Get pending items
     const pending = this.pendingStore?.findByTopics(topics) || [];
 
-    // Map pending items to the desired format
     const pendingItems = pending.map((item) => ({
       hash: item.storageResult.id,
       channelId: item.channelId,
       ...item.transaction,
+
       blockNumber: item.storageResult.meta.ethereum?.blockNumber || -1,
       blockTimestamp: item.storageResult.meta.ethereum?.blockTimestamp || -1,
       transactionHash: item.storageResult.meta.ethereum?.transactionHash || '',
@@ -106,50 +105,45 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
       }
     }
 
-    // Fetch transactions from storage
     const result = await this.storage.getTransactionsByTopics(
       topics,
       adjustedPage,
       adjustedPageSize,
     );
 
-    // Combine and filter transactions
-    let allTransactions = [...pendingItems, ...result.transactions];
-    if (updatedBetween) {
-      allTransactions = allTransactions.filter(
-        (tx) =>
-          tx.blockTimestamp >= (updatedBetween.from || 0) &&
-          tx.blockTimestamp <= (updatedBetween.to || Number.MAX_SAFE_INTEGER),
-      );
-    }
+    const transactions = result.transactions.concat(...pendingItems);
 
-    // Initialize data structures
-    const transactionsByChannelIds: DataAccessTypes.ITransactionsByChannelIds = {};
-    const storageMeta: Record<string, StorageTypes.IEntryMetadata[]> = {};
-    const transactionsStorageLocation: Record<string, string[]> = {};
+    // list of channels having at least one tx updated during the updatedBetween boundaries
+    const channels = (
+      updatedBetween
+        ? transactions.filter(
+            (tx) =>
+              tx.blockTimestamp >= (updatedBetween.from || 0) &&
+              tx.blockTimestamp <= (updatedBetween.to || Number.MAX_SAFE_INTEGER),
+          )
+        : transactions
+    ).map((x) => x.channelId);
 
-    // Process transactions
-    for (const tx of allTransactions) {
-      if (!transactionsByChannelIds[tx.channelId]) {
-        transactionsByChannelIds[tx.channelId] = [];
-        storageMeta[tx.channelId] = [];
-        transactionsStorageLocation[tx.channelId] = [];
-      }
-
-      transactionsByChannelIds[tx.channelId].push(this.toTimestampedTransaction(tx));
-
-      // Only add storage metadata for transactions fetched from storage
-      if (result.transactions.includes(tx)) {
-        storageMeta[tx.channelId].push(this.toStorageMeta(tx, result.blockNumber, this.network));
-      }
-      transactionsStorageLocation[tx.channelId].push(tx.hash);
-    }
-
-    // Construct the return object
+    const filteredTxs = transactions.filter((tx) => channels.includes(tx.channelId));
     return {
       meta: {
-        storageMeta,
-        transactionsStorageLocation,
+        storageMeta: filteredTxs.reduce(
+          (acc, tx) => {
+            acc[tx.channelId] = [this.toStorageMeta(tx, result.blockNumber, this.network)];
+            return acc;
+          },
+          {} as Record<string, StorageTypes.IEntryMetadata[]>,
+        ),
+        transactionsStorageLocation: filteredTxs.reduce(
+          (prev, curr) => {
+            if (!prev[curr.channelId]) {
+              prev[curr.channelId] = [];
+            }
+            prev[curr.channelId].push(curr.hash);
+            return prev;
+          },
+          {} as Record<string, string[]>,
+        ),
         pagination:
           page && pageSize
             ? {
@@ -157,13 +151,19 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
                 page,
                 pageSize,
                 hasMore:
-                  (page - 1) * pageSize + allTransactions.length - pendingItemsOnCurrentPage <
+                  (page - 1) * pageSize + filteredTxs.length - pendingItemsOnCurrentPage <
                   result.transactions.length,
               }
             : undefined,
       },
       result: {
-        transactions: transactionsByChannelIds,
+        transactions: filteredTxs.reduce((prev, curr) => {
+          if (!prev[curr.channelId]) {
+            prev[curr.channelId] = [];
+          }
+          prev[curr.channelId].push(this.toTimestampedTransaction(curr));
+          return prev;
+        }, {} as DataAccessTypes.ITransactionsByChannelIds),
       },
     };
   }
