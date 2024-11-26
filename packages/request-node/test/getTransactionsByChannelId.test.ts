@@ -43,7 +43,7 @@ describe('getTransactionsByChannelId', () => {
 
     let serverResponse = await request(server)
       .get('/getTransactionsByChannelId')
-      .query({ channelId: channelId })
+      .query({ channelId })
       .set('Accept', 'application/json')
       .expect(StatusCodes.OK);
 
