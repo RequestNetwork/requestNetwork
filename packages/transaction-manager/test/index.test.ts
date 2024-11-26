@@ -1506,6 +1506,10 @@ describe('index', () => {
             [channelId]: ['fakeDataId1', 'fakeDataId2'],
             [channelId2]: ['fakeDataId12', 'fakeDataId22'],
           },
+          pagination: {
+            totalItems: 4,
+            totalPages: 2
+          }
         },
         result: { transactions: { [channelId]: [tx, tx2], [channelId2]: [tx, tx2] } },
       };
@@ -1515,9 +1519,40 @@ describe('index', () => {
         .mockReturnValue(fakeMetaDataAccessGetChannelsReturn);
       const transactionManager = new TransactionManager(fakeDataAccess);
 
-      // Test first page with 2 transactions
+      // Test first page
       const page1 = await transactionManager.getChannelsByTopic(extraTopics[0], undefined, 1, 2);
       expect(Object.keys(page1.result.transactions)).toHaveLength(2);
+      expect(page1.result.transactions[channelId]).toEqual([tx, tx2]);
+      expect(page1.meta.pagination).toEqual({
+        currentPage: 1,
+        pageSize: 2,
+        totalItems: 4,
+        totalPages: 2
+      });
+
+      // Test second page
+      const page2 = await transactionManager.getChannelsByTopic(extraTopics[0], undefined, 2, 2);
+      expect(Object.keys(page2.result.transactions)).toHaveLength(2);
+      expect(page2.result.transactions[channelId2]).toEqual([tx, tx2]);
+
+      // Test invalid page
+      await expect(
+        transactionManager.getChannelsByTopic(extraTopics[0], undefined, 0, 2)
+      ).rejects.toThrow('Invalid page number');
+
+      // Test invalid page size
+      await expect(
+        transactionManager.getChannelsByTopic(extraTopics[0], undefined, 1, 0)
+      ).rejects.toThrow('Invalid page size');
+
+      // Test empty results
+      fakeDataAccess.getChannelsByTopic = jest.fn().mockReturnValue({
+        meta: { transactionsStorageLocation: {}, pagination: { totalItems: 0, totalPages: 0 } },
+        result: { transactions: {} }
+      });
+      const emptyPage = await transactionManager.getChannelsByTopic(extraTopics[0], undefined, 1, 2);
+      expect(Object.keys(emptyPage.result.transactions)).toHaveLength(0);
+    });
     }, 15000);
   });
 
