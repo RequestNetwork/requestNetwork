@@ -1,7 +1,7 @@
 # Warning! This Docker config is meant to be used for development and debugging, specially for running tests, not in prod.
 services:
   graph-node:
-    image: graphprotocol/graph-node:v0.33.0
+    image: graphprotocol/graph-node:v0.25.0
     ports:
       - '8000:8000'
       - '8001:8001'
@@ -51,12 +51,15 @@ services:
       POSTGRES_DB: graph-node
     restart: on-failure:20
   graph-deploy:
-    build:
-      context: .
-      dockerfile: Dockerfile.graph-deploy
+    build: https://github.com/RequestNetwork/docker-images/blob/main/request-subgraph-storage/Dockerfile
     depends_on:
       - ipfs
       - postgres
       - graph-node
       - ganache
+    environment:
+      GRAPH_NODE: 'http://graph-node:8020'
+      IPFS_HOST: 'ipfs:5001'
+      KEEP_ALIVE: 0
+      SUBGRAPH_FILE: 'subgraph-private.yaml'
     restart: on-failure:20
