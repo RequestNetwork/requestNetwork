@@ -32,7 +32,7 @@ export interface PaginationMetadata {
   total: number; // Total number of items available
   page?: number; // Current page number if pagination was used
   pageSize?: number; // Page size if pagination was used
-  hasMore: boolean; // Whether there are more items available
+  hasMore?: boolean; // Whether there are more items available
 }
 
 export type IGetTransactionsResponse = {
