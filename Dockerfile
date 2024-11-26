@@ -11,7 +11,6 @@ COPY yarn.lock .
 RUN yarn install
 
 COPY . .
-RUN yarn install
 RUN yarn clean
 RUN yarn build
 

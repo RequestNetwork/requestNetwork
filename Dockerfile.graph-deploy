@@ -3,8 +3,9 @@ RUN apk add --no-cache git
 
 WORKDIR /base/storage-subgraph
 
-RUN git clone https://github.com/RequestNetwork/storage-subgraph /base/storage-subgraph
-RUN npm -g install @graphprotocol/graph-cli
+RUN git clone --depth 1 --branch <specific-tag> https://github.com/RequestNetwork/storage-subgraph /base/storage-subgraph \
+    && cd /base/storage-subgraph \
+    && git verify-commit HEADRUN npm -g install @graphprotocol/graph-cli
 RUN yarn
 RUN yarn codegen subgraph-private.yaml
 

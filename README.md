@@ -113,7 +113,7 @@ yarn workspace @requestnetwork/request-client.js test
 Clean Docker Volumes
 
 ```bash
-dcoker compose down -v
+docker compose down -v
 ```
 
 ## License

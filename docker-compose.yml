@@ -1,7 +1,7 @@
 # Warning! This Docker config is meant to be used for development and debugging, specially for running tests, not in prod.
 services:
   graph-node:
-    image: graphprotocol/graph-node:v0.25.0
+    image: graphprotocol/graph-node:v0.33.0
     ports:
       - '8000:8000'
       - '8001:8001'
