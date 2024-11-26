@@ -14,6 +14,8 @@ export enum prefix {
   AES256_CBC_ENCRYPTED = '03',
   /** AES256-GCM encrypted data */
   AES256_GCM_ENCRYPTED = '04',
+  /** KMS encrypted data */
+  KMS_ENCRYPTED = '05',
 
   /** Identity Ethereum address */
   IDENTITY_ETHEREUM_ADDRESS = '20',

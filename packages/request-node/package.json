@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-node",
-  "version": "0.36.0",
+  "version": "0.36.1",
   "publishConfig": {
     "access": "public"
   },
@@ -41,18 +41,21 @@
     "init-ipfs": "node init-ipfs.js"
   },
   "dependencies": {
-    "@ethersproject/experimental": "5.5.0",
-    "@requestnetwork/currency": "0.18.0",
-    "@requestnetwork/data-access": "0.36.0",
-    "@requestnetwork/ethereum-storage": "0.36.0",
-    "@requestnetwork/smart-contracts": "0.38.0",
-    "@requestnetwork/thegraph-data-access": "0.42.0",
-    "@requestnetwork/types": "0.45.0",
-    "@requestnetwork/utils": "0.45.0",
+    "@ethersproject/experimental": "5.7.0",
+    "@lit-protocol/constants": "6.11.0",
+    "@lit-protocol/contracts-sdk": "6.11.0",
+    "@lit-protocol/lit-node-client": "6.11.0",
+    "@requestnetwork/currency": "0.19.0",
+    "@requestnetwork/data-access": "0.36.1",
+    "@requestnetwork/ethereum-storage": "0.36.1",
+    "@requestnetwork/smart-contracts": "0.39.0",
+    "@requestnetwork/thegraph-data-access": "0.42.1",
+    "@requestnetwork/types": "0.45.1",
+    "@requestnetwork/utils": "0.45.1",
     "chalk": "4.1.0",
     "cors": "2.8.5",
     "dotenv": "8.2.0",
-    "ethers": "5.5.1",
+    "ethers": "5.7.2",
     "express": "4.21.0",
     "graphql": "16.8.1",
     "graphql-request": "6.1.0",

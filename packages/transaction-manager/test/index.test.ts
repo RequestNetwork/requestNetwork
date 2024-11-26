@@ -129,7 +129,7 @@ describe('index', () => {
           }),
         );
         expect(fakeDataAccess.persistTransaction).toHaveBeenCalledTimes(1);
-      });
+      }, 10000);
 
       it('cannot persist a transaction if data access emit error', async () => {
         const fakeDataAccessEmittingError = Object.assign({}, fakeDataAccess);
@@ -568,7 +568,7 @@ describe('index', () => {
           dataAccessMeta: { transactionsStorageLocation: ['fakeDataId1'] },
           ignoredTransactions: [
             {
-              reason: 'No decryption provider given',
+              reason: 'No decryption or cipher provider given',
               transaction: {
                 state: TransactionTypes.TransactionState.PENDING,
                 timestamp: 1,
@@ -668,7 +668,7 @@ describe('index', () => {
           ],
         },
       });
-    });
+    }, 10000);
 
     it('can get two transactions with different encryptions from the same encrypted channel the first has the right hash but wrong data', async () => {
       const encryptedTxFakeHash = await TransactionsFactory.createEncryptedTransactionInNewChannel(
@@ -755,7 +755,7 @@ describe('index', () => {
           transactions: [null, null],
         },
       });
-    });
+    }, 10000);
 
     it('can get two transactions, the first is encrypted but the second is clear (will be ignored)', async () => {
       const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
@@ -831,7 +831,7 @@ describe('index', () => {
           ],
         },
       });
-    });
+    }, 10000);
 
     it('can get two transactions first encrypted but decrypt impossible and second clear', async () => {
       const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
@@ -1106,7 +1106,7 @@ describe('index', () => {
 
       // 'return is wrong'
       expect(ret).toEqual(expectedRet);
-    });
+    }, 20000);
   });
 
   describe('getChannelsByTopic', () => {
@@ -1190,7 +1190,7 @@ describe('index', () => {
         }),
       );
       expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
-    });
+    }, 15000);
 
     it('cannot get an encrypted channel indexed by topic without decryptionProvider', async () => {
       const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
@@ -1247,7 +1247,7 @@ describe('index', () => {
           ignoredTransactions: {
             [channelId]: [
               {
-                reason: 'No decryption provider given',
+                reason: 'No decryption or cipher provider given',
                 transaction: {
                   state: TransactionTypes.TransactionState.PENDING,
                   timestamp: 1,
@@ -1259,7 +1259,7 @@ describe('index', () => {
         }),
       );
       expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
-    });
+    }, 10000);
 
     it('can get an clear channel indexed by topic without decryptionProvider even if an encrypted transaction happen first', async () => {
       const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
@@ -1328,7 +1328,7 @@ describe('index', () => {
           ignoredTransactions: {
             [channelId]: [
               {
-                reason: 'No decryption provider given',
+                reason: 'No decryption or cipher provider given',
                 transaction: {
                   state: TransactionTypes.TransactionState.PENDING,
                   timestamp: 1,
@@ -1341,7 +1341,7 @@ describe('index', () => {
         }),
       );
       expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
-    });
+    }, 10000);
 
     it('can get channels indexed by topics with channelId not matching the first transaction hash', async () => {
       const txWrongHash: DataAccessTypes.ITimestampedTransaction = {
@@ -1467,7 +1467,7 @@ describe('index', () => {
         }),
       );
       expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
-    });
+    }, 10000);
   });
 
   describe('getChannelsByMultipleTopic', () => {

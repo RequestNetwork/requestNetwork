@@ -1,4 +1,9 @@
-import { DecryptionProviderTypes, EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
+import {
+  CipherProviderTypes,
+  DecryptionProviderTypes,
+  EncryptionTypes,
+  TransactionTypes,
+} from '@requestnetwork/types';
 
 import TransactionsParser from './transactions-parser';
 
@@ -8,8 +13,11 @@ import TransactionsParser from './transactions-parser';
 export default class ChannelParser {
   private transactionParser: TransactionsParser;
 
-  public constructor(decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider) {
-    this.transactionParser = new TransactionsParser(decryptionProvider);
+  public constructor(
+    decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
+    cipherProvider?: CipherProviderTypes.ICipherProvider,
+  ) {
+    this.transactionParser = new TransactionsParser(decryptionProvider, cipherProvider);
   }
   /**
    * Decrypts and cleans a channel by removing the wrong transactions
@@ -184,7 +192,7 @@ export default class ChannelParser {
         } catch (error) {
           // If the transaction is encrypted but the channel key is not found, save channelType and encryptionMethod
           if (
-            error.message.startsWith(
+            error?.message?.startsWith(
               'Impossible to decrypt the channel key from this transaction',
             ) &&
             result.channelType === TransactionTypes.ChannelType.UNKNOWN

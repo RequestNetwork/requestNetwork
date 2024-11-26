@@ -1,4 +1,4 @@
-import { singleRequestProxyFactoryArtifact } from '@requestnetwork/smart-contracts';
+import { singleRequestForwarderFactoryArtifact } from '@requestnetwork/smart-contracts';
 import { TestERC20__factory } from '@requestnetwork/smart-contracts/types';
 import {
   ClientTypes,
@@ -9,11 +9,11 @@ import {
 } from '@requestnetwork/types';
 import { providers, Wallet, utils } from 'ethers';
 import {
-  deploySingleRequestProxy,
-  payRequestWithSingleRequestProxy,
-  payWithEthereumSingleRequestProxy,
-  payWithERC20SingleRequestProxy,
-} from '../../src/payment/single-request-proxy';
+  deploySingleRequestForwarder,
+  payRequestWithSingleRequestForwarder,
+  payWithEthereumSingleRequestForwarder,
+  payWithERC20SingleRequestForwarder,
+} from '../../src/payment/single-request-forwarder';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0x1234567890123456789012345678901234567890';
@@ -130,17 +130,17 @@ describe('deploySingleRequestProxy', () => {
     };
 
     await expect(
-      deploySingleRequestProxy(invalidRequestUnsupportedPaymentNetwork, wallet),
+      deploySingleRequestForwarder(invalidRequestUnsupportedPaymentNetwork, wallet),
     ).rejects.toThrow('Unsupported payment network');
   });
 
   it('should throw error if request has no network', async () => {
     const invalidRequestWithoutNetwork = { ...ethRequest, currencyInfo: {} };
 
-    // @ts-expect-error: Request with empty currencyInfo
-    await expect(deploySingleRequestProxy(invalidRequestWithoutNetwork, wallet)).rejects.toThrow(
-      'Payment chain not found',
-    );
+    await expect(
+      // @ts-expect-error: Request with empty currencyInfo
+      deploySingleRequestForwarder(invalidRequestWithoutNetwork, wallet),
+    ).rejects.toThrow('Payment chain not found');
   });
 
   it('should throw error if request has no network values', async () => {
@@ -155,26 +155,27 @@ describe('deploySingleRequestProxy', () => {
     };
 
     await expect(
-      deploySingleRequestProxy(invalidRequestWithoutNetworkValues, wallet),
+      deploySingleRequestForwarder(invalidRequestWithoutNetworkValues, wallet),
     ).rejects.toThrow('Invalid payment network values');
   });
 
   it('should throw an error if the request has no extension', async () => {
     const invalidRequestWithoutExtensions = { ...ethRequest, extensions: {} };
 
-    await expect(deploySingleRequestProxy(invalidRequestWithoutExtensions, wallet)).rejects.toThrow(
-      'Unsupported payment network',
-    );
+    await expect(
+      deploySingleRequestForwarder(invalidRequestWithoutExtensions, wallet),
+    ).rejects.toThrow('Unsupported payment network');
   });
 
   it('should deploy EthereumSingleRequestProxy and emit event', async () => {
-    const singleRequestProxyFactory = singleRequestProxyFactoryArtifact.connect('private', wallet);
+    const singleRequestProxyFactory = singleRequestForwarderFactoryArtifact.connect(
+      'private',
+      wallet,
+    );
 
-    const initialEventCount = await provider.getBlockNumber();
+    const initialBlock = await provider.getBlockNumber();
 
-    const walletAddress = await wallet.getAddress();
-
-    const proxyAddress = await deploySingleRequestProxy(ethRequest, wallet);
+    const proxyAddress = await deploySingleRequestForwarder(ethRequest, wallet);
 
     expect(proxyAddress).toBeDefined();
     expect(typeof proxyAddress).toBe('string');
@@ -183,25 +184,36 @@ describe('deploySingleRequestProxy', () => {
     const latestBlock = await provider.getBlockNumber();
     const events = await singleRequestProxyFactory.queryFilter(
       singleRequestProxyFactory.filters.EthereumSingleRequestProxyCreated(),
-      initialEventCount,
+      initialBlock,
       latestBlock,
     );
 
     expect(events.length).toBeGreaterThan(0);
 
-    const eventData = utils.defaultAbiCoder.decode(['address', 'address'], events[0].data);
-
-    expect(eventData[0]).toBe(proxyAddress);
+    const event = events[0];
+    expect(event.args?.proxyAddress).toBe(proxyAddress);
+    expect(event.args?.payee).toBe(ethRequest.payee?.value);
+    expect(event.args?.feeAddress).toBe(
+      ethRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT].values
+        .feeAddress,
+    );
+    expect(event.args?.feeAmount.toString()).toBe(
+      ethRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT].values
+        .feeAmount,
+    );
+    const feeProxyUsed = await singleRequestProxyFactory.ethereumFeeProxy();
+    expect(event.args?.feeProxyUsed).toBe(feeProxyUsed);
   });
 
   it('should deploy ERC20SingleRequestProxy and emit event', async () => {
-    const singleRequestProxyFactory = singleRequestProxyFactoryArtifact.connect('private', wallet);
+    const singleRequestProxyFactory = singleRequestForwarderFactoryArtifact.connect(
+      'private',
+      wallet,
+    );
 
-    const initialEventCount = await provider.getBlockNumber();
+    const initialBlock = await provider.getBlockNumber();
 
-    const walletAddress = await wallet.getAddress();
-
-    const proxyAddress = await deploySingleRequestProxy(erc20Request, wallet);
+    const proxyAddress = await deploySingleRequestForwarder(erc20Request, wallet);
 
     expect(proxyAddress).toBeDefined();
     expect(typeof proxyAddress).toBe('string');
@@ -210,39 +222,50 @@ describe('deploySingleRequestProxy', () => {
     const latestBlock = await provider.getBlockNumber();
     const events = await singleRequestProxyFactory.queryFilter(
       singleRequestProxyFactory.filters.ERC20SingleRequestProxyCreated(),
-      initialEventCount,
+      initialBlock,
       latestBlock,
     );
 
     expect(events.length).toBeGreaterThan(0);
 
-    const eventData = utils.defaultAbiCoder.decode(['address', 'address'], events[0].data);
-
-    expect(eventData[0]).toBe(proxyAddress);
+    const event = events[0];
+    expect(event.args?.proxyAddress).toBe(proxyAddress);
+    expect(event.args?.payee).toBe(erc20Request.payee?.value);
+    expect(event.args?.tokenAddress).toBe(erc20Request.currencyInfo.value);
+    expect(event.args?.feeAddress).toBe(
+      erc20Request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT].values
+        .feeAddress,
+    );
+    expect(event.args?.feeAmount.toString()).toBe(
+      erc20Request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT].values
+        .feeAmount,
+    );
+    const feeProxyUsed = await singleRequestProxyFactory.erc20FeeProxy();
+    expect(event.args?.feeProxyUsed).toBe(feeProxyUsed);
   });
 
   it('should throw error when trying to pay with invalid single request proxy', async () => {
     const invalidProxy = '0x1234567890123456789012345678901234567890';
 
-    await expect(payRequestWithSingleRequestProxy(invalidProxy, wallet, '100')).rejects.toThrow(
-      'Invalid SingleRequestProxy contract',
+    await expect(payRequestWithSingleRequestForwarder(invalidProxy, wallet, '100')).rejects.toThrow(
+      'Invalid SingleRequestForwarder contract',
     );
   });
 
   it('should throw error when amount is not a positive number', async () => {
-    const proxyAddress = await deploySingleRequestProxy(ethRequest, wallet);
+    const proxyAddress = await deploySingleRequestForwarder(ethRequest, wallet);
 
-    await expect(payRequestWithSingleRequestProxy(proxyAddress, wallet, '0')).rejects.toThrow(
+    await expect(payRequestWithSingleRequestForwarder(proxyAddress, wallet, '0')).rejects.toThrow(
       'Amount must be a positive number',
     );
   });
 
   it('should pay with EthereumSingleRequestProxy', async () => {
-    const proxyAddress = await deploySingleRequestProxy(ethRequest, wallet);
+    const proxyAddress = await deploySingleRequestForwarder(ethRequest, wallet);
 
     const walletBalanceBefore = await provider.getBalance(wallet.address);
 
-    await payRequestWithSingleRequestProxy(proxyAddress, wallet, '1000');
+    await payRequestWithSingleRequestForwarder(proxyAddress, wallet, '1000');
 
     const walletBalanceAfter = await provider.getBalance(wallet.address);
 
@@ -259,11 +282,11 @@ describe('deploySingleRequestProxy', () => {
       currencyInfo: { ...erc20Request.currencyInfo, value: testERC20.address },
     };
 
-    const proxyAddress = await deploySingleRequestProxy(updatedERC20Request, wallet);
+    const proxyAddress = await deploySingleRequestForwarder(updatedERC20Request, wallet);
 
     const initialProxyBalance = await testERC20.balanceOf(wallet.address);
 
-    await payRequestWithSingleRequestProxy(proxyAddress, wallet, amount);
+    await payRequestWithSingleRequestForwarder(proxyAddress, wallet, amount);
 
     const finalProxyBalance = await testERC20.balanceOf(wallet.address);
 
@@ -273,28 +296,28 @@ describe('deploySingleRequestProxy', () => {
 
 describe('payWithEthereumSingleRequestProxy', () => {
   it('should throw error when amount is not a positive number', async () => {
-    const proxyAddress = await deploySingleRequestProxy(ethRequest, wallet);
+    const proxyAddress = await deploySingleRequestForwarder(ethRequest, wallet);
 
-    await expect(payWithEthereumSingleRequestProxy(proxyAddress, wallet, '0')).rejects.toThrow(
+    await expect(payWithEthereumSingleRequestForwarder(proxyAddress, wallet, '0')).rejects.toThrow(
       'Amount must be a positive number',
     );
   });
 
   it('should throw error when contract is an ERC20SingleRequestProxy', async () => {
-    const proxyAddress = await deploySingleRequestProxy(erc20Request, wallet);
+    const proxyAddress = await deploySingleRequestForwarder(erc20Request, wallet);
 
-    await expect(payWithEthereumSingleRequestProxy(proxyAddress, wallet, '1000')).rejects.toThrow(
-      'Contract is not an EthereumSingleRequestProxy',
-    );
+    await expect(
+      payWithEthereumSingleRequestForwarder(proxyAddress, wallet, '1000'),
+    ).rejects.toThrow('Contract is not an EthereumSingleRequestForwarder');
   });
 
   it('should successfully pay with ETH', async () => {
-    const proxyAddress = await deploySingleRequestProxy(ethRequest, wallet);
+    const proxyAddress = await deploySingleRequestForwarder(ethRequest, wallet);
     const amount = '1000';
 
     const walletBalanceBefore = await provider.getBalance(wallet.address);
 
-    await payWithEthereumSingleRequestProxy(proxyAddress, wallet, amount);
+    await payWithEthereumSingleRequestForwarder(proxyAddress, wallet, amount);
 
     const walletBalanceAfter = await provider.getBalance(wallet.address);
 
@@ -304,18 +327,18 @@ describe('payWithEthereumSingleRequestProxy', () => {
 
 describe('payWithERC20SingleRequestProxy', () => {
   it('should throw error when amount is not a positive number', async () => {
-    const proxyAddress = await deploySingleRequestProxy(erc20Request, wallet);
+    const proxyAddress = await deploySingleRequestForwarder(erc20Request, wallet);
 
-    await expect(payWithERC20SingleRequestProxy(proxyAddress, wallet, '0')).rejects.toThrow(
+    await expect(payWithERC20SingleRequestForwarder(proxyAddress, wallet, '0')).rejects.toThrow(
       'Amount must be a positive number',
     );
   });
 
   it('should throw error when contract is not an ERC20SingleRequestProxy', async () => {
-    const proxyAddress = await deploySingleRequestProxy(ethRequest, wallet);
+    const proxyAddress = await deploySingleRequestForwarder(ethRequest, wallet);
 
-    await expect(payWithERC20SingleRequestProxy(proxyAddress, wallet, '1000')).rejects.toThrow(
-      'Contract is not an ERC20SingleRequestProxy',
+    await expect(payWithERC20SingleRequestForwarder(proxyAddress, wallet, '1000')).rejects.toThrow(
+      'Contract is not an ERC20SingleRequestForwarder',
     );
   });
 
@@ -328,10 +351,10 @@ describe('payWithERC20SingleRequestProxy', () => {
       currencyInfo: { ...erc20Request.currencyInfo, value: testERC20.address },
     };
 
-    const proxyAddress = await deploySingleRequestProxy(updatedERC20Request, wallet);
+    const proxyAddress = await deploySingleRequestForwarder(updatedERC20Request, wallet);
     const initialBalance = await testERC20.balanceOf(wallet.address);
 
-    await payWithERC20SingleRequestProxy(proxyAddress, wallet, amount);
+    await payWithERC20SingleRequestForwarder(proxyAddress, wallet, amount);
 
     const finalBalance = await testERC20.balanceOf(wallet.address);
 

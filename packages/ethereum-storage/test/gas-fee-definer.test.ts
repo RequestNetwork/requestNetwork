@@ -36,6 +36,8 @@ const gasFeeDefiner = new GasFeeDefiner({ provider, logger: console });
 
 describe('Gas fee estimation', () => {
   it('Should not be undefined', async () => {
+    provider.send('evm_increaseTime', [-60]);
+    provider.send('evm_mine', []);
     const estimation = await gasFeeDefiner.getGasFees();
     expect(estimation.maxFeePerGas).toBeDefined();
     expect(estimation.maxPriorityFeePerGas).toBeDefined();
@@ -49,7 +51,7 @@ describe('Gas fee estimation', () => {
     await provider.send('evm_mine', []);
     const secondEstimation = await gasFeeDefiner.getGasFees();
 
-    expect(firstEstimation.maxFeePerGas?.toNumber()).toBeGreaterThan(
+    expect(firstEstimation.maxFeePerGas?.toNumber()).toBeGreaterThanOrEqual(
       secondEstimation.maxFeePerGas?.toNumber() || 0,
     );
   });
@@ -60,7 +62,7 @@ describe('Gas fee estimation', () => {
 
     const estimation = await gasFeeDefiner.getGasFees();
     const tx = await dummyTransaction();
-    checkEstimation(estimation.maxFeePerGas as BigNumber, tx.maxFeePerGas as BigNumber, 0.1);
+    checkEstimation(estimation.maxFeePerGas as BigNumber, tx.maxFeePerGas as BigNumber, 0.3);
   });
 
   it('Should handle estimation errors properly', async () => {

@@ -57,6 +57,8 @@ export const getArtifact = (contract: string): artifacts.ContractArtifact<Contra
       return artifacts.batchConversionPaymentsArtifact;
     case 'ERC20TransferableReceivable':
       return artifacts.erc20TransferableReceivableArtifact;
+    case 'SingleRequestProxyFactory':
+      return artifacts.singleRequestForwarderFactoryArtifact;
     default:
       throw new Error('Contract unknown');
   }

@@ -17,10 +17,10 @@ npm install @requestnetwork/transaction-manager
 In order to decrypt encrypted transactions, you must provide a decryption provider.
 You can see the specification of decryption provider [here](./specs/decryption-provider.md).
 
-An example of implementation of a decryption provider is available in the package: [epk-decryption](../epk-decryption/)
+An example of implementation of a decryption provider is available in the package: [epk-cipher](../epk-cipher/)
 
 ```javascript
-import EthereumPrivateKeyDecryptionProvider from '@requestnetwork/epk-decryption';
+import EthereumPrivateKeyDecryptionProvider from '@requestnetwork/epk-cipher';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 
 // Decryption provider setup
@@ -87,7 +87,7 @@ const { result } = await transactionManager.persistTransaction(data, channelId, 
 ### Get Transactions from channel id
 
 ```javascript
-import EthereumPrivateKeyDecryptionProvider from '@requestnetwork/epk-decryption';
+import EthereumPrivateKeyDecryptionProvider from '@requestnetwork/epk-cipher';
 import { DataAccessTypes, SignatureTypes } from '@requestnetwork/types';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 
@@ -111,7 +111,7 @@ const {
 ### Get Transactions from topic
 
 ```typescript
-import EthereumPrivateKeyDecryptionProvider from '@requestnetwork/epk-decryption';
+import EthereumPrivateKeyDecryptionProvider from '@requestnetwork/epk-cipher';
 import { DataAccessTypes, SignatureTypes } from '@requestnetwork/types';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 

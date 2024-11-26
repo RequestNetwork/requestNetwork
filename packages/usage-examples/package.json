@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/usage-examples",
-  "version": "0.32.0",
+  "version": "0.32.1",
   "private": true,
   "description": "Usage examples of Request Network.",
   "keywords": [
@@ -29,18 +29,18 @@
     "start:hinkal": "ts-node src/hinkal/testPayErc20FeeProxyRequestHinkal.ts"
   },
   "dependencies": {
-    "@requestnetwork/data-access": "0.36.0",
-    "@requestnetwork/epk-decryption": "0.7.0",
-    "@requestnetwork/epk-signature": "0.9.0",
-    "@requestnetwork/multi-format": "0.19.0",
-    "@requestnetwork/payment-processor": "0.47.0",
-    "@requestnetwork/request-client.js": "0.49.0",
-    "@requestnetwork/request-logic": "0.35.0",
-    "@requestnetwork/transaction-manager": "0.36.0",
-    "@requestnetwork/types": "0.45.0",
-    "@requestnetwork/utils": "0.45.0",
+    "@requestnetwork/data-access": "0.36.1",
+    "@requestnetwork/epk-decryption": "0.7.1",
+    "@requestnetwork/epk-signature": "0.9.1",
+    "@requestnetwork/multi-format": "0.19.1",
+    "@requestnetwork/payment-processor": "0.48.0",
+    "@requestnetwork/request-client.js": "0.50.0",
+    "@requestnetwork/request-logic": "0.35.1",
+    "@requestnetwork/transaction-manager": "0.36.1",
+    "@requestnetwork/types": "0.45.1",
+    "@requestnetwork/utils": "0.45.1",
     "dotenv": "10.0.0",
-    "ethers": "5.5.1",
+    "ethers": "5.7.2",
     "tslib": "2.5.0"
   },
   "devDependencies": {

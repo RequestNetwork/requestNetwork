@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/types",
-  "version": "0.45.0",
+  "version": "0.45.1",
   "publishConfig": {
     "access": "public"
   },
@@ -38,7 +38,8 @@
     "prepare": "yarn run build"
   },
   "dependencies": {
-    "ethers": "5.5.1"
+    "@lit-protocol/types": "6.11.0",
+    "ethers": "5.7.2"
   },
   "devDependencies": {
     "ts-node": "10.9.1",

@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/data-format",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "publishConfig": {
     "access": "public"
   },
@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "ajv": "6.12.4",
-    "ethers": "5.5.1",
+    "ethers": "5.7.2",
     "tslib": "2.5.0"
   },
   "devDependencies": {

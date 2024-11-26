@@ -282,6 +282,46 @@ export const extensionStateWithAnyToNativeTokenPaymentAndRefund: RequestLogicTyp
       version: '0.1.0',
     },
   };
+export const extensionStateWithAnyToNativeTokenPaymentAndRefundTGExtension: RequestLogicTypes.IExtensionStates =
+  {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN as string]: {
+      events: [
+        {
+          name: 'create',
+          parameters: {
+            paymentAddress: 'pay.tg',
+            refundAddress: 'refund.near',
+            salt: arbitrarySalt,
+            feeAddress: 'fee.near',
+            feeAmount: '100',
+            maxRateTimespan: 1000000,
+            network: 'aurora',
+          },
+          timestamp: arbitraryTimestamp,
+        },
+      ],
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN,
+      type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+      values: {
+        paymentAddress: 'pay.tg',
+        refundAddress: 'refund.near',
+        feeAddress: 'fee.near',
+        salt: arbitrarySalt,
+        payeeDelegate: undefined,
+        payerDelegate: undefined,
+        paymentInfo: undefined,
+        receivedPaymentAmount: '0',
+        receivedRefundAmount: '0',
+        refundInfo: undefined,
+        sentPaymentAmount: '0',
+        sentRefundAmount: '0',
+        network: 'aurora',
+        maxRateTimespan: 1000000,
+        feeAmount: '100',
+      },
+      version: '0.1.0',
+    },
+  };
 export const extensionStateAnyToNativeWithPaymentAddressAdded: RequestLogicTypes.IExtensionStates =
   {
     [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN as string]: {

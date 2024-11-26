@@ -23,9 +23,11 @@ Join the [Request Discord][request-discord-url] to get in touch with us.
 | [`@requestnetwork/request-client.js`](/packages/request-client.js)       | [![npm](https://img.shields.io/npm/v/@requestnetwork/request-client.js.svg)](https://www.npmjs.com/package/@requestnetwork/request-client.js)       | Library to use Request nodes as servers                             |
 | [`@requestnetwork/data-access`](/packages/data-access)                   | [![npm](https://img.shields.io/npm/v/@requestnetwork/data-access.svg)](https://www.npmjs.com/package/@requestnetwork/data-access)                   | Indexing an batching of transactions                                |
 | [`@requestnetwork/data-format`](/packages/data-format)                   | [![npm](https://img.shields.io/npm/v/@requestnetwork/data-format.svg)](https://www.npmjs.com/package/@requestnetwork/data-format)                   | Standards for data stored on Request, like invoices format          |
+| [`@requestnetwork/epk-cipher`](/packages/epk-cipher)                     | [![npm](https://img.shields.io/npm/v/@requestnetwork/epk-cipher.svg)](https://www.npmjs.com/package/@requestnetwork/epk-cipher)                     | Encrypt /Decrypt requests using Ethereum private keys               |
 | [`@requestnetwork/epk-signature`](/packages/epk-signature)               | [![npm](https://img.shields.io/npm/v/@requestnetwork/epk-signature.svg)](https://www.npmjs.com/package/@requestnetwork/epk-signature)               | Sign requests using Ethereum private keys                           |
 | [`@requestnetwork/ethereum-storage`](/packages/ethereum-storage)         | [![npm](https://img.shields.io/npm/v/@requestnetwork/ethereum-storage.svg)](https://www.npmjs.com/package/@requestnetwork/ethereum-storage)         | Storage of Request data on Ethereum and IPFS, with custom indexing  |
 | [`@requestnetwork/epk-decryption`](/packages/epk-decryption)             | [![npm](https://img.shields.io/npm/v/@requestnetwork/epk-decryption.svg)](https://www.npmjs.com/package/@requestnetwork/epk-decryption)             | Decrypt encrypted requests using Ethereum private keys              |
+| [`@requestnetwork/lit-protocol-cipher`](/packages/lit-protocol-cipher)   | [![npm](https://img.shields.io/npm/v/@requestnetwork/lit-protocol-cipher.svg)](https://www.npmjs.com/package/@requestnetwork/lit-protocol-cipher)   | Encrypt / Decrypt requests using Lit Protocol                       |
 | [`@requestnetwork/payment-detection`](/packages/payment-detection)       | [![npm](https://img.shields.io/npm/v/@requestnetwork/payment-detection.svg)](https://www.npmjs.com/package/@requestnetwork/payment-detection)       | Client-side payment detection, to compute the balance.              |
 | [`@requestnetwork/payment-processor`](/packages/payment-processor)       | [![npm](https://img.shields.io/npm/v/@requestnetwork/payment-processor.svg)](https://www.npmjs.com/package/@requestnetwork/payment-processor)       | Pay a request using a web3 wallet                                   |
 | [`@requestnetwork/request-logic`](/packages/request-logic)               | [![npm](https://img.shields.io/npm/v/@requestnetwork/request-logic.svg)](https://www.npmjs.com/package/@requestnetwork/request-logic)               | The Request business logic: properties and actions of requests      |
@@ -79,6 +81,27 @@ yarn run lint
 
 Test all the packages in the monorepo.
 
+Some tests will require services to be running locally
+
+```bash
+docker compose up
+```
+
+Deploy Smart Contracts
+
+```bash
+yarn run deploy:contracts
+```
+
+Run request-node locally
+
+```bash
+cp ./packages/request-node/.env.example ./packages/request-node/.env
+yarn run start:request-node
+```
+
+Run all tests
+
 ```bash
 yarn run test
 ```
@@ -87,6 +110,12 @@ Test a specific package by replacing `@requestnetwork/request-client.js` with th
 
 ```bash
 yarn workspace @requestnetwork/request-client.js test
+```
+
+Clean Docker Volumes
+
+```bash
+docker compose down -v
 ```
 
 ## License
