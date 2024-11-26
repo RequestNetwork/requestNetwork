@@ -51,7 +51,9 @@ services:
       POSTGRES_DB: graph-node
     restart: on-failure:20
   graph-deploy:
-    build: https://github.com/RequestNetwork/docker-images/blob/main/request-subgraph-storage/Dockerfile
+    build:
+      context: https://github.com/RequestNetwork/docker-images.git#main
+      dockerfile: request-subgraph-storage/Dockerfile
     depends_on:
       - ipfs
       - postgres

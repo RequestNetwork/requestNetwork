@@ -8,11 +8,13 @@ WORKDIR /base
 
 COPY package.json .
 COPY yarn.lock .
-RUN yarn install
+RUN yarn install && \
+    yarn cache clean
 
 COPY . .
-RUN yarn clean
-RUN yarn build
+RUN yarn clean && \
+    yarn build && \
+    yarn cache clean
 
 # Port configuration
 ENV PORT 3000
