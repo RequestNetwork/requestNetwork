@@ -1,9 +1,9 @@
 import { ClientTypes, DataAccessTypes } from '@requestnetwork/types';
-
 import { EventEmitter } from 'events';
 import httpConfigDefaults from './http-config-defaults';
 import { normalizeKeccak256Hash, retry } from '@requestnetwork/utils';
 import { stringify } from 'qs';
+import { utils } from 'ethers';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -231,6 +231,23 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    */
   public async _getStatus(): Promise<any> {
     return await this.fetchAndRetry('/information', {});
+  }
+
+  /**
+   * Gets the Lit Protocol capacity delegation auth sig from the node through HTTP.
+   *
+   * @param delegateeAddress the address of the delegatee
+   */
+  public async getLitCapacityDelegationAuthSig(
+    delegateeAddress: string,
+  ): Promise<DataAccessTypes.AuthSig> {
+    if (!delegateeAddress || typeof delegateeAddress !== 'string') {
+      throw new Error('delegateeAddress must be a non-empty string');
+    }
+    if (!utils.isAddress(delegateeAddress)) {
+      throw new Error('delegateeAddress must be a valid Ethereum address');
+    }
+    return await this.fetchAndRetry('/getLitCapacityDelegationAuthSig', { delegateeAddress });
   }
 
   /**
