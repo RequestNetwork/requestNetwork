@@ -35,7 +35,7 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
-    "test": "jest",
+    "test": "jest --maxWorkers=1",
     "test:watch": "yarn test --watch",
     "init-ipfs": "node scripts/init-ipfs.js"
   },

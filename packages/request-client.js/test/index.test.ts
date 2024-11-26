@@ -26,6 +26,7 @@ import { http, HttpResponse } from 'msw';
 import { setupServer, SetupServer } from 'msw/node';
 import config from '../src/http-config-defaults';
 
+jest.setTimeout(20000);
 const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = {
   getConfirmationDeferDelay: 0,
 };

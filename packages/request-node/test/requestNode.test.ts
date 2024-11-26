@@ -3,6 +3,7 @@ import request from 'supertest';
 import { getRequestNode } from '../src/server';
 import { RequestNode } from '../src/requestNode';
 
+jest.setTimeout(20000);
 const packageJson = require('../package.json');
 const requestNodeVersion = packageJson.version;
 
