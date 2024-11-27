@@ -18,6 +18,8 @@ import {
 } from '@lit-protocol/auth-helpers';
 import { disconnectWeb3 } from '@lit-protocol/auth-browser';
 import { Signer } from 'ethers';
+import { LocalStorage } from 'node-localstorage';
+
 /**
  * @class LitProvider
  * @description A provider class that simplifies the usage of Lit Protocol for encryption and decryption.
@@ -68,6 +70,14 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    * @private
    */
   private initializeClient(): LitJsSdk.LitNodeClient | LitJsSdk.LitNodeClientNodeJs {
+    const localStorage = new LocalStorage('./request-network-lit-protocol-cipher');
+
+    const storageProvider = {
+      getItem: (key: string) => localStorage.getItem(key),
+      setItem: (key: string, value: string) => localStorage.setItem(key, value),
+      removeItem: (key: string) => localStorage.removeItem(key),
+      provider: localStorage,
+    };
     if (typeof window !== 'undefined') {
       return new LitJsSdk.LitNodeClient({
         litNetwork: this.network,
@@ -75,6 +85,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
     } else {
       return new LitJsSdk.LitNodeClientNodeJs({
         litNetwork: this.network,
+        storageProvider,
       });
     }
   }
@@ -100,6 +111,8 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    * @returns {Promise<void>}
    */
   public async getSessionSignatures(signer: Signer, walletAddress: string): Promise<void> {
+    console.log('getSessionSignatures', signer, walletAddress);
+
     if (this.sessionSigs) {
       return;
     }
