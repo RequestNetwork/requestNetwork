@@ -49,4 +49,25 @@ describe(EthereumTransactionSubmitter, () => {
       expect.objectContaining({ action: 'request' }),
     );
   });
+
+  it('should not use gas limit by default', async () => {
+    const sendTransactionSpy = jest.spyOn(signer, 'sendTransaction');
+    await txSubmitter.submit('hash', 1);
+    expect(sendTransactionSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ gasLimit: undefined }),
+    );
+  });
+
+  it('can use a custom gas limit', async () => {
+    const txSubmitterWithGasLimit = new EthereumTransactionSubmitter({
+      network: 'private',
+      signer,
+      gasLimit: BigNumber.from(1000000),
+    });
+    const sendTransactionSpy = jest.spyOn(signer, 'sendTransaction');
+    await txSubmitterWithGasLimit.submit('hash', 1);
+    expect(sendTransactionSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ gasLimit: BigNumber.from(1000000) }),
+    );
+  });
 });
