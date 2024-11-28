@@ -43,6 +43,7 @@
     "@lit-protocol/auth-browser": "7.0.0",
     "@lit-protocol/auth-helpers": "7.0.0",
     "@lit-protocol/constants": "7.0.0",
+    "@lit-protocol/contracts": "0.0.74",
     "@lit-protocol/encryption": "7.0.0",
     "@lit-protocol/lit-node-client": "7.0.0",
     "@lit-protocol/lit-node-client-nodejs": "7.0.0",

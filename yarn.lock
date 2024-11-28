@@ -3475,6 +3475,11 @@
     tslib "1.14.1"
     util "0.12.5"
 
+"@lit-protocol/contracts@0.0.74":
+  version "0.0.74"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/contracts/-/contracts-0.0.74.tgz#e726a9190c86b10cc6df3a392cd04d19057be27d"
+  integrity sha512-8uV038gzBp7ew7a4884SVt9Zhu8CtiTb+A8dKNnByxVoT1kFt4O4DmsaniV8p9AGjNR13IWfpU1NFChmPHVIpQ==
+
 "@lit-protocol/core@7.0.0":
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/@lit-protocol/core/-/core-7.0.0.tgz#50735e41df9e432f358380ea241e9acd80853cbb"
