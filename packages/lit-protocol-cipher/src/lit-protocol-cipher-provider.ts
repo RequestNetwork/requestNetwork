@@ -73,32 +73,36 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    * @private
    */
   private async initializeClient() {
-    // Using process.browser instead of typeof window
-    if (typeof window !== 'undefined') {
-      this.client = new LitJsSdk.LitNodeClient({
-        litNetwork: this.network,
-      });
-      await this.client.connect();
-    } else {
-      // Create dynamic import URL to prevent webpack analysis
-      const moduleUrl = 'node-localstorage';
-      const { LocalStorage } = await (0, eval)(`import('${moduleUrl}')`);
+    try {
+      // Using process.browser instead of typeof window
+      if (typeof window !== 'undefined') {
+        this.client = new LitJsSdk.LitNodeClient({
+          litNetwork: this.network,
+        });
+        await this.client.connect();
+      } else {
+        // Create dynamic import URL to prevent webpack analysis
+        const moduleUrl = 'node-localstorage';
+        const { LocalStorage } = await (0, eval)(`import('${moduleUrl}')`);
 
-      const localStorage = new LocalStorage('./request-network-lit-protocol-cipher');
+        const localStorage = new LocalStorage('./request-network-lit-protocol-cipher');
 
-      const storageProvider = {
-        getItem: (key: string) => localStorage.getItem(key),
-        setItem: (key: string, value: string) => localStorage.setItem(key, value),
-        removeItem: (key: string) => localStorage.removeItem(key),
-        provider: localStorage,
-      };
+        const storageProvider = {
+          getItem: (key: string) => localStorage.getItem(key),
+          setItem: (key: string, value: string) => localStorage.setItem(key, value),
+          removeItem: (key: string) => localStorage.removeItem(key),
+          provider: localStorage,
+        };
 
-      this.client = new LitJsSdk.LitNodeClientNodeJs({
-        litNetwork: this.network,
-        storageProvider,
-      });
+        this.client = new LitJsSdk.LitNodeClientNodeJs({
+          litNetwork: this.network,
+          storageProvider,
+        });
 
-      await this.client.connect();
+        await this.client.connect();
+      }
+    } catch (error) {
+      throw new Error(`Failed to initialize Lit client: ${error.message}`);
     }
   }
 
@@ -123,71 +127,68 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    * @returns {Promise<void>}
    */
   public async getSessionSignatures(signer: Signer, walletAddress: string): Promise<void> {
+    if (!this.client) {
+      throw new Error('Lit client not initialized');
+    }
     if (this.sessionSigs) {
       return;
     }
 
-    try {
-      const capacityDelegationAuthSig: AuthSig = this.dataAccess.getLitCapacityDelegationAuthSig
-        ? await this.dataAccess.getLitCapacityDelegationAuthSig(walletAddress)
-        : ({} as AuthSig);
+    const capacityDelegationAuthSig: AuthSig = this.dataAccess.getLitCapacityDelegationAuthSig
+      ? await this.dataAccess.getLitCapacityDelegationAuthSig(walletAddress)
+      : ({} as AuthSig);
 
-      // Get the latest blockhash
-      const latestBlockhash = await this.client?.getLatestBlockhash();
+    // Get the latest blockhash
+    const latestBlockhash = await this.client?.getLatestBlockhash();
 
-      // Define the authNeededCallback function
-      const authNeededCallback = async (params: AuthCallbackParams) => {
-        if (!params.uri) {
-          throw new Error('uri is required');
-        }
-        if (!params.expiration) {
-          throw new Error('expiration is required');
-        }
+    // Define the authNeededCallback function
+    const authNeededCallback = async (params: AuthCallbackParams) => {
+      if (!params.uri) {
+        throw new Error('uri is required');
+      }
+      if (!params.expiration) {
+        throw new Error('expiration is required');
+      }
 
-        if (!params.resourceAbilityRequests) {
-          throw new Error('resourceAbilityRequests is required');
-        }
+      if (!params.resourceAbilityRequests) {
+        throw new Error('resourceAbilityRequests is required');
+      }
 
-        // Create the SIWE message
-        const toSign = await createSiweMessageWithRecaps({
-          uri: params.uri,
-          expiration: params.expiration,
-          resources: params.resourceAbilityRequests,
-          walletAddress: walletAddress,
-          nonce: latestBlockhash || '',
-          litNodeClient: this.client,
-        });
+      // Create the SIWE message
+      const toSign = await createSiweMessageWithRecaps({
+        uri: params.uri,
+        expiration: params.expiration,
+        resources: params.resourceAbilityRequests,
+        walletAddress: walletAddress,
+        nonce: latestBlockhash || '',
+        litNodeClient: this.client,
+      });
 
-        // Generate the authSig
-        const authSig = await generateAuthSig({
-          signer: signer,
-          toSign,
-        });
+      // Generate the authSig
+      const authSig = await generateAuthSig({
+        signer: signer,
+        toSign,
+      });
 
-        return authSig;
-      };
+      return authSig;
+    };
 
-      // Define the Lit resource
-      const litResource = new LitAccessControlConditionResource('*');
+    // Define the Lit resource
+    const litResource = new LitAccessControlConditionResource('*');
 
-      // Get the session signatures
-      this.sessionSigs =
-        (await this.client?.getSessionSigs({
-          chain: this.chain,
-          capabilityAuthSigs: [capacityDelegationAuthSig],
-          resourceAbilityRequests: [
-            {
-              resource: litResource,
-              ability: LIT_ABILITY.AccessControlConditionDecryption,
-            },
-          ],
-          authNeededCallback,
-        })) || {};
-    } finally {
-      // if (client) {
-      //   await client.disconnect();
-      // }
-    }
+    // Get the session signatures
+    this.sessionSigs =
+      (await this.client?.getSessionSigs({
+        chain: this.chain,
+        capabilityAuthSigs: [capacityDelegationAuthSig],
+        resourceAbilityRequests: [
+          {
+            resource: litResource,
+            ability: LIT_ABILITY.AccessControlConditionDecryption,
+          },
+        ],
+        authNeededCallback,
+      })) || {};
   }
 
   /**
@@ -245,7 +246,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    * @returns {boolean} A boolean indicating if encryption is available.
    */
   public isEncryptionAvailable(): boolean {
-    return true;
+    return this.client !== null;
   }
 
   /**
@@ -264,25 +265,23 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       encryptionParams: EncryptionTypes.IEncryptionParameters[];
     },
   ): Promise<EncryptResponse | null> {
-    try {
-      const stringifiedData = typeof data === 'string' ? data : JSON.stringify(data);
-
-      const accessControlConditions = await this.getLitAccessControlConditions(
-        options.encryptionParams,
-      );
-
-      return await encryptString(
-        {
-          accessControlConditions: accessControlConditions,
-          dataToEncrypt: stringifiedData,
-        },
-        this.client!,
-      );
-    } finally {
-      // if (client) {
-      //   await client.disconnect();
-      // }
+    if (!this.client) {
+      throw new Error('Lit client not initialized');
     }
+
+    const stringifiedData = typeof data === 'string' ? data : JSON.stringify(data);
+
+    const accessControlConditions = await this.getLitAccessControlConditions(
+      options.encryptionParams,
+    );
+
+    return await encryptString(
+      {
+        accessControlConditions: accessControlConditions,
+        dataToEncrypt: stringifiedData,
+      },
+      this.client,
+    );
   }
 
   /**
@@ -291,7 +290,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    * @returns {boolean} A boolean indicating if decryption is available.
    */
   public isDecryptionAvailable(): boolean {
-    return this.sessionSigs !== null;
+    return this.client !== null && this.sessionSigs !== null;
   }
 
   /**
@@ -311,32 +310,28 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       encryptionParams: EncryptionTypes.IEncryptionParameters[];
     },
   ): Promise<string | null> {
-    try {
-      if (!this.sessionSigs) {
-        throw new Error('Session signatures are required to decrypt data');
-      }
-      // client = await this.initializeClient();
-      // await client.connect();
-
-      const accessControlConditions = await this.getLitAccessControlConditions(
-        options.encryptionParams,
-      );
-
-      const decryptedData = await decryptToString(
-        {
-          accessControlConditions: accessControlConditions,
-          chain: this.chain,
-          ciphertext: encryptedData.ciphertext,
-          dataToEncryptHash: encryptedData.dataToEncryptHash,
-          sessionSigs: this.sessionSigs,
-        },
-        this.client!,
-      );
-      return decryptedData;
-    } finally {
-      // if (client) {
-      //   await client.disconnect();
-      // }
+    if (!this.client) {
+      throw new Error('Lit client not initialized');
     }
+
+    if (!this.sessionSigs) {
+      throw new Error('Session signatures are required to decrypt data');
+    }
+
+    const accessControlConditions = await this.getLitAccessControlConditions(
+      options.encryptionParams,
+    );
+
+    const decryptedData = await decryptToString(
+      {
+        accessControlConditions: accessControlConditions,
+        chain: this.chain,
+        ciphertext: encryptedData.ciphertext,
+        dataToEncryptHash: encryptedData.dataToEncryptHash,
+        sessionSigs: this.sessionSigs,
+      },
+      this.client,
+    );
+    return decryptedData;
   }
 }

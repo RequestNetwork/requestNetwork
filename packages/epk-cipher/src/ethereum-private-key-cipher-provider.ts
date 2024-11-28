@@ -42,7 +42,7 @@ export default class EthereumPrivateKeyCipherProvider
    * @returns true if decryption is available
    */
   public isDecryptionAvailable(): boolean {
-    return true;
+    return this.decryptionParametersDictionary.size > 0;
   }
 
   /**
