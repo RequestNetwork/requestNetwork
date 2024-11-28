@@ -89,11 +89,16 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
         });
         await this.client.connect();
       } else {
-        // Create dynamic import URL to prevent webpack analysis
-        const moduleUrl = 'node-localstorage';
-        const { LocalStorage } = await (0, eval)(`import('${moduleUrl}')`);
+        // Evaluate the code in a way that prevents static analysis
+        const getNodeStorage = new Function(
+          'require',
+          `
+          const { LocalStorage } = require('node-localstorage');
+          return new LocalStorage('./request-network-lit-protocol-cipher');
+        `,
+        );
 
-        const localStorage = new LocalStorage('./request-network-lit-protocol-cipher');
+        const localStorage = getNodeStorage(require);
 
         this.storageProvider = {
           getItem: (key: string) => localStorage.getItem(key),
