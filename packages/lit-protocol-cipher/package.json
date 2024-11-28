@@ -35,7 +35,7 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
-    "test": "jest",
+    "test": "yarn node --experimental-vm-modules $(yarn bin jest)",
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
