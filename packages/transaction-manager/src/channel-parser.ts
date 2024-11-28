@@ -12,12 +12,14 @@ import TransactionsParser from './transactions-parser';
  */
 export default class ChannelParser {
   private transactionParser: TransactionsParser;
+  private cipherProvider?: CipherProviderTypes.ICipherProvider;
 
   public constructor(
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
     cipherProvider?: CipherProviderTypes.ICipherProvider,
   ) {
     this.transactionParser = new TransactionsParser(decryptionProvider, cipherProvider);
+    this.cipherProvider = cipherProvider;
   }
   /**
    * Decrypts and cleans a channel by removing the wrong transactions
@@ -54,13 +56,20 @@ export default class ChannelParser {
 
         let parsedData;
         try {
-          // Parse the transaction from data-access to get a transaction object and the channel key if encrypted
-          parsedData = await this.transactionParser.parsePersistedTransaction(
-            timestampedTransaction.transaction,
-            channelType,
-            channelKey,
-            encryptionMethod,
-          );
+          if (
+            (this.cipherProvider && this.cipherProvider.isDecryptionAvailable()) ||
+            !this.cipherProvider
+          ) {
+            // Parse the transaction from data-access to get a transaction object and the channel key if encrypted
+            parsedData = await this.transactionParser.parsePersistedTransaction(
+              timestampedTransaction.transaction,
+              channelType,
+              channelKey,
+              encryptionMethod,
+            );
+          } else {
+            throw new Error('Decryption is not available');
+          }
         } catch (error) {
           return result.concat([
             {
@@ -182,13 +191,20 @@ export default class ChannelParser {
 
         let parsedData;
         try {
-          // Parse the transaction from data-access to get a transaction object and the channel key if encrypted
-          parsedData = await this.transactionParser.parsePersistedTransaction(
-            timestampedTransaction.transaction,
-            result.channelType,
-            result.channelKey,
-            result.encryptionMethod,
-          );
+          if (
+            (this.cipherProvider && this.cipherProvider.isDecryptionAvailable()) ||
+            !this.cipherProvider
+          ) {
+            // Parse the transaction from data-access to get a transaction object and the channel key if encrypted
+            parsedData = await this.transactionParser.parsePersistedTransaction(
+              timestampedTransaction.transaction,
+              result.channelType,
+              result.channelKey,
+              result.encryptionMethod,
+            );
+          } else {
+            throw new Error('Decryption is not available');
+          }
         } catch (error) {
           // If the transaction is encrypted but the channel key is not found, save channelType and encryptionMethod
           if (

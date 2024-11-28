@@ -28,6 +28,24 @@ export default class EthereumPrivateKeyCipherProvider
   }
 
   /**
+   * Check if encryption is available
+   *
+   * @returns true if encryption is available
+   */
+  public isEncryptionAvailable(): boolean {
+    return true;
+  }
+
+  /**
+   * Check if decryption is available
+   *
+   * @returns true if decryption is available
+   */
+  public isDecryptionAvailable(): boolean {
+    return true;
+  }
+
+  /**
    * Encrypts data
    *
    * @param data

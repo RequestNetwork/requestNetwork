@@ -7,6 +7,7 @@ import {
   CurrencyTypes,
   EncryptionTypes,
   IdentityTypes,
+  LogTypes,
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
@@ -14,7 +15,7 @@ import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import localUtils from './utils';
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
-import { deepCopy } from '@requestnetwork/utils';
+import { deepCopy, SimpleLogger } from '@requestnetwork/utils';
 
 /**
  * Class representing a request.
@@ -33,6 +34,7 @@ export default class Request {
   private paymentNetwork: PaymentTypes.IPaymentNetwork | null = null;
   private contentDataExtension: ContentDataExtension | null;
   private emitter: EventEmitter;
+  private logger: SimpleLogger = new SimpleLogger(LogTypes.LogLevel.WARN);
 
   /**
    * true if the creation emitted an event 'error'
@@ -698,22 +700,27 @@ export default class Request {
       throw Error('request confirmation failed');
     }
 
-    let requestData = deepCopy(this.requestData);
+    let requestData: RequestLogicTypes.IRequest = deepCopy(
+      this.requestData,
+    ) as RequestLogicTypes.IRequest;
 
     let pending = deepCopy(this.pendingData);
-    if (!requestData) {
+    if (!requestData && pending) {
       requestData = pending as RequestLogicTypes.IRequest;
       requestData.state = RequestLogicTypes.STATE.PENDING;
-      pending = { state: this.pendingData!.state };
+      pending = { state: this.pendingData?.state };
+    } else if (!requestData && !pending) {
+      return Object.assign(new EventEmitter(), {} as Types.IRequestDataWithEvents);
     }
 
     const currency = this.currencyManager.fromStorageCurrency(requestData.currency);
+
     return Object.assign(new EventEmitter(), {
       ...requestData,
       balance: this.balance,
       contentData: this.contentData,
       currency: currency ? currency.id : 'unknown',
-      currencyInfo: requestData.currency,
+      currencyInfo: requestData?.currency,
       meta: this.requestMeta,
       pending,
     });
@@ -752,11 +759,12 @@ export default class Request {
     }
 
     if (!requestAndMeta.result.request && !requestAndMeta.result.pending) {
-      throw new Error(
-        `No request found for the id: ${this.requestId} - ${localUtils.formatGetRequestFromIdError(
-          requestAndMeta,
-        )}`,
-      );
+      const requestFromIdError = localUtils.formatGetRequestFromIdError(requestAndMeta);
+      if (requestFromIdError.indexOf('Decryption is not available') !== -1) {
+        this.logger.warn(`Decryption is not available for request ${this.requestId}`);
+      } else {
+        throw new Error(`No request found for the id: ${this.requestId} - ${requestFromIdError}`);
+      }
     }
 
     if (this.contentDataExtension) {
