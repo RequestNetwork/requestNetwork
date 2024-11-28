@@ -47,7 +47,15 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    */
   private sessionSigs: SessionSigsMap | null = null;
 
+  /**
+   * @property {LitNodeClient|LitNodeClientNodeJs|null} client - The Lit Protocol client instance.
+   */
   private client: LitJsSdk.LitNodeClient | LitJsSdk.LitNodeClientNodeJs | null = null;
+
+  /**
+   * @property {any} storageProvider - The storage provider for the Node.js Lit client.
+   */
+  private storageProvider: any;
 
   /**
    * @constructor
@@ -87,16 +95,17 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
 
         const localStorage = new LocalStorage('./request-network-lit-protocol-cipher');
 
-        const storageProvider = {
+        this.storageProvider = {
           getItem: (key: string) => localStorage.getItem(key),
           setItem: (key: string, value: string) => localStorage.setItem(key, value),
           removeItem: (key: string) => localStorage.removeItem(key),
+          clear: () => localStorage.clear(),
           provider: localStorage,
         };
 
         this.client = new LitJsSdk.LitNodeClientNodeJs({
           litNetwork: this.network,
-          storageProvider,
+          storageProvider: this.storageProvider,
         });
 
         await this.client.connect();
@@ -116,6 +125,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       disconnectWeb3();
     }
     this.sessionSigs = null;
+    this.storageProvider.clear();
   }
 
   /**
