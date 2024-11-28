@@ -62,6 +62,11 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
   private debug = false;
 
   /**
+   * @property {boolean} isDecryptionOn - A boolean indicating if decryption is enabled.
+   */
+  private isDecryptionOn = false;
+
+  /**
    * @constructor
    * @param {LitNodeClient|LitNodeClientNodeJs} litClient - An instance of a Lit Protocol client (either client-side or Node.js).
    * @throws {Error} Throws an error if the provided Lit client is invalid.
@@ -275,6 +280,15 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
   }
 
   /**
+   * Switches on decryption
+   *
+   * @param option
+   */
+  public switchOnOffDecryption(option: boolean): void {
+    this.isDecryptionOn = option;
+  }
+
+  /**
    * @function isEncryptionAvailable
    * @description Checks if encryption is available.
    * @returns {boolean} A boolean indicating if encryption is available.
@@ -324,7 +338,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    * @returns {boolean} A boolean indicating if decryption is available.
    */
   public isDecryptionAvailable(): boolean {
-    return this.client !== null && this.sessionSigs !== null;
+    return this.client !== null && this.sessionSigs !== null && this.isDecryptionOn;
   }
 
   /**

@@ -106,6 +106,9 @@ export const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider
 };
 
 export class FakeEpkCipherProvider implements CipherProviderTypes.ICipherProvider {
+  switchOnOffDecryption(option: boolean): void {
+    throw new Error('Method not implemented.');
+  }
   isEncryptionAvailable(): boolean {
     throw new Error('Method not implemented.');
   }
@@ -173,6 +176,9 @@ export class FakeLitProtocolProvider implements CipherProviderTypes.ICipherProvi
 
   constructor() {
     this.storedRawData = '';
+  }
+  switchOnOffDecryption(option: boolean): void {
+    throw new Error('Method not implemented.');
   }
   isEncryptionAvailable(): boolean {
     throw new Error('Method not implemented.');
