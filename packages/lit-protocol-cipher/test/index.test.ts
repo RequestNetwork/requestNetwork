@@ -3,7 +3,6 @@ import { Signer } from 'ethers';
 import LitProvider from '../src/lit-protocol-cipher-provider';
 import * as LitJsSdk from '@lit-protocol/lit-node-client';
 import { HttpDataAccess, NodeConnectionConfig } from '@requestnetwork/request-client.js';
-import { disconnectWeb3 } from '@lit-protocol/auth-browser';
 import { generateAuthSig } from '@lit-protocol/auth-helpers';
 import { EncryptionTypes } from '@requestnetwork/types';
 import { createSiweMessageWithRecaps } from '@lit-protocol/auth-helpers';
@@ -12,7 +11,6 @@ import { decryptToString, encryptString } from '@lit-protocol/encryption';
 // Mock dependencies
 jest.mock('@lit-protocol/lit-node-client');
 jest.mock('@requestnetwork/request-client.js');
-jest.mock('@lit-protocol/auth-browser');
 jest.mock('@lit-protocol/auth-helpers');
 jest.mock('@lit-protocol/encryption');
 
@@ -53,7 +51,9 @@ describe('LitProvider', () => {
       signMessage: jest.fn().mockReturnValue(Promise.resolve('mock-signature')),
     } as unknown as jest.Mocked<Signer>;
 
-    litProvider = new LitProvider(mockChain, mockNetwork, mockNodeConnectionConfig);
+    const debug = false;
+
+    litProvider = new LitProvider(mockChain, mockNetwork, mockNodeConnectionConfig, debug);
     await litProvider.initializeClient();
   });
 
@@ -73,7 +73,7 @@ describe('LitProvider', () => {
 
       await litProvider.disconnectWallet();
 
-      expect(disconnectWeb3).toHaveBeenCalled();
+      expect(LitJsSdk.disconnectWeb3).toHaveBeenCalled();
       expect(litProvider['sessionSigs']).toBeNull();
     });
 

@@ -15,7 +15,6 @@ import {
   createSiweMessageWithRecaps,
   generateAuthSig,
 } from '@lit-protocol/auth-helpers';
-import { disconnectWeb3 } from '@lit-protocol/auth-browser';
 import { Signer } from 'ethers';
 import { LIT_ABILITY } from '@lit-protocol/constants';
 import { decryptToString, encryptString } from '@lit-protocol/encryption';
@@ -58,6 +57,11 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
   private storageProvider: any | null = null;
 
   /**
+   * @property {boolean} debug - A boolean indicating if debug mode is enabled.
+   */
+  private debug = false;
+
+  /**
    * @constructor
    * @param {LitNodeClient|LitNodeClientNodeJs} litClient - An instance of a Lit Protocol client (either client-side or Node.js).
    * @throws {Error} Throws an error if the provided Lit client is invalid.
@@ -66,10 +70,12 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
     chain: string,
     network: LIT_NETWORKS_KEYS,
     nodeConnectionConfig: NodeConnectionConfig,
+    debug: boolean,
   ) {
     this.chain = chain;
     this.network = network;
     this.dataAccess = new HttpDataAccess({ nodeConnectionConfig });
+    this.debug = debug;
   }
 
   /**
@@ -84,6 +90,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       if (typeof window !== 'undefined') {
         this.client = new LitJsSdk.LitNodeClient({
           litNetwork: this.network,
+          debug: this.debug,
         });
         await this.client.connect();
       } else {
@@ -108,6 +115,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
         this.client = new LitJsSdk.LitNodeClientNodeJs({
           litNetwork: this.network,
           storageProvider: this.storageProvider,
+          debug: this.debug,
         });
 
         await this.client.connect();
@@ -124,7 +132,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    */
   public async disconnectWallet(): Promise<void> {
     if (typeof window !== 'undefined') {
-      disconnectWeb3();
+      LitJsSdk.disconnectWeb3();
     }
     this.sessionSigs = null;
     if (this.storageProvider) {
