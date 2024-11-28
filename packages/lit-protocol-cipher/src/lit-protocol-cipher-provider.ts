@@ -55,7 +55,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
   /**
    * @property {any} storageProvider - The storage provider for the Node.js Lit client.
    */
-  private storageProvider: any;
+  private storageProvider: any | null = null;
 
   /**
    * @constructor
@@ -70,17 +70,15 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
     this.chain = chain;
     this.network = network;
     this.dataAccess = new HttpDataAccess({ nodeConnectionConfig });
-    void this.initializeClient();
   }
 
   /**
    * @function initializeClient
    * @description Initializes the Lit client based on the environment.
-   * @returns {LitNodeClient|LitNodeClientNodeJs} A Lit Protocol client instance.
    * @throws {Error} Throws an error if the environment is not supported.
-   * @private
+   * @returns {Promise<void>}
    */
-  private async initializeClient() {
+  public async initializeClient(): Promise<void> {
     try {
       // Using process.browser instead of typeof window
       if (typeof window !== 'undefined') {
@@ -91,14 +89,13 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       } else {
         // Evaluate the code in a way that prevents static analysis
         const getNodeStorage = new Function(
-          'require',
           `
-          const { LocalStorage } = require('node-localstorage');
-          return new LocalStorage('./request-network-lit-protocol-cipher');
-        `,
+          return import('node-localstorage').then(m => m.LocalStorage);
+          `,
         );
 
-        const localStorage = getNodeStorage(require);
+        const LocalStorage = await getNodeStorage();
+        const localStorage = new LocalStorage('./request-network-lit-protocol-cipher');
 
         this.storageProvider = {
           getItem: (key: string) => localStorage.getItem(key),
@@ -130,7 +127,21 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       disconnectWeb3();
     }
     this.sessionSigs = null;
-    this.storageProvider.clear();
+    if (this.storageProvider) {
+      this.storageProvider.clear();
+    }
+  }
+
+  /**
+   * @async
+   * @function disconnectClient
+   * @description Disconnects the Lit client.
+   * @returns {Promise<void>}
+   */
+  public async disconnectClient(): Promise<void> {
+    if (this.client) {
+      await this.client.disconnect();
+    }
   }
 
   /**

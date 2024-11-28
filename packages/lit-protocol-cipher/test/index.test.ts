@@ -54,7 +54,7 @@ describe('LitProvider', () => {
     } as unknown as jest.Mocked<Signer>;
 
     litProvider = new LitProvider(mockChain, mockNetwork, mockNodeConnectionConfig);
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await litProvider.initializeClient();
   });
 
   describe('constructor', () => {
