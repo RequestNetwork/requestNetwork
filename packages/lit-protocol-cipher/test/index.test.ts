@@ -74,6 +74,7 @@ describe('LitProvider', () => {
       await litProvider.disconnectWallet();
 
       expect(disconnectWeb3).toHaveBeenCalled();
+      expect(litProvider['sessionSigs']).toBeNull();
     });
 
     it('should handle disconnection in Node.js environment', async () => {
