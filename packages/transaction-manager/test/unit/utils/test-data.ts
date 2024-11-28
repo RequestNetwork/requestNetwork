@@ -106,6 +106,12 @@ export const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider
 };
 
 export class FakeEpkCipherProvider implements CipherProviderTypes.ICipherProvider {
+  isEncryptionAvailable(): boolean {
+    throw new Error('Method not implemented.');
+  }
+  isDecryptionAvailable(): boolean {
+    throw new Error('Method not implemented.');
+  }
   supportedIdentityTypes = [IdentityTypes.TYPE.ETHEREUM_ADDRESS];
   supportedMethods = [EncryptionTypes.METHOD.ECIES];
 
@@ -167,6 +173,12 @@ export class FakeLitProtocolProvider implements CipherProviderTypes.ICipherProvi
 
   constructor() {
     this.storedRawData = '';
+  }
+  isEncryptionAvailable(): boolean {
+    throw new Error('Method not implemented.');
+  }
+  isDecryptionAvailable(): boolean {
+    throw new Error('Method not implemented.');
   }
 
   public async decrypt(
