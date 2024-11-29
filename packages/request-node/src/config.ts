@@ -282,5 +282,7 @@ export const getConfigDisplay = (): string => {
   IPFS url: ${getIpfsUrl()}
   IPFS timeout: ${getIpfsTimeout()}
   Storage block confirmations: ${getBlockConfirmations()}
+  Lit Protocol Network: ${getLitProtocolNetwork()}
+  Lit Protocol RPC: ${getLitProtocolRPC()}
 `;
 };
