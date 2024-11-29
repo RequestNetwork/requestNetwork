@@ -1,20 +1,10 @@
-import {
-  constants,
-  Contract,
-  ContractTransaction,
-  Signer,
-  BigNumberish,
-  providers,
-  BigNumber,
-} from 'ethers';
+import { constants, ContractTransaction, Signer, BigNumberish, providers, BigNumber } from 'ethers';
 
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
-import { ERC20FeeProxy__factory, ERC20__factory } from '@requestnetwork/smart-contracts/types';
+import { ERC20FeeProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 import { EvmChains } from '@requestnetwork/currency';
-
-import { emporiumOp, RelayerTransaction } from '@hinkal/common';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
@@ -25,8 +15,7 @@ import {
   validateErc20FeeProxyRequest,
   validateRequest,
 } from './utils';
-import { IPreparedPrivateTransaction, IPreparedTransaction } from './prepared-transaction';
-import { prepareEthersHinkal } from '@hinkal/common/providers/prepareEthersHinkal';
+import { IPreparedTransaction } from './prepared-transaction';
 
 /**
  * Processes a transaction to pay an ERC20 Request with fees.
@@ -45,34 +34,6 @@ export async function payErc20FeeProxyRequest(
   const { data, to, value } = prepareErc20FeeProxyPaymentTransaction(request, amount, feeAmount);
   const signer = getSigner(signerOrProvider);
   return signer.sendTransaction({ data, to, value, ...overrides });
-}
-
-/**
- * Processes a transaction to pay an ERC20 Request privately with fees.
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
- * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
- */
-export async function payPrivateErc20FeeProxyRequest(
-  request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Provider | Signer = getProvider(),
-  amount?: BigNumberish,
-  feeAmount?: BigNumberish,
-): Promise<RelayerTransaction> {
-  const hinkal = await prepareEthersHinkal(getSigner(signerOrProvider));
-
-  const { amountToPay, tokenAddress, ops } = preparePrivateErc20FeeProxyPaymentTransaction(
-    request,
-    amount,
-    feeAmount,
-  );
-
-  return hinkal.actionPrivateWallet(
-    [tokenAddress],
-    [-amountToPay],
-    [false],
-    ops,
-  ) as Promise<RelayerTransaction>;
 }
 
 /**
@@ -153,50 +114,5 @@ export function prepareErc20FeeProxyPaymentTransaction(
     data: encodedTx,
     to: proxyAddress,
     value: 0,
-  };
-}
-
-/**
- * Prepare the transaction to privately pay a request through the ERC20 fee proxy contract, can be used with a Multisig contract.
- * @param request request to pay
- * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
- * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
- */
-export function preparePrivateErc20FeeProxyPaymentTransaction(
-  request: ClientTypes.IRequestData,
-  amount?: BigNumberish,
-  feeAmountOverride?: BigNumberish,
-): IPreparedPrivateTransaction {
-  validateErc20FeeProxyRequest(request, amount, feeAmountOverride);
-
-  const { value: tokenAddress, network } = request.currencyInfo;
-  EvmChains.assertChainSupported(network!);
-  const pn = getPaymentNetworkExtension(request);
-  const proxyAddress = erc20FeeProxyArtifact.getAddress(network, pn?.version);
-
-  const tokenContract = new Contract(tokenAddress, ERC20__factory.createInterface());
-  const proxyContract = new Contract(proxyAddress, ERC20FeeProxy__factory.createInterface());
-
-  const { paymentReference, paymentAddress, feeAddress, feeAmount } =
-    getRequestPaymentValues(request);
-  const amountToPay = getAmountToPay(request, amount);
-  const feeToPay = String(feeAmountOverride || feeAmount || 0);
-
-  const ops = [
-    emporiumOp(tokenContract, 'approve', [proxyContract.address, amountToPay]),
-    emporiumOp(proxyContract, 'transferFromWithReferenceAndFee', [
-      tokenAddress,
-      paymentAddress,
-      amountToPay,
-      `0x${paymentReference}`,
-      feeToPay,
-      feeAddress,
-    ]),
-  ];
-
-  return {
-    amountToPay: amountToPay.toBigInt(),
-    tokenAddress,
-    ops,
   };
 }

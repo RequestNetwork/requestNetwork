@@ -16,7 +16,7 @@ import {
  * Creates a payment request with the parameters specified in './hinkalRequestData.ts'
  * used by testPayErc20FeeProxyRequestHinkal.ts
  * @param payerWallet the wallet used by the payer
- * @param privateKey the private of the user creating the request
+ * @param privateKey the private key of the user creating the request
  * @returns Newly created request
  */
 export const createRequestForHinkal = async (
