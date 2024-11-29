@@ -49,6 +49,8 @@ const defaultValues = {
   },
   litProtocolNetwork: LIT_NETWORK.Datil,
   litProtocolRPC: 'https://yellowstone-rpc.litprotocol.com',
+  litProtocolCapacityCreditsUsage: '1',
+  litProtocolCapacityCreditsExpirationInSeconds: 10 * 60, // 10 minutes
 };
 
 const getOption = <T extends string | number>(
@@ -88,6 +90,24 @@ export const getLitProtocolRPC = makeOption(
   'litProtocolRPC',
   'LIT_PROTOCOL_RPC',
   defaultValues.litProtocolRPC,
+);
+
+/**
+ * Get the number of uses of the capacity credits from command line argument, environment variables or default values
+ */
+export const getLitProtocolCapacityCreditsUsage = makeOption(
+  'litProtocolCapacityCreditsUsage',
+  'LIT_PROTOCOL_CAPACITY_CREDITS_USAGE',
+  defaultValues.litProtocolCapacityCreditsUsage,
+);
+
+/**
+ * Get the expiration time of the capacity credits from command line argument, environment variables or default values
+ */
+export const getLitProtocolCapacityCreditsExpirationInSeconds = makeOption(
+  'litProtocolCapacityCreditsExpirationInSeconds',
+  'LIT_PROTOCOL_CAPACITY_CREDITS_EXPIRATION_IN_SECONDS',
+  defaultValues.litProtocolCapacityCreditsExpirationInSeconds,
 );
 
 /**
@@ -284,5 +304,7 @@ export const getConfigDisplay = (): string => {
   Storage block confirmations: ${getBlockConfirmations()}
   Lit Protocol Network: ${getLitProtocolNetwork()}
   Lit Protocol RPC: ${getLitProtocolRPC()}
+  Lit Protocol Capacity Credits Uses: ${getLitProtocolCapacityCreditsUsage()}
+  Lit Protocol Capacity Credits Expiration in seconds: ${getLitProtocolCapacityCreditsExpirationInSeconds()}
 `;
 };

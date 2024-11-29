@@ -1,5 +1,5 @@
 import { Wallet, providers } from 'ethers';
-import { LitNodeClient } from '@lit-protocol/lit-node-client';
+import { LitNodeClientNodeJs } from '@lit-protocol/lit-node-client';
 import { LogTypes } from '@requestnetwork/types';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
@@ -47,7 +47,7 @@ export default class GetLitCapacityDelegationAuthSigHandler {
         return;
       }
 
-      const litNodeClient = new LitNodeClient({
+      const litNodeClient = new LitNodeClientNodeJs({
         litNetwork: config.getLitProtocolNetwork(),
         debug: false,
       });
@@ -57,8 +57,10 @@ export default class GetLitCapacityDelegationAuthSigHandler {
         capacityTokenId: existingTokens[existingTokens.length - 1].tokenId,
         dAppOwnerWallet: ethersSigner,
         delegateeAddresses: [delegateeAddress as string],
-        uses: '100',
-        expiration: new Date(Date.now() + 1000 * 60 * 60).toISOString(), // 1 hour
+        uses: config.getLitProtocolCapacityCreditsUsage().toString(),
+        expiration: new Date(
+          Date.now() + 1000 * 60 * config.getLitProtocolCapacityCreditsExpirationInSeconds(),
+        ).toISOString(), // 1 hour
       });
 
       serverResponse.status(StatusCodes.OK).send(capacityDelegationAuthSig);
