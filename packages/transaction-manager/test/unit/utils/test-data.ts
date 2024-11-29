@@ -113,7 +113,7 @@ export class FakeEpkCipherProvider implements CipherProviderTypes.ICipherProvide
     throw new Error('Method not implemented.');
   }
   isDecryptionAvailable(): boolean {
-    throw new Error('Method not implemented.');
+    return true;
   }
   supportedIdentityTypes = [IdentityTypes.TYPE.ETHEREUM_ADDRESS];
   supportedMethods = [EncryptionTypes.METHOD.ECIES];
@@ -184,7 +184,7 @@ export class FakeLitProtocolProvider implements CipherProviderTypes.ICipherProvi
     throw new Error('Method not implemented.');
   }
   isDecryptionAvailable(): boolean {
-    throw new Error('Method not implemented.');
+    return true;
   }
 
   public async decrypt(
