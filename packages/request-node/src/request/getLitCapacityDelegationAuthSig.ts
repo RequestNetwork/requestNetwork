@@ -1,6 +1,5 @@
 import { Wallet, providers } from 'ethers';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
-import { LIT_RPC } from '@lit-protocol/constants';
 import { LogTypes } from '@requestnetwork/types';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
@@ -29,7 +28,7 @@ export default class GetLitCapacityDelegationAuthSigHandler {
 
     try {
       const ethersSigner = Wallet.fromMnemonic(config.getMnemonic()).connect(
-        new providers.JsonRpcProvider(LIT_RPC.CHRONICLE_YELLOWSTONE),
+        new providers.JsonRpcProvider(config.getLitProtocolRPC()),
       );
 
       const litContractClient = new LitContracts({
@@ -58,8 +57,8 @@ export default class GetLitCapacityDelegationAuthSigHandler {
         capacityTokenId: existingTokens[existingTokens.length - 1].tokenId,
         dAppOwnerWallet: ethersSigner,
         delegateeAddresses: [delegateeAddress as string],
-        uses: '1',
-        expiration: new Date(Date.now() + 1000 * 60 * 10).toISOString(), // 10 minutes
+        uses: '100',
+        expiration: new Date(Date.now() + 1000 * 60 * 60).toISOString(), // 1 hour
       });
 
       serverResponse.status(StatusCodes.OK).send(capacityDelegationAuthSig);

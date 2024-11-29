@@ -59,7 +59,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
   /**
    * @property {boolean} debug - A boolean indicating if debug mode is enabled.
    */
-  private debug = false;
+  private debug: boolean;
 
   /**
    * @property {boolean} isDecryptionOn - A boolean indicating if decryption is enabled.
@@ -75,12 +75,12 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
     chain: string,
     network: LIT_NETWORKS_KEYS,
     nodeConnectionConfig: NodeConnectionConfig,
-    debug: boolean,
+    debug?: boolean,
   ) {
     this.chain = chain;
     this.network = network;
     this.dataAccess = new HttpDataAccess({ nodeConnectionConfig });
-    this.debug = debug;
+    this.debug = debug || false;
   }
 
   /**

@@ -47,7 +47,8 @@ const defaultValues = {
   wallet: {
     mnemonic: 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat',
   },
-  litProtocolNetwork: LIT_NETWORK.DatilTest,
+  litProtocolNetwork: LIT_NETWORK.Datil,
+  litProtocolRPC: 'https://yellowstone-rpc.litprotocol.com',
 };
 
 const getOption = <T extends string | number>(
@@ -78,6 +79,15 @@ export const getLitProtocolNetwork = makeOption(
   'litProtocolNetwork',
   'LIT_PROTOCOL_NETWORK',
   defaultValues.litProtocolNetwork,
+);
+
+/**
+ * Get the litProtocolNetwork from command line argument, environment variables or default values to send with the API responses
+ */
+export const getLitProtocolRPC = makeOption(
+  'litProtocolRPC',
+  'LIT_PROTOCOL_RPC',
+  defaultValues.litProtocolRPC,
 );
 
 /**
