@@ -1,12 +1,11 @@
 import { jest } from '@jest/globals';
 import { Signer } from 'ethers';
 import LitProvider from '../src/lit-protocol-cipher-provider';
-import * as LitJsSdk from '@lit-protocol/lit-node-client';
+import { disconnectWeb3, LitNodeClientNodeJs } from '@lit-protocol/lit-node-client';
 import { HttpDataAccess, NodeConnectionConfig } from '@requestnetwork/request-client.js';
 import { generateAuthSig } from '@lit-protocol/auth-helpers';
 import { EncryptionTypes } from '@requestnetwork/types';
 import { createSiweMessageWithRecaps } from '@lit-protocol/auth-helpers';
-import { decryptToString, encryptString } from '@lit-protocol/encryption';
 
 // Mock dependencies
 jest.mock('@lit-protocol/lit-node-client');
@@ -16,7 +15,7 @@ jest.mock('@lit-protocol/encryption');
 
 describe('LitProvider', () => {
   let litProvider: LitProvider;
-  let mockLitClient: jest.Mocked<LitJsSdk.LitNodeClientNodeJs>; // Use Node.js client
+  let mockLitClient: jest.Mocked<LitNodeClientNodeJs>; // Use Node.js client
   let mockSigner: jest.Mocked<Signer>;
 
   const mockChain = 'ethereum';
@@ -42,9 +41,11 @@ describe('LitProvider', () => {
       disconnect: jest.fn().mockReturnValue(Promise.resolve()),
       getLatestBlockhash: jest.fn().mockReturnValue(Promise.resolve('mock-blockhash')),
       getSessionSigs: jest.fn().mockReturnValue(Promise.resolve({ 'mock-session': 'mock-sig' })),
-    } as unknown as jest.Mocked<LitJsSdk.LitNodeClientNodeJs>;
+      encrypt: jest.fn().mockReturnValue(Promise.resolve('mock-encrypted-data')),
+      decrypt: jest.fn().mockReturnValue(Promise.resolve('mock-decrypted-data')),
+    } as unknown as jest.Mocked<LitNodeClientNodeJs>;
 
-    (LitJsSdk.LitNodeClientNodeJs as unknown as jest.Mock).mockImplementation(() => mockLitClient);
+    (LitNodeClientNodeJs as unknown as jest.Mock).mockImplementation(() => mockLitClient);
 
     mockSigner = {
       getAddress: jest.fn().mockReturnValue(Promise.resolve(mockWalletAddress)),
@@ -73,7 +74,7 @@ describe('LitProvider', () => {
 
       await litProvider.disconnectWallet();
 
-      expect(LitJsSdk.disconnectWeb3).toHaveBeenCalled();
+      expect(disconnectWeb3).toHaveBeenCalled();
       expect(litProvider['sessionSigs']).toBeNull();
     });
 
@@ -131,7 +132,7 @@ describe('LitProvider', () => {
     };
 
     beforeEach(() => {
-      (encryptString as jest.Mock).mockReturnValue(Promise.resolve(mockEncryptResponse));
+      (mockLitClient.encrypt as jest.Mock).mockReturnValue(Promise.resolve(mockEncryptResponse));
     });
 
     it('should encrypt string data successfully', async () => {
@@ -140,12 +141,11 @@ describe('LitProvider', () => {
       });
 
       expect(result).toEqual(mockEncryptResponse);
-      expect(encryptString).toHaveBeenCalledWith(
+      expect(mockLitClient.encrypt).toHaveBeenCalledWith(
         expect.objectContaining({
-          dataToEncrypt: mockData,
+          dataToEncrypt: new TextEncoder().encode(mockData),
           accessControlConditions: expect.any(Array),
         }),
-        expect.any(Object),
       );
     });
 
@@ -160,7 +160,14 @@ describe('LitProvider', () => {
     const mockDecryptedData = 'decrypted-data';
 
     beforeEach(async () => {
-      (decryptToString as jest.Mock).mockReturnValue(Promise.resolve(mockDecryptedData));
+      // Mock the decrypt response with the correct structure
+      // The decryptedData should be a Uint8Array since it will be decoded by TextDecoder
+      (mockLitClient.decrypt as jest.Mock).mockReturnValue(
+        Promise.resolve({
+          decryptedData: new TextEncoder().encode(mockDecryptedData),
+        }),
+      );
+
       // Set session signatures
       await litProvider.getSessionSignatures(mockSigner, mockWalletAddress);
     });
@@ -171,7 +178,7 @@ describe('LitProvider', () => {
       });
 
       expect(result).toBe(mockDecryptedData);
-      expect(decryptToString).toHaveBeenCalledWith(
+      expect(mockLitClient.decrypt).toHaveBeenCalledWith(
         expect.objectContaining({
           ciphertext: mockEncryptedData.ciphertext,
           dataToEncryptHash: mockEncryptedData.dataToEncryptHash,
@@ -179,10 +186,7 @@ describe('LitProvider', () => {
           accessControlConditions: expect.any(Array),
           sessionSigs: expect.any(Object),
         }),
-        expect.any(Object),
       );
     });
-
-    // ... (rest of your decrypt tests with necessary adjustments)
   });
 });
