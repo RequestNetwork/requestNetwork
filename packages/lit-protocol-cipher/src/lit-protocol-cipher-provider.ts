@@ -1,4 +1,3 @@
-import * as LitJsSdk from '@lit-protocol/lit-node-client';
 import { CipherProviderTypes, DataAccessTypes, EncryptionTypes } from '@requestnetwork/types';
 import { HttpDataAccess, NodeConnectionConfig } from '@requestnetwork/request-client.js';
 import {
@@ -12,12 +11,12 @@ import {
 } from '@lit-protocol/types';
 import {
   LitAccessControlConditionResource,
-  createSiweMessageWithRecaps,
+  createSiweMessage,
   generateAuthSig,
 } from '@lit-protocol/auth-helpers';
 import { Signer } from 'ethers';
 import { LIT_ABILITY } from '@lit-protocol/constants';
-import { decryptToString, encryptString } from '@lit-protocol/encryption';
+import { disconnectWeb3, LitNodeClient, LitNodeClientNodeJs } from '@lit-protocol/lit-node-client';
 
 /**
  * @class LitProvider
@@ -49,7 +48,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
   /**
    * @property {LitNodeClient|LitNodeClientNodeJs|null} client - The Lit Protocol client instance.
    */
-  private client: LitJsSdk.LitNodeClient | LitJsSdk.LitNodeClientNodeJs | null = null;
+  private client: LitNodeClient | LitNodeClientNodeJs | null = null;
 
   /**
    * @property {any} storageProvider - The storage provider for the Node.js Lit client.
@@ -93,7 +92,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
     try {
       // Using process.browser instead of typeof window
       if (typeof window !== 'undefined') {
-        this.client = new LitJsSdk.LitNodeClient({
+        this.client = new LitNodeClient({
           litNetwork: this.network,
           debug: this.debug,
         });
@@ -117,7 +116,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
           provider: localStorage,
         };
 
-        this.client = new LitJsSdk.LitNodeClientNodeJs({
+        this.client = new LitNodeClientNodeJs({
           litNetwork: this.network,
           storageProvider: this.storageProvider,
           debug: this.debug,
@@ -137,7 +136,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    */
   public async disconnectWallet(): Promise<void> {
     if (typeof window !== 'undefined') {
-      LitJsSdk.disconnectWeb3();
+      disconnectWeb3();
     }
     this.sessionSigs = null;
     if (this.storageProvider) {
@@ -194,7 +193,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       }
 
       // Create the SIWE message
-      const toSign = await createSiweMessageWithRecaps({
+      const toSign = await createSiweMessage({
         uri: params.uri,
         expiration: params.expiration,
         resources: params.resourceAbilityRequests,
@@ -323,13 +322,10 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       options.encryptionParams,
     );
 
-    return await encryptString(
-      {
-        accessControlConditions: accessControlConditions,
-        dataToEncrypt: stringifiedData,
-      },
-      this.client,
-    );
+    return await this.client.encrypt({
+      accessControlConditions: accessControlConditions,
+      dataToEncrypt: new TextEncoder().encode(stringifiedData),
+    });
   }
 
   /**
@@ -370,16 +366,13 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       options.encryptionParams,
     );
 
-    const decryptedData = await decryptToString(
-      {
-        accessControlConditions: accessControlConditions,
-        chain: this.chain,
-        ciphertext: encryptedData.ciphertext,
-        dataToEncryptHash: encryptedData.dataToEncryptHash,
-        sessionSigs: this.sessionSigs,
-      },
-      this.client,
-    );
-    return decryptedData;
+    const { decryptedData } = await this.client.decrypt({
+      accessControlConditions: accessControlConditions,
+      chain: this.chain,
+      ciphertext: encryptedData.ciphertext,
+      dataToEncryptHash: encryptedData.dataToEncryptHash,
+      sessionSigs: this.sessionSigs,
+    });
+    return new TextDecoder().decode(decryptedData);
   }
 }
