@@ -61,52 +61,59 @@ export default class TransactionsParser {
 
     // looks like an encrypted transaction
     if (persistedTransaction.encryptedData) {
-      if (channelType === TransactionTypes.ChannelType.CLEAR) {
-        throw new Error('Encrypted transactions are not allowed in clear channel');
-      }
+      if (
+        (this.cipherProvider && this.cipherProvider.isDecryptionAvailable()) ||
+        !this.cipherProvider
+      ) {
+        if (channelType === TransactionTypes.ChannelType.CLEAR) {
+          throw new Error('Encrypted transactions are not allowed in clear channel');
+        }
 
-      // no channel key, try to decrypt it and validate encryption method
-      if (!channelKey) {
-        // no encryptionMethod, this is first tx, must contain encryptionMethod
-        if (!encryptionMethod) {
-          if (!persistedTransaction.encryptionMethod || !persistedTransaction.keys) {
-            throw new Error(
-              'the properties "encryptionMethod" and "keys" are needed to compute the channel key',
-            );
+        // no channel key, try to decrypt it and validate encryption method
+        if (!channelKey) {
+          // no encryptionMethod, this is first tx, must contain encryptionMethod
+          if (!encryptionMethod) {
+            if (!persistedTransaction.encryptionMethod || !persistedTransaction.keys) {
+              throw new Error(
+                'the properties "encryptionMethod" and "keys" are needed to compute the channel key',
+              );
+            }
+            encryptionMethod = persistedTransaction.encryptionMethod;
+            channelKey = await this.decryptChannelKey(persistedTransaction.keys, encryptionMethod);
           }
-          encryptionMethod = persistedTransaction.encryptionMethod;
-          channelKey = await this.decryptChannelKey(persistedTransaction.keys, encryptionMethod);
+          // given encryptionMethod, this not first tx, must not contain encryptionMethod
+          else {
+            if (persistedTransaction.encryptionMethod) {
+              throw new Error(
+                'the "encryptionMethod" property has been already given for this channel',
+              );
+            }
+            if (!persistedTransaction.keys) {
+              throw new Error('the "keys" property is needed to compute the channel key');
+            }
+            channelKey = await this.decryptChannelKey(persistedTransaction.keys, encryptionMethod);
+          }
         }
-        // given encryptionMethod, this not first tx, must not contain encryptionMethod
+        // given channel key, validate encryption method
         else {
-          if (persistedTransaction.encryptionMethod) {
-            throw new Error(
-              'the "encryptionMethod" property has been already given for this channel',
-            );
+          // no encryptionMethod, this is first tx, must contain encryptionMethod
+          if (!encryptionMethod) {
+            if (!persistedTransaction.encryptionMethod) {
+              throw new Error('the "encryptionMethod" property is needed to use the channel key');
+            }
+            encryptionMethod = persistedTransaction.encryptionMethod;
           }
-          if (!persistedTransaction.keys) {
-            throw new Error('the "keys" property is needed to compute the channel key');
-          }
-          channelKey = await this.decryptChannelKey(persistedTransaction.keys, encryptionMethod);
-        }
-      }
-      // given channel key, validate encryption method
-      else {
-        // no encryptionMethod, this is first tx, must contain encryptionMethod
-        if (!encryptionMethod) {
-          if (!persistedTransaction.encryptionMethod) {
-            throw new Error('the "encryptionMethod" property is needed to use the channel key');
-          }
-          encryptionMethod = persistedTransaction.encryptionMethod;
-        }
-        // given encryptionMethod, this not first tx, must not contain encryptionMethod
-        else {
-          if (persistedTransaction.encryptionMethod) {
-            throw new Error(
-              'the "encryptionMethod" property has been already given for this channel',
-            );
+          // given encryptionMethod, this not first tx, must not contain encryptionMethod
+          else {
+            if (persistedTransaction.encryptionMethod) {
+              throw new Error(
+                'the "encryptionMethod" property has been already given for this channel',
+              );
+            }
           }
         }
+      } else {
+        throw new Error('Decryption is not available');
       }
 
       return {

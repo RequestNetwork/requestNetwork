@@ -37,6 +37,7 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
+    "prepare": "yarn run build",
     "test": "jest",
     "test:watch": "yarn test --watch"
   },
