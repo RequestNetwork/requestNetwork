@@ -57,8 +57,7 @@
     "minimist": "^0.2.4",
     "semver": "^7.5.4",
     "json-schema": "^0.4.0",
-    "json5": "^2.2.1",
-    "string-width": "4.2.3"
+    "json5": "^2.2.1"
   },
   "resolutionsDocs": {
     "underscore": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/14",
