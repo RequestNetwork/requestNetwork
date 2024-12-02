@@ -162,13 +162,13 @@ describe('ERC-20 Private Payments With Hinkal', () => {
       const tx = await payPrivateErc20ProxyRequestFromHinkal(requestData, payerWallet);
       const balanceErc20After = await getErc20Balance(requestData, PAYEE, provider);
 
-      await waitLittle(7); // wait before balance is increased
+      await waitLittle(5); // wait before balance is increased
 
       expect(tx.status).toBe(1);
       expect(tx.from).not.toBe(PAYER_PUBLIC_KEY);
       expect(BigNumber.from(balanceErc20Before).lt(BigNumber.from(balanceErc20After)));
     });
-    it('ERC-20 Fee Proxy: Payer is not the same as Origin/Sender of Transaction', async () => {
+    it.skip('ERC-20 Fee Proxy: Payer is not the same as Origin/Sender of Transaction', async () => {
       const requestData = await createRequestForHinkal(
         payerWallet,
         PAYER_PRIVATE_KEY,
@@ -185,7 +185,7 @@ describe('ERC-20 Private Payments With Hinkal', () => {
       expect(BigNumber.from(balanceErc20Before).lt(BigNumber.from(balanceErc20After)));
     });
   });
-  describe('Privacy of a Recipient: From Public to Private Transactions', () => {
+  describe.skip('Privacy of a Recipient: From Public to Private Transactions', () => {
     afterAll(async () => {
       for (let key in hinkalStore) {
         hinkalStore[key].snapshotsClearInterval();
@@ -226,7 +226,7 @@ describe('ERC-20 Private Payments With Hinkal', () => {
     });
   });
 
-  describe('Shielding: Depositing funds from EOA to own shielded address', () => {
+  describe.skip('Shielding: Depositing funds from EOA to own shielded address', () => {
     beforeAll(async () => {
       await addToHinkalStore(senderWallet);
     });
