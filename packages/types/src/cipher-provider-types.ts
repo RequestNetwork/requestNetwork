@@ -17,4 +17,28 @@ export interface ICipherProvider {
    * @returns A Promise that resolves to the decrypted data.
    */
   decrypt(encryptedData: any, options: any): Promise<any>;
+
+  /**
+   * Checks if encryption is available.
+   * @returns A boolean indicating if encryption is available.
+   */
+  isEncryptionAvailable(): boolean;
+
+  /**
+   * Checks if decryption is available.
+   * @returns A boolean indicating if decryption is available.
+   */
+  isDecryptionAvailable(): boolean;
+
+  /**
+   * Switches on/off decryption.
+   * @param option - A boolean indicating if decryption should be switched on/off.
+   */
+  enableDecryption(option: boolean): void;
+
+  /**
+   * Checks if decryption is enabled.
+   * @returns A boolean indicating if decryption is enabled.
+   */
+  isDecryptionEnabled(): boolean;
 }

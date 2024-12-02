@@ -13,6 +13,7 @@ export {
   unique,
   uniqueByProperty,
   notNull,
+  validatePaginationParams,
 };
 
 const MILLISECOND_IN_SECOND = 1000;
@@ -159,4 +160,19 @@ function timeoutPromise<T>(promise: Promise<T>, timeout: number, message: string
 
 function notNull<T>(x: T | null | undefined): x is T {
   return x !== null && x !== undefined;
+}
+
+/**
+ * Validates the pagination parameters.
+ *
+ * @param page
+ * @param pageSize
+ */
+function validatePaginationParams(page?: number, pageSize?: number): void {
+  if (page !== undefined && page < 1) {
+    throw new Error(`Page number must be greater than or equal to 1 but it is ${page}`);
+  }
+  if (pageSize !== undefined && pageSize <= 0) {
+    throw new Error(`Page size must be positive but it is ${pageSize}`);
+  }
 }

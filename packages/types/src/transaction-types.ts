@@ -16,10 +16,14 @@ export interface ITransactionManager {
   getChannelsByTopic: (
     topic: string,
     updatedBetween?: ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ) => Promise<IReturnGetTransactionsByChannels>;
   getChannelsByMultipleTopics: (
     topics: string[],
     updatedBetween?: ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ) => Promise<IReturnGetTransactionsByChannels>;
 }
 

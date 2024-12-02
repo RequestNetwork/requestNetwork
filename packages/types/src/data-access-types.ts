@@ -13,10 +13,14 @@ export interface IDataRead {
   getChannelsByTopic: (
     topic: string,
     updatedBetween?: ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ) => Promise<IReturnGetChannelsByTopic>;
   getChannelsByMultipleTopics(
     topics: string[],
     updatedBetween?: ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ): Promise<IReturnGetChannelsByTopic>;
 }
 
@@ -78,6 +82,7 @@ export interface IReturnGetTransactions {
     transactionsStorageLocation: string[];
     /** meta-data from the layer below */
     storageMeta?: StorageTypes.IEntryMetadata[];
+    pagination?: StorageTypes.PaginationMetadata;
   };
   /** result of the execution */
   result: { transactions: ITimestampedTransaction[] };
@@ -93,6 +98,7 @@ export interface IReturnGetChannelsByTopic {
     };
     /** meta-data from the layer below */
     storageMeta?: Record<string, StorageTypes.IEntryMetadata[] | undefined>;
+    pagination?: StorageTypes.PaginationMetadata;
   };
   /** result of the execution: the transactions grouped by channel id */
   result: { transactions: ITransactionsByChannelIds };
