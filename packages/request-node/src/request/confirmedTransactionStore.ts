@@ -19,8 +19,9 @@ export default class ConfirmedTransactionStore {
   public async getConfirmedTransaction(
     transactionHash: string,
   ): Promise<DataAccessTypes.IReturnPersistTransactionRaw | undefined> {
-    const { transactions, blockNumber } =
-      await this.subgraphClient.getTransactionsByDataHash(transactionHash);
+    const { transactions, blockNumber } = await this.subgraphClient.getTransactionsByDataHash(
+      transactionHash,
+    );
     if (transactions.length === 0) {
       return;
     }

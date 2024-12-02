@@ -9,8 +9,7 @@ const eightHexRegex = /[0-9a-f]{16,}/;
  * This module is called by the reference based payment networks to avoid code redundancy
  */
 export default abstract class ReferenceBasedPaymentNetwork<
-  TCreationParameters extends
-    ExtensionTypes.PnReferenceBased.ICreationParameters = ExtensionTypes.PnReferenceBased.ICreationParameters,
+  TCreationParameters extends ExtensionTypes.PnReferenceBased.ICreationParameters = ExtensionTypes.PnReferenceBased.ICreationParameters,
 > extends AddressBasedPaymentNetwork<TCreationParameters> {
   /**
    * Creates the extensionsData to create the payment detection extension

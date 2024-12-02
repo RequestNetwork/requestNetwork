@@ -13,8 +13,7 @@ import DeclarativePaymentNetwork from './declarative';
 const CURRENT_VERSION = '0.1.0';
 
 export default class MetaPaymentNetwork<
-  TCreationParameters extends
-    ExtensionTypes.PnMeta.ICreationParameters = ExtensionTypes.PnMeta.ICreationParameters,
+  TCreationParameters extends ExtensionTypes.PnMeta.ICreationParameters = ExtensionTypes.PnMeta.ICreationParameters,
 > extends DeclarativePaymentNetwork<TCreationParameters> {
   public constructor(
     protected currencyManager: CurrencyTypes.ICurrencyManager,

@@ -12,10 +12,7 @@ export default class PersistTransactionHandler {
   /**
    * Persist transaction constructor
    */
-  constructor(
-    private dataAccess: DataAccessTypes.IDataWrite,
-    private logger: LogTypes.ILogger,
-  ) {
+  constructor(private dataAccess: DataAccessTypes.IDataWrite, private logger: LogTypes.ILogger) {
     this.handler = this.handler.bind(this);
   }
 
@@ -90,10 +87,10 @@ export default class PersistTransactionHandler {
       dataAccessResponse.on('error', async (e: unknown) => {
         this.logger.error(`persistTransaction error: ${e}\n
           transactionHash: ${transactionHash.value}, channelId: ${
-            clientRequest.body.channelId
-          }, topics: ${clientRequest.body.topics}, transactionData: ${JSON.stringify(
-            clientRequest.body.transactionData,
-          )}`);
+          clientRequest.body.channelId
+        }, topics: ${clientRequest.body.topics}, transactionData: ${JSON.stringify(
+          clientRequest.body.transactionData,
+        )}`);
       });
 
       this.logger.debug(
