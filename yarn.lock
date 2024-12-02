@@ -3177,10 +3177,10 @@
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.2.0.tgz#5f3d96ec6b2354ad6d8a28bf216a1d97b5426861"
   integrity sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==
 
-"@hinkal/common@0.1.36":
-  version "0.1.36"
-  resolved "https://registry.yarnpkg.com/@hinkal/common/-/common-0.1.36.tgz#7f39e2d9ba37a5a65ec923f27ed2f6c936346dce"
-  integrity sha512-lUrnOHEOZ8lEKUGMuMJxEVT++3nct8RH85Zq1ft2Hzal4QItYV+3P0viPNe6WjBNRiJagxxGNsTCZnxpHVc+Nw==
+"@hinkal/common@0.1.51":
+  version "0.1.51"
+  resolved "https://registry.yarnpkg.com/@hinkal/common/-/common-0.1.51.tgz#d50f2f0261a8fc3b0b6d1b71703431ff1cb725f2"
+  integrity sha512-kyAJfy5Kaoy33ImtJWdNdLL56q+/TmlX5YpwoC96BcL9nDqdVBg8UxRWA2NKjfvvpVF2UvPC21t8BoC1DPbx+g==
   dependencies:
     "@axelar-network/axelarjs-sdk" "0.16.0"
     async-mutex "^0.4.0"

@@ -1,4 +1,4 @@
-import { Contract, Signer, BigNumberish, providers } from 'ethers';
+import { Contract, ContractTransaction, Signer, BigNumberish, providers, BigNumber } from 'ethers';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import {
   ERC20FeeProxy__factory,
@@ -22,8 +22,54 @@ import { IPreparedPrivateTransaction } from './prepared-transaction';
 import { emporiumOp, IHinkal, RelayerTransaction } from '@hinkal/common';
 import { prepareEthersHinkal } from '@hinkal/common/providers/prepareEthersHinkal';
 
-// exposing state variable to be accessed: for intergration tests
-export let hinkal: IHinkal;
+/**
+ * This is a globally accessible state variable exported for use in other parts of the application or tests.
+ */
+export const hinkalStore: Record<string, IHinkal> = {};
+
+/**
+ * Adds an IHinkal instance to the Hinkal store for a given signer.
+ *
+ * This function checks if an IHinkal instance already exists for the provided signer’s address in the `hinkalStore`.
+ * If it does not exist, it initializes the instance using `prepareEthersHinkal` and stores it. The existing or newly
+ * created instance is then returned.
+ *
+ * @param signer - The signer for which the IHinkal instance should be added or retrieved.
+ */
+export async function addToHinkalStore(signer: Signer): Promise<IHinkal> {
+  const address = await signer.getAddress();
+  if (!hinkalStore[address]) {
+    hinkalStore[address] = await prepareEthersHinkal(signer);
+  }
+  return hinkalStore[address];
+}
+
+/**
+ * Deposits ERC20 tokens into a Hinkal shielded address.
+ *
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param tokenAddress - The address of the ERC20 token being deposited.
+ * @param amount - The amount of tokens to deposit.
+ * @param recepientInfo - (Optional) The shielded address of the recipient. If provided, the tokens will be deposited into the recipient's shielded balance. If not provided, the deposit will increase the sender's shielded balance.
+ *
+ * @returns A promise that resolves to a `ContractTransaction` representing the deposit transaction.
+ */
+export async function sendToPrivateRecipientFromHinkal(
+  signerOrProvider: providers.Provider | Signer = getProvider(),
+  tokenAddress: string,
+  amount: BigNumberish,
+  recepientInfo?: string,
+): Promise<ContractTransaction> {
+  const signer = getSigner(signerOrProvider);
+  const hinkalObject = await addToHinkalStore(signer);
+
+  const amountToPay = BigNumber.from(amount).toBigInt();
+  if (recepientInfo) {
+    return hinkalObject.depositForOther([tokenAddress], [amountToPay], recepientInfo);
+  } else {
+    return hinkalObject.deposit([tokenAddress], [amountToPay]);
+  }
+}
 
 /**
  * Processes a transaction to pay an ERC20 Request privately with fees.
@@ -36,22 +82,22 @@ export async function payPrivateErc20ProxyRequestFromHinkal(
   signerOrProvider: providers.Provider | Signer = getProvider(),
   amount?: BigNumberish,
 ): Promise<RelayerTransaction> {
-  if (!hinkal) hinkal = await prepareEthersHinkal(getSigner(signerOrProvider));
+  const signer = getSigner(signerOrProvider);
+  const hinkalObject = await addToHinkalStore(signer);
 
   const { amountToPay, tokenAddress, ops } = preparePrivateErc20ProxyPaymentTransactionFromHinkal(
     request,
     amount,
   );
 
-  return hinkal.actionPrivateWallet(
+  return hinkalObject.actionPrivateWallet(
     [tokenAddress],
     [-amountToPay],
     [false],
     ops,
-    undefined,
-    false,
   ) as Promise<RelayerTransaction>;
 }
+
 /**
  * Processes a transaction to pay an ERC20 Request privately with fees.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
@@ -64,18 +110,17 @@ export async function payPrivateErc20FeeProxyRequestFromHinkal(
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
 ): Promise<RelayerTransaction> {
-  if (!hinkal) hinkal = await prepareEthersHinkal(getSigner(signerOrProvider));
+  const signer = getSigner(signerOrProvider);
+  const hinkalObject = await addToHinkalStore(signer);
 
   const { amountToPay, tokenAddress, ops } =
     preparePrivateErc20FeeProxyPaymentTransactionFromHinkal(request, amount, feeAmount);
 
-  return hinkal.actionPrivateWallet(
+  return hinkalObject.actionPrivateWallet(
     [tokenAddress],
     [-amountToPay],
     [false],
     ops,
-    undefined,
-    false,
   ) as Promise<RelayerTransaction>;
 }
 
