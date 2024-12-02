@@ -84,8 +84,9 @@ export default class RequestNetwork {
     parameters: Types.ICreateRequestParameters,
     options?: Types.ICreateRequestOptions,
   ): Promise<Request> {
-    const { requestParameters, topics, paymentNetwork } =
-      await this.prepareRequestParameters(parameters);
+    const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
+      parameters,
+    );
 
     const requestLogicCreateResult = await this.requestLogic.createRequest(
       requestParameters,
@@ -165,8 +166,9 @@ export default class RequestNetwork {
     encryptionParams: EncryptionTypes.IEncryptionParameters[],
     options?: Types.ICreateRequestOptions,
   ): Promise<Request> {
-    const { requestParameters, topics, paymentNetwork } =
-      await this.prepareRequestParameters(parameters);
+    const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
+      parameters,
+    );
 
     const requestLogicCreateResult = await this.requestLogic.createEncryptedRequest(
       requestParameters,

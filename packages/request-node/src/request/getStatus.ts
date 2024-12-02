@@ -14,10 +14,7 @@ const packageJson = require('../../package.json');
  * @param dataAccess data access layer
  */
 export default class GetStatusHandler {
-  constructor(
-    private logger: LogTypes.ILogger,
-    private dataAccess: DataAccessTypes.IDataAccess,
-  ) {
+  constructor(private logger: LogTypes.ILogger, private dataAccess: DataAccessTypes.IDataAccess) {
     this.handler = this.handler.bind(this);
   }
   async handler(clientRequest: Request, serverResponse: Response): Promise<void> {

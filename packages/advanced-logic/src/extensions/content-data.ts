@@ -7,8 +7,7 @@ const CURRENT_VERSION = '0.1.0';
  * Implementation of the content data extension
  */
 export default class ContentDataExtension<
-  TCreationParameters extends
-    ExtensionTypes.ContentData.ICreationParameters = ExtensionTypes.ContentData.ICreationParameters,
+  TCreationParameters extends ExtensionTypes.ContentData.ICreationParameters = ExtensionTypes.ContentData.ICreationParameters,
 > extends AbstractExtension<TCreationParameters> {
   public constructor() {
     super(ExtensionTypes.TYPE.CONTENT_DATA, ExtensionTypes.ID.CONTENT_DATA, CURRENT_VERSION);
