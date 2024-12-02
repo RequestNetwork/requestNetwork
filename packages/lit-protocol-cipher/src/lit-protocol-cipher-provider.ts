@@ -283,7 +283,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    *
    * @param option
    */
-  public switchOnOffDecryption(option: boolean): void {
+  public enableDecryption(option: boolean): void {
     this.isDecryptionOn = option;
   }
 
