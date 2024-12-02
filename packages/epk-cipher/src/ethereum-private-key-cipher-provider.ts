@@ -20,7 +20,7 @@ export default class EthereumPrivateKeyCipherProvider
   /** Dictionary containing all the private keys indexed by address */
   private decryptionParametersDictionary: IDecryptionParametersDictionary;
 
-  private isDecryptionOn = false;
+  private decryptionEnabled = true;
 
   constructor(decryptionParameters?: EncryptionTypes.IDecryptionParameters) {
     this.decryptionParametersDictionary = new Map<string, EncryptionTypes.IDecryptionParameters>();
@@ -44,7 +44,7 @@ export default class EthereumPrivateKeyCipherProvider
    * @returns true if decryption is available
    */
   public isDecryptionAvailable(): boolean {
-    return this.decryptionParametersDictionary.size > 0 && this.isDecryptionOn;
+    return this.decryptionParametersDictionary.size > 0 && this.decryptionEnabled;
   }
 
   /**
@@ -53,8 +53,17 @@ export default class EthereumPrivateKeyCipherProvider
    * @param option
    */
   public enableDecryption(option: boolean): void {
-    this.isDecryptionOn = option;
+    this.decryptionEnabled = option;
   }
+
+  /**
+   * Checks if decryption is enabled.
+   * @returns A boolean indicating if decryption is enabled.
+   */
+  public isDecryptionEnabled(): boolean {
+    return this.decryptionEnabled;
+  }
+
   /**
    * Encrypts data
    *
