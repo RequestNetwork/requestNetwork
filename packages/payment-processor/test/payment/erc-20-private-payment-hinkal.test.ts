@@ -167,7 +167,6 @@ describe('ERC-20 Private Payments With Hinkal', () => {
       expect(tx.status).toBe(1);
       expect(tx.from).not.toBe(PAYER_PUBLIC_KEY);
       expect(BigNumber.from(balanceErc20Before).lt(BigNumber.from(balanceErc20After)));
-
     });
     it('ERC-20 Fee Proxy: Payer is not the same as Origin/Sender of Transaction', async () => {
       const requestData = await createRequestForHinkal(
@@ -248,7 +247,6 @@ describe('ERC-20 Private Payments With Hinkal', () => {
       const waitedTx = await tx.wait(2);
 
       await waitLittle(10); // wait before balance is increased
-
 
       const postBalances = await hinkalStore[senderAddress].getBalances();
       const postUsdcBalance = postBalances.find(
