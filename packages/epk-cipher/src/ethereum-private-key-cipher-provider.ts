@@ -52,7 +52,7 @@ export default class EthereumPrivateKeyCipherProvider
    *
    * @param option
    */
-  public switchOnOffDecryption(option: boolean): void {
+  public enableDecryption(option: boolean): void {
     this.isDecryptionOn = option;
   }
   /**

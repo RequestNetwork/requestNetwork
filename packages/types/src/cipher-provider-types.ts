@@ -34,5 +34,5 @@ export interface ICipherProvider {
    * Switches on/off decryption.
    * @param option - A boolean indicating if decryption should be switched on/off.
    */
-  switchOnOffDecryption(option: boolean): void;
+  enableDecryption(option: boolean): void;
 }
