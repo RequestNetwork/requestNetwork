@@ -8,6 +8,7 @@ type IDecryptionParametersDictionary = Map<string, EncryptionTypes.IDecryptionPa
 /**
  * Implementation of the decryption provider from private key
  * Allows to decrypt() with "ethereumAddress" identities thanks to their private key given in constructor() or addDecryptionParameters()
+ * @deprecated Use EthereumPrivateKeyCipherProvider instead
  */
 export default class EthereumPrivateKeyDecryptionProvider
   implements DecryptionProviderTypes.IDecryptionProvider
@@ -21,6 +22,9 @@ export default class EthereumPrivateKeyDecryptionProvider
   private decryptionParametersDictionary: IDecryptionParametersDictionary;
 
   constructor(decryptionParameters?: EncryptionTypes.IDecryptionParameters) {
+    console.warn(
+      'EthereumPrivateKeyDecryptionProvider is deprecated. Use EthereumPrivateKeyCipherProvider instead.',
+    );
     this.decryptionParametersDictionary = new Map<string, EncryptionTypes.IDecryptionParameters>();
     if (decryptionParameters) {
       this.addDecryptionParameters(decryptionParameters);

@@ -63,7 +63,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
   /**
    * @property {boolean} isDecryptionOn - A boolean indicating if decryption is enabled.
    */
-  private isDecryptionOn = false;
+  private decryptionEnabled = false;
 
   /**
    * @constructor
@@ -284,7 +284,15 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    * @param option
    */
   public enableDecryption(option: boolean): void {
-    this.isDecryptionOn = option;
+    this.decryptionEnabled = option;
+  }
+
+  /**
+   * Checks if decryption is enabled.
+   * @returns A boolean indicating if decryption is enabled.
+   */
+  public isDecryptionEnabled(): boolean {
+    return this.decryptionEnabled;
   }
 
   /**
@@ -334,7 +342,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    * @returns {boolean} A boolean indicating if decryption is available.
    */
   public isDecryptionAvailable(): boolean {
-    return this.client !== null && this.sessionSigs !== null && this.isDecryptionOn;
+    return this.client !== null && this.sessionSigs !== null && this.decryptionEnabled;
   }
 
   /**
