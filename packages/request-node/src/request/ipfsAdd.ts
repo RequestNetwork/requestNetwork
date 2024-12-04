@@ -13,10 +13,7 @@ import { getPersistTransactionTimeout } from '../config';
  * @param dataAccess data access layer
  */
 export default class IpfsAddHandler {
-  constructor(
-    private logger: LogTypes.ILogger,
-    private ipfsStorage: StorageTypes.IIpfsStorage,
-  ) {
+  constructor(private logger: LogTypes.ILogger, private ipfsStorage: StorageTypes.IIpfsStorage) {
     this.handler = this.handler.bind(this);
   }
 

@@ -127,23 +127,17 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
     const filteredTxs = transactions.filter((tx) => channels.includes(tx.channelId));
     return {
       meta: {
-        storageMeta: filteredTxs.reduce(
-          (acc, tx) => {
-            acc[tx.channelId] = [this.toStorageMeta(tx, result.blockNumber, this.network)];
-            return acc;
-          },
-          {} as Record<string, StorageTypes.IEntryMetadata[]>,
-        ),
-        transactionsStorageLocation: filteredTxs.reduce(
-          (prev, curr) => {
-            if (!prev[curr.channelId]) {
-              prev[curr.channelId] = [];
-            }
-            prev[curr.channelId].push(curr.hash);
-            return prev;
-          },
-          {} as Record<string, string[]>,
-        ),
+        storageMeta: filteredTxs.reduce((acc, tx) => {
+          acc[tx.channelId] = [this.toStorageMeta(tx, result.blockNumber, this.network)];
+          return acc;
+        }, {} as Record<string, StorageTypes.IEntryMetadata[]>),
+        transactionsStorageLocation: filteredTxs.reduce((prev, curr) => {
+          if (!prev[curr.channelId]) {
+            prev[curr.channelId] = [];
+          }
+          prev[curr.channelId].push(curr.hash);
+          return prev;
+        }, {} as Record<string, string[]>),
         pagination:
           page && pageSize
             ? {

@@ -34,10 +34,7 @@ export type DeploymentInformation = {
  * and utilities to connect to it
  **/
 export class ContractArtifact<TContract extends Contract> {
-  constructor(
-    private info: ArtifactInfo,
-    private lastVersion: string,
-  ) {
+  constructor(private info: ArtifactInfo, private lastVersion: string) {
     this.connect = this.connect.bind(this);
     this.getInterface = this.getInterface.bind(this);
     this.getContractAbi = this.getContractAbi.bind(this);
