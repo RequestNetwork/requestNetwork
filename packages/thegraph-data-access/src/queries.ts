@@ -80,7 +80,7 @@ ${TransactionsBodyFragment}
 query GetTransactionsByTopics($topics: [String!]!, $first: Int!, $skip: Int!) {
   ${metaQueryBody}
   transactions(
-    where: { topics_contains_nocase: $topics }
+    where: { topics_contains: $topics }
     first: $first
     skip: $skip
     orderBy: blockTimestamp

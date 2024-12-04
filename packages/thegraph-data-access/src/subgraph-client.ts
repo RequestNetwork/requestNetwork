@@ -71,10 +71,12 @@ export class SubgraphClient implements StorageTypes.IIndexer {
     const effectivePage = page ?? 1;
     const skip = (effectivePage - 1) * effectivePageSize;
 
+    const topicsArray = Array.isArray(topics) ? topics : [topics];
+
     const response = await this.graphql.request<Meta & { transactions: Transaction[] }>(
       GetTransactionsByTopics,
       {
-        topics,
+        topics: topicsArray,
         first: effectivePageSize,
         skip,
       },
