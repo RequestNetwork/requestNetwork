@@ -71,27 +71,28 @@ export class SubgraphClient implements StorageTypes.IIndexer {
     const effectivePage = page ?? 1;
     const skip = (effectivePage - 1) * effectivePageSize;
 
-    const topicsArray = Array.isArray(topics) ? topics : [topics];
+    const { _meta, channels } = await this.graphql.request<
+      Meta & { channels: { transactions: Transaction[] }[] }
+    >(GetTransactionsByTopics, {
+      topics,
+      first: effectivePageSize,
+      skip,
+    });
 
-    const response = await this.graphql.request<Meta & { transactions: Transaction[] }>(
-      GetTransactionsByTopics,
-      {
-        topics: topicsArray,
-        first: effectivePageSize,
-        skip,
-      },
-    );
+    const transactionsByChannel = channels
+      .map(({ transactions }) => transactions)
+      .flat()
+      .sort((a, b) => a.blockTimestamp - b.blockTimestamp);
 
-    const indexedTransactions = response.transactions.map(this.toIndexedTransaction);
-
+    const indexedTransactions = transactionsByChannel.map(this.toIndexedTransaction);
     return {
       transactions: indexedTransactions,
-      blockNumber: response._meta.block.number,
+      blockNumber: _meta.block.number,
       pagination: {
         page: effectivePage,
         pageSize: effectivePageSize,
         total: indexedTransactions.length,
-        hasMore: indexedTransactions.length === effectivePageSize,
+        hasMore: skip + effectivePageSize < indexedTransactions.length,
       },
     };
   }

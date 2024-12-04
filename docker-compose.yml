@@ -52,8 +52,8 @@ services:
     restart: on-failure:20
   graph-deploy:
     build:
-      context: https://github.com/RequestNetwork/docker-images.git#main
-      dockerfile: request-subgraph-storage/Dockerfile
+      context: https://github.com/RequestNetwork/docker-images.git#main:request-subgraph-storage
+      dockerfile: ./Dockerfile
     depends_on:
       - ipfs
       - postgres
@@ -61,7 +61,7 @@ services:
       - ganache
     environment:
       GRAPH_NODE: 'http://graph-node:8020'
-      IPFS_HOST: 'ipfs:5001'
+      IPFS_HOST: 'http://ipfs:5001'
       KEEP_ALIVE: 0
       SUBGRAPH_FILE: 'subgraph-private.yaml'
     restart: on-failure:20

@@ -79,14 +79,17 @@ ${TransactionsBodyFragment}
 
 query GetTransactionsByTopics($topics: [String!]!, $first: Int!, $skip: Int!) {
   ${metaQueryBody}
-  transactions(
+  channels(
     where: { topics_contains: $topics }
-    first: $first
-    skip: $skip
-    orderBy: blockTimestamp
-    orderDirection: asc
-  ) {
-    ...TransactionsBody
+  ){
+    transactions(
+      orderBy: blockTimestamp, 
+      orderDirection: asc
+      first: $first
+      skip: $skip
+    ) {
+      ...TransactionsBody
+    }
   }
 }`;
 
