@@ -8,6 +8,7 @@ import {
   AuthSig,
   LIT_NETWORKS_KEYS,
   AuthCallbackParams,
+  StorageProvider,
 } from '@lit-protocol/types';
 import {
   LitAccessControlConditionResource,
@@ -16,7 +17,8 @@ import {
 } from '@lit-protocol/auth-helpers';
 import { Signer } from 'ethers';
 import { LIT_ABILITY } from '@lit-protocol/constants';
-import { disconnectWeb3, LitNodeClient, LitNodeClientNodeJs } from '@lit-protocol/lit-node-client';
+import { disconnectWeb3, LitNodeClient } from '@lit-protocol/lit-node-client';
+import type { LitNodeClientNodeJs } from '@lit-protocol/lit-node-client';
 
 /**
  * @class LitProvider
@@ -53,7 +55,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
   /**
    * @property {any} storageProvider - The storage provider for the Node.js Lit client.
    */
-  private storageProvider: any | null = null;
+  private nodeJsStorageProvider: StorageProvider | undefined;
 
   /**
    * @property {boolean} debug - A boolean indicating if debug mode is enabled.
@@ -75,11 +77,13 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
     network: LIT_NETWORKS_KEYS,
     nodeConnectionConfig: NodeConnectionConfig,
     debug?: boolean,
+    nodeJsStorageProvider?: StorageProvider,
   ) {
     this.chain = chain;
     this.network = network;
     this.dataAccess = new HttpDataAccess({ nodeConnectionConfig });
     this.debug = debug || false;
+    this.nodeJsStorageProvider = nodeJsStorageProvider;
   }
 
   /**
@@ -98,27 +102,10 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
         });
         await this.client.connect();
       } else {
-        // Evaluate the code in a way that prevents static analysis
-        const getNodeStorage = new Function(
-          `
-          return import('node-localstorage').then(m => m.LocalStorage);
-          `,
-        );
-
-        const LocalStorage = await getNodeStorage();
-        const localStorage = new LocalStorage('./request-network-lit-protocol-cipher');
-
-        this.storageProvider = {
-          getItem: (key: string) => localStorage.getItem(key),
-          setItem: (key: string, value: string) => localStorage.setItem(key, value),
-          removeItem: (key: string) => localStorage.removeItem(key),
-          clear: () => localStorage.clear(),
-          provider: localStorage,
-        };
-
+        const { LitNodeClientNodeJs } = await import('@lit-protocol/lit-node-client');
         this.client = new LitNodeClientNodeJs({
           litNetwork: this.network,
-          storageProvider: this.storageProvider,
+          storageProvider: this.nodeJsStorageProvider,
           debug: this.debug,
         });
 
@@ -139,8 +126,8 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       disconnectWeb3();
     }
     this.sessionSigs = null;
-    if (this.storageProvider) {
-      this.storageProvider.clear();
+    if (this.nodeJsStorageProvider) {
+      this.nodeJsStorageProvider.provider.clear();
     }
   }
 

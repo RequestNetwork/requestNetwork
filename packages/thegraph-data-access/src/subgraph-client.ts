@@ -19,8 +19,8 @@ export class SubgraphClient implements StorageTypes.IIndexer {
   private graphql: GraphQLClient;
   public readonly endpoint: string;
 
-  private readonly DEFAULT_PAGE_SIZE = 10;
-  private readonly MAX_PAGE_SIZE = 100;
+  private readonly DEFAULT_PAGE_SIZE = 100;
+  private readonly MAX_PAGE_SIZE = 1000;
 
   constructor(endpoint: string, options?: RequestConfig) {
     this.endpoint = endpoint;
@@ -71,28 +71,25 @@ export class SubgraphClient implements StorageTypes.IIndexer {
     const effectivePage = page ?? 1;
     const skip = (effectivePage - 1) * effectivePageSize;
 
-    const { _meta, channels } = await this.graphql.request<
-      Meta & { channels: { transactions: Transaction[] }[] }
-    >(GetTransactionsByTopics, {
-      topics,
-      first: effectivePageSize,
-      skip,
-    });
+    const response = await this.graphql.request<Meta & { transactions: Transaction[] }>(
+      GetTransactionsByTopics,
+      {
+        topics,
+        first: effectivePageSize,
+        skip,
+      },
+    );
 
-    const transactionsByChannel = channels
-      .map(({ transactions }) => transactions)
-      .flat()
-      .sort((a, b) => a.blockTimestamp - b.blockTimestamp);
+    const indexedTransactions = response.transactions.map(this.toIndexedTransaction);
 
-    const indexedTransactions = transactionsByChannel.map(this.toIndexedTransaction);
     return {
       transactions: indexedTransactions,
-      blockNumber: _meta.block.number,
+      blockNumber: response._meta.block.number,
       pagination: {
         page: effectivePage,
         pageSize: effectivePageSize,
         total: indexedTransactions.length,
-        hasMore: skip + effectivePageSize < indexedTransactions.length,
+        hasMore: indexedTransactions.length === effectivePageSize,
       },
     };
   }
