@@ -7,7 +7,7 @@ references:
   node_image: &node_image
     image: cimg/node:18.18
     environment:
-      NODE_OPTIONS: '--max-old-space-size=4096'
+      NODE_OPTIONS: '--max-old-space-size=8192'
   ipfs_image: &ipfs_image
     image: requestnetwork/request-ipfs:v0.13.0
   ganache_image: &ganache_image
@@ -79,7 +79,7 @@ jobs:
             - ~/.cache/yarn
       - run:
           name: Build all packages
-          command: yarn build --skip-nx-cache
+          command: yarn build
 
       - persist_to_workspace:
           root: *working_directory
