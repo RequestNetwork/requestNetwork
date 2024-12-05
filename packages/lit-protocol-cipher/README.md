@@ -1,8 +1,8 @@
 # @requestnetwork/lit-protocol-cipher
 
-Lit Protocol Provider.
+Lit Protocol Provider for Request Network.
 
-`@requestnetwork/lit-protocol-cipher` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
+`@requestnetwork/lit-protocol-cipher` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork) that provides encryption and decryption capabilities using the Lit Protocol.
 
 ## Installation
 
@@ -12,21 +12,29 @@ npm install @requestnetwork/lit-protocol-cipher
 
 ## Usage
 
-The `LitProvider` class provides encryption and decryption capabilities using the Lit Protocol. Here's how to implement and use it:
+The `LitProtocolProvider` class provides encryption and decryption capabilities using the Lit Protocol. Here's how to implement and use it:
 
 ```typescript
 import { ethers } from 'ethers';
-import LitProvider from './LitProvider';
+import { LitProtocolProvider } from '@requestnetwork/lit-protocol-cipher';
 import { LIT_NETWORKS } from '@lit-protocol/types';
+import { LitNodeClient } from '@lit-protocol/lit-node-client';
 
 // Initialize the provider
-const litProvider = new LitProvider(
-  'ethereum', // chain
-  LIT_NETWORKS.MAINNET, // network
+const litProvider = new LitProtocolProvider(
+  new LitNodeClient({
+    litNetwork: LIT_NETWORKS.datil,
+  }),
   {
-    nodeUrl: 'https://your-request-network-node.com',
+    baseURL: 'https://your-request-network-node.com',
+    headers: {
+      'Content-Type': 'application/json',
+    },
   }, // nodeConnectionConfig
 );
+
+// Initialize the client
+await litProvider.initializeClient();
 
 // Example usage with wallet connection
 async function example() {
@@ -75,6 +83,9 @@ async function example() {
     await litProvider.disconnectWallet();
   } catch (error) {
     console.error('Error:', error);
+  } finally {
+    // Disconnect wallet when done
+    await litProvider.disconnectWallet();
   }
 }
 
