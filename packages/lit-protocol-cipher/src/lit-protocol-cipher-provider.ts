@@ -6,9 +6,7 @@ import {
   EncryptResponse,
   AccsDefaultParams,
   AuthSig,
-  LIT_NETWORKS_KEYS,
   AuthCallbackParams,
-  StorageProvider,
 } from '@lit-protocol/types';
 import {
   LitAccessControlConditionResource,
@@ -17,8 +15,8 @@ import {
 } from '@lit-protocol/auth-helpers';
 import { Signer } from 'ethers';
 import { LIT_ABILITY } from '@lit-protocol/constants';
-import { disconnectWeb3, LitNodeClient } from '@lit-protocol/lit-node-client';
-import type { LitNodeClientNodeJs } from '@lit-protocol/lit-node-client';
+import { disconnectWeb3 } from '@lit-protocol/lit-node-client';
+import type { LitNodeClientNodeJs, LitNodeClient } from '@lit-protocol/lit-node-client';
 
 /**
  * @class LitProvider
@@ -33,11 +31,6 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
   private chain: string;
 
   /**
-   * @property {string} network - The network to use for access control conditions.
-   */
-  private network: LIT_NETWORKS_KEYS;
-
-  /**
    * @property {DataAccessTypes.IDataAccess} dataAccess - The data access layer for Request Network.
    */
   private dataAccess: DataAccessTypes.IDataAccess;
@@ -50,17 +43,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
   /**
    * @property {LitNodeClient|LitNodeClientNodeJs|null} client - The Lit Protocol client instance.
    */
-  private client: LitNodeClient | LitNodeClientNodeJs | null = null;
-
-  /**
-   * @property {any} storageProvider - The storage provider for the Node.js Lit client.
-   */
-  private nodeJsStorageProvider: StorageProvider | undefined;
-
-  /**
-   * @property {boolean} debug - A boolean indicating if debug mode is enabled.
-   */
-  private debug: boolean;
+  private litClient: LitNodeClient | LitNodeClientNodeJs | null = null;
 
   /**
    * @property {boolean} isDecryptionOn - A boolean indicating if decryption is enabled.
@@ -73,17 +56,13 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    * @throws {Error} Throws an error if the provided Lit client is invalid.
    */
   constructor(
-    chain: string,
-    network: LIT_NETWORKS_KEYS,
+    litClient: LitNodeClient | LitNodeClientNodeJs,
     nodeConnectionConfig: NodeConnectionConfig,
-    debug?: boolean,
-    nodeJsStorageProvider?: StorageProvider,
+    chain?: string,
   ) {
-    this.chain = chain;
-    this.network = network;
+    this.litClient = litClient;
+    this.chain = chain || 'ethereum';
     this.dataAccess = new HttpDataAccess({ nodeConnectionConfig });
-    this.debug = debug || false;
-    this.nodeJsStorageProvider = nodeJsStorageProvider;
   }
 
   /**
@@ -94,23 +73,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    */
   public async initializeClient(): Promise<void> {
     try {
-      // Using process.browser instead of typeof window
-      if (typeof window !== 'undefined') {
-        this.client = new LitNodeClient({
-          litNetwork: this.network,
-          debug: this.debug,
-        });
-        await this.client.connect();
-      } else {
-        const { LitNodeClientNodeJs } = await import('@lit-protocol/lit-node-client');
-        this.client = new LitNodeClientNodeJs({
-          litNetwork: this.network,
-          storageProvider: this.nodeJsStorageProvider,
-          debug: this.debug,
-        });
-
-        await this.client.connect();
-      }
+      await this.litClient?.connect();
     } catch (error) {
       throw new Error(`Failed to initialize Lit client: ${error.message}`);
     }
@@ -126,9 +89,6 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       disconnectWeb3();
     }
     this.sessionSigs = null;
-    if (this.nodeJsStorageProvider) {
-      this.nodeJsStorageProvider.provider.clear();
-    }
   }
 
   /**
@@ -138,8 +98,8 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    * @returns {Promise<void>}
    */
   public async disconnectClient(): Promise<void> {
-    if (this.client) {
-      await this.client.disconnect();
+    if (this.litClient) {
+      await this.litClient.disconnect();
     }
   }
 
@@ -152,7 +112,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    * @returns {Promise<void>}
    */
   public async getSessionSignatures(signer: Signer, walletAddress: string): Promise<void> {
-    if (!this.client) {
+    if (!this.litClient) {
       throw new Error('Lit client not initialized');
     }
     if (this.sessionSigs) {
@@ -164,7 +124,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       : ({} as AuthSig);
 
     // Get the latest blockhash
-    const latestBlockhash = await this.client?.getLatestBlockhash();
+    const latestBlockhash = await this.litClient?.getLatestBlockhash();
 
     // Define the authNeededCallback function
     const authNeededCallback = async (params: AuthCallbackParams) => {
@@ -186,7 +146,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
         resources: params.resourceAbilityRequests,
         walletAddress: walletAddress,
         nonce: latestBlockhash || '',
-        litNodeClient: this.client,
+        litNodeClient: this.litClient,
       });
 
       // Generate the authSig
@@ -203,7 +163,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
 
     // Get the session signatures
     this.sessionSigs =
-      (await this.client?.getSessionSigs({
+      (await this.litClient?.getSessionSigs({
         chain: this.chain,
         capabilityAuthSigs: [capacityDelegationAuthSig],
         resourceAbilityRequests: [
@@ -230,6 +190,13 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
     if (encryptionParams.length === 0) {
       throw new Error('encryptionParams cannot be empty');
     }
+
+    // Add validation for required encryption parameter fields
+    encryptionParams.forEach((param, index) => {
+      if (!param.key) {
+        throw new Error(`Invalid encryption parameter at index ${index}: missing key`);
+      }
+    });
 
     const accessControlConditions = [];
 
@@ -288,7 +255,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    * @returns {boolean} A boolean indicating if encryption is available.
    */
   public isEncryptionAvailable(): boolean {
-    return this.client !== null;
+    return this.litClient !== null;
   }
 
   /**
@@ -307,7 +274,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       encryptionParams: EncryptionTypes.IEncryptionParameters[];
     },
   ): Promise<EncryptResponse | null> {
-    if (!this.client) {
+    if (!this.litClient) {
       throw new Error('Lit client not initialized');
     }
 
@@ -317,7 +284,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       options.encryptionParams,
     );
 
-    return await this.client.encrypt({
+    return await this.litClient.encrypt({
       accessControlConditions: accessControlConditions,
       dataToEncrypt: new TextEncoder().encode(stringifiedData),
     });
@@ -329,7 +296,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
    * @returns {boolean} A boolean indicating if decryption is available.
    */
   public isDecryptionAvailable(): boolean {
-    return this.client !== null && this.sessionSigs !== null && this.decryptionEnabled;
+    return this.litClient !== null && this.sessionSigs !== null && this.decryptionEnabled;
   }
 
   /**
@@ -349,7 +316,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       encryptionParams: EncryptionTypes.IEncryptionParameters[];
     },
   ): Promise<string | null> {
-    if (!this.client) {
+    if (!this.litClient) {
       throw new Error('Lit client not initialized');
     }
 
@@ -361,7 +328,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
       options.encryptionParams,
     );
 
-    const { decryptedData } = await this.client.decrypt({
+    const { decryptedData } = await this.litClient.decrypt({
       accessControlConditions: accessControlConditions,
       chain: this.chain,
       ciphertext: encryptedData.ciphertext,

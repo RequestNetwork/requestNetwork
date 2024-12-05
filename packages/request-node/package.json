@@ -46,6 +46,7 @@
     "@lit-protocol/contracts": "0.0.74",
     "@lit-protocol/contracts-sdk": "7.0.0",
     "@lit-protocol/lit-node-client": "7.0.0",
+    "@lit-protocol/types": "7.0.1",
     "@requestnetwork/currency": "0.21.0",
     "@requestnetwork/data-access": "0.38.0",
     "@requestnetwork/ethereum-storage": "0.38.0",

@@ -15,21 +15,20 @@ jest.mock('@lit-protocol/encryption');
 
 describe('LitProvider', () => {
   let litProvider: LitProvider;
-  let mockLitClient: jest.Mocked<LitNodeClientNodeJs>; // Use Node.js client
+  let mockLitClient: jest.Mocked<LitNodeClientNodeJs>;
   let mockSigner: jest.Mocked<Signer>;
 
-  const mockChain = 'ethereum';
-  const mockNetwork = 'datil-test';
   const mockNodeConnectionConfig: NodeConnectionConfig = {
     baseURL: 'http://localhost:3000',
     headers: {},
   };
   const mockWalletAddress = '0x1234567890abcdef';
+  const mockChain = 'ethereum';
 
   const mockEncryptionParams: EncryptionTypes.IEncryptionParameters[] = [
     {
       key: mockWalletAddress,
-      method: EncryptionTypes.METHOD.KMS, // Use the enum
+      method: EncryptionTypes.METHOD.KMS,
     },
   ];
 
@@ -41,8 +40,17 @@ describe('LitProvider', () => {
       disconnect: jest.fn().mockReturnValue(Promise.resolve()),
       getLatestBlockhash: jest.fn().mockReturnValue(Promise.resolve('mock-blockhash')),
       getSessionSigs: jest.fn().mockReturnValue(Promise.resolve({ 'mock-session': 'mock-sig' })),
-      encrypt: jest.fn().mockReturnValue(Promise.resolve('mock-encrypted-data')),
-      decrypt: jest.fn().mockReturnValue(Promise.resolve('mock-decrypted-data')),
+      encrypt: jest.fn().mockReturnValue(
+        Promise.resolve({
+          ciphertext: 'mock-encrypted-data',
+          dataToEncryptHash: 'mock-hash',
+        }),
+      ),
+      decrypt: jest.fn().mockReturnValue(
+        Promise.resolve({
+          decryptedData: new TextEncoder().encode('mock-decrypted-data'),
+        }),
+      ),
     } as unknown as jest.Mocked<LitNodeClientNodeJs>;
 
     (LitNodeClientNodeJs as unknown as jest.Mock).mockImplementation(() => mockLitClient);
@@ -52,9 +60,7 @@ describe('LitProvider', () => {
       signMessage: jest.fn().mockReturnValue(Promise.resolve('mock-signature')),
     } as unknown as jest.Mocked<Signer>;
 
-    const debug = false;
-
-    litProvider = new LitProvider(mockChain, mockNetwork, mockNodeConnectionConfig, debug);
+    litProvider = new LitProvider(mockLitClient, mockNodeConnectionConfig, mockChain);
     await litProvider.initializeClient();
   });
 
@@ -64,6 +70,11 @@ describe('LitProvider', () => {
       expect(HttpDataAccess).toHaveBeenCalledWith({
         nodeConnectionConfig: mockNodeConnectionConfig,
       });
+    });
+
+    it('should use default chain if not provided', () => {
+      const providerWithDefaultChain = new LitProvider(mockLitClient, mockNodeConnectionConfig);
+      expect(providerWithDefaultChain['chain']).toBe('ethereum');
     });
   });
 
@@ -85,6 +96,49 @@ describe('LitProvider', () => {
       await litProvider.disconnectWallet();
 
       // No specific assertion here since it just sets sessionSigs to null
+    });
+  });
+
+  describe('encryption and decryption state', () => {
+    it('should manage decryption state correctly', () => {
+      expect(litProvider.isDecryptionEnabled()).toBe(false);
+
+      litProvider.enableDecryption(true);
+      expect(litProvider.isDecryptionEnabled()).toBe(true);
+
+      litProvider.enableDecryption(false);
+      expect(litProvider.isDecryptionEnabled()).toBe(false);
+    });
+
+    it('should check encryption availability', () => {
+      expect(litProvider.isEncryptionAvailable()).toBe(true);
+
+      // Test when client is null
+      litProvider['litClient'] = null;
+      expect(litProvider.isEncryptionAvailable()).toBe(false);
+    });
+
+    it('should check decryption availability', () => {
+      litProvider.enableDecryption(true);
+      litProvider['sessionSigs'] = {
+        'mock-session': {
+          sig: 'mock-sig',
+          derivedVia: 'mock',
+          signedMessage: 'mock',
+          address: 'mock-address',
+        },
+      };
+      expect(litProvider.isDecryptionAvailable()).toBe(true);
+
+      litProvider.enableDecryption(false);
+      expect(litProvider.isDecryptionAvailable()).toBe(false);
+
+      litProvider.enableDecryption(true);
+      litProvider['sessionSigs'] = null;
+      expect(litProvider.isDecryptionAvailable()).toBe(false);
+
+      litProvider['litClient'] = null;
+      expect(litProvider.isDecryptionAvailable()).toBe(false);
     });
   });
 
@@ -149,7 +203,27 @@ describe('LitProvider', () => {
       );
     });
 
-    // ... (rest of your encrypt tests with necessary adjustments)
+    it('should encrypt object data successfully', async () => {
+      const objectData = { test: 'data' };
+      const result = await litProvider.encrypt(objectData, {
+        encryptionParams: mockEncryptionParams,
+      });
+
+      expect(result).toEqual(mockEncryptResponse);
+      expect(mockLitClient.encrypt).toHaveBeenCalledWith(
+        expect.objectContaining({
+          dataToEncrypt: new TextEncoder().encode(JSON.stringify(objectData)),
+          accessControlConditions: expect.any(Array),
+        }),
+      );
+    });
+
+    it('should throw error if client is not initialized', async () => {
+      litProvider['litClient'] = null;
+      await expect(
+        litProvider.encrypt(mockData, { encryptionParams: mockEncryptionParams }),
+      ).rejects.toThrow('Lit client not initialized');
+    });
   });
 
   describe('decrypt', () => {

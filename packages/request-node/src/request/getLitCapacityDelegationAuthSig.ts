@@ -6,7 +6,7 @@ import { StatusCodes } from 'http-status-codes';
 import * as config from '../config';
 import { LitContracts } from '@lit-protocol/contracts-sdk';
 import { utils } from 'ethers';
-
+import { LIT_NETWORKS_KEYS } from '@lit-protocol/types';
 /**
  * Handles getLitCapacityDelegationAuthSigHandler.
  *
@@ -30,31 +30,36 @@ export default class GetLitCapacityDelegationAuthSigHandler {
       const ethersSigner = Wallet.fromMnemonic(config.getMnemonic()).connect(
         new providers.JsonRpcProvider(config.getLitProtocolRPC()),
       );
+      let tokenId = '0';
+      if (config.getLitProtocolNetwork() === 'datil-dev') {
+        tokenId = '0';
+      } else {
+        const litContractClient = new LitContracts({
+          signer: ethersSigner,
+          network: config.getLitProtocolNetwork() as LIT_NETWORKS_KEYS,
+        });
+        await litContractClient.connect();
 
-      const litContractClient = new LitContracts({
-        signer: ethersSigner,
-        network: config.getLitProtocolNetwork(),
-      });
-      await litContractClient.connect();
+        const existingTokens: { tokenId: string }[] =
+          await litContractClient.rateLimitNftContractUtils.read.getTokensByOwnerAddress(
+            await ethersSigner.getAddress(),
+          );
 
-      const existingTokens: { tokenId: string }[] =
-        await litContractClient.rateLimitNftContractUtils.read.getTokensByOwnerAddress(
-          await ethersSigner.getAddress(),
-        );
-
-      if (existingTokens.length === 0) {
-        serverResponse.status(StatusCodes.UNPROCESSABLE_ENTITY).send('No existing tokens');
-        return;
+        if (existingTokens.length === 0) {
+          serverResponse.status(StatusCodes.UNPROCESSABLE_ENTITY).send('No existing tokens');
+          return;
+        }
+        tokenId = `${existingTokens[existingTokens.length - 1].tokenId}`;
       }
 
       const litNodeClient = new LitNodeClientNodeJs({
-        litNetwork: config.getLitProtocolNetwork(),
+        litNetwork: config.getLitProtocolNetwork() as LIT_NETWORKS_KEYS,
         debug: false,
       });
       await litNodeClient.connect();
 
       const { capacityDelegationAuthSig } = await litNodeClient.createCapacityDelegationAuthSig({
-        capacityTokenId: `${existingTokens[existingTokens.length - 1].tokenId}`,
+        capacityTokenId: tokenId,
         dAppOwnerWallet: ethersSigner,
         delegateeAddresses: [`${delegateeAddress}`],
         uses: `${config.getLitProtocolCapacityCreditsUsage()}`,

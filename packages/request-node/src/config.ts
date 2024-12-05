@@ -5,7 +5,6 @@ import { BigNumber } from 'ethers';
 import { LogTypes } from '@requestnetwork/types';
 
 import { LogMode } from './logger';
-import { LIT_NETWORK } from '@lit-protocol/constants';
 
 const argv = yargs.option('help', { alias: 'h', type: 'boolean' }).parseSync();
 
@@ -47,7 +46,7 @@ const defaultValues = {
   wallet: {
     mnemonic: 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat',
   },
-  litProtocolNetwork: LIT_NETWORK.Datil,
+  litProtocolNetwork: 'datil',
   litProtocolRPC: 'https://yellowstone-rpc.litprotocol.com',
   litProtocolCapacityCreditsUsage: '1',
   litProtocolCapacityCreditsExpirationInSeconds: 10 * 60, // 10 minutes

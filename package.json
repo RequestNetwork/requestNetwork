@@ -27,7 +27,7 @@
     "publish-manual-prerelease": "lerna publish prerelease --conventional-commits --exact",
     "publish-prerelease": "yarn lerna publish --preid development --skip-git --yes --canary",
     "deploy:contracts": "yarn workspace @requestnetwork/smart-contracts deploy",
-    "start:request-node": "yarn workspace @requestnetwork/request-node start",
+    "start:request-node": "LIT_PROTOCOL_NETWORK=datil-dev yarn workspace @requestnetwork/request-node start",
     "test": "lerna run test --concurrency=1",
     "format": "prettier . -w",
     "format:check": "prettier . -c",

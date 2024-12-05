@@ -391,7 +391,7 @@ jobs:
       - run: *step_graph_deploy
       - run:
           name: 'Start request-node'
-          command: 'yarn workspace @requestnetwork/request-node run start'
+          command: 'yarn start:request-node'
           background: true
       - run: *step_wait_for_node
       - run:
@@ -496,7 +496,7 @@ jobs:
       - run: *step_graph_deploy
       - run:
           name: 'Start request-node'
-          command: 'yarn workspace @requestnetwork/request-node run start'
+          command: 'start:request-node'
           background: true
       - run: *step_wait_for_node
       - run:

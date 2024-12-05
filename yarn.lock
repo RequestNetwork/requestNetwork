@@ -3391,6 +3391,13 @@
   dependencies:
     ajv "^8.12.0"
 
+"@lit-protocol/accs-schemas@^0.0.20":
+  version "0.0.20"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/accs-schemas/-/accs-schemas-0.0.20.tgz#64d1151002f63aa0a54ba2be92bf44edefb0eb1e"
+  integrity sha512-JHHX0q45nq1uQ4olkg4VIGLW9lzMnRRldeTDuOrOaoPVztz+2iSOjwzb+QmuSuKFQpP5SOej2zoQB+K8b22KDw==
+  dependencies:
+    ajv "^8.12.0"
+
 "@lit-protocol/auth-browser@7.0.0":
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/@lit-protocol/auth-browser/-/auth-browser-7.0.0.tgz#67fe2c9748f9199ef50dcae3cadf916af4d134bd"
@@ -3721,6 +3728,18 @@
   dependencies:
     "@ethersproject/abstract-provider" "5.7.0"
     "@lit-protocol/accs-schemas" "^0.0.15"
+    depd "^2.0.0"
+    ethers "^5.7.1"
+    siwe "^2.3.2"
+    tslib "1.14.1"
+
+"@lit-protocol/types@7.0.1":
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/types/-/types-7.0.1.tgz#a8675442992eb104390870f610bd65e6d9ddfa59"
+  integrity sha512-CpAYgn797PgB6DjhPU2+PUTFud+mnm3UfqBpZqgvUC1WureqZ4tW1SdQvSmYrMQzHsJIdUOkMnoyO4dBrVOq0A==
+  dependencies:
+    "@ethersproject/abstract-provider" "5.7.0"
+    "@lit-protocol/accs-schemas" "^0.0.20"
     depd "^2.0.0"
     ethers "^5.7.1"
     siwe "^2.3.2"
