@@ -649,7 +649,7 @@ workflows:
           filters:
             branches:
               only:
-                - 'fix/next-release'
+                - master
 
   nightly:
     triggers:
