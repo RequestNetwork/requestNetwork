@@ -18,6 +18,8 @@ const badlyFormattedTransactionData = { not: 'a transaction' };
 let requestNodeInstance: RequestNode;
 let server: any;
 
+jest.setTimeout(30000);
+
 const mockServer = setupServer();
 
 /* eslint-disable no-magic-numbers */

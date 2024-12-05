@@ -19,8 +19,8 @@ export class SubgraphClient implements StorageTypes.IIndexer {
   private graphql: GraphQLClient;
   public readonly endpoint: string;
 
-  private readonly DEFAULT_PAGE_SIZE = 10;
-  private readonly MAX_PAGE_SIZE = 100;
+  private readonly DEFAULT_PAGE_SIZE = 100;
+  private readonly MAX_PAGE_SIZE = 1000;
 
   constructor(endpoint: string, options?: RequestConfig) {
     this.endpoint = endpoint;
