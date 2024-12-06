@@ -109,8 +109,8 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build contract from smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run build'
+          name: 'Build with lerna'
+          command: 'yarn build --skip-nx-cache'
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
@@ -122,7 +122,7 @@ jobs:
       - run: *step_wait_for_node
       - run:
           name: 'Test all'
-          command: yarn test --skip-nx-cache
+          command: 'yarn test'
       - store_test_results:
           path: packages/integration-test/reports/
       - store_test_results:
