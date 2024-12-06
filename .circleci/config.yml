@@ -109,8 +109,17 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build with lerna'
-          command: 'yarn build --skip-nx-cache'
+          name: 'Build types'
+          command: 'yarn workspace @requestnetwork/types run build'
+      - run:
+          name: 'Build utils'
+          command: 'yarn workspace @requestnetwork/utils run build'
+      - run:
+          name: 'Build currency'
+          command: 'yarn workspace @requestnetwork/currency run build'
+      - run:
+          name: 'Build smart-contracts'
+          command: 'yarn workspace @requestnetwork/smart-contracts run build'
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
