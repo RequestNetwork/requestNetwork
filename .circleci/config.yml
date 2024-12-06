@@ -62,6 +62,7 @@ jobs:
   build:
     docker:
       - *node_image
+    resource_class: large
     working_directory: *working_directory
     steps:
       - checkout
@@ -79,7 +80,7 @@ jobs:
             - ~/.cache/yarn
       - run:
           name: Build all packages
-          command: yarn build
+          command: yarn build --skip-nx-cache
 
       - persist_to_workspace:
           root: *working_directory
