@@ -271,3 +271,6 @@ workflows:
       - test-unit:
           requires:
             - build
+      - test-integration:
+          requires:
+            - build
