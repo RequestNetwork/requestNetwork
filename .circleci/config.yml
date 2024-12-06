@@ -109,17 +109,8 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build types'
-          command: 'yarn workspace @requestnetwork/types run build'
-      - run:
-          name: 'Build utils'
-          command: 'yarn workspace @requestnetwork/utils run build'
-      - run:
-          name: 'Build currency'
-          command: 'yarn workspace @requestnetwork/currency run build'
-      - run:
-          name: 'Build smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run build'
+          name: 'Build all packages with lerna'
+          command: 'yarn build --concurrency=10'
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
@@ -131,7 +122,7 @@ jobs:
       - run: *step_wait_for_node
       - run:
           name: 'Test all'
-          command: 'yarn test'
+          command: 'yarn test --concurrency=10'
       - store_test_results:
           path: packages/integration-test/reports/
       - store_test_results:
