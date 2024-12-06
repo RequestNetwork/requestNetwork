@@ -208,7 +208,7 @@ export function prepareErc20FeeProxyPaymentFromHinkalShieldedAddress(
   ];
 
   return {
-    amountToPay: amountToPay.toBigInt(),
+    amountToPay: totalAmount.toBigInt(),
     tokenAddress,
     ops,
   };

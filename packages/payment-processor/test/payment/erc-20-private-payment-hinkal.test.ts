@@ -17,7 +17,7 @@ const currencyAddress = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'; // USDC
 const currentCurrenyType = Types.RequestLogic.CURRENCY.ERC20;
 const currencyAmount = ethers.utils.parseUnits('0.000001', 6).toBigInt();
 const currentGateway = 'https://sepolia.gateway.request.network';
-const fee = '0';
+const fee = ethers.utils.parseUnits('0.000001', 6).toString();
 
 // Payer:
 // 1) sends funds from his shielded address to EOA of the payee
