@@ -3,16 +3,19 @@
     "default": {
       "runner": "nx/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "clean", "test"]
+        "cacheableOperations": ["build", "test", "lint"]
       }
     }
   },
   "targetDefaults": {
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
     "build": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build", "lint"]
     },
     "test": {
-      "dependsOn": ["clean", "build"]
+      "dependsOn": ["build"]
     },
     "clean": {
       "dependsOn": ["^clean"]

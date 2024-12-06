@@ -97,9 +97,6 @@ jobs:
           name: Verify format
           command: yarn format:check
       - run:
-          name: Verify lint
-          command: yarn lint:check
-      - run:
           name: 'lint package.json files'
           command: 'yarn run packageJsonLint'
   test:
@@ -220,27 +217,23 @@ jobs:
               --force-publish=${FORCE_PUBLISH}
 
 workflows:
-  version: 2
+  ## Lerna will run lit, build and test
   build-and-test:
     jobs:
-      - build
+      - test
       - lint:
           requires:
-            - build
-      - test:
-          requires:
-            - build
+            - test
       - test-usage-examples:
           requires:
-            - build
+            - test
       - test-toolbox:
           requires:
-            - build
+            - test
 
       # Release a next version package everytime we merge to master
       - next-release:
           requires:
-            - build
             - test
           context: protocol-release
           filters:
