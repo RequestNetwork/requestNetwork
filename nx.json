@@ -1,25 +1,24 @@
 {
   "tasksRunnerOptions": {
     "default": {
-      "runner": "nx/tasks-runners/default"
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": ["build", "test", "lint:check"]
+      }
     }
   },
   "targetDefaults": {
     "lint:check": {
-      "dependsOn": ["^lint:check"],
-      "cache": true
+      "dependsOn": ["^lint:check"]
     },
     "build": {
-      "dependsOn": ["^build", "lint:check"],
-      "cache": true
+      "dependsOn": ["^build", "lint:check"]
     },
     "test": {
-      "dependsOn": ["build"],
-      "cache": true
+      "dependsOn": ["build"]
     },
     "clean": {
-      "dependsOn": ["^clean"],
-      "cache": true
+      "dependsOn": ["^clean"]
     }
   }
 }
