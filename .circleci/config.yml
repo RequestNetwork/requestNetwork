@@ -62,6 +62,7 @@ jobs:
   build:
     docker:
       - *node_image
+    resource_class: large
     working_directory: *working_directory
     steps:
       - checkout
@@ -78,23 +79,8 @@ jobs:
           paths:
             - ~/.cache/yarn
       - run:
-          name: Build types
-          command: yarn workspace @requestnetwork/types run build
-      - run:
-          name: Build utils
-          command: yarn workspace @requestnetwork/utils run build
-      - run:
-          name: Build currency
-          command: yarn workspace @requestnetwork/currency run build
-      - run:
-          name: Generate Smart Contract types
-          command: yarn workspace @requestnetwork/smart-contracts run build
-      - run:
-          name: Generate Payment Detection queries
-          command: yarn workspace @requestnetwork/payment-detection run codegen
-      - run:
-          name: Build all packages (tsc)
-          command: yarn build:tsc
+          name: Build all packages (lerna)
+          command: yarn build --skip-nx-cache
 
       - persist_to_workspace:
           root: *working_directory
