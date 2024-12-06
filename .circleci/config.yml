@@ -59,10 +59,10 @@ references:
       done
       echo Failed waiting for Node initialization && exit 1
 jobs:
-  install:
+  build:
     docker:
       - *node_image
-    resource_class: large
+    resource_class: xlarge
     working_directory: *working_directory
     steps:
       - checkout
@@ -78,7 +78,9 @@ jobs:
           key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
-
+      - run:
+          name: Build all packages with lerna
+          command: 'yarn build --since master'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -96,35 +98,17 @@ jobs:
       - run:
           name: 'lint package.json files'
           command: 'yarn run packageJsonLint'
-  test:
+  test-unit:
     docker:
       - *node_image
-      - *ipfs_image
-      - *ganache_image
-      - *postgres_image
-      - *graph_image
     resource_class: xlarge
     working_directory: *working_directory
     steps:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build all packages with lerna'
-          command: 'yarn build --concurrency=10'
-      - run:
-          name: 'Deploy test contract from smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
-      - run: *step_graph_deploy
-      - run:
-          name: 'Start request-node'
-          command: 'yarn start:request-node'
-          background: true
-      - run: *step_wait_for_node
-      - run:
-          name: 'Test all'
-          command: 'yarn test --concurrency=10'
-      - store_test_results:
-          path: packages/integration-test/reports/
+          name: 'Test unit'
+          command: 'yarn test --since master --ignore @requestnetwork/smart-contracts --ignore @requestnetwork/payment-detection --ignore @requestnetwork/payment-processor --ignore @requestnetwork/integration-test'
       - store_test_results:
           path: packages/lit-protocol-cipher/reports/
       - store_test_results:
@@ -134,17 +118,11 @@ jobs:
       - store_test_results:
           path: packages/request-node/reports/
       - store_test_results:
-          path: packages/smart-contracts/reports/
-      - store_test_results:
           path: packages/transaction-manager/reports/
       - store_test_results:
           path: packages/epk-signature/reports/
       - store_test_results:
           path: packages/web3-signature/reports/
-      - store_test_results:
-          path: packages/payment-detection/reports/
-      - store_test_results:
-          path: packages/payment-processor/reports/
       - store_test_results:
           path: packages/advanced-logic/reports/
       - store_test_results:
@@ -161,6 +139,38 @@ jobs:
           path: packages/utils/reports/
       - store_test_results:
           path: packages/multi-format/reports/
+  test-integration:
+    docker:
+      - *node_image
+      - *ipfs_image
+      - *ganache_image
+      - *postgres_image
+      - *graph_image
+    resource_class: xlarge
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Deploy test contract from smart-contracts'
+          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+      - run: *step_graph_deploy
+      - run:
+          name: 'Start request-node'
+          command: 'yarn start:request-node'
+          background: true
+      - run: *step_wait_for_node
+      - run:
+          name: 'Test all'
+          command: 'yarn test --since master --scope @requestnetwork/smart-contracts --scope @requestnetwork/payment-detection --scope @requestnetwork/payment-processor --scope @requestnetwork/integration-test'
+      - store_test_results:
+          path: packages/integration-test/reports/
+      - store_test_results:
+          path: packages/smart-contracts/reports/
+      - store_test_results:
+          path: packages/payment-detection/reports/
+      - store_test_results:
+          path: packages/payment-processor/reports/
   test-usage-examples:
     docker:
       - *node_image
@@ -220,24 +230,27 @@ workflows:
   ## Lerna will run lit, build and test
   build-and-test:
     jobs:
-      - install
-      - test:
+      - build
+      - test-unit:
           requires:
-            - install
-      - lint:
+            - build
+      - test-integration:
           requires:
-            - test
+            - build
       - test-usage-examples:
           requires:
-            - test
+            - build
       - test-toolbox:
           requires:
-            - test
+            - build
+      - lint:
+          requires:
+            - build
 
       # Release a next version package everytime we merge to master
       - next-release:
           requires:
-            - test
+            - build
           context: protocol-release
           filters:
             branches:
@@ -254,7 +267,7 @@ workflows:
               only:
                 - master
     jobs:
-      - install
-      - test:
+      - build
+      - test-unit:
           requires:
-            - install
+            - build
