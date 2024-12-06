@@ -59,7 +59,7 @@ references:
       done
       echo Failed waiting for Node initialization && exit 1
 jobs:
-  build:
+  install:
     docker:
       - *node_image
     resource_class: large
@@ -78,9 +78,6 @@ jobs:
           key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
-      - run:
-          name: Build all packages (lerna)
-          command: yarn build --skip-nx-cache
 
       - persist_to_workspace:
           root: *working_directory
@@ -122,7 +119,7 @@ jobs:
       - run: *step_wait_for_node
       - run:
           name: 'Test all'
-          command: 'yarn test'
+          command: yarn test --skip-nx-cache
       - store_test_results:
           path: packages/integration-test/reports/
       - store_test_results:
@@ -220,7 +217,10 @@ workflows:
   ## Lerna will run lit, build and test
   build-and-test:
     jobs:
-      - test
+      - install
+      - test:
+          requires:
+            - install
       - lint:
           requires:
             - test
@@ -251,7 +251,7 @@ workflows:
               only:
                 - master
     jobs:
-      - build
+      - install
       - test:
           requires:
-            - build
+            - install
