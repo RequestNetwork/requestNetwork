@@ -255,9 +255,7 @@ workflows:
       - next-release:
           requires:
             - build
-            - test:
-                requires:
-                  - build
+            - test
           context: protocol-release
           filters:
             branches:
