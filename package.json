@@ -31,8 +31,10 @@
     "test": "lerna run test --concurrency=1",
     "format": "prettier . -w",
     "format:check": "prettier . -c",
-    "link:all": "for d in packages/*; do cd $d; yarn link; cd -; done",
-    "unlink:all": "for d in packages/*; do cd $d; yarn unlink; cd -; done"
+    "link:all-npm": "for d in packages/*; do cd $d; npm link; cd -; done",
+    "unlink:all-npm": "for d in packages/*; do cd $d; npm unlink; cd -; done",
+    "link:all-yarn": "for d in packages/*; do cd $d; yarn link; cd -; done",
+    "unlink:all-yarn": "for d in packages/*; do cd $d; yarn unlink; cd -; done"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "4.18.0",
