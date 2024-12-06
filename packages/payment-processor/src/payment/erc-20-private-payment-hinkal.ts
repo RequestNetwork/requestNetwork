@@ -193,9 +193,10 @@ export function prepareErc20FeeProxyPaymentFromHinkalShieldedAddress(
     getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = String(feeAmountOverride || feeAmount || 0);
+  const totalAmount = amountToPay.add(BigNumber.from(feeToPay));
 
   const ops = [
-    emporiumOp(tokenContract, 'approve', [proxyContract.address, amountToPay]),
+    emporiumOp(tokenContract, 'approve', [proxyContract.address, totalAmount]),
     emporiumOp(proxyContract, 'transferFromWithReferenceAndFee', [
       tokenAddress,
       paymentAddress,
