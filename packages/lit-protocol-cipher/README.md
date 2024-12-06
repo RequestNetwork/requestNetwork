@@ -36,6 +36,9 @@ const litProvider = new LitProtocolProvider(
 // Initialize the client
 await litProvider.initializeClient();
 
+// Enable decryption
+await litProvider.enableDecryption(true);
+
 // Example usage with wallet connection
 async function example() {
   try {

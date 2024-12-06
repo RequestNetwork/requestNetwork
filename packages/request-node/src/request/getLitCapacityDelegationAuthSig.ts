@@ -7,6 +7,7 @@ import * as config from '../config';
 import { LitContracts } from '@lit-protocol/contracts-sdk';
 import { utils } from 'ethers';
 import { LIT_NETWORKS_KEYS } from '@lit-protocol/types';
+import { LIT_NETWORK } from '@lit-protocol/constants';
 /**
  * Handles getLitCapacityDelegationAuthSigHandler.
  *
@@ -31,7 +32,7 @@ export default class GetLitCapacityDelegationAuthSigHandler {
         new providers.JsonRpcProvider(config.getLitProtocolRPC()),
       );
       let tokenId = '0';
-      if (config.getLitProtocolNetwork() === 'datil-dev') {
+      if ((config.getLitProtocolNetwork() as LIT_NETWORKS_KEYS) === LIT_NETWORK.DatilDev) {
         tokenId = '0';
       } else {
         const litContractClient = new LitContracts({

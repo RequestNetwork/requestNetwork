@@ -46,9 +46,7 @@ describe('Lit Protocol Integration Tests', () => {
 
   beforeAll(async () => {
     // Create wallet
-    userWallet = new ethers.Wallet(
-      '0x7b595b2bb732edddc4d4fe758ae528c7a748c40f0f6220f4494e214f15c5bfeb',
-    );
+    userWallet = ethers.Wallet.createRandom();
 
     // Initialize signature provider
     epkSignatureProvider = new EthereumPrivateKeySignatureProvider({
