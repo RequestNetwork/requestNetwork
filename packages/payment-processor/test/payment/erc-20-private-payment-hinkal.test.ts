@@ -133,8 +133,9 @@ const getTokenShieldedBalance = async (
   tokenAddress = currencyAddress,
 ): Promise<bigint> => {
   const balances = await hinkalStore[address].getBalances();
-  const tokenBalance = balances.find((balance) => balance.token.erc20TokenAddress === tokenAddress)
-    ?.balance;
+  const tokenBalance = balances.find(
+    (balance) => balance.token.erc20TokenAddress === tokenAddress,
+  )?.balance;
 
   if (tokenBalance === undefined) {
     throw Error('Shiedled Balance calculated incorrectly');
