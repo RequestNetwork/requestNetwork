@@ -511,26 +511,23 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     // second parameter is null, because the first action must be a creation (no state expected)
     const confirmedRequestState = transactions
       .filter((action) => action.state === TransactionTypes.TransactionState.CONFIRMED)
-      .reduce(
-        (requestState, actionConfirmed) => {
-          try {
-            return RequestLogicCore.applyActionToRequest(
-              requestState,
-              actionConfirmed.action,
-              actionConfirmed.timestamp,
-              this.advancedLogic,
-            );
-          } catch (e) {
-            // if an error occurs while applying we ignore the action
-            ignoredTransactionsByApplication.push({
-              reason: e.message,
-              transaction: actionConfirmed,
-            });
-            return requestState;
-          }
-        },
-        null as RequestLogicTypes.IRequest | null,
-      );
+      .reduce((requestState, actionConfirmed) => {
+        try {
+          return RequestLogicCore.applyActionToRequest(
+            requestState,
+            actionConfirmed.action,
+            actionConfirmed.timestamp,
+            this.advancedLogic,
+          );
+        } catch (e) {
+          // if an error occurs while applying we ignore the action
+          ignoredTransactionsByApplication.push({
+            reason: e.message,
+            transaction: actionConfirmed,
+          });
+          return requestState;
+        }
+      }, null as RequestLogicTypes.IRequest | null);
 
     const pendingRequestState = transactions
       .filter((action) => action.state === TransactionTypes.TransactionState.PENDING)
@@ -677,8 +674,9 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     requestId: RequestLogicTypes.RequestId,
     action: RequestLogicTypes.IAction,
   ): Promise<void> {
-    const { confirmedRequestState, pendingRequestState } =
-      await this.computeRequestFromRequestId(requestId);
+    const { confirmedRequestState, pendingRequestState } = await this.computeRequestFromRequestId(
+      requestId,
+    );
 
     try {
       // Check if the action doesn't fail with the request state

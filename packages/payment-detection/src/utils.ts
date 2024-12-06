@@ -261,6 +261,6 @@ export const transformNonNull = <T extends Record<string, unknown>, TKey extends
   ({
     [key as TKey]:
       val[key] !== undefined && val[key] !== null ? transform(val[key], key) : undefined,
-  }) as {
+  } as {
     [P in TKey]: TOut;
-  };
+  });

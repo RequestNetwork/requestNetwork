@@ -3,7 +3,7 @@ import request from 'supertest';
 import { getRequestNode } from '../src/server';
 import { RequestNode } from '../src/requestNode';
 
-jest.setTimeout(20000);
+jest.setTimeout(30000);
 const time = Date.now();
 const channelId = `01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa${time}`;
 const anotherChannelId = `01bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb${time}`;

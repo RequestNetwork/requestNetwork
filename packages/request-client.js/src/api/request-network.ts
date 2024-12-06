@@ -40,6 +40,8 @@ export default class RequestNetwork {
   private contentData: ContentDataExtension;
   private currencyManager: CurrencyTypes.ICurrencyManager;
 
+  private cipherProvider?: CipherProviderTypes.ICipherProvider;
+
   /**
    * @param dataAccess instance of data-access layer
    * @param signatureProvider module in charge of the signatures
@@ -72,6 +74,23 @@ export default class RequestNetwork {
       this.currencyManager,
       paymentOptions,
     );
+    this.cipherProvider = cipherProvider;
+  }
+
+  /**
+   * Get the cipher provider
+   * @returns the cipher provider
+   */
+  public getCipherProvider(): CipherProviderTypes.ICipherProvider | undefined {
+    return this.cipherProvider;
+  }
+
+  /**
+   * Set the cipher provider
+   * @param cipherProvider the cipher provider
+   */
+  public setCipherProvider(cipherProvider: CipherProviderTypes.ICipherProvider): void {
+    this.cipherProvider = cipherProvider;
   }
 
   /**
@@ -84,8 +103,9 @@ export default class RequestNetwork {
     parameters: Types.ICreateRequestParameters,
     options?: Types.ICreateRequestOptions,
   ): Promise<Request> {
-    const { requestParameters, topics, paymentNetwork } =
-      await this.prepareRequestParameters(parameters);
+    const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
+      parameters,
+    );
 
     const requestLogicCreateResult = await this.requestLogic.createRequest(
       requestParameters,
@@ -165,8 +185,9 @@ export default class RequestNetwork {
     encryptionParams: EncryptionTypes.IEncryptionParameters[],
     options?: Types.ICreateRequestOptions,
   ): Promise<Request> {
-    const { requestParameters, topics, paymentNetwork } =
-      await this.prepareRequestParameters(parameters);
+    const { requestParameters, topics, paymentNetwork } = await this.prepareRequestParameters(
+      parameters,
+    );
 
     const requestLogicCreateResult = await this.requestLogic.createEncryptedRequest(
       requestParameters,
