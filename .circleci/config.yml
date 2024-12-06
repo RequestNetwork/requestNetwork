@@ -108,11 +108,9 @@ jobs:
           at: *working_directory
       - run:
           name: 'Test unit'
-          command: 'yarn test --since master --ignore @requestnetwork/smart-contracts --ignore @requestnetwork/payment-detection --ignore @requestnetwork/payment-processor --ignore @requestnetwork/integration-test'
+          command: 'yarn test --since master --ignore @requestnetwork/request-client.js --ignore @requestnetwork/smart-contracts --ignore @requestnetwork/payment-detection --ignore @requestnetwork/payment-processor --ignore @requestnetwork/integration-test'
       - store_test_results:
           path: packages/lit-protocol-cipher/reports/
-      - store_test_results:
-          path: packages/request-client.js/reports/
       - store_test_results:
           path: packages/request-logic/reports/
       - store_test_results:
@@ -162,7 +160,9 @@ jobs:
       - run: *step_wait_for_node
       - run:
           name: 'Test all'
-          command: 'yarn test --since master --scope @requestnetwork/smart-contracts --scope @requestnetwork/payment-detection --scope @requestnetwork/payment-processor --scope @requestnetwork/integration-test'
+          command: 'yarn test --since master --scope @requestnetwork/request-client.js --scope @requestnetwork/smart-contracts --scope @requestnetwork/payment-detection --scope @requestnetwork/payment-processor --scope @requestnetwork/integration-test'
+      - store_test_results:
+          path: packages/request-client.js/reports/
       - store_test_results:
           path: packages/integration-test/reports/
       - store_test_results:
