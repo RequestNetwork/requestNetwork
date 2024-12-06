@@ -26,7 +26,7 @@ const litProvider = new LitProtocolProvider(
     litNetwork: LIT_NETWORKS.datil,
   }),
   {
-    baseURL: 'https://your-request-network-node.com',
+    baseURL: 'https://gnosis.gateway.request.network',
     headers: {
       'Content-Type': 'application/json',
     },
