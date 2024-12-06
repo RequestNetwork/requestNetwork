@@ -8,11 +8,11 @@
     }
   },
   "targetDefaults": {
-    "lint": {
-      "dependsOn": ["^lint"]
+    "lint:check": {
+      "dependsOn": ["^lint:check"]
     },
     "build": {
-      "dependsOn": ["^build", "lint"]
+      "dependsOn": ["^build", "lint:check"]
     },
     "test": {
       "dependsOn": ["build"]
