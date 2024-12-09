@@ -43,7 +43,7 @@ export default class LitProvider implements CipherProviderTypes.ICipherProvider 
   /**
    * @property {LitNodeClient|LitNodeClientNodeJs|null} client - The Lit Protocol client instance.
    */
-  private litClient: LitNodeClient | LitNodeClientNodeJs | null = null;
+  private litClient: LitNodeClient | LitNodeClientNodeJs;
 
   /**
    * @property {boolean} isDecryptionOn - A boolean indicating if decryption is enabled.
