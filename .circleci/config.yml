@@ -305,7 +305,13 @@ workflows:
       # Release a next version package everytime we merge to master
       - next-release:
           requires:
+            - lint
             - build
+            - test-unit
+            - test-integration-with-smart-contracts
+            - test-integration-with-request-node
+            - test-usage-examples
+            - test-toolbox
           context: protocol-release
           filters:
             branches:
