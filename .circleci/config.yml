@@ -279,7 +279,7 @@ jobs:
               --force-publish=${FORCE_PUBLISH}
 
 workflows:
-  ## Lerna will run lit, build and test
+  ## Lerna will run lint, build and test
   build-and-test:
     jobs:
       - build
