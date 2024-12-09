@@ -82,8 +82,6 @@ async function example() {
       console.log('Decrypted data:', parsedData);
     }
 
-    // Disconnect wallet when done
-    await litProvider.disconnectWallet();
   } catch (error) {
     console.error('Error:', error);
   } finally {
