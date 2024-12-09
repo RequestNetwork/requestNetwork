@@ -62,7 +62,7 @@ jobs:
   build:
     docker:
       - *node_image
-    resource_class: xlarge
+    resource_class: large
     working_directory: *working_directory
     steps:
       - checkout
@@ -101,7 +101,7 @@ jobs:
   test-unit:
     docker:
       - *node_image
-    resource_class: xlarge
+    resource_class: large
     working_directory: *working_directory
     steps:
       - attach_workspace:
@@ -137,14 +137,41 @@ jobs:
           path: packages/utils/reports/
       - store_test_results:
           path: packages/multi-format/reports/
-  test-integration:
+  test-integration-with-smart-contracts:
     docker:
       - *node_image
       - *ipfs_image
       - *ganache_image
       - *postgres_image
       - *graph_image
-    resource_class: xlarge
+    resource_class: large
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Deploy test contract from smart-contracts'
+          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+      - run: *step_graph_deploy
+      - run:
+          name: 'Test all'
+          command: 'yarn test --since master --scope @requestnetwork/request-client.js --scope @requestnetwork/smart-contracts --scope @requestnetwork/payment-detection --scope @requestnetwork/payment-processor'
+      - store_test_results:
+          path: packages/request-client.js/reports/
+      - store_test_results:
+          path: packages/smart-contracts/reports/
+      - store_test_results:
+          path: packages/payment-detection/reports/
+      - store_test_results:
+          path: packages/payment-processor/reports/
+  test-integration-with-request-node:
+    docker:
+      - *node_image
+      - *ipfs_image
+      - *ganache_image
+      - *postgres_image
+      - *graph_image
+    resource_class: large
     working_directory: *working_directory
     steps:
       - attach_workspace:
@@ -160,11 +187,9 @@ jobs:
       - run: *step_wait_for_node
       - run:
           name: 'Test all'
-          command: 'yarn test --since master --scope @requestnetwork/request-client.js --scope @requestnetwork/smart-contracts --scope @requestnetwork/payment-detection --scope @requestnetwork/payment-processor --scope @requestnetwork/integration-test'
+          command: 'yarn test --since master --scope --scope @requestnetwork/integration-test'
       - store_test_results:
           path: packages/request-client.js/reports/
-      - store_test_results:
-          path: packages/integration-test/reports/
       - store_test_results:
           path: packages/smart-contracts/reports/
       - store_test_results:
@@ -261,7 +286,10 @@ workflows:
       - test-unit:
           requires:
             - build
-      - test-integration:
+      - test-integration-with-smart-contracts:
+          requires:
+            - build
+      - test-integration-with-request-node:
           requires:
             - build
       - test-usage-examples:

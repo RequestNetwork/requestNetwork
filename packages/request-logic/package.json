@@ -35,7 +35,7 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "example": "ts-node specs/example/example.ts",
     "lint": "eslint . --fix",
-    "lint:check": "eslint . --ignore-pattern 'specs'",
+    "lint:check": "eslint .",
     "test": "jest",
     "test:watch": "yarn test --watch"
   },
