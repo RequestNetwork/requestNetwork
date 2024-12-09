@@ -12,16 +12,16 @@ npm install @requestnetwork/lit-protocol-cipher
 
 ## Usage
 
-The `LitProtocolProvider` class provides encryption and decryption capabilities using the Lit Protocol. Here's how to implement and use it:
+The `LitProtocolCipherProvider` class provides encryption and decryption capabilities using the Lit Protocol. Here's how to implement and use it:
 
 ```typescript
 import { ethers } from 'ethers';
-import { LitProtocolProvider } from '@requestnetwork/lit-protocol-cipher';
+import { LitProtocolCipherProvider } from '@requestnetwork/lit-protocol-cipher';
 import { LIT_NETWORKS } from '@lit-protocol/types';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
 
 // Initialize the provider
-const litProvider = new LitProtocolProvider(
+const litProvider = new LitProtocolCipherProvider(
   new LitNodeClient({
     litNetwork: LIT_NETWORKS.datil,
   }),
@@ -81,7 +81,6 @@ async function example() {
       const parsedData = JSON.parse(decryptedData);
       console.log('Decrypted data:', parsedData);
     }
-
   } catch (error) {
     console.error('Error:', error);
   } finally {

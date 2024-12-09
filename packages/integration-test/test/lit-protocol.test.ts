@@ -1,5 +1,5 @@
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
-import { LitProtocolProvider } from '@requestnetwork/lit-protocol-cipher';
+import { LitProtocolCipherProvider } from '@requestnetwork/lit-protocol-cipher';
 import { RequestNetwork, Types, Utils } from '@requestnetwork/request-client.js';
 import { ethers } from 'ethers';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
@@ -32,7 +32,7 @@ async function waitForConfirmation(request: any, maxAttempts = 10, delayMs = 100
 
 describe('Lit Protocol Integration Tests', () => {
   let requestNetwork: RequestNetwork;
-  let litProvider: LitProtocolProvider;
+  let litProvider: LitProtocolCipherProvider;
   let epkSignatureProvider: EthereumPrivateKeySignatureProvider;
   let userWallet: ethers.Wallet;
   let litClient: LitNodeClient;
@@ -62,7 +62,7 @@ describe('Lit Protocol Integration Tests', () => {
     });
 
     // Initialize Lit Protocol provider
-    litProvider = new LitProtocolProvider(litClient, nodeConnectionConfig);
+    litProvider = new LitProtocolCipherProvider(litClient, nodeConnectionConfig);
     await litProvider.initializeClient();
     await litProvider.enableDecryption(true);
     await litProvider.getSessionSignatures(userWallet, userWallet.address);
