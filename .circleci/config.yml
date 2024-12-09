@@ -6,6 +6,8 @@ references:
   image_name: &image_name 'cimg/python:3.7'
   node_image: &node_image
     image: cimg/node:18.18
+    environment:
+      NODE_OPTIONS: '--max-old-space-size=4096'
   ipfs_image: &ipfs_image
     image: requestnetwork/request-ipfs:v0.13.0
   ganache_image: &ganache_image
@@ -534,7 +536,6 @@ jobs:
               --conventional-commits  \
               --conventional-prerelease \
               --exact \
-              --canary \
               --no-git-tag-version \
               --no-push \
               --preid next \
