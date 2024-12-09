@@ -195,6 +195,34 @@ jobs:
           name: 'Build toolbox'
           command: 'yarn workspace @requestnetwork/toolbox run build'
 
+  test-nightly:
+    docker:
+      - *node_image
+      - *ipfs_image
+      - *ganache_image
+      - *postgres_image
+      - *graph_image
+    resource_class: xlarge
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Deploy test contract from smart-contracts'
+          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+      - run: *step_graph_deploy
+      - run:
+          name: 'Start request-node'
+          command: 'yarn start:request-node'
+          background: true
+      - run: *step_wait_for_node
+      - run:
+          name: 'Test integration-test (erc20)'
+          command: 'yarn workspace @requestnetwork/integration-test run test:erc20 --ci --maxWorkers=1'
+      - run:
+          name: 'Test integration-test (btc)'
+          command: 'yarn workspace @requestnetwork/integration-test run test:btc --ci --maxWorkers=1'
+
   # Release a next version package everytime we merge to master
   next-release:
     docker:
@@ -268,9 +296,6 @@ workflows:
                 - master
     jobs:
       - build
-      - test-unit:
-          requires:
-            - build
-      - test-integration:
+      - test-nightly:
           requires:
             - build
