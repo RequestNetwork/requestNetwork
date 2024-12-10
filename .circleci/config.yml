@@ -115,7 +115,36 @@ jobs:
             --ignore @requestnetwork/payment-processor \
             --ignore @requestnetwork/integration-test
       - store_test_results:
-          path: packages/
+          path: packages/advance-logic/reports/
+      - store_test_results:
+          path: packages/currency/reports/
+      - store_test_results:
+          path: packages/data-access/reports/
+      - store_test_results:
+          path: packages/data-format/reports/
+      - store_test_results:
+          path: packages/epk-cipher/reports/
+      - store_test_results:
+          path: packages/epk-decryption/reports/
+      - store_test_results:
+          path: packages/ethereum-storage/reports/
+      - store_test_results:
+          path: packages/lit-protocol-cipher/reports/
+      - store_test_results:
+          path: packages/multi-format/reports/
+      - store_test_results:
+          path: packages/request-logic/reports/
+      - store_test_results:
+          path: packages/request-node/reports/
+      - store_test_results:
+          path: packages/thegraph-data-access/reports/
+      - store_test_results:
+          path: packages/transaction-manager/reports/
+      - store_test_results:
+          path: packages/utils/reports/
+      - store_test_results:
+          path: packages/web3-signature/reports/
+
   test-integration-with-smart-contracts:
     docker:
       - *node_image
@@ -142,7 +171,13 @@ jobs:
               --scope @requestnetwork/payment-detection \
               --scope @requestnetwork/payment-processor
       - store_test_results:
-          path: packages/
+          path: packages/request-client.js/reports/
+      - store_test_results:
+          path: packages/smart-contracts/reports/
+      - store_test_results:
+          path: packages/payment-detection/reports/
+      - store_test_results:
+          path: packages/payment-processor/reports/
   test-integration-with-request-node:
     docker:
       - *node_image
