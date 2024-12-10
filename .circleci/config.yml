@@ -136,7 +136,7 @@ jobs:
           at: *working_directory
       - run:
           name: 'Deploy test contract from smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+          command: 'yarn deploy:contracts'
       - run: *step_graph_deploy
       - run:
           name: 'Test all'
@@ -169,7 +169,7 @@ jobs:
           at: *working_directory
       - run:
           name: 'Deploy test contract from smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+          command: 'yarn deploy:contracts'
       - run: *step_graph_deploy
       - run:
           name: 'Start request-node'
@@ -227,7 +227,7 @@ jobs:
           at: *working_directory
       - run:
           name: 'Deploy test contract from smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+          command: 'yarn deploy:contracts'
       - run: *step_graph_deploy
       - run:
           name: 'Start request-node'
