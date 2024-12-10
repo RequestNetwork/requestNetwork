@@ -78,7 +78,7 @@ jobs:
             - ~/.cache/yarn
       - run:
           name: Build all packages with lerna
-          command: 'yarn build --since master'
+          command: 'yarn build --skip-nx-cache'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -108,7 +108,6 @@ jobs:
           name: 'Test unit'
           command: |
             yarn test \
-            --since master \
             --ignore @requestnetwork/request-client.js \
             --ignore @requestnetwork/smart-contracts \
             --ignore @requestnetwork/payment-detection \
@@ -168,7 +167,6 @@ jobs:
           name: 'Test request-client.js, smart-contracts, payment-detection and payment-processor'
           command: |
             yarn test \
-              --since master \
               --scope @requestnetwork/request-client.js \
               --scope @requestnetwork/smart-contracts \
               --scope @requestnetwork/payment-detection \
@@ -209,7 +207,6 @@ jobs:
           name: 'Test integration-test'
           command: |
             yarn test \
-              --since master \
               --scope @requestnetwork/integration-test
       - store_test_results:
           path: packages/integration-test/reports/
