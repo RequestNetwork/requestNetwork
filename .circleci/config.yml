@@ -106,7 +106,17 @@ jobs:
           at: *working_directory
       - run:
           name: 'Test unit'
-          command: 'yarn test --since master --ignore @requestnetwork/request-client.js --ignore @requestnetwork/smart-contracts --ignore @requestnetwork/payment-detection --ignore @requestnetwork/payment-processor --ignore @requestnetwork/integration-test -- --ci --reporters=default --reporters=jest-junit'
+          command: 'yarn test \
+            --since master \
+            --ignore @requestnetwork/request-client.js \
+            --ignore @requestnetwork/smart-contracts \
+            --ignore @requestnetwork/payment-detection \
+            --ignore @requestnetwork/payment-processor \
+            --ignore @requestnetwork/integration-test \
+            -- \
+            --ci \
+            --reporters=default \
+            --reporters=jest-junit'
           environment:
             JEST_JUNIT_OUTPUT_DIR: './reports/junit/'
             JEST_JUNIT_OUTPUT_NAME: 'results.xml'
@@ -130,7 +140,16 @@ jobs:
       - run: *step_graph_deploy
       - run:
           name: 'Test all'
-          command: 'yarn test --since master --scope @requestnetwork/request-client.js --scope @requestnetwork/smart-contracts --scope @requestnetwork/payment-detection --scope @requestnetwork/payment-processor -- --ci --reporters=default --reporters=jest-junit'
+          command: 'yarn test \
+            --since master \
+            --scope @requestnetwork/request-client.js \
+            --scope @requestnetwork/smart-contracts \
+            --scope @requestnetwork/payment-detection \
+            --scope @requestnetwork/payment-processor \
+            -- \
+            --ci \
+            --reporters=default \
+            --reporters=jest-junit'
           environment:
             JEST_JUNIT_OUTPUT_DIR: './reports/junit/'
             JEST_JUNIT_OUTPUT_NAME: 'results.xml'
@@ -159,7 +178,13 @@ jobs:
       - run: *step_wait_for_node
       - run:
           name: 'Test all'
-          command: 'yarn test --since master --scope --scope @requestnetwork/integration-test -- --ci --reporters=default --reporters=jest-junit'
+          command: 'yarn test \
+            --since master \
+            --scope @requestnetwork/integration-test \
+            -- \
+            --ci \
+            --reporters=default \
+            --reporters=jest-junit'
           environment:
             JEST_JUNIT_OUTPUT_DIR: './reports/junit/'
             JEST_JUNIT_OUTPUT_NAME: 'results.xml'
