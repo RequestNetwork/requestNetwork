@@ -99,7 +99,7 @@ jobs:
   test-unit:
     docker:
       - *node_image
-    resource_class: xlarge
+    resource_class: large
     working_directory: *working_directory
     steps:
       - attach_workspace:
@@ -108,6 +108,8 @@ jobs:
           name: 'Test unit'
           command: |
             yarn test \
+            --ignore @requestnetwork/request-node \
+            --ignore @requestnetwork/ethereum-storage \
             --ignore @requestnetwork/request-client.js \
             --ignore @requestnetwork/smart-contracts \
             --ignore @requestnetwork/payment-detection \
@@ -126,15 +128,11 @@ jobs:
       - store_test_results:
           path: packages/epk-decryption/reports/
       - store_test_results:
-          path: packages/ethereum-storage/reports/
-      - store_test_results:
           path: packages/lit-protocol-cipher/reports/
       - store_test_results:
           path: packages/multi-format/reports/
       - store_test_results:
           path: packages/request-logic/reports/
-      - store_test_results:
-          path: packages/request-node/reports/
       - store_test_results:
           path: packages/thegraph-data-access/reports/
       - store_test_results:
@@ -151,7 +149,7 @@ jobs:
       - *ganache_image
       - *postgres_image
       - *graph_image
-    resource_class: xlarge
+    resource_class: large
     working_directory: *working_directory
     steps:
       - attach_workspace:
@@ -167,10 +165,14 @@ jobs:
           name: 'Test request-client.js, smart-contracts, payment-detection and payment-processor'
           command: |
             yarn test \
+              --scope @requestnetwork/request-node \
+              --scope @requestnetwork/ethereum-storage \
               --scope @requestnetwork/request-client.js \
               --scope @requestnetwork/smart-contracts \
               --scope @requestnetwork/payment-detection \
               --scope @requestnetwork/payment-processor
+      - store_test_results:
+          path: packages/request-node/reports/
       - store_test_results:
           path: packages/request-client.js/reports/
       - store_test_results:
@@ -179,6 +181,8 @@ jobs:
           path: packages/payment-detection/reports/
       - store_test_results:
           path: packages/payment-processor/reports/
+      - store_test_results:
+          path: packages/ethereum-storage/reports/
   test-integration-with-request-node:
     docker:
       - *node_image
