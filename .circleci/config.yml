@@ -522,7 +522,6 @@ jobs:
               --conventional-commits  \
               --conventional-prerelease \
               --exact \
-              --canary \
               --no-git-tag-version \
               --no-push \
               --preid next \
