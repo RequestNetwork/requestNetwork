@@ -78,7 +78,7 @@ jobs:
             - ~/.cache/yarn
       - run:
           name: Build all packages with lerna
-          command: 'yarn build --skip-nx-cache'
+          command: 'yarn build'
       - persist_to_workspace:
           root: *working_directory
           paths:
