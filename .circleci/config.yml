@@ -106,13 +106,14 @@ jobs:
           at: *working_directory
       - run:
           name: 'Test unit'
-          command: 'yarn test \
+          command: |
+            yarn test \
             --since master \
             --ignore @requestnetwork/request-client.js \
             --ignore @requestnetwork/smart-contracts \
             --ignore @requestnetwork/payment-detection \
             --ignore @requestnetwork/payment-processor \
-            --ignore @requestnetwork/integration-test'
+            --ignore @requestnetwork/integration-test
           environment:
             JEST_JUNIT_OUTPUT_DIR: './reports'
             JEST_JUNIT_OUTPUT_NAME: 'jest-results.xml'
@@ -136,12 +137,13 @@ jobs:
       - run: *step_graph_deploy
       - run:
           name: 'Test request-client.js, smart-contracts, payment-detection and payment-processor'
-          command: 'yarn test \
-            --since master \
-            --scope @requestnetwork/request-client.js \
-            --scope @requestnetwork/smart-contracts \
-            --scope @requestnetwork/payment-detection \
-            --scope @requestnetwork/payment-processor'
+          command: |
+            yarn test \
+              --since master \
+              --scope @requestnetwork/request-client.js \
+              --scope @requestnetwork/smart-contracts \
+              --scope @requestnetwork/payment-detection \
+              --scope @requestnetwork/payment-processor'
           environment:
             JEST_JUNIT_OUTPUT_DIR: './reports'
             JEST_JUNIT_OUTPUT_NAME: 'jest-results.xml'
@@ -170,9 +172,10 @@ jobs:
       - run: *step_wait_for_node
       - run:
           name: 'Test integration-test'
-          command: 'yarn test \
-            --since master \
-            --scope @requestnetwork/integration-test'
+          command: |
+            yarn test \
+              --since master \
+              --scope @requestnetwork/integration-test
           environment:
             JEST_JUNIT_OUTPUT_DIR: './reports'
             JEST_JUNIT_OUTPUT_NAME: 'jest-results.xml'
