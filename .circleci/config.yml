@@ -60,7 +60,7 @@ jobs:
   build:
     docker:
       - *node_image
-    resource_class: large
+    resource_class: xlarge
     working_directory: *working_directory
     steps:
       - checkout
