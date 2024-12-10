@@ -143,7 +143,7 @@ jobs:
               --scope @requestnetwork/request-client.js \
               --scope @requestnetwork/smart-contracts \
               --scope @requestnetwork/payment-detection \
-              --scope @requestnetwork/payment-processor'
+              --scope @requestnetwork/payment-processor
           environment:
             JEST_JUNIT_OUTPUT_DIR: './reports'
             JEST_JUNIT_OUTPUT_NAME: 'jest-results.xml'
