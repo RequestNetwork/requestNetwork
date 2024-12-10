@@ -155,9 +155,6 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build smart-contracts'
-          command: 'yarn build --scope @requestnetwork/smart-contracts'
-      - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn deploy:contracts'
       - run: *step_graph_deploy
@@ -195,9 +192,6 @@ jobs:
     steps:
       - attach_workspace:
           at: *working_directory
-      - run:
-          name: 'Build smart-contracts'
-          command: 'yarn build --scope @requestnetwork/smart-contracts'
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn deploy:contracts'
