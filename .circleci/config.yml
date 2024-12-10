@@ -114,11 +114,8 @@ jobs:
             --ignore @requestnetwork/payment-detection \
             --ignore @requestnetwork/payment-processor \
             --ignore @requestnetwork/integration-test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: './reports'
-            JEST_JUNIT_OUTPUT_NAME: 'jest-results.xml'
       - store_test_results:
-          path: reports
+          path: packages
   test-integration-with-smart-contracts:
     docker:
       - *node_image
@@ -144,11 +141,8 @@ jobs:
               --scope @requestnetwork/smart-contracts \
               --scope @requestnetwork/payment-detection \
               --scope @requestnetwork/payment-processor
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: './reports'
-            JEST_JUNIT_OUTPUT_NAME: 'jest-results.xml'
       - store_test_results:
-          path: reports
+          path: packages
   test-integration-with-request-node:
     docker:
       - *node_image
@@ -176,11 +170,8 @@ jobs:
             yarn test \
               --since master \
               --scope @requestnetwork/integration-test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: './reports'
-            JEST_JUNIT_OUTPUT_NAME: 'jest-results.xml'
       - store_test_results:
-          path: reports
+          path: packages/integration-test/reports
   test-usage-examples:
     docker:
       - *node_image
@@ -228,17 +219,11 @@ jobs:
       - run:
           name: 'Test integration-test (erc20)'
           command: 'yarn workspace @requestnetwork/integration-test run test:erc20'
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: './reports'
-            JEST_JUNIT_OUTPUT_NAME: 'erc20-results.xml'
       - run:
           name: 'Test integration-test (btc)'
           command: 'yarn workspace @requestnetwork/integration-test run test:btc'
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: './reports'
-            JEST_JUNIT_OUTPUT_NAME: 'btc-results.xml'
       - store_test_results:
-          path: reports
+          path: packages/integration-test/reports
 
   # Release a next version package everytime we merge to master
   next-release:
