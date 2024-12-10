@@ -112,16 +112,12 @@ jobs:
             --ignore @requestnetwork/smart-contracts \
             --ignore @requestnetwork/payment-detection \
             --ignore @requestnetwork/payment-processor \
-            --ignore @requestnetwork/integration-test \
-            -- \
-            --ci \
-            --reporters=default \
-            --reporters=jest-junit'
+            --ignore @requestnetwork/integration-test'
           environment:
-            JEST_JUNIT_OUTPUT_DIR: './reports/junit/'
-            JEST_JUNIT_OUTPUT_NAME: 'results.xml'
+            JEST_JUNIT_OUTPUT_DIR: './reports'
+            JEST_JUNIT_OUTPUT_NAME: 'jest-results.xml'
       - store_test_results:
-          path: reports/junit/
+          path: reports
   test-integration-with-smart-contracts:
     docker:
       - *node_image
@@ -145,16 +141,12 @@ jobs:
             --scope @requestnetwork/request-client.js \
             --scope @requestnetwork/smart-contracts \
             --scope @requestnetwork/payment-detection \
-            --scope @requestnetwork/payment-processor \
-            -- \
-            --ci \
-            --reporters=default \
-            --reporters=jest-junit'
+            --scope @requestnetwork/payment-processor'
           environment:
-            JEST_JUNIT_OUTPUT_DIR: './reports/junit/'
-            JEST_JUNIT_OUTPUT_NAME: 'results.xml'
+            JEST_JUNIT_OUTPUT_DIR: './reports'
+            JEST_JUNIT_OUTPUT_NAME: 'jest-results.xml'
       - store_test_results:
-          path: reports/junit/
+          path: reports
   test-integration-with-request-node:
     docker:
       - *node_image
@@ -180,16 +172,12 @@ jobs:
           name: 'Test integration-test'
           command: 'yarn test \
             --since master \
-            --scope @requestnetwork/integration-test \
-            -- \
-            --ci \
-            --reporters=default \
-            --reporters=jest-junit'
+            --scope @requestnetwork/integration-test'
           environment:
-            JEST_JUNIT_OUTPUT_DIR: './reports/junit/'
-            JEST_JUNIT_OUTPUT_NAME: 'results.xml'
+            JEST_JUNIT_OUTPUT_DIR: './reports'
+            JEST_JUNIT_OUTPUT_NAME: 'jest-results.xml'
       - store_test_results:
-          path: reports/junit/
+          path: reports
   test-usage-examples:
     docker:
       - *node_image
@@ -236,18 +224,18 @@ jobs:
       - run: *step_wait_for_node
       - run:
           name: 'Test integration-test (erc20)'
-          command: 'yarn workspace @requestnetwork/integration-test run test:erc20 --ci --maxWorkers=1 --reporters=default --reporters=jest-junit'
+          command: 'yarn workspace @requestnetwork/integration-test run test:erc20'
           environment:
-            JEST_JUNIT_OUTPUT_DIR: './reports/junit/'
+            JEST_JUNIT_OUTPUT_DIR: './reports'
             JEST_JUNIT_OUTPUT_NAME: 'erc20-results.xml'
       - run:
           name: 'Test integration-test (btc)'
-          command: 'yarn workspace @requestnetwork/integration-test run test:btc --ci --maxWorkers=1 --reporters=default --reporters=jest-junit'
+          command: 'yarn workspace @requestnetwork/integration-test run test:btc'
           environment:
-            JEST_JUNIT_OUTPUT_DIR: './reports/junit/'
+            JEST_JUNIT_OUTPUT_DIR: './reports'
             JEST_JUNIT_OUTPUT_NAME: 'btc-results.xml'
       - store_test_results:
-          path: reports/junit/
+          path: reports
 
   # Release a next version package everytime we merge to master
   next-release:
