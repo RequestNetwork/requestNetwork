@@ -115,7 +115,7 @@ jobs:
             --ignore @requestnetwork/payment-processor \
             --ignore @requestnetwork/integration-test
       - store_test_results:
-          path: packages
+          path: packages/
   test-integration-with-smart-contracts:
     docker:
       - *node_image
@@ -142,7 +142,7 @@ jobs:
               --scope @requestnetwork/payment-detection \
               --scope @requestnetwork/payment-processor
       - store_test_results:
-          path: packages
+          path: packages/
   test-integration-with-request-node:
     docker:
       - *node_image
@@ -171,7 +171,7 @@ jobs:
               --since master \
               --scope @requestnetwork/integration-test
       - store_test_results:
-          path: packages/integration-test/reports
+          path: packages/integration-test/reports/
   test-usage-examples:
     docker:
       - *node_image
@@ -223,7 +223,7 @@ jobs:
           name: 'Test integration-test (btc)'
           command: 'yarn workspace @requestnetwork/integration-test run test:btc'
       - store_test_results:
-          path: packages/integration-test/reports
+          path: packages/integration-test/reports/
 
   # Release a next version package everytime we merge to master
   next-release:
