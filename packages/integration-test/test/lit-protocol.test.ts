@@ -46,7 +46,9 @@ describe('Lit Protocol Integration Tests', () => {
 
   beforeAll(async () => {
     // Create wallet
-    userWallet = ethers.Wallet.createRandom();
+    userWallet = new ethers.Wallet(
+      '0x7b595b2bb732edddc4d4fe758ae528c7a748c40f0f6220f4494e214f15c5bfeb',
+    );
 
     // Initialize signature provider
     epkSignatureProvider = new EthereumPrivateKeySignatureProvider({
@@ -200,20 +202,9 @@ describe('Lit Protocol Integration Tests', () => {
       },
     ];
 
-    // Mock the validation function to throw an error
-    const originalValidation = litProvider['getLitAccessControlConditions'];
-    try {
-      litProvider['getLitAccessControlConditions'] = jest.fn().mockImplementation(() => {
-        throw new Error('Invalid encryption parameter at index 0: missing key');
-      });
-
-      await expect(async () => {
-        await litProvider.encrypt('test data', { encryptionParams: invalidEncryptionParams });
-      }).rejects.toThrow('Invalid encryption parameter at index 0: missing key');
-    } finally {
-      // Restore original validation
-      litProvider['getLitAccessControlConditions'] = originalValidation;
-    }
+    await expect(
+      litProvider.encrypt('test data', { encryptionParams: invalidEncryptionParams }),
+    ).rejects.toThrow(/invalid.*key/i);
   });
 
   it('should handle decryption errors gracefully', async () => {
