@@ -172,7 +172,7 @@ jobs:
               --scope @requestnetwork/smart-contracts \
               --scope @requestnetwork/payment-detection \
               --scope @requestnetwork/payment-processor \
-              --concurrency=2
+              --concurrency=1
       - store_test_results:
           path: packages/request-node/reports/
       - store_test_results:
