@@ -19,12 +19,12 @@ import { disconnectWeb3 } from '@lit-protocol/lit-node-client';
 import type { LitNodeClientNodeJs, LitNodeClient } from '@lit-protocol/lit-node-client';
 
 /**
- * @class LitProvider
+ * @class LitProtocolCipherProvider
  * @description A provider class that simplifies the usage of Lit Protocol for encryption and decryption.
  * This class can be used with both client-side and Node.js Lit clients.
  * It implements the `IKmsProvider` interface for a standardized KMS provider structure.
  */
-export default class LitProvider implements CipherProviderTypes.ICipherProvider {
+export default class LitProtocolCipherProvider implements CipherProviderTypes.ICipherProvider {
   /**
    * @property {string} chain - The blockchain to use for access control conditions.
    */

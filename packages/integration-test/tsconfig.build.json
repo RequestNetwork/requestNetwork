@@ -12,6 +12,7 @@
     { "path": "../ethereum-storage/tsconfig.build.json" },
     { "path": "../epk-decryption/tsconfig.build.json" },
     { "path": "../epk-signature/tsconfig.build.json" },
+    { "path": "../lit-protocol-cipher/tsconfig.build.json" },
     { "path": "../multi-format/tsconfig.build.json" },
     { "path": "../payment-processor/tsconfig.build.json" },
     { "path": "../request-logic/tsconfig.build.json" },
