@@ -117,7 +117,8 @@ jobs:
             --ignore @requestnetwork/smart-contracts \
             --ignore @requestnetwork/payment-detection \
             --ignore @requestnetwork/payment-processor \
-            --ignore @requestnetwork/integration-test
+            --ignore @requestnetwork/integration-test \
+            --concurrency=2
       - store_test_results:
           path: packages/advance-logic/reports/
       - store_test_results:
@@ -170,7 +171,8 @@ jobs:
               --scope @requestnetwork/request-client.js \
               --scope @requestnetwork/smart-contracts \
               --scope @requestnetwork/payment-detection \
-              --scope @requestnetwork/payment-processor
+              --scope @requestnetwork/payment-processor \
+              --concurrency=2
       - store_test_results:
           path: packages/request-node/reports/
       - store_test_results:
