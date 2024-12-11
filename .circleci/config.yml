@@ -102,7 +102,7 @@ jobs:
   test-unit:
     docker:
       - *node_image
-    resource_class: large
+    resource_class: xlarge
     working_directory: *working_directory
     steps:
       - attach_workspace:
@@ -152,7 +152,7 @@ jobs:
       - *ganache_image
       - *postgres_image
       - *graph_image
-    resource_class: large
+    resource_class: xlarge
     working_directory: *working_directory
     steps:
       - attach_workspace:
