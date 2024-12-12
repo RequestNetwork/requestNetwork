@@ -3,7 +3,10 @@
     "default": {
       "runner": "nx/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "test", "lint:check"]
+        "cacheableOperations": ["build", "test", "lint:check"],
+        "cacheDirectory": ".nx-cache",
+        "parallel": 3,
+        "fileHashVersion": 2
       }
     }
   },
