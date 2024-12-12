@@ -271,6 +271,7 @@ jobs:
     docker:
       - *node_image
     working_directory: *working_directory
+    resource_class: large
     steps:
       - attach_workspace:
           at: *working_directory
@@ -280,9 +281,6 @@ jobs:
       - run:
           name: 'Authenticate with registry'
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
-      - run:
-          name: 'Build all packages with lerna'
-          command: 'yarn build --skip-nx-cache'
       - run:
           name: 'Publish'
           command: |
