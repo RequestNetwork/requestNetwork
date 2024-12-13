@@ -4,6 +4,7 @@ import { RequestNetwork, Types, Utils } from '@requestnetwork/request-client.js'
 import { ethers } from 'ethers';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
 
+jest.setTimeout(30000);
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function waitForConfirmation(request: any, maxAttempts = 10, delayMs = 1000): Promise<void> {
