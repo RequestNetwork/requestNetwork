@@ -214,10 +214,10 @@ export default class LitProtocolCipherProvider implements CipherProviderTypes.IC
     });
 
     // Build conditions array with 'or' operators between each condition
-    return encryptionParams.reduce((acc, param, index) => {
-      if (index > 0) acc.push({ operator: 'or' });
-      acc.push(createCondition(param.key));
-      return acc;
+    return encryptionParams.reduce((accessControlConditions, encryptionParam, index) => {
+      if (index > 0) accessControlConditions.push({ operator: 'or' });
+      accessControlConditions.push(createCondition(encryptionParam.key));
+      return accessControlConditions;
     }, [] as AccessControlConditions);
   }
 
@@ -244,7 +244,7 @@ export default class LitProtocolCipherProvider implements CipherProviderTypes.IC
    * @returns {boolean} A boolean indicating if encryption is available.
    */
   public isEncryptionAvailable(): boolean {
-    return this.litClient !== null;
+    return this.litClient !== undefined;
   }
 
   /**
@@ -285,7 +285,7 @@ export default class LitProtocolCipherProvider implements CipherProviderTypes.IC
    * @returns {boolean} A boolean indicating if decryption is available.
    */
   public isDecryptionAvailable(): boolean {
-    return this.litClient !== null && this.sessionSigs !== null && this.decryptionEnabled;
+    return this.litClient && this.sessionSigs !== null && this.decryptionEnabled;
   }
 
   /**

@@ -184,12 +184,7 @@ describe('Lit Protocol Integration Tests', () => {
 
     const requestData = await encryptedRequest.getData();
     expect(requestData).toBeDefined();
-    expect([Types.RequestLogic.STATE.CREATED, Types.RequestLogic.STATE.PENDING]).toContain(
-      requestData.state,
-    );
-
-    // Wait for any pending operations to complete
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    expect([Types.RequestLogic.STATE.CREATED]).toContain(requestData.state);
   });
 
   it('should handle encryption errors gracefully', async () => {
@@ -221,8 +216,5 @@ describe('Lit Protocol Integration Tests', () => {
         ],
       }),
     ).rejects.toThrow();
-
-    // Wait for any pending operations to complete
-    await new Promise((resolve) => setTimeout(resolve, 1000));
   });
 });

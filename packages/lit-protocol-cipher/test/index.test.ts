@@ -111,17 +111,15 @@ describe('LitProvider', () => {
     });
 
     it('should check encryption availability', () => {
-      // First verify it's true with a valid client
+      // Test with valid client
       expect(litProvider.isEncryptionAvailable()).toBe(true);
 
-      // Mock the implementation to simulate no client
-      jest.spyOn(litProvider, 'isEncryptionAvailable').mockImplementation(() => false);
-
-      // Now it should return false
+      // Test with no client
+      litProvider['litClient'] = undefined as unknown as LitNodeClientNodeJs;
       expect(litProvider.isEncryptionAvailable()).toBe(false);
 
-      // Restore the original implementation
-      jest.restoreAllMocks();
+      // Restore client for other tests
+      litProvider['litClient'] = mockLitClient;
     });
 
     it('should check decryption availability', () => {
