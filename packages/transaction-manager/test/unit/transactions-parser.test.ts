@@ -226,7 +226,10 @@ describe('transaction-parser', () => {
 
     describe('parse encrypted persisted transaction with LitProtocol', () => {
       beforeEach(() => {
-        transactionParser = new TransactionsParser(undefined, TestData.fakeLitProtocolProvider);
+        transactionParser = new TransactionsParser(
+          undefined,
+          TestData.fakeLitProtocolCipherProvider,
+        );
       });
       it('can parse encrypted transaction on an unknown channel', async () => {
         const encryptedParsedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
@@ -236,7 +239,7 @@ describe('transaction-parser', () => {
             TestData.kmsRaw2.encryptionParams,
             TestData.kmsRaw3.encryptionParams,
           ],
-          TestData.fakeLitProtocolProvider,
+          TestData.fakeLitProtocolCipherProvider,
         );
 
         const ret = await transactionParser.parsePersistedTransaction(
@@ -269,7 +272,7 @@ describe('transaction-parser', () => {
         const encryptedParsedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
           data,
           [TestData.kmsRaw1.encryptionParams],
-          TestData.fakeLitProtocolProvider,
+          TestData.fakeLitProtocolCipherProvider,
         );
 
         const addRaw1Formatted = `20${TestData.kmsRaw1.encryptionParams.key.slice(2)}`;
@@ -298,7 +301,7 @@ describe('transaction-parser', () => {
         const encryptedParsedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
           data,
           [TestData.kmsRaw1.encryptionParams, TestData.kmsRaw2.encryptionParams],
-          TestData.fakeLitProtocolProvider,
+          TestData.fakeLitProtocolCipherProvider,
         );
         await expect(
           transactionParser.parsePersistedTransaction(

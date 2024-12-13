@@ -176,7 +176,7 @@ export const id3DecryptionProvider: DecryptionProviderTypes.IDecryptionProvider 
   supportedMethods: [EncryptionTypes.METHOD.ECIES],
 };
 
-export class FakeLitProtocolProvider implements CipherProviderTypes.ICipherProvider {
+export class FakeLitProtocolCipherProvider implements CipherProviderTypes.ICipherProvider {
   private storedRawData: string;
 
   constructor() {
@@ -228,5 +228,5 @@ export class FakeLitProtocolProvider implements CipherProviderTypes.ICipherProvi
   }
 }
 
-export const fakeLitProtocolProvider: CipherProviderTypes.ICipherProvider =
-  new FakeLitProtocolProvider();
+export const fakeLitProtocolCipherProvider: CipherProviderTypes.ICipherProvider =
+  new FakeLitProtocolCipherProvider();

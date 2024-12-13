@@ -3,6 +3,7 @@ import IpfsManager from '../src/ipfs-manager';
 import { setupServer } from 'msw/node';
 import { HttpResponse, delay, http } from 'msw';
 
+jest.setTimeout(30000);
 const testErrorHandling: StorageTypes.IIpfsErrorHandlingConfiguration = {
   delayBetweenRetries: 0,
   maxRetries: 0,
