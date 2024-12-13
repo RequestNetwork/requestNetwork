@@ -287,13 +287,9 @@ jobs:
             FORCE_PUBLISH=$($(yarn bin)/lerna changed --json | jq '. | map(.name) | join (",")' -r)
             echo $FORCE_PUBLISH
             $(yarn bin)/lerna publish \
-              --conventional-commits  \
-              --conventional-prerelease \
-              --exact \
-              --no-git-tag-version \
+              prerelease \
               --no-push \
               --preid next \
-              --no-verify-access \
               --dist-tag next \
               --yes \
               --force-publish=${FORCE_PUBLISH}
