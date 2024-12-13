@@ -10,7 +10,7 @@ describe('api/erc20/address-based-info-retriever', () => {
   describe('on localhost', () => {
     const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
     const payerAddress = '0x627306090abaB3A6e1400e9345bC60c78a8BEf57';
-    const emptyAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
+    const emptyAddress = '0x56dDdAA262139112d2490b50BE328D237a499A14';
 
     it('can get the localhost balance of an address', async () => {
       const infoRetriever = new ERC20InfoRetriever(

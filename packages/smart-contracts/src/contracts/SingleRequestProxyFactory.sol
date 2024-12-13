@@ -40,7 +40,11 @@ contract SingleRequestProxyFactory is Ownable {
   event ERC20FeeProxyUpdated(address indexed newERC20FeeProxy);
   event EthereumFeeProxyUpdated(address indexed newEthereumFeeProxy);
 
-  constructor(address _ethereumFeeProxy, address _erc20FeeProxy, address _owner) {
+  constructor(
+    address _ethereumFeeProxy,
+    address _erc20FeeProxy,
+    address _owner
+  ) {
     require(_ethereumFeeProxy != address(0), 'EthereumFeeProxy address cannot be zero');
     require(_erc20FeeProxy != address(0), 'ERC20FeeProxy address cannot be zero');
     require(_owner != address(0), 'Owner address cannot be zero');

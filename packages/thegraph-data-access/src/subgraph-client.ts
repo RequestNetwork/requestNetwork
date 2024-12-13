@@ -18,6 +18,10 @@ const MAX_INT_VALUE = 0x7fffffff;
 export class SubgraphClient implements StorageTypes.IIndexer {
   private graphql: GraphQLClient;
   public readonly endpoint: string;
+
+  private readonly DEFAULT_PAGE_SIZE = 100;
+  private readonly MAX_PAGE_SIZE = 1000;
+
   constructor(endpoint: string, options?: RequestConfig) {
     this.endpoint = endpoint;
     this.graphql = new GraphQLClient(endpoint, options);
@@ -50,19 +54,46 @@ export class SubgraphClient implements StorageTypes.IIndexer {
 
   public async getTransactionsByTopics(
     topics: string[],
+    page?: number,
+    pageSize?: number,
   ): Promise<StorageTypes.IGetTransactionsResponse> {
+    if (page !== undefined && page < 1) {
+      throw new Error('Page must be greater than or equal to 1');
+    }
+    if (pageSize !== undefined && pageSize <= 0) {
+      throw new Error('Page size must be greater than 0');
+    }
+    if (pageSize && pageSize > this.MAX_PAGE_SIZE) {
+      throw new Error(`Page size cannot exceed ${this.MAX_PAGE_SIZE}`);
+    }
+
+    const effectivePageSize = pageSize ?? this.DEFAULT_PAGE_SIZE;
+    const effectivePage = page ?? 1;
+    const skip = (effectivePage - 1) * effectivePageSize;
+
     const { _meta, channels } = await this.graphql.request<
       Meta & { channels: { transactions: Transaction[] }[] }
-    >(GetTransactionsByTopics, { topics });
+    >(GetTransactionsByTopics, {
+      topics,
+      first: effectivePageSize,
+      skip,
+    });
 
     const transactionsByChannel = channels
       .map(({ transactions }) => transactions)
       .flat()
       .sort((a, b) => a.blockTimestamp - b.blockTimestamp);
 
+    const indexedTransactions = transactionsByChannel.map(this.toIndexedTransaction);
     return {
-      transactions: transactionsByChannel.map(this.toIndexedTransaction),
+      transactions: indexedTransactions,
       blockNumber: _meta.block.number,
+      pagination: {
+        page: effectivePage,
+        pageSize: effectivePageSize,
+        total: indexedTransactions.length,
+        hasMore: skip + effectivePageSize < indexedTransactions.length,
+      },
     };
   }
 

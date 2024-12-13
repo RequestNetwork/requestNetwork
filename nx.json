@@ -1,0 +1,27 @@
+{
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": ["build", "test", "lint:check"],
+        "cacheDirectory": ".nx-cache",
+        "parallel": 3,
+        "fileHashVersion": 2
+      }
+    }
+  },
+  "targetDefaults": {
+    "lint:check": {
+      "dependsOn": ["^lint:check"]
+    },
+    "build": {
+      "dependsOn": ["^build", "lint:check"]
+    },
+    "test": {
+      "dependsOn": ["build"]
+    },
+    "clean": {
+      "dependsOn": ["^clean"]
+    }
+  }
+}

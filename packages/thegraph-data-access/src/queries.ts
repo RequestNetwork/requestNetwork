@@ -77,7 +77,7 @@ export const GetTransactionsByHashQuery = gql`
 export const GetTransactionsByTopics = gql`
 ${TransactionsBodyFragment}
 
-query GetTransactionsByTopics($topics: [String!]!){
+query GetTransactionsByTopics($topics: [String!]!, $first: Int!, $skip: Int!) {
   ${metaQueryBody}
   channels(
     where: { topics_contains: $topics }
@@ -85,6 +85,8 @@ query GetTransactionsByTopics($topics: [String!]!){
     transactions(
       orderBy: blockTimestamp, 
       orderDirection: asc
+      first: $first
+      skip: $skip
     ) {
       ...TransactionsBody
     }

@@ -3,7 +3,7 @@ import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
 import { GasFeeDefiner } from './gas-fee-definer';
-import { SimpleLogger, isEip1559Supported } from '@requestnetwork/utils';
+import { isEip1559Supported, SimpleLogger } from '@requestnetwork/utils';
 
 export type SubmitterProps = {
   signer: Signer;
@@ -22,6 +22,11 @@ export type SubmitterProps = {
    * The default is 100, which does not change the value (100 is equal to x1, 200 is equal to x2).
    */
   gasPriceMultiplier?: number;
+  /**
+   * If set, the gas limit will be used when submitting transactions.
+   * If not, the gas limit will be estimated on each submission.
+   */
+  gasLimit?: BigNumber;
   network: CurrencyTypes.EvmChainName;
   logger?: LogTypes.ILogger;
   debugProvider?: boolean;
@@ -36,6 +41,7 @@ export class EthereumTransactionSubmitter implements StorageTypes.ITransactionSu
   private readonly hashSubmitter: RequestOpenHashSubmitter;
   private readonly provider: providers.JsonRpcProvider;
   private readonly gasFeeDefiner: GasFeeDefiner;
+  private readonly gasLimit: BigNumber | undefined;
 
   constructor({
     network,
@@ -44,6 +50,7 @@ export class EthereumTransactionSubmitter implements StorageTypes.ITransactionSu
     gasPriceMin,
     gasPriceMax,
     gasPriceMultiplier,
+    gasLimit,
     debugProvider,
   }: SubmitterProps) {
     this.logger = logger || new SimpleLogger();
@@ -60,6 +67,7 @@ export class EthereumTransactionSubmitter implements StorageTypes.ITransactionSu
       gasPriceMultiplier,
       logger: this.logger,
     });
+    this.gasLimit = gasLimit;
     if (debugProvider) {
       this.provider.on('debug', (event) => {
         this.logger.debug('JsonRpcProvider debug event', event);
@@ -96,6 +104,12 @@ export class EthereumTransactionSubmitter implements StorageTypes.ITransactionSu
       utils.hexZeroPad(utils.hexlify(ipfsSize), 32),
     ]);
 
-    return { to: this.hashSubmitter.address, data: tx, value: fee, ...gasFees };
+    return {
+      to: this.hashSubmitter.address,
+      data: tx,
+      value: fee,
+      gasLimit: this.gasLimit,
+      ...gasFees,
+    };
   }
 }

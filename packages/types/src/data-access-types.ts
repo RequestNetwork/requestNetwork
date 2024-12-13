@@ -1,6 +1,6 @@
 import * as StorageTypes from './storage-types';
 import { ConfirmationEventEmitter } from './events';
-
+import { AuthSig } from '@lit-protocol/types';
 /** Data Access Layer */
 export interface IDataRead {
   initialize: () => Promise<void>;
@@ -13,10 +13,14 @@ export interface IDataRead {
   getChannelsByTopic: (
     topic: string,
     updatedBetween?: ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ) => Promise<IReturnGetChannelsByTopic>;
   getChannelsByMultipleTopics(
     topics: string[],
     updatedBetween?: ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ): Promise<IReturnGetChannelsByTopic>;
 }
 
@@ -33,6 +37,7 @@ export interface IDataWrite {
 
 export interface IDataAccess extends IDataRead, IDataWrite {
   _getStatus?(): Promise<IDataAccessStatus>;
+  getLitCapacityDelegationAuthSig?: (delegateeAddress: string) => Promise<AuthSig>;
 }
 
 export interface IDataAccessStatus {
@@ -77,6 +82,7 @@ export interface IReturnGetTransactions {
     transactionsStorageLocation: string[];
     /** meta-data from the layer below */
     storageMeta?: StorageTypes.IEntryMetadata[];
+    pagination?: StorageTypes.PaginationMetadata;
   };
   /** result of the execution */
   result: { transactions: ITimestampedTransaction[] };
@@ -92,6 +98,7 @@ export interface IReturnGetChannelsByTopic {
     };
     /** meta-data from the layer below */
     storageMeta?: Record<string, StorageTypes.IEntryMetadata[] | undefined>;
+    pagination?: StorageTypes.PaginationMetadata;
   };
   /** result of the execution: the transactions grouped by channel id */
   result: { transactions: ITransactionsByChannelIds };
@@ -152,7 +159,6 @@ export type PendingItem = {
   transaction: ITransaction;
   storageResult: StorageTypes.IEntry;
 };
-
 export interface IPendingStore {
   get(channelId: string): PendingItem | undefined;
 
@@ -162,3 +168,5 @@ export interface IPendingStore {
 
   remove(channelId: string): void;
 }
+
+export { AuthSig };

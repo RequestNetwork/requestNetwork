@@ -5,6 +5,7 @@ import { BigNumber } from 'ethers';
 import { LogTypes } from '@requestnetwork/types';
 
 import { LogMode } from './logger';
+import { LIT_NETWORK } from '@lit-protocol/constants';
 
 const argv = yargs.option('help', { alias: 'h', type: 'boolean' }).parseSync();
 
@@ -46,6 +47,10 @@ const defaultValues = {
   wallet: {
     mnemonic: 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat',
   },
+  litProtocolNetwork: LIT_NETWORK.Datil,
+  litProtocolRPC: 'https://yellowstone-rpc.litprotocol.com',
+  litProtocolCapacityCreditsUsage: '1',
+  litProtocolCapacityCreditsExpirationInSeconds: 10 * 60, // 10 minutes
 };
 
 const getOption = <T extends string | number>(
@@ -68,6 +73,42 @@ export const isHelp = (): boolean => argv.help || false;
  * Get the port from command line argument, environment variables or default values to allow user to connect to the server
  */
 export const getServerPort = makeOption('port', 'PORT', defaultValues.server.port);
+
+/**
+ * Get the litProtocolNetwork from command line argument, environment variables or default values to send with the API responses
+ */
+export const getLitProtocolNetwork = makeOption(
+  'litProtocolNetwork',
+  'LIT_PROTOCOL_NETWORK',
+  defaultValues.litProtocolNetwork,
+);
+
+/**
+ * Get the litProtocolNetwork from command line argument, environment variables or default values to send with the API responses
+ */
+export const getLitProtocolRPC = makeOption(
+  'litProtocolRPC',
+  'LIT_PROTOCOL_RPC',
+  defaultValues.litProtocolRPC,
+);
+
+/**
+ * Get the number of uses of the capacity credits from command line argument, environment variables or default values
+ */
+export const getLitProtocolCapacityCreditsUsage = makeOption(
+  'litProtocolCapacityCreditsUsage',
+  'LIT_PROTOCOL_CAPACITY_CREDITS_USAGE',
+  defaultValues.litProtocolCapacityCreditsUsage,
+);
+
+/**
+ * Get the expiration time of the capacity credits from command line argument, environment variables or default values
+ */
+export const getLitProtocolCapacityCreditsExpirationInSeconds = makeOption(
+  'litProtocolCapacityCreditsExpirationInSeconds',
+  'LIT_PROTOCOL_CAPACITY_CREDITS_EXPIRATION_IN_SECONDS',
+  defaultValues.litProtocolCapacityCreditsExpirationInSeconds,
+);
 
 /**
  * Get network id of the Ethereum network from command line argument, environment variables or default values
@@ -261,5 +302,9 @@ export const getConfigDisplay = (): string => {
   IPFS url: ${getIpfsUrl()}
   IPFS timeout: ${getIpfsTimeout()}
   Storage block confirmations: ${getBlockConfirmations()}
+  Lit Protocol Network: ${getLitProtocolNetwork()}
+  Lit Protocol RPC: ${getLitProtocolRPC()}
+  Lit Protocol Capacity Credits Uses: ${getLitProtocolCapacityCreditsUsage()}
+  Lit Protocol Capacity Credits Expiration in seconds: ${getLitProtocolCapacityCreditsExpirationInSeconds()}
 `;
 };

@@ -3,14 +3,16 @@ import request from 'supertest';
 import { getRequestNode } from '../src/server';
 import { RequestNode } from '../src/requestNode';
 
-const channelId = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab';
-const anotherChannelId = '01bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbc';
-const nonExistentChannelId = '01cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccd';
+jest.setTimeout(30000);
+const time = Date.now();
+const channelId = `01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa${time}`;
+const anotherChannelId = `01bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb${time}`;
+const nonExistentChannelId = `01ccccccccccccccccccccccccccccccccccccccccccccccccccc${time}`;
 const transactionData = {
-  data: `this is sample data for a transaction to test getTransactionsByChannelId ${Date.now()}`,
+  data: `this is sample data for a transaction to test getTransactionsByChannelId ${time}`,
 };
 const otherTransactionData = {
-  data: 'this is other sample data for a transaction to test getTransactionsByChannelId',
+  data: `this is other sample data for a transaction to test getTransactionsByChannelId ${time}`,
 };
 
 let requestNodeInstance: RequestNode;

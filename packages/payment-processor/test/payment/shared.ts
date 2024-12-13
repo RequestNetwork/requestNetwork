@@ -16,6 +16,6 @@ export const currencyManager = new CurrencyManager([
         decimals: 18,
         symbol: 'ERC20_' + i,
         type: RequestLogicTypes.CURRENCY.ERC20,
-      }) as CurrencyTypes.CurrencyDefinition,
+      } as CurrencyTypes.CurrencyDefinition),
   ),
 ]);

@@ -1,9 +1,9 @@
 import { ClientTypes, DataAccessTypes } from '@requestnetwork/types';
-
 import { EventEmitter } from 'events';
 import httpConfigDefaults from './http-config-defaults';
-import { normalizeKeccak256Hash, retry } from '@requestnetwork/utils';
+import { normalizeKeccak256Hash, retry, validatePaginationParams } from '@requestnetwork/utils';
 import { stringify } from 'qs';
+import { utils } from 'ethers';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -175,11 +175,19 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   public async getChannelsByTopic(
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    return await this.fetchAndRetry('/getChannelsByTopic', {
+    validatePaginationParams(page, pageSize);
+
+    const params = {
       topic,
       updatedBetween,
-    });
+      ...(page !== undefined && { page }),
+      ...(pageSize !== undefined && { pageSize }),
+    };
+
+    return await this.fetchAndRetry('/getChannelsByTopic', params);
   }
 
   /**
@@ -191,10 +199,16 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   public async getChannelsByMultipleTopics(
     topics: string[],
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
+    validatePaginationParams(page, pageSize);
+
     return await this.fetchAndRetry('/getChannelsByMultipleTopics', {
       topics,
       updatedBetween,
+      page,
+      pageSize,
     });
   }
 
@@ -204,6 +218,23 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    */
   public async _getStatus(): Promise<any> {
     return await this.fetchAndRetry('/information', {});
+  }
+
+  /**
+   * Gets the Lit Protocol capacity delegation auth sig from the node through HTTP.
+   *
+   * @param delegateeAddress the address of the delegatee
+   */
+  public async getLitCapacityDelegationAuthSig(
+    delegateeAddress: string,
+  ): Promise<DataAccessTypes.AuthSig> {
+    if (!delegateeAddress || typeof delegateeAddress !== 'string') {
+      throw new Error('delegateeAddress must be a non-empty string');
+    }
+    if (!utils.isAddress(delegateeAddress)) {
+      throw new Error('delegateeAddress must be a valid Ethereum address');
+    }
+    return await this.fetchAndRetry('/getLitCapacityDelegationAuthSig', { delegateeAddress });
   }
 
   /**

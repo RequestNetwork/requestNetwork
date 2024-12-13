@@ -1,5 +1,31 @@
-import { DecryptionProviderTypes, EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
-import { decrypt } from '@requestnetwork/utils';
+import {
+  CipherProviderTypes,
+  DecryptionProviderTypes,
+  EncryptionTypes,
+  IdentityTypes,
+} from '@requestnetwork/types';
+import { decrypt, ecEncrypt } from '@requestnetwork/utils';
+
+export const kmsRaw1 = {
+  encryptionParams: {
+    key: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
+    method: EncryptionTypes.METHOD.KMS,
+  },
+};
+
+export const kmsRaw2 = {
+  encryptionParams: {
+    key: '0x740fc87bd3f41d07d23a01dec90623ebc5fed9d6',
+    method: EncryptionTypes.METHOD.KMS,
+  },
+};
+
+export const kmsRaw3 = {
+  encryptionParams: {
+    key: '0x818b6337657a23f58581715fc610577292e521d0',
+    method: EncryptionTypes.METHOD.KMS,
+  },
+};
 
 export const idRaw1 = {
   address: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
@@ -79,6 +105,58 @@ export const fakeDecryptionProvider: DecryptionProviderTypes.IDecryptionProvider
   supportedMethods: [EncryptionTypes.METHOD.ECIES],
 };
 
+export class FakeEpkCipherProvider implements CipherProviderTypes.ICipherProvider {
+  enableDecryption(option: boolean): void {
+    throw new Error('Method not implemented.');
+  }
+  isEncryptionAvailable(): boolean {
+    throw new Error('Method not implemented.');
+  }
+  isDecryptionAvailable(): boolean {
+    return true;
+  }
+
+  isDecryptionEnabled(): boolean {
+    return true;
+  }
+
+  supportedIdentityTypes = [IdentityTypes.TYPE.ETHEREUM_ADDRESS];
+  supportedMethods = [EncryptionTypes.METHOD.ECIES];
+
+  public async decrypt(
+    data: EncryptionTypes.IEncryptedData,
+    options: { identity: IdentityTypes.IIdentity },
+  ): Promise<string> {
+    switch (options.identity.value.toLowerCase()) {
+      case idRaw1.address:
+        return decrypt(data, idRaw1.decryptionParams);
+      case idRaw2.address:
+        return decrypt(data, idRaw2.decryptionParams);
+      default:
+        throw new Error('Identity not registered');
+    }
+  }
+
+  public async encrypt(
+    data: string,
+    options: { encryptionParams: EncryptionTypes.IEncryptionParameters },
+  ): Promise<string> {
+    const encryptionParams = options.encryptionParams;
+
+    if (encryptionParams.method === EncryptionTypes.METHOD.ECIES) {
+      return ecEncrypt(encryptionParams.key, data);
+    }
+
+    throw new Error('encryptionParams.method not supported');
+  }
+
+  public async isIdentityRegistered(identity: IdentityTypes.IIdentity): Promise<boolean> {
+    return [idRaw1.address, idRaw2.address].includes(identity.value.toLowerCase());
+  }
+}
+
+export const fakeEpkCipherProvider = new FakeEpkCipherProvider();
+
 export const id3DecryptionProvider: DecryptionProviderTypes.IDecryptionProvider = {
   decrypt: (
     data: EncryptionTypes.IEncryptedData,
@@ -97,3 +175,58 @@ export const id3DecryptionProvider: DecryptionProviderTypes.IDecryptionProvider 
   supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
   supportedMethods: [EncryptionTypes.METHOD.ECIES],
 };
+
+export class FakeLitProtocolCipherProvider implements CipherProviderTypes.ICipherProvider {
+  private storedRawData: string;
+
+  constructor() {
+    this.storedRawData = '';
+  }
+  enableDecryption(option: boolean): void {
+    throw new Error('Method not implemented.');
+  }
+  isEncryptionAvailable(): boolean {
+    throw new Error('Method not implemented.');
+  }
+  isDecryptionAvailable(): boolean {
+    return true;
+  }
+
+  isDecryptionEnabled(): boolean {
+    return true;
+  }
+
+  public async decrypt(
+    encryptedData: string,
+    options: {
+      encryptionParams: EncryptionTypes.IEncryptionParameters[];
+    },
+  ): Promise<{}> {
+    if (!options.encryptionParams?.length) {
+      throw new Error('Encryption parameters are required');
+    }
+    if (encryptedData !== 'encrypted') {
+      throw new Error('Invalid encrypted data format');
+    }
+    return this.storedRawData;
+  }
+
+  public async encrypt(
+    data: string,
+    options: {
+      encryptionParams: EncryptionTypes.IEncryptionParameters[];
+    },
+  ): Promise<{}> {
+    if (!options.encryptionParams?.length) {
+      throw new Error('Encryption parameters are required');
+    }
+    if (!data) {
+      throw new Error('Data is required');
+    }
+    this.storedRawData = data;
+    return 'encrypted';
+  }
+}
+
+export const fakeLitProtocolCipherProvider: CipherProviderTypes.ICipherProvider =
+  new FakeLitProtocolCipherProvider();

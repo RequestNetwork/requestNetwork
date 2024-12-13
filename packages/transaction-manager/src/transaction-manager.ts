@@ -1,5 +1,6 @@
 import * as MultiFormat from '@requestnetwork/multi-format';
 import {
+  CipherProviderTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
@@ -18,13 +19,16 @@ import TransactionsFactory from './transactions-factory';
 export default class TransactionManager implements TransactionTypes.ITransactionManager {
   private dataAccess: DataAccessTypes.IDataAccess;
   private channelParser: ChannelParser;
+  private cipherProvider?: CipherProviderTypes.ICipherProvider;
 
   public constructor(
     dataAccess: DataAccessTypes.IDataAccess,
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
+    cipherProvider?: CipherProviderTypes.ICipherProvider,
   ) {
     this.dataAccess = dataAccess;
-    this.channelParser = new ChannelParser(decryptionProvider);
+    this.channelParser = new ChannelParser(decryptionProvider, cipherProvider);
+    this.cipherProvider = cipherProvider;
   }
 
   /**
@@ -59,6 +63,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
         transaction = await TransactionsFactory.createEncryptedTransactionInNewChannel(
           transactionData,
           encryptionParams,
+          this.cipherProvider,
         );
         channelEncryptionMethod = transaction.encryptionMethod;
       }
@@ -91,6 +96,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
           transactionData,
           channelKey,
           encryptionParams,
+          this.cipherProvider,
         );
 
         channelEncryptionMethod = encryptionMethod;
@@ -186,8 +192,15 @@ export default class TransactionManager implements TransactionTypes.ITransaction
   public async getChannelsByTopic(
     topic: string,
     updatedBetween?: TransactionTypes.ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
-    const resultGetTx = await this.dataAccess.getChannelsByTopic(topic, updatedBetween);
+    const resultGetTx = await this.dataAccess.getChannelsByTopic(
+      topic,
+      updatedBetween,
+      page,
+      pageSize,
+    );
 
     return this.parseMultipleChannels(resultGetTx);
   }
@@ -202,8 +215,15 @@ export default class TransactionManager implements TransactionTypes.ITransaction
   public async getChannelsByMultipleTopics(
     topics: string[],
     updatedBetween?: TransactionTypes.ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
-    const resultGetTx = await this.dataAccess.getChannelsByMultipleTopics(topics, updatedBetween);
+    const resultGetTx = await this.dataAccess.getChannelsByMultipleTopics(
+      topics,
+      updatedBetween,
+      page,
+      pageSize,
+    );
 
     return this.parseMultipleChannels(resultGetTx);
   }

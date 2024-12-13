@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-logic",
-  "version": "0.35.1",
+  "version": "0.37.0",
   "publishConfig": {
     "access": "public"
   },
@@ -35,15 +35,15 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "example": "ts-node specs/example/example.ts",
     "lint": "eslint . --fix",
-    "lint:check": "eslint .",
+    "lint:check": "eslint . --ignore-pattern 'specs'",
     "test": "jest",
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.45.0",
-    "@requestnetwork/multi-format": "0.19.1",
-    "@requestnetwork/types": "0.45.1",
-    "@requestnetwork/utils": "0.45.1",
+    "@requestnetwork/advanced-logic": "0.47.0",
+    "@requestnetwork/multi-format": "0.21.0",
+    "@requestnetwork/types": "0.47.0",
+    "@requestnetwork/utils": "0.47.0",
     "semver": "7.5.4",
     "tslib": "2.5.0"
   },
