@@ -29,7 +29,7 @@
     "build": "tsc -b tsconfig.build.json",
     "clean": "rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint \"test/**/*.ts\"",
-    "test": "run-s test:node test:layers test:lit",
+    "test": "run-s test:lit test:node test:layers",
     "test:scheduled": "run-s test:erc20 test:any test:erc777 test:eth test:btc ",
     "test:layers": "jest test/layers.test.ts  --forceExit",
     "test:node": "jest test/node-client.test.ts --forceExit",
