@@ -58,10 +58,10 @@ export default class LitProtocolCipherProvider implements CipherProviderTypes.IC
   constructor(
     litClient: LitNodeClient | LitNodeClientNodeJs,
     nodeConnectionConfig: NodeConnectionConfig,
-    chain?: string,
+    chain = 'ethereum',
   ) {
     this.litClient = litClient;
-    this.chain = chain || 'ethereum';
+    this.chain = chain;
     this.dataAccess = new HttpDataAccess({ nodeConnectionConfig });
   }
 
