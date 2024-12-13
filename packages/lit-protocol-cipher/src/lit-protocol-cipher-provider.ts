@@ -191,16 +191,17 @@ export default class LitProtocolCipherProvider implements CipherProviderTypes.IC
       throw new Error('encryptionParams cannot be empty');
     }
 
-    // Add validation for required encryption parameter fields
+    // Validate params and sort by key
     encryptionParams.forEach((param, index) => {
-      if (!param.key) {
+      if (!param.key)
         throw new Error(`Invalid encryption parameter at index ${index}: missing key`);
-      }
     });
 
-    const accessControlConditions = [];
+    // Sort by key as lit protocol requires the keys to be in the same order for decryption and encryption
+    encryptionParams.sort((a, b) => a.key.localeCompare(b.key));
 
-    accessControlConditions.push({
+    // Create base condition object
+    const createCondition = (key: string) => ({
       contractAddress: '',
       standardContractType: '' as AccsDefaultParams['standardContractType'],
       chain: this.chain as AccsDefaultParams['chain'],
@@ -208,28 +209,16 @@ export default class LitProtocolCipherProvider implements CipherProviderTypes.IC
       parameters: [':userAddress'],
       returnValueTest: {
         comparator: '=' as AccsDefaultParams['returnValueTest']['comparator'],
-        value: encryptionParams[0].key,
+        value: key,
       },
     });
 
-    for (let i = 1; i < encryptionParams.length; i++) {
-      accessControlConditions.push(
-        { operator: 'or' },
-        {
-          contractAddress: '',
-          standardContractType: '' as AccsDefaultParams['standardContractType'],
-          chain: this.chain as AccsDefaultParams['chain'],
-          method: '',
-          parameters: [':userAddress'],
-          returnValueTest: {
-            comparator: '=' as AccsDefaultParams['returnValueTest']['comparator'],
-            value: encryptionParams[i].key,
-          },
-        },
-      );
-    }
-
-    return accessControlConditions;
+    // Build conditions array with 'or' operators between each condition
+    return encryptionParams.reduce((acc, param, index) => {
+      if (index > 0) acc.push({ operator: 'or' });
+      acc.push(createCondition(param.key));
+      return acc;
+    }, [] as AccessControlConditions);
   }
 
   /**
