@@ -12,8 +12,7 @@ async function waitForConfirmation(request: any, maxAttempts = 10, delayMs = 100
     try {
       const data = await request.getData();
       if (
-        data.state === Types.RequestLogic.STATE.CREATED ||
-        data.state === Types.RequestLogic.STATE.PENDING
+        data.state === Types.RequestLogic.STATE.CREATED
       ) {
         console.log(`Request confirmed with state: ${data.state}`);
         return;
