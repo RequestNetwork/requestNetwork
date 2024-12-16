@@ -2951,10 +2951,10 @@
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.2.0.tgz#5f3d96ec6b2354ad6d8a28bf216a1d97b5426861"
   integrity sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==
 
-"@hinkal/common@0.2.2":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@hinkal/common/-/common-0.2.2.tgz#d10648ea620bade61c105389388eb6dddbd63c12"
-  integrity sha512-TBzg7SSOrege2JwxylGR3WDojWh2FhFXeTmq2yTywfwntPYCI3+fyy+pAU8GkTLMXD+YOwT4S+oCS5edYA5paQ==
+"@hinkal/common@0.2.4":
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/@hinkal/common/-/common-0.2.4.tgz#689588e362c85c34ece22cd2eb2fa1eccc4b0282"
+  integrity sha512-Y+yV/r/ZHNve/n1LFOIUFWZpNKmtADI18BoOLElflEUz4gjqz/4gMYjWOXGk3lOhNzfYIMQuTz1gwyTN/Uv7nA==
   dependencies:
     async-mutex "^0.4.0"
     axios "^1.6.8"
@@ -2963,6 +2963,7 @@
     dotenv "^16.4.5"
     idb-keyval "6.2.1"
     libsodium-wrappers "^0.7.10"
+    node-forge "^1.3.1"
     process "0.11.10"
     snarkjs "0.7.5"
     ua-parser-js "^1.0.37"
