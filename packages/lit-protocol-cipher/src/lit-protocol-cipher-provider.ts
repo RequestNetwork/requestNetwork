@@ -111,7 +111,12 @@ export default class LitProtocolCipherProvider implements CipherProviderTypes.IC
    * @param {string} walletAddress - The wallet address to use for generating the auth sig.
    * @returns {Promise<void>}
    */
-  public async getSessionSignatures(signer: Signer, walletAddress: string): Promise<void> {
+  public async getSessionSignatures(
+    signer: Signer,
+    walletAddress: string,
+    domain?: string,
+    statement?: string,
+  ): Promise<void> {
     if (!this.litClient) {
       throw new Error('Lit client not initialized');
     }
@@ -134,13 +139,14 @@ export default class LitProtocolCipherProvider implements CipherProviderTypes.IC
       if (!params.expiration) {
         throw new Error('expiration is required');
       }
-
       if (!params.resourceAbilityRequests) {
         throw new Error('resourceAbilityRequests is required');
       }
 
       // Create the SIWE message
       const toSign = await createSiweMessage({
+        domain,
+        statement,
         uri: params.uri,
         expiration: params.expiration,
         resources: params.resourceAbilityRequests,
