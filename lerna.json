@@ -2,6 +2,7 @@
   "lerna": "6.6.2",
   "useWorkspaces": true,
   "packages": ["packages/*"],
+  "version": "independent",
   "npmClient": "yarn",
   "command": {
     "publish": {
