@@ -164,12 +164,12 @@ describe('LitProvider', () => {
 
       // Mock getSessionSigs to call the authNeededCallback
       (mockLitClient.getSessionSigs as jest.Mock).mockImplementation(async (args: unknown) => {
-        const { authNeededCallback } = args as { 
-          authNeededCallback: (params: { 
-            uri: string; 
-            expiration: string; 
-            resourceAbilityRequests: unknown[] 
-          }) => Promise<unknown> 
+        const { authNeededCallback } = args as {
+          authNeededCallback: (params: {
+            uri: string;
+            expiration: string;
+            resourceAbilityRequests: unknown[];
+          }) => Promise<unknown>;
         };
         if (authNeededCallback) {
           await authNeededCallback({
