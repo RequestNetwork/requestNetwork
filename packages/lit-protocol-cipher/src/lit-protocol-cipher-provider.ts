@@ -106,9 +106,11 @@ export default class LitProtocolCipherProvider implements CipherProviderTypes.IC
   /**
    * @async
    * @function getSessionSignatures
-   * @description Gets the session signatures required for encryption and decryption.
+   * @description Gets the session signatures required for decryption.
    * @param {any} signer - The signer object to use for generating the auth sig.
    * @param {string} walletAddress - The wallet address to use for generating the auth sig.
+   * @param {string} domain - The domain to use for generating the auth sig.
+   * @param {string} statement - The statement to use for generating the auth sig.
    * @returns {Promise<void>}
    */
   public async getSessionSignatures(
