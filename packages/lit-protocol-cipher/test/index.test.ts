@@ -3,14 +3,25 @@ import { Signer } from 'ethers';
 import LitProvider from '../src/lit-protocol-cipher-provider';
 import { disconnectWeb3, LitNodeClientNodeJs } from '@lit-protocol/lit-node-client';
 import { HttpDataAccess, NodeConnectionConfig } from '@requestnetwork/request-client.js';
-import { generateAuthSig } from '@lit-protocol/auth-helpers';
+import {
+  generateAuthSig,
+  createSiweMessage,
+  LitAccessControlConditionResource,
+} from '@lit-protocol/auth-helpers';
 import { EncryptionTypes } from '@requestnetwork/types';
-import { createSiweMessageWithRecaps } from '@lit-protocol/auth-helpers';
 
 // Mock dependencies
 jest.mock('@lit-protocol/lit-node-client');
 jest.mock('@requestnetwork/request-client.js');
-jest.mock('@lit-protocol/auth-helpers');
+jest.mock('@lit-protocol/auth-helpers', () => ({
+  generateAuthSig: jest.fn(),
+  createSiweMessage: jest.fn(),
+  LitAccessControlConditionResource: jest.fn().mockImplementation((path) => ({
+    path,
+    toString: () => path,
+    toWildcardPath: () => path,
+  })),
+}));
 jest.mock('@lit-protocol/encryption');
 
 describe('LitProvider', () => {
@@ -147,34 +158,151 @@ describe('LitProvider', () => {
   });
 
   describe('getSessionSignatures', () => {
-    it('should get session signatures successfully', async () => {
+    beforeEach(() => {
+      (LitAccessControlConditionResource as unknown as jest.Mock).mockClear();
+      (createSiweMessage as jest.Mock).mockClear();
+
+      // Mock getSessionSigs to call the authNeededCallback
+      (mockLitClient.getSessionSigs as jest.Mock).mockImplementation(async (args: unknown) => {
+        const { authNeededCallback } = args as {
+          authNeededCallback: (params: {
+            uri: string;
+            expiration: string;
+            resourceAbilityRequests: unknown[];
+          }) => Promise<unknown>;
+        };
+        if (authNeededCallback) {
+          await authNeededCallback({
+            uri: 'test://uri',
+            expiration: '2024-12-31T23:59:59.999Z',
+            resourceAbilityRequests: [],
+          });
+        }
+        return { 'mock-session': 'mock-sig' };
+      });
+    });
+
+    it('should get session signatures successfully with default params', async () => {
       const mockAuthSig = {
         sig: 'mock-auth-sig',
         address: mockWalletAddress,
         derivedVia: 'mock',
         signedMessage: 'mock',
       };
+      const mockDomain = 'localhost';
+      const mockStatement = 'Sign in with Ethereum';
+
       (generateAuthSig as jest.Mock).mockReturnValue(Promise.resolve(mockAuthSig));
-      (createSiweMessageWithRecaps as jest.Mock).mockReturnValue(
-        Promise.resolve('mock-siwe-message'),
+      (createSiweMessage as jest.Mock).mockReturnValue(Promise.resolve('mock-siwe-message'));
+
+      await litProvider.getSessionSignatures(
+        mockSigner,
+        mockWalletAddress,
+        mockDomain,
+        mockStatement,
       );
+
+      expect(mockLitClient.connect).toHaveBeenCalled();
+      expect(mockLitClient.getLatestBlockhash).toHaveBeenCalled();
+      expect(LitAccessControlConditionResource).toHaveBeenCalledWith('*');
+      expect(createSiweMessage).toHaveBeenCalledWith({
+        domain: mockDomain,
+        statement: mockStatement,
+        uri: 'test://uri',
+        expiration: '2024-12-31T23:59:59.999Z',
+        resources: [],
+        walletAddress: mockWalletAddress,
+        nonce: 'mock-blockhash',
+        litNodeClient: mockLitClient,
+      });
+      expect(mockLitClient.getSessionSigs).toHaveBeenCalled();
+    });
+
+    it('should get session signatures successfully with undefined domain and statement', async () => {
+      const mockAuthSig = {
+        sig: 'mock-auth-sig',
+        address: mockWalletAddress,
+        derivedVia: 'mock',
+        signedMessage: 'mock',
+      };
+
+      (generateAuthSig as jest.Mock).mockReturnValue(Promise.resolve(mockAuthSig));
+      (createSiweMessage as jest.Mock).mockReturnValue(Promise.resolve('mock-siwe-message'));
 
       await litProvider.getSessionSignatures(mockSigner, mockWalletAddress);
 
       expect(mockLitClient.connect).toHaveBeenCalled();
       expect(mockLitClient.getLatestBlockhash).toHaveBeenCalled();
+      expect(createSiweMessage).toHaveBeenCalledWith({
+        domain: undefined,
+        statement: undefined,
+        uri: 'test://uri',
+        expiration: '2024-12-31T23:59:59.999Z',
+        resources: [],
+        walletAddress: mockWalletAddress,
+        nonce: 'mock-blockhash',
+        litNodeClient: mockLitClient,
+      });
+      expect(mockLitClient.getSessionSigs).toHaveBeenCalled();
+    });
+
+    it('should get session signatures successfully with all custom params', async () => {
+      const mockAuthSig = {
+        sig: 'mock-auth-sig',
+        address: mockWalletAddress,
+        derivedVia: 'mock',
+        signedMessage: 'mock',
+      };
+      const mockDomain = 'custom.domain';
+      const mockStatement = 'Custom statement for signing';
+
+      (generateAuthSig as jest.Mock).mockReturnValue(Promise.resolve(mockAuthSig));
+      (createSiweMessage as jest.Mock).mockReturnValue(Promise.resolve('mock-siwe-message'));
+
+      await litProvider.getSessionSignatures(
+        mockSigner,
+        mockWalletAddress,
+        mockDomain,
+        mockStatement,
+      );
+
+      expect(mockLitClient.connect).toHaveBeenCalled();
+      expect(mockLitClient.getLatestBlockhash).toHaveBeenCalled();
+      expect(createSiweMessage).toHaveBeenCalledWith({
+        domain: mockDomain,
+        statement: mockStatement,
+        uri: expect.any(String),
+        expiration: expect.any(String),
+        resources: expect.any(Array),
+        walletAddress: mockWalletAddress,
+        nonce: 'mock-blockhash',
+        litNodeClient: mockLitClient,
+      });
       expect(mockLitClient.getSessionSigs).toHaveBeenCalled();
     });
 
     it('should not get new signatures if they already exist', async () => {
+      const mockDomain = 'localhost';
+      const mockStatement = 'Sign in with Ethereum';
+
       // Set session signatures
-      await litProvider.getSessionSignatures(mockSigner, mockWalletAddress);
+      await litProvider.getSessionSignatures(
+        mockSigner,
+        mockWalletAddress,
+        mockDomain,
+        mockStatement,
+      );
 
       // Reset mocks
       jest.clearAllMocks();
 
       // Call again, should not call Lit SDK methods
-      await litProvider.getSessionSignatures(mockSigner, mockWalletAddress);
+      await litProvider.getSessionSignatures(
+        mockSigner,
+        mockWalletAddress,
+        mockDomain,
+        mockStatement,
+      );
 
       expect(mockLitClient.connect).not.toHaveBeenCalled();
       expect(mockLitClient.getLatestBlockhash).not.toHaveBeenCalled();
