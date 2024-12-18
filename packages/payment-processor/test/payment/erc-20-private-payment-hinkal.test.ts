@@ -176,8 +176,6 @@ describe('ERC-20 Private Payments With Hinkal', () => {
       const tx = await payErc20ProxyRequestFromHinkalShieldedAddress(requestData, payerWallet);
       const balanceErc20After = await getErc20Balance(requestData, payeeAddress, provider);
 
-      await waitLittle(5); // wait before balance is increased
-
       expect(tx.status).toBe(1);
       expect(tx.from).not.toBe(payerAddress);
       expect(BigNumber.from(balanceErc20Before).lt(BigNumber.from(balanceErc20After)));
@@ -191,8 +189,6 @@ describe('ERC-20 Private Payments With Hinkal', () => {
       const balanceErc20Before = await getErc20Balance(requestData, payeeAddress, provider);
       const tx = await payErc20FeeProxyRequestFromHinkalShieldedAddress(requestData, payerWallet);
       const balanceErc20After = await getErc20Balance(requestData, payeeAddress, provider);
-
-      await waitLittle(5); // wait before balance is increased
 
       expect(tx.status).toBe(1);
       expect(tx.from).not.toBe(payerAddress);
