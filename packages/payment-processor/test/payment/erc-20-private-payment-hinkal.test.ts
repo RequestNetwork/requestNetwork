@@ -180,6 +180,7 @@ describe('ERC-20 Private Payments With Hinkal', () => {
       expect(tx.from).not.toBe(payerAddress);
       expect(BigNumber.from(balanceErc20Before).lt(BigNumber.from(balanceErc20After)));
     });
+
     it('ERC-20 Fee Proxy: Payer is not the same as Origin/Sender of Transaction', async () => {
       const requestData = await createRequestForHinkal(
         payerWallet,
