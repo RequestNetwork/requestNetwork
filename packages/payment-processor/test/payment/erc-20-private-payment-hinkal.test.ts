@@ -138,7 +138,7 @@ const getTokenShieldedBalance = async (
   )?.balance;
 
   if (tokenBalance === undefined) {
-    throw Error('Shiedled Balance calculated incorrectly');
+    throw new Error(`No balance found for token ${tokenAddress} at address ${address}`);
   }
   return tokenBalance;
 };
