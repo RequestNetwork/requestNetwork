@@ -37,7 +37,7 @@ const payeeShieldedAddress =
 
 const RPC_URL = 'https://mainnet.base.org'; // Blockchain RPC endpoint for the Base network
 
-jest.setTimeout(30000); // Set Jest timeout for asynchronous operations (e.g., blockchain calls)
+jest.setTimeout(1000000); // Set Jest timeout for asynchronous operations (e.g., blockchain calls)
 
 /**
  * Function to create a payment request for Hinkal.
