@@ -60,7 +60,7 @@ jobs:
   build:
     docker:
       - *node_image
-    resource_class: large
+    resource_class: xlarge
     working_directory: *working_directory
     steps:
       - checkout
@@ -78,11 +78,14 @@ jobs:
             - ~/.cache/yarn
       - run:
           name: Build all packages with lerna
-          command: 'yarn build --since master'
+          command: 'yarn build'
       - persist_to_workspace:
           root: *working_directory
           paths:
             - ./
+            - ./.nx-cache
+            - packages/*/dist
+            - packages/*/*.tsbuildinfo
   lint:
     docker:
       - *node_image
@@ -108,12 +111,14 @@ jobs:
           name: 'Test unit'
           command: |
             yarn test \
-            --since master \
+            --ignore @requestnetwork/request-node \
+            --ignore @requestnetwork/ethereum-storage \
             --ignore @requestnetwork/request-client.js \
             --ignore @requestnetwork/smart-contracts \
             --ignore @requestnetwork/payment-detection \
             --ignore @requestnetwork/payment-processor \
-            --ignore @requestnetwork/integration-test
+            --ignore @requestnetwork/integration-test \
+            --concurrency=2
       - store_test_results:
           path: packages/advance-logic/reports/
       - store_test_results:
@@ -127,15 +132,11 @@ jobs:
       - store_test_results:
           path: packages/epk-decryption/reports/
       - store_test_results:
-          path: packages/ethereum-storage/reports/
-      - store_test_results:
           path: packages/lit-protocol-cipher/reports/
       - store_test_results:
           path: packages/multi-format/reports/
       - store_test_results:
           path: packages/request-logic/reports/
-      - store_test_results:
-          path: packages/request-node/reports/
       - store_test_results:
           path: packages/thegraph-data-access/reports/
       - store_test_results:
@@ -152,7 +153,7 @@ jobs:
       - *ganache_image
       - *postgres_image
       - *graph_image
-    resource_class: large
+    resource_class: xlarge
     working_directory: *working_directory
     steps:
       - attach_workspace:
@@ -165,11 +166,15 @@ jobs:
           name: 'Test request-client.js, smart-contracts, payment-detection and payment-processor'
           command: |
             yarn test \
-              --since master \
+              --scope @requestnetwork/request-node \
+              --scope @requestnetwork/ethereum-storage \
               --scope @requestnetwork/request-client.js \
               --scope @requestnetwork/smart-contracts \
               --scope @requestnetwork/payment-detection \
-              --scope @requestnetwork/payment-processor
+              --scope @requestnetwork/payment-processor \
+              --concurrency=1
+      - store_test_results:
+          path: packages/request-node/reports/
       - store_test_results:
           path: packages/request-client.js/reports/
       - store_test_results:
@@ -178,6 +183,8 @@ jobs:
           path: packages/payment-detection/reports/
       - store_test_results:
           path: packages/payment-processor/reports/
+      - store_test_results:
+          path: packages/ethereum-storage/reports/
   test-integration-with-request-node:
     docker:
       - *node_image
@@ -203,7 +210,6 @@ jobs:
           name: 'Test integration-test'
           command: |
             yarn test \
-              --since master \
               --scope @requestnetwork/integration-test
       - store_test_results:
           path: packages/integration-test/reports/
@@ -265,6 +271,7 @@ jobs:
     docker:
       - *node_image
     working_directory: *working_directory
+    resource_class: large
     steps:
       - attach_workspace:
           at: *working_directory
@@ -280,13 +287,10 @@ jobs:
             FORCE_PUBLISH=$($(yarn bin)/lerna changed --json | jq '. | map(.name) | join (",")' -r)
             echo $FORCE_PUBLISH
             $(yarn bin)/lerna publish \
-              --conventional-commits  \
-              --conventional-prerelease \
-              --exact \
+              prerelease \
               --no-git-tag-version \
               --no-push \
               --preid next \
-              --no-verify-access \
               --dist-tag next \
               --yes \
               --force-publish=${FORCE_PUBLISH}

@@ -78,7 +78,7 @@ describe('transaction-factory', () => {
           TestData.kmsRaw2.encryptionParams,
           TestData.kmsRaw3.encryptionParams,
         ],
-        TestData.fakeLitProtocolProvider,
+        TestData.fakeLitProtocolCipherProvider,
       );
       // eslint-disable-next-line no-magic-numbers
 
@@ -180,7 +180,7 @@ describe('transaction-factory', () => {
         data,
         channelKey,
         undefined,
-        TestData.fakeLitProtocolProvider,
+        TestData.fakeLitProtocolCipherProvider,
       );
       // eslint-disable-next-line no-magic-numbers
 
@@ -216,7 +216,7 @@ describe('transaction-factory', () => {
           TestData.kmsRaw2.encryptionParams,
           TestData.kmsRaw3.encryptionParams,
         ],
-        TestData.fakeLitProtocolProvider,
+        TestData.fakeLitProtocolCipherProvider,
       );
       // eslint-disable-next-line no-magic-numbers
 

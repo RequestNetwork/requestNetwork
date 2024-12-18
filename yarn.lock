@@ -3392,20 +3392,21 @@
   resolved "https://registry.yarnpkg.com/@lit-labs/ssr-dom-shim/-/ssr-dom-shim-1.2.1.tgz#2f3a8f1d688935c704dbc89132394a41029acbb8"
   integrity sha512-wx4aBmgeGvFmOKucFKY+8VFJSYZxs9poN3SDNQFF6lT6NrQUnHiPB2PWz2sc4ieEcAaYYzN+1uWahEeTq2aRIQ==
 
-"@lit-protocol/access-control-conditions@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/access-control-conditions/-/access-control-conditions-7.0.0.tgz#9e2c783f87aef3525ed012bab71c6eb1a9a29ee4"
-  integrity sha512-HzsiJlPQiJEa00syX9r+9ful0NPurgp2i/V0bwe17IyFdg71ENNLRSzCA+O8Yrnox+J6aqMFLwTgTvPXICyZeQ==
+"@lit-protocol/access-control-conditions@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/access-control-conditions/-/access-control-conditions-7.0.2.tgz#086e61827c356dd4ba02a7d8933d21dba2eecbd0"
+  integrity sha512-didWaPND1kCGzGNPI8S9lvQriMf2wIKZHCJIecofAT3JLolrcNk6LqXfIBgPSeZbyOAbH91kpHKN7PI0zyQtEQ==
   dependencies:
     "@ethersproject/abstract-provider" "5.7.0"
     "@ethersproject/contracts" "5.7.0"
     "@ethersproject/providers" "5.7.2"
-    "@lit-protocol/accs-schemas" "^0.0.15"
-    "@lit-protocol/constants" "7.0.0"
-    "@lit-protocol/logger" "7.0.0"
-    "@lit-protocol/misc" "7.0.0"
-    "@lit-protocol/types" "7.0.0"
-    "@lit-protocol/uint8arrays" "7.0.0"
+    "@lit-protocol/accs-schemas" "^0.0.20"
+    "@lit-protocol/constants" "7.0.2"
+    "@lit-protocol/contracts" "^0.0.74"
+    "@lit-protocol/logger" "7.0.2"
+    "@lit-protocol/misc" "7.0.2"
+    "@lit-protocol/types" "7.0.2"
+    "@lit-protocol/uint8arrays" "7.0.2"
     "@openagenda/verror" "^3.1.4"
     ajv "^8.12.0"
     bech32 "^2.0.0"
@@ -3415,17 +3416,17 @@
     tslib "1.14.1"
     util "0.12.5"
 
-"@lit-protocol/accs-schemas@^0.0.15":
-  version "0.0.15"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/accs-schemas/-/accs-schemas-0.0.15.tgz#00e31c6959834da6387049cf52bce29c84f0f9da"
-  integrity sha512-GYF8BolqrU2H/uXr3D39TUbgFN/3u2d68oHHNfwg926iEsCEHwGmUOPvi4EMprV5lJR3EVn9IQODY/4eokJ6Rg==
+"@lit-protocol/accs-schemas@^0.0.20":
+  version "0.0.20"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/accs-schemas/-/accs-schemas-0.0.20.tgz#64d1151002f63aa0a54ba2be92bf44edefb0eb1e"
+  integrity sha512-JHHX0q45nq1uQ4olkg4VIGLW9lzMnRRldeTDuOrOaoPVztz+2iSOjwzb+QmuSuKFQpP5SOej2zoQB+K8b22KDw==
   dependencies:
     ajv "^8.12.0"
 
-"@lit-protocol/auth-browser@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/auth-browser/-/auth-browser-7.0.0.tgz#67fe2c9748f9199ef50dcae3cadf916af4d134bd"
-  integrity sha512-DYoucBiTXCv1sdtUCTbYC4DApuezrtLXTK3bdW0KLLIY9aBBq0C9i4FwIPQjkz9e7S0rXUwI7d0QL3HV5NnK7Q==
+"@lit-protocol/auth-browser@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/auth-browser/-/auth-browser-7.0.2.tgz#0e23869c8147fa0739e194ada6bace1d1cd7aeac"
+  integrity sha512-zXNxJTmQle2rzede2x8L9m0ai72yRwtfye1ugJMBptSaiWMhkZHN3kiwBvXWusy35COOeq08NDVdvr2nsf9pGw==
   dependencies:
     "@ethersproject/abstract-provider" "5.7.0"
     "@ethersproject/bytes" "5.7.0"
@@ -3433,13 +3434,13 @@
     "@ethersproject/providers" "5.7.2"
     "@ethersproject/strings" "5.7.0"
     "@ethersproject/wallet" "5.7.0"
-    "@lit-protocol/accs-schemas" "^0.0.15"
-    "@lit-protocol/constants" "7.0.0"
-    "@lit-protocol/logger" "7.0.0"
-    "@lit-protocol/misc" "7.0.0"
-    "@lit-protocol/misc-browser" "7.0.0"
-    "@lit-protocol/types" "7.0.0"
-    "@lit-protocol/uint8arrays" "7.0.0"
+    "@lit-protocol/accs-schemas" "^0.0.20"
+    "@lit-protocol/constants" "7.0.2"
+    "@lit-protocol/logger" "7.0.2"
+    "@lit-protocol/misc" "7.0.2"
+    "@lit-protocol/misc-browser" "7.0.2"
+    "@lit-protocol/types" "7.0.2"
+    "@lit-protocol/uint8arrays" "7.0.2"
     "@openagenda/verror" "^3.1.4"
     ajv "^8.12.0"
     bech32 "^2.0.0"
@@ -3447,21 +3448,22 @@
     ethers "^5.7.1"
     tslib "1.14.1"
 
-"@lit-protocol/auth-helpers@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/auth-helpers/-/auth-helpers-7.0.0.tgz#96081f573082f8d1113fa28e0c5eee549dd6b251"
-  integrity sha512-7psSirXq6aNJhauzgHgMRFPcBOTZ8BYkaYc70sL70yxVcbjXaoye4pNCyNYNqmvZ8SSxcAaFcwPc5V1SHKNSBw==
+"@lit-protocol/auth-helpers@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/auth-helpers/-/auth-helpers-7.0.2.tgz#a9a08c89e11d5c757e245b3e1d5fe5020f5574b5"
+  integrity sha512-8917XgmuAEzXWPsyYSQcAlzmDWJ4xKabMroGObduY1RtsD0yq1o3azt+8kW0J7YDLmGRBGTGvVh2c1IQpCzXfQ==
   dependencies:
     "@ethersproject/abstract-provider" "5.7.0"
     "@ethersproject/contracts" "5.7.0"
     "@ethersproject/providers" "5.7.2"
-    "@lit-protocol/access-control-conditions" "7.0.0"
-    "@lit-protocol/accs-schemas" "^0.0.15"
-    "@lit-protocol/constants" "7.0.0"
-    "@lit-protocol/logger" "7.0.0"
-    "@lit-protocol/misc" "7.0.0"
-    "@lit-protocol/types" "7.0.0"
-    "@lit-protocol/uint8arrays" "7.0.0"
+    "@lit-protocol/access-control-conditions" "7.0.2"
+    "@lit-protocol/accs-schemas" "^0.0.20"
+    "@lit-protocol/constants" "7.0.2"
+    "@lit-protocol/contracts" "^0.0.74"
+    "@lit-protocol/logger" "7.0.2"
+    "@lit-protocol/misc" "7.0.2"
+    "@lit-protocol/types" "7.0.2"
+    "@lit-protocol/uint8arrays" "7.0.2"
     "@openagenda/verror" "^3.1.4"
     ajv "^8.12.0"
     bech32 "^2.0.0"
@@ -3472,34 +3474,36 @@
     tslib "1.14.1"
     util "0.12.5"
 
-"@lit-protocol/constants@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/constants/-/constants-7.0.0.tgz#de18cf1392af9de116b3057a20fde900844740ff"
-  integrity sha512-pIxhY+fTswqWWM/DNRYOOLEYOWE+aQiacvJMl/MXvLk2MjG87AIWdpv5ZNpho5qy6MSfF7ig4WTgv4rjvNwfgA==
+"@lit-protocol/constants@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/constants/-/constants-7.0.2.tgz#2c642aa7feff0b667cef06a8cbb59c7044ef3801"
+  integrity sha512-A2tpsB7pCGHiC+VrPAHBaEGyb/9crCkcSIj8BtGPrLRszFZO8EHKWziM7WiMM2c2mYb+B4dKtGGUkxxCAarqaQ==
   dependencies:
     "@ethersproject/abstract-provider" "5.7.0"
-    "@lit-protocol/accs-schemas" "^0.0.15"
-    "@lit-protocol/types" "7.0.0"
+    "@lit-protocol/accs-schemas" "^0.0.20"
+    "@lit-protocol/contracts" "^0.0.74"
+    "@lit-protocol/types" "7.0.2"
     "@openagenda/verror" "^3.1.4"
     depd "^2.0.0"
     ethers "^5.7.1"
     siwe "^2.3.2"
     tslib "1.14.1"
 
-"@lit-protocol/contracts-sdk@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/contracts-sdk/-/contracts-sdk-7.0.0.tgz#7b8ecedb8b532cdf1e0f78e38180e712275cee8b"
-  integrity sha512-lgNQsyZ0K8W3msW9fDPGF7nx7isQtdAq3dE4S0xUz9FzaOWzO88/z/UpQ4eIABhhCZddZLA2c9397keErl8SnQ==
+"@lit-protocol/contracts-sdk@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/contracts-sdk/-/contracts-sdk-7.0.2.tgz#5192071b32f54cceb11aff6b8661e5cbbf3864f2"
+  integrity sha512-EQs0l3v+tRdItuRamo675obkAPHGmQnef0WZ1cY0nNn97zRBGbkYPfkHMBxrUoGwbcsFQPMHDynrGTzAiUM7Zw==
   dependencies:
     "@ethersproject/abi" "5.7.0"
     "@ethersproject/abstract-provider" "5.7.0"
     "@ethersproject/contracts" "5.7.0"
     "@ethersproject/providers" "5.7.2"
-    "@lit-protocol/accs-schemas" "^0.0.15"
-    "@lit-protocol/constants" "7.0.0"
-    "@lit-protocol/logger" "7.0.0"
-    "@lit-protocol/misc" "7.0.0"
-    "@lit-protocol/types" "7.0.0"
+    "@lit-protocol/accs-schemas" "^0.0.20"
+    "@lit-protocol/constants" "7.0.2"
+    "@lit-protocol/contracts" "^0.0.74"
+    "@lit-protocol/logger" "7.0.2"
+    "@lit-protocol/misc" "7.0.2"
+    "@lit-protocol/types" "7.0.2"
     "@openagenda/verror" "^3.1.4"
     ajv "^8.12.0"
     bech32 "^2.0.0"
@@ -3511,31 +3515,32 @@
     tslib "1.14.1"
     util "0.12.5"
 
-"@lit-protocol/contracts@0.0.74":
+"@lit-protocol/contracts@0.0.74", "@lit-protocol/contracts@^0.0.74":
   version "0.0.74"
   resolved "https://registry.yarnpkg.com/@lit-protocol/contracts/-/contracts-0.0.74.tgz#e726a9190c86b10cc6df3a392cd04d19057be27d"
   integrity sha512-8uV038gzBp7ew7a4884SVt9Zhu8CtiTb+A8dKNnByxVoT1kFt4O4DmsaniV8p9AGjNR13IWfpU1NFChmPHVIpQ==
 
-"@lit-protocol/core@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/core/-/core-7.0.0.tgz#50735e41df9e432f358380ea241e9acd80853cbb"
-  integrity sha512-O8plnz6jRDus9sF23rjkZ1ANJLUV3tAD/PUWqlcCJsFzuh0Cl62hZx7bRvpMz41wX9P/DPQnSksVEJUq0gM79w==
+"@lit-protocol/core@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/core/-/core-7.0.2.tgz#9629ce28a6e33165188a0928207af0b17ba52ac4"
+  integrity sha512-BANcnKQyqBD5ZGfDAPEJBhtzhc4bYuka8xyb2/ueCleaWOe0NgwW/z/CJ6Q/eSysO9smi0Z7bQy5a4xDBGNjHA==
   dependencies:
     "@ethersproject/abi" "5.7.0"
     "@ethersproject/abstract-provider" "5.7.0"
     "@ethersproject/contracts" "5.7.0"
     "@ethersproject/providers" "5.7.2"
-    "@lit-protocol/access-control-conditions" "7.0.0"
-    "@lit-protocol/accs-schemas" "^0.0.15"
-    "@lit-protocol/constants" "7.0.0"
-    "@lit-protocol/contracts-sdk" "7.0.0"
-    "@lit-protocol/crypto" "7.0.0"
-    "@lit-protocol/logger" "7.0.0"
-    "@lit-protocol/misc" "7.0.0"
-    "@lit-protocol/nacl" "7.0.0"
-    "@lit-protocol/types" "7.0.0"
-    "@lit-protocol/uint8arrays" "7.0.0"
-    "@lit-protocol/wasm" "7.0.0"
+    "@lit-protocol/access-control-conditions" "7.0.2"
+    "@lit-protocol/accs-schemas" "^0.0.20"
+    "@lit-protocol/constants" "7.0.2"
+    "@lit-protocol/contracts" "^0.0.74"
+    "@lit-protocol/contracts-sdk" "7.0.2"
+    "@lit-protocol/crypto" "7.0.2"
+    "@lit-protocol/logger" "7.0.2"
+    "@lit-protocol/misc" "7.0.2"
+    "@lit-protocol/nacl" "7.0.2"
+    "@lit-protocol/types" "7.0.2"
+    "@lit-protocol/uint8arrays" "7.0.2"
+    "@lit-protocol/wasm" "7.0.2"
     "@openagenda/verror" "^3.1.4"
     ajv "^8.12.0"
     bech32 "^2.0.0"
@@ -3550,22 +3555,23 @@
     tslib "1.14.1"
     util "0.12.5"
 
-"@lit-protocol/crypto@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/crypto/-/crypto-7.0.0.tgz#edba7706118b3ca348d6e87aaa640bc81ec55603"
-  integrity sha512-QJPqLkuli/QBxX0en1gSRU0Q9GZfUkFiXdYwclWKhYZFBTXeOWvd0bFIYTzDhU2FpMCtPi12Qw+p7FjHAURdXw==
+"@lit-protocol/crypto@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/crypto/-/crypto-7.0.2.tgz#68306d131ecc51526fd4ba85b5cfd8a7594bd006"
+  integrity sha512-zgnOo3+LnRkIxGHro3QSsDmS3PPIH6nLrkBDp/+DigHL41H0zehdQbHMGxTQqzxtqpMFt9FARdAN0/CfHm/9Ow==
   dependencies:
     "@ethersproject/abstract-provider" "5.7.0"
     "@ethersproject/contracts" "5.7.0"
     "@ethersproject/providers" "5.7.2"
-    "@lit-protocol/accs-schemas" "^0.0.15"
-    "@lit-protocol/constants" "7.0.0"
-    "@lit-protocol/logger" "7.0.0"
-    "@lit-protocol/misc" "7.0.0"
-    "@lit-protocol/nacl" "7.0.0"
-    "@lit-protocol/types" "7.0.0"
-    "@lit-protocol/uint8arrays" "7.0.0"
-    "@lit-protocol/wasm" "7.0.0"
+    "@lit-protocol/accs-schemas" "^0.0.20"
+    "@lit-protocol/constants" "7.0.2"
+    "@lit-protocol/contracts" "^0.0.74"
+    "@lit-protocol/logger" "7.0.2"
+    "@lit-protocol/misc" "7.0.2"
+    "@lit-protocol/nacl" "7.0.2"
+    "@lit-protocol/types" "7.0.2"
+    "@lit-protocol/uint8arrays" "7.0.2"
+    "@lit-protocol/wasm" "7.0.2"
     "@openagenda/verror" "^3.1.4"
     ajv "^8.12.0"
     bech32 "^2.0.0"
@@ -3576,20 +3582,21 @@
     tslib "1.14.1"
     util "0.12.5"
 
-"@lit-protocol/encryption@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/encryption/-/encryption-7.0.0.tgz#b41734fb277b57d6305116be503d8ff5ff593395"
-  integrity sha512-Ip0+ukmCVYLF5rSMnFWPSIPus05ZP3eAes2iu8Gb4rn7GsTTGnK7qkQ8KFi15D5DYPYu+8x/qARSz1KZPB6tXw==
+"@lit-protocol/encryption@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/encryption/-/encryption-7.0.2.tgz#ecf3ffac5a17345a3018e0ff7ffac5cca63dd3d0"
+  integrity sha512-OeHDPkvVMiY86vkQ1LTNog06QLXmKXMleaz+WmJy4Qc6GkOARuuJtJW/1uZjOcwcaCGzvPSWjBasb8O1K6t4FQ==
   dependencies:
     "@ethersproject/abstract-provider" "5.7.0"
     "@ethersproject/contracts" "5.7.0"
     "@ethersproject/providers" "5.7.2"
-    "@lit-protocol/accs-schemas" "^0.0.15"
-    "@lit-protocol/constants" "7.0.0"
-    "@lit-protocol/logger" "7.0.0"
-    "@lit-protocol/misc" "7.0.0"
-    "@lit-protocol/types" "7.0.0"
-    "@lit-protocol/uint8arrays" "7.0.0"
+    "@lit-protocol/accs-schemas" "^0.0.20"
+    "@lit-protocol/constants" "7.0.2"
+    "@lit-protocol/contracts" "^0.0.74"
+    "@lit-protocol/logger" "7.0.2"
+    "@lit-protocol/misc" "7.0.2"
+    "@lit-protocol/types" "7.0.2"
+    "@lit-protocol/uint8arrays" "7.0.2"
     "@openagenda/verror" "^3.1.4"
     ajv "^8.12.0"
     bech32 "^2.0.0"
@@ -3599,30 +3606,31 @@
     tslib "1.14.1"
     util "0.12.5"
 
-"@lit-protocol/lit-node-client-nodejs@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/lit-node-client-nodejs/-/lit-node-client-nodejs-7.0.0.tgz#e23f4851981fcc32563e1ca1a6009fd97c1d2113"
-  integrity sha512-15aCAwZSekZagoHk7ne1DsoB+hFP0y9TR4JhaWQlLExcXrUTcoHdkebmO52XghxxWFLbCRQOpBrv9lBEmx4NWA==
+"@lit-protocol/lit-node-client-nodejs@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/lit-node-client-nodejs/-/lit-node-client-nodejs-7.0.2.tgz#a744d86919a6719dba20fdfc83356e08411b92b6"
+  integrity sha512-HUPCKRFxObK+XM9lPlWtbx+PqQoQl4OrRN7Lw/sIXew+wdozYgcMAMEbrB/xlCmJB+eFccu/06V4URSXQ22jXQ==
   dependencies:
     "@ethersproject/abi" "5.7.0"
     "@ethersproject/abstract-provider" "5.7.0"
     "@ethersproject/contracts" "5.7.0"
     "@ethersproject/providers" "5.7.2"
     "@ethersproject/transactions" "5.7.0"
-    "@lit-protocol/access-control-conditions" "7.0.0"
-    "@lit-protocol/accs-schemas" "^0.0.15"
-    "@lit-protocol/auth-helpers" "7.0.0"
-    "@lit-protocol/constants" "7.0.0"
-    "@lit-protocol/contracts-sdk" "7.0.0"
-    "@lit-protocol/core" "7.0.0"
-    "@lit-protocol/crypto" "7.0.0"
-    "@lit-protocol/logger" "7.0.0"
-    "@lit-protocol/misc" "7.0.0"
-    "@lit-protocol/misc-browser" "7.0.0"
-    "@lit-protocol/nacl" "7.0.0"
-    "@lit-protocol/types" "7.0.0"
-    "@lit-protocol/uint8arrays" "7.0.0"
-    "@lit-protocol/wasm" "7.0.0"
+    "@lit-protocol/access-control-conditions" "7.0.2"
+    "@lit-protocol/accs-schemas" "^0.0.20"
+    "@lit-protocol/auth-helpers" "7.0.2"
+    "@lit-protocol/constants" "7.0.2"
+    "@lit-protocol/contracts" "^0.0.74"
+    "@lit-protocol/contracts-sdk" "7.0.2"
+    "@lit-protocol/core" "7.0.2"
+    "@lit-protocol/crypto" "7.0.2"
+    "@lit-protocol/logger" "7.0.2"
+    "@lit-protocol/misc" "7.0.2"
+    "@lit-protocol/misc-browser" "7.0.2"
+    "@lit-protocol/nacl" "7.0.2"
+    "@lit-protocol/types" "7.0.2"
+    "@lit-protocol/uint8arrays" "7.0.2"
+    "@lit-protocol/wasm" "7.0.2"
     "@openagenda/verror" "^3.1.4"
     ajv "^8.12.0"
     bech32 "^2.0.0"
@@ -3639,10 +3647,10 @@
     tslib "1.14.1"
     util "0.12.5"
 
-"@lit-protocol/lit-node-client@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/lit-node-client/-/lit-node-client-7.0.0.tgz#d5c705a93b2215991e87019fddb20a81687935db"
-  integrity sha512-qn9DN3bkdWZegmAguGT5WN1IGlWpHuKqgUMjf3rCbQUoJ94sjFW3QCTPEOMCc4AX9yI6e+514/B38+MWAcF+eg==
+"@lit-protocol/lit-node-client@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/lit-node-client/-/lit-node-client-7.0.2.tgz#5d53fbf1ee62c167ec5be03ae05195057994c3f9"
+  integrity sha512-8zESXAA9HdRBLsjyljLuIpS2yzDv7jspW0MUe54XmHYHo87WE4G/q4WCjkKwRnKaeG0Jh5+/kb6j81AnLpWKFQ==
   dependencies:
     "@ethersproject/abi" "5.7.0"
     "@ethersproject/abstract-provider" "5.7.0"
@@ -3652,22 +3660,23 @@
     "@ethersproject/strings" "5.7.0"
     "@ethersproject/transactions" "5.7.0"
     "@ethersproject/wallet" "5.7.0"
-    "@lit-protocol/access-control-conditions" "7.0.0"
-    "@lit-protocol/accs-schemas" "^0.0.15"
-    "@lit-protocol/auth-browser" "7.0.0"
-    "@lit-protocol/auth-helpers" "7.0.0"
-    "@lit-protocol/constants" "7.0.0"
-    "@lit-protocol/contracts-sdk" "7.0.0"
-    "@lit-protocol/core" "7.0.0"
-    "@lit-protocol/crypto" "7.0.0"
-    "@lit-protocol/lit-node-client-nodejs" "7.0.0"
-    "@lit-protocol/logger" "7.0.0"
-    "@lit-protocol/misc" "7.0.0"
-    "@lit-protocol/misc-browser" "7.0.0"
-    "@lit-protocol/nacl" "7.0.0"
-    "@lit-protocol/types" "7.0.0"
-    "@lit-protocol/uint8arrays" "7.0.0"
-    "@lit-protocol/wasm" "7.0.0"
+    "@lit-protocol/access-control-conditions" "7.0.2"
+    "@lit-protocol/accs-schemas" "^0.0.20"
+    "@lit-protocol/auth-browser" "7.0.2"
+    "@lit-protocol/auth-helpers" "7.0.2"
+    "@lit-protocol/constants" "7.0.2"
+    "@lit-protocol/contracts" "^0.0.74"
+    "@lit-protocol/contracts-sdk" "7.0.2"
+    "@lit-protocol/core" "7.0.2"
+    "@lit-protocol/crypto" "7.0.2"
+    "@lit-protocol/lit-node-client-nodejs" "7.0.2"
+    "@lit-protocol/logger" "7.0.2"
+    "@lit-protocol/misc" "7.0.2"
+    "@lit-protocol/misc-browser" "7.0.2"
+    "@lit-protocol/nacl" "7.0.2"
+    "@lit-protocol/types" "7.0.2"
+    "@lit-protocol/uint8arrays" "7.0.2"
+    "@lit-protocol/wasm" "7.0.2"
     "@openagenda/verror" "^3.1.4"
     "@walletconnect/ethereum-provider" "2.9.2"
     ajv "^8.12.0"
@@ -3686,49 +3695,52 @@
     tweetnacl-util "^0.15.1"
     util "0.12.5"
 
-"@lit-protocol/logger@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/logger/-/logger-7.0.0.tgz#856f91dd62b338be78948c126ad87e1a2d50f422"
-  integrity sha512-gI/bK+Ea97a8CKMzd4MUoRFSy7eoEMzh6RsJ1lrkgod1tDrW91ktVc0qmzgvwNdwuOM45g+2T77DBDqaaB75iw==
+"@lit-protocol/logger@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/logger/-/logger-7.0.2.tgz#2d28eb73ed3a0771655e03efe75bc27ccf3b7c1a"
+  integrity sha512-44VsSlLWVxIVG9m5GIkvdXSfd4gyCNToNN0uor41cQTYLbyvasgTfyi12XPNwfFZU7FNMrYpt+Jgig2SqrzXVg==
   dependencies:
     "@ethersproject/abstract-provider" "5.7.0"
-    "@lit-protocol/accs-schemas" "^0.0.15"
-    "@lit-protocol/constants" "7.0.0"
-    "@lit-protocol/types" "7.0.0"
+    "@lit-protocol/accs-schemas" "^0.0.20"
+    "@lit-protocol/constants" "7.0.2"
+    "@lit-protocol/contracts" "^0.0.74"
+    "@lit-protocol/types" "7.0.2"
     "@openagenda/verror" "^3.1.4"
     depd "^2.0.0"
     ethers "^5.7.1"
     siwe "^2.3.2"
     tslib "1.14.1"
 
-"@lit-protocol/misc-browser@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/misc-browser/-/misc-browser-7.0.0.tgz#c5b1616a01b0761131cd145d961fbae7d02cd8ab"
-  integrity sha512-x54F4FRhIlugDB5LdErHBZCSlAF8I+Q9qCGObwddut77spYafOuVPsrtrLE/oDLYRcaAFOX7wWKYSxsZpOc53g==
+"@lit-protocol/misc-browser@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/misc-browser/-/misc-browser-7.0.2.tgz#2bff97961a17b3fc990974cf296088f6dd7e9e68"
+  integrity sha512-T9L4j3U6P+/0uI30NB2lCZM2PVPDI6G9JkrBn7PBIgzwynK9jtUHxwmxMk16qrUV9MvVCYSEt+tqEvOI5S/gMg==
   dependencies:
     "@ethersproject/abstract-provider" "5.7.0"
-    "@lit-protocol/accs-schemas" "^0.0.15"
-    "@lit-protocol/constants" "7.0.0"
-    "@lit-protocol/types" "7.0.0"
-    "@lit-protocol/uint8arrays" "7.0.0"
+    "@lit-protocol/accs-schemas" "^0.0.20"
+    "@lit-protocol/constants" "7.0.2"
+    "@lit-protocol/contracts" "^0.0.74"
+    "@lit-protocol/types" "7.0.2"
+    "@lit-protocol/uint8arrays" "7.0.2"
     "@openagenda/verror" "^3.1.4"
     depd "^2.0.0"
     ethers "^5.7.1"
     siwe "^2.3.2"
     tslib "1.14.1"
 
-"@lit-protocol/misc@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/misc/-/misc-7.0.0.tgz#996f6443bb8884bac8e33f3a9086bd06d2261a55"
-  integrity sha512-5BDKukR/QzzFjoaYBUdpVM7R/GWIoOuQRzwM3myUjF+d4OR9imcRIeq9k8oQBAEPc+AoTimgn1aWxpEQMFrrGQ==
+"@lit-protocol/misc@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/misc/-/misc-7.0.2.tgz#b8da1cb4107d84c8d37391d8c2992960a438f1c9"
+  integrity sha512-ZUU4j3E+VnCY11oPLGop95UkAUzTiBmPfiCXwFYGmh6PDvHXZlRC1Qc+3aC5lFpocoBTTJ/uE2MQZpHyN0kRlQ==
   dependencies:
     "@ethersproject/abstract-provider" "5.7.0"
     "@ethersproject/contracts" "5.7.0"
     "@ethersproject/providers" "5.7.2"
-    "@lit-protocol/accs-schemas" "^0.0.15"
-    "@lit-protocol/constants" "7.0.0"
-    "@lit-protocol/logger" "7.0.0"
-    "@lit-protocol/types" "7.0.0"
+    "@lit-protocol/accs-schemas" "^0.0.20"
+    "@lit-protocol/constants" "7.0.2"
+    "@lit-protocol/contracts" "^0.0.74"
+    "@lit-protocol/logger" "7.0.2"
+    "@lit-protocol/types" "7.0.2"
     "@openagenda/verror" "^3.1.4"
     ajv "^8.12.0"
     bech32 "^2.0.0"
@@ -3738,44 +3750,45 @@
     tslib "1.14.1"
     util "0.12.5"
 
-"@lit-protocol/nacl@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/nacl/-/nacl-7.0.0.tgz#a85352050efa9a49d8bad6e08c45b1517ed1fcb6"
-  integrity sha512-tkcT4pf6kKJKT2h+8tH/qqf/Yi1Wug7lUodbiAxWMM859vjzKc2IKozfw5bcQ7UZsz9+xrHvDnD+d7dD1kHqMQ==
+"@lit-protocol/nacl@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/nacl/-/nacl-7.0.2.tgz#31d004c9672078354d258d35e39ccb2d01c944ad"
+  integrity sha512-jdtquJ1iZCgIdKlVP0zAJlVfttLWLG2T6EsKFDp3o1lxEKtiUkKqbM1VGXihQVJQ6kFtmb3PJdMDRYDkOq1bhw==
   dependencies:
     tslib "1.14.1"
 
-"@lit-protocol/types@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/types/-/types-7.0.0.tgz#a37ee86814bbe55e4f0853e956858a22acf9010e"
-  integrity sha512-QEHeumd5rsfh9XJp7SpCT1b0xy4vzjt0UKssTzsymvBAGkjTXGtNkshO8GHgNm+nf32NmXhncTqTnIGACJw1Ew==
+"@lit-protocol/types@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/types/-/types-7.0.2.tgz#2c4c0032a4210ab31f47d25e4266b8731234c8de"
+  integrity sha512-rEBZoeSByaMxXiP7w3g6/d180d8AbL4xpLqIlZchfJfAcSFkTseByV1d4h/J3LHl+3Q10wQsJT0N+qIi9kZbqA==
   dependencies:
     "@ethersproject/abstract-provider" "5.7.0"
-    "@lit-protocol/accs-schemas" "^0.0.15"
+    "@lit-protocol/accs-schemas" "^0.0.20"
     depd "^2.0.0"
     ethers "^5.7.1"
     siwe "^2.3.2"
     tslib "1.14.1"
 
-"@lit-protocol/uint8arrays@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/uint8arrays/-/uint8arrays-7.0.0.tgz#26fe8b56409db7b63a7ac9bc6e1f62959b6be22a"
-  integrity sha512-oFZ0nokC67Qd+ilbG2+2V/EnE+1+4NugqWdaMcY7cuBB943D1oC6n6xLiNQcI1wpmB4cAvfvemGJ8toz+JQpZQ==
+"@lit-protocol/uint8arrays@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/uint8arrays/-/uint8arrays-7.0.2.tgz#2d6f65edca8d82d2c8bc1b654b7b0659c880b331"
+  integrity sha512-lwytcoJOQGtwrAU5qdRc3nkNWy4uND17HZux447eljgwJUGYeLFxNDfx8qtveues1MKAbvSOHtUmxmhpN1aHyQ==
   dependencies:
     "@ethersproject/abstract-provider" "5.7.0"
-    "@lit-protocol/accs-schemas" "^0.0.15"
-    "@lit-protocol/constants" "7.0.0"
-    "@lit-protocol/types" "7.0.0"
+    "@lit-protocol/accs-schemas" "^0.0.20"
+    "@lit-protocol/constants" "7.0.2"
+    "@lit-protocol/contracts" "^0.0.74"
+    "@lit-protocol/types" "7.0.2"
     "@openagenda/verror" "^3.1.4"
     depd "^2.0.0"
     ethers "^5.7.1"
     siwe "^2.3.2"
     tslib "1.14.1"
 
-"@lit-protocol/wasm@7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@lit-protocol/wasm/-/wasm-7.0.0.tgz#e26bd21818ad09281b41418cc4d7d5e92cdb4dfe"
-  integrity sha512-YaADtQ4h/nQ56PRqzDm7sbnJkbdtQkQ27FJfEVtOiUvVRuoaCypLgulcxLbh+7VuNuEZ9ASMVQ0JLqES/+XFDg==
+"@lit-protocol/wasm@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@lit-protocol/wasm/-/wasm-7.0.2.tgz#9b27aa18e810911832e02cc2898fadbb9e5a21ed"
+  integrity sha512-e5sRe6Oi0ZSCjZZjL96jkbPE6UbxM1OYIrL3CFUo6IeoNZ/ZyYudHrM92v3ZEhiTfJDRnJDv0t3b2hpUz88cIQ==
   dependencies:
     ethers "^5.7.1"
     pako "^2.1.0"

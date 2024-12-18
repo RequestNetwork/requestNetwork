@@ -1,1 +1,1 @@
-export { default as LitProtocolProvider } from './lit-protocol-cipher-provider';
+export { default as LitProtocolCipherProvider } from './lit-protocol-cipher-provider';
