@@ -35,7 +35,8 @@
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "prepare": "yarn run build",
-    "test": "jest --runInBand",
+    "test": "jest --testPathIgnorePatterns test/payment/erc-20-private-payment-hinkal.test.ts --runInBand",
+    "test:hinkal": "jest test/payment/erc-20-private-payment-hinkal.test.ts --runInBand",
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
