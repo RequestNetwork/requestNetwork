@@ -24,15 +24,15 @@ const fee = ethers.utils.parseUnits('0.000001', 6).toString();
 // 2) sends funds from his EOA to the shielded address of the payee
 // 3) sends funds from hiw EOA to his own shielded address
 // Note: to successfully run the tests, you will need to top up payer's EOA address with ETH and USDC on Base
-const payerMnemonic = process.env.HINKAL_TEST_PAYER_MNEMONIC;
-const payerAddress = process.env.HINKAL_TEST_PAYER_ADDRESS;
+const payerMnemonic = process.env.HINKAL_TEST_PAYER_MNEMONIC as string;
+const payerAddress = process.env.HINKAL_TEST_PAYER_ADDRESS as string;
 // Payee:
 // 1) receives funds on her public EOA address
 // 2) receives funds on her shielded address
 // The private key of a public address grant ownership of the corresponding shielded address. In @hinkal/common, a single public address can have only one shielded address.
-const payeeAddress = process.env.HINKAL_TEST_PAYEE_ADDRESS;
-const payeePrivateKey = process.env.HINKAL_TEST_PAYEE_PRIVATE_KEY;
-const payeeShieldedAddress = process.env.HINKAL_TEST_PAYEE_SHIELDED_ADDRESS;
+const payeeAddress = process.env.HINKAL_TEST_PAYEE_ADDRESS as string;
+const payeePrivateKey = process.env.HINKAL_TEST_PAYEE_PRIVATE_KEY as string;
+const payeeShieldedAddress = process.env.HINKAL_TEST_PAYEE_SHIELDED_ADDRESS as string;
 
 const RPC_URL = 'https://mainnet.base.org'; // Blockchain RPC endpoint for the Base network
 
