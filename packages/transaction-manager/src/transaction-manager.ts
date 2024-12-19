@@ -4,6 +4,7 @@ import {
   DataAccessTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
+  StorageTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
@@ -195,14 +196,9 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     page?: number,
     pageSize?: number,
   ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
-    const resultGetTx = await this.dataAccess.getChannelsByTopic(
-      topic,
-      updatedBetween,
-      page,
-      pageSize,
-    );
+    const resultGetTx = await this.dataAccess.getChannelsByTopic(topic, updatedBetween);
 
-    return this.parseMultipleChannels(resultGetTx);
+    return this.parseMultipleChannels(resultGetTx, page, pageSize);
   }
 
   /**
@@ -218,14 +214,9 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     page?: number,
     pageSize?: number,
   ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
-    const resultGetTx = await this.dataAccess.getChannelsByMultipleTopics(
-      topics,
-      updatedBetween,
-      page,
-      pageSize,
-    );
+    const resultGetTx = await this.dataAccess.getChannelsByMultipleTopics(topics, updatedBetween);
 
-    return this.parseMultipleChannels(resultGetTx);
+    return this.parseMultipleChannels(resultGetTx, page, pageSize);
   }
 
   /**
@@ -236,31 +227,122 @@ export default class TransactionManager implements TransactionTypes.ITransaction
    */
   private async parseMultipleChannels(
     resultGetTx: DataAccessTypes.IReturnGetChannelsByTopic,
+    page?: number,
+    pageSize?: number,
   ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
-    // Get the channels from the data-access layers to decrypt and clean them one by one
-    const result = await Object.keys(resultGetTx.result.transactions).reduce(
-      async (accumulatorPromise, channelId) => {
-        const cleaned = await this.channelParser.decryptAndCleanChannel(
-          channelId,
-          resultGetTx.result.transactions[channelId],
-        );
+    // Get all channel IDs
+    const allChannelIds = Object.keys(resultGetTx.result.transactions).sort();
 
-        // await for the accumulator promise at the end to parallelize the calls to decryptAndCleanChannel()
-        const accumulator: any = await accumulatorPromise;
+    const result = {
+      transactions: {} as Record<string, TransactionTypes.ITransaction[]>,
+      ignoredTransactions: {} as Record<string, TransactionTypes.ITransaction[]>,
+    };
 
-        accumulator.transactions[channelId] = cleaned.transactions;
-        accumulator.ignoredTransactions[channelId] = cleaned.ignoredTransactions;
-        return accumulator;
-      },
-      Promise.resolve({ transactions: {}, ignoredTransactions: {} }),
-    );
+    // Calculate starting point
+    const start = page && pageSize ? (page - 1) * pageSize : 0;
+    let validCount = 0;
+    let currentIndex = start;
+
+    // Keep decrypting until we have pageSize valid results or run out of channels
+    while (validCount < (pageSize || allChannelIds.length) && currentIndex < allChannelIds.length) {
+      // Process a larger batch to account for potential invalid results
+      const batchSize = allChannelIds.length - currentIndex;
+      const currentBatch = allChannelIds.slice(currentIndex, currentIndex + batchSize);
+
+      // Process batch in parallel
+      const results = await Promise.all(
+        currentBatch.map(async (channelId) => {
+          try {
+            const cleaned = await this.channelParser.decryptAndCleanChannel(
+              channelId,
+              resultGetTx.result.transactions[channelId],
+            );
+
+            if (
+              cleaned.transactions &&
+              cleaned.transactions.length > 0 &&
+              cleaned.transactions[0] !== null
+            ) {
+              return {
+                channelId,
+                cleaned,
+                valid: true,
+              };
+            }
+          } catch (error) {
+            console.warn(`Failed to decrypt channel ${channelId}:`, error);
+          }
+          return { channelId, valid: false };
+        }),
+      );
+
+      // Add valid results to our output
+      for (const res of results) {
+        if (
+          res.valid &&
+          res.cleaned &&
+          validCount < (pageSize || allChannelIds.length) &&
+          res.cleaned.transactions?.[0] !== null
+        ) {
+          if (res.cleaned.transactions[0]) {
+            result.transactions[res.channelId] = res.cleaned
+              .transactions as unknown as TransactionTypes.ITransaction[];
+            result.ignoredTransactions[res.channelId] = res.cleaned
+              .ignoredTransactions as unknown as TransactionTypes.ITransaction[];
+            validCount++;
+          }
+        }
+      }
+
+      // If we haven't gotten enough valid results, continue with the next batch
+      if (validCount < (pageSize || allChannelIds.length)) {
+        currentIndex += batchSize;
+      } else {
+        break;
+      }
+    }
+
+    // Get paginated metadata only for the successful channels
+    const successfulChannelIds = Object.keys(result.transactions);
+    const paginatedMeta = {
+      ...resultGetTx.meta,
+      storageMeta: Object.keys(resultGetTx.meta.storageMeta || {})
+        .filter((key) => successfulChannelIds.includes(key))
+        .reduce((acc, key) => {
+          acc[key] = resultGetTx.meta.storageMeta?.[key] || [];
+          return acc;
+        }, {} as Record<string, StorageTypes.IEntryMetadata[]>),
+      transactionsStorageLocation: Object.keys(resultGetTx.meta.transactionsStorageLocation)
+        .filter((key) => successfulChannelIds.includes(key))
+        .reduce((acc, key) => {
+          acc[key] = resultGetTx.meta.transactionsStorageLocation[key];
+          return acc;
+        }, {} as Record<string, string[]>),
+      pagination:
+        page && pageSize
+          ? {
+              total: allChannelIds.length,
+              page,
+              pageSize,
+              hasMore: currentIndex < allChannelIds.length,
+            }
+          : undefined,
+    };
 
     return {
       meta: {
-        dataAccessMeta: resultGetTx.meta,
-        ignoredTransactions: result.ignoredTransactions,
+        dataAccessMeta: paginatedMeta,
+        ignoredTransactions: result.ignoredTransactions as unknown as Record<
+          string,
+          TransactionTypes.IIgnoredTransaction[]
+        >,
       },
-      result: { transactions: result.transactions },
+      result: {
+        transactions: result.transactions as unknown as Record<
+          string,
+          TransactionTypes.ITimestampedTransaction[]
+        >,
+      },
     };
   }
 }

@@ -48,34 +48,20 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
 
   async getChannelsByTopic(
     topic: string,
-    updatedBetween?: DataAccessTypes.ITimestampBoundaries | undefined,
-    page?: number | undefined,
-    pageSize?: number | undefined,
+    updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    return this.getChannelsByMultipleTopics([topic], updatedBetween, page, pageSize);
+    return this.getChannelsByMultipleTopics([topic], updatedBetween);
   }
 
   async getChannelsByMultipleTopics(
     topics: string[],
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
-    page?: number,
-    pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    // Validate pagination parameters
-    if (page !== undefined && page < 1) {
-      throw new Error(`Page number must be greater than or equal to 1, but it is ${page}`);
-    }
-    if (pageSize !== undefined && pageSize < 1) {
-      throw new Error(`Page size must be greater than 0, but it is ${pageSize}`);
-    }
-
     const pending = this.pendingStore?.findByTopics(topics) || [];
-
     const pendingItems = pending.map((item) => ({
       hash: item.storageResult.id,
       channelId: item.channelId,
       ...item.transaction,
-
       blockNumber: item.storageResult.meta.ethereum?.blockNumber || -1,
       blockTimestamp: item.storageResult.meta.ethereum?.blockTimestamp || -1,
       transactionHash: item.storageResult.meta.ethereum?.transactionHash || '',
@@ -84,80 +70,54 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
       topics: item.topics || [],
     }));
 
-    // Calculate adjusted pagination
-    let adjustedPage = page;
-    let adjustedPageSize = pageSize;
-    let pendingItemsOnCurrentPage = 0;
-    if (page !== undefined && pageSize !== undefined) {
-      const totalPending = pendingItems.length;
-      const itemsPerPage = (page - 1) * pageSize;
+    // Get stored transactions
+    const result = await this.storage.getTransactionsByTopics(topics);
 
-      if (totalPending > itemsPerPage) {
-        pendingItemsOnCurrentPage = Math.min(totalPending - itemsPerPage, pageSize);
-        adjustedPageSize = pageSize - pendingItemsOnCurrentPage;
-        adjustedPage = 1;
-        if (adjustedPageSize === 0) {
-          adjustedPageSize = 1;
-          pendingItemsOnCurrentPage--;
-        }
-      } else {
-        adjustedPage = page - Math.floor(totalPending / pageSize);
-      }
-    }
-
-    const result = await this.storage.getTransactionsByTopics(
-      topics,
-      adjustedPage,
-      adjustedPageSize,
+    // Combine and sort all transactions
+    const allTransactions = [...result.transactions, ...pendingItems].sort(
+      (a, b) => a.blockTimestamp - b.blockTimestamp,
     );
 
-    const transactions = result.transactions.concat(...pendingItems);
+    // Apply time boundaries filter
+    const filteredTransactions = updatedBetween
+      ? allTransactions.filter(
+          (tx) =>
+            tx.blockTimestamp >= (updatedBetween.from || 0) &&
+            tx.blockTimestamp <= (updatedBetween.to || Number.MAX_SAFE_INTEGER),
+        )
+      : allTransactions;
 
-    // list of channels having at least one tx updated during the updatedBetween boundaries
-    const channels = (
-      updatedBetween
-        ? transactions.filter(
-            (tx) =>
-              tx.blockTimestamp >= (updatedBetween.from || 0) &&
-              tx.blockTimestamp <= (updatedBetween.to || Number.MAX_SAFE_INTEGER),
-          )
-        : transactions
-    ).map((x) => x.channelId);
+    // Group by channel ID
+    const transactionsByChannel = filteredTransactions.reduce((prev, curr) => {
+      if (!prev[curr.channelId]) {
+        prev[curr.channelId] = [];
+      }
+      prev[curr.channelId].push(this.toTimestampedTransaction(curr));
+      return prev;
+    }, {} as DataAccessTypes.ITransactionsByChannelIds);
 
-    const filteredTxs = transactions.filter((tx) => channels.includes(tx.channelId));
+    const storageMeta = filteredTransactions.reduce((acc, tx) => {
+      if (!acc[tx.channelId]) {
+        acc[tx.channelId] = [this.toStorageMeta(tx, result.blockNumber, this.network)];
+      }
+      return acc;
+    }, {} as Record<string, StorageTypes.IEntryMetadata[]>);
+
+    const storageLocations = filteredTransactions.reduce((prev, curr) => {
+      if (!prev[curr.channelId]) {
+        prev[curr.channelId] = [];
+      }
+      prev[curr.channelId].push(curr.hash);
+      return prev;
+    }, {} as Record<string, string[]>);
+
     return {
       meta: {
-        storageMeta: filteredTxs.reduce((acc, tx) => {
-          acc[tx.channelId] = [this.toStorageMeta(tx, result.blockNumber, this.network)];
-          return acc;
-        }, {} as Record<string, StorageTypes.IEntryMetadata[]>),
-        transactionsStorageLocation: filteredTxs.reduce((prev, curr) => {
-          if (!prev[curr.channelId]) {
-            prev[curr.channelId] = [];
-          }
-          prev[curr.channelId].push(curr.hash);
-          return prev;
-        }, {} as Record<string, string[]>),
-        pagination:
-          page && pageSize
-            ? {
-                total: result.transactions.length + pendingItems.length,
-                page,
-                pageSize,
-                hasMore:
-                  (page - 1) * pageSize + filteredTxs.length - pendingItemsOnCurrentPage <
-                  result.transactions.length,
-              }
-            : undefined,
+        storageMeta,
+        transactionsStorageLocation: storageLocations,
       },
       result: {
-        transactions: filteredTxs.reduce((prev, curr) => {
-          if (!prev[curr.channelId]) {
-            prev[curr.channelId] = [];
-          }
-          prev[curr.channelId].push(this.toTimestampedTransaction(curr));
-          return prev;
-        }, {} as DataAccessTypes.ITransactionsByChannelIds),
+        transactions: transactionsByChannel,
       },
     };
   }

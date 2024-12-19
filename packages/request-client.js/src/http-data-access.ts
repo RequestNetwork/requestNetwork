@@ -1,7 +1,7 @@
 import { ClientTypes, DataAccessTypes } from '@requestnetwork/types';
 import { EventEmitter } from 'events';
 import httpConfigDefaults from './http-config-defaults';
-import { normalizeKeccak256Hash, retry, validatePaginationParams } from '@requestnetwork/utils';
+import { normalizeKeccak256Hash, retry } from '@requestnetwork/utils';
 import { stringify } from 'qs';
 import { utils } from 'ethers';
 
@@ -175,16 +175,10 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   public async getChannelsByTopic(
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
-    page?: number,
-    pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    validatePaginationParams(page, pageSize);
-
     const params = {
       topic,
       updatedBetween,
-      ...(page !== undefined && { page }),
-      ...(pageSize !== undefined && { pageSize }),
     };
 
     return await this.fetchAndRetry('/getChannelsByTopic', params);
@@ -199,16 +193,10 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   public async getChannelsByMultipleTopics(
     topics: string[],
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
-    page?: number,
-    pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    validatePaginationParams(page, pageSize);
-
     return await this.fetchAndRetry('/getChannelsByMultipleTopics', {
       topics,
       updatedBetween,
-      page,
-      pageSize,
     });
   }
 

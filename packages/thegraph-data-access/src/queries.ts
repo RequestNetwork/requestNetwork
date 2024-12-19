@@ -77,7 +77,7 @@ export const GetTransactionsByHashQuery = gql`
 export const GetTransactionsByTopics = gql`
 ${TransactionsBodyFragment}
 
-query GetTransactionsByTopics($topics: [String!]!, $first: Int!, $skip: Int!) {
+query GetTransactionsByTopics($topics: [String!]!) {
   ${metaQueryBody}
   channels(
     where: { topics_contains: $topics }
@@ -85,8 +85,6 @@ query GetTransactionsByTopics($topics: [String!]!, $first: Int!, $skip: Int!) {
     transactions(
       orderBy: blockTimestamp, 
       orderDirection: asc
-      first: $first
-      skip: $skip
     ) {
       ...TransactionsBody
     }
@@ -105,6 +103,17 @@ export const GetTransactionByDataHashQuery = gql`
     ${metaQueryBody}
     transactions(where: { dataHash: $dataHash }) {
       ...TransactionsBody
+    }
+  }
+`;
+
+export const GetTransactionsByTopicsCount = gql`
+  query GetTransactionsByTopicsCount($topics: [String!]!) {
+    ${metaQueryBody}
+    channels(where: { topics_contains: $topics }) {
+      transactions {
+        id
+      }
     }
   }
 `;
