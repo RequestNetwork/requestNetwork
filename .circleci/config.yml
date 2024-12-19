@@ -164,6 +164,7 @@ jobs:
       - run: *step_graph_deploy
       - run:
           name: 'Test request-client.js, smart-contracts, payment-detection and payment-processor'
+          no_output_timeout: 30m
           command: |
             yarn test \
               --scope @requestnetwork/request-node \
