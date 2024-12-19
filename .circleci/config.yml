@@ -286,6 +286,12 @@ jobs:
           command: 'yarn workspace @requestnetwork/payment-processor run test:hinkal'
       - store_test_results:
           path: packages/payment-processor/reports/
+    environment:
+      HINKAL_TEST_PAYER_MNEMONIC: $HINKAL_TEST_PAYER_MNEMONIC
+      HINKAL_TEST_PAYER_ADDRESS: $HINKAL_TEST_PAYER_ADDRESS
+      HINKAL_TEST_PAYEE_PRIVATE_KEY: $HINKAL_TEST_PAYEE_PRIVATE_KEY
+      HINKAL_TEST_PAYEE_ADDRESS: $HINKAL_TEST_PAYEE_ADDRESS
+      HINKAL_TEST_PAYEE_SHIELDED_ADDRESS: $HINKAL_TEST_PAYEE_SHIELDED_ADDRESS
 
   # Release a next version package everytime we merge to master
   next-release:
