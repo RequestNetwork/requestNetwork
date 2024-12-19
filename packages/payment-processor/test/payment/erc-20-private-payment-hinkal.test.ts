@@ -23,7 +23,7 @@ const fee = ethers.utils.parseUnits('0.000001', 6).toString();
 // 1) sends funds from his shielded address to EOA of the payee
 // 2) sends funds from his EOA to the shielded address of the payee
 // 3) sends funds from hiw EOA to his own shielded address
-// Note: to successfully run the tests, you will need to top up payer's EOA address with Eth on base
+// Note: to successfully run the tests, you will need to top up payer's EOA address with ETH and USDC on Base
 const payerMnemonic = 'sand win seed crucial film antique adapt start pupil gallery edge collect';
 const payerAddress = '0x01aC930fAb20482E5b7eAbF892DF57141c29de5F';
 // Payee:
