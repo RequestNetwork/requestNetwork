@@ -25,14 +25,11 @@ const fee = ethers.utils.parseUnits('0.000001', 6).toString();
 // 3) sends funds from hiw EOA to his own shielded address
 // Note: to successfully run the tests, you will need to top up payer's EOA address with ETH and USDC on Base
 const payerPrivateKey = process.env.HINKAL_TEST_PAYER_PRIVATE_KEY as string;
-const payerAddress = process.env.HINKAL_TEST_PAYER_ADDRESS as string;
 // Payee:
 // 1) receives funds on her public EOA address
 // 2) receives funds on her shielded address
 // The private key of a public address grant ownership of the corresponding shielded address. In @hinkal/common, a single public address can have only one shielded address.
-const payeeAddress = process.env.HINKAL_TEST_PAYEE_ADDRESS as string;
 const payeePrivateKey = process.env.HINKAL_TEST_PAYEE_PRIVATE_KEY as string;
-const payeeShieldedAddress = process.env.HINKAL_TEST_PAYEE_SHIELDED_ADDRESS as string;
 
 const RPC_URL = 'https://mainnet.base.org'; // Blockchain RPC endpoint for the Base network
 
@@ -48,6 +45,7 @@ jest.setTimeout(1000000); // Set Jest timeout for asynchronous operations (e.g.,
  */
 const createRequestForHinkal = async (
   payerWallet: ethers.Wallet,
+  payeeWallet: ethers.Wallet,
   type: Types.Extension.PAYMENT_NETWORK_ID,
 ): Promise<Types.IRequestDataWithEvents> => {
   // step 1: Create Signature Provider
@@ -71,7 +69,7 @@ const createRequestForHinkal = async (
       id: type,
       parameters: {
         paymentNetworkName: currentNetwork,
-        paymentAddress: payeeAddress,
+        paymentAddress: payeeWallet.address,
       },
     };
   } else if (type === Types.Extension.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT) {
@@ -79,8 +77,8 @@ const createRequestForHinkal = async (
       id: type,
       parameters: {
         paymentNetworkName: currentNetwork,
-        paymentAddress: payeeAddress,
-        feeAddress: payeeAddress,
+        paymentAddress: payeeWallet.address,
+        feeAddress: payeeWallet.address,
         feeAmount: fee,
       },
     };
@@ -96,7 +94,7 @@ const createRequestForHinkal = async (
       },
       payee: {
         type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
-        value: payeeAddress,
+        value: payeeWallet.address,
       },
       payer: {
         type: Types.Identity.TYPE.ETHEREUM_ADDRESS,
@@ -146,10 +144,12 @@ describe('ERC-20 Private Payments With Hinkal', () => {
   let provider: providers.Provider;
   let payerWallet: ethers.Wallet;
   let payeeWallet: ethers.Wallet;
+  let payeeShieldedAddress: string;
   beforeAll(async () => {
     provider = new ethers.providers.JsonRpcProvider(RPC_URL);
     payerWallet = new Wallet(payerPrivateKey, provider);
     payeeWallet = new Wallet(payeePrivateKey, provider);
+    payeeShieldedAddress = hinkalStore[payeeWallet.address].getRecipientInfo();
     await addToHinkalStore(payerWallet);
   });
   afterAll(async () => {
@@ -168,34 +168,36 @@ describe('ERC-20 Private Payments With Hinkal', () => {
     it('ERC-20 Proxy: Payer is not the same as Origin/Sender of Transaction', async () => {
       const requestData = await createRequestForHinkal(
         payerWallet,
+        payeeWallet,
         Types.Extension.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       );
-      const balanceErc20Before = await getErc20Balance(requestData, payeeAddress, provider);
+      const balanceErc20Before = await getErc20Balance(requestData, payeeWallet.address, provider);
 
       const tx = await payErc20ProxyRequestFromHinkalShieldedAddress(requestData, payerWallet);
-      const balanceErc20After = await getErc20Balance(requestData, payeeAddress, provider);
+      const balanceErc20After = await getErc20Balance(requestData, payeeWallet.address, provider);
 
       await waitLittle(5); // wait before balance is increased
 
       expect(tx.status).toBe(1);
-      expect(tx.from).not.toBe(payerAddress);
+      expect(tx.from).not.toBe(payerWallet.address);
       expect(BigNumber.from(balanceErc20Before).lt(BigNumber.from(balanceErc20After)));
     });
 
     it('ERC-20 Fee Proxy: Payer is not the same as Origin/Sender of Transaction', async () => {
       const requestData = await createRequestForHinkal(
         payerWallet,
+        payeeWallet,
         Types.Extension.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
       );
 
-      const balanceErc20Before = await getErc20Balance(requestData, payeeAddress, provider);
+      const balanceErc20Before = await getErc20Balance(requestData, payeeWallet.address, provider);
       const tx = await payErc20FeeProxyRequestFromHinkalShieldedAddress(requestData, payerWallet);
-      const balanceErc20After = await getErc20Balance(requestData, payeeAddress, provider);
+      const balanceErc20After = await getErc20Balance(requestData, payeeWallet.address, provider);
 
       await waitLittle(5); // wait before balance is increased
 
       expect(tx.status).toBe(1);
-      expect(tx.from).not.toBe(payerAddress);
+      expect(tx.from).not.toBe(payerWallet.address);
       expect(BigNumber.from(balanceErc20Before).lt(BigNumber.from(balanceErc20After)));
     });
   });
@@ -205,7 +207,7 @@ describe('ERC-20 Private Payments With Hinkal', () => {
       // For illustration: we show how payer can send funds to his own shielded address.
       // The payer needs to do this to be able to send funds from his shielded address.
 
-      const preUsdcBalance = await getTokenShieldedBalance(payerAddress);
+      const preUsdcBalance = await getTokenShieldedBalance(payerWallet.address);
 
       const tx = await sendToHinkalShieldedAddressFromPublic(
         payerWallet,
@@ -216,7 +218,7 @@ describe('ERC-20 Private Payments With Hinkal', () => {
 
       await waitLittle(7); // wait before balance is increased
 
-      const postUsdcBalance = await getTokenShieldedBalance(payerAddress);
+      const postUsdcBalance = await getTokenShieldedBalance(payerWallet.address);
 
       expect(waitedTx.status).toBe(1);
       expect(postUsdcBalance - preUsdcBalance).toBe(currencyAmount); // The payer received funds in his shielded address.
@@ -234,7 +236,7 @@ describe('ERC-20 Private Payments With Hinkal', () => {
       // 2. The payee should successfully receive the funds.
       // 3. The transaction should complete successfully.
 
-      const preUsdcBalance = await getTokenShieldedBalance(payeeAddress);
+      const preUsdcBalance = await getTokenShieldedBalance(payeeWallet.address);
 
       const tx = await sendToHinkalShieldedAddressFromPublic(
         payerWallet,
@@ -246,10 +248,10 @@ describe('ERC-20 Private Payments With Hinkal', () => {
       const waitedTx = await tx.wait(2);
       await waitLittle(1); // wait before balance is increased
 
-      const postUsdcBalance = await getTokenShieldedBalance(payeeAddress);
+      const postUsdcBalance = await getTokenShieldedBalance(payeeWallet.address);
 
       expect(waitedTx.status).toBe(1);
-      expect(payeeShieldedAddress).not.toBe(payeeAddress); // trivial check (satisfies 2nd condition)
+      expect(payeeShieldedAddress).not.toBe(payeeWallet.address); // trivial check (satisfies 2nd condition)
       expect(postUsdcBalance - preUsdcBalance).toBe(currencyAmount); // The payee received funds in their shielded account.
     });
   });
