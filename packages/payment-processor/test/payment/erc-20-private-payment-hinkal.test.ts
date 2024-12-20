@@ -148,7 +148,6 @@ describe('ERC-20 Private Payments With Hinkal', () => {
   let payeeWallet: ethers.Wallet;
   beforeAll(async () => {
     provider = new ethers.providers.JsonRpcProvider(RPC_URL);
-    console.log('Payee Private Key:', payerPrivateKey);
     payerWallet = new Wallet(payerPrivateKey, provider);
     payeeWallet = new Wallet(payeePrivateKey, provider);
     await addToHinkalStore(payerWallet);
