@@ -270,6 +270,7 @@ jobs:
     docker:
       - *node_image
     working_directory: *working_directory
+    resource_class: large
     steps:
       - attach_workspace:
           at: *working_directory
