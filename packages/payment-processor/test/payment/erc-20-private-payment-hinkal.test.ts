@@ -149,8 +149,9 @@ describe('ERC-20 Private Payments With Hinkal', () => {
     provider = new ethers.providers.JsonRpcProvider(RPC_URL);
     payerWallet = new Wallet(payerPrivateKey, provider);
     payeeWallet = new Wallet(payeePrivateKey, provider);
-    payeeShieldedAddress = hinkalStore[payeeWallet.address].getRecipientInfo();
     await addToHinkalStore(payerWallet);
+    await addToHinkalStore(payeeWallet);
+    payeeShieldedAddress = hinkalStore[payeeWallet.address].getRecipientInfo();
   });
   afterAll(async () => {
     for (const key in hinkalStore) {
