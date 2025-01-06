@@ -7,6 +7,7 @@ import { default as RequestNetworkBase } from './api/request-network';
 import { default as HttpMetaMaskDataAccess } from './http-metamask-data-access';
 import { default as HttpDataAccess } from './http-data-access';
 import { NodeConnectionConfig } from './http-data-access';
+import { NoPersistHttpDataAccess } from './no-persist-http-data-access';
 import * as Types from './types';
 
 export {
@@ -19,4 +20,5 @@ export {
   NodeConnectionConfig,
   Types,
   Utils,
+  NoPersistHttpDataAccess,
 };
