@@ -61,6 +61,7 @@ describe('index', () => {
       getTransactionsByChannelId: jest.fn().mockReturnValue(fakeMetaDataAccessGetReturn),
       initialize: jest.fn(),
       close: jest.fn(),
+      persist: true,
       persistTransaction: jest.fn((): any => {
         setTimeout(
           () => {
@@ -226,6 +227,7 @@ describe('index', () => {
             .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
           initialize: jest.fn(),
           close: jest.fn(),
+          persist: true,
           persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
         };
 
@@ -272,6 +274,7 @@ describe('index', () => {
           getTransactionsByChannelId: jest.fn().mockReturnValue(fakeMetaDataAccessGetReturnEmpty),
           initialize: jest.fn(),
           close: jest.fn(),
+          persist: true,
           persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
         };
 
@@ -315,6 +318,7 @@ describe('index', () => {
           initialize: jest.fn(),
           close: jest.fn(),
           persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
+          persist: true,
         };
 
         const transactionManager = new TransactionManager(
@@ -391,6 +395,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
+        persist: true,
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
@@ -442,6 +447,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
+        persist: true,
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
@@ -499,6 +505,7 @@ describe('index', () => {
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         initialize: jest.fn(),
         close: jest.fn(),
+        persist: true,
         persistTransaction: jest.fn(),
       };
 
@@ -557,6 +564,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
+        persist: true,
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
@@ -630,6 +638,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
+        persist: true,
       };
 
       const transactionManager = new TransactionManager(
@@ -717,6 +726,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
+        persist: true,
       };
 
       const transactionManager = new TransactionManager(
@@ -793,6 +803,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
+        persist: true,
       };
 
       const transactionManager = new TransactionManager(
@@ -871,6 +882,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
+        persist: true,
       };
 
       const transactionManager = new TransactionManager(
@@ -948,6 +960,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
+        persist: true,
       };
 
       const transactionManager = new TransactionManager(
@@ -1096,6 +1109,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
+        persist: true,
       };
 
       const transactionManager = new TransactionManager(
@@ -1170,6 +1184,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
+        persist: true,
       };
 
       const transactionManager = new TransactionManager(
@@ -1238,6 +1253,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
+        persist: true,
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
@@ -1317,6 +1333,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
+        persist: true,
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
@@ -1386,6 +1403,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
+        persist: true,
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
@@ -1465,6 +1483,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
+        persist: true,
       };
 
       const transactionManager = new TransactionManager(
