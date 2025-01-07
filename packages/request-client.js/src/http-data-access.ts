@@ -49,7 +49,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   ) {
     // Get Request Client version to set it in the header
     const requestClientVersion = packageJson.version;
-    this.persist = persist || true;
+    this.persist = persist ?? true;
     this.httpConfig = {
       ...httpConfigDefaults,
       ...httpConfig,
@@ -97,7 +97,6 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     const eventEmitter = new EventEmitter() as DataAccessTypes.PersistTransactionEmitter;
 
     if (!this.persist) {
-      console.log('no persist');
       const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(
         eventEmitter,
         getNoPersistTransactionRawData(topics),

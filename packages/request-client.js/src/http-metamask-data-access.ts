@@ -33,16 +33,19 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
       nodeConnectionConfig,
       web3,
       ethereumProviderUrl,
+      persist,
     }: {
       httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
       nodeConnectionConfig?: NodeConnectionConfig;
       web3?: any;
       ethereumProviderUrl?: string;
+      persist?: boolean;
     } = {
       httpConfig: {},
+      persist: true,
     },
   ) {
-    super({ httpConfig, nodeConnectionConfig, persist: true });
+    super({ httpConfig, nodeConnectionConfig, persist });
 
     ethereumProviderUrl = ethereumProviderUrl ? ethereumProviderUrl : 'http://localhost:8545';
 
