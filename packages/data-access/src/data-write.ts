@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import Block from './block';
 import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
+import { getNoPersistTransactionRawData } from './no-persist-transaction-raw-data';
 
 export class DataAccessWrite implements DataAccessTypes.IDataWrite {
   constructor(
@@ -24,6 +25,19 @@ export class DataAccessWrite implements DataAccessTypes.IDataWrite {
     channelId: string,
     topics?: string[] | undefined,
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
+    const eventEmitter = new EventEmitter() as DataAccessTypes.PersistTransactionEmitter;
+
+    if (!this.persist) {
+      const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(
+        eventEmitter,
+        getNoPersistTransactionRawData(topics),
+      );
+
+      // Emit confirmation instantly since data is not going to be persisted
+      result.emit('confirmed', result);
+      return result;
+    }
+
     const updatedBlock = Block.pushTransaction(
       Block.createEmptyBlock(),
       transaction,
@@ -33,7 +47,6 @@ export class DataAccessWrite implements DataAccessTypes.IDataWrite {
 
     const storageResult = await this.storage.append(JSON.stringify(updatedBlock));
 
-    const eventEmitter = new EventEmitter() as DataAccessTypes.PersistTransactionEmitter;
     this.pendingStore?.add(channelId, { transaction, storageResult, topics: topics || [] });
 
     const result: DataAccessTypes.IReturnPersistTransactionRaw = {

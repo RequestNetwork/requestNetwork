@@ -1,4 +1,4 @@
-import { Block } from '@requestnetwork/data-access';
+import { Block, getNoPersistTransactionRawData } from '@requestnetwork/data-access';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, CurrencyTypes, DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
@@ -73,6 +73,19 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     channelId: string,
     topics?: string[],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
+    const eventEmitter = new EventEmitter() as DataAccessTypes.PersistTransactionEmitter;
+
+    if (!this.persist) {
+      const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(
+        eventEmitter,
+        getNoPersistTransactionRawData(topics),
+      );
+
+      // Emit confirmation instantly since data is not going to be persisted
+      result.emit('confirmed', result);
+      return result;
+    }
+
     if (!this.networkName) {
       const network = await this.provider.getNetwork();
 
@@ -131,7 +144,6 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     }
     this.cache[channelId][ipfsHash] = { block, storageMeta };
 
-    const eventEmitter = new EventEmitter() as DataAccessTypes.PersistTransactionEmitter;
     const result: DataAccessTypes.IReturnPersistTransactionRaw = {
       meta: {
         storageMeta: {

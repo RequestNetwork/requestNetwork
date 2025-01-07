@@ -4,6 +4,7 @@ import httpConfigDefaults from './http-config-defaults';
 import { normalizeKeccak256Hash, retry, validatePaginationParams } from '@requestnetwork/utils';
 import { stringify } from 'qs';
 import { utils } from 'ethers';
+import { getNoPersistTransactionRawData } from '@requestnetwork/data-access';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -39,7 +40,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     }: {
       httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
       nodeConnectionConfig?: Partial<NodeConnectionConfig>;
-      persist: boolean;
+      persist?: boolean;
     } = {
       httpConfig: {},
       nodeConnectionConfig: {},
@@ -48,7 +49,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   ) {
     // Get Request Client version to set it in the header
     const requestClientVersion = packageJson.version;
-    this.persist = persist;
+    this.persist = !!persist;
     this.httpConfig = {
       ...httpConfigDefaults,
       ...httpConfig,
@@ -93,6 +94,19 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     channelId: string,
     topics?: string[],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
+    const eventEmitter = new EventEmitter() as DataAccessTypes.PersistTransactionEmitter;
+
+    if (!this.persist) {
+      const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(
+        eventEmitter,
+        getNoPersistTransactionRawData(topics),
+      );
+
+      // Emit confirmation instantly since data is not going to be persisted
+      result.emit('confirmed', result);
+      return result;
+    }
+
     // We don't retry this request since it may fail because of a slow Storage
     // For example, if the Ethereum network is slow and we retry the request three times
     // three data will be persisted at the end
@@ -104,10 +118,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     );
 
     // Create the return result with EventEmitter
-    const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(
-      new EventEmitter() as DataAccessTypes.PersistTransactionEmitter,
-      data,
-    );
+    const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(eventEmitter, data);
 
     // Try to get the confirmation
     new Promise((r) => setTimeout(r, this.httpConfig.getConfirmationDeferDelay))
