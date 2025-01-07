@@ -1,6 +1,8 @@
 import { DataAccessTypes } from '@requestnetwork/types';
 
 export class NoopDataWrite implements DataAccessTypes.IDataWrite {
+  constructor(public readonly persist: boolean = true) {}
+
   async initialize(): Promise<void> {
     // no-op
   }

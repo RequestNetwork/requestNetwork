@@ -23,7 +23,6 @@ import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import Request from './request';
 import localUtils from './utils';
-import { NoPersistHttpDataAccess } from '../no-persist-http-data-access';
 
 /**
  * Entry point of the request-client.js library. Create requests, get requests, manipulate requests.
@@ -115,7 +114,7 @@ export default class RequestNetwork {
 
     const transactionData = requestLogicCreateResult.meta?.transactionManagerMeta.transactionData;
     const requestId = requestLogicCreateResult.result.requestId;
-    const isSkippingPersistence = this.dataAccess instanceof NoPersistHttpDataAccess;
+    const isSkippingPersistence = !this.dataAccess.persist;
     // create the request object
     const request = new Request(requestId, this.requestLogic, this.currencyManager, {
       contentDataExtension: this.contentData,
@@ -149,7 +148,7 @@ export default class RequestNetwork {
    * @param request The Request object to persist. This must be a request that was created with skipPersistence enabled.
    * @returns A promise that resolves to the result of the persist transaction operation.
    * @throws {Error} If the request's `inMemoryInfo` is not provided, indicating it wasn't created with skipPersistence.
-   * @throws {Error} If the current data access instance does not support persistence (e.g., NoPersistHttpDataAccess).
+   * @throws {Error} If the current data access instance does not support persistence.
    */
   public async persistRequest(
     request: Request,
@@ -158,7 +157,7 @@ export default class RequestNetwork {
       throw new Error('Cannot persist request without inMemoryInfo.');
     }
 
-    if (this.dataAccess instanceof NoPersistHttpDataAccess) {
+    if (!this.dataAccess.persist) {
       throw new Error(
         'Cannot persist request when skipPersistence is enabled. To persist the request, create a new instance of RequestNetwork without skipPersistence being set to true.',
       );
@@ -198,7 +197,7 @@ export default class RequestNetwork {
 
     const transactionData = requestLogicCreateResult.meta?.transactionManagerMeta.transactionData;
     const requestId = requestLogicCreateResult.result.requestId;
-    const isSkippingPersistence = this.dataAccess instanceof NoPersistHttpDataAccess;
+    const isSkippingPersistence = !this.dataAccess.persist;
 
     // create the request object
     const request = new Request(requestId, this.requestLogic, this.currencyManager, {

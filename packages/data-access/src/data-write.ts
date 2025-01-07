@@ -6,6 +6,7 @@ export class DataAccessWrite implements DataAccessTypes.IDataWrite {
   constructor(
     protected readonly storage: StorageTypes.IStorageWrite,
     private readonly pendingStore?: DataAccessTypes.IPendingStore,
+    public readonly persist: boolean = true,
   ) {
     this.pendingStore = pendingStore;
   }

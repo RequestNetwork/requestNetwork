@@ -13,13 +13,13 @@ import { CombinedDataAccess } from './combined-data-access';
 export class MockDataAccess extends CombinedDataAccess {
   private readonly dataIndex: InMemoryIndexer;
 
-  constructor(storage: StorageTypes.IStorage) {
+  constructor(storage: StorageTypes.IStorage, options: { persist: boolean } = { persist: true }) {
     const dataIndex = new InMemoryIndexer(storage);
     const pendingStore = new PendingStore();
 
     super(
       new DataAccessRead(dataIndex, { network: 'mock', pendingStore }),
-      new DataAccessWrite(storage, pendingStore),
+      new DataAccessWrite(storage, pendingStore, options.persist),
     );
     this.dataIndex = dataIndex;
   }

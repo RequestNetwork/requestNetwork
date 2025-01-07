@@ -1,9 +1,12 @@
-import { RequestNetwork } from '../src/index';
+import { RequestNetwork, RequestNetworkBase } from '../src/index';
 import * as TestData from './data-test';
+import { DataAccessTypes } from '@requestnetwork/types';
 
 import { http, HttpResponse } from 'msw';
 import { setupServer, SetupServer } from 'msw/node';
 import config from '../src/http-config-defaults';
+import { MockDataAccess } from '@requestnetwork/data-access';
+import { MockStorage } from '../src/mock-storage';
 
 describe('handle in-memory request', () => {
   let requestNetwork: RequestNetwork;
@@ -47,6 +50,26 @@ describe('handle in-memory request', () => {
     requestNetwork = new RequestNetwork({
       skipPersistence: true,
       signatureProvider: TestData.fakeSignatureProvider,
+    });
+
+    const request = await requestNetwork.createRequest(requestCreationParams);
+
+    expect(request).toBeDefined();
+    expect(request.requestId).toBeDefined();
+    expect(request.inMemoryInfo).toBeDefined();
+    expect(request.inMemoryInfo?.requestData).toBeDefined();
+    expect(request.inMemoryInfo?.topics).toBeDefined();
+    expect(request.inMemoryInfo?.transactionData).toBeDefined();
+    expect(spyPersistTransaction).not.toHaveBeenCalled();
+  });
+
+  it('creates a request without persisting it with custom data access', async () => {
+    const mockStorage = new MockStorage();
+    const mockDataAccess = new MockDataAccess(mockStorage, { persist: false });
+
+    requestNetwork = new RequestNetworkBase({
+      signatureProvider: TestData.fakeSignatureProvider,
+      dataAccess: mockDataAccess,
     });
 
     const request = await requestNetwork.createRequest(requestCreationParams);

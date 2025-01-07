@@ -14,6 +14,7 @@ export type NodeConnectionConfig = { baseURL: string; headers: Record<string, st
  * Exposes a Data-Access module over HTTP
  */
 export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
+  public readonly persist: boolean;
   /**
    * Configuration that overrides http-config-defaults,
    * @see httpConfigDefaults for the default configuration.
@@ -34,16 +35,20 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     {
       httpConfig,
       nodeConnectionConfig,
+      persist,
     }: {
       httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
       nodeConnectionConfig?: Partial<NodeConnectionConfig>;
+      persist: boolean;
     } = {
       httpConfig: {},
       nodeConnectionConfig: {},
+      persist: true,
     },
   ) {
     // Get Request Client version to set it in the header
     const requestClientVersion = packageJson.version;
+    this.persist = persist;
     this.httpConfig = {
       ...httpConfigDefaults,
       ...httpConfig,

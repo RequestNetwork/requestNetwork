@@ -57,13 +57,15 @@ export default class HttpRequestNetwork extends RequestNetwork {
     },
   ) {
     const dataAccess: DataAccessTypes.IDataAccess = useMockStorage
-      ? new MockDataAccess(new MockStorage())
+      ? new MockDataAccess(new MockStorage(), {
+          persist: !skipPersistence,
+        })
       : skipPersistence
       ? new NoPersistHttpDataAccess({
           httpConfig,
           nodeConnectionConfig,
         })
-      : new HttpDataAccess({ httpConfig, nodeConnectionConfig });
+      : new HttpDataAccess({ httpConfig, nodeConnectionConfig, persist: true });
 
     if (!currencyManager) {
       currencyManager = CurrencyManager.getDefault();

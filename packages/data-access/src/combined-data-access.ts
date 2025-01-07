@@ -1,10 +1,14 @@
 import { DataAccessTypes } from '@requestnetwork/types';
 
 export abstract class CombinedDataAccess implements DataAccessTypes.IDataAccess {
+  public readonly persist: boolean;
+
   constructor(
     protected reader: DataAccessTypes.IDataRead,
     protected writer: DataAccessTypes.IDataWrite,
-  ) {}
+  ) {
+    this.persist = writer.persist;
+  }
 
   async initialize(): Promise<void> {
     await this.reader.initialize();

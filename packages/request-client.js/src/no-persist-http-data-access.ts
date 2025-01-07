@@ -15,7 +15,7 @@ export class NoPersistHttpDataAccess extends HttpDataAccess {
       nodeConnectionConfig: {},
     },
   ) {
-    super({ httpConfig, nodeConnectionConfig });
+    super({ httpConfig, nodeConnectionConfig, persist: false });
   }
 
   async persistTransaction(

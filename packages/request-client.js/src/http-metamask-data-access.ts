@@ -42,7 +42,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
       httpConfig: {},
     },
   ) {
-    super({ httpConfig, nodeConnectionConfig });
+    super({ httpConfig, nodeConnectionConfig, persist: true });
 
     ethereumProviderUrl = ethereumProviderUrl ? ethereumProviderUrl : 'http://localhost:8545';
 

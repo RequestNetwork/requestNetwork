@@ -25,6 +25,7 @@ export interface IDataRead {
 }
 
 export interface IDataWrite {
+  persist: boolean;
   initialize: () => Promise<void>;
   close: () => Promise<void>;
 
