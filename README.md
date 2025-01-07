@@ -8,7 +8,6 @@
 
 [Request][website-url] is a decentralized network built on top of Ethereum, which allows anyone, anywhere to request a payment. A full description of the protocol may be found in our [whitepaper][whitepaper-url].
 
-
 This repository contains all the Request Network developer tools written in TypeScript.
 
 Join the [Request Discord][request-discord-url] to get in touch with us.
