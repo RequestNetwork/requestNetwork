@@ -114,7 +114,7 @@ export default class RequestNetwork {
 
     const transactionData = requestLogicCreateResult.meta?.transactionManagerMeta.transactionData;
     const requestId = requestLogicCreateResult.result.requestId;
-    const isSkippingPersistence = !this.dataAccess.isPersisting();
+    const isSkippingPersistence = this.dataAccess.skipPersistence();
     // create the request object
     const request = new Request(requestId, this.requestLogic, this.currencyManager, {
       contentDataExtension: this.contentData,
@@ -157,7 +157,7 @@ export default class RequestNetwork {
       throw new Error('Cannot persist request without inMemoryInfo.');
     }
 
-    if (!this.dataAccess.isPersisting()) {
+    if (this.dataAccess.skipPersistence()) {
       throw new Error(
         'Cannot persist request when skipPersistence is enabled. To persist the request, create a new instance of RequestNetwork without skipPersistence being set to true.',
       );
@@ -197,7 +197,7 @@ export default class RequestNetwork {
 
     const transactionData = requestLogicCreateResult.meta?.transactionManagerMeta.transactionData;
     const requestId = requestLogicCreateResult.result.requestId;
-    const isSkippingPersistence = !this.dataAccess.isPersisting();
+    const isSkippingPersistence = this.dataAccess.skipPersistence();
 
     // create the request object
     const request = new Request(requestId, this.requestLogic, this.currencyManager, {

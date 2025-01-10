@@ -21,24 +21,23 @@ export default class HttpDataAccess extends CombinedDataAccess {
     {
       httpConfig,
       nodeConnectionConfig,
-      persist,
+      skipPersistence,
     }: {
       httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
       nodeConnectionConfig?: Partial<NodeConnectionConfig>;
-      persist?: boolean;
+      skipPersistence?: boolean;
     } = {
       httpConfig: {},
       nodeConnectionConfig: {},
-      persist: true,
+      skipPersistence: true,
     },
   ) {
     const dataAccessConfig = new HttpDataAccessConfig({ httpConfig, nodeConnectionConfig });
     const transaction = new HttpTransaction(dataAccessConfig);
     const reader = new HttpDataRead(dataAccessConfig);
-    const writer =
-      persist === false
-        ? new NoPersistDataWrite()
-        : new HttpDataWrite(dataAccessConfig, transaction);
+    const writer = skipPersistence
+      ? new NoPersistDataWrite()
+      : new HttpDataWrite(dataAccessConfig, transaction);
 
     super(reader, writer);
 

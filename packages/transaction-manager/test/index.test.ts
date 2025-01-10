@@ -74,7 +74,7 @@ describe('index', () => {
         );
         return fakeMetaDataAccessPersistReturn;
       }),
-      isPersisting: jest.fn().mockReturnValue(true),
+      skipPersistence: jest.fn().mockReturnValue(true),
     };
   });
 
@@ -228,7 +228,7 @@ describe('index', () => {
           initialize: jest.fn(),
           close: jest.fn(),
           persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
-          isPersisting: jest.fn().mockReturnValue(true),
+          skipPersistence: jest.fn().mockReturnValue(true),
         };
 
         const transactionManager = new TransactionManager(
@@ -275,7 +275,7 @@ describe('index', () => {
           initialize: jest.fn(),
           close: jest.fn(),
           persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
-          isPersisting: jest.fn().mockReturnValue(true),
+          skipPersistence: jest.fn().mockReturnValue(true),
         };
 
         const transactionManager = new TransactionManager(
@@ -318,7 +318,7 @@ describe('index', () => {
           initialize: jest.fn(),
           close: jest.fn(),
           persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
-          isPersisting: jest.fn().mockReturnValue(true),
+          skipPersistence: jest.fn().mockReturnValue(true),
         };
 
         const transactionManager = new TransactionManager(
@@ -395,7 +395,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
-        isPersisting: jest.fn().mockReturnValue(true),
+        skipPersistence: jest.fn().mockReturnValue(true),
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
@@ -446,7 +446,7 @@ describe('index', () => {
           .mockReturnValue(fakeMetaDataAccessGetReturnFirstHashWrong),
         initialize: jest.fn(),
         close: jest.fn(),
-        isPersisting: jest.fn().mockReturnValue(true),
+        skipPersistence: jest.fn().mockReturnValue(true),
         persistTransaction: jest.fn(),
       };
 
@@ -506,7 +506,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
-        isPersisting: jest.fn().mockReturnValue(true),
+        skipPersistence: jest.fn().mockReturnValue(true),
       };
 
       const transactionManager = new TransactionManager(
@@ -564,7 +564,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
-        isPersisting: jest.fn().mockReturnValue(true),
+        skipPersistence: jest.fn().mockReturnValue(true),
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
@@ -638,7 +638,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
-        isPersisting: jest.fn().mockReturnValue(true),
+        skipPersistence: jest.fn().mockReturnValue(true),
       };
 
       const transactionManager = new TransactionManager(
@@ -726,7 +726,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
-        isPersisting: jest.fn().mockReturnValue(true),
+        skipPersistence: jest.fn().mockReturnValue(true),
       };
 
       const transactionManager = new TransactionManager(
@@ -803,7 +803,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
-        isPersisting: jest.fn().mockReturnValue(true),
+        skipPersistence: jest.fn().mockReturnValue(true),
       };
 
       const transactionManager = new TransactionManager(
@@ -882,7 +882,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
-        isPersisting: jest.fn().mockReturnValue(true),
+        skipPersistence: jest.fn().mockReturnValue(true),
       };
 
       const transactionManager = new TransactionManager(
@@ -960,7 +960,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
-        isPersisting: jest.fn().mockReturnValue(true),
+        skipPersistence: jest.fn().mockReturnValue(true),
       };
 
       const transactionManager = new TransactionManager(
@@ -1109,7 +1109,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
-        isPersisting: jest.fn().mockReturnValue(true),
+        skipPersistence: jest.fn().mockReturnValue(true),
       };
 
       const transactionManager = new TransactionManager(
@@ -1184,7 +1184,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
-        isPersisting: jest.fn().mockReturnValue(true),
+        skipPersistence: jest.fn().mockReturnValue(true),
       };
 
       const transactionManager = new TransactionManager(
@@ -1253,7 +1253,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
-        isPersisting: jest.fn().mockReturnValue(true),
+        skipPersistence: jest.fn().mockReturnValue(true),
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
@@ -1333,7 +1333,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
-        isPersisting: jest.fn().mockReturnValue(true),
+        skipPersistence: jest.fn().mockReturnValue(true),
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
@@ -1403,7 +1403,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
-        isPersisting: jest.fn().mockReturnValue(true),
+        skipPersistence: jest.fn().mockReturnValue(true),
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
@@ -1483,7 +1483,7 @@ describe('index', () => {
         initialize: jest.fn(),
         close: jest.fn(),
         persistTransaction: jest.fn(),
-        isPersisting: jest.fn().mockReturnValue(true),
+        skipPersistence: jest.fn().mockReturnValue(true),
       };
 
       const transactionManager = new TransactionManager(

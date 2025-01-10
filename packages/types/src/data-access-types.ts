@@ -36,7 +36,7 @@ export interface IDataWrite {
 }
 
 export interface IDataAccess extends IDataRead, IDataWrite {
-  isPersisting(): boolean;
+  skipPersistence(): boolean;
   _getStatus?(): Promise<IDataAccessStatus>;
   getLitCapacityDelegationAuthSig?: (delegateeAddress: string) => Promise<AuthSig>;
 }

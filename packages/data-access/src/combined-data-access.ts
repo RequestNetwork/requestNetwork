@@ -17,8 +17,8 @@ export abstract class CombinedDataAccess implements DataAccessTypes.IDataAccess 
     await this.reader.close();
   }
 
-  isPersisting(): boolean {
-    return !(this.writer instanceof NoPersistDataWrite);
+  skipPersistence(): boolean {
+    return this.writer instanceof NoPersistDataWrite;
   }
 
   async getTransactionsByChannelId(
