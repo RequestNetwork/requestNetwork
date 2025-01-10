@@ -5,4 +5,4 @@ export { DataAccessRead } from './data-read';
 export { PendingStore } from './pending-store';
 export { DataAccessBaseOptions } from './types';
 export { MockDataAccess } from './mock-data-access';
-export { getNoPersistTransactionRawData } from './no-persist-transaction-raw-data';
+export { NoPersistDataWrite } from './no-persist-data-write';

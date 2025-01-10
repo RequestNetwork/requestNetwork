@@ -1,14 +1,14 @@
-import { Block, getNoPersistTransactionRawData } from '@requestnetwork/data-access';
-import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
-import { ClientTypes, CurrencyTypes, DataAccessTypes, StorageTypes } from '@requestnetwork/types';
+import { CombinedDataAccess } from '@requestnetwork/data-access';
+import { ClientTypes, CurrencyTypes, DataAccessTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
-import { EventEmitter } from 'events';
-import HttpDataAccess, { NodeConnectionConfig } from './http-data-access';
-
+import HttpDataAccess from './http-data-access';
+import { HttpDataAccessConfig, NodeConnectionConfig } from './http-data-access-config';
+import { HttpDataRead } from './http-data-read';
+import { HttpMetaMaskDataWrite } from './http-metamask-data-write';
 /**
  * Exposes a Data-Access module over HTTP
  */
-export default class HttpMetaMaskDataAccess extends HttpDataAccess {
+export default class HttpMetaMaskDataAccess extends CombinedDataAccess {
   /**
    * Cache block persisted directly (in case the node did not have the time to retrieve it)
    * (public for easier testing)
@@ -22,6 +22,9 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
   private provider: ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider;
   private networkName: CurrencyTypes.EvmChainName = 'private';
 
+  private readonly dataAccessConfig: HttpDataAccessConfig;
+  private readonly dataAccess: HttpDataAccess;
+
   /**
    * Creates an instance of HttpDataAccess.
    * @param httpConfig Http config that will be used by the underlying http-data-access. @see ClientTypes.IHttpDataAccessConfig
@@ -33,26 +36,31 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
       nodeConnectionConfig,
       web3,
       ethereumProviderUrl,
-      persist,
     }: {
       httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
       nodeConnectionConfig?: NodeConnectionConfig;
       web3?: any;
       ethereumProviderUrl?: string;
-      persist?: boolean;
     } = {
       httpConfig: {},
-      persist: true,
     },
   ) {
-    super({ httpConfig, nodeConnectionConfig, persist });
-
     ethereumProviderUrl = ethereumProviderUrl ? ethereumProviderUrl : 'http://localhost:8545';
 
     // Creates a local or default provider
-    this.provider = web3
+    const provider = web3
       ? new ethers.providers.Web3Provider(web3)
       : new ethers.providers.JsonRpcProvider({ url: ethereumProviderUrl });
+
+    const dataAccessConfig = new HttpDataAccessConfig({ httpConfig, nodeConnectionConfig });
+    const reader = new HttpDataRead(dataAccessConfig);
+    const writer = new HttpMetaMaskDataWrite(dataAccessConfig, provider);
+
+    super(reader, writer);
+
+    this.dataAccessConfig = dataAccessConfig;
+    this.dataAccess = new HttpDataAccess(dataAccessConfig);
+    this.provider = provider;
   }
 
   /**
@@ -76,117 +84,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     channelId: string,
     topics?: string[],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
-    const eventEmitter = new EventEmitter() as DataAccessTypes.PersistTransactionEmitter;
-
-    if (!this.persist) {
-      const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(
-        eventEmitter,
-        getNoPersistTransactionRawData(topics),
-      );
-
-      // Emit confirmation instantly since data is not going to be persisted
-      result.emit('confirmed', result);
-      return result;
-    }
-
-    if (!this.networkName) {
-      const network = await this.provider.getNetwork();
-
-      this.networkName =
-        network.chainId === 1 ? 'mainnet' : network.chainId === 4 ? 'rinkeby' : 'private';
-    }
-    const submitterContract = requestHashSubmitterArtifact.connect(
-      this.networkName,
-      this.provider.getSigner(),
-    );
-
-    // We don't use the node to persist the transaction, but we will Do it ourselves
-
-    // create a block and add the transaction in it
-    const block: DataAccessTypes.IBlock = Block.pushTransaction(
-      Block.createEmptyBlock(),
-      transactionData,
-      channelId,
-      topics,
-    );
-
-    // store the block on ipfs and get the the ipfs hash and size
-    const { ipfsHash, ipfsSize } = await this.fetch<{ ipfsHash: string; ipfsSize: number }>(
-      'POST',
-      '/ipfsAdd',
-      { data: block },
-    );
-
-    // get the fee required to submit the hash
-    const fee = await submitterContract.getFeesAmount(ipfsSize);
-
-    // submit the hash to ethereum
-    const tx = await submitterContract.submitHash(
-      ipfsHash,
-      /* eslint-disable no-magic-numbers */
-      ethers.utils.hexZeroPad(ethers.utils.hexlify(ipfsSize), 32),
-      { value: fee },
-    );
-
-    const ethBlock = await this.provider.getBlock(tx.blockNumber ?? -1);
-
-    // create the storage meta from the transaction receipt
-    const storageMeta: StorageTypes.IEthereumMetadata = {
-      blockConfirmation: tx.confirmations,
-      blockNumber: tx.blockNumber ?? -1,
-      blockTimestamp: ethBlock.timestamp,
-      fee: fee.toString(),
-      networkName: this.networkName,
-      smartContractAddress: tx.to ?? '',
-      transactionHash: tx.hash,
-    };
-
-    // Add the block to the cache
-    if (!this.cache[channelId]) {
-      this.cache[channelId] = {};
-    }
-    this.cache[channelId][ipfsHash] = { block, storageMeta };
-
-    const result: DataAccessTypes.IReturnPersistTransactionRaw = {
-      meta: {
-        storageMeta: {
-          ethereum: storageMeta,
-          ipfs: { size: ipfsSize },
-          state: StorageTypes.ContentState.PENDING,
-          timestamp: storageMeta.blockTimestamp,
-        },
-        topics: topics || [],
-        transactionStorageLocation: ipfsHash,
-      },
-      result: {},
-    };
-
-    // When the ethereum transaction is mined, emit an event 'confirmed'
-    void tx.wait().then((txConfirmed) => {
-      // emit the event to tell the request transaction is confirmed
-      eventEmitter.emit('confirmed', {
-        meta: {
-          storageMeta: {
-            ethereum: {
-              blockConfirmation: txConfirmed.confirmations,
-              blockNumber: txConfirmed.blockNumber,
-              blockTimestamp: ethBlock.timestamp,
-              fee: fee.toString(),
-              networkName: this.networkName,
-              smartContractAddress: txConfirmed.to,
-              transactionHash: txConfirmed.transactionHash,
-            },
-            state: StorageTypes.ContentState.CONFIRMED,
-            timestamp: ethBlock.timestamp,
-          },
-          topics: topics || [],
-          transactionStorageLocation: ipfsHash,
-        },
-        result: {},
-      });
-    });
-
-    return Object.assign(eventEmitter, result);
+    return this.writer.persistTransaction(transactionData, channelId, topics);
   }
 
   /**
@@ -199,14 +97,14 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     channelId: string,
     timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetTransactions> {
-    const data = await this.fetchAndRetry<DataAccessTypes.IReturnGetTransactions>(
+    const data = await this.dataAccessConfig.fetchAndRetry<DataAccessTypes.IReturnGetTransactions>(
       '/getTransactionsByChannelId',
       {
         params: { channelId, timestampBoundaries },
       },
       {
-        maxRetries: this.httpConfig.httpRequestMaxRetry,
-        retryDelay: this.httpConfig.httpRequestRetryDelay,
+        maxRetries: this.dataAccessConfig.httpConfig.httpRequestMaxRetry,
+        retryDelay: this.dataAccessConfig.httpConfig.httpRequestRetryDelay,
       },
     );
 

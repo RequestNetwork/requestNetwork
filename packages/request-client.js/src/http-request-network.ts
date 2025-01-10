@@ -9,10 +9,10 @@ import {
 } from '@requestnetwork/types';
 import { PaymentNetworkOptions } from '@requestnetwork/payment-detection';
 import RequestNetwork from './api/request-network';
-import HttpDataAccess, { NodeConnectionConfig } from './http-data-access';
+import HttpDataAccess from './http-data-access';
 import { MockDataAccess } from '@requestnetwork/data-access';
 import { MockStorage } from './mock-storage';
-
+import { NodeConnectionConfig } from './http-data-access-config';
 /**
  * Exposes RequestNetwork module configured to use http-data-access.
  */
@@ -56,9 +56,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
     },
   ) {
     const dataAccess: DataAccessTypes.IDataAccess = useMockStorage
-      ? new MockDataAccess(new MockStorage(), {
-          persist: !skipPersistence,
-        })
+      ? new MockDataAccess(new MockStorage())
       : new HttpDataAccess({ httpConfig, nodeConnectionConfig, persist: !skipPersistence });
 
     if (!currencyManager) {

@@ -1,14 +1,11 @@
 import { DataAccessTypes } from '@requestnetwork/types';
+import { NoPersistDataWrite } from './no-persist-data-write';
 
 export abstract class CombinedDataAccess implements DataAccessTypes.IDataAccess {
-  public readonly persist: boolean;
-
   constructor(
     protected reader: DataAccessTypes.IDataRead,
     protected writer: DataAccessTypes.IDataWrite,
-  ) {
-    this.persist = writer.persist;
-  }
+  ) {}
 
   async initialize(): Promise<void> {
     await this.reader.initialize();
@@ -18,6 +15,10 @@ export abstract class CombinedDataAccess implements DataAccessTypes.IDataAccess 
   async close(): Promise<void> {
     await this.writer.close();
     await this.reader.close();
+  }
+
+  isPersisting(): boolean {
+    return !(this.writer instanceof NoPersistDataWrite);
   }
 
   async getTransactionsByChannelId(

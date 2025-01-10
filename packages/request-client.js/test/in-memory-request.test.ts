@@ -1,12 +1,27 @@
 import { RequestNetwork, RequestNetworkBase } from '../src/index';
 import * as TestData from './data-test';
-import { DataAccessTypes } from '@requestnetwork/types';
 
 import { http, HttpResponse } from 'msw';
 import { setupServer, SetupServer } from 'msw/node';
 import config from '../src/http-config-defaults';
-import { MockDataAccess } from '@requestnetwork/data-access';
-import { MockStorage } from '../src/mock-storage';
+import {
+  CombinedDataAccess,
+  DataAccessRead,
+  NoPersistDataWrite,
+  PendingStore,
+} from '@requestnetwork/data-access';
+
+class MyCustomDataAccess extends CombinedDataAccess {
+  constructor() {
+    const pendingStore = new PendingStore();
+    super(
+      new DataAccessRead({} as any, { network: 'mock', pendingStore }),
+      new NoPersistDataWrite(),
+    );
+  }
+}
+{
+}
 
 describe('handle in-memory request', () => {
   let requestNetwork: RequestNetwork;
@@ -64,12 +79,11 @@ describe('handle in-memory request', () => {
   });
 
   it('creates a request without persisting it with custom data access', async () => {
-    const mockStorage = new MockStorage();
-    const mockDataAccess = new MockDataAccess(mockStorage, { persist: false });
+    const myCustomDataAccess = new MyCustomDataAccess();
 
     requestNetwork = new RequestNetworkBase({
       signatureProvider: TestData.fakeSignatureProvider,
-      dataAccess: mockDataAccess,
+      dataAccess: myCustomDataAccess,
     });
 
     const request = await requestNetwork.createRequest(requestCreationParams);
