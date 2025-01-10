@@ -35,9 +35,10 @@ export default class HttpDataAccess extends CombinedDataAccess {
     const dataAccessConfig = new HttpDataAccessConfig({ httpConfig, nodeConnectionConfig });
     const transaction = new HttpTransaction(dataAccessConfig);
     const reader = new HttpDataRead(dataAccessConfig);
-    const writer = persist
-      ? new HttpDataWrite(dataAccessConfig, transaction)
-      : new NoPersistDataWrite();
+    const writer =
+      persist === false
+        ? new NoPersistDataWrite()
+        : new HttpDataWrite(dataAccessConfig, transaction);
 
     super(reader, writer);
 

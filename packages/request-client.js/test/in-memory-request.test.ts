@@ -20,8 +20,6 @@ class MyCustomDataAccess extends CombinedDataAccess {
     );
   }
 }
-{
-}
 
 describe('handle in-memory request', () => {
   let requestNetwork: RequestNetwork;

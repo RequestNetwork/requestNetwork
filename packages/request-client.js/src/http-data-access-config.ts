@@ -26,7 +26,6 @@ export class HttpDataAccessConfig {
     }: {
       httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
       nodeConnectionConfig?: Partial<NodeConnectionConfig>;
-      persist?: boolean;
     } = {
       httpConfig: {},
       nodeConnectionConfig: {},
