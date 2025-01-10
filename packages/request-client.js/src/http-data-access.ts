@@ -10,7 +10,7 @@ import { HttpTransaction } from './http-transaction';
  * Exposes a Data-Access module over HTTP
  */
 export default class HttpDataAccess extends CombinedDataAccess {
-  private readonly dataAccessConfig: HttpDataAccessConfig;
+  protected readonly dataAccessConfig: HttpDataAccessConfig;
   private readonly transaction: HttpTransaction;
   /**
    * Creates an instance of HttpDataAccess.
