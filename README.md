@@ -6,7 +6,6 @@
 [![Commit Activity](https://img.shields.io/github/commit-activity/m/RequestNetwork/requestNetwork.svg?color=green)](https://github.com/RequestNetwork/requestNetwork/pulse/monthly)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/RequestNetwork/requestNetwork?color=orange)
 
-
 [Request][website-url] is a decentralized network built on top of Ethereum, which allows anyone, anywhere to request a payment. A full description of the protocol may be found in our [whitepaper][whitepaper-url].
 
 This repository contains all the Request Network developer tools written in TypeScript.
