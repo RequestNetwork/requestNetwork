@@ -230,81 +230,167 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     page?: number,
     pageSize?: number,
   ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
-    // Get all channel IDs
-    const allChannelIds = Object.keys(resultGetTx.result.transactions).sort();
+    // Get all channel IDs and their latest timestamps
+    const channelsWithTimestamps = Object.entries(resultGetTx.result.transactions).map(
+      ([channelId, transactions]) => ({
+        channelId,
+        latestTimestamp: Math.max(...transactions.map((tx) => tx.timestamp || 0), 0),
+      }),
+    );
+
+    // Sort channels by timestamp in descending order (newest first)
+    const allChannelIds = channelsWithTimestamps
+      .sort((a, b) => b.latestTimestamp - a.latestTimestamp)
+      .map((channel) => channel.channelId);
 
     const result = {
       transactions: {} as Record<string, TransactionTypes.ITransaction[]>,
       ignoredTransactions: {} as Record<string, TransactionTypes.ITransaction[]>,
     };
 
-    // Calculate starting point
-    const start = page && pageSize ? (page - 1) * pageSize : 0;
-    let validCount = 0;
-    let currentIndex = start;
+    let processedCount = 0;
+    let currentIndex = 0;
+    const validChannels: string[] = [];
 
-    // Keep decrypting until we have pageSize valid results or run out of channels
-    while (validCount < (pageSize || allChannelIds.length) && currentIndex < allChannelIds.length) {
-      // Process a larger batch to account for potential invalid results
-      const batchSize = allChannelIds.length - currentIndex;
-      const currentBatch = allChannelIds.slice(currentIndex, currentIndex + batchSize);
+    // First pass: process all channels up to where we need
+    while (currentIndex < allChannelIds.length) {
+      const channelId = allChannelIds[currentIndex];
 
-      // Process batch in parallel
-      const results = await Promise.all(
-        currentBatch.map(async (channelId) => {
-          try {
-            const cleaned = await this.channelParser.decryptAndCleanChannel(
-              channelId,
-              resultGetTx.result.transactions[channelId],
-            );
+      try {
+        const cleaned = await this.channelParser.decryptAndCleanChannel(
+          channelId,
+          resultGetTx.result.transactions[channelId],
+        );
 
-            if (
-              cleaned.transactions &&
-              cleaned.transactions.length > 0 &&
-              cleaned.transactions[0] !== null
-            ) {
-              return {
-                channelId,
-                cleaned,
-                valid: true,
-              };
-            }
-          } catch (error) {
-            console.warn(`Failed to decrypt channel ${channelId}:`, error);
-          }
-          return { channelId, valid: false };
-        }),
-      );
-
-      // Add valid results to our output
-      for (const res of results) {
-        if (
-          res.valid &&
-          res.cleaned &&
-          validCount < (pageSize || allChannelIds.length) &&
-          res.cleaned.transactions?.[0] !== null
-        ) {
-          if (res.cleaned.transactions[0]) {
-            result.transactions[res.channelId] = res.cleaned
-              .transactions as unknown as TransactionTypes.ITransaction[];
-            result.ignoredTransactions[res.channelId] = res.cleaned
-              .ignoredTransactions as unknown as TransactionTypes.ITransaction[];
-            validCount++;
-          }
+        if (this.isValidChannel(cleaned)) {
+          validChannels.push(channelId);
         }
+      } catch (error) {
+        console.warn(`Failed to decrypt channel ${channelId}:`, error);
       }
 
-      // If we haven't gotten enough valid results, continue with the next batch
-      if (validCount < (pageSize || allChannelIds.length)) {
-        currentIndex += batchSize;
-      } else {
+      processedCount++;
+      currentIndex++;
+
+      // Break if we've processed enough to determine pagination
+      if (page && pageSize && validChannels.length >= page * pageSize) {
         break;
       }
     }
 
-    // Get paginated metadata only for the successful channels
+    const { paginatedChannels, endIndex } = this.getPaginatedChannels(
+      validChannels,
+      page,
+      pageSize,
+    );
+
+    // Process only the channels for current page
+    await this.processPageChannels(paginatedChannels, resultGetTx, result);
+
+    // Calculate total based on current ratio of valid channels
+    const totalValidChannels = this.calculateTotalValidChannels(
+      validChannels,
+      allChannelIds,
+      processedCount,
+      page,
+      pageSize,
+    );
+
+    const paginatedMeta = this.createPaginatedMeta(
+      resultGetTx,
+      result,
+      totalValidChannels,
+      currentIndex,
+      validChannels,
+      endIndex,
+      allChannelIds,
+      page,
+      pageSize,
+    );
+
+    return {
+      meta: {
+        dataAccessMeta: paginatedMeta,
+        ignoredTransactions: result.ignoredTransactions as unknown as Record<
+          string,
+          TransactionTypes.IIgnoredTransaction[]
+        >,
+      },
+      result: {
+        transactions: result.transactions as unknown as Record<
+          string,
+          TransactionTypes.ITimestampedTransaction[]
+        >,
+      },
+    };
+  }
+
+  private isValidChannel(cleaned: { transactions: any[]; ignoredTransactions: any[] }): boolean {
+    return (
+      cleaned.transactions && cleaned.transactions.length > 0 && cleaned.transactions[0] !== null
+    );
+  }
+
+  private getPaginatedChannels(validChannels: string[], page?: number, pageSize?: number) {
+    const startIndex = page && pageSize ? (page - 1) * pageSize : 0;
+    const endIndex =
+      page && pageSize
+        ? Math.min(startIndex + pageSize, validChannels.length)
+        : validChannels.length;
+    const paginatedChannels = validChannels.slice(startIndex, endIndex);
+
+    return { paginatedChannels, startIndex, endIndex };
+  }
+
+  private async processPageChannels(
+    paginatedChannels: string[],
+    resultGetTx: DataAccessTypes.IReturnGetChannelsByTopic,
+    result: {
+      transactions: Record<string, TransactionTypes.ITransaction[]>;
+      ignoredTransactions: Record<string, TransactionTypes.ITransaction[]>;
+    },
+  ): Promise<void> {
+    for (const channelId of paginatedChannels) {
+      const cleaned = await this.channelParser.decryptAndCleanChannel(
+        channelId,
+        resultGetTx.result.transactions[channelId],
+      );
+
+      result.transactions[channelId] =
+        cleaned.transactions as unknown as TransactionTypes.ITransaction[];
+      result.ignoredTransactions[channelId] =
+        cleaned.ignoredTransactions as unknown as TransactionTypes.ITransaction[];
+    }
+  }
+
+  private calculateTotalValidChannels(
+    validChannels: string[],
+    allChannelIds: string[],
+    processedCount: number,
+    page?: number,
+    pageSize?: number,
+  ): number {
+    return page && pageSize
+      ? Math.ceil((validChannels.length * allChannelIds.length) / processedCount)
+      : validChannels.length;
+  }
+
+  private createPaginatedMeta(
+    resultGetTx: DataAccessTypes.IReturnGetChannelsByTopic,
+    result: {
+      transactions: Record<string, TransactionTypes.ITransaction[]>;
+      ignoredTransactions: Record<string, TransactionTypes.ITransaction[]>;
+    },
+    totalValidChannels: number,
+    currentIndex: number,
+    validChannels: string[],
+    endIndex: number,
+    allChannelIds: string[],
+    page?: number,
+    pageSize?: number,
+  ) {
     const successfulChannelIds = Object.keys(result.transactions);
-    const paginatedMeta = {
+    return {
       ...resultGetTx.meta,
       storageMeta: Object.keys(resultGetTx.meta.storageMeta || {})
         .filter((key) => successfulChannelIds.includes(key))
@@ -321,28 +407,12 @@ export default class TransactionManager implements TransactionTypes.ITransaction
       pagination:
         page && pageSize
           ? {
-              total: allChannelIds.length,
+              total: totalValidChannels,
               page,
               pageSize,
-              hasMore: currentIndex < allChannelIds.length,
+              hasMore: currentIndex < allChannelIds.length || endIndex < validChannels.length,
             }
           : undefined,
-    };
-
-    return {
-      meta: {
-        dataAccessMeta: paginatedMeta,
-        ignoredTransactions: result.ignoredTransactions as unknown as Record<
-          string,
-          TransactionTypes.IIgnoredTransaction[]
-        >,
-      },
-      result: {
-        transactions: result.transactions as unknown as Record<
-          string,
-          TransactionTypes.ITimestampedTransaction[]
-        >,
-      },
     };
   }
 }
