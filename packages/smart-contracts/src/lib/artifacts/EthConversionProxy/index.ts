@@ -108,6 +108,10 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
           address: '0x3E3B04e1bF170522a5c5DDE628C4d365c0342239',
           creationBlockNumber: 35929105,
         },
+        sonic: {
+          address: '0x3E3B04e1bF170522a5c5DDE628C4d365c0342239',
+          creationBlockNumber: 3974113,
+        },
       },
     },
     '0.2.1': {
@@ -126,8 +130,12 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
           address: '0x3E3B04e1bF170522a5c5DDE628C4d365c0342239',
           creationBlockNumber: 35929105,
         },
+        sonic: {
+          address: '0x3E3B04e1bF170522a5c5DDE628C4d365c0342239',
+          creationBlockNumber: 3974113,
+        },
       },
     },
   },
-  '0.2.0',
+  '0.2.1',
 );

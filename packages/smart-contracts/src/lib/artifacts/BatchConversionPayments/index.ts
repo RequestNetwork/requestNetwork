@@ -86,6 +86,10 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
           address: '0x02561967c48e87cfB079763F3BEf6424A5A166A7',
           creationBlockNumber: 12950451,
         },
+        sonic: {
+          address: '0x118159B0fD020c5Ba3891fD7B626573E810FB265',
+          creationBlockNumber: 3974167,
+        },
       },
     },
   },
