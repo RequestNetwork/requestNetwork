@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/toolbox",
-  "version": "0.15.5",
+  "version": "0.15.6",
   "private": true,
   "description": "Toolbox for Request Network.",
   "keywords": [
@@ -42,14 +42,14 @@
     "referenceCalculator": "yarn cli referenceCalculator"
   },
   "dependencies": {
-    "@requestnetwork/currency": "0.23.0",
-    "@requestnetwork/epk-signature": "0.9.5",
-    "@requestnetwork/ethereum-storage": "0.40.0",
-    "@requestnetwork/payment-detection": "0.49.0",
-    "@requestnetwork/request-client.js": "0.54.0",
-    "@requestnetwork/smart-contracts": "0.43.0",
-    "@requestnetwork/types": "0.49.0",
-    "@requestnetwork/utils": "0.49.0",
+    "@requestnetwork/currency": "0.24.0",
+    "@requestnetwork/epk-signature": "0.9.6",
+    "@requestnetwork/ethereum-storage": "0.41.0",
+    "@requestnetwork/payment-detection": "0.50.0",
+    "@requestnetwork/request-client.js": "0.55.0",
+    "@requestnetwork/smart-contracts": "0.44.0",
+    "@requestnetwork/types": "0.50.0",
+    "@requestnetwork/utils": "0.50.0",
     "ethers": "5.7.2",
     "inquirer": "8.2.0",
     "tslib": "2.5.0",
