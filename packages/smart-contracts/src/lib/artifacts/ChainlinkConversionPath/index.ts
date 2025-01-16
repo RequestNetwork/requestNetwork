@@ -129,6 +129,10 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
           address: '0x3dF89c727eaDF67eeD7b4d09EC4F2b41f8Dec2ca',
           creationBlockNumber: 10827258,
         },
+        sonic: {
+          address: '0x05D782aD6D6556179A6387Ff1D2fA104FD5c515a',
+          creationBlockNumber: 3973538,
+        },
       },
     },
     '0.2.1': {
@@ -141,6 +145,10 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
         base: {
           address: '0x3dF89c727eaDF67eeD7b4d09EC4F2b41f8Dec2ca',
           creationBlockNumber: 10827258,
+        },
+        sonic: {
+          address: '0x05D782aD6D6556179A6387Ff1D2fA104FD5c515a',
+          creationBlockNumber: 3973538,
         },
       },
     },

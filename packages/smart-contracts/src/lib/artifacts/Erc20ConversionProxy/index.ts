@@ -87,6 +87,10 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
           address: '0x8296D56321cf207925a7804E5A8E3F579838e6Ad',
           creationBlockNumber: 10827277,
         },
+        sonic: {
+          address: '0xe43fd55Da253628Ed7Cad5ab198664F5B3659DA9',
+          creationBlockNumber: 3974151,
+        },
       },
     },
     '0.1.1': {
@@ -136,6 +140,10 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
         base: {
           address: '0x8296D56321cf207925a7804E5A8E3F579838e6Ad',
           creationBlockNumber: 10827277,
+        },
+        sonic: {
+          address: '0xe43fd55Da253628Ed7Cad5ab198664F5B3659DA9',
+          creationBlockNumber: 3974151,
         },
       },
     },
