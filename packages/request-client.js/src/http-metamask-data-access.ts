@@ -3,7 +3,8 @@ import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, CurrencyTypes, DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
 import { EventEmitter } from 'events';
-import HttpDataAccess, { NodeConnectionConfig } from './http-data-access';
+import HttpDataAccess from './http-data-access';
+import { NodeConnectionConfig } from './http-data-access-config';
 
 /**
  * Exposes a Data-Access module over HTTP
@@ -95,11 +96,10 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     );
 
     // store the block on ipfs and get the the ipfs hash and size
-    const { ipfsHash, ipfsSize } = await this.fetch<{ ipfsHash: string; ipfsSize: number }>(
-      'POST',
-      '/ipfsAdd',
-      { data: block },
-    );
+    const { ipfsHash, ipfsSize } = await this.dataAccessConfig.fetch<{
+      ipfsHash: string;
+      ipfsSize: number;
+    }>('POST', '/ipfsAdd', { data: block });
 
     // get the fee required to submit the hash
     const fee = await submitterContract.getFeesAmount(ipfsSize);
@@ -184,14 +184,14 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     channelId: string,
     timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetTransactions> {
-    const data = await this.fetchAndRetry<DataAccessTypes.IReturnGetTransactions>(
+    const data = await this.dataAccessConfig.fetchAndRetry<DataAccessTypes.IReturnGetTransactions>(
       '/getTransactionsByChannelId',
       {
         params: { channelId, timestampBoundaries },
       },
       {
-        maxRetries: this.httpConfig.httpRequestMaxRetry,
-        retryDelay: this.httpConfig.httpRequestRetryDelay,
+        maxRetries: this.dataAccessConfig.httpConfig.httpRequestMaxRetry,
+        retryDelay: this.dataAccessConfig.httpConfig.httpRequestRetryDelay,
       },
     );
 
