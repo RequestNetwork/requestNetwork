@@ -136,7 +136,7 @@ describe('handle in-memory request', () => {
 
     const request = await requestNetwork.createRequest(requestCreationParams);
 
-    await expect(request.getData()).rejects.toThrow(
+    expect(request.getData()).rejects.toThrow(
       'value must be a promise or a function returning a promise',
     );
   });
