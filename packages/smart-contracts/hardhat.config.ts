@@ -204,6 +204,11 @@ export default {
       chainId: 8453,
       accounts,
     },
+    sonic: {
+      url: url('sonic'),
+      chainId: 146,
+      accounts,
+    },
   },
   zksolc: {
     version: '1.3.16',
@@ -243,6 +248,7 @@ export default {
       mantle: 'api-key',
       'mantle-testnet': 'api-key',
       celo: process.env.CELOSCAN_API_KEY,
+      sonic: process.env.SONIC_API_KEY,
     },
     customChains: [
       {
@@ -285,6 +291,14 @@ export default {
           browserURL: 'https://celoscan.io/',
         },
       },
+      {
+        network: 'sonic',
+        chainId: 146,
+        urls: {
+          apiURL: 'https://api.sonicscan.org/api',
+          browserURL: 'https://sonicscan.org/',
+        },
+      },
     ],
   },
   tenderly: {
@@ -317,6 +331,7 @@ export default {
           'avalanche',
           'optimism',
           'moonbeam',
+          'sonic',
         ],
     gasLimit: undefined,
     deployerAddress: requestDeployer,
