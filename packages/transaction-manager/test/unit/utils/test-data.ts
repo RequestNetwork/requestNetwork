@@ -140,11 +140,15 @@ export class FakeEpkCipherProvider implements CipherProviderTypes.ICipherProvide
   public async encrypt(
     data: string,
     options: { encryptionParams: EncryptionTypes.IEncryptionParameters },
-  ): Promise<string> {
+  ): Promise<EncryptionTypes.IEncryptedData> {
     const encryptionParams = options.encryptionParams;
 
     if (encryptionParams.method === EncryptionTypes.METHOD.ECIES) {
-      return ecEncrypt(encryptionParams.key, data);
+      const encryptedValue = await ecEncrypt(encryptionParams.key, data);
+      return {
+        type: EncryptionTypes.METHOD.ECIES,
+        value: encryptedValue,
+      };
     }
 
     throw new Error('encryptionParams.method not supported');

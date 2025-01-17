@@ -16,6 +16,7 @@ const mockDataAccess: DataAccessTypes.IDataAccess = {
   close: jest.fn(),
   persistTransaction: jest.fn(),
   getChannelsByMultipleTopics: jest.fn(),
+  skipPersistence: jest.fn().mockReturnValue(true),
 };
 
 describe('api/request-network', () => {

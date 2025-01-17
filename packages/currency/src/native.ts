@@ -172,6 +172,12 @@ export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthC
       name: 'Base Ether',
       network: 'base',
     },
+    {
+      symbol: '$S',
+      decimals: 18,
+      name: '$S',
+      network: 'sonic',
+    },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [
     {

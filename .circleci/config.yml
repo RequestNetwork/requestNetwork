@@ -266,6 +266,21 @@ jobs:
       - store_test_results:
           path: packages/integration-test/reports/
 
+  test-monthly:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    resource_class: large
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Test payment-processor (hinkal)'
+          no_output_timeout: 30m
+          command: 'yarn workspace @requestnetwork/payment-processor run test:hinkal'
+      - store_test_results:
+          path: packages/payment-processor/reports/
+
   # Release a next version package everytime we merge to master
   next-release:
     docker:
@@ -347,5 +362,21 @@ workflows:
     jobs:
       - build
       - test-nightly:
+          requires:
+            - build
+
+  monthly:
+    triggers:
+      - schedule:
+          # This is a cron job for "every 1st day of the month at 22 hours"
+          cron: '0 22 1 * *'
+          filters:
+            branches:
+              only:
+                - master
+
+    jobs:
+      - build
+      - test-monthly:
           requires:
             - build
