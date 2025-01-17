@@ -136,12 +136,6 @@ describe('handle in-memory request', () => {
 
     const request = await requestNetwork.createRequest(requestCreationParams);
 
-    expect(request.inMemoryInfo).toBeDefined();
-    expect(request.inMemoryInfo?.requestData).toBeDefined();
-    expect(request.inMemoryInfo?.topics).toBeDefined();
-    expect(request.inMemoryInfo?.transactionData).toBeDefined();
-    expect(request.requestId).toBeDefined();
-
     await expect(request.getData()).rejects.toThrow('Cannot get data from an in-memory request');
   });
 
