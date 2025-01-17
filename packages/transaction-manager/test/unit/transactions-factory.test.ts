@@ -70,6 +70,57 @@ describe('transaction-factory', () => {
       ).toBe(true);
     }, 10000);
 
+    it('can create encrypted transaction with EthereumPrivateKeyCipherProvider', async () => {
+      const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
+        data,
+        [
+          TestData.idRaw1.encryptionParams,
+          TestData.idRaw2.encryptionParams,
+          TestData.idRaw3.encryptionParams,
+        ],
+        TestData.fakeEpkCipherProvider,
+      );
+      // eslint-disable-next-line no-magic-numbers
+
+      if (encryptedTx.encryptedData) {
+        // eslint-disable-next-line no-magic-numbers
+        // 'encryptedData not right'
+        expect(encryptedTx.encryptedData.length).toBe(126);
+        // 'encryptedData not right'
+        expect(encryptedTx.encryptedData.slice(0, 2)).toEqual(
+          MultiFormatTypes.prefix.AES256_GCM_ENCRYPTED,
+        );
+      } else {
+        fail('encryptedData should not be undefined');
+      }
+
+      // 'encryptionMethod not right'
+      expect(encryptedTx.encryptionMethod).toEqual(
+        `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`,
+      );
+
+      // 'keys not right'
+      expect(Object.keys(encryptedTx.keys || {}).length).toEqual(3);
+      // 'keys not right'
+      expect(Object.keys(encryptedTx.keys || {})).toEqual([
+        MultiFormat.serialize(TestData.idRaw1.identity),
+        MultiFormat.serialize(TestData.idRaw2.identity),
+        MultiFormat.serialize(TestData.idRaw3.identity),
+      ]);
+
+      // 'encrypted keys looks wrong'
+      expect(
+        // eslint-disable-next-line no-magic-numbers
+        Object.values(encryptedTx.keys || {}).every((ek) => ek.length === 260),
+      ).toBe(true);
+      // 'encrypted keys looks wrong'
+      expect(
+        Object.values(encryptedTx.keys || {}).every(
+          (ek) => ek.slice(0, 2) === MultiFormatTypes.prefix.ECIES_ENCRYPTED,
+        ),
+      ).toBe(true);
+    }, 10000);
+
     it('can create encrypted transaction with Lit Protocol', async () => {
       const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
         data,
@@ -78,7 +129,7 @@ describe('transaction-factory', () => {
           TestData.kmsRaw2.encryptionParams,
           TestData.kmsRaw3.encryptionParams,
         ],
-        TestData.fakeLitProtocolProvider,
+        TestData.fakeLitProtocolCipherProvider,
       );
       // eslint-disable-next-line no-magic-numbers
 
@@ -180,7 +231,7 @@ describe('transaction-factory', () => {
         data,
         channelKey,
         undefined,
-        TestData.fakeLitProtocolProvider,
+        TestData.fakeLitProtocolCipherProvider,
       );
       // eslint-disable-next-line no-magic-numbers
 
@@ -216,7 +267,7 @@ describe('transaction-factory', () => {
           TestData.kmsRaw2.encryptionParams,
           TestData.kmsRaw3.encryptionParams,
         ],
-        TestData.fakeLitProtocolProvider,
+        TestData.fakeLitProtocolCipherProvider,
       );
       // eslint-disable-next-line no-magic-numbers
 

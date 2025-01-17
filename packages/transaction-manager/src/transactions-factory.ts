@@ -85,7 +85,7 @@ export default class TransactionsFactory {
           ) {
             const encryptedKey: EncryptionTypes.IEncryptedData = await cipherProvider.encrypt(
               symmetricKey,
-              { encryptionParams },
+              { encryptionParams: encryptionParam },
             );
             return { encryptedKey, multiFormattedIdentity };
           } else {
@@ -219,7 +219,7 @@ export default class TransactionsFactory {
             ) {
               const encryptedKey: EncryptionTypes.IEncryptedData = await cipherProvider.encrypt(
                 channelKey.key,
-                { encryptionParams },
+                { encryptionParams: encryptionParam },
               );
               return { encryptedKey, multiFormattedIdentity };
             } else {

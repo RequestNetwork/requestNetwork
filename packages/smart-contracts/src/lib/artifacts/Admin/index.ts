@@ -47,6 +47,10 @@ export const safeAdminArtifact = new ContractArtifact<any>(
           address: '0xAb05E8277c2c605D2762F6e3B6175Cab954fC8e8',
           creationBlockNumber: 1,
         },
+        base: {
+          address: '0xf735afF55745e00D85F30AFB01E1c042D0755628',
+          creationBlockNumber: 1,
+        },
       },
     },
   },

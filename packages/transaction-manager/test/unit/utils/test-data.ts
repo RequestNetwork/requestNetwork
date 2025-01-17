@@ -140,11 +140,15 @@ export class FakeEpkCipherProvider implements CipherProviderTypes.ICipherProvide
   public async encrypt(
     data: string,
     options: { encryptionParams: EncryptionTypes.IEncryptionParameters },
-  ): Promise<string> {
+  ): Promise<EncryptionTypes.IEncryptedData> {
     const encryptionParams = options.encryptionParams;
 
     if (encryptionParams.method === EncryptionTypes.METHOD.ECIES) {
-      return ecEncrypt(encryptionParams.key, data);
+      const encryptedValue = await ecEncrypt(encryptionParams.key, data);
+      return {
+        type: EncryptionTypes.METHOD.ECIES,
+        value: encryptedValue,
+      };
     }
 
     throw new Error('encryptionParams.method not supported');
@@ -176,7 +180,7 @@ export const id3DecryptionProvider: DecryptionProviderTypes.IDecryptionProvider 
   supportedMethods: [EncryptionTypes.METHOD.ECIES],
 };
 
-export class FakeLitProtocolProvider implements CipherProviderTypes.ICipherProvider {
+export class FakeLitProtocolCipherProvider implements CipherProviderTypes.ICipherProvider {
   private storedRawData: string;
 
   constructor() {
@@ -228,5 +232,5 @@ export class FakeLitProtocolProvider implements CipherProviderTypes.ICipherProvi
   }
 }
 
-export const fakeLitProtocolProvider: CipherProviderTypes.ICipherProvider =
-  new FakeLitProtocolProvider();
+export const fakeLitProtocolCipherProvider: CipherProviderTypes.ICipherProvider =
+  new FakeLitProtocolCipherProvider();

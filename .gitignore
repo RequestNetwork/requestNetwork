@@ -42,3 +42,5 @@ tsconfig.build.tsbuildinfo
 /packages/smart-contracts/src/types/
 /packages/smart-contracts/build-zk/
 /packages/smart-contracts/cache-zk/
+
+.nx-cache/

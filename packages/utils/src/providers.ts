@@ -53,6 +53,7 @@ const networkRpcs: Record<string, string> = {
   zksyncera: 'https://mainnet.era.zksync.io',
   sepolia: 'https://rpc.sepolia.org/',
   base: 'https://mainnet.base.org/',
+  sonic: 'https://rpc.soniclabs.com',
 };
 
 /**
