@@ -128,6 +128,23 @@ describe('handle in-memory request', () => {
     );
   });
 
+  it('throws an error when calling getData on an in-memory request', async () => {
+    requestNetwork = new RequestNetwork({
+      skipPersistence: true,
+      signatureProvider: TestData.fakeSignatureProvider,
+    });
+
+    const request = await requestNetwork.createRequest(requestCreationParams);
+
+    expect(request.inMemoryInfo).toBeDefined();
+    expect(request.inMemoryInfo?.requestData).toBeDefined();
+    expect(request.inMemoryInfo?.topics).toBeDefined();
+    expect(request.inMemoryInfo?.transactionData).toBeDefined();
+    expect(request.requestId).toBeDefined();
+
+    await expect(request.getData()).rejects.toThrow('Cannot get data from an in-memory request');
+  });
+
   it('persists a previously created in-memory request', async () => {
     requestNetwork = new RequestNetwork({
       skipPersistence: true,
