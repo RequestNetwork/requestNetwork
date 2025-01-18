@@ -140,7 +140,7 @@ describe('handle in-memory request', () => {
 
     console.log(JSON.stringify(request, null, 2));
 
-    expect(request.getData()).toBe(
+    expect(request.getData()).toStrictEqual(
       Object.assign(new EventEmitter(), {} as ClientTypes.IRequestDataWithEvents),
     );
   });
