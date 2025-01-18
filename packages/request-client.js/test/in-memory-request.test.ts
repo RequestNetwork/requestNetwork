@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events';
 import { RequestNetwork, RequestNetworkBase } from '../src/index';
 import * as TestData from './data-test';
 
@@ -10,6 +11,7 @@ import {
   NoPersistDataWrite,
   PendingStore,
 } from '@requestnetwork/data-access';
+import { ClientTypes } from '@requestnetwork/types';
 
 class MyCustomDataAccess extends CombinedDataAccess {
   constructor() {
@@ -136,7 +138,11 @@ describe('handle in-memory request', () => {
 
     const request = await requestNetwork.createRequest(requestCreationParams);
 
-    expect(request.getData()).toThrow('value must be a promise or a function returning a promise');
+    console.log(JSON.stringify(request, null, 2));
+
+    expect(request.getData()).toBe(
+      Object.assign(new EventEmitter(), {} as ClientTypes.IRequestDataWithEvents),
+    );
   });
 
   it('persists a previously created in-memory request', async () => {
