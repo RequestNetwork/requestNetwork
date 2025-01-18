@@ -130,15 +130,13 @@ describe('handle in-memory request', () => {
     );
   });
 
-  it('throws an error when calling getData on an in-memory request', async () => {
+  it('returns an empty EventEmitter object when calling getData', async () => {
     requestNetwork = new RequestNetwork({
       skipPersistence: true,
       signatureProvider: TestData.fakeSignatureProvider,
     });
 
     const request = await requestNetwork.createRequest(requestCreationParams);
-
-    console.log(JSON.stringify(request, null, 2));
 
     expect(request.getData()).toStrictEqual(
       Object.assign(new EventEmitter(), {} as ClientTypes.IRequestDataWithEvents),
