@@ -92,6 +92,7 @@ export interface IReturnGetChannelsByTopic {
     transactionsStorageLocation: {
       [key: string]: string[];
     };
+    pagination?: any;
     /** meta-data from the layer below */
     storageMeta?: Record<string, StorageTypes.IEntryMetadata[] | undefined>;
   };
