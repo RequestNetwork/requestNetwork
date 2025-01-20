@@ -858,9 +858,10 @@ describe('request-client.js', () => {
 
       await request.waitForConfirmation();
 
-      const requestsFromTopic = await requestNetwork.fromTopic('my amazing test topic');
-      expect(requestsFromTopic).not.toHaveLength(0);
-      const requestData = requestsFromTopic[0].getData();
+      const response = await requestNetwork.fromTopic('my amazing test topic');
+      const requests = Array.isArray(response) ? response : response.requests;
+      expect(requests).not.toHaveLength(0);
+      const requestData = requests[0].getData();
       expect(requestData).toMatchObject(request.getData());
 
       expect(requestData.meta).not.toBeNull();
@@ -898,15 +899,16 @@ describe('request-client.js', () => {
       );
       await request2.waitForConfirmation();
 
-      const requestsFromTopic = await requestNetwork.fromMultipleTopics([
+      const response = await requestNetwork.fromMultipleTopics([
         'my amazing test topic',
         'my second best test topic',
       ]);
-      expect(requestsFromTopic).toHaveLength(2);
-      expect(requestsFromTopic[0].getData()).toMatchObject(request.getData());
-      expect(requestsFromTopic[1].getData()).toMatchObject(request2.getData());
+      const requests = Array.isArray(response) ? response : response.requests;
+      expect(requests).toHaveLength(2);
+      expect(requests[0].getData()).toMatchObject(request.getData());
+      expect(requests[1].getData()).toMatchObject(request2.getData());
 
-      requestsFromTopic.forEach((req) => {
+      requests.forEach((req) => {
         const requestData = req.getData();
         expect(requestData.meta).not.toBeNull();
         expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
@@ -930,9 +932,10 @@ describe('request-client.js', () => {
       );
       await request.waitForConfirmation();
 
-      const requestFromIdentity = await requestNetwork.fromIdentity(TestData.payee.identity);
-      expect(requestFromIdentity).not.toBe('');
-      const requestData = requestFromIdentity[0].getData();
+      const response = await requestNetwork.fromIdentity(TestData.payee.identity);
+      const requests = Array.isArray(response) ? response : response.requests;
+      expect(requests).not.toBe('');
+      const requestData = requests[0].getData();
       expect(requestData).toMatchObject(request.getData());
 
       expect(requestData.meta).not.toBeNull();
