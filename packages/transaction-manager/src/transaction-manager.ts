@@ -229,17 +229,29 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     resultGetTx: DataAccessTypes.IReturnGetChannelsByTopic,
     page?: number,
     pageSize?: number,
+    updatedBetween?: TransactionTypes.ITimestampBoundaries,
   ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
     // Get all channel IDs and their latest timestamps
     const channelsWithTimestamps = Object.entries(resultGetTx.result.transactions).map(
-      ([channelId, transactions]) => ({
-        channelId,
-        latestTimestamp: Math.max(...transactions.map((tx) => tx.timestamp || 0), 0),
-      }),
+      ([channelId, transactions]) => {
+        const filteredTransactions = transactions.filter((tx) => {
+          const timestamp = tx.timestamp || 0;
+          if (updatedBetween?.from && timestamp < updatedBetween.from) return false;
+          if (updatedBetween?.to && timestamp > updatedBetween.to) return false;
+          return true;
+        });
+        return {
+          channelId,
+          latestTimestamp: Math.max(...filteredTransactions.map((tx) => tx.timestamp || 0), 0),
+          hasValidTransactions: filteredTransactions.length > 0,
+          filteredTransactions,
+        };
+      },
     );
 
-    // Sort channels by timestamp in descending order (newest first)
+    // Only include channels that have transactions within the time boundaries
     const allChannelIds = channelsWithTimestamps
+      .filter((channel) => channel.hasValidTransactions)
       .sort((a, b) => b.latestTimestamp - a.latestTimestamp)
       .map((channel) => channel.channelId);
 
@@ -253,9 +265,13 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     // Process all channels first
     for (const channelId of allChannelIds) {
       try {
+        // Find the channel with its filtered transactions
+        const channel = channelsWithTimestamps.find((c) => c.channelId === channelId);
+        if (!channel) continue;
+
         const cleaned = await this.channelParser.decryptAndCleanChannel(
           channelId,
-          resultGetTx.result.transactions[channelId],
+          channel.filteredTransactions,
         );
 
         // When paginating, include channels based on validity
@@ -266,7 +282,6 @@ export default class TransactionManager implements TransactionTypes.ITransaction
         } else {
           // When not paginating, include all channels
           validChannels.push(channelId);
-          // Always add the channel to results, even if invalid/encrypted
           result.transactions[channelId] =
             cleaned.transactions as unknown as TransactionTypes.ITransaction[];
           result.ignoredTransactions[channelId] =
@@ -274,7 +289,6 @@ export default class TransactionManager implements TransactionTypes.ITransaction
         }
       } catch (error) {
         console.warn(`Failed to decrypt channel ${channelId}:`, error);
-        // Add failed channels with null transaction
         result.transactions[channelId] = [];
         result.ignoredTransactions[channelId] = [];
       }
