@@ -97,7 +97,6 @@ yarn run deploy:contracts
 Run request-node locally
 
 ```bash
-cp ./packages/request-node/.env.example ./packages/request-node/.env
 yarn run start:request-node
 ```
 
