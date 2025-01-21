@@ -170,6 +170,7 @@ describe('api/request-network', () => {
             meta: {
               [TestData.actionRequestId]: [],
               [TestData.actionRequestIdSecondRequest]: [],
+              transactionsStorageLocation: {},
             },
             result: {
               transactions: {
@@ -224,6 +225,7 @@ describe('api/request-network', () => {
             meta: {
               [TestData.actionRequestId]: [],
               [TestData.actionRequestIdSecondRequest]: [],
+              transactionsStorageLocation: {},
             },
             result: {
               transactions: {
@@ -294,6 +296,7 @@ describe('api/request-network', () => {
             meta: {
               [TestData.actionRequestId]: [],
               [TestData.actionRequestIdSecondRequest]: [],
+              transactionsStorageLocation: {},
             },
             result: {
               transactions: {
