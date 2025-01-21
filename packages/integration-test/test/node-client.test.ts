@@ -287,9 +287,10 @@ describe('Request client using a request node', () => {
     expect(requestData2.state).toBe(Types.RequestLogic.STATE.CREATED);
 
     // get requests with boundaries
-    requests = (await requestNetwork.fromTopic(topicsRequest1and2[0], {
+    const result = await requestNetwork.fromTopic(topicsRequest1and2[0], {
       to: timestampBeforeReduce,
-    })) as Request[];
+    });
+    requests = Array.isArray(result) ? result : result.requests;
     expect(requests.length).toBe(1);
     expect(requests[0].requestId).toBe(request1.requestId);
 
