@@ -17,7 +17,7 @@ import {
   SignatureProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
-import { deepCopy, supportedIdentities, validatePaginationParams } from '@requestnetwork/utils';
+import { deepCopy, supportedIdentities } from '@requestnetwork/utils';
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
@@ -352,8 +352,6 @@ export default class RequestNetwork {
   ): Promise<
     Request[] | { meta: RequestLogicTypes.IReturnGetRequestsByTopic['meta']; requests: Request[] }
   > {
-    validatePaginationParams(options?.page, options?.pageSize);
-
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic =
       await this.requestLogic.getRequestsByTopic(
@@ -426,8 +424,6 @@ export default class RequestNetwork {
   ): Promise<
     Request[] | { meta: RequestLogicTypes.IReturnGetRequestsByTopic['meta']; requests: Request[] }
   > {
-    validatePaginationParams(options?.page, options?.pageSize);
-
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic =
       await this.requestLogic.getRequestsByMultipleTopics(

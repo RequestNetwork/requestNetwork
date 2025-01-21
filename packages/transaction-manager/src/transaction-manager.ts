@@ -8,6 +8,7 @@ import {
   TransactionTypes,
 } from '@requestnetwork/types';
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
+import { validatePaginationParams } from '@requestnetwork/utils';
 
 import { EventEmitter } from 'events';
 
@@ -196,9 +197,9 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     page?: number,
     pageSize?: number,
   ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
+    validatePaginationParams(page, pageSize);
     const resultGetTx = await this.dataAccess.getChannelsByTopic(topic, updatedBetween);
-
-    return this.parseMultipleChannels(resultGetTx, page, pageSize);
+    return this.parseMultipleChannels(resultGetTx, page, pageSize, updatedBetween);
   }
 
   /**
@@ -214,9 +215,9 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     page?: number,
     pageSize?: number,
   ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
+    validatePaginationParams(page, pageSize);
     const resultGetTx = await this.dataAccess.getChannelsByMultipleTopics(topics, updatedBetween);
-
-    return this.parseMultipleChannels(resultGetTx, page, pageSize);
+    return this.parseMultipleChannels(resultGetTx, page, pageSize, updatedBetween);
   }
 
   /**
@@ -231,6 +232,8 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     pageSize?: number,
     updatedBetween?: TransactionTypes.ITimestampBoundaries,
   ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
+    validatePaginationParams(page, pageSize);
+
     // Get all channel IDs and their latest timestamps
     const channelsWithTimestamps = Object.entries(resultGetTx.result.transactions).map(
       ([channelId, transactions]) => {

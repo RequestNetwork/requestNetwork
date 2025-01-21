@@ -1589,4 +1589,269 @@ describe('index', () => {
       );
     });
   });
+
+  describe('getChannelsByTopic with pagination', () => {
+    it('should return paginated results when page and pageSize are provided', async () => {
+      // Create test data with multiple channels
+      const channels = {
+        [channelId]: [tx, tx2],
+        [channelId2]: [
+          {
+            state: TransactionTypes.TransactionState.PENDING,
+            timestamp: 3,
+            transaction: { data: '{"third": "tx"}' },
+          },
+        ],
+        ['thirdChannelId']: [
+          {
+            state: TransactionTypes.TransactionState.PENDING,
+            timestamp: 4,
+            transaction: { data: '{"fourth": "tx"}' },
+          },
+        ],
+      };
+
+      const fakeMetaDataAccessGetChannelsReturnMultiple: DataAccessTypes.IReturnGetChannelsByTopic =
+        {
+          meta: {
+            transactionsStorageLocation: {
+              [channelId]: ['fakeDataId1', 'fakeDataId2'],
+              [channelId2]: ['fakeDataId3'],
+              thirdChannelId: ['fakeDataId4'],
+            },
+          },
+          result: { transactions: channels },
+        };
+
+      fakeDataAccess = {
+        ...fakeDataAccess,
+        getChannelsByTopic: jest.fn().mockReturnValue(fakeMetaDataAccessGetChannelsReturnMultiple),
+      };
+
+      const transactionManager = new TransactionManager(fakeDataAccess);
+
+      // Test first page
+      const firstPage = await transactionManager.getChannelsByTopic(
+        extraTopics[0],
+        undefined,
+        1,
+        2,
+      );
+      expect(Object.keys(firstPage.result.transactions)).toHaveLength(2);
+      expect(firstPage.meta.dataAccessMeta.pagination).toEqual({
+        total: 3,
+        page: 1,
+        pageSize: 2,
+        hasMore: true,
+      });
+
+      // Test second page
+      const secondPage = await transactionManager.getChannelsByTopic(
+        extraTopics[0],
+        undefined,
+        2,
+        2,
+      );
+      expect(Object.keys(secondPage.result.transactions)).toHaveLength(1);
+      expect(secondPage.meta.dataAccessMeta.pagination).toEqual({
+        total: 3,
+        page: 2,
+        pageSize: 2,
+        hasMore: false,
+      });
+    });
+
+    it('should handle empty results with pagination', async () => {
+      const emptyChannels = {};
+      const fakeMetaDataAccessGetChannelsReturnEmpty: DataAccessTypes.IReturnGetChannelsByTopic = {
+        meta: {
+          transactionsStorageLocation: {},
+        },
+        result: { transactions: emptyChannels },
+      };
+
+      fakeDataAccess = {
+        ...fakeDataAccess,
+        getChannelsByTopic: jest.fn().mockReturnValue(fakeMetaDataAccessGetChannelsReturnEmpty),
+      };
+
+      const transactionManager = new TransactionManager(fakeDataAccess);
+      const result = await transactionManager.getChannelsByTopic(extraTopics[0], undefined, 1, 10);
+
+      expect(Object.keys(result.result.transactions)).toHaveLength(0);
+      expect(result.meta.dataAccessMeta.pagination).toEqual({
+        total: 0,
+        page: 1,
+        pageSize: 10,
+        hasMore: false,
+      });
+    });
+
+    it('should return all results when pagination params are not provided', async () => {
+      const channels = {
+        [channelId]: [tx, tx2],
+        [channelId2]: [
+          {
+            state: TransactionTypes.TransactionState.PENDING,
+            timestamp: 3,
+            transaction: { data: '{"third": "tx"}' },
+          },
+        ],
+      };
+
+      const fakeMetaDataAccessGetChannelsReturnMultiple: DataAccessTypes.IReturnGetChannelsByTopic =
+        {
+          meta: {
+            transactionsStorageLocation: {
+              [channelId]: ['fakeDataId1', 'fakeDataId2'],
+              [channelId2]: ['fakeDataId3'],
+            },
+          },
+          result: { transactions: channels },
+        };
+
+      fakeDataAccess = {
+        ...fakeDataAccess,
+        getChannelsByTopic: jest.fn().mockReturnValue(fakeMetaDataAccessGetChannelsReturnMultiple),
+      };
+
+      const transactionManager = new TransactionManager(fakeDataAccess);
+      const result = await transactionManager.getChannelsByTopic(extraTopics[0]);
+
+      // Should return all channels without pagination
+      expect(Object.keys(result.result.transactions)).toHaveLength(2);
+      expect(result.meta.dataAccessMeta.pagination).toBeUndefined();
+    });
+
+    it('should handle timestamp boundaries with pagination', async () => {
+      const channels = {
+        [channelId]: [
+          {
+            ...tx,
+            timestamp: 1000,
+          },
+          {
+            ...tx2,
+            timestamp: 2000,
+          },
+        ],
+        [channelId2]: [
+          {
+            state: TransactionTypes.TransactionState.PENDING,
+            timestamp: 3000,
+            transaction: { data: '{"third": "tx"}' },
+          },
+        ],
+      };
+
+      const fakeMetaDataAccessGetChannelsReturnMultiple: DataAccessTypes.IReturnGetChannelsByTopic =
+        {
+          meta: {
+            transactionsStorageLocation: {
+              [channelId]: ['fakeDataId1', 'fakeDataId2'],
+              [channelId2]: ['fakeDataId3'],
+            },
+          },
+          result: { transactions: channels },
+        };
+
+      fakeDataAccess = {
+        ...fakeDataAccess,
+        getChannelsByTopic: jest.fn().mockReturnValue(fakeMetaDataAccessGetChannelsReturnMultiple),
+      };
+
+      const transactionManager = new TransactionManager(fakeDataAccess);
+
+      // Test with timestamp boundaries
+      const result = await transactionManager.getChannelsByTopic(
+        extraTopics[0],
+        { from: 1500, to: 3500 },
+        1,
+        2,
+      );
+
+      // Should only include channels with transactions in the time range
+      expect(Object.keys(result.result.transactions)).toHaveLength(2);
+      expect(result.meta.dataAccessMeta.pagination).toEqual({
+        total: 2,
+        page: 1,
+        pageSize: 2,
+        hasMore: false,
+      });
+    });
+  });
+
+  describe('pagination validation', () => {
+    it('should throw error for invalid page number in getChannelsByTopic', async () => {
+      const transactionManager = new TransactionManager(fakeDataAccess);
+
+      await expect(
+        transactionManager.getChannelsByTopic(extraTopics[0], undefined, 0, 10),
+      ).rejects.toThrow('Page must be greater than 0');
+
+      await expect(
+        transactionManager.getChannelsByTopic(extraTopics[0], undefined, -1, 10),
+      ).rejects.toThrow('Page must be greater than 0');
+    });
+
+    it('should throw error for invalid pageSize in getChannelsByTopic', async () => {
+      const transactionManager = new TransactionManager(fakeDataAccess);
+
+      await expect(
+        transactionManager.getChannelsByTopic(extraTopics[0], undefined, 1, 0),
+      ).rejects.toThrow('PageSize must be greater than 0');
+
+      await expect(
+        transactionManager.getChannelsByTopic(extraTopics[0], undefined, 1, -1),
+      ).rejects.toThrow('PageSize must be greater than 0');
+    });
+
+    it('should throw error for invalid page number in getChannelsByMultipleTopics', async () => {
+      const transactionManager = new TransactionManager(fakeDataAccess);
+
+      await expect(
+        transactionManager.getChannelsByMultipleTopics([extraTopics[0]], undefined, 0, 10),
+      ).rejects.toThrow('Page must be greater than 0');
+
+      await expect(
+        transactionManager.getChannelsByMultipleTopics([extraTopics[0]], undefined, -1, 10),
+      ).rejects.toThrow('Page must be greater than 0');
+    });
+
+    it('should throw error for invalid pageSize in getChannelsByMultipleTopics', async () => {
+      const transactionManager = new TransactionManager(fakeDataAccess);
+
+      await expect(
+        transactionManager.getChannelsByMultipleTopics([extraTopics[0]], undefined, 1, 0),
+      ).rejects.toThrow('PageSize must be greater than 0');
+
+      await expect(
+        transactionManager.getChannelsByMultipleTopics([extraTopics[0]], undefined, 1, -1),
+      ).rejects.toThrow('PageSize must be greater than 0');
+    });
+
+    it('should throw error if only one pagination parameter is provided in getChannelsByTopic', async () => {
+      const transactionManager = new TransactionManager(fakeDataAccess);
+
+      await expect(
+        transactionManager.getChannelsByTopic(extraTopics[0], undefined, 1, undefined),
+      ).rejects.toThrow('Both page and pageSize must be provided for pagination');
+
+      await expect(
+        transactionManager.getChannelsByTopic(extraTopics[0], undefined, undefined, 10),
+      ).rejects.toThrow('Both page and pageSize must be provided for pagination');
+    });
+
+    it('should throw error if only one pagination parameter is provided in getChannelsByMultipleTopics', async () => {
+      const transactionManager = new TransactionManager(fakeDataAccess);
+
+      await expect(
+        transactionManager.getChannelsByMultipleTopics([extraTopics[0]], undefined, 1, undefined),
+      ).rejects.toThrow('Both page and pageSize must be provided for pagination');
+
+      await expect(
+        transactionManager.getChannelsByMultipleTopics([extraTopics[0]], undefined, undefined, 10),
+      ).rejects.toThrow('Both page and pageSize must be provided for pagination');
+    });
+  });
 });
