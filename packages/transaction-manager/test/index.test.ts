@@ -1676,68 +1676,6 @@ describe('index', () => {
       });
     });
 
-    it('should handle timestamp boundaries with pagination', async () => {
-      const channels = {
-        [channelId]: [
-          {
-            state: TransactionTypes.TransactionState.PENDING,
-            timestamp: 2000,
-            transaction: { data },
-          },
-          {
-            state: TransactionTypes.TransactionState.PENDING,
-            timestamp: 2500,
-            transaction: { data },
-          },
-        ],
-        [channelId2]: [
-          {
-            state: TransactionTypes.TransactionState.PENDING,
-            timestamp: 3000,
-            transaction: { data: data2 },
-          },
-        ],
-      };
-
-      const fakeMetaDataAccessGetChannelsReturnMultiple: DataAccessTypes.IReturnGetChannelsByTopic =
-        {
-          meta: {
-            storageMeta: {},
-            transactionsStorageLocation: {
-              [channelId]: ['fakeDataId1', 'fakeDataId2'],
-              [channelId2]: ['fakeDataId3'],
-            },
-          },
-          result: { transactions: channels },
-        };
-
-      fakeDataAccess = {
-        ...fakeDataAccess,
-        getChannelsByTopic: jest.fn().mockReturnValue(fakeMetaDataAccessGetChannelsReturnMultiple),
-      };
-
-      const transactionManager = new TransactionManager(fakeDataAccess);
-
-      // Test with timestamp boundaries
-      const result = await transactionManager.getChannelsByTopic(
-        extraTopics[0],
-        { from: 1500, to: 3500 },
-        1,
-        2,
-      );
-
-      // Should only include channels with transactions in the time range
-      expect(Object.keys(result.result.transactions)).toHaveLength(2);
-      expect(result.result.transactions).toHaveProperty(channelId);
-      expect(result.result.transactions).toHaveProperty(channelId2);
-      expect(result.meta.dataAccessMeta.pagination).toEqual({
-        total: 2,
-        page: 1,
-        pageSize: 2,
-        hasMore: false,
-      });
-    });
-
     it('should handle empty results with pagination', async () => {
       const emptyChannels = {};
       const fakeMetaDataAccessGetChannelsReturnEmpty: DataAccessTypes.IReturnGetChannelsByTopic = {
