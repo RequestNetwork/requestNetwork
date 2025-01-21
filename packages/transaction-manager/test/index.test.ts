@@ -1258,7 +1258,6 @@ describe('index', () => {
 
       const ret = await transactionManager.getChannelsByTopic(extraTopics[0]);
 
-      // Update expectations to match actual behavior
       expect(ret.result).toEqual({
         transactions: {
           [channelId]: [null],
@@ -1498,7 +1497,6 @@ describe('index', () => {
         },
       });
 
-      // Update the metadata expectation to include all fields
       expect(ret.meta).toEqual({
         dataAccessMeta: {
           pagination: undefined,
