@@ -256,8 +256,8 @@ export default class TransactionManager implements TransactionTypes.ITransaction
       .map((channel) => channel.channelId);
 
     const result = {
-      transactions: {} as Record<string, TransactionTypes.ITransaction[]>,
-      ignoredTransactions: {} as Record<string, TransactionTypes.ITransaction[]>,
+      transactions: {} as Record<string, (TransactionTypes.ITimestampedTransaction | null)[]>,
+      ignoredTransactions: {} as Record<string, (TransactionTypes.IIgnoredTransaction | null)[]>,
     };
 
     const validChannels: string[] = [];
@@ -282,10 +282,8 @@ export default class TransactionManager implements TransactionTypes.ITransaction
         } else {
           // When not paginating, include all channels
           validChannels.push(channelId);
-          result.transactions[channelId] =
-            cleaned.transactions as unknown as TransactionTypes.ITransaction[];
-          result.ignoredTransactions[channelId] =
-            cleaned.ignoredTransactions as unknown as TransactionTypes.ITransaction[];
+          result.transactions[channelId] = cleaned.transactions;
+          result.ignoredTransactions[channelId] = cleaned.ignoredTransactions;
         }
       } catch (error) {
         console.warn(`Failed to decrypt channel ${channelId}:`, error);
@@ -319,10 +317,8 @@ export default class TransactionManager implements TransactionTypes.ITransaction
           resultGetTx.result.transactions[channelId],
         );
 
-        result.transactions[channelId] =
-          cleaned.transactions as unknown as TransactionTypes.ITransaction[];
-        result.ignoredTransactions[channelId] =
-          cleaned.ignoredTransactions as unknown as TransactionTypes.ITransaction[];
+        result.transactions[channelId] = cleaned.transactions;
+        result.ignoredTransactions[channelId] = cleaned.ignoredTransactions;
       }),
     );
 
