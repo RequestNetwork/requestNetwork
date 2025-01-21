@@ -106,14 +106,3 @@ export const GetTransactionByDataHashQuery = gql`
     }
   }
 `;
-
-export const GetTransactionsByTopicsCount = gql`
-  query GetTransactionsByTopicsCount($topics: [String!]!) {
-    ${metaQueryBody}
-    channels(where: { topics_contains: $topics }) {
-      transactions {
-        id
-      }
-    }
-  }
-`;

@@ -275,7 +275,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
         );
 
         // When paginating, include channels based on validity
-        if (page !== undefined || pageSize !== undefined) {
+        if (page !== undefined && pageSize !== undefined) {
           if (this.isValidChannel(cleaned)) {
             validChannels.push(channelId);
           }

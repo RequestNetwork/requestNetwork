@@ -649,6 +649,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
             requestAndMeta.transactionManagerMeta,
           );
 
+          // add the pagination
           finalResult.meta.pagination = {
             ...finalResult.meta.pagination,
             ...requestAndMeta.pagination,

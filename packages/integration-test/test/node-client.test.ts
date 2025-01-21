@@ -273,7 +273,8 @@ describe('Request client using a request node', () => {
     await waitForConfirmation(requestDataCancel);
 
     // get requests without boundaries
-    let requests: Request[] = (await requestNetwork.fromTopic(topicsRequest1and2[0])) as Request[];
+    const response = await requestNetwork.fromTopic(topicsRequest1and2[0]);
+    let requests = Array.isArray(response) ? response : response.requests;
     expect(requests.length).toBe(2);
     expect(requests[0].requestId).toBe(request1.requestId);
     expect(requests[1].requestId).toBe(request2.requestId);
