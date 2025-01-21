@@ -232,8 +232,6 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     pageSize?: number,
     updatedBetween?: TransactionTypes.ITimestampBoundaries,
   ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
-    validatePaginationParams(page, pageSize);
-
     // Get all channel IDs and their latest timestamps
     const channelsWithTimestamps = Object.entries(resultGetTx.result.transactions).map(
       ([channelId, transactions]) => {
@@ -258,72 +256,73 @@ export default class TransactionManager implements TransactionTypes.ITransaction
       .sort((a, b) => b.latestTimestamp - a.latestTimestamp)
       .map((channel) => channel.channelId);
 
+    // Process all channels and collect valid ones
+    const processedChannels = await Promise.all(
+      allChannelIds.map(async (channelId) => {
+        try {
+          const channel = channelsWithTimestamps.find((c) => c.channelId === channelId);
+          if (!channel) return null;
+
+          const cleaned = await this.channelParser.decryptAndCleanChannel(
+            channelId,
+            channel.filteredTransactions,
+          );
+
+          return {
+            channelId,
+            isValid: this.isValidChannel(cleaned),
+            data: cleaned,
+          };
+        } catch (error) {
+          console.warn(`Failed to decrypt channel ${channelId}:`, error);
+          return {
+            channelId,
+            isValid: false,
+            data: { transactions: [], ignoredTransactions: [] },
+          };
+        }
+      }),
+    );
+
+    // Filter out null values and get valid channels
+    const validChannels = processedChannels
+      .filter(
+        (channel): channel is NonNullable<typeof channel> =>
+          channel !== null && (page !== undefined ? channel.isValid : true),
+      )
+      .map((channel) => channel.channelId);
+
+    // Apply pagination if required
+    const channelsToInclude =
+      page !== undefined && pageSize !== undefined
+        ? validChannels.slice((page - 1) * pageSize, page * pageSize)
+        : validChannels;
+
+    // Populate result object
     const result = {
       transactions: {} as Record<string, (TransactionTypes.ITimestampedTransaction | null)[]>,
       ignoredTransactions: {} as Record<string, (TransactionTypes.IIgnoredTransaction | null)[]>,
     };
 
-    const validChannels: string[] = [];
-
-    // Process all channels first
-    for (const channelId of allChannelIds) {
-      try {
-        // Find the channel with its filtered transactions
-        const channel = channelsWithTimestamps.find((c) => c.channelId === channelId);
-        if (!channel) continue;
-
-        const cleaned = await this.channelParser.decryptAndCleanChannel(
-          channelId,
-          channel.filteredTransactions,
-        );
-
-        // When paginating, include channels based on validity
-        if (page !== undefined && pageSize !== undefined) {
-          if (this.isValidChannel(cleaned)) {
-            validChannels.push(channelId);
-          }
-        } else {
-          // When not paginating, include all channels
-          validChannels.push(channelId);
-          result.transactions[channelId] = cleaned.transactions;
-          result.ignoredTransactions[channelId] = cleaned.ignoredTransactions;
-        }
-      } catch (error) {
-        console.warn(`Failed to decrypt channel ${channelId}:`, error);
-        result.transactions[channelId] = [];
-        result.ignoredTransactions[channelId] = [];
+    // Add data for included channels
+    channelsToInclude.forEach((channelId) => {
+      const channelData = processedChannels.find((c) => c?.channelId === channelId)?.data;
+      if (channelData) {
+        result.transactions[channelId] = channelData.transactions;
+        result.ignoredTransactions[channelId] = channelData.ignoredTransactions;
       }
-    }
+    });
 
-    // Apply pagination only if both page and pageSize are defined
-    let channelsToProcess = validChannels;
-    let paginationMeta;
-
-    if (page !== undefined && pageSize !== undefined) {
-      const startIndex = (page - 1) * pageSize;
-      const endIndex = Math.min(startIndex + pageSize, validChannels.length);
-      channelsToProcess = validChannels.slice(startIndex, endIndex);
-
-      paginationMeta = {
-        total: validChannels.length,
-        page,
-        pageSize,
-        hasMore: endIndex < validChannels.length,
-      };
-    }
-
-    // Process the selected channels
-    await Promise.all(
-      channelsToProcess.map(async (channelId) => {
-        const cleaned = await this.channelParser.decryptAndCleanChannel(
-          channelId,
-          resultGetTx.result.transactions[channelId],
-        );
-
-        result.transactions[channelId] = cleaned.transactions;
-        result.ignoredTransactions[channelId] = cleaned.ignoredTransactions;
-      }),
-    );
+    // Create pagination metadata if required
+    const paginationMeta =
+      page !== undefined && pageSize !== undefined
+        ? {
+            total: validChannels.length,
+            page,
+            pageSize,
+            hasMore: page * pageSize < validChannels.length,
+          }
+        : undefined;
 
     // Create the final meta object
     const successfulChannelIds = Object.keys(result.transactions);
