@@ -343,9 +343,10 @@ describe('Request client using a request node', () => {
     await new Promise((r) => setTimeout(r, 1500));
 
     // get requests with boundaries
-    const requests = (await requestNetwork.fromIdentity(payerSmartContract, {
+    const result = await requestNetwork.fromIdentity(payerSmartContract, {
       from: timestampCreation,
-    })) as Request[];
+    });
+    const requests = Array.isArray(result) ? result : result.requests;
     expect(requests.length).toBe(1);
     expect(requests[0].requestId).toBe(request1.requestId);
   });
