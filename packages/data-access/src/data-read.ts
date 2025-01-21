@@ -48,7 +48,7 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
 
   async getChannelsByTopic(
     topic: string,
-    updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+    updatedBetween?: DataAccessTypes.ITimestampBoundaries | undefined,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
     return this.getChannelsByMultipleTopics([topic], updatedBetween);
   }
@@ -57,11 +57,14 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
     topics: string[],
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
+    const result = await this.storage.getTransactionsByTopics(topics);
     const pending = this.pendingStore?.findByTopics(topics) || [];
+
     const pendingItems = pending.map((item) => ({
       hash: item.storageResult.id,
       channelId: item.channelId,
       ...item.transaction,
+
       blockNumber: item.storageResult.meta.ethereum?.blockNumber || -1,
       blockTimestamp: item.storageResult.meta.ethereum?.blockTimestamp || -1,
       transactionHash: item.storageResult.meta.ethereum?.transactionHash || '',
@@ -70,54 +73,42 @@ export class DataAccessRead implements DataAccessTypes.IDataRead {
       topics: item.topics || [],
     }));
 
-    // Get stored transactions
-    const result = await this.storage.getTransactionsByTopics(topics);
+    const transactions = result.transactions.concat(...pendingItems);
 
-    // Combine and sort all transactions
-    const allTransactions = [...result.transactions, ...pendingItems].sort(
-      (a, b) => a.blockTimestamp - b.blockTimestamp,
-    );
+    // list of channels having at least one tx updated during the updatedBetween boundaries
+    const channels = (
+      updatedBetween
+        ? transactions.filter(
+            (tx) =>
+              tx.blockTimestamp >= (updatedBetween.from || 0) &&
+              tx.blockTimestamp <= (updatedBetween.to || Number.MAX_SAFE_INTEGER),
+          )
+        : transactions
+    ).map((x) => x.channelId);
 
-    // Apply time boundaries filter
-    const filteredTransactions = updatedBetween
-      ? allTransactions.filter(
-          (tx) =>
-            tx.blockTimestamp >= (updatedBetween.from || 0) &&
-            tx.blockTimestamp <= (updatedBetween.to || Number.MAX_SAFE_INTEGER),
-        )
-      : allTransactions;
-
-    // Group by channel ID
-    const transactionsByChannel = filteredTransactions.reduce((prev, curr) => {
-      if (!prev[curr.channelId]) {
-        prev[curr.channelId] = [];
-      }
-      prev[curr.channelId].push(this.toTimestampedTransaction(curr));
-      return prev;
-    }, {} as DataAccessTypes.ITransactionsByChannelIds);
-
-    const storageMeta = filteredTransactions.reduce((acc, tx) => {
-      if (!acc[tx.channelId]) {
-        acc[tx.channelId] = [this.toStorageMeta(tx, result.blockNumber, this.network)];
-      }
-      return acc;
-    }, {} as Record<string, StorageTypes.IEntryMetadata[]>);
-
-    const storageLocations = filteredTransactions.reduce((prev, curr) => {
-      if (!prev[curr.channelId]) {
-        prev[curr.channelId] = [];
-      }
-      prev[curr.channelId].push(curr.hash);
-      return prev;
-    }, {} as Record<string, string[]>);
-
+    const filteredTxs = transactions.filter((tx) => channels.includes(tx.channelId));
     return {
       meta: {
-        storageMeta,
-        transactionsStorageLocation: storageLocations,
+        storageMeta: filteredTxs.reduce((acc, tx) => {
+          acc[tx.channelId] = [this.toStorageMeta(tx, result.blockNumber, this.network)];
+          return acc;
+        }, {} as Record<string, StorageTypes.IEntryMetadata[]>),
+        transactionsStorageLocation: filteredTxs.reduce((prev, curr) => {
+          if (!prev[curr.channelId]) {
+            prev[curr.channelId] = [];
+          }
+          prev[curr.channelId].push(curr.hash);
+          return prev;
+        }, {} as Record<string, string[]>),
       },
       result: {
-        transactions: transactionsByChannel,
+        transactions: filteredTxs.reduce((prev, curr) => {
+          if (!prev[curr.channelId]) {
+            prev[curr.channelId] = [];
+          }
+          prev[curr.channelId].push(this.toTimestampedTransaction(curr));
+          return prev;
+        }, {} as DataAccessTypes.ITransactionsByChannelIds),
       },
     };
   }
