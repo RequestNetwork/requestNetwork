@@ -344,16 +344,10 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     return {
       meta: {
         dataAccessMeta: paginatedMeta,
-        ignoredTransactions: result.ignoredTransactions as unknown as Record<
-          string,
-          TransactionTypes.IIgnoredTransaction[]
-        >,
+        ignoredTransactions: result.ignoredTransactions,
       },
       result: {
-        transactions: result.transactions as unknown as Record<
-          string,
-          TransactionTypes.ITimestampedTransaction[]
-        >,
+        transactions: result.transactions,
       },
     };
   }
