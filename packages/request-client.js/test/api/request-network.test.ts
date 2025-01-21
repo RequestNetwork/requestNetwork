@@ -99,8 +99,6 @@ describe('api/request-network', () => {
         async getChannelsByTopic(
           topic: string,
           updatedBetween?: DataAccessTypes.ITimestampBoundaries,
-          page?: number,
-          pageSize?: number,
         ): Promise<any> {
           expect(topic).toBe('01f1a21ab419611dbf492b3136ac231c8773dc897ee0eb5167ef2051a39e685e76');
           return {
@@ -172,7 +170,6 @@ describe('api/request-network', () => {
             meta: {
               [TestData.actionRequestId]: [],
               [TestData.actionRequestIdSecondRequest]: [],
-              transactionsStorageLocation: {},
             },
             result: {
               transactions: {
@@ -227,7 +224,6 @@ describe('api/request-network', () => {
             meta: {
               [TestData.actionRequestId]: [],
               [TestData.actionRequestIdSecondRequest]: [],
-              transactionsStorageLocation: {},
             },
             result: {
               transactions: {
@@ -298,7 +294,6 @@ describe('api/request-network', () => {
             meta: {
               [TestData.actionRequestId]: [],
               [TestData.actionRequestIdSecondRequest]: [],
-              transactionsStorageLocation: {},
             },
             result: {
               transactions: {
