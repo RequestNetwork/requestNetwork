@@ -235,22 +235,33 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     // Get all channel IDs and their latest timestamps
     const channelsWithTimestamps = Object.entries(resultGetTx.result.transactions).map(
       ([channelId, transactions]) => {
-        const filteredTransactions = transactions.filter((tx) => {
-          const timestamp = tx.timestamp || 0;
-          if (updatedBetween?.from && timestamp < updatedBetween.from) return false;
-          if (updatedBetween?.to && timestamp > updatedBetween.to) return false;
-          return true;
-        });
+        // Get all timestamps for the channel
+        const timestamps = transactions.map((tx) => tx.timestamp || 0);
+        const latestTimestamp = Math.max(...timestamps, 0);
+
+        // A channel should be included if ANY of its transactions are after 'from'
+        // and the channel has activity before 'to'
+        let hasValidTransactions = true;
+        if (updatedBetween) {
+          const hasTransactionsAfterFrom =
+            !updatedBetween?.from || timestamps.some((t) => t >= updatedBetween.from!);
+          const hasTransactionsBeforeTo =
+            !updatedBetween?.to || timestamps.some((t) => t <= updatedBetween.to!);
+          hasValidTransactions = hasTransactionsAfterFrom && hasTransactionsBeforeTo;
+        }
+
+        // Include all transactions for valid channels
+        // This ensures we have the complete state
         return {
           channelId,
-          latestTimestamp: Math.max(...filteredTransactions.map((tx) => tx.timestamp || 0), 0),
-          hasValidTransactions: filteredTransactions.length > 0,
-          filteredTransactions,
+          latestTimestamp,
+          hasValidTransactions,
+          filteredTransactions: hasValidTransactions ? transactions : [],
         };
       },
     );
 
-    // Only include channels that have transactions within the time boundaries
+    // Only include channels that have valid transactions
     const allChannelIds = channelsWithTimestamps
       .filter((channel) => channel.hasValidTransactions)
       .sort((a, b) => b.latestTimestamp - a.latestTimestamp)
