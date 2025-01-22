@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/ethereum-storage",
-  "version": "0.41.0",
+  "version": "0.42.0",
   "publishConfig": {
     "access": "public"
   },
@@ -41,9 +41,9 @@
   },
   "dependencies": {
     "@rainbow-me/fee-suggestions": "2.1.0",
-    "@requestnetwork/smart-contracts": "0.44.0",
-    "@requestnetwork/types": "0.50.0",
-    "@requestnetwork/utils": "0.50.0",
+    "@requestnetwork/smart-contracts": "0.45.0",
+    "@requestnetwork/types": "0.51.0",
+    "@requestnetwork/utils": "0.51.0",
     "ethers": "5.7.2",
     "form-data": "3.0.0",
     "qs": "6.11.2",
