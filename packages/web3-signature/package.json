@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/web3-signature",
-  "version": "0.8.6",
+  "version": "0.8.7",
   "publishConfig": {
     "access": "public"
   },
@@ -41,8 +41,8 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.50.0",
-    "@requestnetwork/utils": "0.50.0",
+    "@requestnetwork/types": "0.51.0",
+    "@requestnetwork/utils": "0.51.0",
     "ethers": "5.7.2",
     "tslib": "2.5.0"
   },

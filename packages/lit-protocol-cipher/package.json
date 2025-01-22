@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/lit-protocol-cipher",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "publishConfig": {
     "access": "public"
   },
@@ -47,8 +47,8 @@
     "@lit-protocol/lit-node-client": "7.0.2",
     "@lit-protocol/lit-node-client-nodejs": "7.0.2",
     "@lit-protocol/types": "7.0.2",
-    "@requestnetwork/request-client.js": "0.55.0",
-    "@requestnetwork/types": "0.50.0",
+    "@requestnetwork/request-client.js": "0.56.0",
+    "@requestnetwork/types": "0.51.0",
     "@walletconnect/modal": "2.7.0",
     "ethers": "5.7.2"
   },
