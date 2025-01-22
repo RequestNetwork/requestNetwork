@@ -365,7 +365,10 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     };
   }
 
-  private isValidChannel(cleaned: { transactions: any[]; ignoredTransactions: any[] }): boolean {
+  private isValidChannel(cleaned: {
+    transactions: (TransactionTypes.ITimestampedTransaction | null)[];
+    ignoredTransactions: (TransactionTypes.IIgnoredTransaction | null)[];
+  }): boolean {
     return (
       cleaned.transactions && cleaned.transactions.length > 0 && cleaned.transactions[0] !== null
     );
