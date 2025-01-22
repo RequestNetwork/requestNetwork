@@ -626,6 +626,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           pending,
           request: confirmedRequestState,
           transactionManagerMeta: transactionManagerMeta[channelId],
+          pagination: transactionManagerMeta.pagination,
         };
       },
     );
@@ -640,7 +641,6 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
             pending: requestAndMeta.pending,
             request: requestAndMeta.request,
           });
-
           // workaround to quiet the error "finalResult.meta.ignoredTransactions can be undefined" (but defined in the initialization value of the accumulator)
           (finalResult.meta.ignoredTransactions || []).push(requestAndMeta.ignoredTransactions);
 
@@ -648,6 +648,12 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           (finalResult.meta.transactionManagerMeta || []).push(
             requestAndMeta.transactionManagerMeta,
           );
+
+          // add the pagination
+          finalResult.meta.pagination = {
+            ...finalResult.meta.pagination,
+            ...requestAndMeta.pagination,
+          };
         }
 
         return finalResult;

@@ -55,38 +55,11 @@ export class InMemoryIndexer implements StorageTypes.IIndexer {
     };
   }
 
-  async getTransactionsByTopics(
-    topics: string[],
-    page?: number,
-    pageSize?: number,
-  ): Promise<StorageTypes.IGetTransactionsResponse> {
-    if (page !== undefined && page < 1) {
-      throw new Error('Page must be greater than or equal to 1');
-    }
-    if (pageSize !== undefined && pageSize <= 0) {
-      throw new Error('Page size must be greater than 0');
-    }
-
+  async getTransactionsByTopics(topics: string[]): Promise<StorageTypes.IGetTransactionsResponse> {
     // Efficiently get total count without creating intermediate array
     const channelIdsSet = new Set(topics.flatMap((topic) => this.#topicToChannelsIndex.get(topic)));
-    const total = channelIdsSet.size;
-    let channelIds = Array.from(channelIdsSet);
+    const channelIds = Array.from(channelIdsSet);
 
-    if (page && pageSize) {
-      const start = (page - 1) * pageSize;
-      // Return empty result if page exceeds available data
-      if (start >= total) {
-        return {
-          blockNumber: 0,
-          transactions: [],
-          pagination:
-            page && pageSize
-              ? { total, page, pageSize, hasMore: page * pageSize < total }
-              : undefined,
-        };
-      }
-      channelIds = channelIds.slice(start, start + pageSize);
-    }
     const locations = channelIds
       .map((channel) => this.#channelToLocationsIndex.get(channel))
       .flat();

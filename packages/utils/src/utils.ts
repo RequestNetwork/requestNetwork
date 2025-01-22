@@ -169,10 +169,24 @@ function notNull<T>(x: T | null | undefined): x is T {
  * @param pageSize
  */
 function validatePaginationParams(page?: number, pageSize?: number): void {
-  if (page !== undefined && page < 1) {
+  // If either parameter is defined, both must be defined
+  if (
+    (page !== undefined && pageSize === undefined) ||
+    (page === undefined && pageSize !== undefined)
+  ) {
+    throw new Error('Both page and pageSize must be provided for pagination');
+  }
+
+  // If both are undefined, that's valid (no pagination)
+  if (page === undefined && pageSize === undefined) {
+    return;
+  }
+
+  // At this point, both parameters are defined
+  if (page! < 1) {
     throw new Error(`Page number must be greater than or equal to 1 but it is ${page}`);
   }
-  if (pageSize !== undefined && pageSize <= 0) {
+  if (pageSize! <= 0) {
     throw new Error(`Page size must be positive but it is ${pageSize}`);
   }
 }

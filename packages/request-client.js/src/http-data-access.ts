@@ -110,10 +110,8 @@ export default class HttpDataAccess extends CombinedDataAccess {
   public async getChannelsByTopic(
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
-    page?: number,
-    pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    return await this.reader.getChannelsByTopic(topic, updatedBetween, page, pageSize);
+    return await this.reader.getChannelsByTopic(topic, updatedBetween);
   }
 
   /**
@@ -125,10 +123,8 @@ export default class HttpDataAccess extends CombinedDataAccess {
   public async getChannelsByMultipleTopics(
     topics: string[],
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
-    page?: number,
-    pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    return await this.reader.getChannelsByMultipleTopics(topics, updatedBetween, page, pageSize);
+    return await this.reader.getChannelsByMultipleTopics(topics, updatedBetween);
   }
 
   /**

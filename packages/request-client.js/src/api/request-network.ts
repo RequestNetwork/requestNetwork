@@ -17,7 +17,7 @@ import {
   SignatureProviderTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
-import { deepCopy, supportedIdentities, validatePaginationParams } from '@requestnetwork/utils';
+import { deepCopy, supportedIdentities } from '@requestnetwork/utils';
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
@@ -294,7 +294,9 @@ export default class RequestNetwork {
       page?: number;
       pageSize?: number;
     },
-  ): Promise<Request[]> {
+  ): Promise<
+    Request[] | { meta: RequestLogicTypes.IReturnGetRequestsByTopic['meta']; requests: Request[] }
+  > {
     if (!this.supportedIdentities.includes(identity.type)) {
       throw new Error(`${identity.type} is not supported`);
     }
@@ -317,7 +319,9 @@ export default class RequestNetwork {
       page?: number;
       pageSize?: number;
     },
-  ): Promise<Request[]> {
+  ): Promise<
+    Request[] | { meta: RequestLogicTypes.IReturnGetRequestsByTopic['meta']; requests: Request[] }
+  > {
     const identityNotSupported = identities.find(
       (identity) => !this.supportedIdentities.includes(identity.type),
     );
@@ -345,9 +349,9 @@ export default class RequestNetwork {
       page?: number;
       pageSize?: number;
     },
-  ): Promise<Request[]> {
-    validatePaginationParams(options?.page, options?.pageSize);
-
+  ): Promise<
+    Request[] | { meta: RequestLogicTypes.IReturnGetRequestsByTopic['meta']; requests: Request[] }
+  > {
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic =
       await this.requestLogic.getRequestsByTopic(
@@ -389,8 +393,16 @@ export default class RequestNetwork {
         return request;
       },
     );
+    const requests = await Promise.all(requestPromises);
 
-    return Promise.all(requestPromises);
+    if (options?.page && options?.pageSize) {
+      return {
+        requests,
+        meta: requestsAndMeta.meta,
+      };
+    } else {
+      return requests;
+    }
   }
 
   /**
@@ -409,9 +421,9 @@ export default class RequestNetwork {
       page?: number;
       pageSize?: number;
     },
-  ): Promise<Request[]> {
-    validatePaginationParams(options?.page, options?.pageSize);
-
+  ): Promise<
+    Request[] | { meta: RequestLogicTypes.IReturnGetRequestsByTopic['meta']; requests: Request[] }
+  > {
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic =
       await this.requestLogic.getRequestsByMultipleTopics(
@@ -454,8 +466,15 @@ export default class RequestNetwork {
         return request;
       },
     );
-
-    return Promise.all(requestPromises);
+    const requests = await Promise.all(requestPromises);
+    if (options?.page && options?.pageSize) {
+      return {
+        requests,
+        meta: requestsAndMeta.meta,
+      };
+    } else {
+      return requests;
+    }
   }
 
   /*
