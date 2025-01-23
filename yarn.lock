@@ -2951,10 +2951,10 @@
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.2.0.tgz#5f3d96ec6b2354ad6d8a28bf216a1d97b5426861"
   integrity sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==
 
-"@hinkal/common@0.2.7":
-  version "0.2.7"
-  resolved "https://registry.yarnpkg.com/@hinkal/common/-/common-0.2.7.tgz#0128e0f2a175fb4c6d7ed006a0c886f942e3163d"
-  integrity sha512-Dqs/7J0/9bNT8j47LNtkEINOOdAz1AIbbMqklRX5ym7KL7wH5LXuP7S9CYX+mmHPTG3/3EVb39oZNDjaRX6m9Q==
+"@hinkal/common@0.2.9":
+  version "0.2.9"
+  resolved "https://registry.yarnpkg.com/@hinkal/common/-/common-0.2.9.tgz#122e9b43d74a00c3eaf6bc321b85163ad90fe42f"
+  integrity sha512-rlzjeQ7obtil+tu4Bg28rUcmlLEGD8F/HFCIuuTlNFvlPq5rHROjqOQb9OAxnf12ID/IMNP7LT9s6LvoSYUbcA==
   dependencies:
     async-mutex "^0.4.0"
     axios "^1.6.8"
