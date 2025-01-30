@@ -605,9 +605,14 @@ export default class RequestNetwork {
             receivedRefundAmount: '0',
             sentPaymentAmount: '0',
             sentRefundAmount: '0',
+            network: extension.parameters.network,
             paymentAddress: extension.parameters.paymentAddress,
             feeAddress: extension.parameters.feeAddress,
             feeAmount: extension.parameters.feeAmount,
+            feeBalance: {
+              events: [],
+              balance: '0',
+            },
           },
           version: extension.version,
         };
@@ -618,8 +623,12 @@ export default class RequestNetwork {
       ...requestData.parameters,
       requestId,
       meta: null,
-      balance: null,
-      currency: requestData.parameters.currency.type,
+      balance: {
+        balance: '0',
+        events: [],
+        escrowEvents: [],
+      },
+      currency: requestData.parameters.currency.value,
       currencyInfo: {
         type: requestData.parameters.currency.type,
         network: requestData.parameters.currency.network,
