@@ -31,18 +31,14 @@ export abstract class CombinedDataAccess implements DataAccessTypes.IDataAccess 
   async getChannelsByTopic(
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries | undefined,
-    page?: number,
-    pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    return await this.reader.getChannelsByTopic(topic, updatedBetween, page, pageSize);
+    return await this.reader.getChannelsByTopic(topic, updatedBetween);
   }
   async getChannelsByMultipleTopics(
     topics: string[],
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
-    page?: number | undefined,
-    pageSize?: number | undefined,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    return await this.reader.getChannelsByMultipleTopics(topics, updatedBetween, page, pageSize);
+    return await this.reader.getChannelsByMultipleTopics(topics, updatedBetween);
   }
   async persistTransaction(
     transactionData: DataAccessTypes.ITransaction,

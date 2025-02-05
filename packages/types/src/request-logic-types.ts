@@ -98,6 +98,7 @@ export interface IRequestLogicReturnWithConfirmation extends EventEmitter {
 export interface IReturnMeta {
   transactionManagerMeta: any;
   ignoredTransactions?: any[];
+  pagination?: any;
 }
 
 /** return of the function createRequest */

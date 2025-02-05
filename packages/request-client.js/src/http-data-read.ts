@@ -1,5 +1,4 @@
 import { DataAccessTypes } from '@requestnetwork/types';
-import { validatePaginationParams } from '@requestnetwork/utils';
 import { HttpDataAccessConfig } from './http-data-access-config';
 
 export class HttpDataRead implements DataAccessTypes.IDataRead {
@@ -53,16 +52,10 @@ export class HttpDataRead implements DataAccessTypes.IDataRead {
   public async getChannelsByTopic(
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
-    page?: number,
-    pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    validatePaginationParams(page, pageSize);
-
     const params = {
       topic,
       updatedBetween,
-      ...(page !== undefined && { page }),
-      ...(pageSize !== undefined && { pageSize }),
     };
 
     return await this.dataAccessConfig.fetchAndRetry('/getChannelsByTopic', params);
@@ -77,16 +70,10 @@ export class HttpDataRead implements DataAccessTypes.IDataRead {
   public async getChannelsByMultipleTopics(
     topics: string[],
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
-    page?: number,
-    pageSize?: number,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    validatePaginationParams(page, pageSize);
-
     return await this.dataAccessConfig.fetchAndRetry('/getChannelsByMultipleTopics', {
       topics,
       updatedBetween,
-      page,
-      pageSize,
     });
   }
 }

@@ -99,14 +99,13 @@ describe('api/request-network', () => {
         async getChannelsByTopic(
           topic: string,
           updatedBetween?: DataAccessTypes.ITimestampBoundaries,
-          page?: number,
-          pageSize?: number,
         ): Promise<any> {
           expect(topic).toBe('01f1a21ab419611dbf492b3136ac231c8773dc897ee0eb5167ef2051a39e685e76');
           return {
             meta: {
               [TestData.actionRequestId]: [],
               [TestData.actionRequestIdSecondRequest]: [],
+              transactionsStorageLocation: {},
             },
             result: {
               transactions: {
@@ -143,14 +142,11 @@ describe('api/request-network', () => {
       };
 
       const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
-      const requests: Request[] = await requestnetwork.fromIdentity(
-        TestData.payee.identity,
-        undefined,
-        {
-          page: 1,
-          pageSize: 10,
-        },
-      );
+      const result = await requestnetwork.fromIdentity(TestData.payee.identity, undefined, {
+        page: 1,
+        pageSize: 10,
+      });
+      const requests = Array.isArray(result) ? result : result.requests;
 
       expect(requests.length).toBe(2);
       expect(requests[0].requestId).toBe(TestData.actionRequestId);
@@ -174,6 +170,7 @@ describe('api/request-network', () => {
             meta: {
               [TestData.actionRequestId]: [],
               [TestData.actionRequestIdSecondRequest]: [],
+              transactionsStorageLocation: {},
             },
             result: {
               transactions: {
@@ -202,7 +199,8 @@ describe('api/request-network', () => {
       };
 
       const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
-      const requests: Request[] = await requestnetwork.fromTopic(TestData.payee.identity);
+      const result = await requestnetwork.fromTopic(TestData.payee.identity);
+      const requests = Array.isArray(result) ? result : result.requests;
 
       expect(requests.length).toBe(2);
       expect(requests[0].requestId).toBe(TestData.actionRequestId);
@@ -227,6 +225,7 @@ describe('api/request-network', () => {
             meta: {
               [TestData.actionRequestId]: [],
               [TestData.actionRequestIdSecondRequest]: [],
+              transactionsStorageLocation: {},
             },
             result: {
               transactions: {
@@ -263,7 +262,7 @@ describe('api/request-network', () => {
       };
 
       const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
-      const requests: Request[] = await requestnetwork.fromMultipleIdentities(
+      const result = await requestnetwork.fromMultipleIdentities(
         [TestData.payee.identity],
         undefined,
         {
@@ -271,6 +270,7 @@ describe('api/request-network', () => {
           pageSize: 10,
         },
       );
+      const requests = Array.isArray(result) ? result : result.requests;
 
       expect(requests.length).toBe(2);
       expect(requests[0].requestId).toBe(TestData.actionRequestId);
@@ -296,6 +296,7 @@ describe('api/request-network', () => {
             meta: {
               [TestData.actionRequestId]: [],
               [TestData.actionRequestIdSecondRequest]: [],
+              transactionsStorageLocation: {},
             },
             result: {
               transactions: {
@@ -324,9 +325,8 @@ describe('api/request-network', () => {
       };
 
       const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
-      const requests: Request[] = await requestnetwork.fromMultipleTopics([
-        TestData.payee.identity,
-      ]);
+      const result = await requestnetwork.fromMultipleTopics([TestData.payee.identity]);
+      const requests = Array.isArray(result) ? result : result.requests;
 
       expect(requests.length).toBe(2);
       expect(requests[0].requestId).toBe(TestData.actionRequestId);

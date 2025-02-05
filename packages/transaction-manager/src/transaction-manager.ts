@@ -4,9 +4,11 @@ import {
   DataAccessTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
+  StorageTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
+import { validatePaginationParams } from '@requestnetwork/utils';
 
 import { EventEmitter } from 'events';
 
@@ -195,14 +197,9 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     page?: number,
     pageSize?: number,
   ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
-    const resultGetTx = await this.dataAccess.getChannelsByTopic(
-      topic,
-      updatedBetween,
-      page,
-      pageSize,
-    );
-
-    return this.parseMultipleChannels(resultGetTx);
+    validatePaginationParams(page, pageSize);
+    const resultGetTx = await this.dataAccess.getChannelsByTopic(topic, updatedBetween);
+    return this.parseMultipleChannels(resultGetTx, page, pageSize, updatedBetween);
   }
 
   /**
@@ -218,14 +215,9 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     page?: number,
     pageSize?: number,
   ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
-    const resultGetTx = await this.dataAccess.getChannelsByMultipleTopics(
-      topics,
-      updatedBetween,
-      page,
-      pageSize,
-    );
-
-    return this.parseMultipleChannels(resultGetTx);
+    validatePaginationParams(page, pageSize);
+    const resultGetTx = await this.dataAccess.getChannelsByMultipleTopics(topics, updatedBetween);
+    return this.parseMultipleChannels(resultGetTx, page, pageSize, updatedBetween);
   }
 
   /**
@@ -236,31 +228,149 @@ export default class TransactionManager implements TransactionTypes.ITransaction
    */
   private async parseMultipleChannels(
     resultGetTx: DataAccessTypes.IReturnGetChannelsByTopic,
+    page?: number,
+    pageSize?: number,
+    updatedBetween?: TransactionTypes.ITimestampBoundaries,
   ): Promise<TransactionTypes.IReturnGetTransactionsByChannels> {
-    // Get the channels from the data-access layers to decrypt and clean them one by one
-    const result = await Object.keys(resultGetTx.result.transactions).reduce(
-      async (accumulatorPromise, channelId) => {
-        const cleaned = await this.channelParser.decryptAndCleanChannel(
+    // Get all channel IDs and their latest timestamps
+    const channelsWithTimestamps = Object.entries(resultGetTx.result.transactions).map(
+      ([channelId, transactions]) => {
+        // Get all timestamps for the channel
+        const timestamps = transactions.map((tx) => tx.timestamp || 0);
+        const latestTimestamp = Math.max(...timestamps, 0);
+
+        // A channel should be included if ANY of its transactions are after 'from'
+        // and the channel has activity before 'to'
+        let hasValidTransactions = true;
+        if (updatedBetween) {
+          const hasTransactionsAfterFrom =
+            !updatedBetween?.from || timestamps.some((t) => t >= updatedBetween.from!);
+          const hasTransactionsBeforeTo =
+            !updatedBetween?.to || timestamps.some((t) => t <= updatedBetween.to!);
+          hasValidTransactions = hasTransactionsAfterFrom && hasTransactionsBeforeTo;
+        }
+
+        // Include all transactions for valid channels
+        // This ensures we have the complete state
+        return {
           channelId,
-          resultGetTx.result.transactions[channelId],
-        );
-
-        // await for the accumulator promise at the end to parallelize the calls to decryptAndCleanChannel()
-        const accumulator: any = await accumulatorPromise;
-
-        accumulator.transactions[channelId] = cleaned.transactions;
-        accumulator.ignoredTransactions[channelId] = cleaned.ignoredTransactions;
-        return accumulator;
+          latestTimestamp,
+          hasValidTransactions,
+          filteredTransactions: hasValidTransactions ? transactions : [],
+        };
       },
-      Promise.resolve({ transactions: {}, ignoredTransactions: {} }),
     );
+
+    // Only include channels that have valid transactions
+    const allChannelIds = channelsWithTimestamps
+      .filter((channel) => channel.hasValidTransactions)
+      .sort((a, b) => b.latestTimestamp - a.latestTimestamp)
+      .map((channel) => channel.channelId);
+
+    // Process all channels and collect valid ones
+    const processedChannels = await Promise.all(
+      allChannelIds.map(async (channelId) => {
+        try {
+          const channel = channelsWithTimestamps.find((c) => c.channelId === channelId);
+          if (!channel) return null;
+
+          const cleaned = await this.channelParser.decryptAndCleanChannel(
+            channelId,
+            channel.filteredTransactions,
+          );
+
+          return {
+            channelId,
+            isValid: this.isValidChannel(cleaned),
+            data: cleaned,
+          };
+        } catch (error) {
+          console.warn(`Failed to decrypt channel ${channelId}:`, error);
+          return {
+            channelId,
+            isValid: false,
+            data: { transactions: [], ignoredTransactions: [] },
+          };
+        }
+      }),
+    );
+
+    // Filter out null values and get valid channels
+    const validChannels = processedChannels
+      .filter(
+        (channel): channel is NonNullable<typeof channel> =>
+          channel !== null && (page !== undefined ? channel.isValid : true),
+      )
+      .map((channel) => channel.channelId);
+
+    // Apply pagination if required
+    const channelsToInclude =
+      page !== undefined && pageSize !== undefined
+        ? validChannels.slice((page - 1) * pageSize, page * pageSize)
+        : validChannels;
+
+    // Populate result object
+    const result = {
+      transactions: {} as Record<string, (TransactionTypes.ITimestampedTransaction | null)[]>,
+      ignoredTransactions: {} as Record<string, (TransactionTypes.IIgnoredTransaction | null)[]>,
+    };
+
+    // Add data for included channels
+    channelsToInclude.forEach((channelId) => {
+      const channelData = processedChannels.find((c) => c?.channelId === channelId)?.data;
+      if (channelData) {
+        result.transactions[channelId] = channelData.transactions;
+        result.ignoredTransactions[channelId] = channelData.ignoredTransactions;
+      }
+    });
+
+    // Create pagination metadata if required
+    const paginationMeta =
+      page !== undefined && pageSize !== undefined
+        ? {
+            total: validChannels.length,
+            page,
+            pageSize,
+            hasMore: page * pageSize < validChannels.length,
+          }
+        : undefined;
+
+    // Create the final meta object
+    const successfulChannelIds = Object.keys(result.transactions);
+    const paginatedMeta = {
+      ...resultGetTx.meta,
+      storageMeta: Object.keys(resultGetTx.meta.storageMeta || {})
+        .filter((key) => successfulChannelIds.includes(key))
+        .reduce((acc, key) => {
+          acc[key] = resultGetTx.meta.storageMeta?.[key] || [];
+          return acc;
+        }, {} as Record<string, StorageTypes.IEntryMetadata[]>),
+      transactionsStorageLocation: Object.keys(resultGetTx.meta.transactionsStorageLocation)
+        .filter((key) => successfulChannelIds.includes(key))
+        .reduce((acc, key) => {
+          acc[key] = resultGetTx.meta.transactionsStorageLocation[key];
+          return acc;
+        }, {} as Record<string, string[]>),
+      pagination: paginationMeta,
+    };
 
     return {
       meta: {
-        dataAccessMeta: resultGetTx.meta,
+        dataAccessMeta: paginatedMeta,
         ignoredTransactions: result.ignoredTransactions,
       },
-      result: { transactions: result.transactions },
+      result: {
+        transactions: result.transactions,
+      },
     };
+  }
+
+  private isValidChannel(cleaned: {
+    transactions: (TransactionTypes.ITimestampedTransaction | null)[];
+    ignoredTransactions: (TransactionTypes.IIgnoredTransaction | null)[];
+  }): boolean {
+    return (
+      cleaned.transactions && cleaned.transactions.length > 0 && cleaned.transactions[0] !== null
+    );
   }
 }

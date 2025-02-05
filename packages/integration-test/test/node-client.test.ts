@@ -273,7 +273,8 @@ describe('Request client using a request node', () => {
     await waitForConfirmation(requestDataCancel);
 
     // get requests without boundaries
-    let requests = await requestNetwork.fromTopic(topicsRequest1and2[0]);
+    const response = await requestNetwork.fromTopic(topicsRequest1and2[0]);
+    let requests = Array.isArray(response) ? response : response.requests;
     expect(requests.length).toBe(2);
     expect(requests[0].requestId).toBe(request1.requestId);
     expect(requests[1].requestId).toBe(request2.requestId);
@@ -286,9 +287,10 @@ describe('Request client using a request node', () => {
     expect(requestData2.state).toBe(Types.RequestLogic.STATE.CREATED);
 
     // get requests with boundaries
-    requests = await requestNetwork.fromTopic(topicsRequest1and2[0], {
+    const result = await requestNetwork.fromTopic(topicsRequest1and2[0], {
       to: timestampBeforeReduce,
     });
+    requests = Array.isArray(result) ? result : result.requests;
     expect(requests.length).toBe(1);
     expect(requests[0].requestId).toBe(request1.requestId);
 
@@ -341,9 +343,10 @@ describe('Request client using a request node', () => {
     await new Promise((r) => setTimeout(r, 1500));
 
     // get requests with boundaries
-    const requests = await requestNetwork.fromIdentity(payerSmartContract, {
+    const result = await requestNetwork.fromIdentity(payerSmartContract, {
       from: timestampCreation,
     });
+    const requests = Array.isArray(result) ? result : result.requests;
     expect(requests.length).toBe(1);
     expect(requests[0].requestId).toBe(request1.requestId);
   });

@@ -2951,10 +2951,10 @@
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.2.0.tgz#5f3d96ec6b2354ad6d8a28bf216a1d97b5426861"
   integrity sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==
 
-"@hinkal/common@0.2.7":
-  version "0.2.7"
-  resolved "https://registry.yarnpkg.com/@hinkal/common/-/common-0.2.7.tgz#0128e0f2a175fb4c6d7ed006a0c886f942e3163d"
-  integrity sha512-Dqs/7J0/9bNT8j47LNtkEINOOdAz1AIbbMqklRX5ym7KL7wH5LXuP7S9CYX+mmHPTG3/3EVb39oZNDjaRX6m9Q==
+"@hinkal/common@0.2.9":
+  version "0.2.9"
+  resolved "https://registry.yarnpkg.com/@hinkal/common/-/common-0.2.9.tgz#122e9b43d74a00c3eaf6bc321b85163ad90fe42f"
+  integrity sha512-rlzjeQ7obtil+tu4Bg28rUcmlLEGD8F/HFCIuuTlNFvlPq5rHROjqOQb9OAxnf12ID/IMNP7LT9s6LvoSYUbcA==
   dependencies:
     async-mutex "^0.4.0"
     axios "^1.6.8"
@@ -24180,9 +24180,9 @@ underscore@1.12.1, underscore@1.9.1, underscore@^1.12.1:
   integrity sha512-GMXzWtsc57XAtguZgaQViUOzs0KTkk8ojr3/xAxXLITqf/3EMwxC0inyETfDFjH/Krbhuep0HNbbjI9i/q3F3g==
 
 undici@^5.14.0:
-  version "5.28.4"
-  resolved "https://registry.yarnpkg.com/undici/-/undici-5.28.4.tgz#6b280408edb6a1a604a9b20340f45b422e373068"
-  integrity sha512-72RFADWFqKmUb2hmmvNODKL3p9hcB6Gt2DOQMis1SEBaV6a4MH8soBvzg+95CYhCKPFedut2JY9bMfrDl9D23g==
+  version "5.28.5"
+  resolved "https://registry.yarnpkg.com/undici/-/undici-5.28.5.tgz#b2b94b6bf8f1d919bc5a6f31f2c01deb02e54d4b"
+  integrity sha512-zICwjrDrcrUE0pyyJc1I2QzBkLM8FINsgOrt6WjA+BgajVq9Nxu2PbFFXUrAggLfDXlZGZBVZYw7WNV5KiBiBA==
   dependencies:
     "@fastify/busboy" "^2.0.0"
 
