@@ -38,7 +38,7 @@
     "prepare": "yarn run build"
   },
   "dependencies": {
-    "@lit-protocol/types": "7.0.2",
+    "@lit-protocol/types": "7.0.5",
     "ethers": "5.7.2"
   },
   "devDependencies": {
