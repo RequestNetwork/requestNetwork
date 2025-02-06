@@ -41,7 +41,7 @@
     "test:lit": "jest test/lit-protocol.test.ts --forceExit"
   },
   "devDependencies": {
-    "@lit-protocol/lit-node-client": "7.0.2",
+    "@lit-protocol/lit-node-client": "7.0.5",
     "@requestnetwork/advanced-logic": "0.52.0",
     "@requestnetwork/currency": "0.26.0",
     "@requestnetwork/data-access": "0.43.0",
