@@ -1,9 +1,9 @@
-import { Contract, ContractTransaction, Signer, BigNumberish, providers, BigNumber } from 'ethers';
+import { BigNumber, BigNumberish, Contract, ContractTransaction, providers, Signer } from 'ethers';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import {
+  ERC20__factory,
   ERC20FeeProxy__factory,
   ERC20Proxy__factory,
-  ERC20__factory,
 } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { Erc20PaymentNetwork, getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
@@ -11,15 +11,15 @@ import { EvmChains } from '@requestnetwork/currency';
 import {
   getAmountToPay,
   getProvider,
+  getProxyAddress,
   getRequestPaymentValues,
   getSigner,
-  validateRequest,
   validateErc20FeeProxyRequest,
-  getProxyAddress,
+  validateRequest,
 } from './utils';
 import { IPreparedPrivateTransaction } from './prepared-transaction';
 
-import { emporiumOp, IHinkal, RelayerTransaction } from '@hinkal/common';
+import type { IHinkal, RelayerTransaction } from '@hinkal/common';
 import { prepareEthersHinkal } from '@hinkal/common/providers/prepareEthersHinkal';
 
 /**
@@ -85,10 +85,8 @@ export async function payErc20ProxyRequestFromHinkalShieldedAddress(
   const signer = getSigner(signerOrProvider);
   const hinkalObject = await addToHinkalStore(signer);
 
-  const { amountToPay, tokenAddress, ops } = prepareErc20ProxyPaymentFromHinkalShieldedAddress(
-    request,
-    amount,
-  );
+  const { amountToPay, tokenAddress, ops } =
+    await prepareErc20ProxyPaymentFromHinkalShieldedAddress(request, amount);
 
   return hinkalObject.actionPrivateWallet(
     [tokenAddress],
@@ -114,11 +112,8 @@ export async function payErc20FeeProxyRequestFromHinkalShieldedAddress(
   const signer = getSigner(signerOrProvider);
   const hinkalObject = await addToHinkalStore(signer);
 
-  const { amountToPay, tokenAddress, ops } = prepareErc20FeeProxyPaymentFromHinkalShieldedAddress(
-    request,
-    amount,
-    feeAmount,
-  );
+  const { amountToPay, tokenAddress, ops } =
+    await prepareErc20FeeProxyPaymentFromHinkalShieldedAddress(request, amount, feeAmount);
 
   return hinkalObject.actionPrivateWallet(
     [tokenAddress],
@@ -133,10 +128,10 @@ export async function payErc20FeeProxyRequestFromHinkalShieldedAddress(
  * @param request request to pay
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
-export function prepareErc20ProxyPaymentFromHinkalShieldedAddress(
+export async function prepareErc20ProxyPaymentFromHinkalShieldedAddress(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
-): IPreparedPrivateTransaction {
+): Promise<IPreparedPrivateTransaction> {
   validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
 
   const { value: tokenAddress } = request.currencyInfo;
@@ -150,6 +145,7 @@ export function prepareErc20ProxyPaymentFromHinkalShieldedAddress(
 
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, amount);
+  const { emporiumOp } = await import('@hinkal/common');
 
   const ops = [
     emporiumOp(tokenContract, 'approve', [proxyContract.address, amountToPay]),
@@ -174,11 +170,11 @@ export function prepareErc20ProxyPaymentFromHinkalShieldedAddress(
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
-export function prepareErc20FeeProxyPaymentFromHinkalShieldedAddress(
+export async function prepareErc20FeeProxyPaymentFromHinkalShieldedAddress(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
-): IPreparedPrivateTransaction {
+): Promise<IPreparedPrivateTransaction> {
   validateErc20FeeProxyRequest(request, amount, feeAmountOverride);
 
   const { value: tokenAddress, network } = request.currencyInfo;
@@ -194,6 +190,7 @@ export function prepareErc20FeeProxyPaymentFromHinkalShieldedAddress(
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = String(feeAmountOverride || feeAmount || 0);
   const totalAmount = amountToPay.add(BigNumber.from(feeToPay));
+  const { emporiumOp } = await import('@hinkal/common');
 
   const ops = [
     emporiumOp(tokenContract, 'approve', [proxyContract.address, totalAmount]),
