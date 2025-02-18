@@ -19,7 +19,7 @@ import {
 } from './utils';
 import { IPreparedPrivateTransaction } from './prepared-transaction';
 
-import { emporiumOp, IHinkal, RelayerTransaction } from '@hinkal/common';
+import type { IHinkal, RelayerTransaction } from '@hinkal/common';
 import { prepareEthersHinkal } from '@hinkal/common/providers/prepareEthersHinkal';
 
 /**
@@ -150,6 +150,8 @@ export function prepareErc20ProxyPaymentFromHinkalShieldedAddress(
 
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, amount);
+  const { emporiumOp } = await import('@hinkal/common');
+
 
   const ops = [
     emporiumOp(tokenContract, 'approve', [proxyContract.address, amountToPay]),
@@ -194,6 +196,7 @@ export function prepareErc20FeeProxyPaymentFromHinkalShieldedAddress(
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = String(feeAmountOverride || feeAmount || 0);
   const totalAmount = amountToPay.add(BigNumber.from(feeToPay));
+  const { emporiumOp } = await import('@hinkal/common');
 
   const ops = [
     emporiumOp(tokenContract, 'approve', [proxyContract.address, totalAmount]),
