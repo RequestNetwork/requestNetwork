@@ -281,6 +281,18 @@ jobs:
       - store_test_results:
           path: packages/payment-processor/reports/
 
+  test-version:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    resource_class: large
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'test version'
+          command: yarn lerna version prerelease --no-git-tag-version --no-push --preid next.$(git rev-parse --short HEAD)
+
   # Release a next version package everytime we merge to master
   next-release:
     docker:
@@ -323,6 +335,16 @@ workflows:
       - lint:
           requires:
             - build
+
+      - test-version:
+          requires:
+            - lint
+            - build
+            - test-unit
+            - test-integration-with-smart-contracts
+            - test-integration-with-request-node
+            - test-usage-examples
+            - test-toolbox
 
       # Release a next version package everytime we merge to master
       - next-release:
