@@ -11,8 +11,8 @@ reviewers:
   - alexandre-abrioux
   - leoslr
   - MantisClone
-  - sstefdev
   - aimensahnoun
+  - rodrigopavezi
 
 # A list of keywords to be skipped the process that add reviewers if pull requests include it
 skipKeywords:
