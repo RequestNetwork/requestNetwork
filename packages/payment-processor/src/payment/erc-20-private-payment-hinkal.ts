@@ -18,9 +18,7 @@ import {
   validateRequest,
 } from './utils';
 import { IPreparedPrivateTransaction } from './prepared-transaction';
-
 import type { IHinkal, RelayerTransaction } from '@hinkal/common';
-import { prepareEthersHinkal } from '@hinkal/common/providers/prepareEthersHinkal';
 
 /**
  * This is a globally accessible state variable exported for use in other parts of the application or tests.
@@ -39,6 +37,7 @@ export const hinkalStore: Record<string, IHinkal> = {};
 export async function addToHinkalStore(signer: Signer): Promise<IHinkal> {
   const address = await signer.getAddress();
   if (!hinkalStore[address]) {
+    const { prepareEthersHinkal } = await import('@hinkal/common/providers/prepareEthersHinkal');
     hinkalStore[address] = await prepareEthersHinkal(signer);
   }
   return hinkalStore[address];
