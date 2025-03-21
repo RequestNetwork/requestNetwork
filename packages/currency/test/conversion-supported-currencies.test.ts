@@ -64,7 +64,6 @@ describe('supported currencies with oracles from chainlink', () => {
           '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
           '0x8290333cef9e6d528dd5618fb97a76f268f3edd4',
           '0x8ab7404063ec4dbcfd4598215992dc3f8ec853d7',
-          '0x967da4048cd07ab37855c090aaf366e4ce1b9f48',
           '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2',
           '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
           '0xa117000000f279d81a1d3cc75430faa017fa5a2e',
