@@ -351,7 +351,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
             TestData.arbitraryTimestamp,
           );
         }).toThrowError(
-          'The currency (OCEAN) of the request is not supported for this payment network.',
+          'The currency (0x967da4048cD07aB37855c090aAF366e4ce1b9F48) of the request is not supported for this payment network.',
         );
       });
 
