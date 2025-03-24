@@ -393,8 +393,9 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           TestData.requestCreatedNoExtension,
         );
         requestCreatedNoExtension.currency = {
-          type: RequestLogicTypes.CURRENCY.BTC,
-          value: 'BTC',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x967da4048cD07aB37855c090aAF366e4ce1b9F48', // OCEAN token address
+          network: 'mainnet',
         };
         // 'must throw'
         expect(() => {
@@ -406,7 +407,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
             TestData.arbitraryTimestamp,
           );
         }).toThrowError(
-          'The currency (BTC-mainnet, 0x03049758a18d1589388d7a74fb71c3fcce11d286) of the request is not supported for this payment network.',
+          'The currency (OCEAN-mainnet, 0x967da4048cD07aB37855c090aAF366e4ce1b9F48) of the request is not supported for this payment network.',
         );
       });
 
