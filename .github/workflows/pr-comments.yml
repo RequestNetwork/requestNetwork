@@ -1,0 +1,15 @@
+name: PR Comments
+
+on:
+  pull_request_target:
+    types: [opened, ready_for_review, closed]
+
+jobs:
+  pr-comments:
+    name: PR Comments
+    uses: RequestNetwork/auto-comments/.github/workflows/pr-auto-comments.yml@main
+    with:
+      org_name: "RequestNetwork"
+      # Using default comments from the auto-comments workflow
+    secrets:
+      token: ${{ secrets.GH_PAT_AUTO_COMMENTS }}
