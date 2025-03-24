@@ -8,6 +8,12 @@ import sepoliaAggregator from './aggregators/sepolia.json';
 import rinkebyAggregator from './aggregators/rinkeby.json';
 import maticAggregator from './aggregators/matic.json';
 import fantomAggregator from './aggregators/fantom.json';
+import xdaiAggregator from './aggregators/xdai.json';
+import arbitrumOneAggregator from './aggregators/arbitrum-one.json';
+import avalancheAggregator from './aggregators/avalanche.json';
+import bscAggregator from './aggregators/bsc.json';
+import optimismAggregator from './aggregators/optimism.json';
+import baseAggregator from './aggregators/base.json';
 
 // Pairs supported by Chainlink (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
 const chainlinkCurrencyPairs: CurrencyTypes.AggregatorsMap<CurrencyTypes.EvmChainName> = {
@@ -18,22 +24,22 @@ const chainlinkCurrencyPairs: CurrencyTypes.AggregatorsMap<CurrencyTypes.EvmChai
   matic: maticAggregator,
   fantom: fantomAggregator,
   sepolia: sepoliaAggregator,
+  xdai: xdaiAggregator,
+  'arbitrum-one': arbitrumOneAggregator,
+  avalanche: avalancheAggregator,
+  bsc: bscAggregator,
+  optimism: optimismAggregator,
+  base: baseAggregator,
 };
 
 // FIXME: This fix enables to get these networks registered in conversionSupportedNetworks.
 // Could be improved by removing the supported network check from the protocol
 const noConversionNetworks: CurrencyTypes.AggregatorsMap = {
   'arbitrum-rinkeby': {},
-  'arbitrum-one': {},
-  xdai: {},
-  avalanche: {},
-  bsc: {},
-  optimism: {},
   moonbeam: {},
   // FIXME: Near should get conversion again with Pyth. See './aggregators/near-testnet.json' and './aggregators/near.json';
   aurora: {},
   'aurora-testnet': {},
-  base: {},
   celo: {},
   sonic: {},
 };
