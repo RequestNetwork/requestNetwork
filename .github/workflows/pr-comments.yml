@@ -9,7 +9,7 @@ jobs:
     name: PR Comments
     uses: RequestNetwork/auto-comments/.github/workflows/pr-auto-comments.yml@main
     with:
-      org_name: "RequestNetwork"
+      org_name: 'RequestNetwork'
       # Using default comments from the auto-comments workflow
     secrets:
       token: ${{ secrets.GH_PAT_AUTO_COMMENTS }}
