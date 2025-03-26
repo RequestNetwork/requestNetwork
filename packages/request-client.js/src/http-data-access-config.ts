@@ -79,6 +79,8 @@ export class HttpDataAccessConfig {
     params: Record<string, unknown> | undefined,
     body?: Record<string, unknown>,
   ): Promise<T> {
+    console.info('DEBUG INFO: fetch', method, path, params, body);
+
     const { baseURL, headers, ...options } = this.nodeConnectionConfig;
     const url = new URL(path, baseURL);
     if (params) {
@@ -90,6 +92,7 @@ export class HttpDataAccessConfig {
       }
       url.search = stringify(params);
     }
+
     const r = await fetch(url, {
       method,
       body: body ? JSON.stringify(body) : undefined,
@@ -99,13 +102,27 @@ export class HttpDataAccessConfig {
       },
       ...options,
     });
+
     if (r.ok) {
       return await r.json();
     }
 
-    throw Object.assign(new Error(r.statusText), {
+    // Add error response body to debug
+    const errorBody = await r.text();
+    console.error('Request failed:', {
+      url: url.toString(),
+      method,
+      params,
+      body,
       status: r.status,
       statusText: r.statusText,
+      errorBody,
+    });
+
+    throw Object.assign(new Error(`${r.statusText}: ${errorBody}`), {
+      status: r.status,
+      statusText: r.statusText,
+      body: errorBody,
     });
   }
 }
