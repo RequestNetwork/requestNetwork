@@ -5,7 +5,10 @@ import { stringify } from 'qs';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
-export type NodeConnectionConfig = { baseURL: string; headers: Record<string, string> };
+export type NodeConnectionConfig = {
+  baseURL: string;
+  headers: Record<string, string>;
+};
 
 export class HttpDataAccessConfig {
   /**
@@ -79,8 +82,6 @@ export class HttpDataAccessConfig {
     params: Record<string, unknown> | undefined,
     body?: Record<string, unknown>,
   ): Promise<T> {
-    console.info('DEBUG INFO: fetch', method, path, params, body);
-
     const { baseURL, headers, ...options } = this.nodeConnectionConfig;
     const url = new URL(path, baseURL);
     if (params) {
@@ -106,23 +107,9 @@ export class HttpDataAccessConfig {
     if (r.ok) {
       return await r.json();
     }
-
-    // Add error response body to debug
-    const errorBody = await r.text();
-    console.error('Request failed:', {
-      url: url.toString(),
-      method,
-      params,
-      body,
+    throw Object.assign(new Error(`${r.statusText}`), {
       status: r.status,
       statusText: r.statusText,
-      errorBody,
-    });
-
-    throw Object.assign(new Error(`${r.statusText}: ${errorBody}`), {
-      status: r.status,
-      statusText: r.statusText,
-      body: errorBody,
     });
   }
 }
