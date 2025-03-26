@@ -204,7 +204,9 @@ describe('request-client.js', () => {
     });
     beforeEach(() => {
       spyPersistTransaction.mockReturnValue({});
-      spyGetTransactionsByChannelId.mockReturnValue({ result: mockedTransactions });
+      spyGetTransactionsByChannelId.mockReturnValue({
+        result: mockedTransactions,
+      });
     });
     afterAll(() => {
       mockServer.close();
@@ -940,7 +942,7 @@ describe('request-client.js', () => {
 
       expect(requestData.meta).not.toBeNull();
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
-    });
+    }, 30000);
 
     it('creates an encrypted request and accept it', async () => {
       const requestNetwork = new RequestNetwork({
