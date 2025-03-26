@@ -8,9 +8,6 @@ references:
       NODE_OPTIONS: '--max-old-space-size=4096'
   ipfs_image: &ipfs_image
     image: requestnetwork/request-ipfs:v0.13.0
-    environment:
-      IPFS_PROFILE: test
-      IPFS_PATH: /data/ipfs
   ganache_image: &ganache_image
     image: trufflesuite/ganache:v7.6.0
     command:
@@ -21,16 +18,9 @@ references:
       - '-k'
       - 'london'
   graph_image: &graph_image
-    image: graphprotocol/graph-node:v0.37.0
-    command: >
-      sh -c '
-        wait_for localhost:8545 -t 30 &&
-        wait_for localhost:5432 -t 30 &&
-        wait_for localhost:5001 -t 30 &&
-        exec /usr/local/bin/graph-node \
-        --postgres-url postgresql://graph-node:let-me-in@localhost:5432/graph-node \
-        --ethereum-rpc private:http://localhost:8545 \
-        --ipfs localhost:5001'
+    image: graphprotocol/graph-node:v0.25.0
+    # wait for ganache, then start
+    command: sh -c 'wait_for localhost:8545 -t 30 -- start'
     environment:
       postgres_host: localhost
       postgres_user: graph-node
@@ -39,17 +29,12 @@ references:
       ipfs: 'localhost:5001'
       ethereum: 'private:http://localhost:8545'
       GRAPH_ALLOW_NON_DETERMINISTIC_IPFS: 1
-      RUST_BACKTRACE: 1
-      GRAPH_LOG: info
   postgres_image: &postgres_image
     image: postgres
     environment:
       POSTGRES_USER: graph-node
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
-      POSTGRES_INITDB_ARGS: '--locale=C'
-      LC_COLLATE: 'C'
-      LC_CTYPE: 'C'
   step_graph_deploy: &step_graph_deploy
     name: 'Subgraph deployment and configuration'
     working_directory: ~/
@@ -209,19 +194,13 @@ jobs:
       - *graph_image
     resource_class: large
     working_directory: *working_directory
-    environment:
-      JEST_TIMEOUT: 60000
     steps:
       - attach_workspace:
           at: *working_directory
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn deploy:contracts'
-      - run:
-          name: 'Wait for services'
-          command: |
-            sleep 10
-            *step_graph_deploy
+      - run: *step_graph_deploy
       - run:
           name: 'Start request-node'
           command: 'yarn start:request-node'
