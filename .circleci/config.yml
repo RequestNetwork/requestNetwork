@@ -3,7 +3,7 @@ version: 2.1
 references:
   working_directory: &working_directory ~/repo
   node_image: &node_image
-    image: cimg/node:22.14
+    image: cimg/node:18.18
     environment:
       NODE_OPTIONS: '--max-old-space-size=4096'
   ipfs_image: &ipfs_image
@@ -18,7 +18,7 @@ references:
       - '-k'
       - 'london'
   graph_image: &graph_image
-    image: graphprotocol/graph-node:v0.33.0
+    image: graphprotocol/graph-node:v0.25.0
     # wait for ganache, then start
     command: sh -c 'wait_for localhost:8545 -t 30 -- start'
     environment:
@@ -35,9 +35,6 @@ references:
       POSTGRES_USER: graph-node
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
-      POSTGRES_INITDB_ARGS: '--encoding=UTF8 --lc-collate=C --lc-ctype=C'
-      LANG: C.UTF-8
-      LC_ALL: C.UTF-8
   step_graph_deploy: &step_graph_deploy
     name: 'Subgraph deployment and configuration'
     working_directory: ~/
