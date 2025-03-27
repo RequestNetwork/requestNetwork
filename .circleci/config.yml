@@ -18,7 +18,7 @@ references:
       - '-k'
       - 'london'
   graph_image: &graph_image
-    image: graphprotocol/graph-node:v0.30.0
+    image: graphprotocol/graph-node:v0.33.0
     # wait for ganache, then start
     command: sh -c 'wait_for localhost:8545 -t 30 -- start'
     environment:
