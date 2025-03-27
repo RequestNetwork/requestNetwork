@@ -83,6 +83,7 @@ export class HttpDataAccessConfig {
     body?: Record<string, unknown>,
   ): Promise<T> {
     const { baseURL, headers, ...options } = this.nodeConnectionConfig;
+    console.info('DEBUG INFO: fetch', method, path, params, body);
     const url = new URL(path, baseURL);
     if (params) {
       // qs.parse doesn't handle well mixes of string and object params
@@ -107,9 +108,22 @@ export class HttpDataAccessConfig {
     if (r.ok) {
       return await r.json();
     }
-    throw Object.assign(new Error(`${r.statusText}`), {
+
+    const errorBody = await r.text();
+    console.error('Request failed:', {
+      url: url.toString(),
+      method,
+      params,
+      body,
       status: r.status,
       statusText: r.statusText,
+      errorBody,
+    });
+
+    throw Object.assign(new Error(`${r.statusText}: ${errorBody}`), {
+      status: r.status,
+      statusText: r.statusText,
+      errorBody,
     });
   }
 }
