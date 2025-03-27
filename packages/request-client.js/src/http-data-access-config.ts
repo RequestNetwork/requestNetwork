@@ -101,6 +101,8 @@ export class HttpDataAccessConfig {
         'Content-Type': 'application/json',
         ...headers,
       },
+      keepalive: true,
+      signal: AbortSignal.timeout(30000),
       ...options,
     });
 
