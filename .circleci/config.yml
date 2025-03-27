@@ -35,8 +35,9 @@ references:
       POSTGRES_USER: graph-node
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
-      POSTGRES_INITDB_ARGS: '--locale=C'
-      LC_ALL: C
+      POSTGRES_INITDB_ARGS: '--encoding=UTF8 --lc-collate=C --lc-ctype=C'
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
   step_graph_deploy: &step_graph_deploy
     name: 'Subgraph deployment and configuration'
     working_directory: ~/
