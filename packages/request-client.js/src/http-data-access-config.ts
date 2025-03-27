@@ -2,6 +2,7 @@ import { ClientTypes } from '@requestnetwork/types';
 import { retry } from '@requestnetwork/utils';
 import httpConfigDefaults from './http-config-defaults';
 import { stringify } from 'qs';
+import fetch from 'node-fetch';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -101,13 +102,12 @@ export class HttpDataAccessConfig {
         'Content-Type': 'application/json',
         ...headers,
       },
-      keepalive: true,
-      signal: AbortSignal.timeout(30000),
+
       ...options,
     });
 
     if (r.ok) {
-      return await r.json();
+      return (await r.json()) as T;
     }
 
     const errorBody = await r.text();
