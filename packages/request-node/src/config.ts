@@ -33,6 +33,9 @@ const defaultValues = {
     },
     thegraph: {
       nodeUrl: 'http://localhost:8000/subgraphs/name/RequestNetwork/request-storage',
+      retries: 3,
+      retryDelay: 1000,
+      timeout: 30000,
     },
     persistTransactionTimeout: 600,
   },
