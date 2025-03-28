@@ -41,11 +41,11 @@
     "test:lit": "jest test/lit-protocol.test.ts --forceExit"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.9",
-    "@babel/plugin-transform-modules-commonjs": "^7.23.9",
-    "@babel/plugin-transform-runtime": "^7.23.9",
-    "@babel/preset-env": "^7.23.9",
-    "@babel/preset-typescript": "^7.23.9",
+    "@babel/core": "7.23.9",
+    "@babel/plugin-transform-modules-commonjs": "7.23.3",
+    "@babel/plugin-transform-runtime": "7.23.3",
+    "@babel/preset-env": "7.23.3",
+    "@babel/preset-typescript": "7.23.3",
     "@lit-protocol/lit-node-client": "7.0.5",
     "@requestnetwork/advanced-logic": "0.53.0",
     "@requestnetwork/currency": "0.27.0",
