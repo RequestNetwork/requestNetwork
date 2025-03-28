@@ -16,6 +16,8 @@ import { RequestConfig } from 'graphql-request/build/legacy/helpers/types';
 // Max Int value (as supported by grapqhl types)
 const MAX_INT_VALUE = 0x7fffffff;
 
+type ClientConfig = Omit<RequestConfig, 'headers'> & { headers?: Record<string, string> };
+
 export class SubgraphClient implements StorageTypes.IIndexer {
   private graphql: GraphQLClient;
   public readonly endpoint: string;
@@ -23,10 +25,7 @@ export class SubgraphClient implements StorageTypes.IIndexer {
   private readonly DEFAULT_PAGE_SIZE = 100;
   private readonly MAX_PAGE_SIZE = 1000;
 
-  constructor(
-    endpoint: string,
-    options?: Omit<RequestConfig, 'headers'> & { headers?: Record<string, string> },
-  ) {
+  constructor(endpoint: string, options?: ClientConfig) {
     this.endpoint = endpoint;
     this.graphql = new GraphQLClient(endpoint, options);
   }
