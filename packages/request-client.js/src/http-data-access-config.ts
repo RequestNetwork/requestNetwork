@@ -99,8 +99,27 @@ export class HttpDataAccessConfig {
       },
       ...options,
     });
+
+    console.log('Response details:');
+    console.log('Status:', r.status);
+    console.log('OK:', r.ok);
+    console.log('Status Text:', r.statusText);
+    console.log('Full response:', r);
+
     if (r.ok) {
-      return await r.json();
+      const responseBody = await r.json();
+      console.log('Success response body:', responseBody);
+      return responseBody;
+    }
+
+    console.log('Error details:');
+    console.log('Status:', r.status);
+    console.log('Status Text:', r.statusText);
+    try {
+      const errorBody = await r.json();
+      console.log('Error response body:', errorBody);
+    } catch (e) {
+      console.log('Could not parse error response body');
     }
 
     throw Object.assign(new Error(r.statusText), {
