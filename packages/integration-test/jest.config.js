@@ -15,7 +15,11 @@ module.exports = {
         tsconfig: '<rootDir>/tsconfig.json',
       },
     ],
-    '^.+\\.js$': 'babel-jest',
+    '^.+\\.js$': ['babel-jest', { configFile: './babel.config.js' }],
   },
   transformIgnorePatterns: ['/node_modules/(?!(graphql-request|@superfluid-finance/sdk-core)/)'],
+  extensionsToTreatAsEsm: ['.ts', '.tsx', '.js'],
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  },
 };
