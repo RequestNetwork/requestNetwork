@@ -99,8 +99,10 @@ export class HttpDataAccessConfig {
       },
       ...options,
     });
+
     if (r.ok) {
-      return await r.json();
+      const responseBody = await r.json();
+      return responseBody;
     }
 
     throw Object.assign(new Error(r.statusText), {

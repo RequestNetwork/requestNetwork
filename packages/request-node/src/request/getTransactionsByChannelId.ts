@@ -36,7 +36,6 @@ export default class GetTransactionsByChannelIdHandler {
       serverResponse.status(StatusCodes.OK).send(transactions);
     } catch (e) {
       this.logger.error(`getTransactionsByChannelId error: ${e}`);
-
       serverResponse.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
     }
   }
