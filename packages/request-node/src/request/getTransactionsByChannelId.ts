@@ -35,20 +35,8 @@ export default class GetTransactionsByChannelIdHandler {
 
       serverResponse.status(StatusCodes.OK).send(transactions);
     } catch (e) {
-      this.logger.error(
-        `getTransactionsByChannelId error: ${JSON.stringify({
-          message: e.message,
-          stack: e.stack,
-          channelId,
-          timestampBoundaries,
-        })}`,
-      );
-
-      // Send a safe error response
-      serverResponse.status(StatusCodes.INTERNAL_SERVER_ERROR).send({
-        error: 'Internal Server Error',
-        message: e.message,
-      });
+      this.logger.error(`getTransactionsByChannelId error: ${e}`);
+      serverResponse.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
     }
   }
 }
