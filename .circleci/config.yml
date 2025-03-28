@@ -3,7 +3,7 @@ version: 2.1
 references:
   working_directory: &working_directory ~/repo
   node_image: &node_image
-    image: cimg/node:18.18
+    image: cimg/node:22.14
     environment:
       NODE_OPTIONS: '--max-old-space-size=4096'
   ipfs_image: &ipfs_image
