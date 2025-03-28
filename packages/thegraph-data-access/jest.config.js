@@ -3,7 +3,19 @@ const jestCommonConfig = require('../../jest.config');
 /** @type {import('jest').Config} */
 module.exports = {
   ...jestCommonConfig,
-  transformIgnorePatterns: [
-    '/node_modules/(?!(graphql-request|@graphql-typed-document-node|cross-fetch|extract-files|form-data)/)',
-  ],
+  transform: {
+    '^.+\\.(ts|tsx)$': [
+      'ts-jest',
+      {
+        tsconfig: '<rootDir>/tsconfig.json',
+      },
+    ],
+    'node_modules/graphql-request/.+\\.(j|t)s$': [
+      'ts-jest',
+      {
+        tsconfig: '<rootDir>/tsconfig.json',
+      },
+    ],
+  },
+  transformIgnorePatterns: ['/node_modules/(?!graphql-request)/'],
 };
