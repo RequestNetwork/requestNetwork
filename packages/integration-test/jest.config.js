@@ -15,12 +15,7 @@ module.exports = {
         tsconfig: '<rootDir>/tsconfig.json',
       },
     ],
-    'node_modules/graphql-request/.+\\.(j|t)s$': [
-      'ts-jest',
-      {
-        tsconfig: '<rootDir>/tsconfig.json',
-      },
-    ],
+    '^.+\\.js$': 'babel-jest',
   },
-  transformIgnorePatterns: ['/node_modules/(?!graphql-request)/'],
+  transformIgnorePatterns: ['/node_modules/(?!(graphql-request|@superfluid-finance/sdk-core)/)'],
 };
