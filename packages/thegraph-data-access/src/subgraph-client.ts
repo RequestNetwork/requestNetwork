@@ -10,10 +10,13 @@ import {
   Transaction,
   TransactionsBody,
 } from './queries';
-import { Variables, RequestConfig } from 'graphql-request/build/cjs/types';
+import { Variables } from 'graphql-request/build/cjs/types';
+import { RequestConfig } from 'graphql-request/build/legacy/helpers/types';
 
 // Max Int value (as supported by grapqhl types)
 const MAX_INT_VALUE = 0x7fffffff;
+
+type ClientConfig = Omit<RequestConfig, 'headers'> & { headers?: Record<string, string> };
 
 export class SubgraphClient implements StorageTypes.IIndexer {
   private graphql: GraphQLClient;
@@ -22,7 +25,7 @@ export class SubgraphClient implements StorageTypes.IIndexer {
   private readonly DEFAULT_PAGE_SIZE = 100;
   private readonly MAX_PAGE_SIZE = 1000;
 
-  constructor(endpoint: string, options?: RequestConfig) {
+  constructor(endpoint: string, options?: ClientConfig) {
     this.endpoint = endpoint;
     this.graphql = new GraphQLClient(endpoint, options);
   }
