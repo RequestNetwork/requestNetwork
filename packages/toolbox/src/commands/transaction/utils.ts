@@ -41,7 +41,7 @@ const getChainConfig = async (
   rpcUrls: string[];
 } | null> => {
   try {
-    const response = await fetch(`https://api.request.network/currency/chains/${chainName}`);
+    const response = await fetch(`https://api.request.finance/currency/chains/${chainName}`);
     return await response.json();
   } catch (e) {
     console.warn(e.message);

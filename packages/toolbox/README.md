@@ -73,7 +73,7 @@ The following commands are also available:
 
 - `yarn request-toolbox addAggregator` can be used if you have all information about an aggregator you want to add
 - `yarn request-toolbox removeAggregator` will set the given currency pair to the 0x00[...]00 address.
-- `yarn request-toolbox listMissingAggregators <name>` (where `name` is a valid Request Finance currency list, [https://api.request.network/currency/list/name]() should be valid) will display missing aggregators for that list on all networks.
+- `yarn request-toolbox listMissingAggregators <name>` (where `name` is a valid Request Finance currency list, [https://api.request.finance/currency/list/name]() should be valid) will display missing aggregators for that list on all networks.
 
 Use `--help` for details about each command.
 

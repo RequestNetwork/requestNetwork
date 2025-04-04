@@ -23,7 +23,7 @@ export const builder = (): yargs.Argv<Options> =>
     list: {
       type: 'string',
       demandOption: true,
-      describe: 'The list NAME must be available at https://api.request.network/currency/list/NAME',
+      describe: 'The list NAME must be available at https://api.request.finance/currency/list/NAME',
     },
   });
 

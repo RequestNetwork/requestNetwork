@@ -52,7 +52,7 @@ export const builder = (): yargs.Argv<Options> =>
     list: {
       type: 'string',
       describe:
-        'Required when passing symbols in input or output. The list NAME must be available at https://api.request.network/currency/list/NAME',
+        'Required when passing symbols in input or output. The list NAME must be available at https://api.request.finance/currency/list/NAME',
     },
   });
 
