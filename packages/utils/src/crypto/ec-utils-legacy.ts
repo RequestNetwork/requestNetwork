@@ -13,7 +13,7 @@ export const ecDecryptLegacy = (privateKey: string, data: string, padded = false
     const { iv, ciphertext, ephemPublicKey } = legacyAes256CbcMacSplit(data);
     const receiverPrivateKey = PrivateKey.fromHex(privateKey.replace(/^0x/, ''));
     const sharedKey = deriveSharedKeyWithSha512(receiverPrivateKey, ephemPublicKey, padded);
-    const decrypted = aes256cbc(sharedKey.slice(0, 32), iv).decrypt(ciphertext);
+    const decrypted = aes256cbc(sharedKey.subarray(0, 32), iv).decrypt(ciphertext);
     return Buffer.from(decrypted).toString();
   } catch (e) {
     if (e.message === 'error:1C80006B:Provider routines::wrong final block length') {
@@ -32,7 +32,7 @@ const deriveSharedKeyWithSha512 = (
   padded = false,
 ): Uint8Array => {
   const sharedPoint = secp256k1.getSharedSecret(privateKey.secret, publicKey.toBytes());
-  const paddedBytes = padded ? sharedPoint.slice(1) : sharedPoint.slice(2);
+  const paddedBytes = padded ? sharedPoint.subarray(1) : sharedPoint.subarray(2);
   const hash = sha512.create().update(paddedBytes).digest();
   return new Uint8Array(hash);
 };
@@ -55,9 +55,9 @@ const legacyAes256CbcMacSplit = (str: string) => {
   const ephemPublicKey = new PublicKey(ephemPublicKeyStr);
 
   return {
-    iv: buffer.slice(0, ivSize),
-    mac: buffer.slice(ephemPublicKeyEnd, macEnd),
-    ciphertext: buffer.slice(macEnd),
+    iv: buffer.subarray(0, ivSize),
+    mac: buffer.subarray(ephemPublicKeyEnd, macEnd),
+    ciphertext: buffer.subarray(macEnd),
     ephemPublicKey,
   };
 };
