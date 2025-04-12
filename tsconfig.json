@@ -10,7 +10,7 @@
     "strict": true,
     "baseUrl": "./packages",
     "skipLibCheck": true,
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "useUnknownInCatchVariables": false,
     "lib": ["es2019"]

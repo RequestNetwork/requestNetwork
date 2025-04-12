@@ -40,6 +40,7 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
+    "@ecies/ciphers": "0.2.3",
     "@noble/curves": "1.8.1",
     "@requestnetwork/types": "0.54.0",
     "eciesjs": "0.4.14",

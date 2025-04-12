@@ -9,11 +9,12 @@ import {
 } from './crypto/crypto-wrapper';
 import {
   ecDecrypt,
+  ecDecryptLegacy,
   ecEncrypt,
-  getAddressFromPrivateKey,
-  getAddressFromPublicKey,
   ecRecover,
   ecSign,
+  getAddressFromPrivateKey,
+  getAddressFromPublicKey,
 } from './crypto/ec-utils';
 import { deepSort } from './utils';
 
@@ -27,6 +28,7 @@ export {
   encryptWithAes256gcm,
   random32Bytes,
   ecDecrypt,
+  ecDecryptLegacy,
   ecEncrypt,
   getAddressFromPrivateKey,
   getAddressFromPublicKey,

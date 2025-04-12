@@ -1772,7 +1772,7 @@
     is-absolute "^1.0.0"
     is-negated-glob "^1.0.0"
 
-"@ecies/ciphers@^0.2.2":
+"@ecies/ciphers@0.2.3", "@ecies/ciphers@^0.2.2":
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/@ecies/ciphers/-/ciphers-0.2.3.tgz#963805e46d07e646550098ac29cbcc5b132218ea"
   integrity sha512-tapn6XhOueMwht3E2UzY0ZZjYokdaw9XtL9kEyjhQ/Fb9vL9xTFbOaI+fV0AWvTpYu4BNloC6getKW6NtSg4mA==
