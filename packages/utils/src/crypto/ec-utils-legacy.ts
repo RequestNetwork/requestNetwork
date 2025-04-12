@@ -26,8 +26,8 @@ const deriveSharedKeyWithSha512 = (
   publicKey: PublicKey,
   padded = false,
 ): Uint8Array => {
-  const sharedPoint = secp256k1.getSharedSecret(privateKey.secret, publicKey.toBytes()).subarray(1);
-  const paddedBytes = padded ? sharedPoint.subarray(16, 64) : sharedPoint;
+  const sharedPoint = secp256k1.getSharedSecret(privateKey.secret, publicKey.toBytes());
+  const paddedBytes = padded ? sharedPoint.slice(1) : sharedPoint.slice(16, 64);
   return new Uint8Array(sha512.create().update(paddedBytes).digest());
 };
 
