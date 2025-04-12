@@ -9,13 +9,13 @@ import {
 } from './crypto/crypto-wrapper';
 import {
   ecDecrypt,
-  ecDecryptLegacy,
   ecEncrypt,
   ecRecover,
   ecSign,
   getAddressFromPrivateKey,
   getAddressFromPublicKey,
 } from './crypto/ec-utils';
+import { ecDecryptLegacy } from './crypto/ec-utils-legacy';
 import { deepSort } from './utils';
 
 /**
