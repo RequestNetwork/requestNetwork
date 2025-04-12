@@ -55,13 +55,9 @@ function getAddressFromPrivateKey(privateKey: string): string {
  */
 function getAddressFromPublicKey(publicKeyHex: string): string {
   try {
-    return ethers.utils.computeAddress(PublicKey.fromHex(publicKeyHex).toHex(true));
+    return ethers.utils.computeAddress(`0x${PublicKey.fromHex(publicKeyHex).toHex(true)}`);
   } catch (e) {
-    if (
-      e.message === 'public key length is invalid' ||
-      e.message === 'Expected public key to be an Uint8Array with length [33, 65]' ||
-      e.code === 'INVALID_ARGUMENT'
-    ) {
+    if (e.code === 'INVALID_ARGUMENT' || e.message === 'second arg must be public key') {
       throw new Error('The public key must be a string representing 64 bytes');
     }
     throw e;
@@ -82,7 +78,7 @@ function ecSign(privateKey: string, dataHash: string): string {
     dataHash = dataHash.replace(/^0x/, '');
     return `0x${secp256k1.sign(dataHash, privateKey).toCompactHex()}1b`;
   } catch (e) {
-    if (e.message === 'private key must be 32 bytes, hex or bigint, not string') {
+    if (e.message === 'invalid private key, expected hex or 32 bytes, got string') {
       throw new Error('The private key must be a string representing 32 bytes');
     }
     throw e;
@@ -110,7 +106,7 @@ function ecRecover(signatureHex: string, dataHash: string): string {
     const signatureRecover = signature.addRecoveryBit(recoveryNumber);
     return computeAddress(`0x${signatureRecover.recoverPublicKey(dataHash).toHex()}`);
   } catch (e) {
-    if (e.message === 'compactSignature expected 64 bytes, got 0') {
+    if (e.message === 'compactSignature of length 64 expected, got 0') {
       throw new Error('The signature must be a string representing 66 bytes');
     }
     throw e;
