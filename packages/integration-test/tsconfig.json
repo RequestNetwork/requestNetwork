@@ -1,4 +1,9 @@
 {
   "extends": "../../tsconfig",
-  "include": ["test/"]
+  "include": ["test/"],
+  "compilerOptions": {
+    // workaround to fix conflict between `@types/mocha` and `@types/jest`
+    // https://github.com/microsoft/TypeScript/issues/11437#issuecomment-252381205
+    "typeRoots": ["../../types-overrides", "node_modules/@types"]
+  }
 }

@@ -9,11 +9,13 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
-import { AnyToERC20PaymentDetector, getTheGraphClient } from '../../src';
+import { AnyToERC20PaymentDetector, TheGraphClient } from '../../src';
 import { mockAdvancedLogicBase } from '../utils';
 
 jest.mock('../../src/thegraph/client');
-const theGraphClientMock = jest.mocked(getTheGraphClient(''));
+const theGraphClientMock = {
+  GetAnyToFungiblePayments: jest.fn(),
+} as jest.MockedObjectDeep<TheGraphClient>;
 
 let anyToErc20Proxy: AnyToERC20PaymentDetector;
 const currencyManager = CurrencyManager.getDefault();
@@ -104,6 +106,8 @@ describe('api/any/conversion-fee-proxy-contract', () => {
   it('can createExtensionsDataForCreation without salt', async () => {
     await anyToErc20Proxy.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
+      acceptedTokens: [],
+      network: 'mainnet',
     });
 
     // Can't check parameters since salt is generated in createExtensionsDataForCreation

@@ -5,13 +5,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import {
-  CurrencyDefinition,
-  EvmChains,
-  ICurrencyManager,
-  NearChains,
-  isSameChain,
-} from '@requestnetwork/currency';
+import { EvmChains, NearChains, isSameChain } from '@requestnetwork/currency';
 import ProxyInfoRetriever from './proxy-info-retriever';
 
 import { loadCurrencyFromContract } from './currency';
@@ -33,7 +27,7 @@ const PROXY_CONTRACT_ADDRESS_MAP = {
  */
 
 export abstract class ERC20FeeProxyPaymentDetectorBase<
-  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
+  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased<any>,
   TPaymentEventParameters extends PaymentTypes.IERC20FeePaymentEventParameters,
 > extends FeeReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
@@ -42,14 +36,14 @@ export abstract class ERC20FeeProxyPaymentDetectorBase<
   protected constructor(
     paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
-    currencyManager: ICurrencyManager,
+    currencyManager: CurrencyTypes.ICurrencyManager,
   ) {
     super(paymentNetworkId, extension, currencyManager);
   }
 
   protected async getCurrency(
     storageCurrency: RequestLogicTypes.ICurrency,
-  ): Promise<CurrencyDefinition> {
+  ): Promise<CurrencyTypes.CurrencyDefinition> {
     const currency = this.currencyManager.fromStorageCurrency(storageCurrency);
     if (currency) {
       return currency;

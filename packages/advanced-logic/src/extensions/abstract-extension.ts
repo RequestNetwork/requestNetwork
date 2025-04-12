@@ -1,6 +1,13 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
 
+export interface ICreationContext {
+  extensionsState: RequestLogicTypes.IExtensionStates;
+  extensionAction: ExtensionTypes.IAction;
+  requestState: RequestLogicTypes.IRequest;
+  actionSigner: IdentityTypes.IIdentity;
+}
+
 /**
  * Abstract class to create extension
  */
@@ -60,7 +67,12 @@ export abstract class AbstractExtension<TCreationParameters> implements Extensio
         throw Error(`This extension has already been created`);
       }
 
-      copiedExtensionState[extensionAction.id] = this.applyCreation(extensionAction, timestamp);
+      copiedExtensionState[extensionAction.id] = this.applyCreation(extensionAction, timestamp, {
+        extensionsState,
+        extensionAction,
+        requestState,
+        actionSigner,
+      });
 
       return copiedExtensionState;
     }
@@ -99,6 +111,8 @@ export abstract class AbstractExtension<TCreationParameters> implements Extensio
     extensionAction: ExtensionTypes.IAction,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _timestamp: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    context?: ICreationContext,
   ): ExtensionTypes.IState {
     if (!extensionAction.version) {
       throw Error('version is required at creation');

@@ -1,67 +1,55 @@
 import GRAPH from 'node-dijkstra';
-import { CurrencyDefinition } from './types';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 import privateAggregator from './aggregators/private.json';
 import mainnetAggregator from './aggregators/mainnet.json';
 import goerliAggregator from './aggregators/goerli.json';
+import sepoliaAggregator from './aggregators/sepolia.json';
 import rinkebyAggregator from './aggregators/rinkeby.json';
 import maticAggregator from './aggregators/matic.json';
 import fantomAggregator from './aggregators/fantom.json';
-import nearAggregator from './aggregators/near.json';
-import nearTestnetAggregator from './aggregators/near-testnet.json';
-import auroraTestnetAggregator from './aggregators/aurora-testnet.json';
-import { CurrencyTypes } from '@requestnetwork/types';
-
-/**
- * currencyFrom => currencyTo => cost
- */
-export type CurrencyPairs = Record<string, Record<string, number>>;
-
-/**
- * Aggregators maps define pairs of currencies for which an onchain oracle exists, by network.
- *
- * Network => currencyFrom => currencyTo => cost
- */
-export type AggregatorsMap<T extends CurrencyTypes.ChainName = CurrencyTypes.ChainName> = Partial<
-  Record<T, CurrencyPairs>
->;
+import xdaiAggregator from './aggregators/xdai.json';
+import arbitrumOneAggregator from './aggregators/arbitrum-one.json';
+import avalancheAggregator from './aggregators/avalanche.json';
+import bscAggregator from './aggregators/bsc.json';
+import optimismAggregator from './aggregators/optimism.json';
+import baseAggregator from './aggregators/base.json';
 
 // Pairs supported by Chainlink (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
-const chainlinkCurrencyPairs: AggregatorsMap<CurrencyTypes.EvmChainName> = {
+const chainlinkCurrencyPairs: CurrencyTypes.AggregatorsMap<CurrencyTypes.EvmChainName> = {
   private: privateAggregator,
   goerli: goerliAggregator,
   rinkeby: rinkebyAggregator,
   mainnet: mainnetAggregator,
   matic: maticAggregator,
   fantom: fantomAggregator,
+  sepolia: sepoliaAggregator,
+  xdai: xdaiAggregator,
+  'arbitrum-one': arbitrumOneAggregator,
+  avalanche: avalancheAggregator,
+  bsc: bscAggregator,
+  optimism: optimismAggregator,
+  base: baseAggregator,
 };
 
-// Pairs supported by Flux Protocol
-const fluxCurrencyPairs: AggregatorsMap<CurrencyTypes.NearChainName> = {
-  aurora: nearAggregator,
-  'aurora-testnet': auroraTestnetAggregator,
-  'near-testnet': nearTestnetAggregator,
-};
-
-// FIX ME: This fix enables to get these networks registered in conversionSupportedNetworks.
+// FIXME: This fix enables to get these networks registered in conversionSupportedNetworks.
 // Could be improved by removing the supported network check from the protocol
-const noConversionNetworks: AggregatorsMap = {
+const noConversionNetworks: CurrencyTypes.AggregatorsMap = {
   'arbitrum-rinkeby': {},
-  'arbitrum-one': {},
-  xdai: {},
-  avalanche: {},
-  bsc: {},
-  optimism: {},
   moonbeam: {},
+  // FIXME: Near should get conversion again with Pyth. See './aggregators/near-testnet.json' and './aggregators/near.json';
+  aurora: {},
+  'aurora-testnet': {},
+  celo: {},
+  sonic: {},
 };
 
 /**
  * Conversion paths per network used by default if no other path given to the Currency Manager.
  * Must be updated every time an aggregator is added to one network.
  */
-export const defaultConversionPairs: AggregatorsMap = {
+export const defaultConversionPairs: CurrencyTypes.AggregatorsMap = {
   ...chainlinkCurrencyPairs,
-  ...fluxCurrencyPairs,
   ...noConversionNetworks,
 };
 
@@ -80,8 +68,8 @@ export const conversionSupportedNetworks = Object.keys(
  * @returns conversion path
  */
 export function getPath(
-  currencyFrom: Pick<CurrencyDefinition, 'hash'>,
-  currencyTo: Pick<CurrencyDefinition, 'hash'>,
+  currencyFrom: Pick<CurrencyTypes.CurrencyDefinition, 'hash'>,
+  currencyTo: Pick<CurrencyTypes.CurrencyDefinition, 'hash'>,
   network: CurrencyTypes.ChainName = 'mainnet',
   pairs = defaultConversionPairs,
 ): string[] | null {

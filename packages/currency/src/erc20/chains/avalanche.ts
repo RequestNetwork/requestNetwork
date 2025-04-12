@@ -1,7 +1,7 @@
-import { TokenMap } from '../../types';
+import { CurrencyTypes } from '@requestnetwork/types';
 
 // List of the supported bsc network tokens
-export const supportedAvalancheERC20: TokenMap = {
+export const supportedAvalancheERC20: CurrencyTypes.TokenMap = {
   '0x9fB1d52596c44603198fB0aee434fac3a679f702': {
     name: 'Jarvis Synthetic Euro',
     symbol: 'jEUR',

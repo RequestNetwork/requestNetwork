@@ -4,9 +4,9 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { CurrencyDefinition, CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { PaymentNetworkFactory } from '../../src/payment-network-factory';
-import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
+import * as PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import {
   NearConversionInfoRetriever,
   NearConversionNativeTokenPaymentDetector,
@@ -24,7 +24,7 @@ const feeAddress = 'fee.near';
 const network = 'aurora';
 const feeAmount = '5';
 const receiptId = 'FYVnCvJFoNtK7LE2uAdTFfReFMGiCUHMczLsvEni1Cpf';
-const requestCurrency = currencyManager.from('USD') as CurrencyDefinition;
+const requestCurrency = currencyManager.from('USD') as CurrencyTypes.CurrencyDefinition;
 const request: any = {
   requestId: '01c9190b6d015b3a0b2bbd0e492b9474b0734ca19a16f2fda8f7adec10d0fa3e7a',
   currency: {

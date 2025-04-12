@@ -5,6 +5,7 @@ import { RequestNode } from '../src/requestNode';
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 import { providers } from 'ethers';
 
+jest.setTimeout(30000);
 // enable re-running these tests on local environment by having a different channel ID each time.
 const time = Date.now();
 const channelId = `01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa${time}`;
@@ -17,7 +18,7 @@ const otherTopics = [`01eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee${tim
 );
 const nonExistentTopic = '010000000000000000000000000000000000000000000000000000000000000000';
 const transactionData = {
-  data: 'this is sample data for a transaction to test getChannelsByTopic',
+  data: `this is sample data for a transaction to test getChannelsByTopic ${Date.now()}`,
 };
 const otherTransactionData = {
   data: 'this is other sample data for a transaction to test getChannelsByTopic',
@@ -98,6 +99,19 @@ describe('getChannelsByTopic', () => {
       }),
     );
 
+    // If we search for the fisrt topic, by paginating, there should be one transaction
+    serverResponse = await request(server)
+      .get('/getChannelsByTopic')
+      .query({ topic: commonTopic, page: 1, pageSize: 1 })
+      .set('Accept', 'application/json')
+      .expect(StatusCodes.OK);
+
+    expect(serverResponse.body.result.transactions).toMatchObject(
+      expect.objectContaining({
+        [channelId]: [expect.objectContaining({ transaction: transactionData })],
+      }),
+    );
+
     // confirm the transactions for clean shutdown
     const provider = new providers.JsonRpcProvider();
     const confirm = (txData: unknown) => {
@@ -116,7 +130,7 @@ describe('getChannelsByTopic', () => {
       });
     };
     await Promise.all([confirm(transactionData), confirm(otherTransactionData)]);
-  }, 10000);
+  });
 
   it('responds with no transaction to requests with a non-existent topic', async () => {
     const serverResponse = await request(server)

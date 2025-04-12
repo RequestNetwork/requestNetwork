@@ -1,5 +1,5 @@
-import { CurrencyManager, CurrencyDefinition } from '@requestnetwork/currency';
-import { RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 export const currencyManager = new CurrencyManager([
   ...CurrencyManager.getDefaultList(),
@@ -16,6 +16,6 @@ export const currencyManager = new CurrencyManager([
         decimals: 18,
         symbol: 'ERC20_' + i,
         type: RequestLogicTypes.CURRENCY.ERC20,
-      } as CurrencyDefinition),
+      } as CurrencyTypes.CurrencyDefinition),
   ),
 ]);

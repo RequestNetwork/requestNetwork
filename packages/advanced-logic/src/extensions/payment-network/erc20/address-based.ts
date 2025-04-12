@@ -1,4 +1,4 @@
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import AddressBasedPaymentNetwork from '../address-based';
 
 const CURRENT_VERSION = '0.1.0';
@@ -10,8 +10,9 @@ const CURRENT_VERSION = '0.1.0';
  * Important: the addresses must be exclusive to the request
  */
 export default class Erc20AddressBasedPaymentNetwork extends AddressBasedPaymentNetwork {
-  public constructor() {
+  public constructor(currencyManager: CurrencyTypes.ICurrencyManager) {
     super(
+      currencyManager,
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
       CURRENT_VERSION,
       RequestLogicTypes.CURRENCY.ERC20,

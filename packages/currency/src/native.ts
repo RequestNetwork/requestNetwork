@@ -1,10 +1,11 @@
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { NamedNativeCurrency } from './types';
 
-type NativeEthCurrency = NamedNativeCurrency & {
+type NativeEthCurrency = CurrencyTypes.NamedNativeCurrency & {
   network: CurrencyTypes.EvmChainName | CurrencyTypes.NearChainName;
 };
-type NativeBtcCurrency = NamedNativeCurrency & { network: CurrencyTypes.BtcChainName };
+type NativeBtcCurrency = CurrencyTypes.NamedNativeCurrency & {
+  network: CurrencyTypes.BtcChainName;
+};
 
 export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthCurrency[]> &
   Record<RequestLogicTypes.CURRENCY.BTC, NativeBtcCurrency[]> = {
@@ -146,6 +147,36 @@ export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthC
       decimals: 18,
       name: 'Core',
       network: 'core',
+    },
+    {
+      symbol: 'ETH-sepolia',
+      decimals: 18,
+      name: 'Sepolia Ether',
+      network: 'sepolia',
+    },
+    {
+      symbol: 'ETH-zksync',
+      decimals: 18,
+      name: 'Ether',
+      network: 'zksyncera',
+    },
+    {
+      symbol: 'ETH-zksync-testnet',
+      decimals: 18,
+      name: 'Ether',
+      network: 'zksynceratestnet',
+    },
+    {
+      symbol: 'ETH-base',
+      decimals: 18,
+      name: 'Base Ether',
+      network: 'base',
+    },
+    {
+      symbol: '$S',
+      decimals: 18,
+      name: '$S',
+      network: 'sonic',
     },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [

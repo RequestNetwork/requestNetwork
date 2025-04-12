@@ -1,4 +1,4 @@
-import MultiFormat from '@requestnetwork/multi-format';
+import * as MultiFormat from '@requestnetwork/multi-format';
 import { EncryptionTypes } from '@requestnetwork/types';
 
 import EncryptedTransaction from '../../src/encrypted-transaction';

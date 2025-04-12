@@ -1,5 +1,4 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import Axios from 'axios';
 
 import { BigNumber } from 'ethers';
 import { retry } from '@requestnetwork/utils';
@@ -34,16 +33,16 @@ export class BlockchainInfoProvider implements PaymentTypes.IBitcoinDetectionPro
 
     const queryUrl = `${blockchainInfoUrl}/rawaddr/${address}?cors=true`;
     try {
-      const res = await retry(async () => Axios.get(queryUrl), {
+      const res = await retry(fetch, {
         maxRetries: BLOCKCHAININFO_REQUEST_MAX_RETRY,
         retryDelay: BLOCKCHAININFO_REQUEST_RETRY_DELAY,
-      })();
+      })(queryUrl);
 
       // eslint-disable-next-line no-magic-numbers
       if (res.status >= 400) {
         throw new Error(`Error ${res.status}. Bad response from server ${queryUrl}`);
       }
-      const addressInfo = res.data;
+      const addressInfo = await res.json();
 
       // count the number of extra pages to retrieve
       const numberOfExtraPages = Math.floor(addressInfo.n_tx / (TXS_PER_PAGE + 1));

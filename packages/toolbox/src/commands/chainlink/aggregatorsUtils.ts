@@ -1,5 +1,4 @@
-import { AggregatorsMap, CurrencyInput, CurrencyManager } from '@requestnetwork/currency';
-import axios from 'axios';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 type Feed = {
@@ -19,6 +18,7 @@ const feedMap: Partial<
 > = {
   mainnet: ['mainnet', 'Ethereum Mainnet'],
   goerli: ['goerli', 'Goerli Testnet'],
+  sepolia: ['sepolia', 'Sepolia Testnet'],
   fantom: ['fantom-mainnet', 'Fantom Mainnet'],
   matic: ['matic-mainnet', 'Polygon Mainnet'],
   xdai: ['xdai-mainnet', 'Gnosis Chain Mainnet'],
@@ -37,9 +37,10 @@ export const getAllAggregators = async (network: CurrencyTypes.EvmChainName): Pr
     );
   }
 
-  const { data: feeds } = await axios.get<Feed[]>(
+  const response = await fetch(
     `https://reference-data-directory.vercel.app/feeds-${feedName}.json`,
   );
+  const feeds = await response.json();
 
   if (!feeds) {
     throw new Error(`not proxies for feed ${feedName} > ${networkName}`);
@@ -83,18 +84,14 @@ export const getAvailableAggregators = async (
   return missingAggregators;
 };
 
-const loadCurrencyApi = async <T>(path: string): Promise<T> => {
-  const client = axios.create({
-    baseURL: 'https://api.request.network/currency',
-  });
-  const { data } = await client.get<T>(path);
-  return data;
-};
+const CURRENCY_API_URL = 'https://api.request.finance/currency';
 
 export const getCurrencyManager = async (list?: string): Promise<CurrencyManager> => {
-  const aggregators = await loadCurrencyApi<AggregatorsMap>('/aggregators');
-  const currencyList = list
-    ? await loadCurrencyApi<CurrencyInput[]>(`/list/${list}`)
+  const aggregators: CurrencyTypes.AggregatorsMap = await fetch(
+    `${CURRENCY_API_URL}/aggregators`,
+  ).then((r) => r.json());
+  const currencyList: CurrencyTypes.CurrencyInput[] = list
+    ? await fetch(`${CURRENCY_API_URL}/list/${list}`).then((r) => r.json())
     : CurrencyManager.getDefaultList();
   return new CurrencyManager(currencyList, undefined, aggregators);
 };

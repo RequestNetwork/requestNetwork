@@ -5,3 +5,4 @@ export { DataAccessRead } from './data-read';
 export { PendingStore } from './pending-store';
 export { DataAccessBaseOptions } from './types';
 export { MockDataAccess } from './mock-data-access';
+export { NoPersistDataWrite } from './no-persist-data-write';

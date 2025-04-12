@@ -3,12 +3,14 @@ export * from './payment/btc-address-based';
 export * from './payment/erc20';
 export * from './payment/erc20-proxy';
 export * from './payment/erc20-fee-proxy';
+export * from './payment/erc-20-private-payment-hinkal';
 export * from './payment/erc777-stream';
 export * from './payment/erc777-utils';
 export * from './payment/eth-input-data';
 export * from './payment/near-input-data';
 export * from './payment/near-conversion';
 export * from './payment/near-fungible';
+export * from './payment/near-amount-with-ref';
 export * from './payment/eth-proxy';
 export * from './payment/eth-fee-proxy';
 export * from './payment/batch-proxy';
@@ -25,6 +27,9 @@ export * from './payment/encoder-payment';
 export * from './payment/encoder-approval';
 export * as Escrow from './payment/erc20-escrow-payment';
 export * from './payment/prepared-transaction';
+export * from './payment/utils-near';
+export * from './payment/single-request-forwarder';
+
 import * as utils from './payment/utils';
 
 export { utils };

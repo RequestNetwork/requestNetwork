@@ -7,15 +7,15 @@ import {
   CurrencyTypes,
   EncryptionTypes,
   IdentityTypes,
+  LogTypes,
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { ICurrencyManager } from '@requestnetwork/currency';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import localUtils from './utils';
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
-import { deepCopy } from '@requestnetwork/utils';
+import { deepCopy, SimpleLogger } from '@requestnetwork/utils';
 
 /**
  * Class representing a request.
@@ -34,6 +34,7 @@ export default class Request {
   private paymentNetwork: PaymentTypes.IPaymentNetwork | null = null;
   private contentDataExtension: ContentDataExtension | null;
   private emitter: EventEmitter;
+  private logger: SimpleLogger = new SimpleLogger(LogTypes.LogLevel.WARN);
 
   /**
    * true if the creation emitted an event 'error'
@@ -77,7 +78,18 @@ export default class Request {
   /**
    * A list of known tokens
    */
-  private currencyManager: ICurrencyManager;
+  private currencyManager: CurrencyTypes.ICurrencyManager;
+
+  /**
+   * Information for an in-memory request, including transaction data, topics, and payment request data.
+   * This is used for requests that haven't been persisted yet, allowing for operations like payments
+   * before the request is stored in the data access layer.
+   *
+   * @property transactionData - Transaction data necessary for persisting the request later on.
+   * @property topics - Topics of the request, used for indexing and retrieval when persisting.
+   * @property requestData - Structured data primarily used for processing payments before the request is persisted.
+   */
+  public readonly inMemoryInfo: RequestLogicTypes.IInMemoryInfo | null = null;
 
   /**
    * Creates an instance of Request
@@ -92,13 +104,14 @@ export default class Request {
   constructor(
     requestId: RequestLogicTypes.RequestId,
     requestLogic: RequestLogicTypes.IRequestLogic,
-    currencyManager: ICurrencyManager,
+    currencyManager: CurrencyTypes.ICurrencyManager,
     options?: {
       paymentNetwork?: PaymentTypes.IPaymentNetwork | null;
       contentDataExtension?: ContentDataExtension | null;
       requestLogicCreateResult?: RequestLogicTypes.IReturnCreateRequest;
       skipPaymentDetection?: boolean;
       disableEvents?: boolean;
+      inMemoryInfo?: RequestLogicTypes.IInMemoryInfo | null;
     },
   ) {
     this.requestLogic = requestLogic;
@@ -109,6 +122,7 @@ export default class Request {
     this.skipPaymentDetection = options?.skipPaymentDetection || false;
     this.disableEvents = options?.disableEvents || false;
     this.currencyManager = currencyManager;
+    this.inMemoryInfo = options?.inMemoryInfo || null;
 
     if (options?.requestLogicCreateResult && !this.disableEvents) {
       const originalEmitter = options.requestLogicCreateResult;
@@ -404,12 +418,16 @@ export default class Request {
    * @param amount Amount sent
    * @param note Note from payer about the sent payment
    * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @param txHash transaction hash
+   * @param network network of the transaction
    * @returns The updated request
    */
   public async declareSentPayment(
     amount: RequestLogicTypes.Amount,
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
+    txHash?: string,
+    network?: string,
   ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
 
@@ -428,6 +446,8 @@ export default class Request {
       declarativePaymentNetwork.createExtensionsDataForDeclareSentPayment({
         amount,
         note,
+        txHash,
+        network,
       }),
     );
 
@@ -451,12 +471,16 @@ export default class Request {
    * @param amount Amount sent
    * @param note Note from payee about the sent refund
    * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @param txHash transaction hash
+   * @param network network of the transaction
    * @returns The updated request
    */
   public async declareSentRefund(
     amount: RequestLogicTypes.Amount,
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
+    txHash?: string,
+    network?: string,
   ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
 
@@ -475,6 +499,8 @@ export default class Request {
       declarativePaymentNetwork.createExtensionsDataForDeclareSentRefund({
         amount,
         note,
+        txHash,
+        network,
       }),
     );
 
@@ -674,22 +700,27 @@ export default class Request {
       throw Error('request confirmation failed');
     }
 
-    let requestData = deepCopy(this.requestData);
+    let requestData: RequestLogicTypes.IRequest = deepCopy(
+      this.requestData,
+    ) as RequestLogicTypes.IRequest;
 
     let pending = deepCopy(this.pendingData);
-    if (!requestData) {
+    if (!requestData && pending) {
       requestData = pending as RequestLogicTypes.IRequest;
       requestData.state = RequestLogicTypes.STATE.PENDING;
-      pending = { state: this.pendingData!.state };
+      pending = { state: this.pendingData?.state };
+    } else if (!requestData && !pending) {
+      return Object.assign(new EventEmitter(), {} as Types.IRequestDataWithEvents);
     }
 
     const currency = this.currencyManager.fromStorageCurrency(requestData.currency);
+
     return Object.assign(new EventEmitter(), {
       ...requestData,
       balance: this.balance,
       contentData: this.contentData,
       currency: currency ? currency.id : 'unknown',
-      currencyInfo: requestData.currency,
+      currencyInfo: requestData?.currency,
       meta: this.requestMeta,
       pending,
     });
@@ -728,11 +759,12 @@ export default class Request {
     }
 
     if (!requestAndMeta.result.request && !requestAndMeta.result.pending) {
-      throw new Error(
-        `No request found for the id: ${this.requestId} - ${localUtils.formatGetRequestFromIdError(
-          requestAndMeta,
-        )}`,
-      );
+      const requestFromIdError = localUtils.formatGetRequestFromIdError(requestAndMeta);
+      if (requestFromIdError.indexOf('Decryption is not available') !== -1) {
+        this.logger.warn(`Decryption is not available for request ${this.requestId}`);
+      } else {
+        throw new Error(`No request found for the id: ${this.requestId} - ${requestFromIdError}`);
+      }
     }
 
     if (this.contentDataExtension) {

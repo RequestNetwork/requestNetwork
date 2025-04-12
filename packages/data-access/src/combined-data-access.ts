@@ -1,4 +1,5 @@
 import { DataAccessTypes } from '@requestnetwork/types';
+import { NoPersistDataWrite } from './no-persist-data-write';
 
 export abstract class CombinedDataAccess implements DataAccessTypes.IDataAccess {
   constructor(
@@ -14,6 +15,10 @@ export abstract class CombinedDataAccess implements DataAccessTypes.IDataAccess 
   async close(): Promise<void> {
     await this.writer.close();
     await this.reader.close();
+  }
+
+  skipPersistence(): boolean {
+    return this.writer instanceof NoPersistDataWrite;
   }
 
   async getTransactionsByChannelId(

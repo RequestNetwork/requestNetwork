@@ -1,6 +1,6 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
 
-import Keccak256Format from '../../src/hash/keccak256-format';
+import { Keccak256MultiFormat as Keccak256Format } from '../../src/hash/keccak256-format';
 
 let keccak256Format: Keccak256Format;
 

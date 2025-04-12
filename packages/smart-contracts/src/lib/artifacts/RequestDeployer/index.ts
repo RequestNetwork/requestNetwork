@@ -85,6 +85,14 @@ export const requestDeployer = new ContractArtifact<RequestDeployer>(
           address: '0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2',
           creationBlockNumber: 8314795,
         },
+        sepolia: {
+          address: '0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2',
+          creationBlockNumber: 4733269,
+        },
+        sonic: {
+          address: '0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2',
+          creationBlockNumber: 3970964,
+        },
       },
     },
   },

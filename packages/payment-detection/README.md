@@ -67,18 +67,6 @@ yarn codegen
 
 # Test
 
-The ETH `InfoRetriever` tests require explorer API keys. Before running the
-payment-detection tests, define `DISABLE_API_TESTS` or define all required
-explorer API keys.
-
 ```bash
-export DISABLE_API_TESTS=1
-# OR
-export EXPLORER_API_KEY_MAINNET=
-export EXPLORER_API_KEY_RINKEBY=
-export EXPLORER_API_KEY_FUSE=
-export EXPLORER_API_KEY_MATIC=
-export EXPLORER_API_KEY_FANTOM=
-
 yarn run test
 ```

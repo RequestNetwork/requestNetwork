@@ -3,8 +3,9 @@ import { deepCopy } from '@requestnetwork/utils';
 import * as DataBTCAddPaymentAddress from '../../../utils/payment-network/bitcoin/testnet-generator-data-add-payment-address';
 import * as DataBTCCreate from '../../../utils/payment-network/bitcoin/testnet-generator-data-create';
 import * as TestData from '../../../utils/test-data-generator';
+import { CurrencyManager } from '@requestnetwork/currency';
 
-const testnetBitcoinAddressBasedPN = new TestnetBitcoinAddressBasedPN();
+const testnetBitcoinAddressBasedPN = new TestnetBitcoinAddressBasedPN(CurrencyManager.getDefault());
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/bitcoin/testnet-address-based', () => {

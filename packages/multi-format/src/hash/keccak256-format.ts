@@ -1,11 +1,11 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
 
-import HexadecimalSerializableMultiFormat from '../hexadecimal-serializable-multi-format';
+import { HexadecimalSerializableMultiFormat } from '../hexadecimal-serializable-multi-format';
 
 /**
  * Class to serialize and deserialize multi-format AES-256-CBC encrypted data
  */
-export default class EthereumAddressMultiFormat extends HexadecimalSerializableMultiFormat {
+export class Keccak256MultiFormat extends HexadecimalSerializableMultiFormat {
   constructor() {
     super(
       MultiFormatTypes.prefix.NORMALIZE_KECCAK256_HASH,

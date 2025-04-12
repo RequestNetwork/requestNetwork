@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/types",
-  "version": "0.37.0",
+  "version": "0.54.0",
   "publishConfig": {
     "access": "public"
   },
@@ -19,7 +19,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -32,16 +32,16 @@
   ],
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "prepare": "yarn run build"
   },
   "dependencies": {
-    "ethers": "5.5.1"
+    "@lit-protocol/types": "7.0.5",
+    "ethers": "5.7.2"
   },
   "devDependencies": {
-    "shx": "0.3.2",
     "ts-node": "10.9.1",
     "typed-emitter": "2.1.0",
     "typescript": "5.1.3"

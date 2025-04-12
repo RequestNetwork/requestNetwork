@@ -29,6 +29,10 @@ export const requestHashStorageArtifact = new ContractArtifact<RequestHashStorag
           address: '0x2256938E8225a998C498bf86B43c1768EE14b90B',
           creationBlockNumber: 15193752,
         },
+        sepolia: {
+          address: '0xd6c085A4D14e9e171f4aF58F7F48bd81173f167E',
+          creationBlockNumber: 4734914,
+        },
       },
     },
   },

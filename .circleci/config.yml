@@ -2,10 +2,10 @@ version: 2.1
 
 references:
   working_directory: &working_directory ~/repo
-  attach_workspace: &attach_workspace
-  image_name: &image_name 'cimg/python:3.7'
   node_image: &node_image
-    image: cimg/node:18.18
+    image: cimg/node:22.14
+    environment:
+      NODE_OPTIONS: '--max-old-space-size=4096'
   ipfs_image: &ipfs_image
     image: requestnetwork/request-ipfs:v0.13.0
   ganache_image: &ganache_image
@@ -60,6 +60,7 @@ jobs:
   build:
     docker:
       - *node_image
+    resource_class: xlarge
     working_directory: *working_directory
     steps:
       - checkout
@@ -76,351 +77,142 @@ jobs:
           paths:
             - ~/.cache/yarn
       - run:
+          name: Build all packages with lerna
+          command: 'yarn build'
+      - persist_to_workspace:
+          root: *working_directory
+          paths:
+            - ./
+            - ./.nx-cache
+            - packages/*/dist
+            - packages/*/*.tsbuildinfo
+  lint:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
           name: Verify format
           command: yarn format:check
       - run:
-          name: Verify lint
-          command: yarn lint:check
-      - run:
-          name: Build types
-          command: yarn workspace @requestnetwork/types run build
-      - run:
-          name: Build utils
-          command: yarn workspace @requestnetwork/utils run build
-      - run:
-          name: Build currency
-          command: yarn workspace @requestnetwork/currency run build
-      - run:
-          name: Generate Smart Contract types
-          command: yarn workspace @requestnetwork/smart-contracts run build
-      - run:
-          name: Generate Payment Detection queries
-          command: yarn workspace @requestnetwork/payment-detection run codegen
-      - run:
-          name: Build all packages (tsc)
-          command: yarn build:tsc
-
-      - persist_to_workspace:
-          root: *working_directory
-          paths: .
-  lint-package-json:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
           name: 'lint package.json files'
           command: 'yarn run packageJsonLint'
-  test-request-client:
+  test-unit:
     docker:
       - *node_image
-      - *ganache_image
+    resource_class: large
     working_directory: *working_directory
     steps:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build request-client.js'
-          command: 'yarn workspace @requestnetwork/request-client.js run build:commonjs'
-      - run:
-          name: 'Deploy test contracts from smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
-      - run:
-          name: 'Test request-client.js'
-          command: 'yarn workspace @requestnetwork/request-client.js run test --ci --maxWorkers=1'
+          name: 'Test unit'
+          command: |
+            yarn test \
+            --ignore @requestnetwork/request-node \
+            --ignore @requestnetwork/ethereum-storage \
+            --ignore @requestnetwork/request-client.js \
+            --ignore @requestnetwork/smart-contracts \
+            --ignore @requestnetwork/payment-detection \
+            --ignore @requestnetwork/payment-processor \
+            --ignore @requestnetwork/integration-test \
+            --concurrency=2
       - store_test_results:
-          path: packages/request-client.js/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/request-client.js/coverage/
-  test-data-access:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build data-access'
-          command: 'yarn workspace @requestnetwork/data-access run build'
-      - run:
-          name: 'Test data-access'
-          command: 'yarn workspace @requestnetwork/data-access run test --ci --maxWorkers=1'
-      - store_test_results:
-          path: packages/data-access/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/data-access/coverage/
-  test-data-format:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build data-format'
-          command: 'yarn workspace @requestnetwork/data-format run build'
-      - run:
-          name: 'Test data-format'
-          command: 'yarn workspace @requestnetwork/data-format run test --ci --maxWorkers=1'
-      - store_test_results:
-          path: packages/data-format/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/data-format/coverage/
-  test-transaction-manager:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build transaction-manager'
-          command: 'yarn workspace @requestnetwork/transaction-manager run build'
-      - run:
-          name: 'Test transaction-manager'
-          command: 'yarn workspace @requestnetwork/transaction-manager run test --ci --maxWorkers=1'
-      - store_test_results:
-          path: packages/transaction-manager/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/transaction-manager/coverage/
-  test-ethereum-storage:
-    docker:
-      - *node_image
-      - *ipfs_image
-      - *ganache_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build ethereum-storage'
-          command: 'yarn workspace @requestnetwork/ethereum-storage run build'
-      - run:
-          name: 'Deploy contracs smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
-      - run:
-          name: 'Test ethereum-storage'
-          command: 'yarn workspace @requestnetwork/ethereum-storage run test --ci --maxWorkers=1'
-      - store_test_results:
-          path: packages/ethereum-storage/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/ethereum-storage/coverage/
-  test-smart-contracts:
-    docker:
-      - *node_image
-      - *ganache_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Deploy contracs smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
-      - run:
-          name: 'Lint smart contracts smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run lint:sol:check'
-      - run:
-          name: 'Test smart contracts smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run test'
-      - run:
-          name: 'Test smart contracts utilities'
-          command: 'yarn workspace @requestnetwork/smart-contracts run test:lib --ci --maxWorkers=1'
-  test-request-logic:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build request-logic'
-          command: 'yarn workspace @requestnetwork/request-logic run build'
-      - run:
-          name: 'Test request-logic'
-          command: 'yarn workspace @requestnetwork/request-logic run test --ci --maxWorkers=1'
-      - store_test_results:
-          path: packages/request-logic/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/request-logic/coverage/
-  test-advanced-logic:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build advanced-logic'
-          command: 'yarn workspace @requestnetwork/advanced-logic run build'
-      - run:
-          name: 'Test advanced-logic'
-          command: 'yarn workspace @requestnetwork/advanced-logic run test --ci --maxWorkers=1'
-      - store_test_results:
-          path: packages/advanced-logic/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/advanced-logic/coverage/
-  test-request-node:
-    docker:
-      - *node_image
-      - *ipfs_image
-      - *ganache_image
-      - *postgres_image
-      - *graph_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build request-node'
-          command: 'yarn workspace @requestnetwork/request-node run build'
-      - run:
-          name: 'Deploy test contract from smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
-      - run: *step_graph_deploy
-      - run:
-          name: 'Test request-node'
-          command: 'yarn workspace @requestnetwork/request-node run test --ci'
-      - store_test_results:
-          path: packages/request-node/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/request-node/coverage/
-  test-utils:
-    docker:
-      - *node_image
-      - *ganache_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Test utils'
-          command: 'yarn workspace @requestnetwork/utils run test --ci --maxWorkers=1'
-      - store_test_results:
-          path: packages/utils/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/utils/coverage/
-  test-currency:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Test currency'
-          command: 'yarn workspace @requestnetwork/currency run test --ci --maxWorkers=1'
+          path: packages/advance-logic/reports/
       - store_test_results:
           path: packages/currency/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/currency/coverage/
-  test-epk-signature:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build epk-signature'
-          command: 'yarn workspace @requestnetwork/epk-signature run build'
-      - run:
-          name: 'Test epk-signature'
-          command: 'yarn workspace @requestnetwork/epk-signature run test --ci --maxWorkers=1'
       - store_test_results:
-          path: packages/epk-signature/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/epk-signature/coverage/
-  test-epk-decryption:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build epk-decryption'
-          command: 'yarn workspace @requestnetwork/epk-decryption run build'
-      - run:
-          name: 'Test epk-decryption'
-          command: 'yarn workspace @requestnetwork/epk-decryption run test --ci --maxWorkers=1'
+          path: packages/data-access/reports/
+      - store_test_results:
+          path: packages/data-format/reports/
+      - store_test_results:
+          path: packages/epk-cipher/reports/
       - store_test_results:
           path: packages/epk-decryption/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/epk-decryption/coverage/
-  test-web3-signature:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build web3-signature'
-          command: 'yarn workspace @requestnetwork/web3-signature run build'
-      - run:
-          name: 'Test web3-signature'
-          command: 'yarn workspace @requestnetwork/web3-signature run test --ci --maxWorkers=1'
+      - store_test_results:
+          path: packages/lit-protocol-cipher/reports/
+      - store_test_results:
+          path: packages/multi-format/reports/
+      - store_test_results:
+          path: packages/request-logic/reports/
+      - store_test_results:
+          path: packages/thegraph-data-access/reports/
+      - store_test_results:
+          path: packages/transaction-manager/reports/
+      - store_test_results:
+          path: packages/utils/reports/
       - store_test_results:
           path: packages/web3-signature/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/web3-signature/coverage/
-  test-integration-test:
+
+  test-integration-with-smart-contracts:
     docker:
       - *node_image
       - *ipfs_image
       - *ganache_image
       - *postgres_image
       - *graph_image
+    resource_class: xlarge
     working_directory: *working_directory
     steps:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build integration-test'
-          command: 'yarn workspace @requestnetwork/integration-test run build'
+          name: 'Deploy test contract from smart-contracts'
+          command: 'yarn deploy:contracts'
+      - run: *step_graph_deploy
+      - run:
+          name: 'Test request-client.js, smart-contracts, payment-detection and payment-processor'
+          command: |
+            yarn test \
+              --scope @requestnetwork/request-node \
+              --scope @requestnetwork/ethereum-storage \
+              --scope @requestnetwork/request-client.js \
+              --scope @requestnetwork/smart-contracts \
+              --scope @requestnetwork/payment-detection \
+              --scope @requestnetwork/payment-processor \
+              --concurrency=1
+      - store_test_results:
+          path: packages/request-node/reports/
+      - store_test_results:
+          path: packages/request-client.js/reports/
+      - store_test_results:
+          path: packages/smart-contracts/reports/
+      - store_test_results:
+          path: packages/payment-detection/reports/
+      - store_test_results:
+          path: packages/payment-processor/reports/
+      - store_test_results:
+          path: packages/ethereum-storage/reports/
+  test-integration-with-request-node:
+    docker:
+      - *node_image
+      - *ipfs_image
+      - *ganache_image
+      - *postgres_image
+      - *graph_image
+    resource_class: large
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
       - run:
           name: 'Deploy test contract from smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+          command: 'yarn deploy:contracts'
       - run: *step_graph_deploy
       - run:
           name: 'Start request-node'
-          command: 'yarn workspace @requestnetwork/request-node run start'
+          command: 'yarn start:request-node'
           background: true
       - run: *step_wait_for_node
       - run:
-          name: 'Test integration-test (node)'
-          command: 'yarn workspace @requestnetwork/integration-test run test:node --ci --maxWorkers=1'
-      - run:
-          name: 'Test integration-test (layers)'
-          command: 'yarn workspace @requestnetwork/integration-test run test:layers --ci --maxWorkers=1'
+          name: 'Test integration-test'
+          command: |
+            yarn test \
+              --scope @requestnetwork/integration-test
+      - store_test_results:
+          path: packages/integration-test/reports/
   test-usage-examples:
     docker:
       - *node_image
@@ -444,81 +236,7 @@ jobs:
       - run:
           name: 'Build toolbox'
           command: 'yarn workspace @requestnetwork/toolbox run build'
-  test-multi-format:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build multi-format'
-          command: 'yarn workspace @requestnetwork/multi-format run build'
-      - run:
-          name: 'Test multi-format'
-          command: 'yarn workspace @requestnetwork/multi-format run test --ci --maxWorkers=1'
-      - store_test_results:
-          path: packages/multi-format/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/multi-format/coverage/
-  test-payment-detection:
-    docker:
-      - *node_image
-      - *ganache_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build payment-detection'
-          command: 'yarn workspace @requestnetwork/payment-detection run build'
-      - run:
-          name: 'Deploy test contracts from smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
-      - run:
-          name: 'Test payment-detection'
-          command: 'yarn workspace @requestnetwork/payment-detection run test --ci'
-      - store_test_results:
-          path: packages/payment-detection/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/payment-detection/coverage/
-  test-payment-processor:
-    docker:
-      - *node_image
-      - *ganache_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build payment-processor'
-          command: 'yarn workspace @requestnetwork/payment-processor run build'
-      - run:
-          name: 'Deploy test contracts from smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
-      - run:
-          name: 'Test payment-processor'
-          command: 'yarn workspace @requestnetwork/payment-processor run test --ci'
-      - store_test_results:
-          path: packages/payment-processor/reports/
-      - persist_to_workspace:
-          root: *working_directory
-          paths:
-            - packages/payment-processor/coverage/
-  publish-coverage:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Publish Coverage'
-          command: 'yarn publish-coverage'
+
   test-nightly:
     docker:
       - *node_image
@@ -531,113 +249,69 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build integration-test'
-          command: 'yarn workspace @requestnetwork/integration-test run build'
-      - run:
           name: 'Deploy test contract from smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+          command: 'yarn deploy:contracts'
       - run: *step_graph_deploy
       - run:
           name: 'Start request-node'
-          command: 'yarn workspace @requestnetwork/request-node run start'
+          command: 'yarn start:request-node'
           background: true
       - run: *step_wait_for_node
       - run:
           name: 'Test integration-test (erc20)'
-          command: 'yarn workspace @requestnetwork/integration-test run test:erc20 --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/integration-test run test:erc20'
       - run:
           name: 'Test integration-test (btc)'
-          command: 'yarn workspace @requestnetwork/integration-test run test:btc --ci --maxWorkers=1'
+          command: 'yarn workspace @requestnetwork/integration-test run test:btc'
+      - store_test_results:
+          path: packages/integration-test/reports/
+
+  test-monthly:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    resource_class: large
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Test payment-processor (hinkal)'
+          no_output_timeout: 30m
+          command: 'yarn workspace @requestnetwork/payment-processor run test:hinkal'
+      - store_test_results:
+          path: packages/payment-processor/reports/
 
   # Release a next version package everytime we merge to master
   next-release:
     docker:
       - *node_image
     working_directory: *working_directory
+    resource_class: large
     steps:
       - attach_workspace:
           at: *working_directory
       - run:
           name: 'Allow github ssh host'
           command: mkdir ~/.ssh; echo 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==' >> ~/.ssh/known_hosts
-      # this build step shouldn't be necessary because publishing already builds,
-      #  but without it, some packages like epk-signature are missing the dist folder.
-      - run:
-          name: 'Build all'
-          command: 'yarn clean && yarn build'
       - run:
           name: 'Authenticate with registry'
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run:
           name: 'Publish'
-          command: |
-            FORCE_PUBLISH=$($(yarn bin)/lerna changed --json | jq '. | map(.name) | join (",")' -r)
-            echo $FORCE_PUBLISH
-            $(yarn bin)/lerna publish \
-              --conventional-commits  \
-              --conventional-prerelease \
-              --exact \
-              --canary \
-              --no-git-tag-version \
-              --no-push \
-              --preid next \
-              --no-verify-access \
-              --dist-tag next \
-              --yes \
-              --force-publish=${FORCE_PUBLISH}
+          command: yarn run publish-prerelease
 
 workflows:
-  version: 2
+  ## Lerna will run lint, build and test
   build-and-test:
     jobs:
       - build
-      - lint-package-json:
+      - test-unit:
           requires:
             - build
-      # Test
-      - test-request-client:
+      - test-integration-with-smart-contracts:
           requires:
             - build
-      - test-transaction-manager:
-          requires:
-            - build
-      - test-data-access:
-          requires:
-            - build
-      - test-data-format:
-          requires:
-            - build
-      - test-ethereum-storage:
-          requires:
-            - build
-      - test-smart-contracts:
-          requires:
-            - build
-      - test-request-logic:
-          requires:
-            - build
-      - test-multi-format:
-          requires:
-            - build
-      - test-advanced-logic:
-          requires:
-            - build
-      - test-request-node:
-          requires:
-            - build
-      - test-utils:
-          requires:
-            - build
-      - test-currency:
-          requires:
-            - build
-      - test-epk-signature:
-          requires:
-            - build
-      - test-epk-decryption:
-          requires:
-            - build
-      - test-web3-signature:
+      - test-integration-with-request-node:
           requires:
             - build
       - test-usage-examples:
@@ -646,57 +320,20 @@ workflows:
       - test-toolbox:
           requires:
             - build
-      - test-integration-test:
+      - lint:
           requires:
             - build
-      - test-payment-detection:
-          requires:
-            - build
-      - test-payment-processor:
-          requires:
-            - build
-
-      # Publish the code coverage
-      - publish-coverage:
-          requires:
-            - test-request-client
-            - test-data-access
-            - test-data-format
-            - test-transaction-manager
-            - test-ethereum-storage
-            - test-request-logic
-            - test-advanced-logic
-            - test-epk-signature
-            - test-web3-signature
-            - test-epk-decryption
-            - test-request-node
-            - test-utils
-            - test-currency
-            - test-multi-format
-            - test-payment-detection
-            - test-payment-processor
 
       # Release a next version package everytime we merge to master
       - next-release:
           requires:
-            - test-advanced-logic
-            - test-data-access
-            - test-data-format
-            - test-epk-decryption
-            - test-epk-signature
-            - test-ethereum-storage
-            - test-integration-test
-            - test-smart-contracts
-            - test-multi-format
-            - test-request-client
-            - test-request-logic
-            - test-request-node
-            - test-transaction-manager
-            - test-utils
-            - test-currency
-            - test-web3-signature
-            - test-payment-detection
-            - test-payment-processor
+            - lint
+            - build
+            - test-unit
+            - test-integration-with-smart-contracts
+            - test-integration-with-request-node
+            - test-usage-examples
+            - test-toolbox
           context: protocol-release
           filters:
             branches:
@@ -714,9 +351,22 @@ workflows:
                 - master
     jobs:
       - build
-      - lint-package-json:
+      - test-nightly:
           requires:
             - build
-      - test-nightly:
+
+  monthly:
+    triggers:
+      - schedule:
+          # This is a cron job for "every 1st day of the month at 22 hours"
+          cron: '0 22 1 * *'
+          filters:
+            branches:
+              only:
+                - master
+
+    jobs:
+      - build
+      - test-monthly:
           requires:
             - build

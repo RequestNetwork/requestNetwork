@@ -1,12 +1,13 @@
+import { CurrencyTypes } from '@requestnetwork/types';
 import NearNativePaymentNetwork from './near-native';
 
 /**
  * Implementation of the payment network to pay in Near on testnet based on input data.
  */
 export default class NearTestnetNativeNativePaymentNetwork extends NearNativePaymentNetwork {
-  public constructor() {
+  public constructor(currencyManager: CurrencyTypes.ICurrencyManager) {
     // testnet PN version is the same as mainnet, can be overridden here if needed
-    super(['aurora-testnet', 'near-testnet']);
+    super(currencyManager, ['aurora-testnet', 'near-testnet']);
   }
 
   /**

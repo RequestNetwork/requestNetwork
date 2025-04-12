@@ -1,5 +1,4 @@
 import { CurrencyTypes } from '@requestnetwork/types';
-import { Chain } from '../../types';
 
 import * as AlfajoresDefinition from './data/alfajores';
 import * as ArbitrumOneDefinition from './data/arbitrum-one';
@@ -25,8 +24,13 @@ import * as RoninDefinition from './data/ronin';
 import * as SokolDefinition from './data/sokol';
 import * as TombchainDefinition from './data/tombchain';
 import * as XDaiDefinition from './data/xdai';
+import * as SepoliaDefinition from './data/sepolia';
+import * as ZkSyncEraTestnetDefinition from './data/zksync-era-testnet';
+import * as ZkSyncEraDefinition from './data/zksync-era';
+import * as BaseDefinition from './data/base';
+import * as SonicDefinition from './data/sonic';
 
-export type EvmChain = Chain & {
+export type EvmChain = CurrencyTypes.Chain & {
   chainId: number;
 };
 
@@ -55,4 +59,9 @@ export const chains: Record<CurrencyTypes.EvmChainName, EvmChain> = {
   sokol: SokolDefinition,
   tombchain: TombchainDefinition,
   xdai: XDaiDefinition,
+  sepolia: SepoliaDefinition,
+  zksynceratestnet: ZkSyncEraTestnetDefinition,
+  zksyncera: ZkSyncEraDefinition,
+  base: BaseDefinition,
+  sonic: SonicDefinition,
 };

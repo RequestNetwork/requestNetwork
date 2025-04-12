@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 
-import MultiFormat from '@requestnetwork/multi-format';
+import * as MultiFormat from '@requestnetwork/multi-format';
 import {
   AdvancedLogicTypes,
   EncryptionTypes,
@@ -346,6 +346,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async getRequestsByTopic(
     topic: string,
     updatedBetween?: RequestLogicTypes.ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
     // hash all the topics
     const hashedTopic = MultiFormat.serialize(normalizeKeccak256Hash(topic));
@@ -353,6 +355,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const getChannelsResult = await this.transactionManager.getChannelsByTopic(
       hashedTopic,
       updatedBetween,
+      page,
+      pageSize,
     );
     return this.computeMultipleRequestFromChannels(getChannelsResult);
   }
@@ -365,6 +369,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async getRequestsByMultipleTopics(
     topics: string[],
     updatedBetween?: RequestLogicTypes.ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
     // hash all the topics
     const hashedTopics = topics.map((topic) =>
@@ -374,6 +380,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const getChannelsResult = await this.transactionManager.getChannelsByMultipleTopics(
       hashedTopics,
       updatedBetween,
+      page,
+      pageSize,
     );
     return this.computeMultipleRequestFromChannels(getChannelsResult);
   }
@@ -618,6 +626,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           pending,
           request: confirmedRequestState,
           transactionManagerMeta: transactionManagerMeta[channelId],
+          pagination: transactionManagerMeta.pagination,
         };
       },
     );
@@ -632,7 +641,6 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
             pending: requestAndMeta.pending,
             request: requestAndMeta.request,
           });
-
           // workaround to quiet the error "finalResult.meta.ignoredTransactions can be undefined" (but defined in the initialization value of the accumulator)
           (finalResult.meta.ignoredTransactions || []).push(requestAndMeta.ignoredTransactions);
 
@@ -640,6 +648,12 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           (finalResult.meta.transactionManagerMeta || []).push(
             requestAndMeta.transactionManagerMeta,
           );
+
+          // add the pagination
+          finalResult.meta.pagination = {
+            ...finalResult.meta.pagination,
+            ...requestAndMeta.pagination,
+          };
         }
 
         return finalResult;

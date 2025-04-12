@@ -1,13 +1,9 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
-import {
-  CurrencyDefinition,
-  CurrencyManager,
-  UnsupportedCurrencyError,
-} from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { Erc20ConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ClientTypes, CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
@@ -21,6 +17,7 @@ import {
 import { padAmountForChainlink } from '@requestnetwork/payment-detection';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IConversionPaymentSettings } from './index';
+import { validatePaymentReference } from '../utils/validation';
 
 /**
  * Processes a transaction to pay a request with an ERC20 currency that is different from the request currency (eg. fiat).
@@ -96,7 +93,7 @@ export function encodePayAnyToErc20ProxyRequest(
 export function getConversionPathForErc20Request(
   request: ClientTypes.IRequestData,
   paymentSettings: IConversionPaymentSettings,
-): { path: string[]; requestCurrency: CurrencyDefinition<unknown> } {
+): { path: string[]; requestCurrency: CurrencyTypes.CurrencyDefinition<unknown> } {
   if (!paymentSettings.currency) {
     throw new Error('currency must be provided in the paymentSettings');
   }
@@ -157,9 +154,7 @@ function prepareAnyToErc20Arguments(
 
   const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan } =
     getRequestPaymentValues(request);
-  if (!paymentReference) {
-    throw new Error('paymentReference is missing');
-  }
+  validatePaymentReference(paymentReference);
   const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
   const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
   return {

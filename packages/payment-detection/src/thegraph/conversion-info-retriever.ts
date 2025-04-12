@@ -1,5 +1,4 @@
-import { PaymentTypes } from '@requestnetwork/types';
-import { ICurrencyManager } from '@requestnetwork/currency';
+import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
 import { TheGraphClient } from './client';
 import { TheGraphInfoRetriever } from './info-retriever';
@@ -12,7 +11,7 @@ import { ConversionTransferEventsParams } from '../types';
 export class TheGraphConversionInfoRetriever extends TheGraphInfoRetriever<ConversionTransferEventsParams> {
   constructor(
     protected readonly client: TheGraphClient,
-    protected readonly currencyManager: ICurrencyManager,
+    protected readonly currencyManager: CurrencyTypes.ICurrencyManager,
   ) {
     super(client, currencyManager);
   }
@@ -22,6 +21,7 @@ export class TheGraphConversionInfoRetriever extends TheGraphInfoRetriever<Conve
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
     const { payments } = params.acceptedTokens
       ? await this.client.GetAnyToFungiblePayments({
+          blockFilter: this.client.options?.blockFilter,
           reference: utils.keccak256(`0x${params.paymentReference}`),
           to: params.toAddress.toLowerCase(),
           currency: params.requestCurrency.hash.toLowerCase(),
@@ -29,6 +29,7 @@ export class TheGraphConversionInfoRetriever extends TheGraphInfoRetriever<Conve
           contractAddress: params.contractAddress.toLowerCase(),
         })
       : await this.client.GetAnyToNativePayments({
+          blockFilter: this.client.options?.blockFilter,
           reference: utils.keccak256(`0x${params.paymentReference}`),
           to: params.toAddress.toLowerCase(),
           currency: params.requestCurrency.hash.toLowerCase(),

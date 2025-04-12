@@ -1,0 +1,64 @@
+{
+  "name": "@requestnetwork/lit-protocol-cipher",
+  "version": "0.10.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Lit Protocol Cipher Provider.",
+  "keywords": [
+    "requestnetwork",
+    "lit-protocol-cipher-provider"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
+  },
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/lit-protocol-cipher#readme",
+  "bugs": {
+    "url": "https://github.com/RequestNetwork/requestNetwork/issues"
+  },
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "directories": {
+    "lib": "src",
+    "test": "test"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
+    "prepare": "yarn run build",
+    "test": "jest",
+    "test:watch": "yarn test --watch"
+  },
+  "dependencies": {
+    "@lit-protocol/auth-helpers": "7.0.5",
+    "@lit-protocol/constants": "7.0.5",
+    "@lit-protocol/contracts": "0.0.86",
+    "@lit-protocol/encryption": "7.0.5",
+    "@lit-protocol/lit-node-client": "7.0.5",
+    "@lit-protocol/lit-node-client-nodejs": "7.0.5",
+    "@lit-protocol/types": "7.0.5",
+    "@requestnetwork/request-client.js": "0.59.0",
+    "@requestnetwork/types": "0.54.0",
+    "@walletconnect/modal": "2.7.0",
+    "ethers": "5.7.2"
+  },
+  "devDependencies": {
+    "@types/jest": "29.5.6",
+    "@types/node": "18.11.9",
+    "jest": "29.5.0",
+    "jest-junit": "16.0.0",
+    "ts-jest": "29.1.0",
+    "ts-node": "10.9.1",
+    "typescript": "5.1.3"
+  }
+}

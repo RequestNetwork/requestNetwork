@@ -5,9 +5,10 @@ import { getRequestNode } from '../src/server';
 import { RequestNode } from '../src/requestNode';
 import { providers } from 'ethers';
 
-const channelId = '010aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const time = Date.now();
+const channelId = `01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa${time}`;
 
-const transactionData = { data: 'this is sample data for a transaction' };
+const transactionData = { data: `this is sample data for a transaction ${time}` };
 const transactionHash = normalizeKeccak256Hash(transactionData).value;
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 
@@ -41,14 +42,13 @@ describe('getConfirmedTransaction', () => {
       .set('Accept', 'application/json')
       .expect(StatusCodes.NOT_FOUND);
 
-    // mining is required for TheGraph to index data
-    await provider.send('evm_mine', []);
-
     let serverResponse: request.Response | undefined;
     // retry mechanism to account for ganache delay
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
       // wait a bit for the confirmation
       await new Promise((resolve): any => setTimeout(resolve, 1000));
+      // mining is required for TheGraph to index data
+      await provider.send('evm_mine', []);
 
       serverResponse = await request(server)
         .get('/getConfirmedTransaction')
@@ -64,7 +64,7 @@ describe('getConfirmedTransaction', () => {
     expect(serverResponse!.body.result).toMatchObject({});
     // 'getConfirmedTransaction request meta'
     expect(serverResponse!.body.meta.storageMeta.state).toBe('confirmed');
-  }, 30000);
+  }, 40000);
 
   it('responds with status 422 to requests with no value', async () => {
     await request(server)

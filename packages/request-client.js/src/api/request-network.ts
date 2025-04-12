@@ -4,9 +4,13 @@ import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import {
   AdvancedLogicTypes,
+  ClientTypes,
+  CurrencyTypes,
+  CipherProviderTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
+  ExtensionTypes,
   IdentityTypes,
   PaymentTypes,
   RequestLogicTypes,
@@ -14,11 +18,7 @@ import {
   TransactionTypes,
 } from '@requestnetwork/types';
 import { deepCopy, supportedIdentities } from '@requestnetwork/utils';
-import {
-  CurrencyManager,
-  ICurrencyManager,
-  UnsupportedCurrencyError,
-} from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import Request from './request';
@@ -34,9 +34,12 @@ export default class RequestNetwork {
   private requestLogic: RequestLogicTypes.IRequestLogic;
   private transaction: TransactionTypes.ITransactionManager;
   private advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+  private dataAccess: DataAccessTypes.IDataAccess;
 
   private contentData: ContentDataExtension;
-  private currencyManager: ICurrencyManager;
+  private currencyManager: CurrencyTypes.ICurrencyManager;
+
+  private cipherProvider?: CipherProviderTypes.ICipherProvider;
 
   /**
    * @param dataAccess instance of data-access layer
@@ -48,18 +51,21 @@ export default class RequestNetwork {
     dataAccess,
     signatureProvider,
     decryptionProvider,
+    cipherProvider,
     currencyManager,
     paymentOptions,
   }: {
     dataAccess: DataAccessTypes.IDataAccess;
     signatureProvider?: SignatureProviderTypes.ISignatureProvider;
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
-    currencyManager?: ICurrencyManager;
+    cipherProvider?: CipherProviderTypes.ICipherProvider;
+    currencyManager?: CurrencyTypes.ICurrencyManager;
     paymentOptions?: Partial<PaymentNetworkOptions>;
   }) {
     this.currencyManager = currencyManager || CurrencyManager.getDefault();
+    this.dataAccess = dataAccess;
     this.advancedLogic = new AdvancedLogic(this.currencyManager);
-    this.transaction = new TransactionManager(dataAccess, decryptionProvider);
+    this.transaction = new TransactionManager(dataAccess, decryptionProvider, cipherProvider);
     this.requestLogic = new RequestLogic(this.transaction, signatureProvider, this.advancedLogic);
     this.contentData = new ContentDataExtension(this.advancedLogic);
     this.paymentNetworkFactory = new PaymentNetworkFactory(
@@ -67,6 +73,23 @@ export default class RequestNetwork {
       this.currencyManager,
       paymentOptions,
     );
+    this.cipherProvider = cipherProvider;
+  }
+
+  /**
+   * Get the cipher provider
+   * @returns the cipher provider
+   */
+  public getCipherProvider(): CipherProviderTypes.ICipherProvider | undefined {
+    return this.cipherProvider;
+  }
+
+  /**
+   * Set the cipher provider
+   * @param cipherProvider the cipher provider
+   */
+  public setCipherProvider(cipherProvider: CipherProviderTypes.ICipherProvider): void {
+    this.cipherProvider = cipherProvider;
   }
 
   /**
@@ -89,26 +112,64 @@ export default class RequestNetwork {
       topics,
     );
 
+    const transactionData = requestLogicCreateResult.meta?.transactionManagerMeta.transactionData;
+    const requestId = requestLogicCreateResult.result.requestId;
+    const isSkippingPersistence = this.dataAccess.skipPersistence();
     // create the request object
-    const request = new Request(
-      requestLogicCreateResult.result.requestId,
-      this.requestLogic,
-      this.currencyManager,
-      {
-        contentDataExtension: this.contentData,
-        paymentNetwork,
-        requestLogicCreateResult,
-        skipPaymentDetection: parameters.disablePaymentDetection,
-        disableEvents: parameters.disableEvents,
-      },
-    );
+    const request = new Request(requestId, this.requestLogic, this.currencyManager, {
+      contentDataExtension: this.contentData,
+      paymentNetwork,
+      requestLogicCreateResult,
+      skipPaymentDetection: parameters.disablePaymentDetection,
+      disableEvents: parameters.disableEvents,
+      // inMemoryInfo is only used when skipPersistence is enabled
+      inMemoryInfo: isSkippingPersistence
+        ? {
+            topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
+            transactionData: transactionData,
+            requestData: this.prepareRequestDataForPayment(transactionData, requestId),
+          }
+        : null,
+    });
 
-    if (!options?.skipRefresh) {
+    if (!options?.skipRefresh && !isSkippingPersistence) {
       // refresh the local request data
       await request.refresh();
     }
 
     return request;
+  }
+
+  /**
+   * Persists an in-memory request to the data-access layer.
+   *
+   * This method is used to persist requests that were initially created with skipPersistence enabled.
+   *
+   * @param request The Request object to persist. This must be a request that was created with skipPersistence enabled.
+   * @returns A promise that resolves to the result of the persist transaction operation.
+   * @throws {Error} If the request's `inMemoryInfo` is not provided, indicating it wasn't created with skipPersistence.
+   * @throws {Error} If the current data access instance does not support persistence.
+   */
+  public async persistRequest(
+    request: Request,
+  ): Promise<DataAccessTypes.IReturnPersistTransaction> {
+    if (!request.inMemoryInfo) {
+      throw new Error('Cannot persist request without inMemoryInfo.');
+    }
+
+    if (this.dataAccess.skipPersistence()) {
+      throw new Error(
+        'Cannot persist request when skipPersistence is enabled. To persist the request, create a new instance of RequestNetwork without skipPersistence being set to true.',
+      );
+    }
+    const result: DataAccessTypes.IReturnPersistTransaction =
+      await this.dataAccess.persistTransaction(
+        request.inMemoryInfo.transactionData,
+        request.requestId,
+        request.inMemoryInfo.topics,
+      );
+
+    return result;
   }
 
   /**
@@ -134,21 +195,27 @@ export default class RequestNetwork {
       topics,
     );
 
-    // create the request object
-    const request = new Request(
-      requestLogicCreateResult.result.requestId,
-      this.requestLogic,
-      this.currencyManager,
-      {
-        contentDataExtension: this.contentData,
-        paymentNetwork,
-        requestLogicCreateResult,
-        skipPaymentDetection: parameters.disablePaymentDetection,
-        disableEvents: parameters.disableEvents,
-      },
-    );
+    const transactionData = requestLogicCreateResult.meta?.transactionManagerMeta.transactionData;
+    const requestId = requestLogicCreateResult.result.requestId;
+    const isSkippingPersistence = this.dataAccess.skipPersistence();
 
-    if (!options?.skipRefresh) {
+    // create the request object
+    const request = new Request(requestId, this.requestLogic, this.currencyManager, {
+      contentDataExtension: this.contentData,
+      paymentNetwork,
+      requestLogicCreateResult,
+      skipPaymentDetection: parameters.disablePaymentDetection,
+      disableEvents: parameters.disableEvents,
+      inMemoryInfo: isSkippingPersistence
+        ? {
+            topics: requestLogicCreateResult.meta.transactionManagerMeta?.topics,
+            transactionData: transactionData,
+            requestData: this.prepareRequestDataForPayment(transactionData, requestId),
+          }
+        : null,
+    });
+
+    if (!options?.skipRefresh && !isSkippingPersistence) {
       // refresh the local request data
       await request.refresh();
     }
@@ -221,8 +288,15 @@ export default class RequestNetwork {
   public async fromIdentity(
     identity: IdentityTypes.IIdentity,
     updatedBetween?: Types.ITimestampBoundaries,
-    options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
-  ): Promise<Request[]> {
+    options?: {
+      disablePaymentDetection?: boolean;
+      disableEvents?: boolean;
+      page?: number;
+      pageSize?: number;
+    },
+  ): Promise<
+    Request[] | { meta: RequestLogicTypes.IReturnGetRequestsByTopic['meta']; requests: Request[] }
+  > {
     if (!this.supportedIdentities.includes(identity.type)) {
       throw new Error(`${identity.type} is not supported`);
     }
@@ -239,8 +313,15 @@ export default class RequestNetwork {
   public async fromMultipleIdentities(
     identities: IdentityTypes.IIdentity[],
     updatedBetween?: Types.ITimestampBoundaries,
-    options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
-  ): Promise<Request[]> {
+    options?: {
+      disablePaymentDetection?: boolean;
+      disableEvents?: boolean;
+      page?: number;
+      pageSize?: number;
+    },
+  ): Promise<
+    Request[] | { meta: RequestLogicTypes.IReturnGetRequestsByTopic['meta']; requests: Request[] }
+  > {
     const identityNotSupported = identities.find(
       (identity) => !this.supportedIdentities.includes(identity.type),
     );
@@ -262,11 +343,23 @@ export default class RequestNetwork {
   public async fromTopic(
     topic: any,
     updatedBetween?: Types.ITimestampBoundaries,
-    options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
-  ): Promise<Request[]> {
+    options?: {
+      disablePaymentDetection?: boolean;
+      disableEvents?: boolean;
+      page?: number;
+      pageSize?: number;
+    },
+  ): Promise<
+    Request[] | { meta: RequestLogicTypes.IReturnGetRequestsByTopic['meta']; requests: Request[] }
+  > {
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic =
-      await this.requestLogic.getRequestsByTopic(topic, updatedBetween);
+      await this.requestLogic.getRequestsByTopic(
+        topic,
+        updatedBetween,
+        options?.page,
+        options?.pageSize,
+      );
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
     const requestPromises = requestsAndMeta.result.requests.map(
       async (requestFromLogic: {
@@ -300,8 +393,16 @@ export default class RequestNetwork {
         return request;
       },
     );
+    const requests = await Promise.all(requestPromises);
 
-    return Promise.all(requestPromises);
+    if (options?.page && options?.pageSize) {
+      return {
+        requests,
+        meta: requestsAndMeta.meta,
+      };
+    } else {
+      return requests;
+    }
   }
 
   /**
@@ -314,11 +415,23 @@ export default class RequestNetwork {
   public async fromMultipleTopics(
     topics: any[],
     updatedBetween?: Types.ITimestampBoundaries,
-    options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
-  ): Promise<Request[]> {
+    options?: {
+      disablePaymentDetection?: boolean;
+      disableEvents?: boolean;
+      page?: number;
+      pageSize?: number;
+    },
+  ): Promise<
+    Request[] | { meta: RequestLogicTypes.IReturnGetRequestsByTopic['meta']; requests: Request[] }
+  > {
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic =
-      await this.requestLogic.getRequestsByMultipleTopics(topics, updatedBetween);
+      await this.requestLogic.getRequestsByMultipleTopics(
+        topics,
+        updatedBetween,
+        options?.page,
+        options?.pageSize,
+      );
 
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
     const requestPromises = requestsAndMeta.result.requests.map(
@@ -353,8 +466,15 @@ export default class RequestNetwork {
         return request;
       },
     );
-
-    return Promise.all(requestPromises);
+    const requests = await Promise.all(requestPromises);
+    if (options?.page && options?.pageSize) {
+      return {
+        requests,
+        meta: requestsAndMeta.meta,
+      };
+    } else {
+      return requests;
+    }
   }
 
   /*
@@ -415,7 +535,9 @@ export default class RequestNetwork {
     if (paymentNetwork) {
       // create the extensions data for the payment network
       copiedRequestParameters.extensionsData.push(
-        await paymentNetwork.createExtensionsDataForCreation(parameters.paymentNetwork?.parameters),
+        await paymentNetwork.createExtensionsDataForCreation(
+          parameters.paymentNetwork?.parameters || {},
+        ),
       );
     }
 
@@ -439,5 +561,84 @@ export default class RequestNetwork {
     }
 
     return { requestParameters: copiedRequestParameters, topics, paymentNetwork };
+  }
+
+  /**
+   * Prepares a payment request structure from transaction data.
+   *
+   * This method is used to create a request structure similar to a persisted request,
+   * allowing users to pay before the request is persisted. This is useful in scenarios
+   * where a request is created, paid, and then persisted, as opposed to the normal flow
+   * of creating, persisting, and then paying the request.
+   *
+   * @param transactionData The transaction data containing the request information
+   * @param requestId The ID of the request
+   * @returns The prepared payment request structure or undefined if transaction data is missing
+   */
+  private prepareRequestDataForPayment(
+    transactionData: DataAccessTypes.ITransaction,
+    requestId: string,
+  ): ClientTypes.IRequestData {
+    const requestData = JSON.parse(transactionData.data as string).data;
+    const newExtensions: RequestLogicTypes.IExtensionStates = {};
+
+    for (const extension of requestData.parameters.extensionsData) {
+      if (extension.id !== ExtensionTypes.OTHER_ID.CONTENT_DATA) {
+        newExtensions[extension.id] = {
+          events: [
+            {
+              name: extension.action,
+              parameters: {
+                paymentAddress: extension.parameters.paymentAddress,
+                salt: extension.parameters.salt,
+                feeAddress: extension.parameters.feeAddress,
+                feeAmount: extension.parameters.feeAmount,
+              },
+              timestamp: requestData.parameters.timestamp,
+            },
+          ],
+          id: extension.id,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            salt: extension.parameters.salt,
+            receivedPaymentAmount: '0',
+            receivedRefundAmount: '0',
+            sentPaymentAmount: '0',
+            sentRefundAmount: '0',
+            network: extension.parameters.network,
+            paymentAddress: extension.parameters.paymentAddress,
+            feeAddress: extension.parameters.feeAddress,
+            feeAmount: extension.parameters.feeAmount,
+            feeBalance: {
+              events: [],
+              balance: '0',
+            },
+          },
+          version: extension.version,
+        };
+      }
+    }
+
+    return {
+      ...requestData.parameters,
+      requestId,
+      meta: null,
+      balance: {
+        balance: '0',
+        events: [],
+        escrowEvents: [],
+      },
+      currency: requestData.parameters.currency.value,
+      currencyInfo: {
+        type: requestData.parameters.currency.type,
+        network: requestData.parameters.currency.network,
+        value: requestData.parameters.currency.value || '',
+      },
+      contentData: requestData.parameters.extensionsData.find(
+        (ext: ExtensionTypes.IAction) => ext.id === ExtensionTypes.OTHER_ID.CONTENT_DATA,
+      )?.parameters.content,
+      pending: null,
+      extensions: newExtensions,
+    };
   }
 }

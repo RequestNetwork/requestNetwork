@@ -1,0 +1,67 @@
+# Warning! This Docker config is meant to be used for development and debugging, specially for running tests, not in prod.
+services:
+  graph-node:
+    image: graphprotocol/graph-node:v0.25.0
+    ports:
+      - '8000:8000'
+      - '8001:8001'
+      - '8020:8020'
+      - '8030:8030'
+      - '8040:8040'
+    depends_on:
+      - ipfs
+      - postgres
+      - ganache
+    environment:
+      postgres_host: postgres
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: 'ipfs:5001'
+      ethereum: 'private:http://ganache:8545'
+      RUST_LOG: info
+      GRAPH_ALLOW_NON_DETERMINISTIC_IPFS: 1
+  ipfs:
+    image: requestnetwork/request-ipfs:v0.13.0
+    ports:
+      - '5001:5001'
+    restart: on-failure:20
+    # volumes:
+    #   - ./data/ipfs:/data/ipfs
+  ganache:
+    image: trufflesuite/ganache:v7.6.0
+    ports:
+      - 8545:8545
+    command:
+      - '-l'
+      - '90000000'
+      - '-m'
+      - 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat'
+      - '-k'
+      - 'london'
+    restart: on-failure:20
+  postgres:
+    image: postgres
+    ports:
+      - '5432:5432'
+    command: ['postgres', '-cshared_preload_libraries=pg_stat_statements']
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+    restart: on-failure:20
+  graph-deploy:
+    build:
+      context: https://github.com/RequestNetwork/docker-images.git#main:request-subgraph-storage
+      dockerfile: ./Dockerfile
+    depends_on:
+      - ipfs
+      - postgres
+      - graph-node
+      - ganache
+    environment:
+      GRAPH_NODE: 'http://graph-node:8020'
+      IPFS_HOST: 'http://ipfs:5001'
+      KEEP_ALIVE: 0
+      SUBGRAPH_FILE: 'subgraph-private.yaml'
+    restart: on-failure:20

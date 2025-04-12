@@ -1,4 +1,4 @@
-import MultiFormat from '@requestnetwork/multi-format';
+import * as MultiFormat from '@requestnetwork/multi-format';
 import { DataAccessTypes, SignatureTypes, TransactionTypes } from '@requestnetwork/types';
 
 import RequestNetwork from '../../src/api/request-network';
@@ -16,6 +16,7 @@ const mockDataAccess: DataAccessTypes.IDataAccess = {
   close: jest.fn(),
   persistTransaction: jest.fn(),
   getChannelsByMultipleTopics: jest.fn(),
+  skipPersistence: jest.fn().mockReturnValue(true),
 };
 
 describe('api/request-network', () => {
@@ -95,12 +96,16 @@ describe('api/request-network', () => {
     it('can get requests with payment network fromIdentity', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
         ...mockDataAccess,
-        async getChannelsByTopic(topic: string): Promise<any> {
+        async getChannelsByTopic(
+          topic: string,
+          updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+        ): Promise<any> {
           expect(topic).toBe('01f1a21ab419611dbf492b3136ac231c8773dc897ee0eb5167ef2051a39e685e76');
           return {
             meta: {
               [TestData.actionRequestId]: [],
               [TestData.actionRequestIdSecondRequest]: [],
+              transactionsStorageLocation: {},
             },
             result: {
               transactions: {
@@ -137,7 +142,11 @@ describe('api/request-network', () => {
       };
 
       const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
-      const requests: Request[] = await requestnetwork.fromIdentity(TestData.payee.identity);
+      const result = await requestnetwork.fromIdentity(TestData.payee.identity, undefined, {
+        page: 1,
+        pageSize: 10,
+      });
+      const requests = Array.isArray(result) ? result : result.requests;
 
       expect(requests.length).toBe(2);
       expect(requests[0].requestId).toBe(TestData.actionRequestId);
@@ -161,6 +170,7 @@ describe('api/request-network', () => {
             meta: {
               [TestData.actionRequestId]: [],
               [TestData.actionRequestIdSecondRequest]: [],
+              transactionsStorageLocation: {},
             },
             result: {
               transactions: {
@@ -189,7 +199,8 @@ describe('api/request-network', () => {
       };
 
       const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
-      const requests: Request[] = await requestnetwork.fromTopic(TestData.payee.identity);
+      const result = await requestnetwork.fromTopic(TestData.payee.identity);
+      const requests = Array.isArray(result) ? result : result.requests;
 
       expect(requests.length).toBe(2);
       expect(requests[0].requestId).toBe(TestData.actionRequestId);
@@ -201,7 +212,12 @@ describe('api/request-network', () => {
     it('can get requests with payment network from multiple Identities', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
         ...mockDataAccess,
-        async getChannelsByMultipleTopics(topics: [string]): Promise<any> {
+        async getChannelsByMultipleTopics(
+          topics: [string],
+          updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+          page?: number,
+          pageSize?: number,
+        ): Promise<any> {
           expect(topics).toEqual([
             '01f1a21ab419611dbf492b3136ac231c8773dc897ee0eb5167ef2051a39e685e76',
           ]);
@@ -209,6 +225,7 @@ describe('api/request-network', () => {
             meta: {
               [TestData.actionRequestId]: [],
               [TestData.actionRequestIdSecondRequest]: [],
+              transactionsStorageLocation: {},
             },
             result: {
               transactions: {
@@ -245,9 +262,15 @@ describe('api/request-network', () => {
       };
 
       const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
-      const requests: Request[] = await requestnetwork.fromMultipleIdentities([
-        TestData.payee.identity,
-      ]);
+      const result = await requestnetwork.fromMultipleIdentities(
+        [TestData.payee.identity],
+        undefined,
+        {
+          page: 1,
+          pageSize: 10,
+        },
+      );
+      const requests = Array.isArray(result) ? result : result.requests;
 
       expect(requests.length).toBe(2);
       expect(requests[0].requestId).toBe(TestData.actionRequestId);
@@ -273,6 +296,7 @@ describe('api/request-network', () => {
             meta: {
               [TestData.actionRequestId]: [],
               [TestData.actionRequestIdSecondRequest]: [],
+              transactionsStorageLocation: {},
             },
             result: {
               transactions: {
@@ -301,9 +325,8 @@ describe('api/request-network', () => {
       };
 
       const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
-      const requests: Request[] = await requestnetwork.fromMultipleTopics([
-        TestData.payee.identity,
-      ]);
+      const result = await requestnetwork.fromMultipleTopics([TestData.payee.identity]);
+      const requests = Array.isArray(result) ? result : result.requests;
 
       expect(requests.length).toBe(2);
       expect(requests[0].requestId).toBe(TestData.actionRequestId);

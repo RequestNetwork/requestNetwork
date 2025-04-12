@@ -44,6 +44,7 @@ export const isNearAccountSolvent = (
     const fungibleContract = new Contract(nearWalletConnection.account(), token.value, {
       changeMethods: [],
       viewMethods: ['ft_balance_of'],
+      useLocalViewExecution: true,
     }) as any;
     return fungibleContract
       .ft_balance_of({
@@ -88,6 +89,7 @@ export const processNearPayment = async (
       {
         changeMethods: ['transfer_with_reference'],
         viewMethods: [],
+        useLocalViewExecution: true,
       },
     ) as any;
     await contract.transfer_with_reference({
@@ -126,6 +128,7 @@ export const processNearPaymentWithConversion = async (
   version = '0.1.0',
   callback: INearTransactionCallback | undefined = undefined,
 ): Promise<void> => {
+  throw new Error('Payments with on-chain conversions are currently disabled on Near.');
   if (version !== '0.1.0') {
     throw new Error('Native Token with conversion payments on Near only support v0.1.0 extensions');
   }
@@ -144,6 +147,7 @@ export const processNearPaymentWithConversion = async (
       {
         changeMethods: ['transfer_with_reference'],
         viewMethods: [],
+        useLocalViewExecution: true,
       },
     ) as any;
     await contract.transfer_with_reference({
@@ -180,6 +184,7 @@ export const processNearFungiblePayment = async (
   const fungibleContract = new Contract(walletConnection.account(), currencyAddress, {
     changeMethods: ['ft_transfer_call'],
     viewMethods: [],
+    useLocalViewExecution: true,
   }) as any;
 
   const proxyAddress = erc20FeeProxyArtifact.getAddress(network, 'near');
@@ -223,6 +228,7 @@ export const storageDeposit = async (
   const fungibleContract = new Contract(walletConnection.account(), tokenAddress, {
     changeMethods: ['storage_deposit'],
     viewMethods: [],
+    useLocalViewExecution: true,
   }) as any;
   await fungibleContract.storage_deposit({
     args: { account_id: paymentAddress },
@@ -246,6 +252,7 @@ export const isReceiverReady = async (
   const fungibleContract = new Contract(walletConnection.account(), tokenAddress, {
     changeMethods: [],
     viewMethods: ['storage_balance_of'],
+    useLocalViewExecution: true,
   }) as any;
   const storage = (await fungibleContract.storage_balance_of({
     account_id: paymentAddress,

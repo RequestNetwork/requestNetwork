@@ -13,7 +13,7 @@ import {
 } from '../../src/types';
 import { chainlinkConversionPath } from '../../src/lib';
 import { CurrencyManager, EvmChains } from '@requestnetwork/currency';
-import { RequestDetail } from 'types/dist/payment-types';
+import { PaymentTypes } from '@requestnetwork/types';
 
 const logGasInfos = false;
 
@@ -544,7 +544,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
   });
 
   describe('Batch revert, issues with: args, or funds, or approval', () => {
-    let requestDetails: RequestDetail[] = [];
+    let requestDetails: PaymentTypes.RequestDetail[] = [];
     beforeEach(async () => {
       requestDetails = [
         {

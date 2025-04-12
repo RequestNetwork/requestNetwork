@@ -8,6 +8,7 @@ const CURRENT_VERSION = '0.2.0';
  */
 export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork {
   public constructor(
+    currencyManager: CurrencyTypes.ICurrencyManager,
     supportedNetworks: CurrencyTypes.NearChainName[] = [
       'aurora',
       // FIXME: enable near network support
@@ -15,7 +16,12 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
     ],
     currentVersion: string = CURRENT_VERSION,
   ) {
-    super(ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN, currentVersion, supportedNetworks);
+    super(
+      currencyManager,
+      ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
+      currentVersion,
+      supportedNetworks,
+    );
   }
 
   /**

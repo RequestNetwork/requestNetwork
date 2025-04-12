@@ -4,6 +4,14 @@ export type Meta = {
   _meta: { block: { number: number } };
 };
 
+const metaQueryBody = `
+  _meta {
+    block {
+      number
+    }
+  }
+`;
+
 export type Transaction = {
   hash: string;
   channelId: string;
@@ -45,11 +53,7 @@ const TransactionsBodyFragment = gql`
 export const GetTransactionsByChannelIdQuery = gql`
   ${TransactionsBodyFragment}
   query GetTransactionsByChannelId($channelId: String!, $from: Int, $to: Int) {
-    _meta {
-      block {
-        number
-      }
-    }
+    ${metaQueryBody}
     transactions(
       where: { channelId: $channelId, blockTimestamp_gte: $from, blockTimestamp_lt: $to }
       orderBy: blockTimestamp
@@ -63,41 +67,42 @@ export const GetTransactionsByChannelIdQuery = gql`
 export const GetTransactionsByHashQuery = gql`
   ${TransactionsBodyFragment}
   query GetTransactionsByHash($hash: String!) {
-    _meta {
-      block {
-        number
-      }
-    }
+    ${metaQueryBody}
     transactions(where: { hash: $hash }, orderBy: blockTimestamp, orderDirection: asc) {
       ...TransactionsBody
     }
   }
 `;
 
-export const GetChannelsByTopicsQuery = gql`
-  ${TransactionsBodyFragment}
-  query GetChannelsByTopics($topics: [String!]!) {
-    _meta {
-      block {
-        number
-      }
-    }
+export const GetTransactionsByTopics = gql`
+${TransactionsBodyFragment}
+
+query GetTransactionsByTopics($topics: [String!]!) {
+  ${metaQueryBody}
+  channels(
+    where: { topics_contains: $topics }
+  ){
     transactions(
-      where: { topics_contains: $topics }
-      orderBy: blockTimestamp
+      orderBy: blockTimestamp, 
       orderDirection: asc
     ) {
-      channelId
+      ...TransactionsBody
     }
+  }
+}`;
+
+export const GetBlockQuery = gql`
+  query GetBlock {
+    ${metaQueryBody}
   }
 `;
 
-export const GetBlock = gql`
-  query GetBlock {
-    _meta {
-      block {
-        number
-      }
+export const GetTransactionByDataHashQuery = gql`
+  ${TransactionsBodyFragment}
+  query GetTransactionsByDataHash($dataHash: String!) {
+    ${metaQueryBody}
+    transactions(where: { dataHash: $dataHash }) {
+      ...TransactionsBody
     }
   }
 `;

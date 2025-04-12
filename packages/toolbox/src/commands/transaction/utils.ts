@@ -1,6 +1,5 @@
 import { getDefaultProvider } from '@requestnetwork/payment-detection';
 import { providers, Wallet } from 'ethers';
-import axios from 'axios';
 
 export const getWallet = async ({
   chainName,
@@ -34,14 +33,16 @@ export const getProvider = async (chainName: string) => {
   return getDefaultProvider(chainName);
 };
 
-const getChainConfig = async (chainName: string) => {
+const getChainConfig = async (
+  chainName: string,
+): Promise<{
+  name: string;
+  chainId: number;
+  rpcUrls: string[];
+} | null> => {
   try {
-    const { data } = await axios.get<{
-      name: string;
-      chainId: number;
-      rpcUrls: string[];
-    }>(`https://api.request.network/currency/chains/${chainName}`);
-    return data;
+    const response = await fetch(`https://api.request.finance/currency/chains/${chainName}`);
+    return await response.json();
   } catch (e) {
     console.warn(e.message);
     return null;

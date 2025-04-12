@@ -5,6 +5,8 @@ import * as Extension from './extension-types';
 import * as Identity from './identity-types';
 import * as Signature from './signature-types';
 import * as Transaction from './transaction-types';
+import * as DataAccess from './data-access-types';
+import * as Client from './client-types';
 import { CurrencyTypes } from './index';
 
 /** Request Logic layer */
@@ -59,10 +61,14 @@ export interface IRequestLogic {
   getRequestsByTopic: (
     topic: any,
     updatedBetween?: ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ) => Promise<IReturnGetRequestsByTopic>;
   getRequestsByMultipleTopics: (
     topics: any[],
     updatedBetween?: ITimestampBoundaries,
+    page?: number,
+    pageSize?: number,
   ) => Promise<IReturnGetRequestsByTopic>;
 }
 
@@ -92,6 +98,7 @@ export interface IRequestLogicReturnWithConfirmation extends EventEmitter {
 export interface IReturnMeta {
   transactionManagerMeta: any;
   ignoredTransactions?: any[];
+  pagination?: any;
 }
 
 /** return of the function createRequest */
@@ -210,6 +217,13 @@ export interface ICreateParameters {
 export interface IAcceptParameters {
   requestId: RequestId;
   extensionsData?: any[];
+}
+
+// ** Parameters added to the request when it is created with skipping persistence */
+export interface IInMemoryInfo {
+  transactionData: DataAccess.ITransaction;
+  topics: string[];
+  requestData: Client.IRequestData;
 }
 
 /** Parameters to cancel a request */

@@ -4,18 +4,20 @@ import {
   setProviderFactory,
 } from '@requestnetwork/utils';
 import { PaymentNetworkFactory } from './payment-network-factory';
-import PaymentReferenceCalculator from './payment-reference-calculator';
+import * as PaymentReferenceCalculator from './payment-reference-calculator';
 import * as BtcPaymentNetwork from './btc';
 import { DeclarativePaymentDetector } from './declarative';
 import * as Erc20PaymentNetwork from './erc20';
 import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
 import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
-import { getTheGraphClient, getTheGraphNearClient } from './thegraph';
+import { getTheGraphClient, getTheGraphEvmClient, getTheGraphNearClient } from './thegraph';
 import {
   calculateEscrowState,
   formatAddress,
   getPaymentNetworkExtension,
   getPaymentReference,
+  getPaymentReferencesForMetaPnRequest,
+  flattenRequestByPnId,
   hashReference,
   padAmountForChainlink,
   parseLogArgs,
@@ -28,6 +30,7 @@ import { EscrowERC20InfoRetriever } from './erc20/escrow-info-retriever';
 import { SuperFluidInfoRetriever } from './erc777/superfluid-retriever';
 import { PaymentNetworkOptions } from './types';
 import { ERC20TransferableReceivablePaymentDetector } from './erc20';
+import { MetaDetector } from './meta-payment-detector';
 
 export type { TheGraphClient } from './thegraph';
 
@@ -49,17 +52,21 @@ export {
   NearConversionNativeTokenPaymentDetector,
   EscrowERC20InfoRetriever,
   SuperFluidInfoRetriever,
+  MetaDetector,
   setProviderFactory,
   initPaymentDetectionApiKeys,
   getDefaultProvider,
   getTheGraphClient,
+  getTheGraphEvmClient,
   getTheGraphNearClient,
   parseLogArgs,
   padAmountForChainlink,
   unpadAmountFromChainlink,
   calculateEscrowState,
+  flattenRequestByPnId,
   getPaymentNetworkExtension,
   getPaymentReference,
+  getPaymentReferencesForMetaPnRequest,
   hashReference,
   formatAddress,
 };

@@ -1,6 +1,7 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { BigNumber, Wallet } from 'ethers';
 import { EthereumTransactionSubmitter } from '../src';
+import { LogTypes } from '@requestnetwork/types';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const signer = Wallet.fromMnemonic(mnemonic).connect(new JsonRpcProvider('http://localhost:8545'));
@@ -12,6 +13,10 @@ describe(EthereumTransactionSubmitter, () => {
     await txSubmitter.initialize();
   });
 
+  it('can retrieve whether the provider supports eip-1559', () => {
+    expect(txSubmitter.supportsEip1559()).toBe(true);
+  });
+
   it('can prepareSubmit', async () => {
     expect(await txSubmitter.prepareSubmit('hash', 1)).toMatchObject({
       to: '0xf25186b5081ff5ce73482ad761db0eb0d25abfbf',
@@ -19,8 +24,50 @@ describe(EthereumTransactionSubmitter, () => {
       value: BigNumber.from(0),
     });
   });
+
   it('can submit', async () => {
     const tx = await txSubmitter.submit('hash', 1);
     expect(tx.hash).toMatch(/^0x.+/);
+  });
+
+  it('can debug transactions', async () => {
+    const debugMock = jest.fn();
+    const logger = {
+      debug: debugMock,
+      warn: jest.fn(),
+      error: jest.fn(),
+    } as any as LogTypes.ILogger;
+    const txSubmitter = new EthereumTransactionSubmitter({
+      network: 'private',
+      signer,
+      logger,
+      debugProvider: true,
+    });
+    await txSubmitter.submit('hash', 1);
+    expect(debugMock).toHaveBeenCalledWith(
+      'JsonRpcProvider debug event',
+      expect.objectContaining({ action: 'request' }),
+    );
+  });
+
+  it('should not use gas limit by default', async () => {
+    const sendTransactionSpy = jest.spyOn(signer, 'sendTransaction');
+    await txSubmitter.submit('hash', 1);
+    expect(sendTransactionSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ gasLimit: undefined }),
+    );
+  });
+
+  it('can use a custom gas limit', async () => {
+    const txSubmitterWithGasLimit = new EthereumTransactionSubmitter({
+      network: 'private',
+      signer,
+      gasLimit: BigNumber.from(1000000),
+    });
+    const sendTransactionSpy = jest.spyOn(signer, 'sendTransaction');
+    await txSubmitterWithGasLimit.submit('hash', 1);
+    expect(sendTransactionSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ gasLimit: BigNumber.from(1000000) }),
+    );
   });
 });

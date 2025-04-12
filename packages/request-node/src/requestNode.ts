@@ -4,7 +4,6 @@ import cors from 'cors';
 import { Server } from 'http';
 import express, { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { Store } from 'keyv';
 import ConfirmedTransactionStore from './request/confirmedTransactionStore';
 import GetConfirmedTransactionHandler from './request/getConfirmedTransactionHandler';
 import GetTransactionsByChannelIdHandler from './request/getTransactionsByChannelId';
@@ -12,6 +11,8 @@ import PersistTransactionHandler from './request/persistTransaction';
 import GetChannelsByTopicHandler from './request/getChannelsByTopic';
 import GetStatusHandler from './request/getStatus';
 import IpfsAddHandler from './request/ipfsAdd';
+import morgan from 'morgan';
+import GetLitCapacityDelegationAuthSigHandler from './request/getLitCapacityDelegationAuthSig';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -39,7 +40,6 @@ export class RequestNode {
   private initialized: boolean;
   private logger: LogTypes.ILogger;
   private persistTransactionHandler: PersistTransactionHandler;
-  private confirmedTransactionStore: ConfirmedTransactionStore;
   private requestNodeVersion: string;
 
   private getTransactionsByChannelIdHandler: GetTransactionsByChannelIdHandler;
@@ -47,6 +47,7 @@ export class RequestNode {
   private getChannelByTopicHandler: GetChannelsByTopicHandler;
   private getStatusHandler: GetStatusHandler;
   private ipfsAddHandler: IpfsAddHandler;
+  private getLitCapacityDelegationAuthSigHandler: GetLitCapacityDelegationAuthSigHandler;
   /**
    * Request Node constructor
    *
@@ -55,7 +56,7 @@ export class RequestNode {
   constructor(
     dataAccess: DataAccessTypes.IDataAccess,
     ipfsStorage: StorageTypes.IIpfsStorage,
-    store?: Store<DataAccessTypes.IReturnPersistTransaction>,
+    confirmedTransactionStore: ConfirmedTransactionStore,
     logger?: LogTypes.ILogger,
   ) {
     this.initialized = false;
@@ -63,10 +64,9 @@ export class RequestNode {
     this.logger = logger || new SimpleLogger();
     this.dataAccess = dataAccess;
 
-    this.confirmedTransactionStore = new ConfirmedTransactionStore(store);
     this.getConfirmedTransactionHandler = new GetConfirmedTransactionHandler(
       this.logger,
-      this.confirmedTransactionStore,
+      confirmedTransactionStore,
     );
     this.getTransactionsByChannelIdHandler = new GetTransactionsByChannelIdHandler(
       this.logger,
@@ -75,9 +75,8 @@ export class RequestNode {
     this.getChannelByTopicHandler = new GetChannelsByTopicHandler(this.logger, this.dataAccess);
     this.getStatusHandler = new GetStatusHandler(this.logger, this.dataAccess);
     this.ipfsAddHandler = new IpfsAddHandler(this.logger, ipfsStorage);
-    this.persistTransactionHandler = new PersistTransactionHandler(
-      this.confirmedTransactionStore,
-      this.dataAccess,
+    this.persistTransactionHandler = new PersistTransactionHandler(this.dataAccess, this.logger);
+    this.getLitCapacityDelegationAuthSigHandler = new GetLitCapacityDelegationAuthSigHandler(
       this.logger,
     );
 
@@ -140,6 +139,9 @@ export class RequestNode {
     // Enable all CORS requests
     this.express.use(cors());
 
+    // Enable logging of all requests
+    this.express.use(morgan('combined'));
+
     // Set the Request Node version to the header
     this.express.use((_, res, next) => {
       res.header(REQUEST_NODE_VERSION_HEADER, this.requestNodeVersion);
@@ -151,7 +153,7 @@ export class RequestNode {
     this.express.use(express.urlencoded({ extended: true }));
 
     router.get('/healthz', (_, res) => res.status(StatusCodes.OK).send('OK'));
-    router.use(this.initializedMiddelware());
+    router.use(this.initializedMiddleware());
     router.get('/readyz', (_, res) => res.status(StatusCodes.OK).send('OK'));
     router.get('/status', this.getStatusHandler.handler);
     router.post('/ipfsAdd', this.ipfsAddHandler.handler);
@@ -159,6 +161,10 @@ export class RequestNode {
     router.get('/getConfirmedTransaction', this.getConfirmedTransactionHandler.handler);
     router.get('/getTransactionsByChannelId', this.getTransactionsByChannelIdHandler.handler);
     router.get('/getChannelsByTopic', this.getChannelByTopicHandler.handler);
+    router.get(
+      '/getLitCapacityDelegationAuthSig',
+      this.getLitCapacityDelegationAuthSigHandler.handler,
+    );
     this.express.use('/', router);
 
     // Any other route returns error 404
@@ -170,11 +176,20 @@ export class RequestNode {
   /**
    * Middleware to refuse traffic if node is not initialized yet
    */
-  private initializedMiddelware() {
-    return (_: Request, res: Response, next: NextFunction) => {
+  private initializedMiddleware() {
+    return (req: Request, res: Response, next: NextFunction) => {
       if (!this.initialized) {
         res.status(StatusCodes.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
       } else {
+        const start = Date.now();
+        // Log the request time and status
+        res.on('finish', () => {
+          const path = req.path.replace(/^\//, '');
+          this.logger.debug(`${path} latency: ${Date.now() - start}ms. Status: ${res.statusCode}`, [
+            'metric',
+            'latency',
+          ]);
+        });
         next();
       }
     };

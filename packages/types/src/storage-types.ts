@@ -28,10 +28,17 @@ export interface IStorageWrite {
   initialize: () => Promise<void>;
   append: (data: string) => Promise<IAppendResult>;
 }
+export interface PaginationMetadata {
+  total: number; // Total number of items available
+  page?: number; // Current page number if pagination was used
+  pageSize?: number; // Page size if pagination was used
+  hasMore?: boolean; // Whether there are more items available
+}
 
 export type IGetTransactionsResponse = {
   transactions: IIndexedTransaction[];
   blockNumber: number;
+  pagination?: PaginationMetadata; // Optional pagination metadata
 };
 
 export interface IStorageRead {
@@ -67,7 +74,6 @@ export type IIpfsConfig = {
 export interface IIpfsStorage {
   initialize: () => Promise<void>;
   ipfsAdd: (data: string) => Promise<IIpfsMeta>;
-  read(hash: string, maxSize?: number, retries?: number): Promise<IIpfsObject>;
   getConfig(): Promise<IIpfsConfig>;
 }
 
@@ -180,6 +186,7 @@ export enum EthereumNetwork {
   MAINNET = 1,
   RINKEBY = 4,
   GOERLI = 5,
+  SEPOLIA = 11155111,
   XDAI = 100,
 }
 

@@ -5,9 +5,11 @@ import * as DataERC20FeeCreate from '../../../utils/payment-network/erc20/fee-pr
 import * as DataNearERC20FeeCreate from '../../../utils/payment-network/erc20/near-fee-proxy-contract';
 import * as TestData from '../../../utils/test-data-generator';
 import { deepCopy } from '@requestnetwork/utils';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { AdvancedLogic } from '../../../../src';
 
-const advancedLogic = new AdvancedLogic();
+const advancedLogic = new AdvancedLogic(CurrencyManager.getDefault());
+
 const erc20FeeProxyContract = advancedLogic.getFeeProxyContractErc20ForNetwork();
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */

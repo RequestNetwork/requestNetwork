@@ -1,11 +1,15 @@
 import '@typechain/hardhat';
 import '@nomiclabs/hardhat-waffle';
-import '@nomicfoundation/hardhat-verify';
 import '@nomiclabs/hardhat-ethers';
+
+import '@matterlabs/hardhat-zksync-node';
+import '@matterlabs/hardhat-zksync-deploy';
+import '@matterlabs/hardhat-zksync-solc';
+import '@matterlabs/hardhat-zksync-verify';
+
 import { subtask, task } from 'hardhat/config';
 import { config } from 'dotenv';
 import deployAllContracts from './scripts/test-deploy-all';
-import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { checkCreate2Deployer } from './scripts-create2/check-deployer';
 import { deployDeployer, verifyDeployer } from './scripts-create2/deploy-request-deployer';
 import { HardhatRuntimeEnvironmentExtended } from './scripts-create2/types';
@@ -16,6 +20,8 @@ import { NUMBER_ERRORS } from './scripts/utils';
 import { networkRpcs } from '@requestnetwork/utils';
 import { tenderlyImportAll } from './scripts-create2/tenderly';
 import { updateContractsFromList } from './scripts-create2/update-contracts-setup';
+import deployStorage from './scripts/deploy-storage';
+import { transferOwnership } from './scripts-create2/transfer-ownership';
 
 config();
 
@@ -39,11 +45,24 @@ const LOCAL_DEPLOYER_ADDRESS = '0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0';
 // Request deployer address on live blockchains
 const LIVE_DEPLOYER_ADDRESS = '0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2';
 
+/**
+ * The following function was added due to unusual transaction activity when bridging ETH to base.
+ * This affected the account nonce and the subsequent addresss of the RN deployer contract on that chain.
+ */
+function liveDeployerAddress(): string {
+  switch (process.env.NETWORK?.toLowerCase()) {
+    case `base`:
+      return `0xe7E02e5e94d668C5630959e4791B1977f3b74fcC`;
+    default:
+      return LIVE_DEPLOYER_ADDRESS;
+  }
+}
+
 // Arbitrary data used to deploy our contracts at predefined addresses
 const REQUEST_SALT = '0x0679724da7211bc62502a39f41cbf818fc7132c266e7c819fc2b06fad9593655';
 
 const requestDeployer = process.env.REQUEST_DEPLOYER_LIVE
-  ? LIVE_DEPLOYER_ADDRESS
+  ? liveDeployerAddress()
   : LOCAL_DEPLOYER_ADDRESS;
 
 const url = (network: string): string => process.env.WEB3_PROVIDER_URL || networkRpcs[network];
@@ -63,7 +82,7 @@ export default {
       hardfork: 'london',
     },
     private: {
-      url: 'http://127.0.0.1:8545',
+      url: url('private'),
       accounts: undefined,
     },
     mainnet: {
@@ -79,6 +98,11 @@ export default {
     goerli: {
       url: process.env.WEB3_PROVIDER_URL || 'https://goerli.infura.io/v3/YOUR_API_KEY',
       chainId: 5,
+      accounts,
+    },
+    sepolia: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://sepolia.infura.io/v3/YOUR_API_KEY',
+      chainId: 11155111,
       accounts,
     },
     matic: {
@@ -161,12 +185,41 @@ export default {
       chainId: 1116,
       accounts,
     },
+    zksynceratestnet: {
+      url: url('zksynceratestnet'),
+      ethNetwork: 'goerli',
+      zksync: true,
+      verifyURL: 'https://zksync2-testnet-explorer.zksync.dev/contract_verification',
+      accounts,
+    },
+    zksyncera: {
+      url: url('zksyncera'),
+      ethNetwork: 'mainnet',
+      zksync: true,
+      verifyURL: 'https://zksync2-mainnet-explorer.zksync.io/contract_verification',
+      accounts,
+    },
+    base: {
+      url: url(`base`),
+      chainId: 8453,
+      accounts,
+    },
+    sonic: {
+      url: url('sonic'),
+      chainId: 146,
+      accounts,
+    },
+  },
+  zksolc: {
+    version: '1.3.16',
   },
   etherscan: {
     apiKey: {
+      base: process.env.ETHERSCAN_API_KEY,
       mainnet: process.env.ETHERSCAN_API_KEY,
       rinkeby: process.env.ETHERSCAN_API_KEY,
       goerli: process.env.ETHERSCAN_API_KEY,
+      sepolia: process.env.ETHERSCAN_API_KEY,
       // binance smart chain
       bsc: process.env.BSCSCAN_API_KEY,
       bscTestnet: process.env.BSCSCAN_API_KEY,
@@ -194,6 +247,8 @@ export default {
       auroraTestnet: 'api-key',
       mantle: 'api-key',
       'mantle-testnet': 'api-key',
+      celo: process.env.CELOSCAN_API_KEY,
+      sonic: process.env.SONIC_API_KEY,
     },
     customChains: [
       {
@@ -228,6 +283,22 @@ export default {
           browserURL: 'https://scan.coredao.org/',
         },
       },
+      {
+        network: 'celo',
+        chainId: 42220,
+        urls: {
+          apiURL: 'https://api.celoscan.io/api',
+          browserURL: 'https://celoscan.io/',
+        },
+      },
+      {
+        network: 'sonic',
+        chainId: 146,
+        urls: {
+          apiURL: 'https://api.sonicscan.org/api',
+          browserURL: 'https://sonicscan.org/',
+        },
+      },
     ],
   },
   tenderly: {
@@ -260,6 +331,7 @@ export default {
           'avalanche',
           'optimism',
           'moonbeam',
+          'sonic',
         ],
     gasLimit: undefined,
     deployerAddress: requestDeployer,
@@ -278,7 +350,7 @@ task('deploy-local-env', 'Deploy a local environment').setAction(async (args, hr
 });
 
 task(
-  'deploy-live-payments',
+  'deploy-live-storage',
   'Deploy payment contracts on a live network. Make sure to update all artifacts before running.',
 )
   .addFlag('dryRun', 'to prevent any deployment')
@@ -288,10 +360,9 @@ task(
     args.dryRun = args.dryRun ?? false;
     args.simulate = args.dryRun;
     await hre.run(DEPLOYER_KEY_GUARD);
-    await deployAllPaymentContracts(args, hre as HardhatRuntimeEnvironmentExtended);
+    await deployStorage(args, hre as HardhatRuntimeEnvironmentExtended);
   });
 
-// Tasks inherent to the CREATE2 deployment scheme
 task(
   'deploy-deployer-contract',
   'Deploy request deployer contract on the specified network',
@@ -322,13 +393,21 @@ task(
   await deployWithCreate2FromList(hre as HardhatRuntimeEnvironmentExtended);
 });
 
-task(
-  'update-contracts',
-  'Update the latest deployed contracts from the Create2DeploymentList',
-).setAction(async (_args, hre) => {
-  await hre.run(DEPLOYER_KEY_GUARD);
-  await updateContractsFromList(hre as HardhatRuntimeEnvironmentExtended);
-});
+task('update-contracts', 'Update the latest deployed contracts from the Create2DeploymentList')
+  .addFlag('eoa', 'Is the update to be performed in an EOA context')
+  .setAction(async (args, hre) => {
+    const signWithEoa = args.eoa ?? false;
+    await hre.run(DEPLOYER_KEY_GUARD);
+    await updateContractsFromList(hre as HardhatRuntimeEnvironmentExtended, signWithEoa);
+  });
+
+task('transfer-ownership', 'Transfer the Ownership of eligible contracts to the RN Safe Admins')
+  .addFlag('eoa', 'Is the update to be performed in an EOA context')
+  .setAction(async (args, hre) => {
+    const signWithEoa = args.eoa ?? false;
+    await hre.run(DEPLOYER_KEY_GUARD);
+    await transferOwnership(hre as HardhatRuntimeEnvironmentExtended, signWithEoa);
+  });
 
 task(
   'verify-contract-from-deployer',

@@ -1,4 +1,4 @@
-import { UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import AddressBasedPaymentNetwork from '../../../src/extensions/payment-network/address-based';
 
@@ -10,7 +10,7 @@ describe('extensions/payment-network/address-based', () => {
         currentVersion: string,
         supportedCurrencyType: RequestLogicTypes.CURRENCY,
       ) {
-        super(extensionId, currentVersion, supportedCurrencyType);
+        super(CurrencyManager.getDefault(), extensionId, currentVersion, supportedCurrencyType);
       }
       public testIsValidAddress() {
         this.isValidAddress('test');
@@ -34,7 +34,7 @@ describe('extensions/payment-network/address-based', () => {
         currentVersion: string,
         supportedCurrencyType: RequestLogicTypes.CURRENCY,
       ) {
-        super(extensionId, currentVersion, supportedCurrencyType);
+        super(CurrencyManager.getDefault(), extensionId, currentVersion, supportedCurrencyType);
       }
       public testIsValidAddress() {
         this.isValidAddressForSymbolAndNetwork('test', 'test', 'mainnet');

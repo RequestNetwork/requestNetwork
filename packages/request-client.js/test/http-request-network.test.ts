@@ -1,37 +1,49 @@
-import MockAdapter from 'axios-mock-adapter';
+import { http, HttpResponse } from 'msw';
+import { SetupServer } from 'msw/node';
 import * as TestData from './data-test';
 import HttpRequestNetwork from '../src/http-request-network';
 
-let mockAxios: MockAdapter;
+jest.setTimeout(10_000);
+
+let mockServer: SetupServer;
 
 beforeAll(() => {
-  mockAxios = TestData.mockAxiosRequestNode();
+  mockServer = TestData.mockRequestNode();
 });
 
 afterAll(() => {
-  mockAxios.restore();
+  mockServer.close();
+  mockServer.resetHandlers();
   jest.restoreAllMocks();
 });
 
+afterEach(() => {
+  mockServer.resetHandlers();
+});
+
 describe('HttpRequestNetwork', () => {
-  describe('should emmit errors throwing on refresh after the confirmation happened', () => {
+  describe('should emit errors throwing on refresh after the confirmation happened', () => {
     const failAtCall = (call: number, skipPaymentInfo = false) => {
       let requestCount = 0;
-      mockAxios.onGet('/getTransactionsByChannelId').reply(() => {
-        requestCount++;
-        return [
-          requestCount >= call ? 500 : 200,
-          {
-            result: {
-              transactions: [
-                skipPaymentInfo
-                  ? TestData.timestampedTransactionWithoutPaymentInfo
-                  : TestData.timestampedTransaction,
-              ],
+      mockServer.use(
+        http.get('*/getTransactionsByChannelId', () => {
+          requestCount++;
+          return HttpResponse.json(
+            {
+              result: {
+                transactions: [
+                  skipPaymentInfo
+                    ? TestData.timestampedTransactionWithoutPaymentInfo
+                    : TestData.timestampedTransaction,
+                ],
+              },
             },
-          },
-        ];
-      });
+            {
+              status: requestCount >= call ? 500 : 200,
+            },
+          );
+        }),
+      );
     };
 
     const createRequest = async (skipPaymentInfo = false) => {
@@ -53,7 +65,7 @@ describe('HttpRequestNetwork', () => {
           r(e);
         });
       });
-      expect(error.message).toBe('Request failed with status code 500');
+      expect(error.message).toBe('Internal Server Error');
     };
 
     it('create', async () => {
@@ -68,7 +80,7 @@ describe('HttpRequestNetwork', () => {
       await request.waitForConfirmation();
       await request.accept(TestData.payer.identity);
       await checkForError(request);
-    }, 10000);
+    });
 
     it('cancel', async () => {
       failAtCall(6);
@@ -76,7 +88,7 @@ describe('HttpRequestNetwork', () => {
       await request.waitForConfirmation();
       await request.cancel(TestData.payee.identity);
       await checkForError(request);
-    }, 10000);
+    });
 
     it('increase the expected amount', async () => {
       failAtCall(6);
@@ -84,7 +96,7 @@ describe('HttpRequestNetwork', () => {
       await request.waitForConfirmation();
       await request.increaseExpectedAmountRequest(3, TestData.payer.identity);
       await checkForError(request);
-    }, 10000);
+    });
 
     it('reduce the expected amount', async () => {
       failAtCall(6);
@@ -92,7 +104,7 @@ describe('HttpRequestNetwork', () => {
       await request.waitForConfirmation();
       await request.reduceExpectedAmountRequest(3, TestData.payee.identity);
       await checkForError(request);
-    }, 10000);
+    });
 
     it('add payment information', async () => {
       // Skipping payment information at creation and faked storage
@@ -101,7 +113,7 @@ describe('HttpRequestNetwork', () => {
       await request.waitForConfirmation();
       await request.addPaymentInformation('payment info added', TestData.payee.identity);
       await checkForError(request);
-    }, 10000);
+    });
 
     it('add refund information', async () => {
       failAtCall(6);
@@ -109,7 +121,7 @@ describe('HttpRequestNetwork', () => {
       await request.waitForConfirmation();
       await request.addRefundInformation('refund info added', TestData.payer.identity);
       await checkForError(request);
-    }, 10000);
+    });
 
     it('declare sent payment', async () => {
       failAtCall(6);
@@ -117,7 +129,7 @@ describe('HttpRequestNetwork', () => {
       await request.waitForConfirmation();
       await request.declareSentPayment('10', 'sent payment', TestData.payer.identity);
       await checkForError(request);
-    }, 10000);
+    });
 
     it('declare sent refund', async () => {
       failAtCall(6);
@@ -125,7 +137,7 @@ describe('HttpRequestNetwork', () => {
       await request.waitForConfirmation();
       await request.declareSentRefund('10', 'sent refund', TestData.payee.identity);
       await checkForError(request);
-    }, 10000);
+    });
 
     it('declare received payment', async () => {
       failAtCall(6);
@@ -133,7 +145,7 @@ describe('HttpRequestNetwork', () => {
       await request.waitForConfirmation();
       await request.declareReceivedPayment('10', 'received payment', TestData.payee.identity);
       await checkForError(request);
-    }, 10000);
+    });
 
     it('declare received refund', async () => {
       failAtCall(6);
@@ -141,7 +153,7 @@ describe('HttpRequestNetwork', () => {
       await request.waitForConfirmation();
       await request.declareReceivedRefund('10', 'received refund', TestData.payer.identity);
       await checkForError(request);
-    }, 10000);
+    });
 
     it('add declarative delegate', async () => {
       failAtCall(6);
@@ -149,6 +161,6 @@ describe('HttpRequestNetwork', () => {
       await request.waitForConfirmation();
       await request.addDeclarativeDelegate(TestData.delegate.identity, TestData.payer.identity);
       await checkForError(request);
-    }, 10000);
+    });
   });
 });

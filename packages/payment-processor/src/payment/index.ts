@@ -1,6 +1,6 @@
 import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 'ethers';
 
-import { ClientTypes, ExtensionTypes, TypesUtils } from '@requestnetwork/types';
+import { ClientTypes, CurrencyTypes, ExtensionTypes, TypesUtils } from '@requestnetwork/types';
 
 import { getBtcPaymentUrl } from './btc-address-based';
 import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
@@ -16,7 +16,7 @@ import { payAnyToErc20ProxyRequest } from './any-to-erc20-proxy';
 import { payAnyToEthProxyRequest } from './any-to-eth-proxy';
 import { WalletConnection } from 'near-api-js';
 import { isNearAccountSolvent } from './utils-near';
-import { ICurrencyManager, NearChains } from '@requestnetwork/currency';
+import { NearChains } from '@requestnetwork/currency';
 import { encodeRequestErc20Approval } from './encoder-approval';
 import { encodeRequestPayment } from './encoder-payment';
 import { IPreparedTransaction } from './prepared-transaction';
@@ -36,7 +36,7 @@ export const noConversionNetworks = [
 export interface IConversionPaymentSettings {
   currency?: RequestLogicTypes.ICurrency;
   maxToSpend: BigNumberish;
-  currencyManager?: ICurrencyManager;
+  currencyManager?: CurrencyTypes.ICurrencyManager;
 }
 
 const getPaymentNetwork = (
@@ -195,14 +195,20 @@ export async function swapToPayRequest(
  * @param providerOptions.provider the Web3 provider. Defaults to getDefaultProvider.
  * @param providerOptions.nearWalletConnection the Near WalletConnection
  */
-export async function hasSufficientFunds(
-  request: ClientTypes.IRequestData,
-  address: string,
+export async function hasSufficientFunds({
+  request,
+  address,
+  providerOptions,
+  needsGas = true,
+}: {
+  request: ClientTypes.IRequestData;
+  address: string;
   providerOptions?: {
     provider?: providers.Provider;
     nearWalletConnection?: WalletConnection;
-  },
-): Promise<boolean> {
+  };
+  needsGas?: boolean;
+}): Promise<boolean> {
   const paymentNetwork = getPaymentNetwork(request);
   if (!paymentNetwork || !noConversionNetworks.includes(paymentNetwork)) {
     throw new UnsupportedNetworkError(paymentNetwork);
@@ -219,12 +225,13 @@ export async function hasSufficientFunds(
   ) {
     feeAmount = request.extensions[paymentNetwork].values.feeAmount || 0;
   }
-  return isSolvent(
-    address,
-    request.currencyInfo,
-    BigNumber.from(request.expectedAmount).add(feeAmount),
+  return isSolvent({
+    fromAddress: address,
+    currency: request.currencyInfo,
+    amount: BigNumber.from(request.expectedAmount).add(feeAmount),
     providerOptions,
-  );
+    needsGas,
+  });
 }
 
 /**
@@ -236,15 +243,22 @@ export async function hasSufficientFunds(
  * @param providerOptions.nearWalletConnection the Near WalletConnection
  * @throws UnsupportedNetworkError if network isn't supported
  */
-export async function isSolvent(
-  fromAddress: string,
-  currency: RequestLogicTypes.ICurrency,
-  amount: BigNumberish,
+export async function isSolvent({
+  fromAddress,
+  currency,
+  amount,
+  providerOptions,
+  needsGas = true,
+}: {
+  fromAddress: string;
+  currency: RequestLogicTypes.ICurrency;
+  amount: BigNumberish;
   providerOptions?: {
     provider?: providers.Provider;
     nearWalletConnection?: WalletConnection;
-  },
-): Promise<boolean> {
+  };
+  needsGas?: boolean;
+}): Promise<boolean> {
   // Near case
   if (NearChains.isChainSupported(currency.network) && providerOptions?.nearWalletConnection) {
     return isNearAccountSolvent(amount, providerOptions.nearWalletConnection, currency);
@@ -255,11 +269,6 @@ export async function isSolvent(
   }
   const provider = providerOptions.provider;
   const ethBalance = await provider.getBalance(fromAddress);
-  const needsGas =
-    !(provider as any)?.provider?.safe?.safeAddress &&
-    !['Safe Multisig WalletConnect', 'Gnosis Safe Multisig'].includes(
-      (provider as any)?.provider?.wc?._peerMeta?.name,
-    );
 
   if (currency.type === 'ETH') {
     return ethBalance.gt(amount);

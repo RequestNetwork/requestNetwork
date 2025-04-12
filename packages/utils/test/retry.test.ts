@@ -131,38 +131,90 @@ describe('Retry', () => {
       throw new Error(`threw`);
     });
 
-    retry(throwFn, {
-      exponentialBackoffDelay: 1000,
-      maxExponentialBackoffDelay: 7000,
+    const retryPromise = retry(throwFn, {
+      retryDelay: 0,
+      // Exponential backoff starting at 1s, doubling after each retry, up to a maximum of 64s and max 7 retries, yielding a total of 8 call snad total timeout of 127s
+      maxRetries: 7,
+      exponentialBackoffDelay: 1000, // 1s
+      maxExponentialBackoffDelay: 64000, // 64s
     })();
 
-    // Should call immediately
+    // Should call immediately (1 total calls, 0ms total elapsed)
     expect(throwFn).toHaveBeenCalledTimes(1);
 
-    // Exponential backoff should only call a second time after 2000ms
-    jest.advanceTimersByTime(1100);
+    expect(Date.now()).toBe(0);
+
+    // 1st retry after 1s (2 total calls, 1000ms total elapsed)
+    jest.advanceTimersByTime(999);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(1);
-    jest.advanceTimersByTime(1100);
+    jest.advanceTimersByTime(1);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(2);
+    expect(Date.now()).toBe(1000);
 
-    // Exponential backoff should call a third time after 4100ms
-    jest.advanceTimersByTime(4100);
+    // 2nd retry after 3s (3 total calls, 3000ms total elapsed)
+    jest.advanceTimersByTime(1999);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(2);
+    jest.advanceTimersByTime(1);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(3);
+    expect(Date.now()).toBe(3000);
 
-    // Exponential backoff should call a fourth time after 7100ms
-    // since maxExponentialBackoffDelay (7000) < 8000
-    jest.advanceTimersByTime(7100);
+    // 3rd retry after 4s (4 total calls, 7000ms total elapsed)
+    jest.advanceTimersByTime(3999);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(3);
+    jest.advanceTimersByTime(1);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(4);
+    expect(Date.now()).toBe(7000);
 
-    // Exponential backoff should call a fifth time after 7100ms
-    // since maxExponentialBackoffDelay (7000) < 8000
-    jest.advanceTimersByTime(7100);
+    // 4th retry after 8s (5 total calls, 15000ms total elapsed)
+    jest.advanceTimersByTime(7999);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(4);
+    jest.advanceTimersByTime(1);
     await Promise.resolve();
     expect(throwFn).toHaveBeenCalledTimes(5);
+    expect(Date.now()).toBe(15000);
+
+    // 5th retry after 16s (6 total calls, 31000ms total elapsed)
+    jest.advanceTimersByTime(15999);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(5);
+    jest.advanceTimersByTime(1);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(6);
+    expect(Date.now()).toBe(31000);
+
+    // 6th retry after 32s (7 total calls, 63000ms total elapsed)
+    jest.advanceTimersByTime(31999);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(6);
+    jest.advanceTimersByTime(1);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(7);
+    expect(Date.now()).toBe(63000);
+
+    // 7th retry after 64s (8 total calls, 127000ms total elapsed)
+    jest.advanceTimersByTime(63999);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(7);
+    jest.advanceTimersByTime(1);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(8);
+    expect(Date.now()).toBe(127000);
+
+    // Reject and throw after the last retry
+    await expect(retryPromise).rejects.toThrow('threw');
+
+    // No further retries
+    jest.advanceTimersByTime(1000000000);
+    await Promise.resolve();
+    expect(throwFn).toHaveBeenCalledTimes(8);
+    expect(Date.now()).toBe(1000127000);
 
     jest.useRealTimers();
   });

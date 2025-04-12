@@ -67,13 +67,13 @@ It will suggest pairs of currencies:
 
 - With a Chainlink price feed oracle (according to [a cached JSON](https://cl-docs-addresses.web.app/addresses.json]))
 - If they exist in Currency Manager (cf. [../currency/src/erc20/networks]())
-- If they are not already added to the Chainlink Aggregation Path contract, as reported by the Price Aggregators subgraph ([Example for BSC](https://thegraph.com/hosted-service/subgraph/requestnetwork/price-aggregators-bsc))
+- If they are not already added to the Chainlink Aggregation Path contract, as reported by the Price Aggregators subgraph ([Example for Ethereum](https://thegraph.com/explorer/subgraphs/H4knum5YFFtgpWjYDV6xqjkPZprtm7S9jv4UsdnTS1hD?view=Overview&chain=arbitrum-one))
 
 The following commands are also available:
 
 - `yarn request-toolbox addAggregator` can be used if you have all information about an aggregator you want to add
 - `yarn request-toolbox removeAggregator` will set the given currency pair to the 0x00[...]00 address.
-- `yarn request-toolbox listMissingAggregators <name>` (where `name` is a valid Request Finance currency list, [https://api.request.network/currency/list/name]() should be valid) will display missing aggregators for that list on all networks.
+- `yarn request-toolbox listMissingAggregators <name>` (where `name` is a valid Request Finance currency list, [https://api.request.finance/currency/list/name]() should be valid) will display missing aggregators for that list on all networks.
 
 Use `--help` for details about each command.
 

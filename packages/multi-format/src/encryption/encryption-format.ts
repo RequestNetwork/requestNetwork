@@ -1,8 +1,12 @@
-import GroupMultiFormat from '../group-multi-format';
-import Aes256Cbc from './aes256-cbc-format';
-import Aes256Gcm from './aes256-gcm-format';
-import Ecies from './ecies-format';
+import { MultiFormatGroup } from '../multi-format-group';
+import { Aes256CbcMultiFormat } from './aes256-cbc-format';
+import { Aes256GcmMultiFormat } from './aes256-gcm-format';
+import { ECIESMultiFormat } from './ecies-format';
+import { KMSMultiFormat } from './kms-format';
 
-// group all the multi-format concerning the encryption
-const group = new GroupMultiFormat([new Aes256Cbc(), new Ecies(), new Aes256Gcm()]);
-export default group;
+export const encryptionFormats = new MultiFormatGroup([
+  new KMSMultiFormat(),
+  new Aes256CbcMultiFormat(),
+  new ECIESMultiFormat(),
+  new Aes256GcmMultiFormat(),
+]);

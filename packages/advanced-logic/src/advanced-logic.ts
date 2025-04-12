@@ -5,12 +5,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import {
-  CurrencyManager,
-  ICurrencyManager,
-  NearChains,
-  isSameChain,
-} from '@requestnetwork/currency';
+import { NearChains, isSameChain } from '@requestnetwork/currency';
 
 import ContentData from './extensions/content-data';
 import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
@@ -31,6 +26,7 @@ import AnyToNearTestnet from './extensions/payment-network/near/any-to-near-test
 import NativeToken from './extensions/payment-network/native-token';
 import AnyToNative from './extensions/payment-network/any-to-native';
 import Erc20TransferableReceivablePaymentNetwork from './extensions/payment-network/erc20/transferable-receivable';
+import MetaPaymentNetwork from './extensions/payment-network/meta';
 
 /**
  * Module to manage Advanced logic extensions
@@ -54,28 +50,30 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     anyToEthProxy: AnyToEthProxy;
     anyToNativeToken: AnyToNative[];
     erc20TransferableReceivable: Erc20TransferableReceivablePaymentNetwork;
+    metaPn: MetaPaymentNetwork;
   };
 
-  constructor(currencyManager?: ICurrencyManager) {
-    if (!currencyManager) {
-      currencyManager = CurrencyManager.getDefault();
-    }
+  private currencyManager: CurrencyTypes.ICurrencyManager;
+
+  constructor(currencyManager: CurrencyTypes.ICurrencyManager) {
+    this.currencyManager = currencyManager;
     this.extensions = {
-      addressBasedBtc: new AddressBasedBtc(),
-      addressBasedErc20: new AddressBasedErc20(),
-      addressBasedTestnetBtc: new AddressBasedTestnetBtc(),
+      addressBasedBtc: new AddressBasedBtc(currencyManager),
+      addressBasedErc20: new AddressBasedErc20(currencyManager),
+      addressBasedTestnetBtc: new AddressBasedTestnetBtc(currencyManager),
       contentData: new ContentData(),
       anyToErc20Proxy: new AnyToErc20Proxy(currencyManager),
       declarative: new Declarative(),
-      ethereumInputData: new EthereumInputData(),
-      feeProxyContractErc20: new FeeProxyContractErc20(),
-      proxyContractErc20: new ProxyContractErc20(),
-      erc777Stream: new Erc777Stream(),
-      feeProxyContractEth: new FeeProxyContractEth(),
+      ethereumInputData: new EthereumInputData(currencyManager),
+      feeProxyContractErc20: new FeeProxyContractErc20(currencyManager),
+      proxyContractErc20: new ProxyContractErc20(currencyManager),
+      erc777Stream: new Erc777Stream(currencyManager),
+      feeProxyContractEth: new FeeProxyContractEth(currencyManager),
       anyToEthProxy: new AnyToEthProxy(currencyManager),
-      nativeToken: [new NearNative(), new NearTestnetNative()],
+      nativeToken: [new NearNative(currencyManager), new NearTestnetNative(currencyManager)],
       anyToNativeToken: [new AnyToNear(currencyManager), new AnyToNearTestnet(currencyManager)],
-      erc20TransferableReceivable: new Erc20TransferableReceivablePaymentNetwork(),
+      erc20TransferableReceivable: new Erc20TransferableReceivablePaymentNetwork(currencyManager),
+      metaPn: new MetaPaymentNetwork(currencyManager),
     };
   }
 
@@ -136,6 +134,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
         this.getAnyToNativeTokenExtensionForNetwork(network),
       [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_TRANSFERABLE_RECEIVABLE]:
         this.extensions.erc20TransferableReceivable,
+      [ExtensionTypes.PAYMENT_NETWORK_ID.META]: this.extensions.metaPn,
     }[id];
 
     if (!extension) {
@@ -163,7 +162,9 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
 
   public getAnyToNativeTokenExtensionForNetwork(
     network?: CurrencyTypes.ChainName,
-  ): AnyToNative | undefined {
+  ):
+    | ExtensionTypes.IExtension<ExtensionTypes.PnAnyToAnyConversion.ICreationParameters>
+    | undefined {
     return network
       ? this.extensions.anyToNativeToken.find((anyToNativeTokenExtension) =>
           anyToNativeTokenExtension.supportedNetworks.includes(network),
@@ -173,7 +174,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
 
   public getFeeProxyContractErc20ForNetwork(network?: string): FeeProxyContractErc20 {
     return NearChains.isChainSupported(network)
-      ? new FeeProxyContractErc20(undefined, undefined, network)
+      ? new FeeProxyContractErc20(this.currencyManager, undefined, undefined, network)
       : this.extensions.feeProxyContractErc20;
   }
 

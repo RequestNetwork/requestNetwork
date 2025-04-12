@@ -1,6 +1,6 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
 
-import PlainTextFormat from '../../src/plain/plain-text-format';
+import { PlainTextMultiFormat as PlainTextFormat } from '../../src/plain/plain-text-format';
 
 let plainTextFormat: PlainTextFormat;
 

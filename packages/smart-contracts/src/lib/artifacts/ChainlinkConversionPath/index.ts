@@ -2,6 +2,7 @@ import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
 import { abi as ABI_0_2_0 } from './0.2.0.json';
+import { abi as ABI_0_2_1 } from './0.2.1.json';
 // @ts-ignore Cannot find module
 import type { ChainlinkConversionPath } from '../../../types';
 
@@ -88,10 +89,9 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
           address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
           creationBlockNumber: 28548259,
         },
-        // v0.1.0 contract - v0.2.0 required if/when we support EthConversionProxy on this chain
         xdai: {
-          address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
-          creationBlockNumber: 18326897,
+          address: '0x05D782aD6D6556179A6387Ff1D2fA104FD5c515a',
+          creationBlockNumber: 35928984,
         },
         'arbitrum-one': {
           address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
@@ -116,6 +116,39 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
         moonbeam: {
           address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
           creationBlockNumber: 2415429,
+        },
+        /**
+         * The contract was deployed on networks below with ABI 0.2.1
+         * The ABI for payments is the same, only administration tasks change.
+         */
+        sepolia: {
+          address: '0x7c285b9F2dA5E2c10feA25C00Ce1aCB107F85475',
+          creationBlockNumber: 4733359,
+        },
+        base: {
+          address: '0x3dF89c727eaDF67eeD7b4d09EC4F2b41f8Dec2ca',
+          creationBlockNumber: 10827258,
+        },
+        sonic: {
+          address: '0x05D782aD6D6556179A6387Ff1D2fA104FD5c515a',
+          creationBlockNumber: 3973538,
+        },
+      },
+    },
+    '0.2.1': {
+      abi: ABI_0_2_1,
+      deployment: {
+        sepolia: {
+          address: '0x7c285b9F2dA5E2c10feA25C00Ce1aCB107F85475',
+          creationBlockNumber: 4733359,
+        },
+        base: {
+          address: '0x3dF89c727eaDF67eeD7b4d09EC4F2b41f8Dec2ca',
+          creationBlockNumber: 10827258,
+        },
+        sonic: {
+          address: '0x05D782aD6D6556179A6387Ff1D2fA104FD5c515a',
+          creationBlockNumber: 3973538,
         },
       },
     },

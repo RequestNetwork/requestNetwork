@@ -15,6 +15,9 @@ const networks: Record<string, ethers.providers.Network> = {
   mantle: { chainId: 5000, name: 'mantle' },
   'mantle-testnet': { chainId: 5001, name: 'mantle-testnet' },
   core: { chainId: 1116, name: 'core' },
+  zksynceratestnet: { chainId: 280, name: 'zksynceratestnet' },
+  zksyncera: { chainId: 324, name: 'zksyncera' },
+  sonic: { chainId: 146, name: 'sonic' },
 };
 
 /**
@@ -31,6 +34,7 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
     super(network, apiKey);
   }
 
+  // eslint-disable-next-line complexity
   getBaseUrl(): string {
     switch (this.network.name) {
       case 'sokol':
@@ -66,6 +70,14 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
         return 'https://explorer.testnet.mantle.xyz/api';
       case 'core':
         return 'https://openapi.coredao.org/';
+      case 'zksynceratestnet':
+        return 'https://goerli.explorer.zksync.io/';
+      case 'zksyncera':
+        return 'https://explorer.zksync.io/';
+      case 'base':
+        return 'https://api.basescan.org/api';
+      case 'sonic':
+        return 'https://api.sonicscan.org/api';
       default:
         return super.getBaseUrl();
     }

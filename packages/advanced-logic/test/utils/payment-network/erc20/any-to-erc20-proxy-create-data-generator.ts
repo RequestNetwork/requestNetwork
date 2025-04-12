@@ -70,7 +70,10 @@ export const actionCreationEmpty = {
 
 // ---------------------------------------------------------------------
 // extensions states
-export const extensionFullState = {
+export const extensionFullState = (
+  saltOverride?: string,
+  paymentAddressOverride?: string | null,
+) => ({
   [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY as string]: {
     events: [
       {
@@ -79,9 +82,10 @@ export const extensionFullState = {
           feeAddress,
           feeAmount,
           network,
-          paymentAddress,
+          paymentAddress:
+            paymentAddressOverride === null ? undefined : paymentAddressOverride ?? paymentAddress,
           refundAddress,
-          salt,
+          salt: saltOverride || salt,
           acceptedTokens: [tokenAddress],
           maxRateTimespan: undefined,
         },
@@ -94,9 +98,10 @@ export const extensionFullState = {
       feeAddress,
       feeAmount,
       network,
-      paymentAddress,
+      paymentAddress:
+        paymentAddressOverride === null ? undefined : paymentAddressOverride ?? paymentAddress,
       refundAddress,
-      salt,
+      salt: saltOverride || salt,
       acceptedTokens: [tokenAddress],
       maxRateTimespan: undefined,
       payeeDelegate: undefined,
@@ -110,7 +115,7 @@ export const extensionFullState = {
     },
     version: '0.1.0',
   },
-};
+});
 export const extensionStateCreatedEmpty = {
   [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY as string]: {
     events: [
@@ -228,7 +233,7 @@ export const requestFullStateCreated: RequestLogicTypes.IRequest = {
     },
   ],
   expectedAmount: TestData.arbitraryExpectedAmount,
-  extensions: extensionFullState,
+  extensions: extensionFullState(),
   extensionsData: [actionCreationFull],
   payee: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,

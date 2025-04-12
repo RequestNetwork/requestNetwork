@@ -1,11 +1,10 @@
 import { Block } from '@requestnetwork/data-access';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, CurrencyTypes, DataAccessTypes, StorageTypes } from '@requestnetwork/types';
-import axios, { AxiosRequestConfig } from 'axios';
 import { ethers } from 'ethers';
 import { EventEmitter } from 'events';
 import HttpDataAccess from './http-data-access';
-import { retry } from '@requestnetwork/utils';
+import { NodeConnectionConfig } from './http-data-access-config';
 
 /**
  * Exposes a Data-Access module over HTTP
@@ -27,7 +26,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
   /**
    * Creates an instance of HttpDataAccess.
    * @param httpConfig Http config that will be used by the underlying http-data-access. @see ClientTypes.IHttpDataAccessConfig
-   * @param nodeConnectionConfig Configuration options to connect to the node. Follows Axios configuration format.
+   * @param nodeConnectionConfig Configuration options to connect to the node.
    */
   constructor(
     {
@@ -37,12 +36,11 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
       ethereumProviderUrl,
     }: {
       httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
-      nodeConnectionConfig?: AxiosRequestConfig;
+      nodeConnectionConfig?: NodeConnectionConfig;
       web3?: any;
       ethereumProviderUrl?: string;
     } = {
       httpConfig: {},
-      nodeConnectionConfig: {},
     },
   ) {
     super({ httpConfig, nodeConnectionConfig });
@@ -98,9 +96,10 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     );
 
     // store the block on ipfs and get the the ipfs hash and size
-    const {
-      data: { ipfsHash, ipfsSize },
-    } = await axios.post('/ipfsAdd', { data: block }, this.axiosConfig);
+    const { ipfsHash, ipfsSize } = await this.dataAccessConfig.fetch<{
+      ipfsHash: string;
+      ipfsSize: number;
+    }>('POST', '/ipfsAdd', { data: block });
 
     // get the fee required to submit the hash
     const fee = await submitterContract.getFeesAmount(ipfsSize);
@@ -185,32 +184,28 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     channelId: string,
     timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetTransactions> {
-    const { data } = await retry(
-      async () =>
-        axios.get(
-          '/getTransactionsByChannelId',
-          Object.assign(this.axiosConfig, {
-            params: { channelId, timestampBoundaries },
-          }),
-        ),
+    const data = await this.dataAccessConfig.fetchAndRetry<DataAccessTypes.IReturnGetTransactions>(
+      '/getTransactionsByChannelId',
       {
-        maxRetries: this.httpConfig.httpRequestMaxRetry,
-        retryDelay: this.httpConfig.httpRequestRetryDelay,
+        params: { channelId, timestampBoundaries },
       },
-    )();
+      {
+        maxRetries: this.dataAccessConfig.httpConfig.httpRequestMaxRetry,
+        retryDelay: this.dataAccessConfig.httpConfig.httpRequestRetryDelay,
+      },
+    );
 
     // get the transactions from the cache
-    const transactionsCached: DataAccessTypes.IReturnGetTransactions =
-      this.getCachedTransactionsAndCleanCache(
-        channelId,
-        data.meta.transactionsStorageLocation,
-        timestampBoundaries,
-      );
+    const transactionsCached = this.getCachedTransactionsAndCleanCache(
+      channelId,
+      data.meta.transactionsStorageLocation,
+      timestampBoundaries,
+    );
 
     // merge cache and data from the node
     return {
       meta: {
-        storageMeta: data.meta.storageMeta.concat(transactionsCached.meta.storageMeta),
+        storageMeta: data.meta.storageMeta?.concat(transactionsCached.meta.storageMeta ?? []) ?? [],
         transactionsStorageLocation: data.meta.transactionsStorageLocation.concat(
           transactionsCached.meta.transactionsStorageLocation,
         ),

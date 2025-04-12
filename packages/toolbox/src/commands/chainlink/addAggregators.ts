@@ -41,7 +41,7 @@ export const builder = (): yargs.Argv<Options> =>
     list: {
       type: 'string',
       describe:
-        'If specified, limits aggregators to currencies existing in the given list. The list NAME must be available at https://api.request.network/currency/list/NAME',
+        'If specified, limits aggregators to currencies existing in the given list. The list NAME must be available at https://api.request.finance/currency/list/NAME',
     },
     listAll: {
       type: 'boolean',

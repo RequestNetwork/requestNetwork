@@ -12,12 +12,13 @@ import {
 import { INearTransactionCallback, processNearPaymentWithConversion } from './utils-near';
 import { IConversionPaymentSettings } from '.';
 import { CurrencyManager, NearChains, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { validatePaymentReference } from '../utils/validation';
 
 /**
  * Processes the transaction to pay a request in NEAR with on-chain conversion.
  * @param request the request to pay
- * @param walletConnection the Web3 provider, or signer. Defaults to window.ethereum.
- * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param walletConnection the Near provider.
+ * @param amount optionally, the amount to pay in request currency. Defaults to remaining amount of the request.
  */
 export async function payNearConversionRequest(
   request: ClientTypes.IRequestData,
@@ -37,13 +38,7 @@ export async function payNearConversionRequest(
     throw new UnsupportedCurrencyError(request.currencyInfo);
   }
 
-  if (!paymentReference) {
-    throw new Error('Cannot pay without a paymentReference');
-  }
-
-  if (!network || !NearChains.isChainSupported(network)) {
-    throw new Error('Should be a Near network');
-  }
+  validatePaymentReference(paymentReference);
   NearChains.assertChainSupported(network);
 
   const amountToPay = getAmountToPay(request, amount).toString();
@@ -65,14 +60,13 @@ export async function payNearConversionRequest(
   );
 }
 
+// FIXME: the previous oracle worked with ticker, this could be deprecated with the next oracle we implement.
 const getTicker = (currency: RequestLogicTypes.ICurrency): string => {
   switch (currency.type) {
     case RequestLogicTypes.CURRENCY.ISO4217:
       return currency.value;
     default:
-      // FIXME: Flux oracles are compatible with ERC20 identified by tickers. Ex: USDT, DAI.
-      // Warning: although Flux oracles are compatible with ETH and BTC, the request contract
-      // for native payments and conversions only handles 2 decimals, not suited for cryptos.
+      // Warning: the request contract for native payments and conversions only handles 2 decimals, not suited for cryptos.
       throw new Error('Near payment with conversion only implemented for fiat denominations.');
   }
 };

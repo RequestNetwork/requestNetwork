@@ -3,7 +3,6 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { getPersistTransactionTimeout } from '../config';
 
-import ConfirmedTransactionStore from './confirmedTransactionStore';
 import { normalizeKeccak256Hash } from '@requestnetwork/utils';
 
 /**
@@ -13,11 +12,7 @@ export default class PersistTransactionHandler {
   /**
    * Persist transaction constructor
    */
-  constructor(
-    private confirmedTransactionStore: ConfirmedTransactionStore,
-    private dataAccess: DataAccessTypes.IDataWrite,
-    private logger: LogTypes.ILogger,
-  ) {
+  constructor(private dataAccess: DataAccessTypes.IDataWrite, private logger: LogTypes.ILogger) {
     this.handler = this.handler.bind(this);
   }
 
@@ -32,13 +27,6 @@ export default class PersistTransactionHandler {
     // Retrieves data access layer
     let dataAccessResponse: DataAccessTypes.IReturnPersistTransaction;
 
-    // Used to compute request time
-    const requestStartTime = Date.now();
-
-    // Set the timeout from the value from config and convert seconds to milliseconds
-    /* eslint-disable no-magic-numbers */
-    clientRequest.setTimeout(getPersistTransactionTimeout() * 1000);
-
     // Verifies if data send from post are correct
     // clientRequest.body is expected to contain data for data-acces layer:
     // transactionData: data of the transaction
@@ -51,11 +39,25 @@ export default class PersistTransactionHandler {
       serverResponse.status(StatusCodes.UNPROCESSABLE_ENTITY).send('Incorrect data');
       return;
     }
-    try {
-      const transactionHash: MultiFormatTypes.HashTypes.IHash = normalizeKeccak256Hash(
-        clientRequest.body.transactionData,
-      );
 
+    const transactionHash: MultiFormatTypes.HashTypes.IHash = normalizeKeccak256Hash(
+      clientRequest.body.transactionData,
+    );
+
+    // Set the timeout from the value from config and convert seconds to milliseconds
+    /* eslint-disable no-magic-numbers */
+    clientRequest.setTimeout(getPersistTransactionTimeout() * 1000, () => {
+      this.logger.error(
+        `persistTransaction timeout ${JSON.stringify({
+          transactionHash,
+          channelId: clientRequest.body.channelId,
+        })}`,
+        ['timeout'],
+      );
+      serverResponse.status(StatusCodes.GATEWAY_TIMEOUT).send('persistTransaction timeout');
+    });
+
+    try {
       this.logger.debug(
         `Persisting Transaction: ${JSON.stringify({
           transactionHash,
@@ -71,24 +73,18 @@ export default class PersistTransactionHandler {
         clientRequest.body.topics,
       );
 
-      // when the transaction is confirmed, store the information to be served when requested
-      dataAccessResponse.on('confirmed', async (dataAccessConfirmedResponse) => {
-        await this.confirmedTransactionStore.addConfirmedTransaction(
-          transactionHash.value,
-          dataAccessConfirmedResponse,
+      dataAccessResponse.on('confirmed', async () => {
+        this.logger.info(
+          `Transaction confirmed: ${JSON.stringify({
+            transactionHash,
+            channelId: clientRequest.body.channelId,
+          })}`,
+          ['metric', 'successRate'],
         );
-        this.logger.info(`Transaction confirmed: ${transactionHash.value}`, [
-          'metric',
-          'successRate',
-        ]);
       });
 
       // when the transaction fails, log an error
       dataAccessResponse.on('error', async (e: unknown) => {
-        await this.confirmedTransactionStore.addFailedTransaction(
-          transactionHash.value,
-          e as Error,
-        );
         this.logger.error(`persistTransaction error: ${e}\n
           transactionHash: ${transactionHash.value}, channelId: ${
           clientRequest.body.channelId
@@ -97,18 +93,25 @@ export default class PersistTransactionHandler {
         )}`);
       });
 
-      // Log the request time
-      const requestEndTime = Date.now();
-      this.logger.debug(`persistTransaction latency: ${requestEndTime - requestStartTime}ms`, [
-        'metric',
-        'latency',
-      ]);
-      this.logger.debug(`persistTransaction successfully completed`, ['metric', 'successRate']);
+      this.logger.debug(
+        `persistTransaction successfully completed ${JSON.stringify({
+          transactionHash,
+          channelId: clientRequest.body.channelId,
+        })}`,
+        ['metric', 'successRate'],
+      );
 
       serverResponse.status(StatusCodes.OK).send(dataAccessResponse);
     } catch (e) {
-      this.logger.error(`persistTransaction error: ${e}`);
-      this.logger.debug(`persistTransaction fail`, ['metric', 'successRate']);
+      this.logger.error(
+        `persistTransaction fail ${JSON.stringify({
+          error: e,
+          transactionHash,
+          channelId: clientRequest.body.channelId,
+          topics: clientRequest.body.topics,
+          transactionData: clientRequest.body.transactionData,
+        })}`,
+      );
 
       serverResponse.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
     }

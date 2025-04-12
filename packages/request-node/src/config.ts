@@ -5,6 +5,7 @@ import { BigNumber } from 'ethers';
 import { LogTypes } from '@requestnetwork/types';
 
 import { LogMode } from './logger';
+import { LIT_NETWORK } from '@lit-protocol/constants';
 
 const argv = yargs.option('help', { alias: 'h', type: 'boolean' }).parseSync();
 
@@ -20,7 +21,10 @@ const defaultValues = {
     ethereum: {
       networkId: 0,
       web3ProviderUrl: 'http://localhost:8545',
-      gasPriceMin: '1000000000', // one gwei
+      gasPriceMin: '1000000000', // 1 gwei per gas
+      gasPriceMax: '10000000000000', // 10,000 gwei per gas
+      // multiply by 2 the estimated max fee per gas to accomadate for volatility
+      gasPriceMultiplier: 200,
       blockConfirmations: 2,
     },
     ipfs: {
@@ -43,6 +47,10 @@ const defaultValues = {
   wallet: {
     mnemonic: 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat',
   },
+  litProtocolNetwork: LIT_NETWORK.Datil,
+  litProtocolRPC: 'https://yellowstone-rpc.litprotocol.com',
+  litProtocolCapacityCreditsUsage: '1',
+  litProtocolCapacityCreditsExpirationInSeconds: 10 * 60, // 10 minutes
 };
 
 const getOption = <T extends string | number>(
@@ -65,6 +73,42 @@ export const isHelp = (): boolean => argv.help || false;
  * Get the port from command line argument, environment variables or default values to allow user to connect to the server
  */
 export const getServerPort = makeOption('port', 'PORT', defaultValues.server.port);
+
+/**
+ * Get the litProtocolNetwork from command line argument, environment variables or default values to send with the API responses
+ */
+export const getLitProtocolNetwork = makeOption(
+  'litProtocolNetwork',
+  'LIT_PROTOCOL_NETWORK',
+  defaultValues.litProtocolNetwork,
+);
+
+/**
+ * Get the litProtocolNetwork from command line argument, environment variables or default values to send with the API responses
+ */
+export const getLitProtocolRPC = makeOption(
+  'litProtocolRPC',
+  'LIT_PROTOCOL_RPC',
+  defaultValues.litProtocolRPC,
+);
+
+/**
+ * Get the number of uses of the capacity credits from command line argument, environment variables or default values
+ */
+export const getLitProtocolCapacityCreditsUsage = makeOption(
+  'litProtocolCapacityCreditsUsage',
+  'LIT_PROTOCOL_CAPACITY_CREDITS_USAGE',
+  defaultValues.litProtocolCapacityCreditsUsage,
+);
+
+/**
+ * Get the expiration time of the capacity credits from command line argument, environment variables or default values
+ */
+export const getLitProtocolCapacityCreditsExpirationInSeconds = makeOption(
+  'litProtocolCapacityCreditsExpirationInSeconds',
+  'LIT_PROTOCOL_CAPACITY_CREDITS_EXPIRATION_IN_SECONDS',
+  defaultValues.litProtocolCapacityCreditsExpirationInSeconds,
+);
 
 /**
  * Get network id of the Ethereum network from command line argument, environment variables or default values
@@ -99,6 +143,21 @@ export function getGasPriceMin(): BigNumber | undefined {
   );
   return gasPriceMin ? BigNumber.from(gasPriceMin) : undefined;
 }
+
+export function getGasPriceMax(): BigNumber | undefined {
+  const gasPriceMax = getOption(
+    'gasPriceMax',
+    'GAS_PRICE_MAX',
+    defaultValues.storage.ethereum.gasPriceMax,
+  );
+  return gasPriceMax ? BigNumber.from(gasPriceMax) : undefined;
+}
+
+export const getGasPriceMultiplier = makeOption(
+  'gasPriceMultiplier',
+  'GAS_PRICE_MULTIPLIER',
+  defaultValues.storage.ethereum.gasPriceMultiplier,
+);
 
 /**
  * Get the number of block confirmations to wait before considering a transaction successful
@@ -154,16 +213,6 @@ export const getLogLevel = (): LogTypes.LogLevel => {
 export const getLogMode = makeOption('logMode', 'LOG_MODE', defaultValues.log.mode);
 
 /**
- * Get the initialization storage (a json-like file) path.
- * @returns the path to the json-like file that stores the initialization data (ethereum metadata and transaction index).
- */
-export const getInitializationStorageFilePath = makeOption(
-  'initializationStorageFilePath',
-  'INITIALIZATION_STORAGE_FILE_PATH',
-  '',
-);
-
-/**
  * Get the delay to wait before sending a timeout when performing a persistTransaction request
  * persistTransaction is called when a request is created or updated and need to wait for Ethereum to commit the transaction
  * PROT-300: This configuration value can be removed once batching is implenented
@@ -196,7 +245,7 @@ export function getHelpMessage(): string {
         })\t\t\t\tCustom headers to send with the API responses
 
       THE GRAPH OPTIONS
-        graphNodeUrl (${defaultValues.storage.thegraph.nodeUrl})\t\t\t\t
+        graphNodeUrl (${defaultValues.storage.thegraph.nodeUrl})\t\t\t\tURL of the Graph node
 
       ETHEREUM OPTIONS
         networkId (${
@@ -205,6 +254,18 @@ export function getHelpMessage(): string {
         providerUrl (${
           defaultValues.storage.ethereum.web3ProviderUrl
         })\tUrl of the web3 provider for Ethereum
+        gasPriceMin (${
+          defaultValues.storage.ethereum.gasPriceMin
+        })\t\t\t\tMinimum value for maxPriorityFeePerGas and maxFeePerGas
+        gasPriceMax (${
+          defaultValues.storage.ethereum.gasPriceMax
+        })\t\t\t\tMaximum value for maxFeePerGas
+        gasPriceMultiplier (${
+          defaultValues.storage.ethereum.gasPriceMultiplier
+        })\t\t\t\tMultiplier for the computed maxFeePerGas
+        blockConfirmations (${
+          defaultValues.storage.ethereum.blockConfirmations
+        })\t\t\t\tNumber of block confirmations to wait before considering a transaction successful
 
       IPFS OPTIONS
         ipfsUrl (${defaultValues.storage.ipfs.url})\t\t\tURL of the IPFS gateway
@@ -240,7 +301,10 @@ export const getConfigDisplay = (): string => {
   TheGraph url: ${getGraphNodeUrl()}
   IPFS url: ${getIpfsUrl()}
   IPFS timeout: ${getIpfsTimeout()}
-  Initialization storage path: ${getInitializationStorageFilePath()}
   Storage block confirmations: ${getBlockConfirmations()}
+  Lit Protocol Network: ${getLitProtocolNetwork()}
+  Lit Protocol RPC: ${getLitProtocolRPC()}
+  Lit Protocol Capacity Credits Uses: ${getLitProtocolCapacityCreditsUsage()}
+  Lit Protocol Capacity Credits Expiration in seconds: ${getLitProtocolCapacityCreditsExpirationInSeconds()}
 `;
 };

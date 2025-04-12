@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "https://github.com/RequestNetwork/requestNetwork",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "workspaces": [
     "packages/*"
@@ -18,25 +18,28 @@
     "build": "lerna run build",
     "clean": "lerna run clean",
     "build:tsc": "tsc -b packages/**/tsconfig.build.json",
-    "lint": "eslint . --fix --quiet",
-    "lint:check": "eslint . --quiet",
+    "lint": "lerna run lint",
+    "lint:ci": "yarn format:check && yarn lint:check && yarn packageJsonLint",
+    "lint:check": "lerna run lint:check",
     "lint-staged": "lint-staged",
     "lerna": "lerna",
     "packageJsonLint": "npmPkgJsonLint ./packages",
-    "publish-coverage": "mkdir -p ./coverage && node scripts/collect.js && nyc merge ./coverage ./coverage/coverage.json && node scripts/remap.js && cat coverage/lcov.info | coveralls",
-    "publish-npm": "lerna publish --conventional-commits --exact",
-    "publish-manual-prerelease": "lerna publish prerelease --conventional-commits --exact",
-    "publish-prerelease": "yarn lerna publish --preid development --skip-git --yes --canary",
+    "publish-npm": "lerna publish --conventional-commits --exact --message \"chore(release): publish %s\" --no-changelog --yes",
+    "publish-manual-prerelease": "lerna publish prerelease --no-git-tag-version --no-push --preid next.$(git rev-parse --short HEAD) --dist-tag next",
+    "publish-prerelease": "FORCE_PUBLISH=$(lerna changed --json | jq '. | map(.name) | join (\",\")' -r) && echo $FORCE_PUBLISH && lerna publish prerelease --no-git-tag-version --no-push --preid next.$(git rev-parse --short HEAD) --dist-tag next --yes --force-publish=${FORCE_PUBLISH}",
+    "deploy:contracts": "yarn workspace @requestnetwork/smart-contracts deploy",
+    "start:request-node": "LIT_PROTOCOL_NETWORK=datil-dev yarn workspace @requestnetwork/request-node start",
     "test": "lerna run test",
     "format": "prettier . -w",
     "format:check": "prettier . -c",
-    "link:all": "for d in packages/*; do pushd $d; yarn link; popd; done",
-    "unlink:all": "for d in packages/*; do pushd $d; yarn unlink; popd; done"
+    "link:all-npm": "for d in packages/*; do cd $d; npm link; cd -; done",
+    "unlink:all-npm": "for d in packages/*; do cd $d; npm unlink; cd -; done",
+    "link:all-yarn": "for d in packages/*; do cd $d; yarn link; cd -; done",
+    "unlink:all-yarn": "for d in packages/*; do cd $d; yarn unlink; cd -; done"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "4.18.0",
     "@typescript-eslint/parser": "4.18.0",
-    "coveralls": "3.1.0",
     "eslint": "7.22.0",
     "eslint-config-prettier": "8.1.0",
     "eslint-plugin-import": "2.22.1",
@@ -44,13 +47,28 @@
     "eslint-plugin-monorepo": "0.3.2",
     "eslint-plugin-prefer-arrow": "1.2.3",
     "husky": "8.0.1",
-    "lerna": "3.22.1",
+    "lerna": "6.6.2",
     "lint-staged": "10.5.4",
     "npm-package-json-lint": "5.1.0",
-    "nyc": "15.1.0",
-    "prettier": "2.8.6",
+    "prettier": "2.8.8",
     "prettier-plugin-solidity": "1.0.0-beta.19",
-    "remap-istanbul": "0.13.0",
     "typescript": "5.1.3"
-  }
+  },
+  "resolutions": {
+    "underscore": "^1.12.1",
+    "crypto-js": "^4.2.0",
+    "minimist": "^0.2.4",
+    "semver": "^7.5.4",
+    "json-schema": "^0.4.0",
+    "json5": "^2.2.1"
+  },
+  "resolutionsDocs": {
+    "underscore": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/14",
+    "crypto-js": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/207",
+    "minimist": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/177",
+    "semver": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/197",
+    "json-schema": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/51",
+    "json5": "https://github.com/RequestNetwork/requestNetwork/security/dependabot/165"
+  },
+  "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
 }

@@ -1,4 +1,4 @@
-import MultiFormat from '@requestnetwork/multi-format';
+import * as MultiFormat from '@requestnetwork/multi-format';
 import { StorageTypes } from '@requestnetwork/types';
 import { EventEmitter } from 'events';
 import { getCurrentTimestampInSecond, normalizeKeccak256Hash } from '@requestnetwork/utils';

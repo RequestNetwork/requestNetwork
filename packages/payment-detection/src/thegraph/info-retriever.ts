@@ -1,10 +1,8 @@
-import { PaymentTypes } from '@requestnetwork/types';
-import { ICurrencyManager } from '@requestnetwork/currency';
+import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
-import { pick, mapValues } from 'lodash';
 import type { TheGraphClient } from './client';
 import type { EscrowEventResultFragment, PaymentEventResultFragment } from './generated/graphql';
-import { formatAddress, unpadAmountFromChainlink } from '../utils';
+import { formatAddress, transformNonNull, unpadAmountFromChainlink } from '../utils';
 import { TransferEventsParams, ITheGraphBaseInfoRetriever } from '../types';
 
 /**
@@ -15,7 +13,7 @@ export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = Tr
 {
   constructor(
     protected readonly client: TheGraphClient,
-    protected readonly currencyManager: ICurrencyManager,
+    protected readonly currencyManager: CurrencyTypes.ICurrencyManager,
   ) {}
 
   public async getTransferEvents(
@@ -25,6 +23,7 @@ export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = Tr
       throw new Error('TheGraphInfoRetriever only supports no or 1 acceptedToken.');
     }
     const { payments, escrowEvents } = await this.client.GetPaymentsAndEscrowState({
+      blockFilter: this.client.options?.blockFilter,
       reference: utils.keccak256(`0x${params.paymentReference}`),
       to: params.toAddress.toLowerCase(),
       tokenAddress: params.acceptedTokens ? params.acceptedTokens[0].toLowerCase() : null,
@@ -45,6 +44,7 @@ export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = Tr
       throw new Error('TheGraphInfoRetriever only supports no or 1 acceptedToken.');
     }
     const { payments, escrowEvents } = await this.client.GetPaymentsAndEscrowStateForReceivables({
+      blockFilter: this.client.options?.blockFilter,
       reference: utils.keccak256(`0x${params.paymentReference}`),
       tokenAddress: params.acceptedTokens ? params.acceptedTokens[0].toLowerCase() : null,
       contractAddress: params.contractAddress.toLowerCase(),
@@ -83,22 +83,15 @@ export class TheGraphInfoRetriever<TGraphQuery extends TransferEventsParams = Tr
         feeAmount,
         block: payment.block,
         to: formatAddress(payment.to, 'to'),
-        ...mapValues(
-          pick(
-            payment,
-            'txHash',
-            'gasUsed',
-            'gasPrice',
-            'amountInCrypto',
-            'feeAmountInCrypto',
-            'maxRateTimespan',
-          ),
-          (val) => (val !== null ? String(val) : undefined),
-        ),
-        // Make sure the checksum is right for addresses.
-        ...mapValues(pick(payment, 'from', 'feeAddress', 'tokenAddress'), (str, key) =>
-          str ? formatAddress(str, key) : undefined,
-        ),
+        ...transformNonNull(payment, 'txHash', String),
+        ...transformNonNull(payment, 'gasUsed', String),
+        ...transformNonNull(payment, 'gasPrice', String),
+        ...transformNonNull(payment, 'amountInCrypto', String),
+        ...transformNonNull(payment, 'feeAmountInCrypto', String),
+        ...transformNonNull(payment, 'maxRateTimespan', String),
+        ...transformNonNull(payment, 'from', formatAddress),
+        ...transformNonNull(payment, 'feeAddress', formatAddress),
+        ...transformNonNull(payment, 'tokenAddress', formatAddress),
       },
     };
   }

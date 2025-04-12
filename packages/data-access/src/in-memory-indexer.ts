@@ -56,7 +56,10 @@ export class InMemoryIndexer implements StorageTypes.IIndexer {
   }
 
   async getTransactionsByTopics(topics: string[]): Promise<StorageTypes.IGetTransactionsResponse> {
-    const channelIds = topics.map((topic) => this.#topicToChannelsIndex.get(topic)).flat();
+    // Efficiently get total count without creating intermediate array
+    const channelIdsSet = new Set(topics.flatMap((topic) => this.#topicToChannelsIndex.get(topic)));
+    const channelIds = Array.from(channelIdsSet);
+
     const locations = channelIds
       .map((channel) => this.#channelToLocationsIndex.get(channel))
       .flat();

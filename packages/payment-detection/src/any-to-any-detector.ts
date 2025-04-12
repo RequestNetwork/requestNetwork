@@ -1,13 +1,12 @@
-import { ExtensionTypes } from '@requestnetwork/types';
+import { CurrencyTypes, ExtensionTypes } from '@requestnetwork/types';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
-import { ICurrencyManager } from '@requestnetwork/currency';
 import { generate8randomBytes } from '@requestnetwork/utils';
 
 /**
  * Abstract class to extend to get the payment balance of conversion requests
  */
 export abstract class AnyToAnyDetector<
-  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
+  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased<any>,
   TPaymentEventParameters extends Partial<ExtensionTypes.PnFeeReferenceBased.IAddFeeParameters>,
 > extends FeeReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
@@ -16,7 +15,7 @@ export abstract class AnyToAnyDetector<
   protected constructor(
     paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
-    currencyManager: ICurrencyManager,
+    currencyManager: CurrencyTypes.ICurrencyManager,
   ) {
     super(paymentNetworkId, extension, currencyManager);
   }

@@ -1,7 +1,8 @@
 {
   "extends": "../../tsconfig",
   "compilerOptions": {
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   },
   "include": [
     "src/",
@@ -9,6 +10,7 @@
     "test/",
     "scripts/",
     "scripts-create2/",
+    "deploy/",
     "hardhat.config.ts"
   ]
 }

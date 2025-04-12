@@ -3,18 +3,21 @@ import * as artifacts from '../src/lib/artifacts';
 import { ContractArtifact } from '../src/lib';
 import { Contract } from 'ethers';
 import * as console from 'console';
-import axios from 'axios';
 import { EvmChains } from '@requestnetwork/currency';
 import { CurrencyTypes } from '@requestnetwork/types';
 
-const getTenderlyAxiosInstance = (hre: HardhatRuntimeEnvironmentExtended) => {
-  return axios.create({
-    baseURL: 'https://api.tenderly.co',
-    headers: {
-      'X-Access-Key': hre.config.tenderly.accessKey,
-    },
-  });
-};
+const tenderlyBaseURL = 'https://api.tenderly.co';
+const makeTenderlyClient =
+  (hre: HardhatRuntimeEnvironmentExtended) => async (path: string, body: unknown) => {
+    const response = await fetch([tenderlyBaseURL, path].join('/'), {
+      method: 'POST',
+      headers: {
+        'X-Access-Key': hre.config.tenderly.accessKey,
+      },
+      body: JSON.stringify(body),
+    });
+    return await response.json();
+  };
 
 const capitalizeFirstLetter = (string: string) => string.charAt(0).toUpperCase() + string.slice(1);
 
@@ -79,8 +82,8 @@ export const tenderlyImportAll = async (hre: HardhatRuntimeEnvironmentExtended):
     console.log(`> Retrieved ${Object.keys(contracts).length} contracts from protocol artifacts`);
 
     console.log(`> Syncing contracts with Tenderly...`);
-    const axiosInstance = getTenderlyAxiosInstance(hre);
-    await axiosInstance.post(`/api/v2/accounts/${username}/projects/${project}/contracts`, {
+    const tenderly = makeTenderlyClient(hre);
+    await tenderly(`/api/v2/accounts/${username}/projects/${project}/contracts`, {
       contracts: Object.values(contracts).map((contract) => ({
         address: contract.address,
         display_name: contract.name,
@@ -91,7 +94,7 @@ export const tenderlyImportAll = async (hre: HardhatRuntimeEnvironmentExtended):
 
     console.log(`> Adding version tags to contracts...`);
     for (const version in versions) {
-      await axiosInstance.post(`/api/v1/account/${username}/project/${project}/tag`, {
+      await tenderly(`/api/v1/account/${username}/project/${project}/tag`, {
         contract_ids: Array.from(versions[version]),
         tag: `v${version}`,
       });
@@ -99,11 +102,11 @@ export const tenderlyImportAll = async (hre: HardhatRuntimeEnvironmentExtended):
     console.log('  ✔ done');
 
     console.log(`> Adding mainnet/testnet tags to contracts...`);
-    await axiosInstance.post(`/api/v1/account/${username}/project/${project}/tag`, {
+    await tenderly(`/api/v1/account/${username}/project/${project}/tag`, {
       contract_ids: Array.from(mainnetContracts),
       tag: 'mainnet',
     });
-    await axiosInstance.post(`/api/v1/account/${username}/project/${project}/tag`, {
+    await tenderly(`/api/v1/account/${username}/project/${project}/tag`, {
       contract_ids: Array.from(testnetContracts),
       tag: 'testnet',
     });

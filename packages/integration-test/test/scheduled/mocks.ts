@@ -7,6 +7,7 @@ const createCreationAction = jest.fn();
 const createAddFeeAction = jest.fn();
 const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
+const createApplyActionToPn = jest.fn();
 
 export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions: jest.fn(),
@@ -68,8 +69,7 @@ export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     } as any as Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>,
-    anyToEthProxy:
-      {} as Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>,
+    anyToEthProxy: {} as Extension.PnAnyToEth.IAnyToEth,
     anyToNativeToken:
       {} as Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>[],
     erc20TransferableReceivable: {
@@ -80,5 +80,9 @@ export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     } as any as Extension.PnFeeReferenceBased.IFeeReferenceBased<Extension.PnFeeReferenceBased.ICreationParameters>,
+    metaPn: {
+      createCreationAction,
+      createApplyActionToPn,
+    } as any as Extension.PnMeta.IMeta<Extension.PnMeta.ICreationParameters>,
   },
 };

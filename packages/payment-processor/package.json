@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/payment-processor",
-  "version": "0.39.0",
+  "version": "0.57.0",
   "publishConfig": {
     "access": "public"
   },
@@ -18,7 +18,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,31 +31,31 @@
   ],
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "prepare": "yarn run build",
-    "test": "jest --runInBand",
+    "test": "jest --testPathIgnorePatterns test/payment/erc-20-private-payment-hinkal.test.ts --runInBand",
+    "test:hinkal": "jest test/payment/erc-20-private-payment-hinkal.test.ts --runInBand",
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "4.7.3",
-    "@requestnetwork/currency": "0.10.0",
-    "@requestnetwork/payment-detection": "0.37.0",
-    "@requestnetwork/smart-contracts": "0.30.0",
-    "@requestnetwork/types": "0.37.0",
-    "@requestnetwork/utils": "0.37.0",
+    "@hinkal/common": "0.2.9",
+    "@openzeppelin/contracts": "4.9.6",
+    "@requestnetwork/currency": "0.28.0",
+    "@requestnetwork/payment-detection": "0.54.0",
+    "@requestnetwork/smart-contracts": "0.48.0",
+    "@requestnetwork/types": "0.54.0",
+    "@requestnetwork/utils": "0.54.0",
     "@superfluid-finance/sdk-core": "0.5.0",
-    "ethers": "5.5.1",
-    "near-api-js": "2.1.4",
+    "ethers": "5.7.2",
+    "near-api-js": "4.0.2",
     "tslib": "2.5.0"
   },
   "devDependencies": {
-    "@types/jest": "29.5.6",
-    "jest": "29.5.0",
+    "@types/jest": "29.5.14",
+    "jest": "29.7.0",
     "jest-junit": "16.0.0",
-    "nyc": "15.1.0",
-    "shx": "0.3.2",
     "source-map-support": "0.5.19",
     "ts-jest": "29.1.0",
     "typescript": "5.1.3"

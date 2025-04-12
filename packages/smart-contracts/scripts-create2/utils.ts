@@ -8,17 +8,19 @@ import { EvmChains } from '@requestnetwork/currency';
  * If you want to skip deploying one or more, then comment them out in the list bellow.
  */
 export const create2ContractDeploymentList = [
-  // 'ChainlinkConversionPath',
+  'ChainlinkConversionPath',
   'EthereumProxy',
   'EthereumFeeProxy',
-  // 'EthConversionProxy',
+  'EthConversionProxy',
   'ERC20Proxy',
   'ERC20FeeProxy',
-  // 'ERC20SwapToPay',
-  // 'ERC20SwapToConversion',
-  // 'BatchConversionPayments',
-  // 'ERC20EscrowToPay',
-  // 'ERC20TransferableReceivable',
+  'Erc20ConversionProxy',
+  'ERC20SwapToPay',
+  'ERC20SwapToConversion',
+  'BatchConversionPayments',
+  'ERC20EscrowToPay',
+  'ERC20TransferableReceivable',
+  'SingleRequestProxyFactory',
 ];
 
 /**
@@ -43,7 +45,7 @@ export const getArtifact = (contract: string): artifacts.ContractArtifact<Contra
       return artifacts.chainlinkConversionPath;
     case 'Erc20ConversionProxy':
       return artifacts.erc20ConversionProxy;
-    case 'ETHConversionProxy':
+    case 'EthConversionProxy':
       return artifacts.ethConversionArtifact;
     case 'ERC20SwapToPay':
       return artifacts.erc20SwapToPayArtifact;
@@ -55,6 +57,8 @@ export const getArtifact = (contract: string): artifacts.ContractArtifact<Contra
       return artifacts.batchConversionPaymentsArtifact;
     case 'ERC20TransferableReceivable':
       return artifacts.erc20TransferableReceivableArtifact;
+    case 'SingleRequestProxyFactory':
+      return artifacts.singleRequestForwarderFactoryArtifact;
     default:
       throw new Error('Contract unknown');
   }

@@ -1,4 +1,9 @@
-import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  CurrencyTypes,
+  ExtensionTypes,
+  IdentityTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import ReferenceBasedPaymentNetwork from './reference-based';
 import { areEqualIdentities, deepCopy, isValidAmount } from '@requestnetwork/utils';
 
@@ -10,11 +15,12 @@ export abstract class FeeReferenceBasedPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnFeeReferenceBased.ICreationParameters = ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
 > extends ReferenceBasedPaymentNetwork<TCreationParameters> {
   protected constructor(
+    currencyManager: CurrencyTypes.ICurrencyManager,
     extensionId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currentVersion: string,
     supportedCurrencyType: RequestLogicTypes.CURRENCY,
   ) {
-    super(extensionId, currentVersion, supportedCurrencyType);
+    super(currencyManager, extensionId, currentVersion, supportedCurrencyType);
     this.actions = {
       ...this.actions,
       [ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE]: this.applyAddFee.bind(this),
