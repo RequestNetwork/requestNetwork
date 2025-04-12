@@ -4,7 +4,7 @@ import { sha512 } from '@noble/hashes/sha2';
 import { aes256cbc } from '@ecies/ciphers/aes';
 
 /**
- * Decrypt the `eccrypto` way: using ECIES with AES-CDC-MAC and SHA-512 derivation.
+ * Decrypt the `eccrypto` way: using ECIES with AES-CBC-MAC and SHA-512 derivation.
  * Migrated from https://github.com/torusresearch/eccrypto/blob/923ebc03e5be016a7ee27a04d8c3b496ee949bfa/src/index.ts#L264
  * but using `@noble/curves` instead of `elliptics`
  */
@@ -38,7 +38,7 @@ const deriveSharedKeyWithSha512 = (
 };
 
 /**
- * Split a legacy-encrypted string to its AES-CDC-MAC params.
+ * Split a legacy-encrypted string to its AES-CBC-MAC params.
  * See legacy way of generating an encrypted strings with the `@toruslabs/eccrypto` > `elliptic` library:
  * https://github.com/RequestNetwork/requestNetwork/blob/4597d373b0284787273471cf306dd9b849c9f76a/packages/utils/src/crypto/ec-utils.ts#L141
  */

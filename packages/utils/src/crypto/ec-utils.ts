@@ -1,8 +1,6 @@
-import { ethers } from 'ethers';
-
 import { decrypt, ECIES_CONFIG, encrypt, PublicKey } from 'eciesjs';
 import { secp256k1 } from '@noble/curves/secp256k1';
-import { computeAddress } from 'ethers/lib/utils';
+import { computeAddress, hexlify } from 'ethers/lib/utils';
 import { ecDecryptLegacy } from './ec-utils-legacy';
 
 /**
@@ -34,7 +32,7 @@ function getAddressFromPrivateKey(privateKey: string): string {
     if (!privateKey.match(/^0x/)) {
       privateKey = `0x` + privateKey;
     }
-    return ethers.utils.computeAddress(ethers.utils.hexlify(privateKey));
+    return computeAddress(hexlify(privateKey));
   } catch (e) {
     if (
       e.message === 'private key length is invalid' ||
@@ -56,7 +54,7 @@ function getAddressFromPrivateKey(privateKey: string): string {
  */
 function getAddressFromPublicKey(publicKeyHex: string): string {
   try {
-    return ethers.utils.computeAddress(`0x${PublicKey.fromHex(publicKeyHex).toHex(true)}`);
+    return computeAddress(`0x${PublicKey.fromHex(publicKeyHex).toHex(true)}`);
   } catch (e) {
     if (e.code === 'INVALID_ARGUMENT' || e.message === 'second arg must be public key') {
       throw new Error('The public key must be a string representing 64 bytes');
