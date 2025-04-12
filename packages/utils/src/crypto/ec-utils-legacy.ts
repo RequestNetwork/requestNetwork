@@ -3,6 +3,11 @@ import { secp256k1 } from '@noble/curves/secp256k1';
 import { sha512 } from '@noble/hashes/sha2';
 import { aes256cbc } from '@ecies/ciphers/aes';
 
+/**
+ * Decrypt the `eccrypto` way: using ECIES with AES-CDC-MAC and SHA-512 derivation.
+ * Migrated from https://github.com/torusresearch/eccrypto/blob/923ebc03e5be016a7ee27a04d8c3b496ee949bfa/src/index.ts#L264
+ * but using `@noble/curves` instead of `elliptics`
+ */
 export const ecDecryptLegacy = (privateKey: string, data: string, padded = false): string => {
   try {
     const { iv, ciphertext, ephemPublicKey } = legacyAes256CbcMacSplit(data);
@@ -27,8 +32,9 @@ const deriveSharedKeyWithSha512 = (
   padded = false,
 ): Uint8Array => {
   const sharedPoint = secp256k1.getSharedSecret(privateKey.secret, publicKey.toBytes());
-  const paddedBytes = padded ? sharedPoint.slice(1) : sharedPoint.slice(16, 64);
-  return new Uint8Array(sha512.create().update(paddedBytes).digest());
+  const paddedBytes = padded ? sharedPoint.slice(1) : sharedPoint.slice(2);
+  const hash = sha512.create().update(paddedBytes).digest();
+  return new Uint8Array(hash);
 };
 
 /**

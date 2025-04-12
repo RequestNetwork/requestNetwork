@@ -6,8 +6,8 @@ import {
   getAddressFromPrivateKey,
   getAddressFromPublicKey,
 } from '../../src';
-import { eccryptoNativeData } from './data/crypto-native';
 import { eccryptoBrowserData } from './data/crypto-browser';
+import { eccryptoNativeData } from './data/crypto-native';
 
 const rawId = {
   address: '0x818B6337657A23F58581715Fc610577292e521D0',
