@@ -3,23 +3,32 @@ import { secp256k1 } from '@noble/curves/secp256k1';
 import { sha512 } from '@noble/hashes/sha2';
 import { aes256cbc } from '@ecies/ciphers/aes';
 
-export const ecDecryptLegacy = (privateKey: string, data: string): string => {
-  const { iv, ciphertext, ephemPublicKey } = legacyAes256CbcMacSplit(data);
-  const receiverPrivateKey = PrivateKey.fromHex(privateKey.replace(/^0x/, ''));
-  const sharedKey = deriveSharedKeyWithSha512(receiverPrivateKey, ephemPublicKey, false);
-  const decrypted = aes256cbc(sharedKey.slice(0, 32), iv).decrypt(ciphertext);
-  return Buffer.from(decrypted).toString();
+export const ecDecryptLegacy = (privateKey: string, data: string, padded = false): string => {
+  try {
+    const { iv, ciphertext, ephemPublicKey } = legacyAes256CbcMacSplit(data);
+    const receiverPrivateKey = PrivateKey.fromHex(privateKey.replace(/^0x/, ''));
+    const sharedKey = deriveSharedKeyWithSha512(receiverPrivateKey, ephemPublicKey, padded);
+    const decrypted = aes256cbc(sharedKey.slice(0, 32), iv).decrypt(ciphertext);
+    return Buffer.from(decrypted).toString();
+  } catch (e) {
+    if (e.message === 'error:1C80006B:Provider routines::wrong final block length') {
+      throw new Error('The encrypted data is not well formatted');
+    }
+    if (e.message === 'error:1C800064:Provider routines::bad decrypt' && !padded) {
+      return ecDecryptLegacy(privateKey, data, true);
+    }
+    throw e;
+  }
 };
 
 const deriveSharedKeyWithSha512 = (
   privateKey: PrivateKey,
   publicKey: PublicKey,
-  compressed = false,
+  padded = false,
 ): Uint8Array => {
-  const sharedPoint = secp256k1
-    .getSharedSecret(privateKey.secret, publicKey.toBytes(compressed))
-    .subarray(1);
-  return new Uint8Array(sha512.create().update(sharedPoint).digest());
+  const sharedPoint = secp256k1.getSharedSecret(privateKey.secret, publicKey.toBytes()).subarray(1);
+  const paddedBytes = padded ? sharedPoint.subarray(16, 64) : sharedPoint;
+  return new Uint8Array(sha512.create().update(paddedBytes).digest());
 };
 
 /**

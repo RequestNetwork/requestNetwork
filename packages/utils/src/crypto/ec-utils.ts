@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import { decrypt, ECIES_CONFIG, encrypt, PublicKey } from 'eciesjs';
 import { secp256k1 } from '@noble/curves/secp256k1';
 import { computeAddress } from 'ethers/lib/utils';
+import { ecDecryptLegacy } from './ec-utils-legacy';
 
 /**
  * Function to manage Elliptic-curve cryptography
@@ -142,11 +143,12 @@ function ecEncrypt(publicKey: string, data: string): string {
  */
 function ecDecrypt(privateKey: string, data: string): string {
   try {
-    if (!data.startsWith('04')) {
-      data = `04${data}`;
-    }
-    return decrypt(privateKey.replace(/^0x/, ''), Buffer.from(data, 'hex')).toString();
+    const paddedData = data.startsWith('04') ? data : `04${data}`;
+    return decrypt(privateKey.replace(/^0x/, ''), Buffer.from(paddedData, 'hex')).toString();
   } catch (e) {
+    if (e.message === 'bad point: equation left != right') {
+      return ecDecryptLegacy(privateKey, data);
+    }
     if (e.message === 'Invalid private key') {
       throw new Error('The private key must be a string representing 32 bytes');
     }
