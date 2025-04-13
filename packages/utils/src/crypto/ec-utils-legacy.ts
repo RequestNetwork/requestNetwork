@@ -9,8 +9,8 @@ import { hmac } from '@noble/hashes/hmac';
  * Migrated from https://github.com/torusresearch/eccrypto/blob/923ebc03e5be016a7ee27a04d8c3b496ee949bfa/src/index.ts#L264
  * but using `@noble/curves` instead of `elliptics`
  */
-export const ecDecryptLegacy = (privateKey: string, data: string, padding = false): string => {
-  const { iv, ephemPublicKey, mac, ciphertext } = legacyAes256CbcMacSplit(data);
+export const ecDecryptLegacy = (privateKey: string, dataHex: string, padding = false): string => {
+  const { iv, ephemPublicKey, mac, ciphertext } = legacyAes256CbcMacSplit(dataHex);
   const receiverPrivateKey = PrivateKey.fromHex(privateKey.replace(/^0x/, ''));
   const sharedKey = deriveSharedKeyWithSha512(receiverPrivateKey, ephemPublicKey, padding);
   const encryptionKey = sharedKey.subarray(0, 32);
@@ -19,7 +19,7 @@ export const ecDecryptLegacy = (privateKey: string, data: string, padding = fals
   const macGood = hmacSha256Verify(macKey, dataToMac, mac);
   if (!macGood) {
     if (!padding) {
-      return ecDecryptLegacy(privateKey, data, true);
+      return ecDecryptLegacy(privateKey, dataHex, true);
     }
     throw new Error('The encrypted data is not well formatted');
   }
@@ -56,12 +56,12 @@ const deriveSharedKeyWithSha512 = (
 };
 
 /**
- * Split a legacy-encrypted string to its AES-CBC-MAC params.
+ * Split a legacy-encrypted hex string to its AES-CBC-MAC params.
  * See legacy way of generating an encrypted strings with the `@toruslabs/eccrypto` > `elliptic` library:
  * https://github.com/RequestNetwork/requestNetwork/blob/4597d373b0284787273471cf306dd9b849c9f76a/packages/utils/src/crypto/ec-utils.ts#L141
  */
-const legacyAes256CbcMacSplit = (str: string) => {
-  const buffer = Buffer.from(str, 'hex');
+const legacyAes256CbcMacSplit = (dataHex: string) => {
+  const buffer = Buffer.from(dataHex, 'hex');
 
   const ivSize = 16;
   const ephemPublicKeySize = 33;

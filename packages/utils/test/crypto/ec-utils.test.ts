@@ -1,3 +1,4 @@
+import { randomBytes } from '@noble/hashes/utils';
 import {
   ecDecrypt,
   ecEncrypt,
@@ -8,6 +9,7 @@ import {
 } from '../../src';
 import { eccryptoBrowserData } from './data/crypto-browser';
 import { eccryptoNativeData } from './data/crypto-native';
+import { PrivateKey } from 'eciesjs';
 
 const rawId = {
   address: '0x818B6337657A23F58581715Fc610577292e521D0',
@@ -90,7 +92,7 @@ describe('Utils/EcUtils', () => {
   describe('encrypt', () => {
     it('can encrypt', async () => {
       const encryptedData = ecEncrypt(rawId.publicKey, anyData);
-      expect(encryptedData.length).toBe(226);
+      expect(encryptedData.length).toBe(228);
       expect(ecDecrypt(rawId.privateKey, encryptedData)).toBe(anyData);
     });
 
@@ -99,7 +101,7 @@ describe('Utils/EcUtils', () => {
         '0396212fc129c2f78771218b2e93da7a5aac63490a42bb41b97848c39c14fe65cd',
         anyData,
       );
-      expect(encryptedData.length).toBe(226);
+      expect(encryptedData.length).toBe(228);
     });
 
     it('cannot encrypt data with a wrong public key', async () => {
@@ -113,9 +115,19 @@ describe('Utils/EcUtils', () => {
     it('can decrypt', async () => {
       const data = ecDecrypt(
         rawId.privateKey,
-        '2ed3fe634d39892603c2d121d538ce0fdc7e80e4991858fbc816b49849041a726617c34226a7c61a9a217a077e8233812623e18dfbda0209e524751665aefe409b26117853d35ba6d00085dd368dadf44fcbf38c749b276184aa669d8db77d535b62e6cc874eec6bc004bce4f05c9f67c3',
+        '04f5ef23cfd828b7910d7c909eef047729b0cb986ebf4ba12ce877ec455863c6b9350e06f3f51479fa6b0a3feeb4c9f6fa808d4e6393d570627636642df35b1f85d59bb5bd78fdbaacaaa557c7d472ff7c5bbf8d8df59c0bd5d856831f1c0bcb77ad55bd82149a3bcb729f534fcdb62efa64',
       );
       expect(data).toBe(anyData);
+    });
+
+    it('can decrypt random data', async () => {
+      for (let i = 0; i < 10; i++) {
+        const privateKey = new PrivateKey();
+        const data = Buffer.from(randomBytes(32)).toString('hex');
+        const encrypted = ecEncrypt(privateKey.publicKey.toHex(Math.random() >= 0.5), data);
+        const decrypted = ecDecrypt(privateKey.secret.toString('hex'), encrypted);
+        expect(decrypted).toBe(data);
+      }
     });
 
     describe('legacy dataset (AES-CBC-MAC)', () => {

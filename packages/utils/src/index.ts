@@ -15,7 +15,6 @@ export {
   encryptWithAes256gcm,
   random32Bytes,
   ecDecrypt,
-  ecDecryptLegacy,
   ecEncrypt,
   getAddressFromPrivateKey,
   getAddressFromPublicKey,

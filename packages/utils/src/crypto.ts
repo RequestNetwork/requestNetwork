@@ -15,7 +15,6 @@ import {
   getAddressFromPrivateKey,
   getAddressFromPublicKey,
 } from './crypto/ec-utils';
-import { ecDecryptLegacy } from './crypto/ec-utils-legacy';
 import { deepSort } from './utils';
 
 /**
@@ -28,7 +27,6 @@ export {
   encryptWithAes256gcm,
   random32Bytes,
   ecDecrypt,
-  ecDecryptLegacy,
   ecEncrypt,
   getAddressFromPrivateKey,
   getAddressFromPublicKey,

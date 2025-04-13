@@ -59,7 +59,8 @@ function getAddressFromPrivateKey(privateKey: string): string {
  */
 function getAddressFromPublicKey(publicKey: string): string {
   try {
-    return computeAddress(`0x${PublicKey.fromHex(publicKey).toHex(true)}`);
+    const compressedKey = PublicKey.fromHex(publicKey).toHex(true);
+    return computeAddress(`0x${compressedKey}`);
   } catch (e) {
     if (e.code === 'INVALID_ARGUMENT' || e.message === 'second arg must be public key') {
       throw new Error('The public key must be a string representing 64 bytes');
@@ -113,11 +114,11 @@ function ecRecover(signature: string, data: string): string {
  * @param publicKey the public key to encrypt with
  * @param data the data to encrypt
  *
- * @returns the encrypted data
+ * @returns the encrypted data as a hex string
  */
 function ecEncrypt(publicKey: string, data: string): string {
   try {
-    return encrypt(publicKey, Buffer.from(data)).toString('hex').slice(2);
+    return encrypt(publicKey, Buffer.from(data)).toString('hex');
   } catch (e) {
     if (e.message === 'second arg must be public key') {
       throw new Error('The public key must be a string representing 64 bytes');
@@ -130,17 +131,16 @@ function ecEncrypt(publicKey: string, data: string): string {
  * Function to decrypt data with a public key
  *
  * @param privateKey the private key to decrypt with
- * @param data the data to decrypt
+ * @param dataHex the hex data to decrypt
  *
  * @returns the decrypted data
  */
-function ecDecrypt(privateKey: string, data: string): string {
+function ecDecrypt(privateKey: string, dataHex: string): string {
   try {
-    const paddedData = data.startsWith('04') ? data : `04${data}`;
-    return decrypt(privateKey.replace(/^0x/, ''), Buffer.from(paddedData, 'hex')).toString();
+    return decrypt(privateKey.replace(/^0x/, ''), Buffer.from(dataHex, 'hex')).toString();
   } catch (e) {
-    if (e.message === 'bad point: equation left != right') {
-      return ecDecryptLegacy(privateKey, data);
+    if (e.message.startsWith('invalid Point')) {
+      return ecDecryptLegacy(privateKey, dataHex);
     }
     if (e.message === 'Invalid private key') {
       throw new Error('The private key must be a string representing 32 bytes');
