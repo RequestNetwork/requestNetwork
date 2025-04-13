@@ -53,13 +53,13 @@ function getAddressFromPrivateKey(privateKey: string): string {
 /**
  * Function to derive the address from an EC public key
  *
- * @param publicKeyHex the public key to derive
+ * @param publicKey the public key to derive
  *
  * @returns the address
  */
-function getAddressFromPublicKey(publicKeyHex: string): string {
+function getAddressFromPublicKey(publicKey: string): string {
   try {
-    return computeAddress(`0x${PublicKey.fromHex(publicKeyHex).toHex(true)}`);
+    return computeAddress(`0x${PublicKey.fromHex(publicKey).toHex(true)}`);
   } catch (e) {
     if (e.code === 'INVALID_ARGUMENT' || e.message === 'second arg must be public key') {
       throw new Error('The public key must be a string representing 64 bytes');
