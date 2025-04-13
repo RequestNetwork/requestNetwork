@@ -1,38 +1,56 @@
 import { PrivateKey, PublicKey } from 'eciesjs';
 import { secp256k1 } from '@noble/curves/secp256k1';
-import { sha512 } from '@noble/hashes/sha2';
+import { sha256, sha512 } from '@noble/hashes/sha2';
 import { aes256cbc } from '@ecies/ciphers/aes';
+import { hmac } from '@noble/hashes/hmac';
 
 /**
  * Decrypt the `eccrypto` way: using ECIES with AES-CBC-MAC and SHA-512 derivation.
  * Migrated from https://github.com/torusresearch/eccrypto/blob/923ebc03e5be016a7ee27a04d8c3b496ee949bfa/src/index.ts#L264
  * but using `@noble/curves` instead of `elliptics`
  */
-export const ecDecryptLegacy = (privateKey: string, data: string, padded = false): string => {
-  try {
-    const { iv, ciphertext, ephemPublicKey } = legacyAes256CbcMacSplit(data);
-    const receiverPrivateKey = PrivateKey.fromHex(privateKey.replace(/^0x/, ''));
-    const sharedKey = deriveSharedKeyWithSha512(receiverPrivateKey, ephemPublicKey, padded);
-    const decrypted = aes256cbc(sharedKey.subarray(0, 32), iv).decrypt(ciphertext);
-    return Buffer.from(decrypted).toString();
-  } catch (e) {
-    if (e.message === 'error:1C80006B:Provider routines::wrong final block length') {
-      throw new Error('The encrypted data is not well formatted');
-    }
-    if (e.message === 'error:1C800064:Provider routines::bad decrypt' && !padded) {
+export const ecDecryptLegacy = (privateKey: string, data: string, padding = false): string => {
+  const { iv, ephemPublicKey, mac, ciphertext } = legacyAes256CbcMacSplit(data);
+  const receiverPrivateKey = PrivateKey.fromHex(privateKey.replace(/^0x/, ''));
+  const sharedKey = deriveSharedKeyWithSha512(receiverPrivateKey, ephemPublicKey, padding);
+  const encryptionKey = sharedKey.subarray(0, 32);
+  const macKey = sharedKey.subarray(32);
+  const dataToMac = Buffer.concat([iv, ephemPublicKey.toBytes(false), ciphertext]);
+  const macGood = hmacSha256Verify(macKey, dataToMac, mac);
+  if (!macGood) {
+    if (!padding) {
       return ecDecryptLegacy(privateKey, data, true);
     }
-    throw e;
+    throw new Error('The encrypted data is not well formatted');
   }
+  const decrypted = aes256cbc(encryptionKey, iv).decrypt(ciphertext);
+  return Buffer.from(decrypted).toString();
+};
+
+const hmacSha256Verify = (key: Uint8Array, msg: Uint8Array, sig: Uint8Array): boolean => {
+  const expectedSig = hmac(sha256, key, msg);
+  return equalConstTime(expectedSig, sig);
+};
+
+// Compare two buffers in constant time to prevent timing attacks.
+const equalConstTime = (b1: Uint8Array, b2: Uint8Array): boolean => {
+  if (b1.length !== b2.length) {
+    return false;
+  }
+  let res = 0;
+  for (let i = 0; i < b1.length; i++) {
+    res |= b1[i] ^ b2[i];
+  }
+  return res === 0;
 };
 
 const deriveSharedKeyWithSha512 = (
   privateKey: PrivateKey,
   publicKey: PublicKey,
-  padded = false,
+  padding = false,
 ): Uint8Array => {
   const sharedPoint = secp256k1.getSharedSecret(privateKey.secret, publicKey.toBytes());
-  const paddedBytes = padded ? sharedPoint.subarray(1) : sharedPoint.subarray(2);
+  const paddedBytes = padding ? sharedPoint.subarray(1) : sharedPoint.subarray(2);
   const hash = sha512.create().update(paddedBytes).digest();
   return new Uint8Array(hash);
 };
@@ -56,8 +74,8 @@ const legacyAes256CbcMacSplit = (str: string) => {
 
   return {
     iv: buffer.subarray(0, ivSize),
+    ephemPublicKey,
     mac: buffer.subarray(ephemPublicKeyEnd, macEnd),
     ciphertext: buffer.subarray(macEnd),
-    ephemPublicKey,
   };
 };
