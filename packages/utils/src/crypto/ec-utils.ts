@@ -67,15 +67,16 @@ function getAddressFromPublicKey(publicKeyHex: string): string {
  * Function ecSign data with ECDSA
  *
  * @param privateKey the private key used to sign the message
- * @param dataHash the data to sign
+ * @param data the data to sign
  *
  * @returns the signature
  */
-function ecSign(privateKey: string, dataHash: string): string {
+function ecSign(privateKey: string, data: string): string {
   try {
-    privateKey = privateKey.replace(/^0x/, '');
-    dataHash = dataHash.replace(/^0x/, '');
-    return `0x${secp256k1.sign(dataHash, privateKey).toCompactHex()}1b`;
+    const privateKeyHex = privateKey.replace(/^0x/, '');
+    const dataHex = data.replace(/^0x/, '');
+    const signature = secp256k1.sign(dataHex, privateKeyHex);
+    return `0x${signature.toCompactHex()}${signature.recovery ? '1c' : '1b'}`;
   } catch (e) {
     if (e.message === 'invalid private key, expected hex or 32 bytes, got string') {
       throw new Error('The private key must be a string representing 32 bytes');
@@ -87,23 +88,23 @@ function ecSign(privateKey: string, dataHash: string): string {
 /**
  * Function to recover address from a signature
  *
- * @param signatureHex the signature
- * @param dataHash the data signed
+ * @param signature the signature
+ * @param data the data signed
  *
  * @returns the address
  */
-function ecRecover(signatureHex: string, dataHash: string): string {
+function ecRecover(signature: string, data: string): string {
   try {
-    signatureHex = signatureHex.replace(/^0x/, '');
-    dataHash = dataHash.replace(/^0x/, '');
+    const signatureHex = signature.replace(/^0x/, '');
+    data = data.replace(/^0x/, '');
 
     const sigOnly = signatureHex.substring(0, signatureHex.length - 2); // all but last 2 chars
     const vValue = signatureHex.slice(-2); // last 2 chars
     const recoveryNumber = vValue === '1c' ? 1 : 0;
 
-    const signature = secp256k1.Signature.fromCompact(sigOnly);
-    const signatureRecover = signature.addRecoveryBit(recoveryNumber);
-    return computeAddress(`0x${signatureRecover.recoverPublicKey(dataHash).toHex()}`);
+    const signatureObj = secp256k1.Signature.fromCompact(sigOnly);
+    const signatureRecover = signatureObj.addRecoveryBit(recoveryNumber);
+    return computeAddress(`0x${signatureRecover.recoverPublicKey(data).toHex()}`);
   } catch (e) {
     if (e.message === 'compactSignature of length 64 expected, got 0') {
       throw new Error('The signature must be a string representing 66 bytes');
