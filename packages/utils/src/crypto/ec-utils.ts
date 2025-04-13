@@ -1,6 +1,11 @@
 import { decrypt, ECIES_CONFIG, encrypt, PublicKey } from 'eciesjs';
-import { secp256k1 } from '@noble/curves/secp256k1';
-import { computeAddress, hexlify } from 'ethers/lib/utils';
+import {
+  computeAddress,
+  hexlify,
+  joinSignature,
+  recoverPublicKey,
+  SigningKey,
+} from 'ethers/lib/utils';
 import { ecDecryptLegacy } from './ec-utils-legacy';
 
 /**
@@ -73,12 +78,10 @@ function getAddressFromPublicKey(publicKeyHex: string): string {
  */
 function ecSign(privateKey: string, data: string): string {
   try {
-    const privateKeyHex = privateKey.replace(/^0x/, '');
-    const dataHex = data.replace(/^0x/, '');
-    const signature = secp256k1.sign(dataHex, privateKeyHex);
-    return `0x${signature.toCompactHex()}${signature.recovery ? '1c' : '1b'}`;
+    const signingKey = new SigningKey(privateKey);
+    return joinSignature(signingKey.signDigest(data));
   } catch (e) {
-    if (e.message === 'invalid private key, expected hex or 32 bytes, got string') {
+    if (e.code === 'INVALID_ARGUMENT') {
       throw new Error('The private key must be a string representing 32 bytes');
     }
     throw e;
@@ -95,18 +98,9 @@ function ecSign(privateKey: string, data: string): string {
  */
 function ecRecover(signature: string, data: string): string {
   try {
-    const signatureHex = signature.replace(/^0x/, '');
-    data = data.replace(/^0x/, '');
-
-    const sigOnly = signatureHex.substring(0, signatureHex.length - 2); // all but last 2 chars
-    const vValue = signatureHex.slice(-2); // last 2 chars
-    const recoveryNumber = vValue === '1c' ? 1 : 0;
-
-    const signatureObj = secp256k1.Signature.fromCompact(sigOnly);
-    const signatureRecover = signatureObj.addRecoveryBit(recoveryNumber);
-    return computeAddress(`0x${signatureRecover.recoverPublicKey(data).toHex()}`);
+    return computeAddress(recoverPublicKey(data, signature));
   } catch (e) {
-    if (e.message === 'compactSignature of length 64 expected, got 0') {
+    if (e.code === 'INVALID_ARGUMENT') {
       throw new Error('The signature must be a string representing 66 bytes');
     }
     throw e;
