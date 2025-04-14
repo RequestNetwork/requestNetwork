@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es2015",
     "module": "commonjs",
+    "moduleResolution": "node16",
     "importHelpers": true,
     "composite": true,
     "declaration": true,
@@ -10,7 +11,6 @@
     "strict": true,
     "baseUrl": "./packages",
     "skipLibCheck": true,
-    "moduleResolution": "node",
     "resolveJsonModule": true,
     "useUnknownInCatchVariables": false,
     "lib": ["es2019"]

@@ -56,7 +56,7 @@
     "@requestnetwork/utils": "0.54.0",
     "chalk": "4.1.0",
     "cors": "2.8.5",
-    "dotenv": "8.2.0",
+    "dotenv": "16.5.0",
     "ethers": "5.7.2",
     "express": "4.21.0",
     "graphql": "16.8.1",
@@ -90,7 +90,7 @@
     "ts-jest": "29.1.0",
     "ts-node": "10.9.1",
     "ts-node-dev": "1.0.0-pre.62",
-    "typescript": "5.1.3"
+    "typescript": "5.8.3"
   },
   "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }
