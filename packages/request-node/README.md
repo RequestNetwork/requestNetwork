@@ -221,42 +221,25 @@ Default values correspond to the basic configuration used to run a server in a t
 
 #### Options:
 
-- `--port` Port for the server to listen for API requests
-  - Default value: `3000`
-  - Environment variable name: `$PORT`
-- `--networkId` Id of the Ethereum network used
-  - Default value: `0`
-  - Environment variable name: `$ETHEREUM_NETWORK_ID`
-- `--providerUrl` URL of the web3 provider for Ethereum
-  - Default value: `http://localhost:8545`
-  - Environment variable name: `$WEB3_PROVIDER_URL`
-- `--ipfsUrl` URL of the IPFS gateway
-  - Default value: `http://localhost:5001`
-  - Environment variable name: `$IPFS_URL`
-- `--ipfsTimeout` Timeout threshold to connect to the IPFS gateway
-  - Default value: `10000`
-  - Environment variable name: `$IPFS_TIMEOUT`
-- `--blockConfirmations` The number of block confirmations to consider a transaction successful
-  - Default value: `2`
-  - Environment variable name: `$BLOCK_CONFIRMATIONS`
-- `--storageConcurrency` Maximum number of concurrent calls to Ethereum or IPFS
-  - Default value: `'200'`
-  - Environment variable name: `$STORAGE_MAX_CONCURRENCY`
-- `--logLevel` The maximum level of messages we will log
-  - Environment variable name: `$LOG_LEVEL`
-  - Available levels: ERROR, WARN, INFO and DEBUG
-- `--logMode` Defines the log format to use
-  - Environment variable name: `$LOG_MODE`
-  - Available modes:
-    - `human` is a more human readable log to display during development
-    - `machine` is better for parsing on CI or deployments
-- `--persistTransactionTimeout` Defines the delay in seconds to wait before sending a timeout when creating or updating a request
-  - Default value: 600
-  - Environment variable name: `$PERSIST_TRANSACTION_TIMEOUT`
-- `--externalUrl` External url of the node (used to identified where the buffer data are stored before being broadcasted on ethereum)
-  - Environment variable name: `$EXTERNAL_URL`
-- `--graphNodeUrl` External url of the Graph node, if any. If specified, this will replace the traditional data access with the Graph implementation. Default is undefined. See [TheGraph mode](#thegraph-mode).
-  - Environment variable name: `$GRAPH_NODE_URL`
+| Option                           | Environment Variable              | Description                                                                                       | Required                             | Default Value                       |
+| -------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------ | ----------------------------------- |
+| `--port`                         | `PORT`                            | Port for the server to listen for API requests                                                    | No                                   | `3000`                              |
+| `--networkId`                    | `ETHEREUM_NETWORK_ID`             | Id of the Ethereum network used                                                                   | No                                   | `0`                                 |
+| `--providerUrl`                  | `WEB3_PROVIDER_URL`               | URL of the web3 provider for Ethereum                                                             | No                                   | `http://localhost:8545`             |
+| `--ipfsUrl`                      | `IPFS_URL`                        | URL of the IPFS gateway                                                                           | No                                   | `http://localhost:5001`             |
+| `--ipfsTimeout`                  | `IPFS_TIMEOUT`                    | Timeout threshold to connect to the IPFS gateway                                                  | No                                   | `10000`                             |
+| `--blockConfirmations`           | `BLOCK_CONFIRMATIONS`             | The number of block confirmations to consider a transaction successful                            | No                                   | `2`                                 |
+| `--storageConcurrency`           | `STORAGE_MAX_CONCURRENCY`         | Maximum number of concurrent calls to Ethereum or IPFS                                            | No                                   | `200`                               |
+| `--logLevel`                     | `LOG_LEVEL`                       | The maximum level of messages we will log (ERROR, WARN, INFO or DEBUG)                            | No                                   | `INFO`                              |
+| `--logMode`                      | `LOG_MODE`                        | The log format to use (human or machine)                                                          | No                                   | `human`                             |
+| `--persistTransactionTimeout`    | `PERSIST_TRANSACTION_TIMEOUT`     | Defines the delay in seconds to wait before sending a timeout when creating or updating a request | No                                   | `600`                               |
+| `--externalUrl`                  | `EXTERNAL_URL`                    | External url of the node (used to identify where the buffer data are stored)                      | No                                   | -                                   |
+| `--graphNodeUrl`                 | `GRAPH_NODE_URL`                  | External url of the Graph node. See [TheGraph mode](#thegraph-mode)                               | No                                   | -                                   |
+| `--thirdwebEngineUrl`            | `THIRDWEB_ENGINE_URL`             | URL of your Thirdweb Engine instance                                                              | **Yes**                              | -                                   |
+| `--thirdwebAccessToken`          | `THIRDWEB_ACCESS_TOKEN`           | Access token for Thirdweb Engine                                                                  | **Yes**                              | -                                   |
+| `--thirdwebBackendWalletAddress` | `THIRDWEB_BACKEND_WALLET_ADDRESS` | Address of the wallet configured in Thirdweb Engine                                               | **Yes**                              | -                                   |
+| `--thirdwebWebhookSecret`        | `THIRDWEB_WEBHOOK_SECRET`         | Secret for verifying webhook signatures                                                           | No                                   | -                                   |
+| -                                | `MNEMONIC`                        | The mnemonic for generating the wallet private key                                                | **Yes** (except on private networks) | `candy maple...` (only for testing) |
 
 #### Mnemonic
 
@@ -335,6 +318,25 @@ yarn start
 
 Open a browser and navigate towards: http://localhost:3000/status
 You can see the details of your local Request & IPFS nodes.
+
+## Thirdweb Engine Integration
+
+The Request Node uses Thirdweb Engine for transaction submission, which offers several advantages:
+
+- No need to manage private keys in the Request Node
+- Better transaction management and monitoring
+- Automated gas price optimization and retry mechanisms
+- Webhook notifications for transaction status
+
+### Setting Up Thirdweb Engine
+
+1. Deploy Thirdweb Engine by following the [official documentation](https://portal.thirdweb.com/engine/getting-started)
+2. Create a wallet in Thirdweb Engine for the Request Node
+3. Ensure the wallet has sufficient funds for gas costs
+4. Generate an access token with appropriate permissions
+5. Configure the Request Node with the required environment variables (see Options table above)
+
+**Note:** The Request Node no longer supports transaction submission through local wallets. All transactions are processed through Thirdweb Engine.
 
 ## Contributing
 

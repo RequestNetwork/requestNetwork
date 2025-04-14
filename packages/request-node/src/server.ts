@@ -8,6 +8,7 @@ import ConfirmedTransactionStore from './request/confirmedTransactionStore';
 import { EvmChains } from '@requestnetwork/currency';
 import { getEthereumStorageNetworkNameFromId } from '@requestnetwork/ethereum-storage';
 import { SubgraphClient } from '@requestnetwork/thegraph-data-access';
+import { StorageTypes } from '@requestnetwork/types';
 
 // Initialize the node logger
 const logger = new Logger(config.getLogLevel(), config.getLogMode());
@@ -21,10 +22,32 @@ const getNetwork = () => {
   return network;
 };
 
-export const getRequestNode = (): RequestNode => {
+// Initialize the data access layer
+async function initializeDataAccess(ipfsStorage: StorageTypes.IIpfsStorage) {
+  // Get configuration values
   const network = getNetwork();
-  const storage = getDataStorage(logger);
-  const dataAccess = getDataAccess(network, storage, logger);
+  const graphqlUrl = config.getGraphNodeUrl();
+  const blockConfirmations = config.getBlockConfirmations();
+
+  // Create data access with Thirdweb transaction submitter
+  const dataAccess = await getDataAccess(
+    network,
+    ipfsStorage,
+    logger,
+    graphqlUrl,
+    blockConfirmations,
+  );
+
+  return dataAccess;
+}
+
+export const getRequestNode = async (): Promise<RequestNode> => {
+  const network = getNetwork();
+  const ipfsStorage = getDataStorage(logger);
+  await ipfsStorage.initialize();
+
+  // Use the initialized data access
+  const dataAccess = await initializeDataAccess(ipfsStorage);
 
   // we access the subgraph client directly, not through the data access,
   // because this feature is specific to RN use with Request Node. Without a node,
@@ -34,12 +57,13 @@ export const getRequestNode = (): RequestNode => {
     network,
   );
 
-  return new RequestNode(dataAccess, storage, confirmedTransactionStore, logger);
+  return new RequestNode(dataAccess, ipfsStorage, confirmedTransactionStore, logger);
 };
 
+// Main server setup
 export const startNode = async (): Promise<void> => {
   const port = config.getServerPort();
-  const requestNode = getRequestNode();
+  const requestNode = await getRequestNode();
   const server = withShutdown(
     requestNode.listen(port, () => {
       logger.info(`Listening on port ${port}`);

@@ -1,49 +1,57 @@
-import { providers, Wallet } from 'ethers';
-import { NonceManager } from '@ethersproject/experimental';
-import { CurrencyTypes, DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
-
-import * as config from './config';
 import { TheGraphDataAccess } from '@requestnetwork/thegraph-data-access';
+import { EthereumStorage, ThirdwebTransactionSubmitter } from '@requestnetwork/ethereum-storage';
 import { PendingStore } from '@requestnetwork/data-access';
-import { EthereumStorage, EthereumTransactionSubmitter } from '@requestnetwork/ethereum-storage';
+import { LogTypes, StorageTypes } from '@requestnetwork/types';
+import * as config from './config';
 
-export function getDataAccess(
-  network: CurrencyTypes.EvmChainName,
+/**
+ * Creates and returns a data access instance
+ * @param network The Ethereum network to use
+ * @param ipfsStorage The IPFS storage instance
+ * @param logger Logger instance
+ * @param graphqlUrl GraphQL endpoint URL
+ * @param blockConfirmations Number of block confirmations to wait for
+ * @returns A data access instance
+ */
+export async function getDataAccess(
+  network: string,
   ipfsStorage: StorageTypes.IIpfsStorage,
   logger: LogTypes.ILogger,
-): DataAccessTypes.IDataAccess {
-  const graphNodeUrl = config.getGraphNodeUrl();
+  graphqlUrl: string,
+  blockConfirmations: number,
+): Promise<TheGraphDataAccess> {
+  // Validate that all required Thirdweb config options are set
+  config.validateThirdwebConfig();
 
-  const wallet = Wallet.fromMnemonic(config.getMnemonic()).connect(
-    new providers.StaticJsonRpcProvider(config.getStorageWeb3ProviderUrl()),
-  );
+  logger.info('Using Thirdweb Engine for transaction submission');
 
-  const signer = new NonceManager(wallet);
-
-  const gasPriceMin = config.getGasPriceMin();
-  const gasPriceMax = config.getGasPriceMax();
-  const gasPriceMultiplier = config.getGasPriceMultiplier();
-  const blockConfirmations = config.getBlockConfirmations();
-  const txSubmitter = new EthereumTransactionSubmitter({
+  // Create ThirdwebTransactionSubmitter
+  const txSubmitter = new ThirdwebTransactionSubmitter({
+    engineUrl: config.getThirdwebEngineUrl(),
+    accessToken: config.getThirdwebAccessToken(),
+    backendWalletAddress: config.getThirdwebBackendWalletAddress(),
     network,
     logger,
-    gasPriceMin,
-    gasPriceMax,
-    gasPriceMultiplier,
-    signer,
   });
-  const pendingStore = new PendingStore();
+
+  // Initialize the transaction submitter
+  await txSubmitter.initialize();
+
+  // Create Ethereum Storage with the transaction submitter
   const storage = new EthereumStorage({
     ipfsStorage,
     txSubmitter,
-    logger,
     blockConfirmations,
-  });
-  return new TheGraphDataAccess({
-    graphql: { url: graphNodeUrl },
-    storage,
-    network,
     logger,
-    pendingStore,
+  });
+
+  // Create and return TheGraphDataAccess
+  return new TheGraphDataAccess({
+    graphql: {
+      url: graphqlUrl,
+    },
+    storage,
+    pendingStore: new PendingStore(),
+    logger,
   });
 }
