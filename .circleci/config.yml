@@ -69,8 +69,8 @@ jobs:
           keys:
             - yarn-packages-{{ checksum "yarn.lock" }}
       - run:
-        name: Enable Corepack
-        command: sudo corepack enable
+          name: Enable Corepack
+          command: sudo corepack enable
       - run:
           name: Yarn install
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
