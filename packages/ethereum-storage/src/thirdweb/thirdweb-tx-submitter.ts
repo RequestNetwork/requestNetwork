@@ -18,6 +18,7 @@ export interface ThirdwebSubmitterOptions {
 
   /**
    * The address of the wallet configured in Thirdweb Engine
+   * This is the wallet that will sign and send transactions
    */
   backendWalletAddress: string;
 
@@ -33,14 +34,18 @@ export interface ThirdwebSubmitterOptions {
 }
 
 /**
- * Handles the submission of IPFS hashes through Thirdweb Engine
+ * Handles the submission of IPFS CID hashes using Thirdweb Engine.
+ * Thirdweb Engine manages transaction signing, fee estimation, and automatically
+ * handles retries for failed transactions.
  */
 export class ThirdwebTransactionSubmitter implements StorageTypes.ITransactionSubmitter {
   private readonly logger: LogTypes.ILogger;
   private readonly engine: Engine;
   private readonly backendWalletAddress: string;
-  private _network: string;
-  private _hashSubmitterAddress: string;
+
+  // Public variables instead of getters/setters
+  public network: string;
+  public hashSubmitterAddress: string;
 
   constructor({
     engineUrl,
@@ -55,31 +60,15 @@ export class ThirdwebTransactionSubmitter implements StorageTypes.ITransactionSu
       accessToken: accessToken,
     });
     this.backendWalletAddress = backendWalletAddress;
-    this._network = network;
+    this.network = network;
     // Get the hash submitter address for the specified network
-    this._hashSubmitterAddress = requestHashSubmitterArtifact.getAddress(network);
-  }
-
-  get network(): string {
-    return this._network;
-  }
-
-  set network(value: string) {
-    this._network = value;
-  }
-
-  get hashSubmitterAddress(): string {
-    return this._hashSubmitterAddress;
-  }
-
-  set hashSubmitterAddress(value: string) {
-    this._hashSubmitterAddress = value;
+    this.hashSubmitterAddress = requestHashSubmitterArtifact.getAddress(network);
   }
 
   async initialize(): Promise<void> {
-    const chainId = networkToChainId[this._network] || 1;
+    const chainId = networkToChainId[this.network] || 1;
     this.logger.info(
-      `Initializing ThirdwebTransactionSubmitter for network ${this._network} (chainId: ${chainId})`,
+      `Initializing ThirdwebTransactionSubmitter for network ${this.network} (chainId: ${chainId})`,
     );
 
     // Check Engine connection
@@ -93,12 +82,15 @@ export class ThirdwebTransactionSubmitter implements StorageTypes.ITransactionSu
   }
 
   /**
-   * Submits an IPFS hash via Thirdweb Engine
+   * Submits an IPFS CID hash via Thirdweb Engine
+   * @param ipfsHash - The IPFS CID hash to submit
+   * @param ipfsSize - The size of the data on IPFS
+   * @returns A transaction object compatible with ethers.js TransactionResponse interface
    */
   async submit(ipfsHash: string, ipfsSize: number): Promise<any> {
-    this.logger.info(`Submitting hash ${ipfsHash} with size ${ipfsSize} via Thirdweb Engine`);
+    this.logger.info(`Submitting IPFS CID ${ipfsHash} with size ${ipfsSize} via Thirdweb Engine`);
     const preparedTx = await this.prepareSubmit(ipfsHash, ipfsSize);
-    const chainId = networkToChainId[this._network] || 1;
+    const chainId = networkToChainId[this.network] || 1;
 
     try {
       const result = await this.engine.sendTransaction({
@@ -110,13 +102,71 @@ export class ThirdwebTransactionSubmitter implements StorageTypes.ITransactionSu
       });
 
       this.logger.info(`Transaction submitted successfully: ${result.transactionHash}`);
+
+      // Return a complete ethers.js TransactionResponse-compatible object for an EIP-1559 transaction
       return {
+        // Only available for mined transactions
+        blockHash: null,
+        blockNumber: null,
+        timestamp: Math.floor(Date.now() / 1000),
+        transactionIndex: null,
+
+        // Transaction details
         hash: result.transactionHash,
+        from: this.backendWalletAddress,
+        chainId,
+        to: preparedTx.to,
+        nonce: 0, // Not available from Thirdweb Engine
+        gasLimit: BigNumber.from(2000000),
+        gasPrice: null, // Not used in EIP-1559 transactions
+        data: preparedTx.data,
+        value: preparedTx.value || BigNumber.from(0),
+        confirmations: 1,
+
+        // EIP-1559 fields
+        maxPriorityFeePerGas: BigNumber.from(2000000000), // 2 Gwei tip
+        maxFeePerGas: BigNumber.from(50000000000), // 50 Gwei max fee
+
+        // Transaction type (2: EIP-1559)
+        type: 2,
+
+        // Signature components (not available)
+        r: '0x0000000000000000000000000000000000000000000000000000000000000000',
+        s: '0x0000000000000000000000000000000000000000000000000000000000000000',
+        v: 0,
+
+        /**
+         * Returns a promise that resolves to a transaction receipt.
+         *
+         * This implements a "fire and forget" pattern - we submit the transaction
+         * to Thirdweb Engine and immediately assume success without waiting for
+         * or confirming that the transaction is actually mined.
+         *
+         * We don't use polling or webhook notifications to track transaction status.
+         * Thirdweb Engine handles retries and gas price adjustments internally.
+         *
+         * @returns A simplified TransactionReceipt compatible with ethers.js
+         */
         wait: async () => {
-          // This function returns a promise that resolves when the transaction is mined
-          // Transaction status can be tracked either by polling the blockchain
-          // or by using webhook notifications from Thirdweb Engine
-          return { status: 1 };
+          return {
+            // TransactionReceipt properties
+            transactionHash: result.transactionHash,
+            blockNumber: 0,
+            blockHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+            confirmations: 1,
+            status: 1, // 1 = success
+            from: this.backendWalletAddress,
+            to: preparedTx.to,
+            contractAddress: null,
+            transactionIndex: 0,
+            gasUsed: BigNumber.from(0),
+            cumulativeGasUsed: BigNumber.from(0),
+            effectiveGasPrice: BigNumber.from(0),
+            logs: [],
+            logsBloom:
+              '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+            type: 2, // EIP-1559 transaction type
+          };
         },
       };
     } catch (error) {
@@ -126,15 +176,18 @@ export class ThirdwebTransactionSubmitter implements StorageTypes.ITransactionSu
   }
 
   /**
-   * Prepares the transaction for submitting an IPFS hash
+   * Prepares the transaction for submitting an IPFS CID hash
+   * @param ipfsHash - The IPFS CID hash to submit
+   * @param ipfsSize - The size of the data on IPFS
+   * @returns A transaction request object compatible with ethers.js
    */
   async prepareSubmit(ipfsHash: string, ipfsSize: number): Promise<any> {
     // Create contract interface for the hash submitter
     const iface = requestHashSubmitterArtifact.getInterface();
 
-    // Calculate fee - in a real implementation, you might want to fetch this from the contract
-    // For now, we assume it's 0 for simplicity
-    const fee = BigNumber.from(0);
+    // Get the fee from the contract
+    const hashSubmitter = requestHashSubmitterArtifact.connect(this.network);
+    const fee = await hashSubmitter.getFeesAmount(ipfsSize);
 
     // Encode function data
     const data = iface.encodeFunctionData('submitHash', [
