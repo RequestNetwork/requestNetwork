@@ -4,7 +4,7 @@ import { Engine } from '@thirdweb-dev/engine';
 import { SimpleLogger } from '@requestnetwork/utils';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import type { CurrencyTypes } from '@requestnetwork/types';
-import { getChainId, networkToChainId } from './types';
+import { getChainId } from './types';
 
 export interface ThirdwebSubmitterOptions {
   /**
@@ -79,18 +79,17 @@ export class ThirdwebTransactionSubmitter implements StorageTypes.ITransactionSu
   }
 
   async initialize(): Promise<void> {
-    const chainId = networkToChainId[this.network] || 1;
+    const chainId = getChainId(this.network);
     this.logger.info(
       `Initializing ThirdwebTransactionSubmitter for network ${this.network} (chainId: ${chainId})`,
     );
 
     // Check Engine connection
     try {
-      await this.engine.default.getOpenapiJson();
+      await this.engine.backendWallet.getBalance(chainId, this.backendWalletAddress);
       this.logger.info('Successfully connected to Thirdweb Engine');
     } catch (error) {
-      this.logger.error('Failed to connect to Thirdweb Engine', error);
-      throw new Error('Failed to connect to Thirdweb Engine');
+      throw new Error(`Failed to connect to Thirdweb Engine due to error: ${error}`);
     }
   }
 
