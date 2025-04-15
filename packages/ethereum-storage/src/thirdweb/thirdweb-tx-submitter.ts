@@ -1,9 +1,10 @@
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, utils, providers } from 'ethers';
 import { StorageTypes, LogTypes } from '@requestnetwork/types';
 import { Engine } from '@thirdweb-dev/engine';
 import { SimpleLogger } from '@requestnetwork/utils';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
-import { networkToChainId } from './types';
+import type { CurrencyTypes } from '@requestnetwork/types';
+import { getChainId, networkToChainId } from './types';
 
 export interface ThirdwebSubmitterOptions {
   /**
@@ -23,14 +24,19 @@ export interface ThirdwebSubmitterOptions {
   backendWalletAddress: string;
 
   /**
-   * Network name (e.g. 'mainnet', 'goerli', etc.)
+   * Network name (e.g. 'gnosis', 'sepolia', etc.)
    */
-  network: string;
+  network: CurrencyTypes.EvmChainName;
 
   /**
    * Optional logger instance
    */
   logger?: LogTypes.ILogger;
+
+  /**
+   * Optional RPC URL for the network. If not provided, will use default public RPC.
+   */
+  rpcUrl?: string;
 }
 
 /**
@@ -42,9 +48,10 @@ export class ThirdwebTransactionSubmitter implements StorageTypes.ITransactionSu
   private readonly logger: LogTypes.ILogger;
   private readonly engine: Engine;
   private readonly backendWalletAddress: string;
+  private readonly provider: providers.Provider;
 
   // Public variables instead of getters/setters
-  public network: string;
+  public network: CurrencyTypes.EvmChainName;
   public hashSubmitterAddress: string;
 
   constructor({
@@ -53,6 +60,7 @@ export class ThirdwebTransactionSubmitter implements StorageTypes.ITransactionSu
     backendWalletAddress,
     network,
     logger,
+    rpcUrl,
   }: ThirdwebSubmitterOptions) {
     this.logger = logger || new SimpleLogger();
     this.engine = new Engine({
@@ -63,6 +71,11 @@ export class ThirdwebTransactionSubmitter implements StorageTypes.ITransactionSu
     this.network = network;
     // Get the hash submitter address for the specified network
     this.hashSubmitterAddress = requestHashSubmitterArtifact.getAddress(network);
+
+    // Initialize provider with RPC URL if provided, otherwise use default network name
+    this.provider = rpcUrl
+      ? new providers.JsonRpcProvider(rpcUrl)
+      : providers.getDefaultProvider(network);
   }
 
   async initialize(): Promise<void> {
@@ -73,7 +86,7 @@ export class ThirdwebTransactionSubmitter implements StorageTypes.ITransactionSu
 
     // Check Engine connection
     try {
-      await this.engine.getWallets({});
+      await this.engine.default.getOpenapiJson();
       this.logger.info('Successfully connected to Thirdweb Engine');
     } catch (error) {
       this.logger.error('Failed to connect to Thirdweb Engine', error);
@@ -90,18 +103,20 @@ export class ThirdwebTransactionSubmitter implements StorageTypes.ITransactionSu
   async submit(ipfsHash: string, ipfsSize: number): Promise<any> {
     this.logger.info(`Submitting IPFS CID ${ipfsHash} with size ${ipfsSize} via Thirdweb Engine`);
     const preparedTx = await this.prepareSubmit(ipfsHash, ipfsSize);
-    const chainId = networkToChainId[this.network] || 1;
+    const chainId = getChainId(this.network);
 
     try {
-      const result = await this.engine.sendTransaction({
-        chainId: chainId,
-        fromAddress: this.backendWalletAddress,
-        toAddress: preparedTx.to,
-        data: preparedTx.data as string,
-        value: preparedTx.value ? preparedTx.value.toString() : '0',
-      });
+      const result = await this.engine.backendWallet.sendTransaction(
+        chainId,
+        this.backendWalletAddress,
+        {
+          toAddress: preparedTx.to,
+          data: preparedTx.data,
+          value: preparedTx.value ? preparedTx.value.toString() : '0',
+        },
+      );
 
-      this.logger.info(`Transaction submitted successfully: ${result.transactionHash}`);
+      this.logger.info(`Transaction submitted. Queue ID: ${result.result.queueId}`);
 
       // Return a complete ethers.js TransactionResponse-compatible object for an EIP-1559 transaction
       return {
@@ -112,7 +127,7 @@ export class ThirdwebTransactionSubmitter implements StorageTypes.ITransactionSu
         transactionIndex: null,
 
         // Transaction details
-        hash: result.transactionHash,
+        hash: '0x0000000000000000000000000000000000000000000000000000000000000000',
         from: this.backendWalletAddress,
         chainId,
         to: preparedTx.to,
@@ -150,7 +165,7 @@ export class ThirdwebTransactionSubmitter implements StorageTypes.ITransactionSu
         wait: async () => {
           return {
             // TransactionReceipt properties
-            transactionHash: result.transactionHash,
+            transactionHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
             blockNumber: 0,
             blockHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
             confirmations: 1,
@@ -185,8 +200,8 @@ export class ThirdwebTransactionSubmitter implements StorageTypes.ITransactionSu
     // Create contract interface for the hash submitter
     const iface = requestHashSubmitterArtifact.getInterface();
 
-    // Get the fee from the contract
-    const hashSubmitter = requestHashSubmitterArtifact.connect(this.network);
+    // Get the fee from the contract - now using provider
+    const hashSubmitter = requestHashSubmitterArtifact.connect(this.network, this.provider);
     const fee = await hashSubmitter.getFeesAmount(ipfsSize);
 
     // Encode function data

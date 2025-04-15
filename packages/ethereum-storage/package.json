@@ -44,6 +44,7 @@
     "@requestnetwork/smart-contracts": "0.48.0",
     "@requestnetwork/types": "0.54.0",
     "@requestnetwork/utils": "0.54.0",
+    "@thirdweb-dev/engine": "0.0.19",
     "ethers": "5.7.2",
     "form-data": "3.0.0",
     "qs": "6.11.2",

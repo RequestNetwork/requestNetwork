@@ -31,12 +31,12 @@ export interface ThirdwebEngineConfig {
 /**
  * Chain ID mapping for common networks
  */
-export const networkToChainId: Record<string, number> = {
-  mainnet: 1,
-  goerli: 5,
-  sepolia: 11155111,
-  xdai: 100,
-  private: 1337,
+export const networkToChainId: Record<string, string> = {
+  mainnet: '1',
+  goerli: '5',
+  sepolia: '11155111',
+  xdai: '100',
+  private: '1337',
 };
 
 /**
@@ -44,6 +44,6 @@ export const networkToChainId: Record<string, number> = {
  * @param network Network name
  * @returns Chain ID
  */
-export function getChainId(network: string): number {
-  return networkToChainId[network] || 1;
+export function getChainId(network: string): string {
+  return networkToChainId[network] || '1';
 }

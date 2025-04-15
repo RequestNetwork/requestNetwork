@@ -1,7 +1,7 @@
 import { TheGraphDataAccess } from '@requestnetwork/thegraph-data-access';
 import { EthereumStorage, ThirdwebTransactionSubmitter } from '@requestnetwork/ethereum-storage';
 import { PendingStore } from '@requestnetwork/data-access';
-import { LogTypes, StorageTypes } from '@requestnetwork/types';
+import { CurrencyTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 import * as config from './config';
 
 /**
@@ -9,15 +9,15 @@ import * as config from './config';
  * @param network The Ethereum network to use
  * @param ipfsStorage The IPFS storage instance
  * @param logger Logger instance
- * @param graphqlUrl GraphQL endpoint URL
+ * @param graphNodeUrl Graph Node endpoint URL
  * @param blockConfirmations Number of block confirmations to wait for
  * @returns A data access instance
  */
 export async function getDataAccess(
-  network: string,
+  network: CurrencyTypes.EvmChainName,
   ipfsStorage: StorageTypes.IIpfsStorage,
   logger: LogTypes.ILogger,
-  graphqlUrl: string,
+  graphNodeUrl: string,
   blockConfirmations: number,
 ): Promise<TheGraphDataAccess> {
   // Validate that all required Thirdweb config options are set
@@ -47,11 +47,10 @@ export async function getDataAccess(
 
   // Create and return TheGraphDataAccess
   return new TheGraphDataAccess({
-    graphql: {
-      url: graphqlUrl,
-    },
+    graphql: { url: graphNodeUrl },
     storage,
-    pendingStore: new PendingStore(),
+    network,
     logger,
+    pendingStore: new PendingStore(),
   });
 }

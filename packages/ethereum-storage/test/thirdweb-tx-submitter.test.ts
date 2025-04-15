@@ -2,7 +2,6 @@ import { ThirdwebTransactionSubmitter } from '../src/thirdweb/thirdweb-tx-submit
 import { Engine } from '@thirdweb-dev/engine';
 import { LogTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
-import { networkToChainId } from '../src/thirdweb/types';
 
 // Mock the Thirdweb Engine
 jest.mock('@thirdweb-dev/engine', () => {
