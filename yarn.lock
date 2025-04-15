@@ -3789,10 +3789,10 @@
   resolved "https://registry.npmjs.org/@graphql-typed-document-node/core/-/core-3.2.0.tgz"
   integrity sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==
 
-"@hinkal/common@0.2.9":
-  version "0.2.9"
-  resolved "https://registry.npmjs.org/@hinkal/common/-/common-0.2.9.tgz"
-  integrity sha512-rlzjeQ7obtil+tu4Bg28rUcmlLEGD8F/HFCIuuTlNFvlPq5rHROjqOQb9OAxnf12ID/IMNP7LT9s6LvoSYUbcA==
+"@hinkal/common@0.2.10":
+  version "0.2.10"
+  resolved "https://registry.yarnpkg.com/@hinkal/common/-/common-0.2.10.tgz#64d234ba10e8d050134a31dfe974cee6ec7abc6d"
+  integrity sha512-RcMNVOr69WA6qao5OIpfxyHtCnIuk/a4RmXAzIDkFWB+mmyeqtm83rZ6J6lYMn+7JFGP9zi3eX+wfWwTsHddKA==
   dependencies:
     async-mutex "^0.4.0"
     axios "^1.6.8"
