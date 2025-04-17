@@ -9,7 +9,8 @@ import { RequestConfig } from 'graphql-request/src/types';
 const THE_GRAPH_STUDIO_URL =
   'https://api.studio.thegraph.com/query/67444/request-payments-$NETWORK/version/latest';
 
-const THE_GRAPH_EXPLORER_URL = 'https://gateway.thegraph.com/api/$API_KEY/subgraphs/id/$NETWORK';
+const THE_GRAPH_EXPLORER_URL =
+  'https://gateway.thegraph.com/api/$API_KEY/subgraphs/id/$SUBGRAPH_ID';
 
 const THE_GRAPH_ALCHEMY_URL =
   'https://subgraph.satsuma-prod.com/e2e4905ab7c8/request-network--434873/request-payments-$NETWORK/api';
@@ -23,9 +24,20 @@ const THE_GRAPH_URL_MANTLE =
 const THE_GRAPH_URL_CORE =
   'https://thegraph.coredao.org/subgraphs/name/requestnetwork/request-payments-core';
 
-const THE_GRAPH_EXPLORER_SUBGRAPH_ID = {
-  mainnet: '5mXPGZRC2Caynh4NyVrTK72DAGB9dfcKmLsnxYWHQ9nd',
-  sepolia: '6e8Dcwt3cvsgNU3JYBtRQQ9Sj4P9VVVnXaPjJ3jUpYpY',
+const THE_GRAPH_ALCHEMY_CHAINS: CurrencyTypes.ChainName[] = [
+  'arbitrum-one',
+  'avalanche',
+  'base',
+  'bsc',
+  'fantom',
+  'mainnet',
+  'matic',
+  'sepolia',
+  'optimism',
+  'zksyncera',
+];
+
+const THE_GRAPH_EXPLORER_SUBGRAPH_ID: Partial<Record<CurrencyTypes.ChainName, string>> = {
   ['arbitrum-one']: '3MtDdHbzvBVNBpzUTYXGuDDLgTd1b8bPYwoH1Hdssgp9',
   avalanche: 'A27V4PeZdKHeyuBkehdBJN8cxNtzVpXvYoqkjHUHRCFp',
   base: 'CcTtKy6BustyyVZ5XvFD4nLnbkgMBT1vcAEJ3sAx6bRe',
@@ -33,15 +45,17 @@ const THE_GRAPH_EXPLORER_SUBGRAPH_ID = {
   celo: '5ts3PHjMcH2skCgKtvLLNE64WLjbhE5ipruvEcgqyZqC',
   fantom: '6AwmiYo5eY36W526ZDQeAkNBjXjXKYcMLYyYHeM67xAb',
   fuse: 'EHSpUBa7PAewX7WsaU2jbCKowF5it56yStr6Zgf8aDtx',
+  mainnet: '5mXPGZRC2Caynh4NyVrTK72DAGB9dfcKmLsnxYWHQ9nd',
   matic: 'DPpU1WMxk2Z4H2TAqgwGbVBGpabjbC1972Mynak5jSuR',
   moonbeam: '4Jo3DwA25zyVLeDhyi7cks52dNrkVCWWhQJzm1hKnCfj',
+  sepolia: '6e8Dcwt3cvsgNU3JYBtRQQ9Sj4P9VVVnXaPjJ3jUpYpY',
+  sonic: 'CQbtmuANYsChysuXTk9jWP3BD4ArncARVVw1b8JpHiTk',
   near: '9yEg3h46CZiv4VuSqo1erMMBx5sHxRuW5Ai2V8goSpQL',
   ['near-testnet']: 'AusVyfndonsMVFrVzckuENLqx8t6kcXuxn6C6VbSGd7M',
   optimism: '525fra79nG3Z1w8aPZh3nHsH5zCVetrVmceB1hKcTrTX',
   xdai: '2UAW7B94eeeqaL5qUM5FDzTWJcmgA6ta1RcWMo3XuLmU',
   zksyncera: 'HJNZW9vRSGXrcCVyQMdNKxxuLKeZcV6yMjTCyY6T2oon',
-  sonic: 'CQbtmuANYsChysuXTk9jWP3BD4ArncARVVw1b8JpHiTk',
-} as const satisfies Partial<Record<CurrencyTypes.ChainName, string>>;
+};
 
 // NB: the GraphQL client is automatically generated based on files present in ./queries,
 // using graphql-codegen.
@@ -120,7 +134,7 @@ export const getTheGraphNearClient = (url: string, options?: TheGraphClientOptio
   return sdk;
 };
 
-export const defaultGetTheGraphClient = (
+export const defaultGetTheGraphClientUrl = (
   network: CurrencyTypes.ChainName,
   options?: TheGraphClientOptions,
 ) => {
@@ -129,37 +143,37 @@ export const defaultGetTheGraphClient = (
   const theGraphExplorerUrl = THE_GRAPH_EXPLORER_URL.replace(
     '$API_KEY',
     options?.theGraphExplorerApiKey || '',
-  ).replace('$NETWORK', filteredNetwork);
+  ).replace('$SUBGRAPH_ID', THE_GRAPH_EXPLORER_SUBGRAPH_ID[network] || '');
   const theGraphAlchemyUrl = THE_GRAPH_ALCHEMY_URL.replace('$NETWORK', filteredNetwork);
 
   const shouldUseTheGraphExplorer =
     !!options?.theGraphExplorerApiKey &&
     Object.keys(THE_GRAPH_EXPLORER_SUBGRAPH_ID).includes(network);
 
-  return network === 'private'
-    ? undefined
-    : NearChains.isChainSupported(network)
-    ? shouldUseTheGraphExplorer
-      ? getTheGraphEvmClient(theGraphExplorerUrl, options)
-      : getTheGraphNearClient(theGraphStudioUrl, options)
-    : network === 'mantle'
-    ? getTheGraphEvmClient(THE_GRAPH_URL_MANTLE, options)
-    : network === 'mantle-testnet'
-    ? getTheGraphEvmClient(THE_GRAPH_URL_MANTLE_TESTNET, options)
-    : network === 'core'
-    ? getTheGraphEvmClient(THE_GRAPH_URL_CORE, options)
-    : shouldUseTheGraphExplorer
-    ? getTheGraphEvmClient(theGraphExplorerUrl, options)
-    : network === 'mainnet' ||
-      network === 'sepolia' ||
-      network === 'matic' ||
-      network === 'bsc' ||
-      network === 'optimism' ||
-      network === 'arbitrum-one' ||
-      network === 'base' ||
-      network === 'zksyncera' ||
-      network === 'avalanche' ||
-      network === 'fantom'
-    ? getTheGraphEvmClient(theGraphAlchemyUrl, options)
-    : getTheGraphEvmClient(theGraphStudioUrl, options);
+  switch (true) {
+    case network === 'private':
+      return;
+    case network === 'mantle':
+      return THE_GRAPH_URL_MANTLE;
+    case network === 'mantle-testnet':
+      return THE_GRAPH_URL_MANTLE_TESTNET;
+    case network === 'core':
+      return THE_GRAPH_URL_CORE;
+    default:
+      return shouldUseTheGraphExplorer
+        ? theGraphExplorerUrl
+        : THE_GRAPH_ALCHEMY_CHAINS.includes(network)
+        ? theGraphAlchemyUrl
+        : theGraphStudioUrl;
+  }
+};
+
+export const defaultGetTheGraphClient = (
+  network: CurrencyTypes.ChainName,
+  options?: TheGraphClientOptions,
+) => {
+  const url = defaultGetTheGraphClientUrl(network, options);
+  if (!url) return;
+  if (NearChains.isChainSupported(network)) return getTheGraphNearClient(url, options);
+  return getTheGraphEvmClient(url, options);
 };
