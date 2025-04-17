@@ -87,7 +87,7 @@
     "msw": "2.0.6",
     "source-map-support": "0.5.19",
     "supertest": "5.0.0",
-    "ts-jest": "29.1.0",
+    "ts-jest": "29.3.2",
     "ts-node": "10.9.1",
     "ts-node-dev": "1.0.0-pre.62",
     "typescript": "5.8.3"
