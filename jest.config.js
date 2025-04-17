@@ -17,5 +17,4 @@ module.exports = {
       },
     ],
   ],
-  ...(process.env.CI === 'true' ? { maxWorkers: '50%' } : {}),
 };
