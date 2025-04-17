@@ -52,7 +52,7 @@
     "@requestnetwork/utils": "0.54.0",
     "ethers": "5.7.2",
     "inquirer": "8.2.0",
-    "tslib": "2.5.0",
+    "tslib": "2.8.1",
     "yargs": "17.6.2"
   },
   "devDependencies": {

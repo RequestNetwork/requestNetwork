@@ -3,6 +3,7 @@
     "target": "es2015",
     "module": "nodenext",
     "moduleResolution": "nodenext",
+    "esModuleInterop": true,
     "importHelpers": true,
     "composite": true,
     "declaration": true,

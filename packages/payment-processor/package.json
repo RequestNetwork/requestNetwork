@@ -50,7 +50,7 @@
     "@superfluid-finance/sdk-core": "0.5.0",
     "ethers": "5.7.2",
     "near-api-js": "4.0.2",
-    "tslib": "2.5.0"
+    "tslib": "2.8.1"
   },
   "devDependencies": {
     "@types/jest": "29.5.14",
