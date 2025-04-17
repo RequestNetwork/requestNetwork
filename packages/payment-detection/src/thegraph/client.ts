@@ -139,16 +139,19 @@ export const defaultGetTheGraphClientUrl = (
   options?: TheGraphClientOptions,
 ) => {
   const filteredNetwork = network.replace('aurora', 'near');
+  const theGraphExplorerSubgraphId = THE_GRAPH_EXPLORER_SUBGRAPH_ID[network];
+  const { theGraphExplorerApiKey } = options || {};
+
+  // build URLs
   const theGraphStudioUrl = THE_GRAPH_STUDIO_URL.replace('$NETWORK', filteredNetwork);
   const theGraphExplorerUrl = THE_GRAPH_EXPLORER_URL.replace(
     '$API_KEY',
-    options?.theGraphExplorerApiKey || '',
-  ).replace('$SUBGRAPH_ID', THE_GRAPH_EXPLORER_SUBGRAPH_ID[network] || '');
+    theGraphExplorerApiKey || '',
+  ).replace('$SUBGRAPH_ID', theGraphExplorerSubgraphId || '');
   const theGraphAlchemyUrl = THE_GRAPH_ALCHEMY_URL.replace('$NETWORK', filteredNetwork);
 
-  const shouldUseTheGraphExplorer =
-    !!options?.theGraphExplorerApiKey &&
-    Object.keys(THE_GRAPH_EXPLORER_SUBGRAPH_ID).includes(network);
+  const shouldUseTheGraphExplorer = !!theGraphExplorerApiKey && !!theGraphExplorerSubgraphId;
+  const shouldUseAlchemy = THE_GRAPH_ALCHEMY_CHAINS.includes(network);
 
   switch (true) {
     case network === 'private':
@@ -162,7 +165,7 @@ export const defaultGetTheGraphClientUrl = (
     default:
       return shouldUseTheGraphExplorer
         ? theGraphExplorerUrl
-        : THE_GRAPH_ALCHEMY_CHAINS.includes(network)
+        : shouldUseAlchemy
         ? theGraphAlchemyUrl
         : theGraphStudioUrl;
   }
