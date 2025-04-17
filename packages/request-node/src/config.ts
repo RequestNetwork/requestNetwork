@@ -41,7 +41,6 @@ const defaultValues = {
     mode: LogMode.human,
   },
   server: {
-    headers: '{}',
     port: 3000,
   },
   wallet: {
@@ -51,6 +50,12 @@ const defaultValues = {
   litProtocolRPC: 'https://yellowstone-rpc.litprotocol.com',
   litProtocolCapacityCreditsUsage: '1',
   litProtocolCapacityCreditsExpirationInSeconds: 10 * 60, // 10 minutes
+  thirdweb: {
+    engineUrl: '',
+    accessToken: '',
+    backendWalletAddress: '',
+    webhookSecret: '',
+  },
 };
 
 const getOption = <T extends string | number>(
@@ -81,6 +86,42 @@ export const getLitProtocolNetwork = makeOption(
   'litProtocolNetwork',
   'LIT_PROTOCOL_NETWORK',
   defaultValues.litProtocolNetwork,
+);
+
+/**
+ * Get Thirdweb Engine URL from command line argument, environment variables or default values
+ */
+export const getThirdwebEngineUrl = makeOption(
+  'thirdwebEngineUrl',
+  'THIRDWEB_ENGINE_URL',
+  defaultValues.thirdweb.engineUrl,
+);
+
+/**
+ * Get Thirdweb Access Token from command line argument, environment variables or default values
+ */
+export const getThirdwebAccessToken = makeOption(
+  'thirdwebAccessToken',
+  'THIRDWEB_ACCESS_TOKEN',
+  defaultValues.thirdweb.accessToken,
+);
+
+/**
+ * Get Thirdweb Backend Wallet Address from command line argument, environment variables or default values
+ */
+export const getThirdwebBackendWalletAddress = makeOption(
+  'thirdwebBackendWalletAddress',
+  'THIRDWEB_BACKEND_WALLET_ADDRESS',
+  defaultValues.thirdweb.backendWalletAddress,
+);
+
+/**
+ * Get Thirdweb Webhook Secret from command line argument, environment variables or default values
+ */
+export const getThirdwebWebhookSecret = makeOption(
+  'thirdwebWebhookSecret',
+  'THIRDWEB_WEBHOOK_SECRET',
+  defaultValues.thirdweb.webhookSecret,
 );
 
 /**
@@ -240,9 +281,12 @@ export function getHelpMessage(): string {
     OPTIONS
       SERVER OPTIONS
         port (${defaultValues.server.port})\t\t\t\tPort for the server to listen for API requests
-        headers (${
-          defaultValues.server.headers
-        })\t\t\t\tCustom headers to send with the API responses
+
+      THIRDWEB ENGINE OPTIONS
+        thirdwebEngineUrl\t\t\t\tURL of your Thirdweb Engine instance (REQUIRED)
+        thirdwebAccessToken\t\t\t\tAccess token for Thirdweb Engine (REQUIRED)
+        thirdwebBackendWalletAddress\t\tAddress of the wallet configured in Thirdweb Engine (REQUIRED)
+        thirdwebWebhookSecret\t\t\tSecret for verifying webhook signatures (optional)
 
       THE GRAPH OPTIONS
         graphNodeUrl (${defaultValues.storage.thegraph.nodeUrl})\t\t\t\tURL of the Graph node
@@ -280,13 +324,13 @@ export function getHelpMessage(): string {
         logMode (${defaultValues.log.mode})\t\t\tThe node log mode (human or machine)
 
     EXAMPLE
-      yarn start --port 5000 --networkId 1
+      yarn start --port 5000 --networkId 1 --thirdwebEngineUrl=https://engine.thirdweb.io --thirdwebAccessToken=your_token --thirdwebBackendWalletAddress=0x123...
 
-  All options are optional, not specified options are read from environment variables
-  If the environment variable is not specified, default value is used
+  All options except Thirdweb Engine options are optional. Thirdweb Engine options are required and can be set via environment variables if not specified in command line.
 
   Default mnemonic is:
   ${defaultValues.wallet.mnemonic}
+  NOTE: This mnemonic should ONLY be used for testing on private networks.
 `;
 
   return message;
@@ -306,5 +350,35 @@ export const getConfigDisplay = (): string => {
   Lit Protocol RPC: ${getLitProtocolRPC()}
   Lit Protocol Capacity Credits Uses: ${getLitProtocolCapacityCreditsUsage()}
   Lit Protocol Capacity Credits Expiration in seconds: ${getLitProtocolCapacityCreditsExpirationInSeconds()}
+  Thirdweb Engine URL: ${getThirdwebEngineUrl()}
+  Thirdweb Backend Wallet: ${getThirdwebBackendWalletAddress()}
 `;
 };
+
+/**
+ * Check if all required Thirdweb configuration values are provided
+ * @throws Error if required configuration is missing
+ */
+export function validateThirdwebConfig(): void {
+  const engineUrl = getThirdwebEngineUrl();
+  const accessToken = getThirdwebAccessToken();
+  const backendWalletAddress = getThirdwebBackendWalletAddress();
+
+  if (!engineUrl) {
+    throw new Error(
+      'Thirdweb Engine URL is required. Set THIRDWEB_ENGINE_URL environment variable or use --thirdwebEngineUrl option.',
+    );
+  }
+
+  if (!accessToken) {
+    throw new Error(
+      'Thirdweb Access Token is required. Set THIRDWEB_ACCESS_TOKEN environment variable or use --thirdwebAccessToken option.',
+    );
+  }
+
+  if (!backendWalletAddress) {
+    throw new Error(
+      'Thirdweb Backend Wallet Address is required. Set THIRDWEB_BACKEND_WALLET_ADDRESS environment variable or use --thirdwebBackendWalletAddress option.',
+    );
+  }
+}
