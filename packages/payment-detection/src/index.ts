@@ -34,9 +34,9 @@ import { MetaDetector } from './meta-payment-detector';
 
 export type { TheGraphClient } from './thegraph';
 
-export type {
+export type { PaymentNetworkOptions };
+export {
   PaymentNetworkFactory,
-  PaymentNetworkOptions,
   PaymentReferenceCalculator,
   BtcPaymentNetwork,
   DeclarativePaymentDetector,
