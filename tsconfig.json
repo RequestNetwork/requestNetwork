@@ -4,6 +4,7 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "esModuleInterop": true,
+    "isolatedModules": true,
     "importHelpers": true,
     "composite": true,
     "declaration": true,
