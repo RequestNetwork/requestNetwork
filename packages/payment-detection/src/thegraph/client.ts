@@ -138,29 +138,29 @@ export const defaultGetTheGraphClientUrl = (
   network: CurrencyTypes.ChainName,
   options?: TheGraphClientOptions,
 ) => {
-  const filteredNetwork = network.replace('aurora', 'near');
-  const theGraphExplorerSubgraphId = THE_GRAPH_EXPLORER_SUBGRAPH_ID[network];
+  const chain = network.replace('aurora', 'near') as CurrencyTypes.ChainName;
+  const theGraphExplorerSubgraphId = THE_GRAPH_EXPLORER_SUBGRAPH_ID[chain];
   const { theGraphExplorerApiKey } = options || {};
 
   // build URLs
-  const theGraphStudioUrl = THE_GRAPH_STUDIO_URL.replace('$NETWORK', filteredNetwork);
+  const theGraphStudioUrl = THE_GRAPH_STUDIO_URL.replace('$NETWORK', chain);
   const theGraphExplorerUrl = THE_GRAPH_EXPLORER_URL.replace(
     '$API_KEY',
     theGraphExplorerApiKey || '',
   ).replace('$SUBGRAPH_ID', theGraphExplorerSubgraphId || '');
-  const theGraphAlchemyUrl = THE_GRAPH_ALCHEMY_URL.replace('$NETWORK', filteredNetwork);
+  const theGraphAlchemyUrl = THE_GRAPH_ALCHEMY_URL.replace('$NETWORK', chain);
 
   const shouldUseTheGraphExplorer = !!theGraphExplorerApiKey && !!theGraphExplorerSubgraphId;
-  const shouldUseAlchemy = THE_GRAPH_ALCHEMY_CHAINS.includes(network);
+  const shouldUseAlchemy = THE_GRAPH_ALCHEMY_CHAINS.includes(chain);
 
   switch (true) {
-    case network === 'private':
+    case chain === 'private':
       return;
-    case network === 'mantle':
+    case chain === 'mantle':
       return THE_GRAPH_URL_MANTLE;
-    case network === 'mantle-testnet':
+    case chain === 'mantle-testnet':
       return THE_GRAPH_URL_MANTLE_TESTNET;
-    case network === 'core':
+    case chain === 'core':
       return THE_GRAPH_URL_CORE;
     default:
       return shouldUseTheGraphExplorer
