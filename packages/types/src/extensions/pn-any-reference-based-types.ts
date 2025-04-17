@@ -1,6 +1,7 @@
 import { PnAddressBased } from '../extension-types';
 import { ChainName } from '../currency-types';
-export {
+
+export type {
   ACTION,
   IAddPaymentAddressParameters,
   IAddRefundAddressParameters,

@@ -1,5 +1,6 @@
 import { PnReferenceBased } from '../extension-types';
-export {
+
+export type {
   ACTION,
   IAddPaymentAddressParameters,
   IAddRefundAddressParameters,
