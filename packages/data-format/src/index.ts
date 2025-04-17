@@ -1,4 +1,5 @@
-import AJV from 'ajv';
+import { Ajv } from 'ajv';
+import addFormats from 'ajv-formats';
 import * as jsonSchema from 'ajv/lib/refs/json-schema-draft-06.json';
 import * as schemaAddress from './format/address.json';
 import { formats } from './format';
@@ -9,7 +10,8 @@ import { formats } from './format';
  * @return  object.valid == true if the json is valid, object.valid == false and object.errors otherwise.
  */
 export function validate(data: any): any {
-  const validationTool = new AJV().addMetaSchema(jsonSchema).addSchema(schemaAddress);
+  const validationTool = new Ajv().addMetaSchema(jsonSchema).addSchema(schemaAddress);
+  addFormats(validationTool);
 
   // Check the meta information
   if (!data.meta) {

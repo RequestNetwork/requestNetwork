@@ -40,7 +40,8 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "ajv": "6.12.4",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
     "ethers": "5.7.2",
     "tslib": "2.5.0"
   },
