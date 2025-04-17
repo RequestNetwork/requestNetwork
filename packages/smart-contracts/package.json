@@ -51,7 +51,7 @@
     "test:lib": "yarn jest test/lib"
   },
   "dependencies": {
-    "tslib": "2.5.0"
+    "tslib": "2.8.1"
   },
   "devDependencies": {
     "@ethersproject/providers": "5.7.2",
@@ -78,7 +78,7 @@
     "@types/mocha": "8.2.3",
     "@types/node": "18.11.9",
     "chai": "4.3.4",
-    "dotenv": "10.0.0",
+    "dotenv": "16.5.0",
     "ethereum-waffle": "3.4.4",
     "ethers": "5.7.2",
     "ganache-cli": "6.12.0",

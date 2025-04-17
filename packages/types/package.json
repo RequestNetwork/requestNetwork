@@ -44,7 +44,7 @@
   "devDependencies": {
     "ts-node": "10.9.1",
     "typed-emitter": "2.1.0",
-    "typescript": "5.1.3"
+    "typescript": "5.8.3"
   },
   "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }
