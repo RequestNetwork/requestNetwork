@@ -1,7 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes as cryptoRandomBytes } from 'crypto';
 
 /**
- * Functions to manage native crypto functions of nodeJs
+ * Functions to manage native crypto functions of Node.js
  */
 export {
   decryptWithAes256cbc,
@@ -77,7 +77,7 @@ async function encryptWithAes256gcm(data: Buffer, key: Buffer): Promise<Buffer> 
 /**
  * Decrypts an encrypted buffer using AES-256-cbc plus a random Initialization Vector (IV)
  *
- * @param encrypted the data to decrypt
+ * @param encryptedAndIv the data to decrypt
  * @param key key of the encryption
  *
  * @returns Promise resolving a buffer containing the data decrypted

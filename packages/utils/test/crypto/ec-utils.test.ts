@@ -1,3 +1,4 @@
+import { randomBytes } from '@noble/hashes/utils';
 import {
   ecDecrypt,
   ecEncrypt,
@@ -6,8 +7,9 @@ import {
   getAddressFromPrivateKey,
   getAddressFromPublicKey,
 } from '../../src';
-import { eccryptoNativeData } from './data/crypto-native';
 import { eccryptoBrowserData } from './data/crypto-browser';
+import { eccryptoNativeData } from './data/crypto-native';
+import { PrivateKey } from 'eciesjs';
 
 const rawId = {
   address: '0x818B6337657A23F58581715Fc610577292e521D0',
@@ -89,21 +91,21 @@ describe('Utils/EcUtils', () => {
 
   describe('encrypt', () => {
     it('can encrypt', async () => {
-      const encryptedData = await ecEncrypt(rawId.publicKey, anyData);
-      expect(encryptedData.length).toBe(226);
-      expect(await ecDecrypt(rawId.privateKey, encryptedData)).toBe(anyData);
+      const encryptedData = ecEncrypt(rawId.publicKey, anyData);
+      expect(encryptedData.length).toBe(228);
+      expect(ecDecrypt(rawId.privateKey, encryptedData)).toBe(anyData);
     });
 
     it('can encrypt with other public key formats', async () => {
-      const encryptedData = await ecEncrypt(
+      const encryptedData = ecEncrypt(
         '0396212fc129c2f78771218b2e93da7a5aac63490a42bb41b97848c39c14fe65cd',
         anyData,
       );
-      expect(encryptedData.length).toBe(226);
+      expect(encryptedData.length).toBe(228);
     });
 
     it('cannot encrypt data with a wrong public key', async () => {
-      await expect(ecEncrypt('cf4a', anyData)).rejects.toThrowError(
+      expect(() => ecEncrypt('cf4a', anyData)).toThrow(
         'The public key must be a string representing 64 bytes',
       );
     });
@@ -111,55 +113,76 @@ describe('Utils/EcUtils', () => {
 
   describe('decrypt', () => {
     it('can decrypt', async () => {
-      const data = await ecDecrypt(
+      const data = ecDecrypt(
         rawId.privateKey,
-        '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc70a',
+        '04f5ef23cfd828b7910d7c909eef047729b0cb986ebf4ba12ce877ec455863c6b9350e06f3f51479fa6b0a3feeb4c9f6fa808d4e6393d570627636642df35b1f85d59bb5bd78fdbaacaaa557c7d472ff7c5bbf8d8df59c0bd5d856831f1c0bcb77ad55bd82149a3bcb729f534fcdb62efa64',
       );
       expect(data).toBe(anyData);
     });
 
-    it('cannot decrypt data with a wrong private key', async () => {
-      await expect(
-        ecDecrypt(
-          '0xaa',
-          '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc70a',
-        ),
-      ).rejects.toThrowError('The private key must be a string representing 32 bytes');
-    });
-
-    it('cannot decrypt data with a wrong encrypted data: public key too short', async () => {
-      await expect(ecDecrypt(rawId.privateKey, 'aa')).rejects.toThrowError(
-        'The encrypted data is not well formatted',
-      );
-    });
-
-    it('cannot decrypt data with a wrong encrypted data: public key not parsable', async () => {
-      await expect(
-        ecDecrypt(
-          rawId.privateKey,
-          'e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc7',
-        ),
-      ).rejects.toThrowError('The encrypted data is not well formatted');
-    });
-
-    it('cannot decrypt data with a wrong encrypted data: bad MAC', async () => {
-      await expect(
-        ecDecrypt(
-          rawId.privateKey,
-          '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc7',
-        ),
-      ).rejects.toThrowError('The encrypted data is not well formatted');
-    });
-
-    it.each([
-      { type: 'native', array: eccryptoNativeData },
-      { type: 'browser', array: eccryptoBrowserData },
-    ])('should be compatible with legacy $type implementation of eccrypto', async ({ array }) => {
-      for (const row of array) {
-        const { data, key, encrypted } = row;
-        const decrypted = await ecDecrypt(key, encrypted);
+    it('can decrypt random data', async () => {
+      for (let i = 0; i < 10; i++) {
+        const privateKey = new PrivateKey();
+        const data = Buffer.from(randomBytes(32)).toString('hex');
+        const encrypted = ecEncrypt(privateKey.publicKey.toHex(Math.random() >= 0.5), data);
+        const decrypted = ecDecrypt(privateKey.secret.toString('hex'), encrypted);
         expect(decrypted).toBe(data);
       }
+    });
+
+    describe('legacy dataset (AES-CBC-MAC)', () => {
+      it('can decrypt legacy format', async () => {
+        const data = ecDecrypt(
+          rawId.privateKey,
+          '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc70a',
+        );
+        expect(data).toBe(anyData);
+      });
+
+      it('cannot decrypt data with a wrong private key', async () => {
+        expect(() =>
+          ecDecrypt(
+            '0xaa',
+            '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc70a',
+          ),
+        ).toThrow('The private key must be a string representing 32 bytes');
+      });
+
+      it('cannot decrypt data with a wrong encrypted data: public key too short', async () => {
+        expect(() => ecDecrypt(rawId.privateKey, 'aa')).toThrow(
+          'The encrypted data is not well formatted',
+        );
+      });
+
+      it('cannot decrypt data with a wrong encrypted data: public key not parsable', async () => {
+        expect(() =>
+          ecDecrypt(
+            rawId.privateKey,
+            'e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc7',
+          ),
+        ).toThrow('The encrypted data is not well formatted');
+      });
+
+      it('cannot decrypt data with a wrong encrypted data: bad MAC', async () => {
+        expect(() =>
+          ecDecrypt(
+            rawId.privateKey,
+            '307bac038efaa5bf8a0ac8db53fd4de8024a0c0baf37283a9e6671589eba18edc12b3915ff0df66e6ffad862440228a65ead99e3320e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc7',
+          ),
+        ).toThrow('The encrypted data is not well formatted');
+      });
+
+      // test for https://github.com/RequestNetwork/requestNetwork/pull/1229
+      it.each([
+        { type: 'native', array: eccryptoNativeData },
+        { type: 'browser', array: eccryptoBrowserData },
+      ])('should be compatible with legacy $type implementation of eccrypto', async ({ array }) => {
+        for (const row of array) {
+          const { data, key, encrypted } = row;
+          const decrypted = ecDecrypt(key, encrypted);
+          expect(decrypted).toBe(data);
+        }
+      });
     });
   });
 });

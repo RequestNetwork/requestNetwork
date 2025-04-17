@@ -1772,6 +1772,11 @@
     is-absolute "^1.0.0"
     is-negated-glob "^1.0.0"
 
+"@ecies/ciphers@0.2.3", "@ecies/ciphers@^0.2.2":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@ecies/ciphers/-/ciphers-0.2.3.tgz#963805e46d07e646550098ac29cbcc5b132218ea"
+  integrity sha512-tapn6XhOueMwht3E2UzY0ZZjYokdaw9XtL9kEyjhQ/Fb9vL9xTFbOaI+fV0AWvTpYu4BNloC6getKW6NtSg4mA==
+
 "@ensdomains/address-encoder@^0.1.7":
   version "0.1.9"
   resolved "https://registry.npmjs.org/@ensdomains/address-encoder/-/address-encoder-0.1.9.tgz"
@@ -3411,10 +3416,10 @@
     auto-bind "~4.0.0"
     tslib "~2.5.0"
 
-"@graphql-codegen/typescript-graphql-request@6.0.1":
-  version "6.0.1"
-  resolved "https://registry.npmjs.org/@graphql-codegen/typescript-graphql-request/-/typescript-graphql-request-6.0.1.tgz"
-  integrity sha512-aScw7ICyscW7bYLh2HyjQU3geCAjvFy6sRIlzgdkeFvcKBdjCil69upkyZAyntnSno2C4ZoUv7sHOpyQ9hQmFQ==
+"@graphql-codegen/typescript-graphql-request@6.2.0":
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/@graphql-codegen/typescript-graphql-request/-/typescript-graphql-request-6.2.0.tgz#db3bd90cd9070d446b8039384476cc1029929617"
+  integrity sha512-nkp5tr4PrC/+2QkQqi+IB+bc7AavUnUvXPW8MC93HZRvwfMGy6m2Oo7b9JCPZ3vhNpqT2VDWOn/zIZXKz6zJAw==
   dependencies:
     "@graphql-codegen/plugin-helpers" "^3.0.0"
     "@graphql-codegen/visitor-plugin-common" "2.13.1"
@@ -3423,7 +3428,7 @@
 
 "@graphql-codegen/typescript-operations@4.0.1":
   version "4.0.1"
-  resolved "https://registry.npmjs.org/@graphql-codegen/typescript-operations/-/typescript-operations-4.0.1.tgz"
+  resolved "https://registry.yarnpkg.com/@graphql-codegen/typescript-operations/-/typescript-operations-4.0.1.tgz#930af3e2d2ae8ff06de696291be28fe7046a2fef"
   integrity sha512-GpUWWdBVUec/Zqo23aFLBMrXYxN2irypHqDcKjN78JclDPdreasAEPcIpMfqf4MClvpmvDLy4ql+djVAwmkjbw==
   dependencies:
     "@graphql-codegen/plugin-helpers" "^5.0.0"
@@ -4969,6 +4974,11 @@
     "@near-js/utils" "0.2.2"
     borsh "1.0.0"
 
+"@noble/ciphers@^1.0.0":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@noble/ciphers/-/ciphers-1.2.1.tgz#3812b72c057a28b44ff0ad4aff5ca846e5b9cdc9"
+  integrity sha512-rONPWMC7PeExE077uLE4oqWrZ1IvAfz3oH9LibVAcVCopJiA9R62uavnbEzdkVmJYI6M6Zgkbeb07+tWjlq2XA==
+
 "@noble/curves@1.1.0", "@noble/curves@~1.1.0":
   version "1.1.0"
   resolved "https://registry.npmjs.org/@noble/curves/-/curves-1.1.0.tgz"
@@ -4982,6 +4992,13 @@
   integrity sha512-oYclrNgRaM9SsBUBVbb8M6DTV7ZHRTKugureoYEncY5c65HOmRzvSiTE3y5CYaPYJA/GVkrhXEoF0M3Ya9PMnw==
   dependencies:
     "@noble/hashes" "1.3.2"
+
+"@noble/curves@1.8.1", "@noble/curves@^1.6.0":
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/@noble/curves/-/curves-1.8.1.tgz#19bc3970e205c99e4bdb1c64a4785706bce497ff"
+  integrity sha512-warwspo+UYUPep0Q+vtdVB4Ugn8GGQj8iyB3gnRWsztmUHTI3S1nhdiWNsPUGL0vud7JlRRk1XEu7Lq1KGTnMQ==
+  dependencies:
+    "@noble/hashes" "1.7.1"
 
 "@noble/hashes@1.2.0", "@noble/hashes@~1.2.0":
   version "1.2.0"
@@ -5002,6 +5019,11 @@
   version "1.3.3"
   resolved "https://registry.npmjs.org/@noble/hashes/-/hashes-1.3.3.tgz"
   integrity sha512-V7/fPHgl+jsVPXqqeOzT8egNj2iBIVt+ECeMMG8TdcnTikP3oaBtUVqpT/gYCR68aEBJSF+XbYUxStjbFMqIIA==
+
+"@noble/hashes@1.7.1", "@noble/hashes@^1.5.0":
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.7.1.tgz#5738f6d765710921e7a751e00c20ae091ed8db0f"
+  integrity sha512-B8XBPsn4vT/KJAGqDzbwztd+6Yte3P4V7iafm24bxgDe/mlRuK6xmWPuCNrKt2vDafZ8MfJLlchDG/vYafQEjQ==
 
 "@noble/hashes@^1.1.2":
   version "1.5.0"
@@ -6349,13 +6371,6 @@
   version "2.0.0"
   resolved "https://registry.npmjs.org/@tootallnate/once/-/once-2.0.0.tgz"
   integrity sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==
-
-"@toruslabs/eccrypto@4.0.0":
-  version "4.0.0"
-  resolved "https://registry.npmjs.org/@toruslabs/eccrypto/-/eccrypto-4.0.0.tgz"
-  integrity sha512-Z3EINkbsgJx1t6jCDVIJjLSUEGUtNIeDjhMWmeDGOWcP/+v/yQ1hEvd1wfxEz4q5WqIHhevacmPiVxiJ4DljGQ==
-  dependencies:
-    elliptic "^6.5.4"
 
 "@truffle/abi-utils@^0.2.11":
   version "0.2.11"
@@ -11991,15 +12006,10 @@ dot@^1.1.3:
   resolved "https://registry.npmjs.org/dot/-/dot-1.1.3.tgz"
   integrity sha512-/nt74Rm+PcfnirXGEdhZleTwGC2LMnuKTeeTIlI82xb5loBBoXNYzr2ezCroPSMtilK8EZIfcNZwOcHN+ib1Lg==
 
-dotenv@10.0.0, dotenv@~10.0.0:
-  version "10.0.0"
-  resolved "https://registry.npmjs.org/dotenv/-/dotenv-10.0.0.tgz"
-  integrity sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==
-
-dotenv@8.2.0:
-  version "8.2.0"
-  resolved "https://registry.npmjs.org/dotenv/-/dotenv-8.2.0.tgz"
-  integrity sha512-8sJ78ElpbDJBHNeBzUbUVLsqKdccaa/BXF1uPTw3GrvQTBgrQrtObr2mUrE38vzYd8cEv+m/JBfDLioYcfXoaw==
+dotenv@16.5.0:
+  version "16.5.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.5.0.tgz#092b49f25f808f020050051d1ff258e404c78692"
+  integrity sha512-m/C+AwOAr9/W1UOIZUo232ejMNnJAJtYQjUbHoNTBNTJSvqzzDh7vnrei3o3r3m9blf6ZoDkvcw0VmozNRFJxg==
 
 dotenv@^16.0.0:
   version "16.3.1"
@@ -12010,6 +12020,11 @@ dotenv@^16.4.5:
   version "16.4.5"
   resolved "https://registry.npmjs.org/dotenv/-/dotenv-16.4.5.tgz"
   integrity sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==
+
+dotenv@~10.0.0:
+  version "10.0.0"
+  resolved "https://registry.npmjs.org/dotenv/-/dotenv-10.0.0.tgz"
+  integrity sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==
 
 dotignore@~0.1.2:
   version "0.1.2"
@@ -12079,6 +12094,16 @@ ecc-jsbn@~0.1.1:
   dependencies:
     jsbn "~0.1.0"
     safer-buffer "^2.1.0"
+
+eciesjs@0.4.14:
+  version "0.4.14"
+  resolved "https://registry.yarnpkg.com/eciesjs/-/eciesjs-0.4.14.tgz#a48c527f7754b4390dfd7e863fe0166c1972be94"
+  integrity sha512-eJAgf9pdv214Hn98FlUzclRMYWF7WfoLlkS9nWMTm1qcCwn6Ad4EGD9lr9HXMBfSrZhYQujRE+p0adPRkctC6A==
+  dependencies:
+    "@ecies/ciphers" "^0.2.2"
+    "@noble/ciphers" "^1.0.0"
+    "@noble/curves" "^1.6.0"
+    "@noble/hashes" "^1.5.0"
 
 ee-first@1.1.1:
   version "1.1.1"
@@ -15129,13 +15154,6 @@ graphql-request@6.1.0, graphql-request@^6.0.0:
   dependencies:
     "@graphql-typed-document-node/core" "^3.2.0"
     cross-fetch "^3.1.5"
-
-graphql-request@7.1.2:
-  version "7.1.2"
-  resolved "https://registry.npmjs.org/graphql-request/-/graphql-request-7.1.2.tgz"
-  integrity sha512-+XE3iuC55C2di5ZUrB4pjgwe+nIQBuXVIK9J98wrVwojzDW3GMdSBZfxUk8l4j9TieIpjpggclxhNEU9ebGF8w==
-  dependencies:
-    "@graphql-typed-document-node/core" "^3.2.0"
 
 graphql-request@^4.3.0:
   version "4.3.0"
@@ -22596,7 +22614,7 @@ scuid@^1.1.0:
   resolved "https://registry.npmjs.org/scuid/-/scuid-1.1.0.tgz"
   integrity sha512-MuCAyrGZcTLfQoH2XoBlQ8C6bzwN88XT/0slOGz0pn8+gIP85BOAfYa44ZXQUTOwRwPU0QvgU+V+OSajl/59Xg==
 
-secp256k1@4.0.4, secp256k1@^4.0.1:
+secp256k1@^4.0.1:
   version "4.0.4"
   resolved "https://registry.npmjs.org/secp256k1/-/secp256k1-4.0.4.tgz"
   integrity sha512-6JfvwvjUOn8F/jUoBY2Q1v5WY5XS+rj8qSe0v8Y4ezH4InLgTEeOOPQsRll9OV429Pvo6BCHGavIyJfr3TAhsw==
