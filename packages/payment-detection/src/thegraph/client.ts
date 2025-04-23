@@ -2,12 +2,15 @@
 import { CurrencyTypes } from '@requestnetwork/types';
 import { NearChains } from '@requestnetwork/currency';
 import { GraphQLClient } from 'graphql-request';
-import { Block_Height, Maybe, getSdk } from './generated/graphql';
+import { Block_Height, getSdk, Maybe } from './generated/graphql';
 import { getSdk as getNearSdk } from './generated/graphql-near';
 import { RequestConfig } from 'graphql-request/src/types';
 
 const THE_GRAPH_STUDIO_URL =
   'https://api.studio.thegraph.com/query/67444/request-payments-$NETWORK/version/latest';
+
+const THE_GRAPH_EXPLORER_URL =
+  'https://gateway.thegraph.com/api/$API_KEY/subgraphs/id/$SUBGRAPH_ID';
 
 const THE_GRAPH_ALCHEMY_URL =
   'https://subgraph.satsuma-prod.com/e2e4905ab7c8/request-network--434873/request-payments-$NETWORK/api';
@@ -20,6 +23,39 @@ const THE_GRAPH_URL_MANTLE =
 
 const THE_GRAPH_URL_CORE =
   'https://thegraph.coredao.org/subgraphs/name/requestnetwork/request-payments-core';
+
+const THE_GRAPH_ALCHEMY_CHAINS: CurrencyTypes.ChainName[] = [
+  'arbitrum-one',
+  'avalanche',
+  'base',
+  'bsc',
+  'fantom',
+  'mainnet',
+  'matic',
+  'sepolia',
+  'optimism',
+  'zksyncera',
+];
+
+const THE_GRAPH_EXPLORER_SUBGRAPH_ID: Partial<Record<CurrencyTypes.ChainName, string>> = {
+  ['arbitrum-one']: '3MtDdHbzvBVNBpzUTYXGuDDLgTd1b8bPYwoH1Hdssgp9',
+  avalanche: 'A27V4PeZdKHeyuBkehdBJN8cxNtzVpXvYoqkjHUHRCFp',
+  base: 'CcTtKy6BustyyVZ5XvFD4nLnbkgMBT1vcAEJ3sAx6bRe',
+  bsc: '4PScFUi3CFDbop9XzT6gCDtD4RR8kRzyrzSjrHoXHZBt',
+  celo: '5ts3PHjMcH2skCgKtvLLNE64WLjbhE5ipruvEcgqyZqC',
+  fantom: '6AwmiYo5eY36W526ZDQeAkNBjXjXKYcMLYyYHeM67xAb',
+  fuse: 'EHSpUBa7PAewX7WsaU2jbCKowF5it56yStr6Zgf8aDtx',
+  mainnet: '5mXPGZRC2Caynh4NyVrTK72DAGB9dfcKmLsnxYWHQ9nd',
+  matic: 'DPpU1WMxk2Z4H2TAqgwGbVBGpabjbC1972Mynak5jSuR',
+  moonbeam: '4Jo3DwA25zyVLeDhyi7cks52dNrkVCWWhQJzm1hKnCfj',
+  sepolia: '6e8Dcwt3cvsgNU3JYBtRQQ9Sj4P9VVVnXaPjJ3jUpYpY',
+  sonic: 'CQbtmuANYsChysuXTk9jWP3BD4ArncARVVw1b8JpHiTk',
+  near: '9yEg3h46CZiv4VuSqo1erMMBx5sHxRuW5Ai2V8goSpQL',
+  ['near-testnet']: 'AusVyfndonsMVFrVzckuENLqx8t6kcXuxn6C6VbSGd7M',
+  optimism: '525fra79nG3Z1w8aPZh3nHsH5zCVetrVmceB1hKcTrTX',
+  xdai: '2UAW7B94eeeqaL5qUM5FDzTWJcmgA6ta1RcWMo3XuLmU',
+  zksyncera: 'HJNZW9vRSGXrcCVyQMdNKxxuLKeZcV6yMjTCyY6T2oon',
+};
 
 // NB: the GraphQL client is automatically generated based on files present in ./queries,
 // using graphql-codegen.
@@ -44,6 +80,8 @@ export type TheGraphQueryOptions = {
 export type TheGraphClientOptions = RequestConfig & {
   /** constraint to select indexers that have at least parsed this block */
   minIndexedBlock?: number | undefined;
+  /** API key for accessing subgraphs hosted on TheGraph Explorer */
+  theGraphExplorerApiKey?: string;
 };
 
 /** Splits the input options into "client options" to pass to the SDK, and "query options" to use in queries */
@@ -55,7 +93,13 @@ const extractClientOptions = (
 
   // build query options
   const queryOptions: TheGraphQueryOptions = {};
-  const { minIndexedBlock, ...clientOptions } = optionsObject;
+  const {
+    minIndexedBlock,
+    // ignore theGraphExplorerApiKey, it should not be part of clientOptions
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    theGraphExplorerApiKey: _theGraphExplorerApiKey,
+    ...clientOptions
+  } = optionsObject;
   if (minIndexedBlock) {
     queryOptions.blockFilter = { number_gte: minIndexedBlock };
   } else if (url.match(/^https:\/\/gateway-\w+\.network\.thegraph\.com\//)) {
@@ -90,33 +134,49 @@ export const getTheGraphNearClient = (url: string, options?: TheGraphClientOptio
   return sdk;
 };
 
+export const defaultGetTheGraphClientUrl = (
+  network: CurrencyTypes.ChainName,
+  options?: TheGraphClientOptions,
+) => {
+  const chain = network.replace('aurora', 'near') as CurrencyTypes.ChainName;
+  const theGraphExplorerSubgraphId = THE_GRAPH_EXPLORER_SUBGRAPH_ID[chain];
+  const { theGraphExplorerApiKey } = options || {};
+
+  // build URLs
+  const theGraphStudioUrl = THE_GRAPH_STUDIO_URL.replace('$NETWORK', chain);
+  const theGraphExplorerUrl = THE_GRAPH_EXPLORER_URL.replace(
+    '$API_KEY',
+    theGraphExplorerApiKey || '',
+  ).replace('$SUBGRAPH_ID', theGraphExplorerSubgraphId || '');
+  const theGraphAlchemyUrl = THE_GRAPH_ALCHEMY_URL.replace('$NETWORK', chain);
+
+  const shouldUseTheGraphExplorer = !!theGraphExplorerApiKey && !!theGraphExplorerSubgraphId;
+  const shouldUseAlchemy = THE_GRAPH_ALCHEMY_CHAINS.includes(chain);
+
+  switch (true) {
+    case chain === 'private':
+      return;
+    case chain === 'mantle':
+      return THE_GRAPH_URL_MANTLE;
+    case chain === 'mantle-testnet':
+      return THE_GRAPH_URL_MANTLE_TESTNET;
+    case chain === 'core':
+      return THE_GRAPH_URL_CORE;
+    default:
+      return shouldUseTheGraphExplorer
+        ? theGraphExplorerUrl
+        : shouldUseAlchemy
+        ? theGraphAlchemyUrl
+        : theGraphStudioUrl;
+  }
+};
+
 export const defaultGetTheGraphClient = (
   network: CurrencyTypes.ChainName,
   options?: TheGraphClientOptions,
 ) => {
-  return network === 'private'
-    ? undefined
-    : NearChains.isChainSupported(network)
-    ? getTheGraphNearClient(
-        `${THE_GRAPH_STUDIO_URL.replace('$NETWORK', network.replace('aurora', 'near'))}`,
-        options,
-      )
-    : network === 'mantle'
-    ? getTheGraphEvmClient(THE_GRAPH_URL_MANTLE, options)
-    : network === 'mantle-testnet'
-    ? getTheGraphEvmClient(THE_GRAPH_URL_MANTLE_TESTNET, options)
-    : network === 'core'
-    ? getTheGraphEvmClient(THE_GRAPH_URL_CORE, options)
-    : network === 'mainnet' ||
-      network === 'sepolia' ||
-      network === 'matic' ||
-      network === 'bsc' ||
-      network === 'optimism' ||
-      network === 'arbitrum-one' ||
-      network === 'base' ||
-      network === 'zksyncera' ||
-      network === 'avalanche' ||
-      network === 'fantom'
-    ? getTheGraphEvmClient(`${THE_GRAPH_ALCHEMY_URL.replace('$NETWORK', network)}`, options)
-    : getTheGraphEvmClient(`${THE_GRAPH_STUDIO_URL.replace('$NETWORK', network)}`, options);
+  const url = defaultGetTheGraphClientUrl(network, options);
+  if (!url) return;
+  if (NearChains.isChainSupported(network)) return getTheGraphNearClient(url, options);
+  return getTheGraphEvmClient(url, options);
 };
