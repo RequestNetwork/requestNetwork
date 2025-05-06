@@ -1,5 +1,5 @@
 import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
-import { GraphQLClient } from 'graphql-request';
+import { GraphQLClient, Variables } from 'graphql-request';
 import {
   GetBlockQuery,
   GetTransactionByDataHashQuery,
@@ -10,11 +10,11 @@ import {
   Transaction,
   TransactionsBody,
 } from './queries';
-import { Variables } from 'graphql-request/build/cjs/types';
-import { RequestConfig } from 'graphql-request/build/legacy/helpers/types';
 
 // Max Int value (as supported by grapqhl types)
 const MAX_INT_VALUE = 0x7fffffff;
+
+type RequestConfig = (typeof GraphQLClient.prototype)['requestConfig'];
 
 type ClientConfig = Omit<RequestConfig, 'headers'> & { headers?: Record<string, string> };
 

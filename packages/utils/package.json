@@ -40,10 +40,12 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
+    "@ecies/ciphers": "0.2.3",
+    "@noble/curves": "1.8.1",
+    "@noble/hashes": "1.7.1",
     "@requestnetwork/types": "0.54.0",
-    "@toruslabs/eccrypto": "4.0.0",
+    "eciesjs": "0.4.14",
     "ethers": "5.7.2",
-    "secp256k1": "4.0.4",
     "tslib": "2.5.0"
   },
   "devDependencies": {

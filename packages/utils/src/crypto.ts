@@ -10,10 +10,10 @@ import {
 import {
   ecDecrypt,
   ecEncrypt,
-  getAddressFromPrivateKey,
-  getAddressFromPublicKey,
   ecRecover,
   ecSign,
+  getAddressFromPrivateKey,
+  getAddressFromPublicKey,
 } from './crypto/ec-utils';
 import { deepSort } from './utils';
 

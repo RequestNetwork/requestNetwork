@@ -1,6 +1,5 @@
 import { GraphQLClient } from 'graphql-request';
 import { getSdk } from './generated/graphql-superfluid';
-import { RequestConfig } from 'graphql-request/src/types';
 
 const BASE_URL = `https://subgraph-endpoints.superfluid.dev`;
 const NETWORK_TO_URL: Record<string, string> = {
@@ -22,6 +21,7 @@ const NETWORK_TO_URL: Record<string, string> = {
 /**
  * A GraphQL client to query Superfluid's subgraph.
  */
+type RequestConfig = (typeof GraphQLClient.prototype)['requestConfig'];
 export type TheGraphSuperfluidClient = ReturnType<typeof getSdk>;
 export type TheGraphClientOptions = RequestConfig & {
   baseUrl?: string;

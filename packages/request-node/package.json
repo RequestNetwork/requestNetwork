@@ -56,7 +56,7 @@
     "@requestnetwork/utils": "0.54.0",
     "chalk": "4.1.0",
     "cors": "2.8.5",
-    "dotenv": "8.2.0",
+    "dotenv": "16.5.0",
     "ethers": "5.7.2",
     "express": "4.21.0",
     "graphql": "16.8.1",
