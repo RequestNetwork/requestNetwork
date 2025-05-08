@@ -4,7 +4,6 @@ import { NearChains } from '@requestnetwork/currency';
 import { GraphQLClient } from 'graphql-request';
 import { Block_Height, getSdk, Maybe } from './generated/graphql';
 import { getSdk as getNearSdk } from './generated/graphql-near';
-import { RequestConfig } from 'graphql-request/src/types';
 
 const THE_GRAPH_STUDIO_URL =
   'https://api.studio.thegraph.com/query/67444/request-payments-$NETWORK/version/latest';
@@ -76,6 +75,8 @@ export type TheGraphClient<TChain extends CurrencyTypes.VMChainName = CurrencyTy
 export type TheGraphQueryOptions = {
   blockFilter?: Maybe<Block_Height>;
 };
+
+type RequestConfig = (typeof GraphQLClient.prototype)['requestConfig'];
 
 export type TheGraphClientOptions = RequestConfig & {
   /** constraint to select indexers that have at least parsed this block */

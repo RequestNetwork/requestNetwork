@@ -1,6 +1,5 @@
 import { GraphQLClient } from 'graphql-request';
 import { getSdk } from './generated/graphql-superfluid';
-import { RequestConfig } from 'graphql-request/src/types';
 
 const BASE_URL = `https://subgraph-endpoints.superfluid.dev`;
 const NETWORK_TO_URL: Record<string, string> = {
@@ -15,6 +14,8 @@ const NETWORK_TO_URL: Record<string, string> = {
   sepolia: 'eth-sepolia',
   xdai: 'xdai-mainnet',
 };
+
+type RequestConfig = (typeof GraphQLClient.prototype)['requestConfig'];
 
 // NB: the GraphQL client is automatically generated based on files present in ./queries,
 // using graphql-codegen.

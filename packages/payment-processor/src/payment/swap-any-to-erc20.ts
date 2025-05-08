@@ -17,7 +17,7 @@ import { CurrencyManager, EvmChains, UnsupportedCurrencyError } from '@requestne
 import { IRequestPaymentOptions } from '../types';
 import { IPreparedTransaction } from './prepared-transaction';
 
-export { ISwapSettings } from './swap-erc20-fee-proxy';
+export type { ISwapSettings } from './swap-erc20-fee-proxy';
 
 /**
  * Processes a transaction to swap tokens and pay an ERC20 Request through a proxy with fees.
