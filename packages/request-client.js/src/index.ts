@@ -9,6 +9,7 @@ import { default as HttpDataAccess } from './http-data-access';
 import * as Types from './types';
 import { NodeConnectionConfig } from './http-data-access-config';
 
+export type { NodeConnectionConfig };
 export {
   PaymentReferenceCalculator,
   Request,
@@ -16,7 +17,6 @@ export {
   RequestNetworkBase,
   HttpDataAccess,
   HttpMetaMaskDataAccess,
-  NodeConnectionConfig,
   Types,
   Utils,
 };

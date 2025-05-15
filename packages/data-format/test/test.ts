@@ -30,7 +30,7 @@ describe('Request Network Data Validator', () => {
     // 'result.valid should be false'
     expect(result.valid).toBe(false);
     // 'result.errors is wrong'
-    expect(result.errors[0].message).toBe('should be string');
+    expect(result.errors[0].message).toBe('must be string');
   });
 
   it('should not validate an invalid invoice 0.0.3 format', () => {
@@ -39,7 +39,7 @@ describe('Request Network Data Validator', () => {
     // 'result.valid should be false'
     expect(result.valid).toBe(false);
     // 'result.errors is wrong'
-    expect(result.errors[0].message).toBe('should be string');
+    expect(result.errors[0].message).toBe('must be string');
   });
 
   it('should not validate a json without meta', () => {
@@ -66,7 +66,7 @@ describe('Request Network Data Validator', () => {
     // 'result.valid should be false'
     expect(result.valid).toBe(false);
     // 'result.errors is wrong'
-    expect(result.errors[0].message).toBe('should match format "date-time"');
+    expect(result.errors[0].message).toBe('must match format "date-time"');
   });
 
   it('should not validate a json with required parameter missing', () => {
@@ -75,7 +75,7 @@ describe('Request Network Data Validator', () => {
     // 'result.valid should be false'
     expect(result.valid).toBe(false);
     // 'result.errors is wrong'
-    expect(result.errors[0].message).toBe(`should have required property \'name\'`);
+    expect(result.errors[0].message).toBe(`must have required property \'name\'`);
   });
 
   it('should not validate a json with meta.format missing', () => {
