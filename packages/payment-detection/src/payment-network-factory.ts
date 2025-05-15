@@ -25,7 +25,7 @@ import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
 import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
 import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetector } from './near';
 import { getPaymentNetworkExtension } from './utils';
-import { defaultGetTheGraphClient } from './thegraph';
+import { getTheGraphClient } from './thegraph';
 import { getDefaultProvider } from 'ethers';
 
 const PN_ID = ExtensionTypes.PAYMENT_NETWORK_ID;
@@ -105,7 +105,7 @@ export class PaymentNetworkFactory {
 
   private buildOptions(options: Partial<PaymentNetworkOptions>): PaymentNetworkOptions {
     const defaultOptions: PaymentNetworkOptions = {
-      getSubgraphClient: defaultGetTheGraphClient,
+      getSubgraphClient: getTheGraphClient,
       explorerApiKeys: {},
       getRpcProvider: getDefaultProvider,
     };
