@@ -2,7 +2,14 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  compilerOptions: { isolatedModules: true },
+  transform: {
+    '^.+\\.[tj]sx?$': [
+      'ts-jest',
+      {
+        isolatedModules: true,
+      },
+    ],
+  },
   reporters: [
     'default',
     [
