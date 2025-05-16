@@ -34,6 +34,12 @@ const nearCurrency: RequestLogicTypes.ICurrency = {
   value: 'near',
 };
 
+const ethCurrency: RequestLogicTypes.ICurrency = {
+  type: RequestLogicTypes.CURRENCY.ETH,
+  network: 'mainnet',
+  value: 'ETH',
+};
+
 describe('payRequest', () => {
   afterEach(() => {
     jest.resetAllMocks();
@@ -516,7 +522,7 @@ describe('hasSufficientFunds', () => {
     expect(solvency).toBeFalsy();
   });
 
-  it('should skip ETH balance checks when needsGas is false', async () => {
+  it('should skip ETH balance checks when needsGas is false - ERC20 payment', async () => {
     const mock = jest
       .spyOn(erc20Module, 'getAnyErc20Balance')
       .mockReturnValue(Promise.resolve(BigNumber.from('200')));
@@ -532,6 +538,34 @@ describe('hasSufficientFunds', () => {
     });
     expect(solvency).toBeTruthy();
     expect(mock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should require only the given ETH amount when needsGas is false - ETH payment', async () => {
+    // eslint-disable-next-line no-magic-numbers
+    const solvency = await isSolvent({
+      fromAddress: 'any',
+      currency: ethCurrency,
+      amount: 200,
+      providerOptions: {
+        provider: fakeProvider as any,
+      },
+      needsGas: false,
+    });
+    expect(solvency).toBeTruthy();
+  });
+
+  it('should require an excess of ETH when needsGas is true - ETH payment', async () => {
+    // eslint-disable-next-line no-magic-numbers
+    const solvency = await isSolvent({
+      fromAddress: 'any',
+      currency: ethCurrency,
+      amount: 200,
+      providerOptions: {
+        provider: fakeProvider as any,
+      },
+      needsGas: true,
+    });
+    expect(solvency).toBeFalsy();
   });
 
   it('should check ETH balance checks by default', async () => {
