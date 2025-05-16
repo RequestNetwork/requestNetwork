@@ -2,6 +2,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  compilerOptions: { isolatedModules: true },
   reporters: [
     'default',
     [
