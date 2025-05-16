@@ -271,7 +271,7 @@ export async function isSolvent({
   const ethBalance = await provider.getBalance(fromAddress);
 
   if (currency.type === 'ETH') {
-    return ethBalance.gt(amount);
+    return needsGas ? ethBalance.gt(amount) : ethBalance.gte(amount);
   } else {
     const balance = await getCurrencyBalance(fromAddress, currency, provider);
     return (ethBalance.gt(0) || !needsGas) && BigNumber.from(balance).gte(amount);
