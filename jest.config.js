@@ -17,4 +17,5 @@ module.exports = {
       },
     ],
   ],
+  ...(process.env.JEST_MAX_WORKERS ? { maxWorkers: process.env.JEST_MAX_WORKERS } : {}),
 };
