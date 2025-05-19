@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es2015",
     "module": "nodenext",
+    "moduleResolution": "nodenext",
     "esModuleInterop": true,
     "isolatedModules": true,
     "importHelpers": true,
