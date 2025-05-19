@@ -60,7 +60,7 @@
     "ethers": "5.7.2",
     "express": "4.21.0",
     "graphql": "16.8.1",
-    "graphql-request": "6.1.0",
+    "graphql-request": "7.1.2",
     "http-shutdown": "1.2.2",
     "http-status-codes": "2.1.4",
     "morgan": "1.10.0",
