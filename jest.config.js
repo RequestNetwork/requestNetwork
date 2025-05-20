@@ -1,14 +1,6 @@
 /** @type {import('jest').Config} */
 module.exports = {
-  testEnvironment: 'node',
-  transform: {
-    '^.+\\.(t|j)sx?$': [
-      'ts-jest',
-      {
-        tsconfig: '<rootDir>/tsconfig.json',
-      },
-    ],
-  },
+  preset: 'ts-jest/presets/js-with-ts',
   transformIgnorePatterns: ['/node_modules/(?!(graphql-request|@superfluid-finance/sdk-core)/)'],
   reporters: [
     'default',
