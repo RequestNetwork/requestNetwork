@@ -83,7 +83,7 @@ export type TheGraphClientOptions = RequestConfig & {
   /** API key for accessing subgraphs hosted on TheGraph Explorer */
   theGraphExplorerApiKey?: string;
   /** URL to access the subgraph. Using this option will ignore theGraphExplorerApiKey */
-  subgraphUrl?: string;
+  url?: string;
 };
 
 /** Splits the input options into "client options" to pass to the SDK, and "query options" to use in queries */
@@ -146,7 +146,7 @@ export const getTheGraphClientUrl = (
   network: CurrencyTypes.ChainName,
   options?: TheGraphClientOptions,
 ) => {
-  if (options?.subgraphUrl) return options.subgraphUrl;
+  if (options?.url) return options.url;
 
   const chain = network.replace('aurora', 'near') as CurrencyTypes.ChainName;
   const theGraphExplorerSubgraphId = THE_GRAPH_EXPLORER_SUBGRAPH_ID[chain];
