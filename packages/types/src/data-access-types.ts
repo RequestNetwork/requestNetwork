@@ -1,6 +1,7 @@
 import * as StorageTypes from './storage-types';
 import { ConfirmationEventEmitter } from './events';
 import { AuthSig } from '@lit-protocol/types';
+
 /** Data Access Layer */
 export interface IDataRead {
   initialize: () => Promise<void>;
@@ -165,4 +166,4 @@ export interface IPendingStore {
   remove(channelId: string): void;
 }
 
-export { AuthSig };
+export type { AuthSig };

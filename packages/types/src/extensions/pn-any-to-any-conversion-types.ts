@@ -1,6 +1,7 @@
 import { PnFeeReferenceBased } from '../extension-types';
 import { ChainName } from '../currency-types';
-export {
+
+export type {
   IAddPaymentAddressParameters,
   IAddRefundAddressParameters,
   IAddFeeParameters,
