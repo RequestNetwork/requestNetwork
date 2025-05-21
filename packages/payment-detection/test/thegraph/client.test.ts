@@ -1,6 +1,10 @@
 import { getTheGraphClientUrl } from '../../src/thegraph';
 
 describe('getTheGraphClientUrl', () => {
+  it('should use the URL passed as option if any', () => {
+    const url = getTheGraphClientUrl('base', { url: 'test' });
+    expect(url).toBe('test');
+  });
   it('should build the correct URL for network supported by Alchemy', () => {
     const url = getTheGraphClientUrl('base');
     expect(url).toBe(
