@@ -127,6 +127,10 @@ jobs:
             --ignore @requestnetwork/payment-processor \
             --ignore @requestnetwork/integration-test \
             --concurrency=2
+          environment:
+            # Lerna starts 2 Jest commands at the same time (see above --concurrency=2),
+            # so we use 50% of our CPU cores on each
+            JEST_MAX_WORKERS: '50%'
       - store_test_results:
           path: packages/advance-logic/reports/
       - store_test_results:

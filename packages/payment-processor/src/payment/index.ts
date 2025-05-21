@@ -1,17 +1,21 @@
-import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 'ethers';
+import { BigNumber, BigNumberish, ContractTransaction, providers, Signer } from 'ethers';
 
-import { ClientTypes, CurrencyTypes, ExtensionTypes, TypesUtils } from '@requestnetwork/types';
+import {
+  ClientTypes,
+  CurrencyTypes,
+  ExtensionTypes,
+  RequestLogicTypes,
+  TypesUtils,
+} from '@requestnetwork/types';
 
 import { getBtcPaymentUrl } from './btc-address-based';
-import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
-import { payErc20Request } from './erc20';
+import { _getErc20PaymentUrl, getAnyErc20Balance, payErc20Request } from './erc20';
 import { payErc777StreamRequest } from './erc777-stream';
 import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
 import { payEthFeeProxyRequest } from './eth-fee-proxy';
 import { ITransactionOverrides } from './transaction-overrides';
 import { getNetworkProvider, getProvider, getSigner } from './utils';
 import { ISwapSettings } from './swap-erc20-fee-proxy';
-import { RequestLogicTypes } from '@requestnetwork/types';
 import { payAnyToErc20ProxyRequest } from './any-to-erc20-proxy';
 import { payAnyToEthProxyRequest } from './any-to-eth-proxy';
 import { WalletConnection } from 'near-api-js';
@@ -21,7 +25,8 @@ import { encodeRequestErc20Approval } from './encoder-approval';
 import { encodeRequestPayment } from './encoder-payment';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IRequestPaymentOptions } from '../types';
-export { INearTransactionCallback } from './utils-near';
+
+export type { INearTransactionCallback } from './utils-near';
 
 export const noConversionNetworks = [
   ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
@@ -271,7 +276,7 @@ export async function isSolvent({
   const ethBalance = await provider.getBalance(fromAddress);
 
   if (currency.type === 'ETH') {
-    return ethBalance.gt(amount);
+    return needsGas ? ethBalance.gt(amount) : ethBalance.gte(amount);
   } else {
     const balance = await getCurrencyBalance(fromAddress, currency, provider);
     return (ethBalance.gt(0) || !needsGas) && BigNumber.from(balance).gte(amount);

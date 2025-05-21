@@ -1,5 +1,5 @@
 overwrite: true
-schema: 'https://api.studio.thegraph.com/query/67444/request-payments-sepolia/version/latest'
+schema: 'https://subgraph.satsuma-prod.com/e2e4905ab7c8/request-network--434873/request-payments-sepolia/api'
 documents: src/thegraph/queries/*.graphql
 generates:
   src/thegraph/generated/graphql.ts:
