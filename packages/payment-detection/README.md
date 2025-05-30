@@ -1,6 +1,6 @@
 # @requestnetwork/payment-detection
 
-`@requestnetwork/payment-detection` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
+`@requestnetwork/payment-detection` is a TypeScript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 It contains the implementation of request-related events interpretations, typically onchain payments of requests.
 
 The interpretation of events is specified by the payment extension added to the request. [Cf. advanced-logic specifications](../advanced-logic/specs/).
@@ -57,16 +57,17 @@ export abstract class PaymentDetectorBase<
 
 For TheGraph-based information retrieval, a client can be retrieved using `getTheGraphClient()` in `./src/thegraph/index.ts`. It provides a strongly typed interface, generated based on the queries in `/src/thegraph/queries`.
 
-The automated type generation is configured within files `./codegen.yml` (for EVM chains) and `./codegen-near.yml` (for Near) and output in `./src/thegraph/generated`. It depends on the deployed subgraphes schema and on the queries.
+The automated type generation is configured within files `./codegen.yml` (for EVM chains) and `./codegen-near.yml` (for Near) and output in `./src/thegraph/generated`.
+It depends on the deployed subgraphs schema and on the queries.
 
 The code generation is included in the pre-build script and can be run manually:
 
-```
+```sh
 yarn codegen
 ```
 
 # Test
 
-```bash
+```sh
 yarn run test
 ```
