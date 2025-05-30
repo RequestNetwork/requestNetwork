@@ -60,7 +60,7 @@
     "ethers": "5.7.2",
     "express": "4.21.0",
     "graphql": "16.8.1",
-    "graphql-request": "6.1.0",
+    "graphql-request": "7.1.2",
     "http-shutdown": "1.2.2",
     "http-status-codes": "2.1.4",
     "morgan": "1.10.0",
@@ -69,11 +69,6 @@
     "yargs": "17.6.2"
   },
   "devDependencies": {
-    "@babel/core": "7.23.9",
-    "@babel/plugin-transform-modules-commonjs": "7.23.3",
-    "@babel/plugin-transform-runtime": "7.23.3",
-    "@babel/preset-env": "7.23.3",
-    "@babel/runtime": "7.26.10",
     "@types/cors": "2.8.9",
     "@types/express": "4.17.17",
     "@types/jest": "29.5.6",
@@ -81,7 +76,6 @@
     "@types/node": "18.11.9",
     "@types/supertest": "2.0.10",
     "@types/yargs": "17.0.14",
-    "babel-jest": "29.7.0",
     "jest": "29.5.0",
     "jest-junit": "16.0.0",
     "msw": "2.0.6",
