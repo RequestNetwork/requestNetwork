@@ -11,7 +11,12 @@ import * as Erc20PaymentNetwork from './erc20';
 import { ERC20TransferableReceivablePaymentDetector } from './erc20';
 import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
 import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
-import { getTheGraphClient, getTheGraphEvmClient, getTheGraphNearClient } from './thegraph';
+import {
+  getTheGraphClient,
+  getTheGraphClientUrl,
+  getTheGraphEvmClient,
+  getTheGraphNearClient,
+} from './thegraph';
 import {
   calculateEscrowState,
   flattenRequestByPnId,
@@ -57,6 +62,7 @@ export {
   initPaymentDetectionApiKeys,
   getDefaultProvider,
   getTheGraphClient,
+  getTheGraphClientUrl,
   getTheGraphEvmClient,
   getTheGraphNearClient,
   parseLogArgs,

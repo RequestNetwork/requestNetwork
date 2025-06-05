@@ -83,6 +83,8 @@ export type TheGraphClientOptions = RequestConfig & {
   minIndexedBlock?: number | undefined;
   /** API key for accessing subgraphs hosted on TheGraph Explorer */
   theGraphExplorerApiKey?: string;
+  /** URL to access the subgraph. Using this option will ignore theGraphExplorerApiKey */
+  url?: string;
 };
 
 /** Splits the input options into "client options" to pass to the SDK, and "query options" to use in queries */
@@ -112,10 +114,16 @@ const extractClientOptions = (
   return [clientOptions, queryOptions];
 };
 
-export const getTheGraphClient = (network: string, url: string, options?: TheGraphClientOptions) =>
-  NearChains.isChainSupported(network)
+export const getTheGraphClient = (
+  network: CurrencyTypes.ChainName,
+  options?: TheGraphClientOptions,
+) => {
+  const url = getTheGraphClientUrl(network, options);
+  if (!url) return;
+  return NearChains.isChainSupported(network)
     ? getTheGraphNearClient(url, options)
     : getTheGraphEvmClient(url, options);
+};
 
 export const getTheGraphEvmClient = (url: string, options?: TheGraphClientOptions) => {
   const [clientOptions, queryOptions] = extractClientOptions(url, options);
@@ -135,10 +143,12 @@ export const getTheGraphNearClient = (url: string, options?: TheGraphClientOptio
   return sdk;
 };
 
-export const defaultGetTheGraphClientUrl = (
+export const getTheGraphClientUrl = (
   network: CurrencyTypes.ChainName,
   options?: TheGraphClientOptions,
 ) => {
+  if (options?.url) return options.url;
+
   const chain = network.replace('aurora', 'near') as CurrencyTypes.ChainName;
   const theGraphExplorerSubgraphId = THE_GRAPH_EXPLORER_SUBGRAPH_ID[chain];
   const { theGraphExplorerApiKey } = options || {};
@@ -170,14 +180,4 @@ export const defaultGetTheGraphClientUrl = (
         ? theGraphAlchemyUrl
         : theGraphStudioUrl;
   }
-};
-
-export const defaultGetTheGraphClient = (
-  network: CurrencyTypes.ChainName,
-  options?: TheGraphClientOptions,
-) => {
-  const url = defaultGetTheGraphClientUrl(network, options);
-  if (!url) return;
-  if (NearChains.isChainSupported(network)) return getTheGraphNearClient(url, options);
-  return getTheGraphEvmClient(url, options);
 };
