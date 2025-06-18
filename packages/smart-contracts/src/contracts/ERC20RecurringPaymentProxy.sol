@@ -38,8 +38,8 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     );
 
   /* replay defence */
-  mapping(bytes32 => uint256) public executedBitmap; // authId ⇒ 256-bit word
-  mapping(bytes32 => uint8) public lastExecutionIndex; // authId ⇒ last idx
+  mapping(bytes32 => uint256) public executedBitmap;
+  mapping(bytes32 => uint8) public lastExecutionIndex;
 
   IERC20FeeProxy public erc20FeeProxy;
 
@@ -93,31 +93,27 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     uint8 index,
     bytes calldata paymentReference
   ) external whenNotPaused onlyRole(EXECUTOR_ROLE) nonReentrant {
-    /* ------------ 1. signature verification ------------- */
     bytes32 digest = _hashSchedule(p);
 
     if (digest.recover(signature) != p.subscriber)
       revert ERC20RecurringPaymentProxy__BadSignature();
     if (block.timestamp > p.deadline) revert ERC20RecurringPaymentProxy__SignatureExpired();
 
-    /* ------------ 2. index & timing checks -------------- */
     if (index >= 256) revert ERC20RecurringPaymentProxy__IndexTooLarge();
     if (index != lastExecutionIndex[digest] + 1)
       revert ERC20RecurringPaymentProxy__ExecutionOutOfOrder();
     lastExecutionIndex[digest] = index;
 
-    if (index >= p.totalExecutions) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
+    if (index > p.totalExecutions) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
 
-    uint256 execTime = uint256(p.firstExec) + uint256(index) * p.periodSeconds;
+    uint256 execTime = uint256(p.firstExec) + uint256(index - 1) * p.periodSeconds;
     if (block.timestamp < execTime) revert ERC20RecurringPaymentProxy__NotDueYet();
 
-    /* ------------ 3. replay bitmap ---------------------- */
     uint256 mask = 1 << index;
     uint256 word = executedBitmap[digest];
     if (word & mask != 0) revert ERC20RecurringPaymentProxy__AlreadyPaid();
     executedBitmap[digest] = word | mask;
 
-    /* ------------ 4. transfers & gas fee ---------------- */
     uint256 total = p.amount + p.feeAmount + p.gasFee;
 
     IERC20 token = IERC20(p.token);
