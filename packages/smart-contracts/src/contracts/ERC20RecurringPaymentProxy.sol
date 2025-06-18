@@ -6,6 +6,7 @@ import '@openzeppelin/contracts/security/Pausable.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/utils/cryptography/EIP712.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
 import './interfaces/ERC20FeeProxy.sol';
 import './lib/SafeERC20.sol';
 
@@ -13,7 +14,7 @@ import './lib/SafeERC20.sol';
  * @title ERC20RecurringPaymentProxy
  * @notice Executes recurring ERC20 payments.
  */
-contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, ReentrancyGuard {
+contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, ReentrancyGuard, Ownable {
   using SafeERC20 for IERC20;
   using ECDSA for bytes32;
 
@@ -65,6 +66,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   ) EIP712('ERC20RecurringPaymentProxy', '1') {
     _grantRole(DEFAULT_ADMIN_ROLE, adminSafe);
     _grantRole(EXECUTOR_ROLE, executorEOA);
+    transferOwnership(adminSafe);
     erc20FeeProxy = IERC20FeeProxy(erc20FeeProxyAddress);
   }
 
@@ -130,21 +132,21 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     }
   }
 
-  function setExecutor(address oldExec, address newExec) external onlyRole(DEFAULT_ADMIN_ROLE) {
+  function setExecutor(address oldExec, address newExec) external onlyOwner {
     _revokeRole(EXECUTOR_ROLE, oldExec);
     _grantRole(EXECUTOR_ROLE, newExec);
   }
 
-  function setFeeProxy(address newProxy) external onlyRole(DEFAULT_ADMIN_ROLE) {
+  function setFeeProxy(address newProxy) external onlyOwner {
     if (newProxy == address(0)) revert ERC20RecurringPaymentProxy__ZeroAddress();
     erc20FeeProxy = IERC20FeeProxy(newProxy);
   }
 
-  function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+  function pause() external onlyOwner {
     _pause();
   }
 
-  function unpause() external onlyRole(DEFAULT_ADMIN_ROLE) {
+  function unpause() external onlyOwner {
     _unpause();
   }
 }
