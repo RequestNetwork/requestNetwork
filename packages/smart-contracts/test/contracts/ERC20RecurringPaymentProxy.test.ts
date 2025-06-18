@@ -1,10 +1,7 @@
-import { ethers } from 'hardhat';
-import { expect, use } from 'chai';
-import { solidity } from 'ethereum-waffle';
+import { expect } from 'chai';
 import { Contract, Signer } from 'ethers';
-import { ERC20FeeProxy__factory, ERC20FeeProxy, TestERC20__factory, TestERC20 } from '../../types';
-
-use(solidity);
+import { ethers } from 'hardhat';
+import { ERC20FeeProxy, TestERC20 } from '../../types';
 
 describe('ERC20RecurringPaymentProxy', () => {
   let erc20RecurringPaymentProxy: Contract;
