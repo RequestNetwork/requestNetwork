@@ -106,7 +106,31 @@ describe('ERC20RecurringPaymentProxy', () => {
       ],
     };
 
-    const signature = await (signer as any)._signTypedData(domain, types, permit);
+    const value = {
+      subscriber: permit.subscriber,
+      token: permit.token,
+      recipient: permit.recipient,
+      feeAddress: permit.feeAddress,
+      amount: permit.amount,
+      feeAmount: permit.feeAmount,
+      gasFee: permit.gasFee,
+      periodSeconds: permit.periodSeconds,
+      firstExec: permit.firstExec,
+      totalExecutions: permit.totalExecutions,
+      nonce: permit.nonce,
+      deadline: permit.deadline,
+    };
+
+    const signature = await (signer.provider as any).send('eth_signTypedData_v4', [
+      await signer.getAddress(),
+      JSON.stringify({
+        types,
+        primaryType: 'SchedulePermit',
+        domain,
+        message: value,
+      }),
+    ]);
+
     return signature;
   };
 
