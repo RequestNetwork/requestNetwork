@@ -106,32 +106,34 @@ describe('ERC20RecurringPaymentProxy', () => {
       ],
     };
 
-    const value = {
-      subscriber: permit.subscriber,
-      token: permit.token,
-      recipient: permit.recipient,
-      feeAddress: permit.feeAddress,
-      amount: permit.amount,
-      feeAmount: permit.feeAmount,
-      gasFee: permit.gasFee,
-      periodSeconds: permit.periodSeconds,
-      firstExec: permit.firstExec,
-      totalExecutions: permit.totalExecutions,
-      nonce: permit.nonce,
-      deadline: permit.deadline,
+    // Some providers (Hardhat in-process) happily accept the string-encoded data (what
+    // ethers' _signTypedData sends). Others (Hardhat JSON-RPC, Ganache) expect the object
+    // version. To work everywhere we try the object version first and fall back to
+    // the built-in helper if the call is rejected.
+
+    const typedDataObject = {
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        ...types,
+      },
+      primaryType: 'SchedulePermit',
+      domain,
+      message: permit,
     };
 
-    const signature = await (signer.provider as any).send('eth_signTypedData_v4', [
-      await signer.getAddress(),
-      JSON.stringify({
-        types,
-        primaryType: 'SchedulePermit',
-        domain,
-        message: value,
-      }),
-    ]);
-
-    return signature;
+    const address = await signer.getAddress();
+    try {
+      // This matches the spec used by Hardhat JSON-RPC & Ganache
+      return await (signer.provider as any).send('eth_signTypedData', [address, typedDataObject]);
+    } catch (_) {
+      // Fallback to ethers helper (works in most in-process Hardhat environments)
+      return await (signer as any)._signTypedData(domain, types, permit);
+    }
   };
 
   describe('Deployment', () => {
