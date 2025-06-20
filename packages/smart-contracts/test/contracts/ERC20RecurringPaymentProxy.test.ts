@@ -492,8 +492,8 @@ describe('ERC20RecurringPaymentProxy', () => {
       ).to.be.reverted;
     });
 
-    it.skip('should allow sequential execution of multiple payments', async () => {
-      const permit = createSchedulePermit({ totalExecutions: 3 });
+    it('should allow sequential execution of multiple payments', async () => {
+      const permit = createSchedulePermit({ totalExecutions: 3, periodSeconds: 1 });
       const signature = await createSignature(permit, subscriber);
       const paymentReference = '0x1234567890abcdef';
 
