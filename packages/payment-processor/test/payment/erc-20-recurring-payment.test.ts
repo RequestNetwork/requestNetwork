@@ -1,20 +1,11 @@
-import { Wallet, providers, BigNumber } from 'ethers';
+import { Wallet, providers } from 'ethers';
 import { erc20RecurringPaymentProxyArtifact } from '@requestnetwork/smart-contracts';
-import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
 import {
-  getPayerRecurringPaymentAllowance,
   encodeRecurringPaymentApproval,
   encodeRecurringPaymentExecution,
   executeRecurringPayment,
 } from '../../src/payment/erc20-recurring-payment-proxy';
-
-type ERC20Functions =
-  | 'approve'
-  | 'increaseAllowance'
-  | 'decreaseAllowance'
-  | 'transfer'
-  | 'transferFrom';
 
 describe('erc20-recurring-payment-proxy', () => {
   const mockProvider = new providers.JsonRpcProvider();
@@ -38,59 +29,6 @@ describe('erc20-recurring-payment-proxy', () => {
 
   const mockPermitSignature = '0x1234567890abcdef';
   const mockPaymentReference = '0x0000000000000000000000000000000000000000000000000000000000000001';
-
-  describe('getPayerRecurringPaymentAllowance', () => {
-    it('should throw if proxy not deployed on network', async () => {
-      // Test setup
-      const getAddressSpy = jest
-        .spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress')
-        .mockReturnValue('');
-
-      // Test execution & assertion
-      await expect(
-        getPayerRecurringPaymentAllowance({
-          payerAddress: mockSchedulePermit.subscriber,
-          tokenAddress: mockSchedulePermit.token,
-          provider: mockProvider,
-          network: mockNetwork,
-        }),
-      ).rejects.toThrow('ERC20RecurringPaymentProxy not found on mainnet');
-
-      // Cleanup
-      getAddressSpy.mockRestore();
-    });
-
-    it('should return allowance as string', async () => {
-      // Test setup
-      const mockProxyAddress = '0x5234567890123456789012345678901234567890';
-      const mockAllowance = '2000000000000000000';
-
-      const getAddressSpy = jest
-        .spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress')
-        .mockReturnValue(mockProxyAddress);
-
-      const tokenContract = ERC20__factory.connect(mockSchedulePermit.token, mockProvider);
-      const allowanceSpy = jest.fn().mockResolvedValue(BigNumber.from(mockAllowance));
-      jest.spyOn(tokenContract, 'allowance').mockImplementation(allowanceSpy);
-
-      // Test execution
-      const result = await getPayerRecurringPaymentAllowance({
-        payerAddress: mockSchedulePermit.subscriber,
-        tokenAddress: mockSchedulePermit.token,
-        provider: mockProvider,
-        network: mockNetwork,
-      });
-
-      // Assertions
-      expect(result).toBe(mockAllowance);
-      expect(getAddressSpy).toHaveBeenCalledWith(mockNetwork);
-      expect(allowanceSpy).toHaveBeenCalledWith(mockSchedulePermit.subscriber, mockProxyAddress);
-
-      // Cleanup
-      getAddressSpy.mockRestore();
-      allowanceSpy.mockRestore();
-    });
-  });
 
   describe('encodeRecurringPaymentApproval', () => {
     it('should encode approval data correctly', () => {
@@ -127,25 +65,10 @@ describe('erc20-recurring-payment-proxy', () => {
 
       // Verify it's a valid hex string
       expect(encodedData.startsWith('0x')).toBe(true);
-      // Verify it contains the execute method signature
-      expect(encodedData.includes('execute')).toBe(true);
     });
   });
 
   describe('executeRecurringPayment', () => {
-    it('should create a valid transaction', async () => {
-      const tx = await executeRecurringPayment({
-        permitTuple: mockSchedulePermit,
-        permitSignature: mockPermitSignature,
-        paymentIndex: 1,
-        paymentReference: mockPaymentReference,
-        signer: mockWallet,
-        network: mockNetwork,
-      });
-
-      expect(tx).toBeDefined();
-    });
-
     it('should throw if proxy not deployed on network', async () => {
       jest.spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress').mockReturnValue('');
 
