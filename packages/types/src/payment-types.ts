@@ -2,6 +2,7 @@ import { IIdentity } from './identity-types';
 import * as RequestLogic from './request-logic-types';
 import * as ExtensionTypes from './extension-types';
 import { ICreationParameters } from './extensions/pn-any-declarative-types';
+import { BigNumberish } from 'ethers';
 
 /** Interface for payment network extensions state and interpretation */
 export interface IPaymentNetwork<
@@ -391,4 +392,22 @@ export enum BATCH_PAYMENT_NETWORK_ID {
 export interface MetaDetail {
   paymentNetworkId: BATCH_PAYMENT_NETWORK_ID;
   requestDetails: RequestDetail[];
+}
+
+/**
+ * Parameters for a recurring payment schedule permit
+ */
+export interface SchedulePermit {
+  subscriber: string;
+  token: string;
+  recipient: string;
+  feeAddress: string;
+  amount: BigNumberish;
+  feeAmount: BigNumberish;
+  gasFee: BigNumberish;
+  periodSeconds: number;
+  firstExec: number;
+  totalExecutions: number;
+  nonce: BigNumberish;
+  deadline: BigNumberish;
 }

@@ -8,6 +8,15 @@ const getAdminWalletAddress = (contract: string): string => {
   return process.env.ADMIN_WALLET_ADDRESS;
 };
 
+const getRecurringPaymentExecutorWalletAddress = (contract: string): string => {
+  if (!process.env.RECURRING_PAYMENT_EXECUTOR_WALLET_ADDRESS) {
+    throw new Error(
+      `RECURRING_PAYMENT_EXECUTOR_WALLET_ADDRESS missing to get constructor args for: ${contract}`,
+    );
+  }
+  return process.env.RECURRING_PAYMENT_EXECUTOR_WALLET_ADDRESS;
+};
+
 export const getConstructorArgs = (
   contract: string,
   network?: CurrencyTypes.EvmChainName,
@@ -77,6 +86,18 @@ export const getConstructorArgs = (
       const ethereumFeeProxyAddress = ethereumFeeProxy.getAddress(network);
 
       return [ethereumFeeProxyAddress, erc20FeeProxyAddress, getAdminWalletAddress(contract)];
+    }
+    case 'ERC20RecurringPaymentProxy': {
+      if (!network) {
+        throw new Error('SingleRequestProxyFactory requires network parameter');
+      }
+      const erc20FeeProxy = artifacts.erc20FeeProxyArtifact;
+      const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
+
+      const adminSafe = getAdminWalletAddress(contract);
+      const executorEOA = getRecurringPaymentExecutorWalletAddress(contract);
+
+      return [adminSafe, executorEOA, erc20FeeProxyAddress];
     }
     default:
       return [];

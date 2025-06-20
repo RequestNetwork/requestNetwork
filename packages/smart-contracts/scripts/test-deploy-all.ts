@@ -8,6 +8,7 @@ import { deploySuperFluid } from './test-deploy-superfluid';
 import { deployBatchConversionPayment } from './test-deploy-batch-conversion-deployment';
 import { deployERC20TransferableReceivable } from './test-deploy-erc20-transferable-receivable';
 import { deploySingleRequestProxyFactory } from './test-deploy-single-request-proxy';
+import { deployERC20RecurringPaymentProxy } from './test-deploy-erc20-recurring-payment-proxy';
 
 // Deploys, set up the contracts
 export default async function deploy(_args: any, hre: HardhatRuntimeEnvironment): Promise<any> {
@@ -20,4 +21,5 @@ export default async function deploy(_args: any, hre: HardhatRuntimeEnvironment)
   await deployBatchConversionPayment(_args, hre);
   await deployERC20TransferableReceivable(_args, hre, mainPaymentAddresses);
   await deploySingleRequestProxyFactory(_args, hre, mainPaymentAddresses);
+  await deployERC20RecurringPaymentProxy(_args, hre, mainPaymentAddresses.ERC20FeeProxyAddress);
 }
