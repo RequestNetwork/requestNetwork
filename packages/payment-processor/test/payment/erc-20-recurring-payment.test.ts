@@ -70,9 +70,8 @@ describe('erc20-recurring-payment-proxy', () => {
         .mockReturnValue(mockProxyAddress);
 
       const tokenContract = ERC20__factory.connect(mockSchedulePermit.token, mockProvider);
-      const allowanceSpy = jest
-        .spyOn(tokenContract, 'allowance')
-        .mockResolvedValue(BigNumber.from(mockAllowance));
+      const allowanceSpy = jest.fn().mockResolvedValue(BigNumber.from(mockAllowance));
+      jest.spyOn(tokenContract, 'allowance').mockImplementation(allowanceSpy);
 
       // Test execution
       const result = await getPayerRecurringPaymentAllowance({
