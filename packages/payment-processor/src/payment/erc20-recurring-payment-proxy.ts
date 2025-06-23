@@ -50,8 +50,7 @@ export async function getPayerRecurringPaymentAllowance({
  * Encodes the transaction data to approve or increase allowance for the ERC20RecurringPaymentProxy.
  * Tries different approval methods in order of preference:
  * 1. increaseAllowance (OpenZeppelin standard)
- * 2. increaseApproval (older OpenZeppelin)
- * 3. approve (ERC20 standard fallback)
+ * 2. approve (ERC20 standard fallback)
  *
  * @param tokenAddress - The ERC20 token contract address
  * @param amount - The amount to approve, as a BigNumberish value
@@ -106,8 +105,7 @@ export function encodeRecurringPaymentApproval({
  * Encodes the transaction data to decrease or revoke allowance for the ERC20RecurringPaymentProxy.
  * Tries different revocation methods in order of preference:
  * 1. decreaseAllowance (OpenZeppelin standard)
- * 2. decreaseApproval (older OpenZeppelin)
- * 3. approve(0) (ERC20 standard fallback)
+ * 2. approve(0) (ERC20 standard fallback)
  *
  * @param tokenAddress - The ERC20 token contract address
  * @param amount - The amount to decrease the allowance by, as a BigNumberish value
