@@ -7,39 +7,41 @@ import {
   executeRecurringPayment,
 } from '../../src/payment/erc20-recurring-payment-proxy';
 
+const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
+const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
+const network: CurrencyTypes.EvmChainName = 'private';
+const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
+
+const schedulePermit: PaymentTypes.SchedulePermit = {
+  subscriber: wallet.address,
+  token: erc20ContractAddress,
+  recipient: '0x3234567890123456789012345678901234567890',
+  feeAddress: '0x4234567890123456789012345678901234567890',
+  amount: '1000000000000000000', // 1 token
+  feeAmount: '10000000000000000', // 0.01 token
+  gasFee: '5000000000000000', // 0.005 token
+  periodSeconds: 86400, // 1 day
+  firstExec: Math.floor(Date.now() / 1000),
+  totalExecutions: 12,
+  nonce: '1',
+  deadline: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+};
+
+const permitSignature = '0x1234567890abcdef';
+const paymentReference = '0x0000000000000000000000000000000000000000000000000000000000000001';
+
 describe('erc20-recurring-payment-proxy', () => {
-  const mockProvider = new providers.JsonRpcProvider();
-  const mockWallet = Wallet.createRandom().connect(mockProvider);
-  const mockNetwork: CurrencyTypes.EvmChainName = 'mainnet';
-
-  const mockSchedulePermit: PaymentTypes.SchedulePermit = {
-    subscriber: '0x1234567890123456789012345678901234567890',
-    token: '0x2234567890123456789012345678901234567890',
-    recipient: '0x3234567890123456789012345678901234567890',
-    feeAddress: '0x4234567890123456789012345678901234567890',
-    amount: '1000000000000000000', // 1 token
-    feeAmount: '10000000000000000', // 0.01 token
-    gasFee: '5000000000000000', // 0.005 token
-    periodSeconds: 86400, // 1 day
-    firstExec: Math.floor(Date.now() / 1000),
-    totalExecutions: 12,
-    nonce: '1',
-    deadline: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
-  };
-
-  const mockPermitSignature = '0x1234567890abcdef';
-  const mockPaymentReference = '0x0000000000000000000000000000000000000000000000000000000000000001';
-
   describe('encodeRecurringPaymentApproval', () => {
     it('should encode approval data correctly', () => {
       const amount = '1000000000000000000';
-      const tokenAddress = '0x2234567890123456789012345678901234567890';
+      const tokenAddress = erc20ContractAddress;
 
       const encodedData = encodeRecurringPaymentApproval({
         tokenAddress,
         amount,
-        provider: mockProvider,
-        network: mockNetwork,
+        provider,
+        network,
       });
 
       // Verify it's a valid hex string
@@ -55,12 +57,12 @@ describe('erc20-recurring-payment-proxy', () => {
   describe('encodeRecurringPaymentExecution', () => {
     it('should encode execution data correctly', () => {
       const encodedData = encodeRecurringPaymentExecution({
-        permitTuple: mockSchedulePermit,
-        permitSignature: mockPermitSignature,
+        permitTuple: schedulePermit,
+        permitSignature,
         paymentIndex: 1,
-        paymentReference: mockPaymentReference,
-        network: mockNetwork,
-        provider: mockProvider,
+        paymentReference,
+        network,
+        provider,
       });
 
       // Verify it's a valid hex string
@@ -74,14 +76,14 @@ describe('erc20-recurring-payment-proxy', () => {
 
       await expect(
         executeRecurringPayment({
-          permitTuple: mockSchedulePermit,
-          permitSignature: mockPermitSignature,
+          permitTuple: schedulePermit,
+          permitSignature,
           paymentIndex: 1,
-          paymentReference: mockPaymentReference,
-          signer: mockWallet,
-          network: mockNetwork,
+          paymentReference,
+          signer: wallet,
+          network,
         }),
-      ).rejects.toThrow('ERC20RecurringPaymentProxy not found on mainnet');
+      ).rejects.toThrow('ERC20RecurringPaymentProxy not found on private');
     });
   });
 });
