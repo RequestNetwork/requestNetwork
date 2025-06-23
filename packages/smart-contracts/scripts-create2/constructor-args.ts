@@ -89,7 +89,7 @@ export const getConstructorArgs = (
     }
     case 'ERC20RecurringPaymentProxy': {
       if (!network) {
-        throw new Error('SingleRequestProxyFactory requires network parameter');
+        throw new Error('ERC20RecurringPaymentProxy requires network parameter');
       }
       const erc20FeeProxy = artifacts.erc20FeeProxyArtifact;
       const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
