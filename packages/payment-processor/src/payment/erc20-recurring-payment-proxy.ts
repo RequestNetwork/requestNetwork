@@ -236,7 +236,6 @@ export function encodeRecurringPaymentExecution({
  * @param paymentReference - Reference data for the payment execution
  * @param signer - The signer that will execute the transaction (must have EXECUTOR_ROLE)
  * @param network - The EVM chain name where the proxy is deployed
- * @param overrides - Optional transaction overrides (gas price, limit etc)
  *
  * @returns A Promise resolving to the transaction receipt after the payment is confirmed
  *
