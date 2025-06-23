@@ -71,9 +71,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   }
 
   function _hashSchedule(SchedulePermit calldata p) private view returns (bytes32) {
-    SchedulePermit memory m = p;
-
-    bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, m));
+    bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, p));
 
     return _hashTypedDataV4(structHash);
   }
