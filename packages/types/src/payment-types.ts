@@ -404,7 +404,7 @@ export interface SchedulePermit {
   feeAddress: string;
   amount: BigNumberish;
   feeAmount: BigNumberish;
-  gasFee: BigNumberish;
+  executorFee: BigNumberish;
   periodSeconds: number;
   firstExec: number;
   totalExecutions: number;

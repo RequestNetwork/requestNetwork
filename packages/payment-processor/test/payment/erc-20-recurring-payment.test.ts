@@ -20,7 +20,7 @@ const schedulePermit: PaymentTypes.SchedulePermit = {
   feeAddress: '0x4234567890123456789012345678901234567890',
   amount: '1000000000000000000', // 1 token
   feeAmount: '10000000000000000', // 0.01 token
-  gasFee: '5000000000000000', // 0.005 token
+  executorFee: '5000000000000000', // 0.005 token
   periodSeconds: 86400, // 1 day
   firstExec: Math.floor(Date.now() / 1000),
   totalExecutions: 12,

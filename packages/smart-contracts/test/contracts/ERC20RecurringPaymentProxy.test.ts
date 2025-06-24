@@ -70,7 +70,7 @@ describe('ERC20RecurringPaymentProxy', () => {
       feeAddress: feeAddressString,
       amount: 100,
       feeAmount: 10,
-      gasFee: 5,
+      executorFee: 5,
       periodSeconds: 3600,
       firstExec: now,
       totalExecutions: 3,
@@ -97,7 +97,7 @@ describe('ERC20RecurringPaymentProxy', () => {
         { name: 'feeAddress', type: 'address' },
         { name: 'amount', type: 'uint128' },
         { name: 'feeAmount', type: 'uint128' },
-        { name: 'gasFee', type: 'uint128' },
+        { name: 'executorFee', type: 'uint128' },
         { name: 'periodSeconds', type: 'uint32' },
         { name: 'firstExec', type: 'uint32' },
         { name: 'totalExecutions', type: 'uint8' },
@@ -544,7 +544,7 @@ describe('ERC20RecurringPaymentProxy', () => {
     });
 
     it('should handle zero gas fee correctly', async () => {
-      const permit = createSchedulePermit({ gasFee: 0 });
+      const permit = createSchedulePermit({ executorFee: 0 });
       const signature = await createSignature(permit, subscriber);
       const paymentReference = '0x1234567890abcdef';
 
@@ -613,7 +613,7 @@ describe('ERC20RecurringPaymentProxy', () => {
         feeAddress: userAddress,
         amount: 100,
         feeAmount: 10,
-        gasFee: 5,
+        executorFee: 5,
         periodSeconds: 3600,
         firstExec: Math.floor(Date.now() / 1000),
         totalExecutions: 1,

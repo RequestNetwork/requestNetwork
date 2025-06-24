@@ -29,11 +29,11 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
 
   bytes32 public constant EXECUTOR_ROLE = keccak256('EXECUTOR_ROLE');
 
-  /* keccak256 of the typed-data struct with gasFee field */
+  /* keccak256 of the typed-data struct with executorFee field */
   bytes32 private constant _PERMIT_TYPEHASH =
     keccak256(
       'SchedulePermit(address subscriber,address token,address recipient,'
-      'address feeAddress,uint128 amount,uint128 feeAmount,uint128 gasFee,'
+      'address feeAddress,uint128 amount,uint128 feeAmount,uint128 executorFee,'
       'uint32 periodSeconds,uint32 firstExec,uint8 totalExecutions,'
       'uint256 nonce,uint256 deadline)'
     );
@@ -51,7 +51,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     address feeAddress;
     uint128 amount;
     uint128 feeAmount;
-    uint128 gasFee;
+    uint128 executorFee;
     uint32 periodSeconds;
     uint32 firstExec;
     uint8 totalExecutions;
@@ -114,7 +114,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     if (word & mask != 0) revert ERC20RecurringPaymentProxy__AlreadyPaid();
     executedBitmap[digest] = word | mask;
 
-    uint256 total = p.amount + p.feeAmount + p.gasFee;
+    uint256 total = p.amount + p.feeAmount + p.executorFee;
 
     IERC20 token = IERC20(p.token);
     token.safeTransferFrom(p.subscriber, address(this), total);
@@ -125,8 +125,8 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
 
     _proxyTransfer(p, paymentReference);
 
-    if (p.gasFee != 0) {
-      token.safeTransfer(msg.sender, p.gasFee);
+    if (p.executorFee != 0) {
+      token.safeTransfer(msg.sender, p.executorFee);
     }
   }
 
