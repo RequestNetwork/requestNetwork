@@ -51,6 +51,16 @@ export default class LitProtocolCipherProvider implements CipherProviderTypes.IC
   private decryptionEnabled = false;
 
   /**
+   * @property {string|undefined} domain - The domain to use for generating the auth sig.
+   */
+  private domain?: string;
+
+  /**
+   * @property {string|undefined} statement - The statement to use for generating the auth sig.
+   */
+  private statement?: string;
+
+  /**
    * @constructor
    * @param {LitNodeClient|LitNodeClientNodeJs} litClient - An instance of a Lit Protocol client (either client-side or Node.js).
    * @throws {Error} Throws an error if the provided Lit client is invalid.
@@ -59,10 +69,14 @@ export default class LitProtocolCipherProvider implements CipherProviderTypes.IC
     litClient: LitNodeClient | LitNodeClientNodeJs,
     nodeConnectionConfig: NodeConnectionConfig,
     chain = 'ethereum',
+    domain?: string,
+    statement?: string,
   ) {
     this.litClient = litClient;
     this.chain = chain;
     this.dataAccess = new HttpDataAccess({ nodeConnectionConfig });
+    this.domain = domain;
+    this.statement = statement;
   }
 
   /**
@@ -109,16 +123,9 @@ export default class LitProtocolCipherProvider implements CipherProviderTypes.IC
    * @description Gets the session signatures required for decryption.
    * @param {any} signer - The signer object to use for generating the auth sig.
    * @param {string} walletAddress - The wallet address to use for generating the auth sig.
-   * @param {string} domain - The domain to use for generating the auth sig.
-   * @param {string} statement - The statement to use for generating the auth sig.
    * @returns {Promise<void>}
    */
-  public async getSessionSignatures(
-    signer: Signer,
-    walletAddress: string,
-    domain?: string,
-    statement?: string,
-  ): Promise<void> {
+  public async getSessionSignatures(signer: Signer, walletAddress: string): Promise<void> {
     if (!this.litClient) {
       throw new Error('Lit client not initialized');
     }
@@ -147,8 +154,9 @@ export default class LitProtocolCipherProvider implements CipherProviderTypes.IC
 
       // Create the SIWE message
       const toSign = await createSiweMessage({
-        domain,
-        statement,
+        // Use class properties instead of function parameters
+        domain: this.domain,
+        statement: this.statement,
         uri: params.uri,
         expiration: params.expiration,
         resources: params.resourceAbilityRequests,
