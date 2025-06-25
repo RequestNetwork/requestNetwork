@@ -32,6 +32,10 @@ const permitSignature = '0x1234567890abcdef';
 const paymentReference = '0x0000000000000000000000000000000000000000000000000000000000000001';
 
 describe('erc20-recurring-payment-proxy', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('encodeSetRecurringAllowance', () => {
     it('should return a single transaction for a non-USDT token', () => {
       const amount = '1000000000000000000';
