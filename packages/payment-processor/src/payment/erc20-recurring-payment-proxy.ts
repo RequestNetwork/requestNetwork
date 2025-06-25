@@ -3,7 +3,6 @@ import { providers, Signer, BigNumberish } from 'ethers';
 import { erc20RecurringPaymentProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getErc20Allowance } from './erc20';
-import { BigNumber } from 'ethers';
 
 /**
  * Retrieves the current ERC-20 allowance that a subscriber (`payerAddress`) has
@@ -48,37 +47,34 @@ export async function getPayerRecurringPaymentAllowance({
 }
 
 /**
- * Encodes the transaction data to approve or increase allowance for the ERC20RecurringPaymentProxy.
- * Tries different approval methods in order of preference:
- * 1. increaseAllowance (OpenZeppelin standard)
- * 2. approve (ERC20 standard fallback)
+ * Encodes the transaction data to set the allowance for the ERC20RecurringPaymentProxy.
  *
  * @param tokenAddress - The ERC20 token contract address
  * @param amount - The amount to approve, as a BigNumberish value
  * @param provider - Web3 provider or signer to interact with the blockchain
  * @param network - The EVM chain name where the proxy is deployed
+ * @param isUSDT - Flag to indicate if the token is USDT, which requires special handling
  *
  * @returns Array of transaction objects ready to be executed by a wallet
  *
  * @throws {Error} If the ERC20RecurringPaymentProxy is not deployed on the specified network
- * @throws {Error} If none of the approval methods are available on the token contract
  *
  * @remarks
- * • The function attempts multiple approval methods to support different ERC20 implementations
- * • The proxy address is fetched from the artifact to ensure consistency across deployments
- * • Returns an array for consistency, even though it's typically a single transaction
- * • For USDT tokens, use encodeUSDTRecurringPaymentApproval instead
+ * • For USDT, it returns two transactions: approve(0) and then approve(amount)
+ * • For other ERC20 tokens, it returns a single approve(amount) transaction
  */
-export function encodeRecurringPaymentApproval({
+export function encodeSetRecurringAllowance({
   tokenAddress,
   amount,
   provider,
   network,
+  isUSDT = false,
 }: {
   tokenAddress: string;
   amount: BigNumberish;
   provider: providers.Provider | Signer;
   network: CurrencyTypes.EvmChainName;
+  isUSDT?: boolean;
 }): Array<{ to: string; data: string; value: number }> {
   const erc20RecurringPaymentProxy = erc20RecurringPaymentProxyArtifact.connect(network, provider);
 
@@ -88,234 +84,23 @@ export function encodeRecurringPaymentApproval({
 
   const paymentTokenContract = ERC20__factory.connect(tokenAddress, provider);
 
-  try {
-    // Try increaseAllowance first (OpenZeppelin standard)
-    const data = paymentTokenContract.interface.encodeFunctionData('increaseAllowance', [
-      erc20RecurringPaymentProxy.address,
-      amount,
-    ]);
-    return [{ to: tokenAddress, data, value: 0 }];
-  } catch {
-    // Fallback to approve if increaseAllowance is not supported
-    const data = paymentTokenContract.interface.encodeFunctionData('approve', [
-      erc20RecurringPaymentProxy.address,
-      amount,
-    ]);
-    return [{ to: tokenAddress, data, value: 0 }];
-  }
-}
+  const transactions: Array<{ to: string; data: string; value: number }> = [];
 
-/**
- * Encodes the transaction data to decrease allowance for the ERC20RecurringPaymentProxy.
- * Tries different decrease methods in order of preference:
- * 1. decreaseAllowance (OpenZeppelin standard)
- * 2. approve(0) then approve(newAmount) (ERC20 standard fallback)
- *
- * @param tokenAddress - The ERC20 token contract address
- * @param amount - The amount to decrease the allowance by, as a BigNumberish value
- * @param currentAllowance - The current allowance amount, as a BigNumberish value
- * @param provider - Web3 provider or signer to interact with the blockchain
- * @param network - The EVM chain name where the proxy is deployed
- *
- * @returns Array of transaction objects ready to be executed by a wallet
- *
- * @throws {Error} If the ERC20RecurringPaymentProxy is not deployed on the specified network
- * @throws {Error} If none of the decrease methods are available on the token contract
- *
- * @remarks
- * • The function attempts multiple decrease methods to support different ERC20 implementations
- * • If no decrease method is available, falls back to approve(0) then approve(newAmount)
- * • The proxy address is fetched from the artifact to ensure consistency across deployments
- * • For USDT tokens, use encodeUSDTRecurringPaymentAllowanceDecrease instead
- */
-export function encodeRecurringPaymentAllowanceDecrease({
-  tokenAddress,
-  amount,
-  currentAllowance,
-  provider,
-  network,
-}: {
-  tokenAddress: string;
-  amount: BigNumberish;
-  currentAllowance: BigNumberish;
-  provider: providers.Provider | Signer;
-  network: CurrencyTypes.EvmChainName;
-}): Array<{ to: string; data: string; value: number }> {
-  const erc20RecurringPaymentProxy = erc20RecurringPaymentProxyArtifact.connect(network, provider);
-
-  if (!erc20RecurringPaymentProxy.address) {
-    throw new Error(`ERC20RecurringPaymentProxy not found on ${network}`);
-  }
-
-  const paymentTokenContract = ERC20__factory.connect(tokenAddress, provider);
-
-  try {
-    // Try decreaseAllowance first (OpenZeppelin standard)
-    const data = paymentTokenContract.interface.encodeFunctionData('decreaseAllowance', [
-      erc20RecurringPaymentProxy.address,
-      amount,
-    ]);
-    return [{ to: tokenAddress, data, value: 0 }];
-  } catch {
-    // Fallback to approve(0) then approve(newAmount)
-    const newAllowance = BigNumber.from(currentAllowance).sub(amount);
-
+  if (isUSDT) {
     const resetData = paymentTokenContract.interface.encodeFunctionData('approve', [
       erc20RecurringPaymentProxy.address,
       0,
     ]);
-
-    const setData = paymentTokenContract.interface.encodeFunctionData('approve', [
-      erc20RecurringPaymentProxy.address,
-      newAllowance,
-    ]);
-
-    return [
-      { to: tokenAddress, data: resetData, value: 0 },
-      { to: tokenAddress, data: setData, value: 0 },
-    ];
-  }
-}
-
-/**
- * Encodes the transaction data to approve or increase allowance for USDT tokens to the ERC20RecurringPaymentProxy.
- * USDT has non-standard behavior:
- * - On mainnets: No increaseAllowance method, requires approve(0) first then approve(amount)
- * - On testnets: Has increaseAllowance but doesn't allow increase if current allowance > 0
- *
- * @param tokenAddress - The USDT token contract address
- * @param amount - The amount to approve, as a BigNumberish value
- * @param provider - Web3 provider or signer to interact with the blockchain
- * @param network - The EVM chain name where the proxy is deployed
- *
- * @returns Array of transaction objects ready to be executed by a wallet
- *
- * @throws {Error} If the ERC20RecurringPaymentProxy is not deployed on the specified network
- *
- * @remarks
- * • Returns an array because USDT requires multiple transactions (approve(0) then approve(amount))
- * • The caller should execute these transactions in sequence
- * • For mainnets: Always returns [approve(0), approve(amount)]
- * • For testnets: Returns [approve(0), approve(amount)] to be safe
- */
-export function encodeUSDTRecurringPaymentApproval({
-  tokenAddress,
-  amount,
-  provider,
-  network,
-}: {
-  tokenAddress: string;
-  amount: BigNumberish;
-  provider: providers.Provider | Signer;
-  network: CurrencyTypes.EvmChainName;
-}): Array<{ to: string; data: string; value: number }> {
-  const erc20RecurringPaymentProxy = erc20RecurringPaymentProxyArtifact.connect(network, provider);
-
-  if (!erc20RecurringPaymentProxy.address) {
-    throw new Error(`ERC20RecurringPaymentProxy not found on ${network}`);
+    transactions.push({ to: tokenAddress, data: resetData, value: 0 });
   }
 
-  const paymentTokenContract = ERC20__factory.connect(tokenAddress, provider);
-
-  // For USDT, we always use the two-step approach: approve(0) then approve(amount)
-  // This works for both mainnet USDT (which requires it) and testnet USDT (which allows it)
-  const resetApprovalData = paymentTokenContract.interface.encodeFunctionData('approve', [
-    erc20RecurringPaymentProxy.address,
-    0,
-  ]);
-
-  const setApprovalData = paymentTokenContract.interface.encodeFunctionData('approve', [
+  const setData = paymentTokenContract.interface.encodeFunctionData('approve', [
     erc20RecurringPaymentProxy.address,
     amount,
   ]);
+  transactions.push({ to: tokenAddress, data: setData, value: 0 });
 
-  return [
-    { to: tokenAddress, data: resetApprovalData, value: 0 },
-    { to: tokenAddress, data: setApprovalData, value: 0 },
-  ];
-}
-
-/**
- * Encodes the transaction data to decrease USDT allowance for the ERC20RecurringPaymentProxy.
- * USDT has non-standard behavior and requires approve(0) first then approve(newAmount).
- *
- * @param tokenAddress - The USDT token contract address
- * @param amount - The amount to decrease the allowance by, as a BigNumberish value
- * @param currentAllowance - The current allowance amount, as a BigNumberish value
- * @param provider - Web3 provider or signer to interact with the blockchain
- * @param network - The EVM chain name where the proxy is deployed
- *
- * @returns Array of transaction objects ready to be executed by a wallet
- *
- * @throws {Error} If the ERC20RecurringPaymentProxy is not deployed on the specified network
- *
- * @remarks
- * • For USDT, we always use approve(0) then approve(newAmount) for any allowance changes
- * • USDT doesn't reliably support decreaseAllowance, so we always use the two-step approach
- * • The newAmount is calculated as currentAllowance - amount
- */
-export function encodeUSDTRecurringPaymentAllowanceDecrease({
-  tokenAddress,
-  amount,
-  currentAllowance,
-  provider,
-  network,
-}: {
-  tokenAddress: string;
-  amount: BigNumberish;
-  currentAllowance: BigNumberish;
-  provider: providers.Provider | Signer;
-  network: CurrencyTypes.EvmChainName;
-}): Array<{ to: string; data: string; value: number }> {
-  const erc20RecurringPaymentProxy = erc20RecurringPaymentProxyArtifact.connect(network, provider);
-
-  if (!erc20RecurringPaymentProxy.address) {
-    throw new Error(`ERC20RecurringPaymentProxy not found on ${network}`);
-  }
-
-  const paymentTokenContract = ERC20__factory.connect(tokenAddress, provider);
-  const newAllowance = BigNumber.from(currentAllowance).sub(amount);
-
-  // For USDT, always use approve(0) then approve(newAmount)
-  const resetApprovalData = paymentTokenContract.interface.encodeFunctionData('approve', [
-    erc20RecurringPaymentProxy.address,
-    0,
-  ]);
-
-  const setApprovalData = paymentTokenContract.interface.encodeFunctionData('approve', [
-    erc20RecurringPaymentProxy.address,
-    newAllowance,
-  ]);
-
-  return [
-    { to: tokenAddress, data: resetApprovalData, value: 0 },
-    { to: tokenAddress, data: setApprovalData, value: 0 },
-  ];
-}
-
-/**
- * Returns the deployed address of the ERC20RecurringPaymentProxy contract for a given network.
- *
- * @param network - The EVM chain name (e.g. 'mainnet', 'goerli', 'matic')
- *
- * @returns The deployed proxy contract address for the specified network
- *
- * @throws {Error} If the ERC20RecurringPaymentProxy has no known deployment
- *                 on the provided network
- *
- * @remarks
- * • This is a pure helper that doesn't require a provider or make any network calls
- * • The address is looked up from the deployment artifacts maintained by the smart-contracts package
- * • Use this when you only need the address and don't need to interact with the contract
- */
-export function getRecurringPaymentProxyAddress(network: CurrencyTypes.EvmChainName): string {
-  const address = erc20RecurringPaymentProxyArtifact.getAddress(network);
-
-  if (!address) {
-    throw new Error(`ERC20RecurringPaymentProxy not found on ${network}`);
-  }
-
-  return address;
+  return transactions;
 }
 
 /**
@@ -414,4 +199,29 @@ export async function executeRecurringPayment({
   });
 
   return tx.wait();
+}
+
+/**
+ * Returns the deployed address of the ERC20RecurringPaymentProxy contract for a given network.
+ *
+ * @param network - The EVM chain name (e.g. 'mainnet', 'sepolia', 'matic')
+ *
+ * @returns The deployed proxy contract address for the specified network
+ *
+ * @throws {Error} If the ERC20RecurringPaymentProxy has no known deployment
+ *                 on the provided network
+ *
+ * @remarks
+ * • This is a pure helper that doesn't require a provider or make any network calls
+ * • The address is looked up from the deployment artifacts maintained by the smart-contracts package
+ * • Use this when you only need the address and don't need to interact with the contract
+ */
+export function getRecurringPaymentProxyAddress(network: CurrencyTypes.EvmChainName): string {
+  const address = erc20RecurringPaymentProxyArtifact.getAddress(network);
+
+  if (!address) {
+    throw new Error(`ERC20RecurringPaymentProxy not found on ${network}`);
+  }
+
+  return address;
 }
