@@ -410,4 +410,5 @@ export interface SchedulePermit {
   totalExecutions: number;
   nonce: BigNumberish;
   deadline: BigNumberish;
+  strictOrder: boolean;
 }
