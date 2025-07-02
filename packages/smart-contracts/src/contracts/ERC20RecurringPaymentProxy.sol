@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.9;
+pragma solidity ^0.8.9;
 
 import '@openzeppelin/contracts/access/AccessControl.sol';
 import '@openzeppelin/contracts/security/Pausable.sol';
@@ -35,7 +35,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
       'SchedulePermit(address subscriber,address token,address recipient,'
       'address feeAddress,uint128 amount,uint128 feeAmount,uint128 executorFee,'
       'uint32 periodSeconds,uint32 firstExec,uint8 totalExecutions,'
-      'uint256 nonce,uint256 deadline)'
+      'uint256 nonce,uint256 deadline,bool strictOrder)'
     );
 
   /* replay defence */
@@ -57,6 +57,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     uint8 totalExecutions;
     uint256 nonce;
     uint256 deadline;
+    bool strictOrder;
   }
 
   constructor(
@@ -64,6 +65,11 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     address executorEOA,
     address erc20FeeProxyAddress
   ) EIP712('ERC20RecurringPaymentProxy', '1') {
+    if (
+      adminSafe == address(0) || executorEOA == address(0) || erc20FeeProxyAddress == address(0)
+    ) {
+      revert ERC20RecurringPaymentProxy__ZeroAddress();
+    }
     _grantRole(DEFAULT_ADMIN_ROLE, adminSafe);
     _grantRole(EXECUTOR_ROLE, executorEOA);
     transferOwnership(adminSafe);
@@ -100,9 +106,12 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     if (block.timestamp > p.deadline) revert ERC20RecurringPaymentProxy__SignatureExpired();
 
     if (index >= 256) revert ERC20RecurringPaymentProxy__IndexTooLarge();
-    if (index != lastExecutionIndex[digest] + 1)
-      revert ERC20RecurringPaymentProxy__ExecutionOutOfOrder();
-    lastExecutionIndex[digest] = index;
+
+    if (p.strictOrder) {
+      if (index != lastExecutionIndex[digest] + 1)
+        revert ERC20RecurringPaymentProxy__ExecutionOutOfOrder();
+      lastExecutionIndex[digest] = index;
+    }
 
     if (index > p.totalExecutions) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
 
@@ -131,6 +140,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   }
 
   function setExecutor(address oldExec, address newExec) external onlyOwner {
+    if (newExec == address(0)) revert ERC20RecurringPaymentProxy__ZeroAddress();
     _revokeRole(EXECUTOR_ROLE, oldExec);
     _grantRole(EXECUTOR_ROLE, newExec);
   }

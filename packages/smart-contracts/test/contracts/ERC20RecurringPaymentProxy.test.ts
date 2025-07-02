@@ -76,6 +76,7 @@ describe('ERC20RecurringPaymentProxy', () => {
       totalExecutions: 3,
       nonce: 0,
       deadline: now + 86400, // 24 hours from now
+      strictOrder: false,
       ...overrides,
     };
   };
@@ -103,6 +104,7 @@ describe('ERC20RecurringPaymentProxy', () => {
         { name: 'totalExecutions', type: 'uint8' },
         { name: 'nonce', type: 'uint256' },
         { name: 'deadline', type: 'uint256' },
+        { name: 'strictOrder', type: 'bool' },
       ],
     };
 
@@ -436,7 +438,7 @@ describe('ERC20RecurringPaymentProxy', () => {
     });
 
     it('should revert when execution is out of order', async () => {
-      const permit = createSchedulePermit();
+      const permit = createSchedulePermit({ strictOrder: true });
       const signature = await createSignature(permit, subscriber);
       const paymentReference = '0x1234567890abcdef';
 
@@ -445,7 +447,24 @@ describe('ERC20RecurringPaymentProxy', () => {
         erc20RecurringPaymentProxy
           .connect(executor)
           .execute(permit, signature, 2, paymentReference),
-      ).to.be.reverted;
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__ExecutionOutOfOrder');
+    });
+
+    it('should allow out of order execution if strictOrder is false', async () => {
+      const permit = createSchedulePermit({ strictOrder: false, periodSeconds: 1 });
+      const signature = await createSignature(permit, subscriber);
+      const paymentReference = '0x1234567890abcdef';
+
+      // Fast forward time to make multiple payments due
+      await ethers.provider.send('evm_increaseTime', [5]);
+      await ethers.provider.send('evm_mine', []);
+
+      // Execute index 2 before index 1, which should be allowed
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(executor)
+          .execute(permit, signature, 2, paymentReference),
+      ).to.not.be.reverted;
     });
 
     it('should revert when index is out of bounds', async () => {
