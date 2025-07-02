@@ -438,9 +438,13 @@ describe('ERC20RecurringPaymentProxy', () => {
     });
 
     it('should revert when execution is out of order', async () => {
-      const permit = createSchedulePermit({ strictOrder: true });
+      const permit = createSchedulePermit({ strictOrder: true, periodSeconds: 1 });
       const signature = await createSignature(permit, subscriber);
       const paymentReference = '0x1234567890abcdef';
+
+      // Advance time so payment #2 is due, ensuring the only failure reason is order.
+      await ethers.provider.send('evm_increaseTime', [1]);
+      await ethers.provider.send('evm_mine', []);
 
       // Try to execute index 2 before index 1
       await expect(

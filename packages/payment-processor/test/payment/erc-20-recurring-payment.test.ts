@@ -26,6 +26,7 @@ const schedulePermit: PaymentTypes.SchedulePermit = {
   totalExecutions: 12,
   nonce: '1',
   deadline: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+  strictOrder: true,
 };
 
 const permitSignature = '0x1234567890abcdef';
