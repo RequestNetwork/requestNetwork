@@ -1,20 +1,20 @@
 import * as artifacts from '../src/lib';
 import { CurrencyTypes } from '@requestnetwork/types';
 
-const getAdminWalletAddress = (contract: string): string => {
-  if (!process.env.ADMIN_WALLET_ADDRESS) {
-    throw new Error(`ADMIN_WALLET_ADDRESS missing to get constructor args for: ${contract}`);
+const getEnvVariable = (name: string, contract: string): string => {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`${name} missing to get constructor args for: ${contract}`);
   }
-  return process.env.ADMIN_WALLET_ADDRESS;
+  return value;
+};
+
+const getAdminWalletAddress = (contract: string): string => {
+  return getEnvVariable('ADMIN_WALLET_ADDRESS', contract);
 };
 
 const getRecurringPaymentExecutorWalletAddress = (contract: string): string => {
-  if (!process.env.RECURRING_PAYMENT_EXECUTOR_WALLET_ADDRESS) {
-    throw new Error(
-      `RECURRING_PAYMENT_EXECUTOR_WALLET_ADDRESS missing to get constructor args for: ${contract}`,
-    );
-  }
-  return process.env.RECURRING_PAYMENT_EXECUTOR_WALLET_ADDRESS;
+  return getEnvVariable('RECURRING_PAYMENT_EXECUTOR_WALLET_ADDRESS', contract);
 };
 
 export const getConstructorArgs = (
