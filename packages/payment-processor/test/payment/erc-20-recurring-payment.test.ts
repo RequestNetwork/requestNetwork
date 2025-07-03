@@ -1,10 +1,10 @@
-import { Wallet, providers } from 'ethers';
 import { erc20RecurringPaymentProxyArtifact } from '@requestnetwork/smart-contracts';
 import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
+import { Wallet, providers } from 'ethers';
 import {
+  encodeRecurringPaymentTrigger,
   encodeSetRecurringAllowance,
-  encodeRecurringPaymentExecution,
-  executeRecurringPayment,
+  triggerRecurringPayment,
 } from '../../src/payment/erc20-recurring-payment-proxy';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
@@ -20,10 +20,10 @@ const schedulePermit: PaymentTypes.SchedulePermit = {
   feeAddress: '0x4234567890123456789012345678901234567890',
   amount: '1000000000000000000', // 1 token
   feeAmount: '10000000000000000', // 0.01 token
-  executorFee: '5000000000000000', // 0.005 token
+  relayerFee: '5000000000000000', // 0.005 token
   periodSeconds: 86400, // 1 day
   firstExec: Math.floor(Date.now() / 1000),
-  totalExecutions: 12,
+  totalPayments: 12,
   nonce: '1',
   deadline: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
   strictOrder: true,
@@ -118,9 +118,9 @@ describe('erc20-recurring-payment-proxy', () => {
     });
   });
 
-  describe('encodeRecurringPaymentExecution', () => {
-    it('should encode execution data correctly', () => {
-      const encodedData = encodeRecurringPaymentExecution({
+  describe('encodeRecurringPaymentTrigger', () => {
+    it('should encode trigger data correctly', () => {
+      const encodedData = encodeRecurringPaymentTrigger({
         permitTuple: schedulePermit,
         permitSignature,
         paymentIndex: 1,
@@ -134,12 +134,12 @@ describe('erc20-recurring-payment-proxy', () => {
     });
   });
 
-  describe('executeRecurringPayment', () => {
+  describe('triggerRecurringPayment', () => {
     it('should throw if proxy not deployed on network', async () => {
       jest.spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress').mockReturnValue('');
 
       await expect(
-        executeRecurringPayment({
+        triggerRecurringPayment({
           permitTuple: schedulePermit,
           permitSignature,
           paymentIndex: 1,
@@ -149,5 +149,47 @@ describe('erc20-recurring-payment-proxy', () => {
         }),
       ).rejects.toThrow('ERC20RecurringPaymentProxy not found on private');
     });
+  });
+});
+
+describe('ERC20 Recurring Payment', () => {
+  const permit: PaymentTypes.SchedulePermit = {
+    subscriber: '0x1234567890123456789012345678901234567890',
+    token: '0x1234567890123456789012345678901234567890',
+    recipient: '0x1234567890123456789012345678901234567890',
+    feeAddress: '0x1234567890123456789012345678901234567890',
+    amount: '1000000000000000000', // 1 token
+    feeAmount: '10000000000000000', // 0.01 token
+    relayerFee: '5000000000000000', // 0.005 token
+    periodSeconds: 86400, // 1 day
+    firstExec: Math.floor(Date.now() / 1000),
+    totalPayments: 12,
+    nonce: 0,
+    deadline: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+    strictOrder: false,
+  };
+
+  it('should encode recurring payment execution', () => {
+    const encoded = encodeRecurringPaymentTrigger({
+      permitTuple: permit,
+      permitSignature,
+      paymentIndex: 1,
+      paymentReference,
+      network,
+      provider,
+    });
+    expect(encoded).toBeDefined();
+  });
+
+  it('should execute recurring payment', async () => {
+    const result = await triggerRecurringPayment({
+      permitTuple: permit,
+      permitSignature,
+      paymentIndex: 1,
+      paymentReference,
+      signer: wallet,
+      network,
+    });
+    expect(result).toBeDefined();
   });
 });

@@ -55,7 +55,7 @@ export async function getPayerRecurringPaymentAllowance({
  * @param network - The EVM chain name where the proxy is deployed
  * @param isUSDT - Flag to indicate if the token is USDT, which requires special handling
  *
- * @returns Array of transaction objects ready to be executed by a wallet
+ * @returns Array of transaction objects ready to be sent to the blockchain
  *
  * @throws {Error} If the ERC20RecurringPaymentProxy is not deployed on the specified network
  *
@@ -104,12 +104,12 @@ export function encodeSetRecurringAllowance({
 }
 
 /**
- * Encodes the transaction data to execute a recurring payment through the ERC20RecurringPaymentProxy.
+ * Encodes the transaction data to trigger a recurring payment through the ERC20RecurringPaymentProxy.
  *
  * @param permitTuple - The SchedulePermit struct data
  * @param permitSignature - The signature authorizing the recurring payment schedule
- * @param paymentIndex - The index of the payment to execute (1-based)
- * @param paymentReference - Reference data for the payment execution
+ * @param paymentIndex - The index of the payment to trigger (1-based)
+ * @param paymentReference - Reference data for the payment
  * @param network - The EVM chain name where the proxy is deployed
  *
  * @returns The encoded function data as a hex string, ready to be used in a transaction
@@ -117,11 +117,11 @@ export function encodeSetRecurringAllowance({
  * @throws {Error} If the ERC20RecurringPaymentProxy is not deployed on the specified network
  *
  * @remarks
- * • The function only encodes the transaction data without executing it
+ * • The function only encodes the transaction data without sending it
  * • The encoded data can be used with any web3 library or multisig wallet
- * • Make sure the paymentIndex matches the expected execution sequence
+ * • Make sure the paymentIndex matches the expected payment sequence
  */
-export function encodeRecurringPaymentExecution({
+export function encodeRecurringPaymentTrigger({
   permitTuple,
   permitSignature,
   paymentIndex,
@@ -138,7 +138,7 @@ export function encodeRecurringPaymentExecution({
 }): string {
   const proxyContract = erc20RecurringPaymentProxyArtifact.connect(network, provider);
 
-  return proxyContract.interface.encodeFunctionData('execute', [
+  return proxyContract.interface.encodeFunctionData('triggerRecurringPayment', [
     permitTuple,
     permitSignature,
     paymentIndex,
@@ -147,13 +147,13 @@ export function encodeRecurringPaymentExecution({
 }
 
 /**
- * Executes a recurring payment through the ERC20RecurringPaymentProxy.
+ * Triggers a recurring payment through the ERC20RecurringPaymentProxy.
  *
  * @param permitTuple - The SchedulePermit struct data
  * @param permitSignature - The signature authorizing the recurring payment schedule
- * @param paymentIndex - The index of the payment to execute (1-based)
- * @param paymentReference - Reference data for the payment execution
- * @param signer - The signer that will execute the transaction (must have EXECUTOR_ROLE)
+ * @param paymentIndex - The index of the payment to trigger (1-based)
+ * @param paymentReference - Reference data for the payment
+ * @param signer - The signer that will trigger the transaction (must have RELAYER_ROLE)
  * @param network - The EVM chain name where the proxy is deployed
  *
  * @returns A Promise resolving to the transaction receipt after the payment is confirmed
@@ -163,10 +163,10 @@ export function encodeRecurringPaymentExecution({
  *
  * @remarks
  * • The function waits for the transaction to be mined before returning
- * • The signer must have been granted EXECUTOR_ROLE by the proxy admin
+ * • The signer must have been granted RELAYER_ROLE by the proxy admin
  * • Make sure all preconditions are met (allowance, balance, timing) before calling
  */
-export async function executeRecurringPayment({
+export async function triggerRecurringPayment({
   permitTuple,
   permitSignature,
   paymentIndex,
@@ -183,7 +183,7 @@ export async function executeRecurringPayment({
 }): Promise<providers.TransactionReceipt> {
   const proxyAddress = getRecurringPaymentProxyAddress(network);
 
-  const data = encodeRecurringPaymentExecution({
+  const data = encodeRecurringPaymentTrigger({
     permitTuple,
     permitSignature,
     paymentIndex,

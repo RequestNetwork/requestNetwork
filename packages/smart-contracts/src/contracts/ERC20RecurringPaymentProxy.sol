@@ -12,7 +12,7 @@ import './lib/SafeERC20.sol';
 
 /**
  * @title ERC20RecurringPaymentProxy
- * @notice Executes recurring ERC20 payments.
+ * @notice Triggers recurring ERC20 payments based on predefined schedules.
  */
 contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, ReentrancyGuard, Ownable {
   using SafeERC20 for IERC20;
@@ -21,26 +21,26 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   error ERC20RecurringPaymentProxy__BadSignature();
   error ERC20RecurringPaymentProxy__SignatureExpired();
   error ERC20RecurringPaymentProxy__IndexTooLarge();
-  error ERC20RecurringPaymentProxy__ExecutionOutOfOrder();
+  error ERC20RecurringPaymentProxy__PaymentOutOfOrder();
   error ERC20RecurringPaymentProxy__IndexOutOfBounds();
   error ERC20RecurringPaymentProxy__NotDueYet();
   error ERC20RecurringPaymentProxy__AlreadyPaid();
   error ERC20RecurringPaymentProxy__ZeroAddress();
 
-  bytes32 public constant EXECUTOR_ROLE = keccak256('EXECUTOR_ROLE');
+  bytes32 public constant RELAYER_ROLE = keccak256('RELAYER_ROLE');
 
-  /* keccak256 of the typed-data struct with executorFee field */
+  /* keccak256 of the typed-data struct with relayerFee field */
   bytes32 private constant _PERMIT_TYPEHASH =
     keccak256(
       'SchedulePermit(address subscriber,address token,address recipient,'
-      'address feeAddress,uint128 amount,uint128 feeAmount,uint128 executorFee,'
-      'uint32 periodSeconds,uint32 firstExec,uint8 totalExecutions,'
+      'address feeAddress,uint128 amount,uint128 feeAmount,uint128 relayerFee,'
+      'uint32 periodSeconds,uint32 firstExec,uint8 totalPayments,'
       'uint256 nonce,uint256 deadline,bool strictOrder)'
     );
 
   /* replay defence */
-  mapping(bytes32 => uint256) public executedBitmap;
-  mapping(bytes32 => uint8) public lastExecutionIndex;
+  mapping(bytes32 => uint256) public triggeredPaymentsBitmap;
+  mapping(bytes32 => uint8) public lastPaymentIndex;
 
   IERC20FeeProxy public erc20FeeProxy;
 
@@ -51,10 +51,10 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     address feeAddress;
     uint128 amount;
     uint128 feeAmount;
-    uint128 executorFee;
+    uint128 relayerFee;
     uint32 periodSeconds;
     uint32 firstExec;
-    uint8 totalExecutions;
+    uint8 totalPayments;
     uint256 nonce;
     uint256 deadline;
     bool strictOrder;
@@ -62,16 +62,14 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
 
   constructor(
     address adminSafe,
-    address executorEOA,
+    address relayerEOA,
     address erc20FeeProxyAddress
   ) EIP712('ERC20RecurringPaymentProxy', '1') {
-    if (
-      adminSafe == address(0) || executorEOA == address(0) || erc20FeeProxyAddress == address(0)
-    ) {
+    if (adminSafe == address(0) || relayerEOA == address(0) || erc20FeeProxyAddress == address(0)) {
       revert ERC20RecurringPaymentProxy__ZeroAddress();
     }
     _grantRole(DEFAULT_ADMIN_ROLE, adminSafe);
-    _grantRole(EXECUTOR_ROLE, executorEOA);
+    _grantRole(RELAYER_ROLE, relayerEOA);
     transferOwnership(adminSafe);
     erc20FeeProxy = IERC20FeeProxy(erc20FeeProxyAddress);
   }
@@ -93,12 +91,12 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     );
   }
 
-  function execute(
+  function triggerRecurringPayment(
     SchedulePermit calldata p,
     bytes calldata signature,
     uint8 index,
     bytes calldata paymentReference
-  ) external whenNotPaused onlyRole(EXECUTOR_ROLE) nonReentrant {
+  ) external whenNotPaused onlyRole(RELAYER_ROLE) nonReentrant {
     bytes32 digest = _hashSchedule(p);
 
     if (digest.recover(signature) != p.subscriber)
@@ -108,22 +106,22 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     if (index >= 256) revert ERC20RecurringPaymentProxy__IndexTooLarge();
 
     if (p.strictOrder) {
-      if (index != lastExecutionIndex[digest] + 1)
-        revert ERC20RecurringPaymentProxy__ExecutionOutOfOrder();
-      lastExecutionIndex[digest] = index;
+      if (index != lastPaymentIndex[digest] + 1)
+        revert ERC20RecurringPaymentProxy__PaymentOutOfOrder();
+      lastPaymentIndex[digest] = index;
     }
 
-    if (index > p.totalExecutions) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
+    if (index > p.totalPayments) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
 
     uint256 execTime = uint256(p.firstExec) + uint256(index - 1) * p.periodSeconds;
     if (block.timestamp < execTime) revert ERC20RecurringPaymentProxy__NotDueYet();
 
     uint256 mask = 1 << index;
-    uint256 word = executedBitmap[digest];
+    uint256 word = triggeredPaymentsBitmap[digest];
     if (word & mask != 0) revert ERC20RecurringPaymentProxy__AlreadyPaid();
-    executedBitmap[digest] = word | mask;
+    triggeredPaymentsBitmap[digest] = word | mask;
 
-    uint256 total = p.amount + p.feeAmount + p.executorFee;
+    uint256 total = p.amount + p.feeAmount + p.relayerFee;
 
     IERC20 token = IERC20(p.token);
     token.safeTransferFrom(p.subscriber, address(this), total);
@@ -134,15 +132,15 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
 
     _proxyTransfer(p, paymentReference);
 
-    if (p.executorFee != 0) {
-      token.safeTransfer(msg.sender, p.executorFee);
+    if (p.relayerFee != 0) {
+      token.safeTransfer(msg.sender, p.relayerFee);
     }
   }
 
-  function setExecutor(address oldExec, address newExec) external onlyOwner {
-    if (newExec == address(0)) revert ERC20RecurringPaymentProxy__ZeroAddress();
-    _revokeRole(EXECUTOR_ROLE, oldExec);
-    _grantRole(EXECUTOR_ROLE, newExec);
+  function setRelayer(address oldRelayer, address newRelayer) external onlyOwner {
+    if (newRelayer == address(0)) revert ERC20RecurringPaymentProxy__ZeroAddress();
+    _revokeRole(RELAYER_ROLE, oldRelayer);
+    _grantRole(RELAYER_ROLE, newRelayer);
   }
 
   function setFeeProxy(address newProxy) external onlyOwner {

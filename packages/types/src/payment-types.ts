@@ -404,10 +404,10 @@ export interface SchedulePermit {
   feeAddress: string;
   amount: BigNumberish;
   feeAmount: BigNumberish;
-  executorFee: BigNumberish;
+  relayerFee: BigNumberish;
   periodSeconds: number;
   firstExec: number;
-  totalExecutions: number;
+  totalPayments: number;
   nonce: BigNumberish;
   deadline: BigNumberish;
   strictOrder: boolean;
