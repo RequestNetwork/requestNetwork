@@ -72,13 +72,13 @@ describe('ERC20RecurringPaymentProxy', () => {
       token: testERC20.address,
       recipient: recipientAddress,
       feeAddress: feeAddressString,
-      amount: 100,
-      feeAmount: 10,
-      executorFee: 5,
+      amount: ethers.BigNumber.from(100),
+      feeAmount: ethers.BigNumber.from(10),
+      relayerFee: ethers.BigNumber.from(5),
       periodSeconds: 3600,
       firstExec: now,
-      totalExecutions: 3,
-      nonce: 0,
+      totalPayments: 3,
+      nonce: ethers.BigNumber.from(0),
       deadline: now + 86400, // 24 hours from now
       strictOrder: false,
       ...overrides,
@@ -102,10 +102,10 @@ describe('ERC20RecurringPaymentProxy', () => {
         { name: 'feeAddress', type: 'address' },
         { name: 'amount', type: 'uint128' },
         { name: 'feeAmount', type: 'uint128' },
-        { name: 'executorFee', type: 'uint128' },
+        { name: 'relayerFee', type: 'uint128' },
         { name: 'periodSeconds', type: 'uint32' },
         { name: 'firstExec', type: 'uint32' },
-        { name: 'totalExecutions', type: 'uint8' },
+        { name: 'totalPayments', type: 'uint8' },
         { name: 'nonce', type: 'uint256' },
         { name: 'deadline', type: 'uint256' },
         { name: 'strictOrder', type: 'bool' },
@@ -471,7 +471,7 @@ describe('ERC20RecurringPaymentProxy', () => {
     });
 
     it('should handle zero relayer fee correctly', async () => {
-      const permit = createSchedulePermit({ relayerFee: 0 });
+      const permit = createSchedulePermit({ relayerFee: ethers.BigNumber.from(0) });
       const signature = await createSignature(permit, subscriber);
 
       const relayerBalanceBefore = await testERC20.balanceOf(relayerAddress);
@@ -485,7 +485,7 @@ describe('ERC20RecurringPaymentProxy', () => {
     });
 
     it('should handle zero fee amount correctly', async () => {
-      const permit = createSchedulePermit({ feeAmount: 0 });
+      const permit = createSchedulePermit({ feeAmount: ethers.BigNumber.from(0) });
       const signature = await createSignature(permit, subscriber);
 
       const feeAddressBalanceBefore = await testERC20.balanceOf(feeAddressString);
@@ -495,11 +495,11 @@ describe('ERC20RecurringPaymentProxy', () => {
         .triggerRecurringPayment(permit, signature, 1, paymentReference);
 
       const feeAddressBalanceAfter = await testERC20.balanceOf(feeAddressString);
-      expect(feeAddressBalanceAfter).to.equal(feeAddressBalanceBefore); // No fee transferred
+      expect(feeAddressBalanceAfter).to.equal(feeAddressBalanceBefore);
     });
 
     it('should revert when subscriber has insufficient balance', async () => {
-      const permit = createSchedulePermit({ amount: 1000 }); // More than subscriber has
+      const permit = createSchedulePermit({ amount: ethers.BigNumber.from(1000) });
       const signature = await createSignature(permit, subscriber);
 
       await expect(
