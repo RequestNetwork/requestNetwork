@@ -22,7 +22,7 @@ const schedulePermit: PaymentTypes.SchedulePermit = {
   feeAmount: '10000000000000000', // 0.01 token
   relayerFee: '5000000000000000', // 0.005 token
   periodSeconds: 86400, // 1 day
-  firstExec: Math.floor(Date.now() / 1000),
+  firstPayment: Math.floor(Date.now() / 1000),
   totalPayments: 12,
   nonce: '1',
   deadline: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
@@ -162,14 +162,14 @@ describe('ERC20 Recurring Payment', () => {
     feeAmount: '10000000000000000', // 0.01 token
     relayerFee: '5000000000000000', // 0.005 token
     periodSeconds: 86400, // 1 day
-    firstExec: Math.floor(Date.now() / 1000),
+    firstPayment: Math.floor(Date.now() / 1000),
     totalPayments: 12,
     nonce: 0,
     deadline: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
     strictOrder: false,
   };
 
-  it('should encode recurring payment execution', () => {
+  it('should encode recurring payment trigger', () => {
     const encoded = encodeRecurringPaymentTrigger({
       permitTuple: permit,
       permitSignature,
@@ -181,7 +181,7 @@ describe('ERC20 Recurring Payment', () => {
     expect(encoded).toBeDefined();
   });
 
-  it('should execute recurring payment', async () => {
+  it('should trigger recurring payment', async () => {
     const result = await triggerRecurringPayment({
       permitTuple: permit,
       permitSignature,
