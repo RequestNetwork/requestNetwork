@@ -9,37 +9,37 @@ describe('ERC20RecurringPaymentProxy', () => {
   let testERC20: TestERC20;
 
   let owner: Signer;
+  let relayer: Signer;
   let user: Signer;
   let newRelayer: Signer;
   let newOwner: Signer;
   let subscriber: Signer;
   let recipient: Signer;
   let feeAddress: Signer;
-  let relayer: Signer;
 
   let ownerAddress: string;
+  let relayerAddress: string;
   let userAddress: string;
   let newRelayerAddress: string;
   let newOwnerAddress: string;
   let subscriberAddress: string;
   let recipientAddress: string;
   let feeAddressString: string;
-  let relayerAddress: string;
 
   let paymentReference: string;
   const RELAYER_ROLE = ethers.utils.keccak256(ethers.utils.toUtf8Bytes('RELAYER_ROLE'));
 
   beforeEach(async () => {
-    [owner, user, newRelayer, newOwner, subscriber, recipient, feeAddress, relayer] =
+    [owner, relayer, user, newRelayer, newOwner, subscriber, recipient, feeAddress] =
       await ethers.getSigners();
     ownerAddress = await owner.getAddress();
+    relayerAddress = await relayer.getAddress();
     userAddress = await user.getAddress();
     newRelayerAddress = await newRelayer.getAddress();
     newOwnerAddress = await newOwner.getAddress();
     subscriberAddress = await subscriber.getAddress();
     recipientAddress = await recipient.getAddress();
     feeAddressString = await feeAddress.getAddress();
-    relayerAddress = await relayer.getAddress();
     paymentReference = ethers.utils.hexlify(ethers.utils.toUtf8Bytes('test'));
 
     // Deploy ERC20FeeProxy
