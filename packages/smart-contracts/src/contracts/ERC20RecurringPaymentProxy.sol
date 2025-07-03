@@ -34,7 +34,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     keccak256(
       'SchedulePermit(address subscriber,address token,address recipient,'
       'address feeAddress,uint128 amount,uint128 feeAmount,uint128 relayerFee,'
-      'uint32 periodSeconds,uint32 firstExec,uint8 totalPayments,'
+      'uint32 periodSeconds,uint32 firstPayment,uint8 totalPayments,'
       'uint256 nonce,uint256 deadline,bool strictOrder)'
     );
 
@@ -53,7 +53,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     uint128 feeAmount;
     uint128 relayerFee;
     uint32 periodSeconds;
-    uint32 firstExec;
+    uint32 firstPayment;
     uint8 totalPayments;
     uint256 nonce;
     uint256 deadline;
@@ -113,7 +113,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
 
     if (index > p.totalPayments) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
 
-    uint256 execTime = uint256(p.firstExec) + uint256(index - 1) * p.periodSeconds;
+    uint256 execTime = uint256(p.firstPayment) + uint256(index - 1) * p.periodSeconds;
     if (block.timestamp < execTime) revert ERC20RecurringPaymentProxy__NotDueYet();
 
     uint256 mask = 1 << index;

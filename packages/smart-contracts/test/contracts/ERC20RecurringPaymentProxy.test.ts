@@ -76,7 +76,7 @@ describe('ERC20RecurringPaymentProxy', () => {
       feeAmount: ethers.BigNumber.from(10),
       relayerFee: ethers.BigNumber.from(5),
       periodSeconds: 3600,
-      firstExec: now,
+      firstPayment: now,
       totalPayments: 3,
       nonce: ethers.BigNumber.from(0),
       deadline: now + 86400, // 24 hours from now
@@ -104,7 +104,7 @@ describe('ERC20RecurringPaymentProxy', () => {
         { name: 'feeAmount', type: 'uint128' },
         { name: 'relayerFee', type: 'uint128' },
         { name: 'periodSeconds', type: 'uint32' },
-        { name: 'firstExec', type: 'uint32' },
+        { name: 'firstPayment', type: 'uint32' },
         { name: 'totalPayments', type: 'uint8' },
         { name: 'nonce', type: 'uint256' },
         { name: 'deadline', type: 'uint256' },
@@ -390,7 +390,7 @@ describe('ERC20RecurringPaymentProxy', () => {
 
     it('should revert when payment is not due yet', async () => {
       const permit = createSchedulePermit({
-        firstExec: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+        firstPayment: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
       });
       const signature = await createSignature(permit, subscriber);
 

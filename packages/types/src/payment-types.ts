@@ -406,7 +406,7 @@ export interface SchedulePermit {
   feeAmount: BigNumberish;
   relayerFee: BigNumberish;
   periodSeconds: number;
-  firstExec: number;
+  firstPayment: number;
   totalPayments: number;
   nonce: BigNumberish;
   deadline: BigNumberish;
