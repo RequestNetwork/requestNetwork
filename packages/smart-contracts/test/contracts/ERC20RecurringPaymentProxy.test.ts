@@ -66,7 +66,7 @@ describe('ERC20RecurringPaymentProxy', () => {
 
   // Helper function to create a valid SchedulePermit
   const createSchedulePermit = (overrides: any = {}) => {
-    const now = Math.floor(Date.now() / 1000);
+    const now = ethers.BigNumber.from(Math.floor(Date.now() / 1000));
     return {
       subscriber: subscriberAddress,
       token: testERC20.address,
@@ -75,11 +75,11 @@ describe('ERC20RecurringPaymentProxy', () => {
       amount: ethers.BigNumber.from(100),
       feeAmount: ethers.BigNumber.from(10),
       relayerFee: ethers.BigNumber.from(5),
-      periodSeconds: 3600,
+      periodSeconds: ethers.BigNumber.from(3600),
       firstPayment: now,
-      totalPayments: 3,
+      totalPayments: ethers.BigNumber.from(3),
       nonce: ethers.BigNumber.from(0),
-      deadline: now + 86400, // 24 hours from now
+      deadline: now.add(ethers.BigNumber.from(86400)), // 24 hours from now
       strictOrder: false,
       ...overrides,
     };
