@@ -70,10 +70,10 @@ describe('ERC20RecurringPaymentProxy', () => {
       feeAddress: feeAddressString,
       amount: 100,
       feeAmount: 10,
-      executorFee: 5,
+      relayerFee: 5,
       periodSeconds: 3600,
-      firstExec: now,
-      totalExecutions: 3,
+      firstPayment: now,
+      totalPayments: 3,
       nonce: 0,
       deadline: now + 86400, // 24 hours from now
       strictOrder: false,
@@ -173,7 +173,7 @@ describe('ERC20RecurringPaymentProxy', () => {
       expect(DEFAULT_ADMIN_ROLE).to.equal(ethers.constants.HashZero);
     });
 
-    it('should grant executor role to the specified address', async () => {
+    it('should grant relayer role to the specified address', async () => {
       expect(
         await erc20RecurringPaymentProxy.hasRole(
           await erc20RecurringPaymentProxy.RELAYER_ROLE(),
@@ -204,7 +204,7 @@ describe('ERC20RecurringPaymentProxy', () => {
       ).to.be.false;
       expect(
         await erc20RecurringPaymentProxy.hasRole(
-          await erc20RecurringPaymentProxy.EXECUTOR_ROLE(),
+          await erc20RecurringPaymentProxy.RELAYER_ROLE(),
           newRelayerAddress,
         ),
       ).to.be.true;
@@ -327,14 +327,14 @@ describe('ERC20RecurringPaymentProxy', () => {
     });
   });
 
-  describe('Execute Function', () => {
+  describe('Trigger Recurring Payment', () => {
     beforeEach(async () => {
       // Transfer tokens to subscriber and approve the recurring payment proxy
       await testERC20.transfer(subscriberAddress, 500);
       await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
     });
 
-    it('should execute a valid recurring payment', async () => {
+    it('should trigger a valid recurring payment', async () => {
       const permit = createSchedulePermit();
       const signature = await createSignature(permit, subscriber);
       const paymentReference = '0x1234567890abcdef';
@@ -345,7 +345,9 @@ describe('ERC20RecurringPaymentProxy', () => {
       const relayerBalanceBefore = await testERC20.balanceOf(relayerAddress);
 
       await expect(
-        erc20RecurringPaymentProxy.connect(relayer).execute(permit, signature, 1, paymentReference),
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPayment(permit, signature, 1, paymentReference),
       )
         .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
         .withArgs(
@@ -369,7 +371,7 @@ describe('ERC20RecurringPaymentProxy', () => {
       expect(relayerBalanceAfter).to.equal(relayerBalanceBefore.add(5)); // gas fee
     });
 
-    it('should revert when called by non-executor', async () => {
+    it('should revert when called by non-relayer', async () => {
       const permit = createSchedulePermit();
       const signature = await createSignature(permit, subscriber);
       const paymentReference = '0x1234567890abcdef';
@@ -450,7 +452,7 @@ describe('ERC20RecurringPaymentProxy', () => {
     //   ).to.be.revertedWith('ERC20RecurringPaymentProxy__ExecutionOutOfOrder');
     // });
 
-    it('should allow out of order execution if strictOrder is false', async () => {
+    it('should allow out of order trigger if strictOrder is false', async () => {
       const permit = createSchedulePermit({ strictOrder: false, periodSeconds: 1 });
       const signature = await createSignature(permit, subscriber);
       const paymentReference = '0x1234567890abcdef';
@@ -468,7 +470,7 @@ describe('ERC20RecurringPaymentProxy', () => {
     });
 
     it('should revert when index is out of bounds', async () => {
-      const permit = createSchedulePermit({ totalExecutions: 1 });
+      const permit = createSchedulePermit({ totalPayments: 1 });
       const signature = await createSignature(permit, subscriber);
       const paymentReference = '0x1234567890abcdef';
 
@@ -481,7 +483,7 @@ describe('ERC20RecurringPaymentProxy', () => {
 
     it('should revert when payment is not due yet', async () => {
       const permit = createSchedulePermit({
-        firstExec: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+        firstPayment: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
       });
       const signature = await createSignature(permit, subscriber);
       const paymentReference = '0x1234567890abcdef';
@@ -493,17 +495,17 @@ describe('ERC20RecurringPaymentProxy', () => {
       ).to.be.reverted;
     });
 
-    it('should revert when payment is already executed', async () => {
+    it('should revert when payment is already triggered', async () => {
       const permit = createSchedulePermit();
       const signature = await createSignature(permit, subscriber);
       const paymentReference = '0x1234567890abcdef';
 
-      // Execute first time
+      // Trigger first time
       await erc20RecurringPaymentProxy
         .connect(relayer)
         .triggerRecurringPayment(permit, signature, 1, paymentReference);
 
-      // Try to execute the same index again
+      // Try to trigger the same index again
       await expect(
         erc20RecurringPaymentProxy
           .connect(relayer)
@@ -511,12 +513,12 @@ describe('ERC20RecurringPaymentProxy', () => {
       ).to.be.reverted;
     });
 
-    it('should allow sequential execution of multiple payments', async () => {
-      const permit = createSchedulePermit({ totalExecutions: 3, periodSeconds: 1 });
+    it('should allow sequential trigger of multiple payments', async () => {
+      const permit = createSchedulePermit({ totalPayments: 3, periodSeconds: 1 });
       const signature = await createSignature(permit, subscriber);
       const paymentReference = '0x1234567890abcdef';
 
-      // Execute first payment
+      // Trigger first payment
       await erc20RecurringPaymentProxy
         .connect(relayer)
         .triggerRecurringPayment(permit, signature, 1, paymentReference);
@@ -525,7 +527,7 @@ describe('ERC20RecurringPaymentProxy', () => {
       await ethers.provider.send('evm_increaseTime', [permit.periodSeconds]);
       await ethers.provider.send('evm_mine', []);
 
-      // Execute second payment
+      // Trigger second payment
       await erc20RecurringPaymentProxy
         .connect(relayer)
         .triggerRecurringPayment(permit, signature, 2, paymentReference);
@@ -534,36 +536,36 @@ describe('ERC20RecurringPaymentProxy', () => {
       await ethers.provider.send('evm_increaseTime', [permit.periodSeconds]);
       await ethers.provider.send('evm_mine', []);
 
-      // Execute third payment
+      // Trigger third payment
       await erc20RecurringPaymentProxy
         .connect(relayer)
         .triggerRecurringPayment(permit, signature, 3, paymentReference);
 
-      // Verify all payments were executed
+      // Verify all payments were triggered
       // Note: We can't directly call _hashSchedule as it's private, but we can verify through the bitmap
       // The bitmap should have bits 1, 2, and 3 set (2^1 + 2^2 + 2^3 = 14)
-      // We'll check this by trying to execute the same indices again, which should fail
+      // We'll check this by trying to trigger the same indices again, which should fail
       await expect(
         erc20RecurringPaymentProxy
           .connect(relayer)
           .triggerRecurringPayment(permit, signature, 1, paymentReference),
-      ).to.be.reverted; // Should fail because already executed
+      ).to.be.reverted; // Should fail because already triggered
 
       await expect(
         erc20RecurringPaymentProxy
           .connect(relayer)
           .triggerRecurringPayment(permit, signature, 2, paymentReference),
-      ).to.be.reverted; // Should fail because already executed
+      ).to.be.reverted; // Should fail because already triggered
 
       await expect(
         erc20RecurringPaymentProxy
           .connect(relayer)
           .triggerRecurringPayment(permit, signature, 3, paymentReference),
-      ).to.be.reverted; // Should fail because already executed
+      ).to.be.reverted; // Should fail because already triggered
     });
 
-    it('should handle zero gas fee correctly', async () => {
-      const permit = createSchedulePermit({ executorFee: 0 });
+    it('should handle zero relayer fee correctly', async () => {
+      const permit = createSchedulePermit({ relayerFee: 0 });
       const signature = await createSignature(permit, subscriber);
       const paymentReference = '0x1234567890abcdef';
 
@@ -574,7 +576,7 @@ describe('ERC20RecurringPaymentProxy', () => {
         .triggerRecurringPayment(permit, signature, 1, paymentReference);
 
       const relayerBalanceAfter = await testERC20.balanceOf(relayerAddress);
-      expect(relayerBalanceAfter).to.equal(relayerBalanceBefore); // No gas fee transferred
+      expect(relayerBalanceAfter).to.equal(relayerBalanceBefore); // No relayer fee transferred
     });
 
     it('should handle zero fee amount correctly', async () => {
@@ -621,7 +623,7 @@ describe('ERC20RecurringPaymentProxy', () => {
   });
 
   describe('Integration: Paused state affects execution', () => {
-    it('should revert execute when contract is paused', async () => {
+    it('should revert trigger when contract is paused', async () => {
       await erc20RecurringPaymentProxy.pause();
 
       // Create a minimal SchedulePermit for testing
@@ -632,10 +634,10 @@ describe('ERC20RecurringPaymentProxy', () => {
         feeAddress: userAddress,
         amount: 100,
         feeAmount: 10,
-        executorFee: 5,
+        relayerFee: 5,
         periodSeconds: 3600,
-        firstExec: Math.floor(Date.now() / 1000),
-        totalExecutions: 1,
+        firstPayment: Math.floor(Date.now() / 1000),
+        totalPayments: 1,
         nonce: 0,
         deadline: Math.floor(Date.now() / 1000) + 3600,
       };
