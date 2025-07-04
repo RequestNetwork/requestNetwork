@@ -158,7 +158,7 @@ export const deployContract = async (
   log(` - Contract source: ${fullContractSource}`);
   log(` - Encoded constructor arguments: ${constructorArgs}\n`);
 
-  if (!options?.noVerify && hre.network.config.verifyURL) {
+  if (!options?.noVerify && (hre.network.config as any).verifyURL) {
     log(`Requesting contract verification...`);
     await verifyContract({
       address: contract.address,

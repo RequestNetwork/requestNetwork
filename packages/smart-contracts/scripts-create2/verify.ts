@@ -1,3 +1,5 @@
+import '@nomicfoundation/hardhat-verify';
+
 import { computeCreate2DeploymentAddress } from './compute-one-address';
 import { getConstructorArgs } from './constructor-args';
 import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './types';
@@ -48,7 +50,8 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
           case 'ERC20EscrowToPay':
           case 'BatchConversionPayments':
           case 'ERC20TransferableReceivable':
-          case 'SingleRequestProxyFactory': {
+          case 'SingleRequestProxyFactory':
+          case 'ERC20RecurringPaymentProxy': {
             const network = hre.config.xdeploy.networks[0];
             EvmChains.assertChainSupported(network);
             const constructorArgs = getConstructorArgs(contract, network);
