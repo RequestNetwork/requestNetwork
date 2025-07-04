@@ -180,7 +180,7 @@ export async function triggerRecurringPayment({
   paymentReference: string;
   signer: Signer;
   network: CurrencyTypes.EvmChainName;
-}): Promise<providers.TransactionReceipt> {
+}): Promise<providers.TransactionResponse> {
   const proxyAddress = getRecurringPaymentProxyAddress(network);
 
   const data = encodeRecurringPaymentTrigger({
@@ -198,7 +198,7 @@ export async function triggerRecurringPayment({
     value: 0,
   });
 
-  return tx.wait();
+  return tx;
 }
 
 /**
