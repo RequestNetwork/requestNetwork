@@ -37,6 +37,10 @@ export const erc20RecurringPaymentProxyArtifact = new ContractArtifact<ERC20Recu
           address: '0xF0Bebbc99E26Ba7F651E7Ff14e0D3029B0228880',
           creationBlockNumber: 22845710,
         },
+        base: {
+          address: '0xd2c3392e3e70F4CE033Cb39CC80B414aDdD64fFa',
+          creationBlockNumber: 32422496,
+        },
       },
     },
   },
