@@ -1,11 +1,20 @@
 import * as artifacts from '../src/lib';
 import { CurrencyTypes } from '@requestnetwork/types';
 
-const getAdminWalletAddress = (contract: string): string => {
-  if (!process.env.ADMIN_WALLET_ADDRESS) {
-    throw new Error(`ADMIN_WALLET_ADDRESS missing to get constructor args for: ${contract}`);
+const getEnvVariable = (name: string, contract: string): string => {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`${name} missing to get constructor args for: ${contract}`);
   }
-  return process.env.ADMIN_WALLET_ADDRESS;
+  return value;
+};
+
+const getAdminWalletAddress = (contract: string): string => {
+  return getEnvVariable('ADMIN_WALLET_ADDRESS', contract);
+};
+
+const getRecurringPaymentExecutorWalletAddress = (contract: string): string => {
+  return getEnvVariable('RECURRING_PAYMENT_EXECUTOR_WALLET_ADDRESS', contract);
 };
 
 export const getConstructorArgs = (
@@ -77,6 +86,18 @@ export const getConstructorArgs = (
       const ethereumFeeProxyAddress = ethereumFeeProxy.getAddress(network);
 
       return [ethereumFeeProxyAddress, erc20FeeProxyAddress, getAdminWalletAddress(contract)];
+    }
+    case 'ERC20RecurringPaymentProxy': {
+      if (!network) {
+        throw new Error('ERC20RecurringPaymentProxy requires network parameter');
+      }
+      const erc20FeeProxy = artifacts.erc20FeeProxyArtifact;
+      const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
+
+      const adminSafe = getAdminWalletAddress(contract);
+      const executorEOA = getRecurringPaymentExecutorWalletAddress(contract);
+
+      return [adminSafe, executorEOA, erc20FeeProxyAddress];
     }
     default:
       return [];
