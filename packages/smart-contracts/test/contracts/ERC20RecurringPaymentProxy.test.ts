@@ -435,22 +435,22 @@ describe('ERC20RecurringPaymentProxy', () => {
       ).to.be.reverted;
     });
 
-    // it('should revert when execution is out of order', async () => {
-    //   const permit = createSchedulePermit({ strictOrder: true, periodSeconds: 1 });
-    //   const signature = await createSignature(permit, subscriber);
-    //   const paymentReference = '0x1234567890abcdef';
+    it('should revert when execution is out of order', async () => {
+      const permit = createSchedulePermit({ strictOrder: true, periodSeconds: 1 });
+      const signature = await createSignature(permit, subscriber);
+      const paymentReference = '0x1234567890abcdef';
 
-    //   // Advance time so payment #2 is due, ensuring the only failure reason is order.
-    //   await ethers.provider.send('evm_increaseTime', [1]);
-    //   await ethers.provider.send('evm_mine', []);
+      // Advance time so payment #2 is due, ensuring the only failure reason is order.
+      await ethers.provider.send('evm_increaseTime', [1]);
+      await ethers.provider.send('evm_mine', []);
 
-    //   // Try to execute index 2 before index 1
-    //   await expect(
-    //     erc20RecurringPaymentProxy
-    //       .connect(executor)
-    //       .execute(permit, signature, 2, paymentReference),
-    //   ).to.be.revertedWith('ERC20RecurringPaymentProxy__ExecutionOutOfOrder');
-    // });
+      // Try to execute index 2 before index 1
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPayment(permit, signature, 2, paymentReference),
+      ).to.be.reverted;
+    });
 
     it('should allow out of order trigger if strictOrder is false', async () => {
       const permit = createSchedulePermit({ strictOrder: false, periodSeconds: 1 });
