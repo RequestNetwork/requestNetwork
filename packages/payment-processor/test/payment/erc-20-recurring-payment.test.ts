@@ -262,18 +262,120 @@ describe('ERC20 Recurring Payment', () => {
     expect(encoded).toBeDefined();
   });
 
-  it.skip('should trigger recurring payment', async () => {
-    const proxyAddress = erc20RecurringPaymentProxyArtifact.getAddress(network);
-    const permitSignature = await createSchedulePermitSignature(permit, wallet, proxyAddress!);
+  it('should trigger recurring payment with proper setup', async () => {
+    // Mock the proxy address to ensure it exists
+    const mockProxyAddress = '0xd8672a4A1bf37D36beF74E36edb4f17845E76F4e';
+    jest.spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress').mockReturnValue(mockProxyAddress);
 
+    // Create a valid permit with the wallet as subscriber
+    const validPermit: PaymentTypes.SchedulePermit = {
+      subscriber: wallet.address,
+      token: erc20ContractAddress,
+      recipient: '0x3234567890123456789012345678901234567890',
+      feeAddress: '0x4234567890123456789012345678901234567890',
+      amount: '1000000000000000000', // 1 token
+      feeAmount: '10000000000000000', // 0.01 token
+      relayerFee: '5000000000000000', // 0.005 token
+      periodSeconds: 86400, // 1 day
+      firstPayment: Math.floor(Date.now() / 1000),
+      totalPayments: 12,
+      nonce: 0,
+      deadline: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+      strictOrder: false,
+    };
+
+    // Create a valid signature for the permit
+    const permitSignature = await createSchedulePermitSignature(
+      validPermit,
+      wallet,
+      mockProxyAddress,
+    );
+
+    // Mock the provider to simulate a successful transaction
+    const mockProvider = {
+      sendTransaction: jest.fn().mockResolvedValue({
+        hash: '0x1234567890abcdef',
+        wait: jest.fn().mockResolvedValue({
+          status: 1,
+          transactionHash: '0x1234567890abcdef',
+        }),
+      }),
+    };
+
+    // Mock the wallet to use our mock provider
+    const mockWallet = {
+      ...wallet,
+      provider: mockProvider,
+      sendTransaction: mockProvider.sendTransaction,
+    };
+
+    // Test the trigger function
     const result = await triggerRecurringPayment({
-      permitTuple: permit,
+      permitTuple: validPermit,
       permitSignature,
       paymentIndex: 1,
       paymentReference,
-      signer: wallet,
+      signer: mockWallet as any,
       network,
     });
+
     expect(result).toBeDefined();
+    expect(mockProvider.sendTransaction).toHaveBeenCalledWith({
+      to: mockProxyAddress,
+      data: expect.any(String),
+      value: 0,
+    });
+  });
+
+  it('should handle triggerRecurringPayment errors properly', async () => {
+    // Mock the proxy address to ensure it exists
+    const mockProxyAddress = '0xd8672a4A1bf37D36beF74E36edb4f17845E76F4e';
+    jest.spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress').mockReturnValue(mockProxyAddress);
+
+    // Create a valid permit
+    const validPermit: PaymentTypes.SchedulePermit = {
+      subscriber: wallet.address,
+      token: erc20ContractAddress,
+      recipient: '0x3234567890123456789012345678901234567890',
+      feeAddress: '0x4234567890123456789012345678901234567890',
+      amount: '1000000000000000000',
+      feeAmount: '10000000000000000',
+      relayerFee: '5000000000000000',
+      periodSeconds: 86400,
+      firstPayment: Math.floor(Date.now() / 1000),
+      totalPayments: 12,
+      nonce: 0,
+      deadline: Math.floor(Date.now() / 1000) + 3600,
+      strictOrder: false,
+    };
+
+    const permitSignature = await createSchedulePermitSignature(
+      validPermit,
+      wallet,
+      mockProxyAddress,
+    );
+
+    // Mock provider that throws an error
+    const mockProvider = {
+      sendTransaction: jest.fn().mockRejectedValue(new Error('Transaction failed')),
+    };
+
+    const mockWallet = {
+      ...wallet,
+      provider: mockProvider,
+      sendTransaction: mockProvider.sendTransaction,
+    };
+
+    // Test that the function properly handles errors
+    await expect(
+      triggerRecurringPayment({
+        permitTuple: validPermit,
+        permitSignature,
+        paymentIndex: 1,
+        paymentReference,
+        signer: mockWallet as any,
+        network,
+      }),
+    ).rejects.toThrow('Transaction failed');
   });
 });
