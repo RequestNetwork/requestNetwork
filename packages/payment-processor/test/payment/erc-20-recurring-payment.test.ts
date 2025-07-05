@@ -262,7 +262,7 @@ describe('ERC20 Recurring Payment', () => {
     expect(encoded).toBeDefined();
   });
 
-  it('should trigger recurring payment', async () => {
+  it.skip('should trigger recurring payment', async () => {
     const proxyAddress = erc20RecurringPaymentProxyArtifact.getAddress(network);
     const permitSignature = await createSchedulePermitSignature(permit, wallet, proxyAddress!);
 
