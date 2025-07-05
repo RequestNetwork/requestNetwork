@@ -156,15 +156,16 @@ export function encodeRecurringPaymentTrigger({
  * @param signer - The signer that will trigger the transaction (must have RELAYER_ROLE)
  * @param network - The EVM chain name where the proxy is deployed
  *
- * @returns A Promise resolving to the transaction receipt after the payment is confirmed
+ * @returns A Promise resolving to the transaction response (TransactionResponse)
  *
  * @throws {Error} If the ERC20RecurringPaymentProxy is not deployed on the specified network
  * @throws {Error} If the transaction fails (e.g. wrong index, expired permit, insufficient allowance)
  *
  * @remarks
- * • The function waits for the transaction to be mined before returning
+ * • The function returns the transaction response immediately after sending
  * • The signer must have been granted RELAYER_ROLE by the proxy admin
  * • Make sure all preconditions are met (allowance, balance, timing) before calling
+ * • To wait for confirmation, call tx.wait() on the returned TransactionResponse
  */
 export async function triggerRecurringPayment({
   permitTuple,
