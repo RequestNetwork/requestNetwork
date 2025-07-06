@@ -5512,6 +5512,11 @@
   dependencies:
     defer-to-connect "^2.0.1"
 
+"@thirdweb-dev/engine@0.0.19":
+  version "0.0.19"
+  resolved "https://registry.yarnpkg.com/@thirdweb-dev/engine/-/engine-0.0.19.tgz#d875faf82862d30aa9741abb8ac3d6c74354a304"
+  integrity sha512-Gseb0+enmAWnc6T2zX6TnpAy/HP29J5HHOilpKQJ26DI2O+ivQ/m1YrYrIKoye+MIhSAVB5ItQNKxbvuhizVVQ==
+
 "@tootallnate/once@2":
   version "2.0.0"
   resolved "https://registry.npmjs.org/@tootallnate/once/-/once-2.0.0.tgz"
