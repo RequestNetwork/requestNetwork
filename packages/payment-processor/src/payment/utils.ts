@@ -28,8 +28,8 @@ export class UnsupportedCurrencyNetwork extends Error {
  * Utility to get the default window.ethereum provider, or throws an error.
  */
 export function getProvider(): providers.Web3Provider {
-  if (typeof window !== 'undefined' && 'ethereum' in window) {
-    return new ethers.providers.Web3Provider((window as any).ethereum);
+  if ('ethereum' in globalThis) {
+    return new ethers.providers.Web3Provider((globalThis as any).ethereum);
   }
   throw new Error('ethereum not found, you must pass your own web3 provider');
 }

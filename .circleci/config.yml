@@ -35,6 +35,10 @@ references:
       POSTGRES_USER: graph-node
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
+  enable_corepack: &enable_corepack
+    run:
+      name: Enable Corepack
+      command: sudo corepack enable
   step_graph_deploy: &step_graph_deploy
     name: 'Subgraph deployment and configuration'
     working_directory: ~/
@@ -56,6 +60,7 @@ references:
         sleep 1
       done
       echo Failed waiting for Node initialization && exit 1
+
 jobs:
   build:
     docker:
@@ -68,6 +73,7 @@ jobs:
           name: Restore Yarn Package Cache
           keys:
             - yarn-packages-{{ checksum "yarn.lock" }}
+      - *enable_corepack
       - run:
           name: Yarn install
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
@@ -93,6 +99,7 @@ jobs:
     steps:
       - attach_workspace:
           at: *working_directory
+      - *enable_corepack
       - run:
           name: Verify format
           command: yarn format:check
@@ -107,6 +114,7 @@ jobs:
     steps:
       - attach_workspace:
           at: *working_directory
+      - *enable_corepack
       - run:
           name: 'Test unit'
           command: |
@@ -162,6 +170,7 @@ jobs:
     steps:
       - attach_workspace:
           at: *working_directory
+      - *enable_corepack
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn deploy:contracts'
@@ -201,6 +210,7 @@ jobs:
     steps:
       - attach_workspace:
           at: *working_directory
+      - *enable_corepack
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn deploy:contracts'
@@ -224,6 +234,7 @@ jobs:
     steps:
       - attach_workspace:
           at: *working_directory
+      - *enable_corepack
       - run:
           name: 'Build usage-examples'
           command: 'yarn workspace @requestnetwork/usage-examples run build'
@@ -237,6 +248,7 @@ jobs:
     steps:
       - attach_workspace:
           at: *working_directory
+      - *enable_corepack
       - run:
           name: 'Build toolbox'
           command: 'yarn workspace @requestnetwork/toolbox run build'
@@ -252,6 +264,7 @@ jobs:
     steps:
       - attach_workspace:
           at: *working_directory
+      - *enable_corepack
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn deploy:contracts'
@@ -278,6 +291,7 @@ jobs:
     steps:
       - attach_workspace:
           at: *working_directory
+      - *enable_corepack
       - run:
           name: 'Test payment-processor (hinkal)'
           no_output_timeout: 30m
@@ -294,6 +308,7 @@ jobs:
     steps:
       - attach_workspace:
           at: *working_directory
+      - *enable_corepack
       - run:
           name: 'Allow github ssh host'
           command: mkdir ~/.ssh; echo 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==' >> ~/.ssh/known_hosts

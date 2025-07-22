@@ -1,0 +1,282 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        { "internalType": "address", "name": "adminSafe", "type": "address" },
+        { "internalType": "address", "name": "relayerEOA", "type": "address" },
+        { "internalType": "address", "name": "erc20FeeProxyAddress", "type": "address" }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__AlreadyPaid", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__BadSignature", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__IndexOutOfBounds", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__IndexTooLarge", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__NotDueYet", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__PaymentOutOfOrder", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__SignatureExpired", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__ZeroAddress", "type": "error" },
+    { "inputs": [], "name": "InvalidShortString", "type": "error" },
+    {
+      "inputs": [{ "internalType": "string", "name": "str", "type": "string" }],
+      "name": "StringTooLong",
+      "type": "error"
+    },
+    { "anonymous": false, "inputs": [], "name": "EIP712DomainChanged", "type": "event" },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" },
+        { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": false, "internalType": "address", "name": "account", "type": "address" }
+      ],
+      "name": "Paused",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "bytes32", "name": "role", "type": "bytes32" },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "previousAdminRole",
+          "type": "bytes32"
+        },
+        { "indexed": true, "internalType": "bytes32", "name": "newAdminRole", "type": "bytes32" }
+      ],
+      "name": "RoleAdminChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "bytes32", "name": "role", "type": "bytes32" },
+        { "indexed": true, "internalType": "address", "name": "account", "type": "address" },
+        { "indexed": true, "internalType": "address", "name": "sender", "type": "address" }
+      ],
+      "name": "RoleGranted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "bytes32", "name": "role", "type": "bytes32" },
+        { "indexed": true, "internalType": "address", "name": "account", "type": "address" },
+        { "indexed": true, "internalType": "address", "name": "sender", "type": "address" }
+      ],
+      "name": "RoleRevoked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": false, "internalType": "address", "name": "account", "type": "address" }
+      ],
+      "name": "Unpaused",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "DEFAULT_ADMIN_ROLE",
+      "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "RELAYER_ROLE",
+      "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "eip712Domain",
+      "outputs": [
+        { "internalType": "bytes1", "name": "fields", "type": "bytes1" },
+        { "internalType": "string", "name": "name", "type": "string" },
+        { "internalType": "string", "name": "version", "type": "string" },
+        { "internalType": "uint256", "name": "chainId", "type": "uint256" },
+        { "internalType": "address", "name": "verifyingContract", "type": "address" },
+        { "internalType": "bytes32", "name": "salt", "type": "bytes32" },
+        { "internalType": "uint256[]", "name": "extensions", "type": "uint256[]" }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "erc20FeeProxy",
+      "outputs": [{ "internalType": "contract IERC20FeeProxy", "name": "", "type": "address" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }],
+      "name": "getRoleAdmin",
+      "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+        { "internalType": "address", "name": "account", "type": "address" }
+      ],
+      "name": "grantRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+        { "internalType": "address", "name": "account", "type": "address" }
+      ],
+      "name": "hasRole",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+      "name": "lastPaymentIndex",
+      "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "paused",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+        { "internalType": "address", "name": "account", "type": "address" }
+      ],
+      "name": "renounceRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+        { "internalType": "address", "name": "account", "type": "address" }
+      ],
+      "name": "revokeRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "address", "name": "newProxy", "type": "address" }],
+      "name": "setFeeProxy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "address", "name": "oldRelayer", "type": "address" },
+        { "internalType": "address", "name": "newRelayer", "type": "address" }
+      ],
+      "name": "setRelayer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }],
+      "name": "supportsInterface",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "address", "name": "newOwner", "type": "address" }],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            { "internalType": "address", "name": "subscriber", "type": "address" },
+            { "internalType": "address", "name": "token", "type": "address" },
+            { "internalType": "address", "name": "recipient", "type": "address" },
+            { "internalType": "address", "name": "feeAddress", "type": "address" },
+            { "internalType": "uint128", "name": "amount", "type": "uint128" },
+            { "internalType": "uint128", "name": "feeAmount", "type": "uint128" },
+            { "internalType": "uint128", "name": "relayerFee", "type": "uint128" },
+            { "internalType": "uint32", "name": "periodSeconds", "type": "uint32" },
+            { "internalType": "uint32", "name": "firstPayment", "type": "uint32" },
+            { "internalType": "uint8", "name": "totalPayments", "type": "uint8" },
+            { "internalType": "uint256", "name": "nonce", "type": "uint256" },
+            { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+            { "internalType": "bool", "name": "strictOrder", "type": "bool" }
+          ],
+          "internalType": "struct ERC20RecurringPaymentProxy.SchedulePermit",
+          "name": "p",
+          "type": "tuple"
+        },
+        { "internalType": "bytes", "name": "signature", "type": "bytes" },
+        { "internalType": "uint8", "name": "index", "type": "uint8" },
+        { "internalType": "bytes", "name": "paymentReference", "type": "bytes" }
+      ],
+      "name": "triggerRecurringPayment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+      "name": "triggeredPaymentsBitmap",
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "unpause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+}

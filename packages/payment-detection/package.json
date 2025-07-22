@@ -47,13 +47,12 @@
     "@requestnetwork/utils": "0.54.0",
     "ethers": "5.7.2",
     "graphql": "16.8.1",
-    "graphql-request": "6.1.0",
+    "graphql-request": "7.1.2",
     "graphql-tag": "2.12.6",
     "satoshi-bitcoin": "1.0.4",
     "tslib": "2.8.1"
   },
   "devDependencies": {
-    "@babel/helper-get-function-arity": "7.16.7",
     "@graphql-codegen/cli": "4.0.1",
     "@graphql-codegen/typescript": "4.0.1",
     "@graphql-codegen/typescript-document-nodes": "4.0.1",
