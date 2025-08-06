@@ -1,5 +1,6 @@
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
+import { Address } from "@ton/core"
 import addressValidator from 'multicoin-address-validator';
 import { getSupportedERC20Tokens } from './erc20';
 import { getSupportedERC777Tokens } from './erc777';
@@ -264,6 +265,8 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
           return isValidNearAddress(address, currency.network);
         } else if (currency.network === 'tron' || currency.network === 'solana') {
           return addressValidator.validate(address, currency.network);
+        } else if (currency.network === 'ton') {
+          return this.validateTonAddress(address);
         }
         return addressValidator.validate(address, 'ETH');
       case RequestLogicTypes.CURRENCY.BTC:
@@ -288,6 +291,19 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
     )
       return true;
     return this.validateAddress(currency.value, currency);
+  }
+
+  /**
+   * Validate a TON address. See https://ton-org.github.io/ton-core/classes/Address.html#parse for more details.
+   * @param address - The address to validate
+   * @returns True if the address is valid, false otherwise
+   */
+  validateTonAddress(address: string): boolean {
+    try {
+      return !!Address.parse(address);
+    } catch {
+      return false;
+    }
   }
 
   /**
