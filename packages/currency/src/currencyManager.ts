@@ -1,6 +1,8 @@
-import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyTypes, RequestLogicTypes } from '../../types';
 import { utils } from 'ethers';
-import { Address } from "@ton/core"
+import { Address  } from "@ton/core"
+import { validateAndParseAddress } from 'starknet';
+import { Address as AleoAddress } from '@provablehq/sdk';
 import addressValidator from 'multicoin-address-validator';
 import { getSupportedERC20Tokens } from './erc20';
 import { getSupportedERC777Tokens } from './erc777';
@@ -267,6 +269,10 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
           return addressValidator.validate(address, currency.network);
         } else if (currency.network === 'ton') {
           return this.validateTonAddress(address);
+        } else if (currency.network === 'starknet') {
+          return this.validateStarknetAddress(address);
+        } else if (currency.network === 'aleo') {
+          return this.validateAleoAddress(address);
         }
         return addressValidator.validate(address, 'ETH');
       case RequestLogicTypes.CURRENCY.BTC:
@@ -301,6 +307,32 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
   validateTonAddress(address: string): boolean {
     try {
       return !!Address.parse(address);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Validate a Starknet address. See https://starknetjs.com/docs/next/API/modules/#validateandparseaddress for more details.
+   * @param address - The address to validate
+   * @returns True if the address is valid, false otherwise
+   */
+  validateStarknetAddress(address: string): boolean {
+    try {
+      return !!validateAndParseAddress(address);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Validate an Aleo address. See https://developer.aleo.org/guides/sdk/wasm/nodejs/#addressfrom_stringaddress--address for more details.
+   * @param address - The address to validate
+   * @returns True if the address is valid, false otherwise
+   */
+  validateAleoAddress(address: string): boolean {
+    try {
+      return !!AleoAddress.from_string(address);
     } catch {
       return false;
     }
