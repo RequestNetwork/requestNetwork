@@ -1,6 +1,6 @@
-import { CurrencyTypes, RequestLogicTypes } from '../../types';
+import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
-import { Address  } from "@ton/core"
+import { Address } from '@ton/core';
 import { validateAndParseAddress } from 'starknet';
 import { Address as AleoAddress } from '@provablehq/sdk';
 import addressValidator from 'multicoin-address-validator';
