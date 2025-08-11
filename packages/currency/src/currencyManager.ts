@@ -2,7 +2,6 @@ import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
 import { Address } from '@ton/core';
 import { validateAndParseAddress } from 'starknet';
-import { Address as AleoAddress } from '@provablehq/sdk';
 import addressValidator from 'multicoin-address-validator';
 import { getSupportedERC20Tokens } from './erc20';
 import { getSupportedERC777Tokens } from './erc777';
@@ -326,13 +325,20 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
   }
 
   /**
-   * Validate an Aleo address. See https://developer.aleo.org/guides/sdk/wasm/nodejs/#addressfrom_stringaddress--address for more details.
+   * Validate an Aleo address using the official format specification.
+   * Note we do not use the @provablehq/sdk package because it is ESM-only
+   * For regex validation, see https://namespaces.chainagnostic.org/aleo/caip10 for more details.
    * @param address - The address to validate
    * @returns True if the address is valid, false otherwise
    */
   validateAleoAddress(address: string): boolean {
     try {
-      return !!AleoAddress.from_string(address);
+      if (!address || typeof address !== 'string') {
+        return false;
+      }
+
+      const aleoAddressRegex = /^aleo1[a-z0-9]{58}$/;
+      return aleoAddressRegex.test(address);
     } catch {
       return false;
     }
