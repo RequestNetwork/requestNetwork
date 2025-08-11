@@ -338,9 +338,7 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
    */
   validateAleoAddress(address: string): boolean {
     try {
-      const input = address?.trim();
-      if (!input) return false;
-      const { prefix } = bech32.decode(input.toLowerCase());
+      const { prefix } = bech32.decode(address);
       return prefix === 'aleo';
     } catch {
       return false;

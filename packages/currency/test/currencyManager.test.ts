@@ -771,7 +771,6 @@ describe('CurrencyManager', () => {
       const validAddress = 'aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8';
       expect(currencyManager.validateAleoAddress(validAddress)).toBe(true);
       expect(currencyManager.validateAleoAddress(validAddress.toUpperCase())).toBe(true);
-      expect(currencyManager.validateAleoAddress(`  ${validAddress}  `)).toBe(true);
     });
 
     it('should reject invalid Aleo addresses', () => {
@@ -784,6 +783,8 @@ describe('CurrencyManager', () => {
         // Wrong prefix
         'bitcoin1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8',
         'cosmos1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8',
+        // Mixed case
+        'aleo1Qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8',
         // Wrong format
         'aleo1',
         'aleo1abc',
@@ -797,16 +798,13 @@ describe('CurrencyManager', () => {
         123,
         {},
         [],
+        // valid address with whitespace
+        ' aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8 ',
       ];
 
       invalidAddresses.forEach((address) => {
         expect(currencyManager.validateAleoAddress(address as any)).toBe(false);
       });
-    });
-
-    it('should handle whitespace trimming', () => {
-      expect(currencyManager.validateAleoAddress('   ')).toBe(false);
-      expect(currencyManager.validateAleoAddress('')).toBe(false);
     });
   });
 });
