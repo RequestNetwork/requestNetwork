@@ -3,6 +3,7 @@ import { utils } from 'ethers';
 import { Address } from '@ton/core';
 import { validateAndParseAddress } from 'starknet';
 import addressValidator from 'multicoin-address-validator';
+import { bech32 } from 'bech32';
 import { getSupportedERC20Tokens } from './erc20';
 import { getSupportedERC777Tokens } from './erc777';
 import { getHash } from './getHash';
@@ -325,20 +326,22 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
   }
 
   /**
-   * Validate an Aleo address using the official format specification.
-   * Note we do not use the @provablehq/sdk package because it is ESM-only
-   * For regex validation, see https://namespaces.chainagnostic.org/aleo/caip10 for more details.
+   * Validate an Aleo address using proper Bech32 validation with checksum verification.
+   * Aleo addresses use Bech32 encoding with:
+   * - HRP (Human Readable Part): "aleo"
+   * - Separator: "1"
+   * - Data + checksum: 58 characters
+   * - Total length: 63 characters
+   * - Strict Bech32 character set with checksum validation
    * @param address - The address to validate
    * @returns True if the address is valid, false otherwise
    */
   validateAleoAddress(address: string): boolean {
     try {
-      if (!address || typeof address !== 'string') {
-        return false;
-      }
-
-      const aleoAddressRegex = /^aleo1[a-z0-9]{58}$/;
-      return aleoAddressRegex.test(address);
+      const input = address?.trim();
+      if (!input) return false;
+      const { prefix } = bech32.decode(input.toLowerCase());
+      return prefix === 'aleo';
     } catch {
       return false;
     }
