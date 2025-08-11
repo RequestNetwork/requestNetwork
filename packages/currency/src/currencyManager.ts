@@ -333,6 +333,8 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
    * - Data + checksum: 58 characters
    * - Total length: 63 characters
    * - Strict Bech32 character set with checksum validation
+   *
+   * See https://namespaces.chainagnostic.org/aleo/caip10 for more details.
    * @param address - The address to validate
    * @returns True if the address is valid, false otherwise
    */
