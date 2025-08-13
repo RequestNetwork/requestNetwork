@@ -5,6 +5,7 @@ import {
   ExtensionTypes,
   IdentityTypes,
   PaymentTypes,
+  CurrencyTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { decrypt, random32Bytes } from '@requestnetwork/utils';
@@ -1647,48 +1648,59 @@ describe('request-client.js', () => {
     expect(data.expectedAmount).toBe(requestParameters.expectedAmount);
   });
 
-  it('Can create ERC20 declarative requests with non-evm currency - solana', async () => {
-    const testErc20TokenAddress = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
-    const requestNetwork = new RequestNetwork({
-      signatureProvider: TestData.fakeSignatureProvider,
-      useMockStorage: true,
-    });
+  describe('Can create ERC20 declarative requests with non-evm currencies', () => {
+    const cases: Array<[CurrencyTypes.DeclarativeChainName, string]> = [
+      ['solana', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'],
+      ['ton', 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs'],
+      ['starknet', '0x028757d11c97078Dd182023B1cC7b9E7659716c631ADF94D24f1fa7Dc5943072'],
+      ['aleo', 'aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8'],
+    ];
 
-    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
-      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
-      parameters: {},
-    };
+    it.each(cases)(
+      'Can create ERC20 declarative requests with non-evm currency - %s',
+      async (network, tokenAddress) => {
+        const requestNetwork = new RequestNetwork({
+          signatureProvider: TestData.fakeSignatureProvider,
+          useMockStorage: true,
+        });
 
-    const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
-      currency: {
-        network: 'solana',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: testErc20TokenAddress,
+        const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
+          parameters: {},
+        };
+
+        const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+          currency: {
+            network,
+            type: RequestLogicTypes.CURRENCY.ERC20,
+            value: tokenAddress,
+          },
+        });
+
+        const request = await requestNetwork.createRequest({
+          paymentNetwork,
+          requestInfo,
+          signer: TestData.payee.identity,
+        });
+
+        await new Promise((resolve): any => setTimeout(resolve, 150));
+        const data = await request.refresh();
+
+        expect(data).toBeDefined();
+        expect(data.balance?.balance).toBe('0');
+        expect(data.balance?.events.length).toBe(0);
+        expect(data.meta).toBeDefined();
+        expect(data.currency).toBe('unknown');
+
+        expect(data.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE].values).toEqual({
+          receivedPaymentAmount: '0',
+          receivedRefundAmount: '0',
+          sentPaymentAmount: '0',
+          sentRefundAmount: '0',
+        });
+        expect(data.expectedAmount).toBe(requestParameters.expectedAmount);
       },
-    });
-
-    const request = await requestNetwork.createRequest({
-      paymentNetwork,
-      requestInfo,
-      signer: TestData.payee.identity,
-    });
-
-    await new Promise((resolve): any => setTimeout(resolve, 150));
-    let data = await request.refresh();
-
-    expect(data).toBeDefined();
-    expect(data.balance?.balance).toBe('0');
-    expect(data.balance?.events.length).toBe(0);
-    expect(data.meta).toBeDefined();
-    expect(data.currency).toBe('unknown');
-
-    expect(data.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE].values).toEqual({
-      receivedPaymentAmount: '0',
-      receivedRefundAmount: '0',
-      sentPaymentAmount: '0',
-      sentRefundAmount: '0',
-    });
-    expect(data.expectedAmount).toBe(requestParameters.expectedAmount);
+    );
   });
 
   it('cannot create ERC20 address based requests with invalid currency', async () => {

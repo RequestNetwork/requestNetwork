@@ -1,6 +1,9 @@
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
+import { Address } from '@ton/core';
+import { validateAndParseAddress } from 'starknet';
 import addressValidator from 'multicoin-address-validator';
+import { bech32 } from 'bech32';
 import { getSupportedERC20Tokens } from './erc20';
 import { getSupportedERC777Tokens } from './erc777';
 import { getHash } from './getHash';
@@ -264,6 +267,12 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
           return isValidNearAddress(address, currency.network);
         } else if (currency.network === 'tron' || currency.network === 'solana') {
           return addressValidator.validate(address, currency.network);
+        } else if (currency.network === 'ton') {
+          return this.validateTonAddress(address);
+        } else if (currency.network === 'starknet') {
+          return this.validateStarknetAddress(address);
+        } else if (currency.network === 'aleo') {
+          return this.validateAleoAddress(address);
         }
         return addressValidator.validate(address, 'ETH');
       case RequestLogicTypes.CURRENCY.BTC:
@@ -288,6 +297,54 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
     )
       return true;
     return this.validateAddress(currency.value, currency);
+  }
+
+  /**
+   * Validate a TON address. See https://ton-org.github.io/ton-core/classes/Address.html#parse for more details.
+   * @param address - The address to validate
+   * @returns True if the address is valid, false otherwise
+   */
+  validateTonAddress(address: string): boolean {
+    try {
+      return !!Address.parse(address);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Validate a Starknet address. See https://starknetjs.com/docs/next/API/modules/#validateandparseaddress for more details.
+   * @param address - The address to validate
+   * @returns True if the address is valid, false otherwise
+   */
+  validateStarknetAddress(address: string): boolean {
+    try {
+      return !!validateAndParseAddress(address);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Validate an Aleo address using proper Bech32 validation with checksum verification.
+   * Aleo addresses use Bech32 encoding with:
+   * - HRP (Human Readable Part): "aleo"
+   * - Separator: "1"
+   * - Data + checksum: 58 characters
+   * - Total length: 63 characters
+   * - Strict Bech32 character set with checksum validation
+   *
+   * See https://namespaces.chainagnostic.org/aleo/caip10 for more details.
+   * @param address - The address to validate
+   * @returns True if the address is valid, false otherwise
+   */
+  validateAleoAddress(address: string): boolean {
+    try {
+      const { prefix } = bech32.decode(address);
+      return prefix === 'aleo';
+    } catch {
+      return false;
+    }
   }
 
   /**

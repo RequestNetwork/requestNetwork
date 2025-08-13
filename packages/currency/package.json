@@ -45,8 +45,12 @@
     "@metamask/contract-metadata": "1.31.0",
     "@requestnetwork/types": "0.54.0",
     "@requestnetwork/utils": "0.54.0",
+    "@ton/core": "0.61.0",
+    "@ton/crypto": "3.3.0",
+    "bech32": "2.0.0",
     "multicoin-address-validator": "0.5.15",
     "node-dijkstra": "2.5.0",
+    "starknet": "7.6.4",
     "tslib": "2.8.1"
   },
   "devDependencies": {
