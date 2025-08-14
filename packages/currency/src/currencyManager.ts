@@ -326,7 +326,7 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
 
   /**
    * Validate an Aleo currency address (field element).
-   * Aleo currency addresses are field elements with 76-77 digits followed by "field".
+   * Aleo currency addresses are field elements with exactly 76 digits followed by "field".
    * See https://developer.aleo.org/guides/standards/token_registry#token-registry-program-constants
    * And https://developer.aleo.org/concepts/fundamentals/accounts#prime-fields
    *
@@ -344,7 +344,7 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
       }
 
       const numericPart = address.slice(0, -5);
-      return (numericPart.length === 76 || numericPart.length === 77) && /^\d+$/.test(numericPart);
+      return numericPart.length === 76 && /^\d+$/.test(numericPart);
     } catch {
       return false;
     }
