@@ -328,6 +328,7 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
    * Validate an Aleo currency address (field element).
    * Aleo currency addresses are field elements with 76-77 digits followed by "field".
    * See https://developer.aleo.org/guides/standards/token_registry#token-registry-program-constants
+   * And https://developer.aleo.org/concepts/fundamentals/accounts#prime-fields
    *
    * Examples:
    * - 7311977476241952331367670434347097026669181172395481678807963832961201831695field
