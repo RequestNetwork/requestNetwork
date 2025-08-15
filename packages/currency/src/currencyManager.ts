@@ -3,7 +3,6 @@ import { utils } from 'ethers';
 import { Address } from '@ton/core';
 import { validateAndParseAddress } from 'starknet';
 import addressValidator from 'multicoin-address-validator';
-import { bech32 } from 'bech32';
 import { getSupportedERC20Tokens } from './erc20';
 import { getSupportedERC777Tokens } from './erc777';
 import { getHash } from './getHash';
@@ -326,22 +325,26 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
   }
 
   /**
-   * Validate an Aleo address using proper Bech32 validation with checksum verification.
-   * Aleo addresses use Bech32 encoding with:
-   * - HRP (Human Readable Part): "aleo"
-   * - Separator: "1"
-   * - Data + checksum: 58 characters
-   * - Total length: 63 characters
-   * - Strict Bech32 character set with checksum validation
+   * Validate an Aleo currency address (field element).
+   * Aleo currency addresses are field elements with exactly 76 digits followed by "field".
+   * See https://developer.aleo.org/guides/standards/token_registry#token-registry-program-constants
+   * And https://developer.aleo.org/concepts/fundamentals/accounts#prime-fields
    *
-   * See https://namespaces.chainagnostic.org/aleo/caip10 for more details.
-   * @param address - The address to validate
+   * Examples:
+   * - 7311977476241952331367670434347097026669181172395481678807963832961201831695field
+   * - 6088188135219746443092391282916151282477828391085949070550825603498725268775field
+   *
+   * @param address - The Aleo currency address to validate
    * @returns True if the address is valid, false otherwise
    */
   validateAleoAddress(address: string): boolean {
     try {
-      const { prefix } = bech32.decode(address);
-      return prefix === 'aleo';
+      if (!address || typeof address !== 'string' || !address.endsWith('field')) {
+        return false;
+      }
+
+      const numericPart = address.slice(0, -5);
+      return numericPart.length === 76 && /^\d+$/.test(numericPart);
     } catch {
       return false;
     }

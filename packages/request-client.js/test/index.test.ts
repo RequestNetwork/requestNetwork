@@ -1653,7 +1653,7 @@ describe('request-client.js', () => {
       ['solana', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'],
       ['ton', 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs'],
       ['starknet', '0x028757d11c97078Dd182023B1cC7b9E7659716c631ADF94D24f1fa7Dc5943072'],
-      ['aleo', 'aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8'],
+      ['aleo', '7311977476241952331367670434347097026669181172395481678807963832961201831695field'],
     ];
 
     it.each(cases)(
