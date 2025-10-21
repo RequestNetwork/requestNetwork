@@ -99,6 +99,18 @@ export const getConstructorArgs = (
 
       return [adminSafe, executorEOA, erc20FeeProxyAddress];
     }
+    case 'ERC20CommerceEscrowWrapper': {
+      if (!network) {
+        throw new Error('ERC20CommerceEscrowWrapper requires network parameter');
+      }
+      // Constructor requires commerceEscrow address and erc20FeeProxy address
+      // For now, using placeholder for commerceEscrow - this should be updated with actual deployed address
+      const commerceEscrowAddress = '0x0000000000000000000000000000000000000000'; // TODO: Update with actual Commerce Payments escrow address
+      const erc20FeeProxy = artifacts.erc20FeeProxyArtifact;
+      const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
+
+      return [commerceEscrowAddress, erc20FeeProxyAddress];
+    }
     default:
       return [];
   }
