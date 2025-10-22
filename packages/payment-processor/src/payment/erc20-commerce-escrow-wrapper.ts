@@ -123,21 +123,8 @@ export function encodeAuthorizePayment({
 }): string {
   const wrapperContract = erc20CommerceEscrowWrapperArtifact.connect(network, provider);
 
-  // Pass individual parameters as expected by the contract
-  return wrapperContract.interface.encodeFunctionData('authorizePayment', [
-    params.paymentReference,
-    params.payer,
-    params.merchant,
-    params.operator,
-    params.token,
-    params.amount,
-    params.maxAmount,
-    params.preApprovalExpiry,
-    params.authorizationExpiry,
-    params.refundExpiry,
-    params.tokenCollector,
-    params.collectorData,
-  ]);
+  // Pass the params struct as expected by the contract
+  return wrapperContract.interface.encodeFunctionData('authorizePayment', [params]);
 }
 
 /**
@@ -209,23 +196,8 @@ export function encodeChargePayment({
 }): string {
   const wrapperContract = erc20CommerceEscrowWrapperArtifact.connect(network, provider);
 
-  // Pass individual parameters as expected by the contract
-  return wrapperContract.interface.encodeFunctionData('chargePayment', [
-    params.paymentReference,
-    params.payer,
-    params.merchant,
-    params.operator,
-    params.token,
-    params.amount,
-    params.maxAmount,
-    params.preApprovalExpiry,
-    params.authorizationExpiry,
-    params.refundExpiry,
-    params.feeBps,
-    params.feeReceiver,
-    params.tokenCollector,
-    params.collectorData,
-  ]);
+  // Pass the params struct as expected by the contract
+  return wrapperContract.interface.encodeFunctionData('chargePayment', [params]);
 }
 
 /**
