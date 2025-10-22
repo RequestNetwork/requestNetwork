@@ -1,5 +1,5 @@
 import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
-import { providers, Signer, BigNumberish } from 'ethers';
+import { providers, Signer, BigNumberish, utils } from 'ethers';
 import { erc20CommerceEscrowWrapperArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getErc20Allowance } from './erc20';
@@ -123,8 +123,26 @@ export function encodeAuthorizePayment({
 }): string {
   const wrapperContract = erc20CommerceEscrowWrapperArtifact.connect(network, provider);
 
-  // Pass the params struct as expected by the contract
-  return wrapperContract.interface.encodeFunctionData('authorizePayment', [params]);
+  // Use utils.Interface to encode with the raw ABI to avoid TypeScript interface issues
+  const iface = new utils.Interface(
+    wrapperContract.interface.format(utils.FormatTypes.json) as string,
+  );
+
+  // Pass individual parameters as expected by the ABI (not struct)
+  return iface.encodeFunctionData('authorizePayment', [
+    params.paymentReference,
+    params.payer,
+    params.merchant,
+    params.operator,
+    params.token,
+    params.amount,
+    params.maxAmount,
+    params.preApprovalExpiry,
+    params.authorizationExpiry,
+    params.refundExpiry,
+    params.tokenCollector,
+    params.collectorData,
+  ]);
 }
 
 /**
@@ -196,8 +214,28 @@ export function encodeChargePayment({
 }): string {
   const wrapperContract = erc20CommerceEscrowWrapperArtifact.connect(network, provider);
 
-  // Pass the params struct as expected by the contract
-  return wrapperContract.interface.encodeFunctionData('chargePayment', [params]);
+  // Use utils.Interface to encode with the raw ABI to avoid TypeScript interface issues
+  const iface = new utils.Interface(
+    wrapperContract.interface.format(utils.FormatTypes.json) as string,
+  );
+
+  // Pass individual parameters as expected by the ABI (not struct)
+  return iface.encodeFunctionData('chargePayment', [
+    params.paymentReference,
+    params.payer,
+    params.merchant,
+    params.operator,
+    params.token,
+    params.amount,
+    params.maxAmount,
+    params.preApprovalExpiry,
+    params.authorizationExpiry,
+    params.refundExpiry,
+    params.feeBps,
+    params.feeReceiver,
+    params.tokenCollector,
+    params.collectorData,
+  ]);
 }
 
 /**
