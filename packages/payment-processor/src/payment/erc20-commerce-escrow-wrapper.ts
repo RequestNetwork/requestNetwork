@@ -123,23 +123,21 @@ export function encodeAuthorizePayment({
 }): string {
   const wrapperContract = erc20CommerceEscrowWrapperArtifact.connect(network, provider);
 
-  // Create the struct parameter for the new contract interface
-  const authParams = {
-    paymentReference: params.paymentReference,
-    payer: params.payer,
-    merchant: params.merchant,
-    operator: params.operator,
-    token: params.token,
-    amount: params.amount,
-    maxAmount: params.maxAmount,
-    preApprovalExpiry: params.preApprovalExpiry,
-    authorizationExpiry: params.authorizationExpiry,
-    refundExpiry: params.refundExpiry,
-    tokenCollector: params.tokenCollector,
-    collectorData: params.collectorData,
-  };
-
-  return wrapperContract.interface.encodeFunctionData('authorizePayment', [authParams]);
+  // Pass individual parameters as expected by the contract
+  return wrapperContract.interface.encodeFunctionData('authorizePayment', [
+    params.paymentReference,
+    params.payer,
+    params.merchant,
+    params.operator,
+    params.token,
+    params.amount,
+    params.maxAmount,
+    params.preApprovalExpiry,
+    params.authorizationExpiry,
+    params.refundExpiry,
+    params.tokenCollector,
+    params.collectorData,
+  ]);
 }
 
 /**
@@ -211,25 +209,23 @@ export function encodeChargePayment({
 }): string {
   const wrapperContract = erc20CommerceEscrowWrapperArtifact.connect(network, provider);
 
-  // Create the struct parameter for the new contract interface
-  const chargeParams = {
-    paymentReference: params.paymentReference,
-    payer: params.payer,
-    merchant: params.merchant,
-    operator: params.operator,
-    token: params.token,
-    amount: params.amount,
-    maxAmount: params.maxAmount,
-    preApprovalExpiry: params.preApprovalExpiry,
-    authorizationExpiry: params.authorizationExpiry,
-    refundExpiry: params.refundExpiry,
-    feeBps: params.feeBps,
-    feeReceiver: params.feeReceiver,
-    tokenCollector: params.tokenCollector,
-    collectorData: params.collectorData,
-  };
-
-  return wrapperContract.interface.encodeFunctionData('chargePayment', [chargeParams]);
+  // Pass individual parameters as expected by the contract
+  return wrapperContract.interface.encodeFunctionData('chargePayment', [
+    params.paymentReference,
+    params.payer,
+    params.merchant,
+    params.operator,
+    params.token,
+    params.amount,
+    params.maxAmount,
+    params.preApprovalExpiry,
+    params.authorizationExpiry,
+    params.refundExpiry,
+    params.feeBps,
+    params.feeReceiver,
+    params.tokenCollector,
+    params.collectorData,
+  ]);
 }
 
 /**

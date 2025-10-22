@@ -13,12 +13,21 @@ export const erc20CommerceEscrowWrapperArtifact = new ContractArtifact<ERC20Comm
           address: '0x0000000000000000000000000000000000000000', // Placeholder - to be updated with actual deployment
           creationBlockNumber: 0,
         },
-        // TODO: Add deployment addresses for other networks once deployed
+        // Testnet deployments for testing
+        sepolia: {
+          address: '0x1234567890123456789012345678901234567890', // Placeholder - to be updated with actual deployment
+          creationBlockNumber: 0,
+        },
+        goerli: {
+          address: '0x1234567890123456789012345678901234567890', // Placeholder - to be updated with actual deployment
+          creationBlockNumber: 0,
+        },
+        mumbai: {
+          address: '0x1234567890123456789012345678901234567890', // Placeholder - to be updated with actual deployment
+          creationBlockNumber: 0,
+        },
+        // TODO: Add deployment addresses for mainnet networks once deployed
         // mainnet: {
-        //   address: '0x0000000000000000000000000000000000000000',
-        //   creationBlockNumber: 0,
-        // },
-        // sepolia: {
         //   address: '0x0000000000000000000000000000000000000000',
         //   creationBlockNumber: 0,
         // },

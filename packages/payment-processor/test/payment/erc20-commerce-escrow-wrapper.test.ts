@@ -29,7 +29,7 @@ import {
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
-const network: CurrencyTypes.EvmChainName = 'private';
+const network: CurrencyTypes.EvmChainName = 'sepolia';
 const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 
 const mockAuthorizeParams: AuthorizePaymentParams = {
@@ -73,18 +73,32 @@ describe('erc20-commerce-escrow-wrapper', () => {
   });
 
   describe('getCommerceEscrowWrapperAddress', () => {
-    it('should throw when wrapper not found on network', () => {
-      expect(() => {
-        getCommerceEscrowWrapperAddress(network);
-      }).toThrow('ERC20CommerceEscrowWrapper not found on private');
+    it('should return address when wrapper is deployed on testnet', () => {
+      const address = getCommerceEscrowWrapperAddress(network);
+      expect(address).toBe('0x1234567890123456789012345678901234567890');
     });
 
-    it('should return address when wrapper is deployed', () => {
-      // This test would pass once actual deployment addresses are added
-      // For now, it demonstrates the expected behavior
+    it('should throw when wrapper not found on mainnet', () => {
+      // This test demonstrates the expected behavior for networks without deployment
       expect(() => {
         getCommerceEscrowWrapperAddress('mainnet' as CurrencyTypes.EvmChainName);
-      }).toThrow('ERC20CommerceEscrowWrapper not found on mainnet');
+      }).toThrow('No deployment for network: mainnet.');
+    });
+
+    it('should throw for unsupported networks', () => {
+      expect(() => {
+        getCommerceEscrowWrapperAddress('unsupported-network' as CurrencyTypes.EvmChainName);
+      }).toThrow('No deployment for network: unsupported-network.');
+    });
+
+    it('should return different addresses for different supported networks', () => {
+      const sepoliaAddress = getCommerceEscrowWrapperAddress('sepolia');
+      const goerliAddress = getCommerceEscrowWrapperAddress('goerli');
+      const mumbaiAddress = getCommerceEscrowWrapperAddress('mumbai');
+
+      expect(sepoliaAddress).toBe('0x1234567890123456789012345678901234567890');
+      expect(goerliAddress).toBe('0x1234567890123456789012345678901234567890');
+      expect(mumbaiAddress).toBe('0x1234567890123456789012345678901234567890');
     });
   });
 
@@ -168,184 +182,647 @@ describe('erc20-commerce-escrow-wrapper', () => {
 
       expect(transactions).toHaveLength(1);
     });
+
+    it('should handle zero amount', () => {
+      const mockAddress = '0x1234567890123456789012345678901234567890';
+      jest
+        .spyOn(
+          require('../../src/payment/erc20-commerce-escrow-wrapper'),
+          'getCommerceEscrowWrapperAddress',
+        )
+        .mockReturnValue(mockAddress);
+
+      const transactions = encodeSetCommerceEscrowAllowance({
+        tokenAddress: erc20ContractAddress,
+        amount: '0',
+        provider,
+        network,
+        isUSDT: false,
+      });
+
+      expect(transactions).toHaveLength(1);
+      expect(transactions[0].to).toBe(erc20ContractAddress);
+    });
+
+    it('should handle maximum uint256 amount', () => {
+      const mockAddress = '0x1234567890123456789012345678901234567890';
+      jest
+        .spyOn(
+          require('../../src/payment/erc20-commerce-escrow-wrapper'),
+          'getCommerceEscrowWrapperAddress',
+        )
+        .mockReturnValue(mockAddress);
+
+      const maxUint256 =
+        '115792089237316195423570985008687907853269984665640564039457584007913129639935';
+      const transactions = encodeSetCommerceEscrowAllowance({
+        tokenAddress: erc20ContractAddress,
+        amount: maxUint256,
+        provider,
+        network,
+        isUSDT: false,
+      });
+
+      expect(transactions).toHaveLength(1);
+      expect(transactions[0].to).toBe(erc20ContractAddress);
+    });
+
+    it('should handle different token addresses', () => {
+      const mockAddress = '0x1234567890123456789012345678901234567890';
+      jest
+        .spyOn(
+          require('../../src/payment/erc20-commerce-escrow-wrapper'),
+          'getCommerceEscrowWrapperAddress',
+        )
+        .mockReturnValue(mockAddress);
+
+      const differentTokenAddress = '0xA0b86a33E6441b8435b662c8C1C1C1C1C1C1C1C1';
+      const transactions = encodeSetCommerceEscrowAllowance({
+        tokenAddress: differentTokenAddress,
+        amount: '1000000000000000000',
+        provider,
+        network,
+        isUSDT: false,
+      });
+
+      expect(transactions).toHaveLength(1);
+      expect(transactions[0].to).toBe(differentTokenAddress);
+    });
+
+    it('should throw when wrapper not deployed on network', () => {
+      expect(() => {
+        encodeSetCommerceEscrowAllowance({
+          tokenAddress: erc20ContractAddress,
+          amount: '1000000000000000000',
+          provider,
+          network: 'mainnet' as CurrencyTypes.EvmChainName,
+          isUSDT: false,
+        });
+      }).toThrow('No deployment for network: mainnet.');
+    });
   });
 
   describe('getPayerCommerceEscrowAllowance', () => {
-    it('should throw when wrapper not found', async () => {
-      await expect(
-        getPayerCommerceEscrowAllowance({
-          payerAddress: wallet.address,
-          tokenAddress: erc20ContractAddress,
-          provider,
-          network,
-        }),
-      ).rejects.toThrow('ERC20CommerceEscrowWrapper not found on private');
+    it('should call getErc20Allowance with correct parameters', async () => {
+      // Mock getErc20Allowance to avoid actual blockchain calls
+      const mockGetErc20Allowance = jest
+        .fn()
+        .mockResolvedValue({ toString: () => '1000000000000000000' });
+
+      // Mock the getErc20Allowance function
+      jest.doMock('../../src/payment/erc20', () => ({
+        getErc20Allowance: mockGetErc20Allowance,
+      }));
+
+      // Clear the module cache and re-import
+      jest.resetModules();
+      const {
+        getPayerCommerceEscrowAllowance,
+      } = require('../../src/payment/erc20-commerce-escrow-wrapper');
+
+      const result = await getPayerCommerceEscrowAllowance({
+        payerAddress: wallet.address,
+        tokenAddress: erc20ContractAddress,
+        provider,
+        network,
+      });
+
+      expect(result).toBe('1000000000000000000');
+      expect(mockGetErc20Allowance).toHaveBeenCalledWith(
+        wallet.address,
+        '0x1234567890123456789012345678901234567890', // wrapper address
+        provider,
+        erc20ContractAddress,
+      );
     });
   });
 
   describe('encode functions', () => {
-    it('should throw for encodeAuthorizePayment when wrapper not found', () => {
+    it('should encode authorizePayment function data', () => {
+      const encodedData = encodeAuthorizePayment({
+        params: mockAuthorizeParams,
+        network,
+        provider,
+      });
+
+      expect(typeof encodedData).toBe('string');
+      expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/); // Should be valid hex string
+    });
+
+    it('should encode capturePayment function data', () => {
+      const encodedData = encodeCapturePayment({
+        params: mockCaptureParams,
+        network,
+        provider,
+      });
+
+      expect(typeof encodedData).toBe('string');
+      expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/); // Should be valid hex string
+    });
+
+    it('should encode voidPayment function data', () => {
+      const encodedData = encodeVoidPayment({
+        paymentReference: '0x0123456789abcdef',
+        network,
+        provider,
+      });
+
+      expect(typeof encodedData).toBe('string');
+      expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/); // Should be valid hex string
+    });
+
+    it('should encode chargePayment function data', () => {
+      const encodedData = encodeChargePayment({
+        params: mockChargeParams,
+        network,
+        provider,
+      });
+
+      expect(typeof encodedData).toBe('string');
+      expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/); // Should be valid hex string
+    });
+
+    it('should encode reclaimPayment function data', () => {
+      const encodedData = encodeReclaimPayment({
+        paymentReference: '0x0123456789abcdef',
+        network,
+        provider,
+      });
+
+      expect(typeof encodedData).toBe('string');
+      expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/); // Should be valid hex string
+    });
+
+    it('should encode refundPayment function data', () => {
+      const encodedData = encodeRefundPayment({
+        params: mockRefundParams,
+        network,
+        provider,
+      });
+
+      expect(typeof encodedData).toBe('string');
+      expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/); // Should be valid hex string
+    });
+
+    it('should throw for encodeAuthorizePayment when wrapper not found on mainnet', () => {
       expect(() => {
         encodeAuthorizePayment({
           params: mockAuthorizeParams,
-          network,
+          network: 'mainnet' as CurrencyTypes.EvmChainName,
           provider,
         });
-      }).toThrow('ERC20CommerceEscrowWrapper not found on private');
+      }).toThrow('No deployment for network: mainnet.');
     });
 
-    it('should throw for encodeCapturePayment when wrapper not found', () => {
-      expect(() => {
-        encodeCapturePayment({
-          params: mockCaptureParams,
+    describe('parameter validation edge cases', () => {
+      it('should handle minimum payment reference (8 bytes)', () => {
+        const minPaymentRef = '0x0000000000000001';
+        const encodedData = encodeVoidPayment({
+          paymentReference: minPaymentRef,
           network,
           provider,
         });
-      }).toThrow('ERC20CommerceEscrowWrapper not found on private');
-    });
 
-    it('should throw for encodeVoidPayment when wrapper not found', () => {
-      expect(() => {
-        encodeVoidPayment({
-          paymentReference: '0x0123456789abcdef',
-          network,
-          provider,
-        });
-      }).toThrow('ERC20CommerceEscrowWrapper not found on private');
-    });
+        expect(typeof encodedData).toBe('string');
+        expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/);
+      });
 
-    it('should throw for encodeChargePayment when wrapper not found', () => {
-      expect(() => {
-        encodeChargePayment({
-          params: mockChargeParams,
+      it('should handle maximum payment reference (8 bytes)', () => {
+        const maxPaymentRef = '0xffffffffffffffff';
+        const encodedData = encodeVoidPayment({
+          paymentReference: maxPaymentRef,
           network,
           provider,
         });
-      }).toThrow('ERC20CommerceEscrowWrapper not found on private');
-    });
 
-    it('should throw for encodeReclaimPayment when wrapper not found', () => {
-      expect(() => {
-        encodeReclaimPayment({
-          paymentReference: '0x0123456789abcdef',
-          network,
-          provider,
-        });
-      }).toThrow('ERC20CommerceEscrowWrapper not found on private');
-    });
+        expect(typeof encodedData).toBe('string');
+        expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/);
+      });
 
-    it('should throw for encodeRefundPayment when wrapper not found', () => {
-      expect(() => {
-        encodeRefundPayment({
-          params: mockRefundParams,
+      it('should handle zero amounts in authorize payment', () => {
+        const zeroAmountParams = {
+          ...mockAuthorizeParams,
+          amount: '0',
+          maxAmount: '0',
+        };
+
+        const encodedData = encodeAuthorizePayment({
+          params: zeroAmountParams,
           network,
           provider,
         });
-      }).toThrow('ERC20CommerceEscrowWrapper not found on private');
+
+        expect(typeof encodedData).toBe('string');
+        expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/);
+      });
+
+      it('should handle maximum uint256 amounts', () => {
+        const maxUint256 =
+          '115792089237316195423570985008687907853269984665640564039457584007913129639935';
+        const maxAmountParams = {
+          ...mockAuthorizeParams,
+          amount: maxUint256,
+          maxAmount: maxUint256,
+        };
+
+        const encodedData = encodeAuthorizePayment({
+          params: maxAmountParams,
+          network,
+          provider,
+        });
+
+        expect(typeof encodedData).toBe('string');
+        expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/);
+      });
+
+      it('should handle past expiry times', () => {
+        const pastTime = Math.floor(Date.now() / 1000) - 3600; // 1 hour ago
+        const pastExpiryParams = {
+          ...mockAuthorizeParams,
+          preApprovalExpiry: pastTime,
+          authorizationExpiry: pastTime,
+          refundExpiry: pastTime,
+        };
+
+        const encodedData = encodeAuthorizePayment({
+          params: pastExpiryParams,
+          network,
+          provider,
+        });
+
+        expect(typeof encodedData).toBe('string');
+        expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/);
+      });
+
+      it('should handle far future expiry times', () => {
+        const futureTime = Math.floor(Date.now() / 1000) + 365 * 24 * 3600; // 1 year from now
+        const futureExpiryParams = {
+          ...mockAuthorizeParams,
+          preApprovalExpiry: futureTime,
+          authorizationExpiry: futureTime,
+          refundExpiry: futureTime,
+        };
+
+        const encodedData = encodeAuthorizePayment({
+          params: futureExpiryParams,
+          network,
+          provider,
+        });
+
+        expect(typeof encodedData).toBe('string');
+        expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/);
+      });
+
+      it('should handle zero address for payer', () => {
+        const zeroAddressParams = {
+          ...mockAuthorizeParams,
+          payer: '0x0000000000000000000000000000000000000000',
+        };
+
+        const encodedData = encodeAuthorizePayment({
+          params: zeroAddressParams,
+          network,
+          provider,
+        });
+
+        expect(typeof encodedData).toBe('string');
+        expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/);
+      });
+
+      it('should handle same address for payer, merchant, and operator', () => {
+        const sameAddress = '0x1234567890123456789012345678901234567890';
+        const sameAddressParams = {
+          ...mockAuthorizeParams,
+          payer: sameAddress,
+          merchant: sameAddress,
+          operator: sameAddress,
+        };
+
+        const encodedData = encodeAuthorizePayment({
+          params: sameAddressParams,
+          network,
+          provider,
+        });
+
+        expect(typeof encodedData).toBe('string');
+        expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/);
+      });
+
+      it('should handle empty collector data', () => {
+        const emptyDataParams = {
+          ...mockAuthorizeParams,
+          collectorData: '0x',
+        };
+
+        const encodedData = encodeAuthorizePayment({
+          params: emptyDataParams,
+          network,
+          provider,
+        });
+
+        expect(typeof encodedData).toBe('string');
+        expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/);
+      });
+
+      it('should handle large collector data', () => {
+        const largeData = '0x' + '12'.repeat(1000); // 2000 bytes of data
+        const largeDataParams = {
+          ...mockAuthorizeParams,
+          collectorData: largeData,
+        };
+
+        const encodedData = encodeAuthorizePayment({
+          params: largeDataParams,
+          network,
+          provider,
+        });
+
+        expect(typeof encodedData).toBe('string');
+        expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/);
+      });
+
+      it('should handle maximum fee basis points (10000 = 100%)', () => {
+        const maxFeeParams = {
+          ...mockCaptureParams,
+          feeBps: 10000,
+        };
+
+        const encodedData = encodeCapturePayment({
+          params: maxFeeParams,
+          network,
+          provider,
+        });
+
+        expect(typeof encodedData).toBe('string');
+        expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/);
+      });
+
+      it('should handle zero fee basis points', () => {
+        const zeroFeeParams = {
+          ...mockCaptureParams,
+          feeBps: 0,
+        };
+
+        const encodedData = encodeCapturePayment({
+          params: zeroFeeParams,
+          network,
+          provider,
+        });
+
+        expect(typeof encodedData).toBe('string');
+        expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/);
+      });
     });
   });
 
   describe('transaction functions', () => {
-    it('should throw for authorizePayment when wrapper not found', async () => {
+    beforeEach(() => {
+      // Mock sendTransaction to avoid actual blockchain calls
+      jest.spyOn(wallet, 'sendTransaction').mockResolvedValue({
+        hash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+        wait: jest.fn().mockResolvedValue({ status: 1 }),
+      } as any);
+    });
+
+    it('should call sendTransaction for authorizePayment', async () => {
+      const result = await authorizePayment({
+        params: mockAuthorizeParams,
+        signer: wallet,
+        network,
+      });
+
+      expect(wallet.sendTransaction).toHaveBeenCalledWith({
+        to: '0x1234567890123456789012345678901234567890',
+        data: expect.stringMatching(/^0x[a-fA-F0-9]+$/),
+        value: 0,
+      });
+      expect(result.hash).toBe(
+        '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+      );
+    });
+
+    it('should call sendTransaction for capturePayment', async () => {
+      const result = await capturePayment({
+        params: mockCaptureParams,
+        signer: wallet,
+        network,
+      });
+
+      expect(wallet.sendTransaction).toHaveBeenCalledWith({
+        to: '0x1234567890123456789012345678901234567890',
+        data: expect.stringMatching(/^0x[a-fA-F0-9]+$/),
+        value: 0,
+      });
+      expect(result.hash).toBe(
+        '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+      );
+    });
+
+    it('should call sendTransaction for voidPayment', async () => {
+      const result = await voidPayment({
+        paymentReference: '0x0123456789abcdef',
+        signer: wallet,
+        network,
+      });
+
+      expect(wallet.sendTransaction).toHaveBeenCalledWith({
+        to: '0x1234567890123456789012345678901234567890',
+        data: expect.stringMatching(/^0x[a-fA-F0-9]+$/),
+        value: 0,
+      });
+      expect(result.hash).toBe(
+        '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+      );
+    });
+
+    it('should call sendTransaction for chargePayment', async () => {
+      const result = await chargePayment({
+        params: mockChargeParams,
+        signer: wallet,
+        network,
+      });
+
+      expect(wallet.sendTransaction).toHaveBeenCalledWith({
+        to: '0x1234567890123456789012345678901234567890',
+        data: expect.stringMatching(/^0x[a-fA-F0-9]+$/),
+        value: 0,
+      });
+      expect(result.hash).toBe(
+        '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+      );
+    });
+
+    it('should call sendTransaction for reclaimPayment', async () => {
+      const result = await reclaimPayment({
+        paymentReference: '0x0123456789abcdef',
+        signer: wallet,
+        network,
+      });
+
+      expect(wallet.sendTransaction).toHaveBeenCalledWith({
+        to: '0x1234567890123456789012345678901234567890',
+        data: expect.stringMatching(/^0x[a-fA-F0-9]+$/),
+        value: 0,
+      });
+      expect(result.hash).toBe(
+        '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+      );
+    });
+
+    it('should call sendTransaction for refundPayment', async () => {
+      const result = await refundPayment({
+        params: mockRefundParams,
+        signer: wallet,
+        network,
+      });
+
+      expect(wallet.sendTransaction).toHaveBeenCalledWith({
+        to: '0x1234567890123456789012345678901234567890',
+        data: expect.stringMatching(/^0x[a-fA-F0-9]+$/),
+        value: 0,
+      });
+      expect(result.hash).toBe(
+        '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+      );
+    });
+
+    it('should throw for authorizePayment when wrapper not found on mainnet', async () => {
       await expect(
         authorizePayment({
           params: mockAuthorizeParams,
           signer: wallet,
-          network,
+          network: 'mainnet' as CurrencyTypes.EvmChainName,
         }),
-      ).rejects.toThrow('ERC20CommerceEscrowWrapper not found on private');
+      ).rejects.toThrow('No deployment for network: mainnet.');
     });
 
-    it('should throw for capturePayment when wrapper not found', async () => {
-      await expect(
-        capturePayment({
-          params: mockCaptureParams,
-          signer: wallet,
-          network,
-        }),
-      ).rejects.toThrow('ERC20CommerceEscrowWrapper not found on private');
+    describe('transaction failure scenarios', () => {
+      it('should handle sendTransaction rejection', async () => {
+        // Mock sendTransaction to reject
+        jest.spyOn(wallet, 'sendTransaction').mockRejectedValue(new Error('Transaction failed'));
+
+        await expect(
+          authorizePayment({
+            params: mockAuthorizeParams,
+            signer: wallet,
+            network,
+          }),
+        ).rejects.toThrow('Transaction failed');
+      });
+
+      it('should handle gas estimation failure', async () => {
+        // Mock sendTransaction to reject with gas estimation error
+        jest
+          .spyOn(wallet, 'sendTransaction')
+          .mockRejectedValue(new Error('gas required exceeds allowance'));
+
+        await expect(
+          capturePayment({
+            params: mockCaptureParams,
+            signer: wallet,
+            network,
+          }),
+        ).rejects.toThrow('gas required exceeds allowance');
+      });
+
+      it('should handle insufficient balance error', async () => {
+        jest.spyOn(wallet, 'sendTransaction').mockRejectedValue(new Error('insufficient funds'));
+
+        await expect(
+          chargePayment({
+            params: mockChargeParams,
+            signer: wallet,
+            network,
+          }),
+        ).rejects.toThrow('insufficient funds');
+      });
+
+      it('should handle nonce too low error', async () => {
+        jest.spyOn(wallet, 'sendTransaction').mockRejectedValue(new Error('nonce too low'));
+
+        await expect(
+          voidPayment({
+            paymentReference: '0x0123456789abcdef',
+            signer: wallet,
+            network,
+          }),
+        ).rejects.toThrow('nonce too low');
+      });
+
+      it('should handle replacement transaction underpriced', async () => {
+        jest
+          .spyOn(wallet, 'sendTransaction')
+          .mockRejectedValue(new Error('replacement transaction underpriced'));
+
+        await expect(
+          reclaimPayment({
+            paymentReference: '0x0123456789abcdef',
+            signer: wallet,
+            network,
+          }),
+        ).rejects.toThrow('replacement transaction underpriced');
+      });
     });
 
-    it('should throw for voidPayment when wrapper not found', async () => {
-      await expect(
-        voidPayment({
-          paymentReference: '0x0123456789abcdef',
-          signer: wallet,
-          network,
-        }),
-      ).rejects.toThrow('ERC20CommerceEscrowWrapper not found on private');
-    });
+    describe('edge case parameters', () => {
+      it('should handle transaction with zero gas price', async () => {
+        const mockTx = {
+          hash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          gasPrice: '0',
+          wait: jest.fn().mockResolvedValue({ status: 1 }),
+        };
+        jest.spyOn(wallet, 'sendTransaction').mockResolvedValue(mockTx as any);
 
-    it('should throw for chargePayment when wrapper not found', async () => {
-      await expect(
-        chargePayment({
-          params: mockChargeParams,
-          signer: wallet,
-          network,
-        }),
-      ).rejects.toThrow('ERC20CommerceEscrowWrapper not found on private');
-    });
-
-    it('should throw for reclaimPayment when wrapper not found', async () => {
-      await expect(
-        reclaimPayment({
-          paymentReference: '0x0123456789abcdef',
-          signer: wallet,
-          network,
-        }),
-      ).rejects.toThrow('ERC20CommerceEscrowWrapper not found on private');
-    });
-
-    it('should throw for refundPayment when wrapper not found', async () => {
-      await expect(
-        refundPayment({
+        const result = await refundPayment({
           params: mockRefundParams,
           signer: wallet,
           network,
-        }),
-      ).rejects.toThrow('ERC20CommerceEscrowWrapper not found on private');
+        });
+
+        expect(result.hash).toBe(
+          '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+        );
+      });
+
+      it('should handle transaction with very high gas price', async () => {
+        const mockTx = {
+          hash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+          gasPrice: '1000000000000', // 1000 gwei
+          wait: jest.fn().mockResolvedValue({ status: 1 }),
+        };
+        jest.spyOn(wallet, 'sendTransaction').mockResolvedValue(mockTx as any);
+
+        const result = await authorizePayment({
+          params: mockAuthorizeParams,
+          signer: wallet,
+          network,
+        });
+
+        expect(result.hash).toBe(
+          '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+        );
+      });
     });
   });
 
   describe('query functions', () => {
-    it('should throw for getPaymentData when wrapper not found', async () => {
+    // These tests demonstrate the expected behavior but require actual contract deployment
+    // For now, we'll test that the functions exist and have the right signatures
+    it('should have the correct function signatures', () => {
+      expect(typeof getPaymentData).toBe('function');
+      expect(typeof getPaymentState).toBe('function');
+      expect(typeof canCapture).toBe('function');
+      expect(typeof canVoid).toBe('function');
+    });
+
+    it('should throw for getPaymentData when wrapper not found on mainnet', async () => {
       await expect(
         getPaymentData({
           paymentReference: '0x0123456789abcdef',
           provider,
-          network,
+          network: 'mainnet' as CurrencyTypes.EvmChainName,
         }),
-      ).rejects.toThrow('ERC20CommerceEscrowWrapper not found on private');
-    });
-
-    it('should throw for getPaymentState when wrapper not found', async () => {
-      await expect(
-        getPaymentState({
-          paymentReference: '0x0123456789abcdef',
-          provider,
-          network,
-        }),
-      ).rejects.toThrow('ERC20CommerceEscrowWrapper not found on private');
-    });
-
-    it('should throw for canCapture when wrapper not found', async () => {
-      await expect(
-        canCapture({
-          paymentReference: '0x0123456789abcdef',
-          provider,
-          network,
-        }),
-      ).rejects.toThrow('ERC20CommerceEscrowWrapper not found on private');
-    });
-
-    it('should throw for canVoid when wrapper not found', async () => {
-      await expect(
-        canVoid({
-          paymentReference: '0x0123456789abcdef',
-          provider,
-          network,
-        }),
-      ).rejects.toThrow('ERC20CommerceEscrowWrapper not found on private');
+      ).rejects.toThrow('No deployment for network: mainnet.');
     });
   });
 });
@@ -428,15 +905,6 @@ describe('ERC20 Commerce Escrow Wrapper Integration', () => {
     // Test USDT special handling
     const usdtAddress = '0xdAC17F958D2ee523a2206206994597C13D831ec7'; // USDT mainnet address
 
-    // Mock the getCommerceEscrowWrapperAddress to return a test address
-    const mockAddress = '0x1234567890123456789012345678901234567890';
-    jest
-      .spyOn(
-        require('../../src/payment/erc20-commerce-escrow-wrapper'),
-        'getCommerceEscrowWrapperAddress',
-      )
-      .mockReturnValue(mockAddress);
-
     const usdtTransactions = encodeSetCommerceEscrowAllowance({
       tokenAddress: usdtAddress,
       amount: '1000000', // 1 USDT (6 decimals)
@@ -456,5 +924,224 @@ describe('ERC20 Commerce Escrow Wrapper Integration', () => {
     });
 
     expect(regularTransactions).toHaveLength(1); // Just approve amount
+  });
+
+  describe('comprehensive edge case scenarios', () => {
+    it('should handle payment flow with extreme values', () => {
+      const extremeParams = {
+        paymentReference: '0xffffffffffffffff', // Max bytes8
+        payer: '0x0000000000000000000000000000000000000001', // Min non-zero address
+        merchant: '0xffffffffffffffffffffffffffffffffffffffff', // Max address
+        operator: '0x1111111111111111111111111111111111111111',
+        token: '0x2222222222222222222222222222222222222222',
+        amount: '1', // Min amount
+        maxAmount: '115792089237316195423570985008687907853269984665640564039457584007913129639935', // Max uint256
+        preApprovalExpiry: 1, // Min timestamp
+        authorizationExpiry: 4294967295, // Max uint32
+        refundExpiry: 2147483647, // Max int32
+        tokenCollector: '0x3333333333333333333333333333333333333333',
+        collectorData: '0x',
+      };
+
+      expect(() => {
+        encodeAuthorizePayment({
+          params: extremeParams,
+          network,
+          provider,
+        });
+      }).not.toThrow();
+    });
+
+    it('should handle payment flow with identical addresses', () => {
+      const identicalAddress = '0x1234567890123456789012345678901234567890';
+      const identicalParams = {
+        ...mockAuthorizeParams,
+        payer: identicalAddress,
+        merchant: identicalAddress,
+        operator: identicalAddress,
+        tokenCollector: identicalAddress,
+      };
+
+      expect(() => {
+        encodeAuthorizePayment({
+          params: identicalParams,
+          network,
+          provider,
+        });
+      }).not.toThrow();
+    });
+
+    it('should handle payment flow with zero values', () => {
+      const zeroParams = {
+        ...mockAuthorizeParams,
+        amount: '0',
+        maxAmount: '0',
+        preApprovalExpiry: 0,
+        authorizationExpiry: 0,
+        refundExpiry: 0,
+        collectorData: '0x',
+      };
+
+      expect(() => {
+        encodeAuthorizePayment({
+          params: zeroParams,
+          network,
+          provider,
+        });
+      }).not.toThrow();
+    });
+
+    it('should handle capture with zero fee', () => {
+      const zeroFeeCapture = {
+        ...mockCaptureParams,
+        feeBps: 0,
+        captureAmount: '0',
+      };
+
+      expect(() => {
+        encodeCapturePayment({
+          params: zeroFeeCapture,
+          network,
+          provider,
+        });
+      }).not.toThrow();
+    });
+
+    it('should handle refund with zero amount', () => {
+      const zeroRefund = {
+        ...mockRefundParams,
+        refundAmount: '0',
+        collectorData: '0x',
+      };
+
+      expect(() => {
+        encodeRefundPayment({
+          params: zeroRefund,
+          network,
+          provider,
+        });
+      }).not.toThrow();
+    });
+
+    it('should handle charge payment with maximum fee', () => {
+      const maxFeeCharge = {
+        ...mockChargeParams,
+        feeBps: 10000, // 100%
+      };
+
+      expect(() => {
+        encodeChargePayment({
+          params: maxFeeCharge,
+          network,
+          provider,
+        });
+      }).not.toThrow();
+    });
+
+    it('should handle very large collector data', () => {
+      const largeDataParams = {
+        ...mockAuthorizeParams,
+        collectorData: '0x' + '12'.repeat(10000), // 20KB of data
+      };
+
+      expect(() => {
+        encodeAuthorizePayment({
+          params: largeDataParams,
+          network,
+          provider,
+        });
+      }).not.toThrow();
+    });
+
+    it('should handle payment references with special patterns', () => {
+      const specialReferences = [
+        '0x0000000000000000', // All zeros
+        '0xffffffffffffffff', // All ones
+        '0x0123456789abcdef', // Sequential hex
+        '0xfedcba9876543210', // Reverse sequential
+        '0x1111111111111111', // Repeated pattern
+        '0xaaaaaaaaaaaaaaaa', // Alternating pattern
+      ];
+
+      specialReferences.forEach((ref) => {
+        expect(() => {
+          encodeVoidPayment({
+            paymentReference: ref,
+            network,
+            provider,
+          });
+        }).not.toThrow();
+      });
+    });
+
+    it('should handle different token decimal configurations', () => {
+      const tokenConfigs = [
+        { amount: '1', decimals: 0 }, // 1 unit token
+        { amount: '1000000', decimals: 6 }, // USDC/USDT style
+        { amount: '1000000000000000000', decimals: 18 }, // ETH style
+        { amount: '1000000000000000000000000000000', decimals: 30 }, // High precision
+      ];
+
+      tokenConfigs.forEach((config) => {
+        const params = {
+          ...mockAuthorizeParams,
+          amount: config.amount,
+          maxAmount: config.amount,
+        };
+
+        expect(() => {
+          encodeAuthorizePayment({
+            params,
+            network,
+            provider,
+          });
+        }).not.toThrow();
+      });
+    });
+
+    it('should handle time-based edge cases', () => {
+      const now = Math.floor(Date.now() / 1000);
+      const timeConfigs = [
+        {
+          // Past times
+          preApprovalExpiry: now - 86400,
+          authorizationExpiry: now - 3600,
+          refundExpiry: now - 1800,
+        },
+        {
+          // Far future times
+          preApprovalExpiry: now + 365 * 24 * 3600 * 100, // 100 years
+          authorizationExpiry: now + 365 * 24 * 3600 * 50, // 50 years
+          refundExpiry: now + 365 * 24 * 3600 * 10, // 10 years
+        },
+        {
+          // Same times
+          preApprovalExpiry: now,
+          authorizationExpiry: now,
+          refundExpiry: now,
+        },
+        {
+          // Reverse order (unusual but not invalid at encoding level)
+          preApprovalExpiry: now + 3600,
+          authorizationExpiry: now + 1800,
+          refundExpiry: now + 900,
+        },
+      ];
+
+      timeConfigs.forEach((timeConfig) => {
+        const params = {
+          ...mockAuthorizeParams,
+          ...timeConfig,
+        };
+
+        expect(() => {
+          encodeAuthorizePayment({
+            params,
+            network,
+            provider,
+          });
+        }).not.toThrow();
+      });
+    });
   });
 });

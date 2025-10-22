@@ -154,6 +154,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   /// @notice Invalid operator for this payment
   error InvalidOperator(address sender, address expectedOperator);
 
+  /// @notice Zero address not allowed
+  error ZeroAddress();
+
   /// @notice Check call sender is the operator for this payment
   /// @param paymentReference Request Network payment reference
   modifier onlyOperator(bytes8 paymentReference) {
@@ -184,6 +187,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   /// @param commerceEscrow_ Commerce Payments escrow contract
   /// @param erc20FeeProxy_ Request Network's ERC20FeeProxy contract
   constructor(address commerceEscrow_, address erc20FeeProxy_) {
+    if (commerceEscrow_ == address(0)) revert ZeroAddress();
+    if (erc20FeeProxy_ == address(0)) revert ZeroAddress();
+
     commerceEscrow = IAuthCaptureEscrow(commerceEscrow_);
     erc20FeeProxy = IERC20FeeProxy(erc20FeeProxy_);
   }
@@ -193,6 +199,13 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   function authorizePayment(AuthParams calldata params) external nonReentrant {
     if (params.paymentReference == bytes8(0)) revert InvalidPaymentReference();
     if (payments[params.paymentReference].isActive) revert PaymentAlreadyExists();
+
+    // Validate critical addresses
+    if (params.payer == address(0)) revert ZeroAddress();
+    if (params.merchant == address(0)) revert ZeroAddress();
+    if (params.operator == address(0)) revert ZeroAddress();
+    if (params.token == address(0)) revert ZeroAddress();
+    // Note: tokenCollector is validated by the underlying escrow contract
 
     // Create and execute authorization
     _executeAuthorization(params);
@@ -429,6 +442,12 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   function chargePayment(ChargeParams calldata params) external nonReentrant {
     if (params.paymentReference == bytes8(0)) revert InvalidPaymentReference();
     if (payments[params.paymentReference].isActive) revert PaymentAlreadyExists();
+
+    // Validate addresses
+    if (params.payer == address(0)) revert ZeroAddress();
+    if (params.merchant == address(0)) revert ZeroAddress();
+    if (params.operator == address(0)) revert ZeroAddress();
+    if (params.token == address(0)) revert ZeroAddress();
 
     // Create and execute charge
     _executeCharge(params);
