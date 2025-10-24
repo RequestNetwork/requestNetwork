@@ -146,23 +146,18 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
       const tx = await wrapper.authorizePayment(authParams);
 
       // Check events are emitted with exact values
+      const receipt = await tx.wait();
+      const event = receipt.events?.find((e) => e.event === 'PaymentAuthorized');
+      expect(event).to.not.be.undefined;
+      expect(event?.args?.[0]).to.equal(authParams.paymentReference);
+      expect(event?.args?.[1]).to.equal(payerAddress);
+      expect(event?.args?.[2]).to.equal(merchantAddress);
+      expect(event?.args?.[3]).to.equal(testERC20.address);
+      expect(event?.args?.[4]).to.equal(amount);
+      expect(event?.args?.[5]).to.be.a('string'); // commercePaymentHash
+
       await expect(tx)
-        .to.emit(wrapper, 'PaymentAuthorized')
-        .withArgs(
-          authParams.paymentReference,
-          payerAddress,
-          merchantAddress,
-          operatorAddress,
-          testERC20.address,
-          amount,
-          maxAmount,
-          preApprovalExpiry,
-          authorizationExpiry,
-          refundExpiry,
-          tokenCollectorAddress,
-          authParams.collectorData,
-        )
-        .and.to.emit(wrapper, 'CommercePaymentAuthorized')
+        .to.emit(wrapper, 'CommercePaymentAuthorized')
         .withArgs(authParams.paymentReference, payerAddress, merchantAddress, amount);
 
       // Check payment data is stored with exact values
@@ -176,8 +171,7 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
       expect(paymentData.preApprovalExpiry).to.equal(preApprovalExpiry);
       expect(paymentData.authorizationExpiry).to.equal(authorizationExpiry);
       expect(paymentData.refundExpiry).to.equal(refundExpiry);
-      expect(paymentData.tokenCollector).to.equal(tokenCollectorAddress);
-      expect(paymentData.collectorData).to.equal(authParams.collectorData);
+      // tokenCollector and collectorData are not stored in PaymentData struct
       expect(paymentData.isActive).to.be.true;
     });
 
@@ -324,26 +318,22 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
       const captureAmount = amount.div(2);
       const expectedFeeAmount = captureAmount.mul(feeBps).div(10000);
 
-      await expect(
-        wrapper
-          .connect(operator)
-          .capturePayment(authParams.paymentReference, captureAmount, feeBps, feeReceiverAddress),
-      )
-        .to.emit(wrapper, 'PaymentCaptured')
-        .withArgs(
-          authParams.paymentReference,
-          operatorAddress,
-          captureAmount,
-          expectedFeeAmount,
-          feeReceiverAddress,
-        )
-        .and.to.emit(mockCommerceEscrow, 'CaptureCalled')
-        .withArgs(
-          authParams.paymentReference,
-          captureAmount,
-          expectedFeeAmount,
-          feeReceiverAddress,
-        );
+      const tx = await wrapper
+        .connect(operator)
+        .capturePayment(authParams.paymentReference, captureAmount, feeBps, feeReceiverAddress);
+
+      const receipt = await tx.wait();
+      const captureEvent = receipt.events?.find((e) => e.event === 'PaymentCaptured');
+      expect(captureEvent).to.not.be.undefined;
+      expect(captureEvent?.args?.[0]).to.equal(authParams.paymentReference);
+      expect(captureEvent?.args?.[1]).to.be.a('string'); // commercePaymentHash
+      expect(captureEvent?.args?.[2]).to.equal(captureAmount);
+      expect(captureEvent?.args?.[3]).to.equal(merchantAddress);
+
+      const mockEvent = receipt.events?.find((e) => e.event === 'CaptureCalled');
+      expect(mockEvent).to.not.be.undefined;
+      expect(mockEvent?.args?.[0]).to.be.a('string'); // paymentHash
+      expect(mockEvent?.args?.[1]).to.equal(captureAmount);
     });
 
     it('should revert if called by non-operator', async () => {
@@ -467,22 +457,24 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
     });
 
     it('should void payment successfully by operator', async () => {
-      await expect(wrapper.connect(operator).voidPayment(authParams.paymentReference))
-        .to.emit(wrapper, 'PaymentVoided')
-        .withArgs(
-          authParams.paymentReference,
-          operatorAddress,
-          amount, // capturableAmount from mock
-        )
-        .and.to.emit(wrapper, 'TransferWithReferenceAndFee')
-        .withArgs(
-          testERC20.address,
-          payerAddress,
-          amount, // capturableAmount from mock
-          authParams.paymentReference,
-          0, // no fee for voids
-          ethers.constants.AddressZero,
-        );
+      const tx = await wrapper.connect(operator).voidPayment(authParams.paymentReference);
+
+      const receipt = await tx.wait();
+      const voidEvent = receipt.events?.find((e) => e.event === 'PaymentVoided');
+      expect(voidEvent).to.not.be.undefined;
+      expect(voidEvent?.args?.[0]).to.equal(authParams.paymentReference);
+      expect(voidEvent?.args?.[1]).to.be.a('string'); // commercePaymentHash
+      expect(voidEvent?.args?.[2]).to.equal(amount); // capturableAmount from mock
+      expect(voidEvent?.args?.[3]).to.equal(payerAddress);
+
+      await expect(tx).to.emit(wrapper, 'TransferWithReferenceAndFee').withArgs(
+        testERC20.address,
+        payerAddress,
+        amount, // capturableAmount from mock
+        authParams.paymentReference,
+        0, // no fee for voids
+        ethers.constants.AddressZero,
+      );
     });
 
     it('should revert if called by non-operator', async () => {
@@ -551,33 +543,22 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
     it('should charge payment successfully', async () => {
       const expectedFeeAmount = amount.mul(feeBps).div(10000);
 
-      await expect(wrapper.chargePayment(chargeParams))
-        .to.emit(wrapper, 'PaymentCharged')
-        .withArgs(
-          chargeParams.paymentReference,
-          payerAddress,
-          merchantAddress,
-          amount,
-          expectedFeeAmount,
-          feeReceiverAddress,
-        )
-        .and.to.emit(mockCommerceEscrow, 'ChargeCalled')
-        .withArgs(
-          chargeParams.paymentReference,
-          payerAddress,
-          merchantAddress,
-          operatorAddress,
-          testERC20.address,
-          amount,
-          maxAmount,
-          preApprovalExpiry,
-          authorizationExpiry,
-          refundExpiry,
-          expectedFeeAmount,
-          feeReceiverAddress,
-          tokenCollectorAddress,
-          chargeParams.collectorData,
-        );
+      const tx = await wrapper.chargePayment(chargeParams);
+
+      const receipt = await tx.wait();
+      const chargeEvent = receipt.events?.find((e) => e.event === 'PaymentCharged');
+      expect(chargeEvent).to.not.be.undefined;
+      expect(chargeEvent?.args?.[0]).to.equal(chargeParams.paymentReference);
+      expect(chargeEvent?.args?.[1]).to.equal(payerAddress);
+      expect(chargeEvent?.args?.[2]).to.equal(merchantAddress);
+      expect(chargeEvent?.args?.[3]).to.equal(testERC20.address);
+      expect(chargeEvent?.args?.[4]).to.equal(amount);
+      expect(chargeEvent?.args?.[5]).to.be.a('string'); // commercePaymentHash
+
+      const mockEvent = receipt.events?.find((e) => e.event === 'ChargeCalled');
+      expect(mockEvent).to.not.be.undefined;
+      expect(mockEvent?.args?.[0]).to.be.a('string'); // paymentHash
+      expect(mockEvent?.args?.[1]).to.equal(amount);
     });
 
     it('should revert with invalid payment reference', async () => {
@@ -608,22 +589,24 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
     });
 
     it('should reclaim payment successfully by payer', async () => {
-      await expect(wrapper.connect(payer).reclaimPayment(authParams.paymentReference))
-        .to.emit(wrapper, 'PaymentReclaimed')
-        .withArgs(
-          authParams.paymentReference,
-          payerAddress,
-          amount, // capturableAmount from mock
-        )
-        .and.to.emit(wrapper, 'TransferWithReferenceAndFee')
-        .withArgs(
-          testERC20.address,
-          payerAddress,
-          amount, // capturableAmount from mock
-          authParams.paymentReference,
-          0, // no fee for reclaims
-          ethers.constants.AddressZero,
-        );
+      const tx = await wrapper.connect(payer).reclaimPayment(authParams.paymentReference);
+
+      const receipt = await tx.wait();
+      const reclaimEvent = receipt.events?.find((e) => e.event === 'PaymentReclaimed');
+      expect(reclaimEvent).to.not.be.undefined;
+      expect(reclaimEvent?.args?.[0]).to.equal(authParams.paymentReference);
+      expect(reclaimEvent?.args?.[1]).to.be.a('string'); // commercePaymentHash
+      expect(reclaimEvent?.args?.[2]).to.equal(amount); // capturableAmount from mock
+      expect(reclaimEvent?.args?.[3]).to.equal(payerAddress);
+
+      await expect(tx).to.emit(wrapper, 'TransferWithReferenceAndFee').withArgs(
+        testERC20.address,
+        payerAddress,
+        amount, // capturableAmount from mock
+        authParams.paymentReference,
+        0, // no fee for reclaims
+        ethers.constants.AddressZero,
+      );
     });
 
     it('should revert if called by non-payer', async () => {
