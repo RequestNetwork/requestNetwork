@@ -23,7 +23,7 @@ export function getCommerceEscrowWrapperAddress(network: CurrencyTypes.EvmChainN
   const address = erc20CommerceEscrowWrapperArtifact.getAddress(network);
 
   if (!address || address === '0x0000000000000000000000000000000000000000') {
-    throw new Error(`ERC20CommerceEscrowWrapper not found on ${network}`);
+    throw new Error(`No deployment for network: ${network}.`);
   }
 
   return address;

@@ -157,6 +157,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   /// @notice Zero address not allowed
   error ZeroAddress();
 
+  /// @notice Scalar overflow when casting to smaller uint types
+  error ScalarOverflow();
+
   /// @notice Check call sender is the operator for this payment
   /// @param paymentReference Request Network payment reference
   modifier onlyOperator(bytes8 paymentReference) {
@@ -274,6 +277,11 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     uint256 refundExpiry,
     bytes8 paymentReference
   ) internal view returns (IAuthCaptureEscrow.PaymentInfo memory) {
+    if (maxAmount > type(uint120).max) revert ScalarOverflow();
+    if (preApprovalExpiry > type(uint48).max) revert ScalarOverflow();
+    if (authorizationExpiry > type(uint48).max) revert ScalarOverflow();
+    if (refundExpiry > type(uint48).max) revert ScalarOverflow();
+
     return
       IAuthCaptureEscrow.PaymentInfo({
         operator: address(this),
@@ -326,6 +334,11 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     view
     returns (IAuthCaptureEscrow.PaymentInfo memory)
   {
+    if (payment.maxAmount > type(uint120).max) revert ScalarOverflow();
+    if (payment.preApprovalExpiry > type(uint48).max) revert ScalarOverflow();
+    if (payment.authorizationExpiry > type(uint48).max) revert ScalarOverflow();
+    if (payment.refundExpiry > type(uint48).max) revert ScalarOverflow();
+
     return
       IAuthCaptureEscrow.PaymentInfo({
         operator: address(this),
@@ -482,14 +495,14 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
       commerceHash
     );
 
-    // Execute charge
+    // Take no fee at escrow; split via ERC20FeeProxy for RN compatibility/events
     commerceEscrow.charge(
       paymentInfo,
       params.amount,
       params.tokenCollector,
       params.collectorData,
-      params.feeBps,
-      params.feeReceiver
+      0,
+      address(0)
     );
 
     // Transfer to merchant via ERC20FeeProxy
