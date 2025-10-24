@@ -307,6 +307,26 @@ describe('erc20-commerce-escrow-wrapper', () => {
 
       expect(typeof encodedData).toBe('string');
       expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/); // Should be valid hex string
+
+      // Verify it starts with the correct function selector for authorizePayment
+      // Function signature: authorizePayment(bytes8,address,address,address,address,uint256,uint256,uint256,uint256,uint256,address,bytes)
+      expect(encodedData.substring(0, 10)).toBe('0x5532a547'); // Actual function selector
+
+      // Verify the encoded data contains our test parameters
+      expect(encodedData.length).toBeGreaterThan(10); // More than just function selector
+      expect(encodedData).toContain(mockAuthorizeParams.paymentReference.substring(2)); // Remove 0x prefix
+      expect(encodedData.toLowerCase()).toContain(
+        mockAuthorizeParams.payer.substring(2).toLowerCase(),
+      );
+      expect(encodedData.toLowerCase()).toContain(
+        mockAuthorizeParams.merchant.substring(2).toLowerCase(),
+      );
+      expect(encodedData.toLowerCase()).toContain(
+        mockAuthorizeParams.operator.substring(2).toLowerCase(),
+      );
+      expect(encodedData.toLowerCase()).toContain(
+        mockAuthorizeParams.token.substring(2).toLowerCase(),
+      );
     });
 
     it('should encode capturePayment function data', () => {
@@ -318,17 +338,44 @@ describe('erc20-commerce-escrow-wrapper', () => {
 
       expect(typeof encodedData).toBe('string');
       expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/); // Should be valid hex string
+
+      // Verify it starts with the correct function selector for capturePayment
+      expect(encodedData.substring(0, 10)).toBe('0xa2615767');
+
+      // Verify the encoded data contains our test parameters
+      expect(encodedData).toContain(mockCaptureParams.paymentReference.substring(2));
+      expect(encodedData.toLowerCase()).toContain(
+        mockCaptureParams.feeReceiver.substring(2).toLowerCase(),
+      );
+
+      // Verify encoded amounts (as hex)
+      const captureAmountHex = parseInt(mockCaptureParams.captureAmount.toString())
+        .toString(16)
+        .padStart(64, '0');
+      const feeBpsHex = mockCaptureParams.feeBps.toString(16).padStart(64, '0');
+      expect(encodedData.toLowerCase()).toContain(captureAmountHex);
+      expect(encodedData.toLowerCase()).toContain(feeBpsHex);
     });
 
     it('should encode voidPayment function data', () => {
+      const testPaymentRef = '0x0123456789abcdef';
       const encodedData = encodeVoidPayment({
-        paymentReference: '0x0123456789abcdef',
+        paymentReference: testPaymentRef,
         network,
         provider,
       });
 
       expect(typeof encodedData).toBe('string');
       expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/); // Should be valid hex string
+
+      // Verify it starts with the correct function selector for voidPayment
+      expect(encodedData.substring(0, 10)).toBe('0x4eff2760');
+
+      // Verify the encoded data contains the payment reference
+      expect(encodedData).toContain(testPaymentRef.substring(2));
+
+      // Void payment should be relatively short (just function selector + payment reference)
+      expect(encodedData.length).toBe(74); // 10 chars for selector + 64 chars for padded bytes8
     });
 
     it('should encode chargePayment function data', () => {
@@ -340,17 +387,55 @@ describe('erc20-commerce-escrow-wrapper', () => {
 
       expect(typeof encodedData).toBe('string');
       expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/); // Should be valid hex string
+
+      // Verify it starts with the correct function selector for chargePayment
+      expect(encodedData.substring(0, 10)).toBe('0x739802a3');
+
+      // Verify the encoded data contains our test parameters
+      expect(encodedData).toContain(mockChargeParams.paymentReference.substring(2));
+      expect(encodedData.toLowerCase()).toContain(
+        mockChargeParams.payer.substring(2).toLowerCase(),
+      );
+      expect(encodedData.toLowerCase()).toContain(
+        mockChargeParams.merchant.substring(2).toLowerCase(),
+      );
+      expect(encodedData.toLowerCase()).toContain(
+        mockChargeParams.operator.substring(2).toLowerCase(),
+      );
+      expect(encodedData.toLowerCase()).toContain(
+        mockChargeParams.token.substring(2).toLowerCase(),
+      );
+      expect(encodedData.toLowerCase()).toContain(
+        mockChargeParams.feeReceiver.substring(2).toLowerCase(),
+      );
+      expect(encodedData.toLowerCase()).toContain(
+        mockChargeParams.tokenCollector.substring(2).toLowerCase(),
+      );
+
+      // Verify encoded fee basis points
+      const feeBpsHex = mockChargeParams.feeBps.toString(16).padStart(64, '0');
+      expect(encodedData.toLowerCase()).toContain(feeBpsHex);
     });
 
     it('should encode reclaimPayment function data', () => {
+      const testPaymentRef = '0x0123456789abcdef';
       const encodedData = encodeReclaimPayment({
-        paymentReference: '0x0123456789abcdef',
+        paymentReference: testPaymentRef,
         network,
         provider,
       });
 
       expect(typeof encodedData).toBe('string');
       expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/); // Should be valid hex string
+
+      // Verify it starts with the correct function selector for reclaimPayment
+      expect(encodedData.substring(0, 10)).toBe('0xafda9d20');
+
+      // Verify the encoded data contains the payment reference
+      expect(encodedData).toContain(testPaymentRef.substring(2));
+
+      // Reclaim payment should be relatively short (just function selector + payment reference)
+      expect(encodedData.length).toBe(74); // 10 chars for selector + 64 chars for padded bytes8
     });
 
     it('should encode refundPayment function data', () => {
@@ -362,6 +447,24 @@ describe('erc20-commerce-escrow-wrapper', () => {
 
       expect(typeof encodedData).toBe('string');
       expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/); // Should be valid hex string
+
+      // Verify it starts with the correct function selector for refundPayment
+      expect(encodedData.substring(0, 10)).toBe('0xf9b777ea');
+
+      // Verify the encoded data contains our test parameters
+      expect(encodedData).toContain(mockRefundParams.paymentReference.substring(2));
+      expect(encodedData.toLowerCase()).toContain(
+        mockRefundParams.tokenCollector.substring(2).toLowerCase(),
+      );
+
+      // Verify encoded refund amount (as hex)
+      const refundAmountHex = parseInt(mockRefundParams.refundAmount.toString())
+        .toString(16)
+        .padStart(64, '0');
+      expect(encodedData.toLowerCase()).toContain(refundAmountHex);
+
+      // Verify collector data is included
+      expect(encodedData).toContain(mockRefundParams.collectorData.substring(2));
     });
 
     it('should throw for encodeAuthorizePayment when wrapper not found on mainnet', () => {
@@ -807,12 +910,17 @@ describe('erc20-commerce-escrow-wrapper', () => {
 
   describe('query functions', () => {
     // These tests demonstrate the expected behavior but require actual contract deployment
-    // For now, we'll test that the functions exist and have the right signatures
-    it('should have the correct function signatures', () => {
+    it('should have the correct function signatures and expected behavior', () => {
       expect(typeof getPaymentData).toBe('function');
       expect(typeof getPaymentState).toBe('function');
       expect(typeof canCapture).toBe('function');
       expect(typeof canVoid).toBe('function');
+
+      // Verify function arity (number of parameters)
+      expect(getPaymentData.length).toBe(1); // Takes one parameter object
+      expect(getPaymentState.length).toBe(1); // Takes one parameter object
+      expect(canCapture.length).toBe(1); // Takes one parameter object
+      expect(canVoid.length).toBe(1); // Takes one parameter object
     });
 
     it('should throw for getPaymentData when wrapper not found on mainnet', async () => {
@@ -835,7 +943,7 @@ describe('ERC20 Commerce Escrow Wrapper Integration', () => {
     // 3. Capture payment
     // 4. Check payment state
 
-    // For now, we just test that the functions exist and have the right signatures
+    // Test that functions exist and validate their expected behavior
     expect(typeof encodeSetCommerceEscrowAllowance).toBe('function');
     expect(typeof encodeAuthorizePayment).toBe('function');
     expect(typeof encodeCapturePayment).toBe('function');
@@ -843,6 +951,28 @@ describe('ERC20 Commerce Escrow Wrapper Integration', () => {
     expect(typeof capturePayment).toBe('function');
     expect(typeof getPaymentData).toBe('function');
     expect(typeof getPaymentState).toBe('function');
+
+    // Verify function parameters and return types
+    expect(encodeSetCommerceEscrowAllowance.length).toBe(1); // Takes parameter object
+    expect(encodeAuthorizePayment.length).toBe(1); // Takes parameter object
+    expect(encodeCapturePayment.length).toBe(1); // Takes parameter object
+    expect(authorizePayment.length).toBe(1); // Takes parameter object
+    expect(capturePayment.length).toBe(1); // Takes parameter object
+
+    // Test that encode functions return valid transaction data
+    const allowanceTxs = encodeSetCommerceEscrowAllowance({
+      tokenAddress: erc20ContractAddress,
+      amount: '1000000000000000000',
+      provider,
+      network,
+    });
+    expect(Array.isArray(allowanceTxs)).toBe(true);
+    expect(allowanceTxs.length).toBeGreaterThan(0);
+    expect(allowanceTxs[0]).toHaveProperty('to');
+    expect(allowanceTxs[0]).toHaveProperty('data');
+    expect(allowanceTxs[0]).toHaveProperty('value');
+    expect(allowanceTxs[0].to).toBe(erc20ContractAddress);
+    expect(allowanceTxs[0].value).toBe(0);
   });
 
   it('should handle void payment flow when contracts are available', async () => {
@@ -854,6 +984,20 @@ describe('ERC20 Commerce Escrow Wrapper Integration', () => {
     expect(typeof encodeVoidPayment).toBe('function');
     expect(typeof voidPayment).toBe('function');
     expect(typeof canVoid).toBe('function');
+
+    // Verify function arity
+    expect(encodeVoidPayment.length).toBe(1);
+    expect(voidPayment.length).toBe(1);
+    expect(canVoid.length).toBe(1);
+
+    // Test void encoding returns valid data
+    const voidData = encodeVoidPayment({
+      paymentReference: '0x0123456789abcdef',
+      network,
+      provider,
+    });
+    expect(voidData).toMatch(/^0x[a-fA-F0-9]+$/);
+    expect(voidData.substring(0, 10)).toBe('0x4eff2760'); // voidPayment selector
   });
 
   it('should handle charge payment flow when contracts are available', async () => {
@@ -863,6 +1007,20 @@ describe('ERC20 Commerce Escrow Wrapper Integration', () => {
 
     expect(typeof encodeChargePayment).toBe('function');
     expect(typeof chargePayment).toBe('function');
+
+    // Verify function arity
+    expect(encodeChargePayment.length).toBe(1);
+    expect(chargePayment.length).toBe(1);
+
+    // Test charge encoding returns valid data with correct selector
+    const chargeData = encodeChargePayment({
+      params: mockChargeParams,
+      network,
+      provider,
+    });
+    expect(chargeData).toMatch(/^0x[a-fA-F0-9]+$/);
+    expect(chargeData.substring(0, 10)).toBe('0x739802a3'); // chargePayment selector
+    expect(chargeData.length).toBeGreaterThan(100); // Should be long due to many parameters
   });
 
   it('should handle reclaim payment flow when contracts are available', async () => {
@@ -874,6 +1032,20 @@ describe('ERC20 Commerce Escrow Wrapper Integration', () => {
 
     expect(typeof encodeReclaimPayment).toBe('function');
     expect(typeof reclaimPayment).toBe('function');
+
+    // Verify function arity
+    expect(encodeReclaimPayment.length).toBe(1);
+    expect(reclaimPayment.length).toBe(1);
+
+    // Test reclaim encoding returns valid data
+    const reclaimData = encodeReclaimPayment({
+      paymentReference: '0x0123456789abcdef',
+      network,
+      provider,
+    });
+    expect(reclaimData).toMatch(/^0x[a-fA-F0-9]+$/);
+    expect(reclaimData.substring(0, 10)).toBe('0xafda9d20'); // reclaimPayment selector
+    expect(reclaimData.length).toBe(74); // Short function with just payment reference
   });
 
   it('should handle refund payment flow when contracts are available', async () => {
@@ -885,20 +1057,58 @@ describe('ERC20 Commerce Escrow Wrapper Integration', () => {
 
     expect(typeof encodeRefundPayment).toBe('function');
     expect(typeof refundPayment).toBe('function');
+
+    // Verify function arity
+    expect(encodeRefundPayment.length).toBe(1);
+    expect(refundPayment.length).toBe(1);
+
+    // Test refund encoding returns valid data
+    const refundData = encodeRefundPayment({
+      params: mockRefundParams,
+      network,
+      provider,
+    });
+    expect(refundData).toMatch(/^0x[a-fA-F0-9]+$/);
+    expect(refundData.substring(0, 10)).toBe('0xf9b777ea'); // refundPayment selector
+    expect(refundData.length).toBeGreaterThan(74); // Longer than simple functions due to multiple parameters
   });
 
   it('should validate payment parameters', () => {
-    // Test parameter validation
-    const invalidParams = {
-      ...mockAuthorizeParams,
-      paymentReference: '', // Invalid empty reference
-    };
-
-    // The actual validation would happen in the contract
-    // Here we just test that the parameters are properly typed
+    // Test parameter validation and ensure all expected values are present
     expect(mockAuthorizeParams.paymentReference).toBe('0x0123456789abcdef');
+    expect(mockAuthorizeParams.payer).toBe(wallet.address);
+    expect(mockAuthorizeParams.merchant).toBe('0x3234567890123456789012345678901234567890');
+    expect(mockAuthorizeParams.operator).toBe('0x4234567890123456789012345678901234567890');
+    expect(mockAuthorizeParams.token).toBe(erc20ContractAddress);
     expect(mockAuthorizeParams.amount).toBe('1000000000000000000');
+    expect(mockAuthorizeParams.maxAmount).toBe('1100000000000000000');
+    expect(mockAuthorizeParams.tokenCollector).toBe('0x5234567890123456789012345678901234567890');
+    expect(mockAuthorizeParams.collectorData).toBe('0x1234');
+
+    // Validate capture parameters
+    expect(mockCaptureParams.paymentReference).toBe('0x0123456789abcdef');
+    expect(mockCaptureParams.captureAmount).toBe('1000000000000000000');
     expect(mockCaptureParams.feeBps).toBe(250);
+    expect(mockCaptureParams.feeReceiver).toBe('0x6234567890123456789012345678901234567890');
+
+    // Validate charge parameters (should include all authorize params plus fee info)
+    expect(mockChargeParams.feeBps).toBe(250);
+    expect(mockChargeParams.feeReceiver).toBe('0x6234567890123456789012345678901234567890');
+
+    // Validate refund parameters
+    expect(mockRefundParams.paymentReference).toBe('0x0123456789abcdef');
+    expect(mockRefundParams.refundAmount).toBe('500000000000000000');
+    expect(mockRefundParams.tokenCollector).toBe('0x7234567890123456789012345678901234567890');
+    expect(mockRefundParams.collectorData).toBe('0x5678');
+
+    // Validate timestamp parameters are reasonable
+    expect(mockAuthorizeParams.preApprovalExpiry).toBeGreaterThan(Math.floor(Date.now() / 1000));
+    expect(mockAuthorizeParams.authorizationExpiry).toBeGreaterThan(
+      mockAuthorizeParams.preApprovalExpiry,
+    );
+    expect(mockAuthorizeParams.refundExpiry).toBeGreaterThan(
+      mockAuthorizeParams.authorizationExpiry,
+    );
   });
 
   it('should handle different token types', () => {
@@ -915,6 +1125,18 @@ describe('ERC20 Commerce Escrow Wrapper Integration', () => {
 
     expect(usdtTransactions).toHaveLength(2); // Reset to 0, then approve amount
 
+    // Validate first transaction (reset to 0)
+    expect(usdtTransactions[0].to).toBe(usdtAddress);
+    expect(usdtTransactions[0].value).toBe(0);
+    expect(usdtTransactions[0].data).toMatch(/^0x[a-fA-F0-9]+$/);
+    expect(usdtTransactions[0].data.substring(0, 10)).toBe('0x095ea7b3'); // approve function selector
+
+    // Validate second transaction (approve amount)
+    expect(usdtTransactions[1].to).toBe(usdtAddress);
+    expect(usdtTransactions[1].value).toBe(0);
+    expect(usdtTransactions[1].data).toMatch(/^0x[a-fA-F0-9]+$/);
+    expect(usdtTransactions[1].data.substring(0, 10)).toBe('0x095ea7b3'); // approve function selector
+
     const regularTransactions = encodeSetCommerceEscrowAllowance({
       tokenAddress: erc20ContractAddress,
       amount: '1000000000000000000',
@@ -924,6 +1146,18 @@ describe('ERC20 Commerce Escrow Wrapper Integration', () => {
     });
 
     expect(regularTransactions).toHaveLength(1); // Just approve amount
+
+    // Validate regular transaction
+    expect(regularTransactions[0].to).toBe(erc20ContractAddress);
+    expect(regularTransactions[0].value).toBe(0);
+    expect(regularTransactions[0].data).toMatch(/^0x[a-fA-F0-9]+$/);
+    expect(regularTransactions[0].data.substring(0, 10)).toBe('0x095ea7b3'); // approve function selector
+
+    // Verify the wrapper address is encoded in the transaction data
+    const wrapperAddress = getCommerceEscrowWrapperAddress(network);
+    expect(regularTransactions[0].data.toLowerCase()).toContain(
+      wrapperAddress.substring(2).toLowerCase(),
+    );
   });
 
   describe('comprehensive edge case scenarios', () => {

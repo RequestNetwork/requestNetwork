@@ -145,19 +145,39 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
     it('should authorize a payment successfully', async () => {
       const tx = await wrapper.authorizePayment(authParams);
 
-      // Check events are emitted
+      // Check events are emitted with exact values
       await expect(tx)
         .to.emit(wrapper, 'PaymentAuthorized')
+        .withArgs(
+          authParams.paymentReference,
+          payerAddress,
+          merchantAddress,
+          operatorAddress,
+          testERC20.address,
+          amount,
+          maxAmount,
+          preApprovalExpiry,
+          authorizationExpiry,
+          refundExpiry,
+          tokenCollectorAddress,
+          authParams.collectorData,
+        )
         .and.to.emit(wrapper, 'CommercePaymentAuthorized')
         .withArgs(authParams.paymentReference, payerAddress, merchantAddress, amount);
 
-      // Check payment data is stored
+      // Check payment data is stored with exact values
       const paymentData = await wrapper.getPaymentData(authParams.paymentReference);
       expect(paymentData.payer).to.equal(payerAddress);
       expect(paymentData.merchant).to.equal(merchantAddress);
       expect(paymentData.operator).to.equal(operatorAddress);
       expect(paymentData.token).to.equal(testERC20.address);
       expect(paymentData.amount).to.equal(amount);
+      expect(paymentData.maxAmount).to.equal(maxAmount);
+      expect(paymentData.preApprovalExpiry).to.equal(preApprovalExpiry);
+      expect(paymentData.authorizationExpiry).to.equal(authorizationExpiry);
+      expect(paymentData.refundExpiry).to.equal(refundExpiry);
+      expect(paymentData.tokenCollector).to.equal(tokenCollectorAddress);
+      expect(paymentData.collectorData).to.equal(authParams.collectorData);
       expect(paymentData.isActive).to.be.true;
     });
 
@@ -302,6 +322,7 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
 
     it('should capture payment successfully by operator', async () => {
       const captureAmount = amount.div(2);
+      const expectedFeeAmount = captureAmount.mul(feeBps).div(10000);
 
       await expect(
         wrapper
@@ -309,7 +330,20 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
           .capturePayment(authParams.paymentReference, captureAmount, feeBps, feeReceiverAddress),
       )
         .to.emit(wrapper, 'PaymentCaptured')
-        .and.to.emit(mockCommerceEscrow, 'CaptureCalled');
+        .withArgs(
+          authParams.paymentReference,
+          operatorAddress,
+          captureAmount,
+          expectedFeeAmount,
+          feeReceiverAddress,
+        )
+        .and.to.emit(mockCommerceEscrow, 'CaptureCalled')
+        .withArgs(
+          authParams.paymentReference,
+          captureAmount,
+          expectedFeeAmount,
+          feeReceiverAddress,
+        );
     });
 
     it('should revert if called by non-operator', async () => {
@@ -435,6 +469,11 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
     it('should void payment successfully by operator', async () => {
       await expect(wrapper.connect(operator).voidPayment(authParams.paymentReference))
         .to.emit(wrapper, 'PaymentVoided')
+        .withArgs(
+          authParams.paymentReference,
+          operatorAddress,
+          amount, // capturableAmount from mock
+        )
         .and.to.emit(wrapper, 'TransferWithReferenceAndFee')
         .withArgs(
           testERC20.address,
@@ -510,9 +549,35 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
     });
 
     it('should charge payment successfully', async () => {
+      const expectedFeeAmount = amount.mul(feeBps).div(10000);
+
       await expect(wrapper.chargePayment(chargeParams))
         .to.emit(wrapper, 'PaymentCharged')
-        .and.to.emit(mockCommerceEscrow, 'ChargeCalled');
+        .withArgs(
+          chargeParams.paymentReference,
+          payerAddress,
+          merchantAddress,
+          amount,
+          expectedFeeAmount,
+          feeReceiverAddress,
+        )
+        .and.to.emit(mockCommerceEscrow, 'ChargeCalled')
+        .withArgs(
+          chargeParams.paymentReference,
+          payerAddress,
+          merchantAddress,
+          operatorAddress,
+          testERC20.address,
+          amount,
+          maxAmount,
+          preApprovalExpiry,
+          authorizationExpiry,
+          refundExpiry,
+          expectedFeeAmount,
+          feeReceiverAddress,
+          tokenCollectorAddress,
+          chargeParams.collectorData,
+        );
     });
 
     it('should revert with invalid payment reference', async () => {
@@ -545,6 +610,11 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
     it('should reclaim payment successfully by payer', async () => {
       await expect(wrapper.connect(payer).reclaimPayment(authParams.paymentReference))
         .to.emit(wrapper, 'PaymentReclaimed')
+        .withArgs(
+          authParams.paymentReference,
+          payerAddress,
+          amount, // capturableAmount from mock
+        )
         .and.to.emit(wrapper, 'TransferWithReferenceAndFee')
         .withArgs(
           testERC20.address,
