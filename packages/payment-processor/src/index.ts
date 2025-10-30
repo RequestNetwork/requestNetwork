@@ -30,6 +30,7 @@ export * from './payment/prepared-transaction';
 export * from './payment/utils-near';
 export * from './payment/single-request-forwarder';
 export * from './payment/erc20-recurring-payment-proxy';
+export * from './payment/erc20-commerce-escrow-wrapper';
 
 import * as utils from './payment/utils';
 

@@ -1,0 +1,853 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "commerceEscrow_",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "erc20FeeProxy_",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidPaymentReference",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "expectedOperator",
+          "type": "address"
+        }
+      ],
+      "name": "InvalidOperator",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "PaymentAlreadyExists",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "PaymentNotFound",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "payer",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "merchant",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "CommercePaymentAuthorized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "payer",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "merchant",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "commercePaymentHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "PaymentAuthorized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "commercePaymentHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "capturedAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "merchant",
+          "type": "address"
+        }
+      ],
+      "name": "PaymentCaptured",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "payer",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "merchant",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "commercePaymentHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "PaymentCharged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "commercePaymentHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "reclaimedAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "payer",
+          "type": "address"
+        }
+      ],
+      "name": "PaymentReclaimed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "commercePaymentHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "refundedAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "payer",
+          "type": "address"
+        }
+      ],
+      "name": "PaymentRefunded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "commercePaymentHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "voidedAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "payer",
+          "type": "address"
+        }
+      ],
+      "name": "PaymentVoided",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "tokenAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "feeAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "feeAddress",
+          "type": "address"
+        }
+      ],
+      "name": "TransferWithReferenceAndFee",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        },
+        {
+          "internalType": "address",
+          "name": "payer",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "merchant",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "preApprovalExpiry",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "authorizationExpiry",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "refundExpiry",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "tokenCollector",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "collectorData",
+          "type": "bytes"
+        }
+      ],
+      "name": "authorizeCommercePayment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        },
+        {
+          "internalType": "address",
+          "name": "payer",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "merchant",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "preApprovalExpiry",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "authorizationExpiry",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "refundExpiry",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "tokenCollector",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "collectorData",
+          "type": "bytes"
+        }
+      ],
+      "name": "authorizePayment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        }
+      ],
+      "name": "canCapture",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        }
+      ],
+      "name": "canVoid",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "captureAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint16",
+          "name": "feeBps",
+          "type": "uint16"
+        },
+        {
+          "internalType": "address",
+          "name": "feeReceiver",
+          "type": "address"
+        }
+      ],
+      "name": "capturePayment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        },
+        {
+          "internalType": "address",
+          "name": "payer",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "merchant",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "preApprovalExpiry",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "authorizationExpiry",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "refundExpiry",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint16",
+          "name": "feeBps",
+          "type": "uint16"
+        },
+        {
+          "internalType": "address",
+          "name": "feeReceiver",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "tokenCollector",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "collectorData",
+          "type": "bytes"
+        }
+      ],
+      "name": "chargePayment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "commerceEscrow",
+      "outputs": [
+        {
+          "internalType": "contract AuthCaptureEscrow",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "erc20FeeProxy",
+      "outputs": [
+        {
+          "internalType": "contract IERC20FeeProxy",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        }
+      ],
+      "name": "getPaymentData",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "payer",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "merchant",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "operator",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "preApprovalExpiry",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "authorizationExpiry",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "refundExpiry",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "commercePaymentHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bool",
+              "name": "isActive",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct ERC20CommerceEscrowWrapper.PaymentData",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        }
+      ],
+      "name": "getPaymentState",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "hasCollectedPayment",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint120",
+          "name": "capturableAmount",
+          "type": "uint120"
+        },
+        {
+          "internalType": "uint120",
+          "name": "refundableAmount",
+          "type": "uint120"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes8",
+          "name": "",
+          "type": "bytes8"
+        }
+      ],
+      "name": "payments",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "payer",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "merchant",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "preApprovalExpiry",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "authorizationExpiry",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "refundExpiry",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "commercePaymentHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bool",
+          "name": "isActive",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        }
+      ],
+      "name": "reclaimPayment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "refundAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "tokenCollector",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "collectorData",
+          "type": "bytes"
+        }
+      ],
+      "name": "refundPayment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        }
+      ],
+      "name": "voidPayment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+}
