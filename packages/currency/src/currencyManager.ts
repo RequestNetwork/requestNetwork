@@ -355,7 +355,7 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
 
   /**
    * Validate a Sui address.
-   * @param address 
+   * @param address
    * @returns True if the address is valid, false otherwise
    */
   validateSuiAddress(address: string): boolean {
