@@ -24,18 +24,25 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   mapping(bytes8 => PaymentData) public payments;
 
   /// @notice Internal payment data structure
+  /// @dev Struct packing optimizes storage from 11 slots to 6 slots (~45% gas savings)
+  /// Slot 0: payer (20 bytes) + isActive (1 byte)
+  /// Slot 1: merchant (20 bytes) + amount (12 bytes)
+  /// Slot 2: operator (20 bytes) + maxAmount (12 bytes)
+  /// Slot 3: token (20 bytes) + preApprovalExpiry (6 bytes) + authorizationExpiry (6 bytes)
+  /// Slot 4: refundExpiry (6 bytes)
+  /// Slot 5: commercePaymentHash (32 bytes)
   struct PaymentData {
     address payer;
-    address merchant;
-    address operator; // The real operator who can capture/void this payment
-    address token;
-    uint256 amount;
-    uint256 maxAmount;
-    uint256 preApprovalExpiry;
-    uint256 authorizationExpiry; // When authorization expires and can be reclaimed
-    uint256 refundExpiry; // When refunds are no longer allowed
-    bytes32 commercePaymentHash;
     bool isActive;
+    address merchant;
+    uint96 amount;
+    address operator; // The real operator who can capture/void this payment
+    uint96 maxAmount;
+    address token;
+    uint48 preApprovalExpiry;
+    uint48 authorizationExpiry; // When authorization expires and can be reclaimed
+    uint48 refundExpiry; // When refunds are no longer allowed
+    bytes32 commercePaymentHash;
   }
 
   /// @notice Emitted when a payment is authorized (frontend-friendly)
@@ -277,7 +284,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     uint256 refundExpiry,
     bytes8 paymentReference
   ) internal view returns (IAuthCaptureEscrow.PaymentInfo memory) {
-    if (maxAmount > type(uint120).max) revert ScalarOverflow();
+    // Validate against uint96 (storage type) which is stricter than uint120 (escrow type)
+    // uint96 supports up to ~79B tokens (18 decimals) - sufficient for all practical use cases
+    if (maxAmount > type(uint96).max) revert ScalarOverflow();
     if (preApprovalExpiry > type(uint48).max) revert ScalarOverflow();
     if (authorizationExpiry > type(uint48).max) revert ScalarOverflow();
     if (refundExpiry > type(uint48).max) revert ScalarOverflow();
@@ -300,6 +309,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   }
 
   /// @notice Store payment data
+  /// @dev Values are validated in _createPaymentInfo before this function is called
   function _storePaymentData(
     bytes8 paymentReference,
     address payer,
@@ -315,30 +325,27 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   ) internal {
     payments[paymentReference] = PaymentData({
       payer: payer,
+      isActive: true,
       merchant: merchant,
+      amount: uint96(amount),
       operator: operator,
+      maxAmount: uint96(maxAmount),
       token: token,
-      amount: amount,
-      maxAmount: maxAmount,
-      preApprovalExpiry: preApprovalExpiry,
-      authorizationExpiry: authorizationExpiry,
-      refundExpiry: refundExpiry,
-      commercePaymentHash: commerceHash,
-      isActive: true
+      preApprovalExpiry: uint48(preApprovalExpiry),
+      authorizationExpiry: uint48(authorizationExpiry),
+      refundExpiry: uint48(refundExpiry),
+      commercePaymentHash: commerceHash
     });
   }
 
   /// @notice Create PaymentInfo from stored payment data
+  /// @dev No overflow validation needed - stored types (uint96, uint48) are already validated
+  /// during storage and safely cast to escrow types (uint120, uint48)
   function _createPaymentInfoFromStored(PaymentData storage payment, bytes8 paymentReference)
     internal
     view
     returns (IAuthCaptureEscrow.PaymentInfo memory)
   {
-    if (payment.maxAmount > type(uint120).max) revert ScalarOverflow();
-    if (payment.preApprovalExpiry > type(uint48).max) revert ScalarOverflow();
-    if (payment.authorizationExpiry > type(uint48).max) revert ScalarOverflow();
-    if (payment.refundExpiry > type(uint48).max) revert ScalarOverflow();
-
     return
       IAuthCaptureEscrow.PaymentInfo({
         operator: address(this),
@@ -346,9 +353,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
         receiver: address(this),
         token: payment.token,
         maxAmount: uint120(payment.maxAmount),
-        preApprovalExpiry: uint48(payment.preApprovalExpiry),
-        authorizationExpiry: uint48(payment.authorizationExpiry),
-        refundExpiry: uint48(payment.refundExpiry),
+        preApprovalExpiry: payment.preApprovalExpiry,
+        authorizationExpiry: payment.authorizationExpiry,
+        refundExpiry: payment.refundExpiry,
         minFeeBps: 0,
         maxFeeBps: 10000,
         feeReceiver: address(0),
