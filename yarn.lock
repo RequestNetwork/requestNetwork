@@ -4059,7 +4059,7 @@
     "@mysten/utils" "0.2.0"
     "@scure/base" "^1.2.6"
 
-"@mysten/sui@^1.45.0":
+"@mysten/sui@1.45.0":
   version "1.45.0"
   resolved "https://registry.yarnpkg.com/@mysten/sui/-/sui-1.45.0.tgz#306f79c88b18ca58b6ff889066184a1cda839640"
   integrity sha512-WYpZmrGWE/FeQaRhYrAYpHcHallj4BFIfSmjq6BkODzEhP9HfMplQAtd8AmtctwO7cpHJ+BjPUOguEAcf1gU4g==

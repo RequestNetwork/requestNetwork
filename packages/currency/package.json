@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@metamask/contract-metadata": "1.31.0",
-    "@mysten/sui": "^1.45.0",
+    "@mysten/sui": "1.45.0",
     "@requestnetwork/types": "0.54.0",
     "@requestnetwork/utils": "0.54.0",
     "@ton/core": "0.61.0",
