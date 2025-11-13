@@ -33,6 +33,13 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   /// Slot 5: commercePaymentHash (32 bytes)
   struct PaymentData {
     address payer;
+    /// @dev Indicates if this payment reference exists in the wrapper's mapping.
+    /// While Commerce Escrow also tracks hasCollectedPayment, this local flag:
+    /// 1. Enables gas-efficient existence checks without external calls (~2.6k gas saved per check)
+    /// 2. Provides clear semantics for wrapper-level state management
+    /// 3. Maintains independence from external contract state for robustness
+    /// 4. Costs negligible storage due to efficient packing with payer address
+    /// See docs/design-decisions/SUMMARY-isActive-analysis.md for full analysis
     bool isActive;
     address merchant;
     uint96 amount;
@@ -161,6 +168,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   /// @notice Invalid operator for this payment
   error InvalidOperator(address sender, address expectedOperator);
 
+  /// @notice Invalid payer for this payment
+  error InvalidPayer(address sender, address expectedPayer);
+
   /// @notice Zero address not allowed
   error ZeroAddress();
 
@@ -188,7 +198,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
 
     // Check if the caller is the payer for this payment
     if (msg.sender != payment.payer) {
-      revert InvalidOperator(msg.sender, payment.payer); // Reusing the same error for simplicity
+      revert InvalidPayer(msg.sender, payment.payer);
     }
     _;
   }
