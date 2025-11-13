@@ -64,7 +64,6 @@ export async function getPayerCommerceEscrowAllowance({
  * @param amount - The amount to approve, as a BigNumberish value
  * @param provider - Web3 provider or signer to interact with the blockchain
  * @param network - The EVM chain name where the wrapper is deployed
- * @param isUSDT - Flag to indicate if the token is USDT, which requires special handling
  * @returns Array of transaction objects ready to be sent to the blockchain
  * @throws {Error} If the ERC20CommerceEscrowWrapper is not deployed on the specified network
  */
@@ -73,34 +72,21 @@ export function encodeSetCommerceEscrowAllowance({
   amount,
   provider,
   network,
-  isUSDT = false,
 }: {
   tokenAddress: string;
   amount: BigNumberish;
   provider: providers.Provider | Signer;
   network: CurrencyTypes.EvmChainName;
-  isUSDT?: boolean;
 }): Array<{ to: string; data: string; value: number }> {
   const wrapperAddress = getCommerceEscrowWrapperAddress(network);
   const paymentTokenContract = ERC20__factory.connect(tokenAddress, provider);
-
-  const transactions: Array<{ to: string; data: string; value: number }> = [];
-
-  if (isUSDT) {
-    const resetData = paymentTokenContract.interface.encodeFunctionData('approve', [
-      wrapperAddress,
-      0,
-    ]);
-    transactions.push({ to: tokenAddress, data: resetData, value: 0 });
-  }
 
   const setData = paymentTokenContract.interface.encodeFunctionData('approve', [
     wrapperAddress,
     amount,
   ]);
-  transactions.push({ to: tokenAddress, data: setData, value: 0 });
 
-  return transactions;
+  return [{ to: tokenAddress, data: setData, value: 0 }];
 }
 
 /**

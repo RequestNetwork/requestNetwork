@@ -103,7 +103,7 @@ describe('erc20-commerce-escrow-wrapper', () => {
   });
 
   describe('encodeSetCommerceEscrowAllowance', () => {
-    it('should return a single transaction for a non-USDT token', () => {
+    it('should return a single transaction for token approval', () => {
       // Mock the getCommerceEscrowWrapperAddress to return a test address
       const mockAddress = '0x1234567890123456789012345678901234567890';
       jest
@@ -119,7 +119,6 @@ describe('erc20-commerce-escrow-wrapper', () => {
         amount,
         provider,
         network,
-        isUSDT: false,
       });
 
       expect(transactions).toHaveLength(1);
@@ -127,60 +126,6 @@ describe('erc20-commerce-escrow-wrapper', () => {
       expect(tx.to).toBe(erc20ContractAddress);
       expect(tx.data).toContain('095ea7b3'); // approve function selector
       expect(tx.value).toBe(0);
-    });
-
-    it('should return two transactions for a USDT token', () => {
-      // Mock the getCommerceEscrowWrapperAddress to return a test address
-      const mockAddress = '0x1234567890123456789012345678901234567890';
-      jest
-        .spyOn(
-          require('../../src/payment/erc20-commerce-escrow-wrapper'),
-          'getCommerceEscrowWrapperAddress',
-        )
-        .mockReturnValue(mockAddress);
-
-      const amount = '1000000000000000000';
-      const transactions = encodeSetCommerceEscrowAllowance({
-        tokenAddress: erc20ContractAddress,
-        amount,
-        provider,
-        network,
-        isUSDT: true,
-      });
-
-      expect(transactions).toHaveLength(2);
-
-      const [tx1, tx2] = transactions;
-      // tx1 is approve(0)
-      expect(tx1.to).toBe(erc20ContractAddress);
-      expect(tx1.data).toContain('095ea7b3'); // approve function selector
-      expect(tx1.value).toBe(0);
-
-      // tx2 is approve(amount)
-      expect(tx2.to).toBe(erc20ContractAddress);
-      expect(tx2.data).toContain('095ea7b3'); // approve function selector
-      expect(tx2.value).toBe(0);
-    });
-
-    it('should default to non-USDT behavior if isUSDT is not provided', () => {
-      // Mock the getCommerceEscrowWrapperAddress to return a test address
-      const mockAddress = '0x1234567890123456789012345678901234567890';
-      jest
-        .spyOn(
-          require('../../src/payment/erc20-commerce-escrow-wrapper'),
-          'getCommerceEscrowWrapperAddress',
-        )
-        .mockReturnValue(mockAddress);
-
-      const amount = '1000000000000000000';
-      const transactions = encodeSetCommerceEscrowAllowance({
-        tokenAddress: erc20ContractAddress,
-        amount,
-        provider,
-        network,
-      });
-
-      expect(transactions).toHaveLength(1);
     });
 
     it('should handle zero amount', () => {
@@ -1112,7 +1057,7 @@ describe('ERC20 Commerce Escrow Wrapper Integration', () => {
   });
 
   it('should handle different token types', () => {
-    // Test USDT special handling
+    // Test USDT with standard approval (no special handling needed)
     const usdtAddress = '0xdAC17F958D2ee523a2206206994597C13D831ec7'; // USDT mainnet address
 
     const usdtTransactions = encodeSetCommerceEscrowAllowance({
@@ -1120,32 +1065,23 @@ describe('ERC20 Commerce Escrow Wrapper Integration', () => {
       amount: '1000000', // 1 USDT (6 decimals)
       provider,
       network,
-      isUSDT: true,
     });
 
-    expect(usdtTransactions).toHaveLength(2); // Reset to 0, then approve amount
-
-    // Validate first transaction (reset to 0)
+    // USDT now uses standard single approval (no reset needed)
+    expect(usdtTransactions).toHaveLength(1);
     expect(usdtTransactions[0].to).toBe(usdtAddress);
     expect(usdtTransactions[0].value).toBe(0);
     expect(usdtTransactions[0].data).toMatch(/^0x[a-fA-F0-9]+$/);
     expect(usdtTransactions[0].data.substring(0, 10)).toBe('0x095ea7b3'); // approve function selector
-
-    // Validate second transaction (approve amount)
-    expect(usdtTransactions[1].to).toBe(usdtAddress);
-    expect(usdtTransactions[1].value).toBe(0);
-    expect(usdtTransactions[1].data).toMatch(/^0x[a-fA-F0-9]+$/);
-    expect(usdtTransactions[1].data.substring(0, 10)).toBe('0x095ea7b3'); // approve function selector
 
     const regularTransactions = encodeSetCommerceEscrowAllowance({
       tokenAddress: erc20ContractAddress,
       amount: '1000000000000000000',
       provider,
       network,
-      isUSDT: false,
     });
 
-    expect(regularTransactions).toHaveLength(1); // Just approve amount
+    expect(regularTransactions).toHaveLength(1);
 
     // Validate regular transaction
     expect(regularTransactions[0].to).toBe(erc20ContractAddress);
