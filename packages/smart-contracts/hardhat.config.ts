@@ -22,6 +22,7 @@ import { tenderlyImportAll } from './scripts-create2/tenderly';
 import { updateContractsFromList } from './scripts-create2/update-contracts-setup';
 import deployStorage from './scripts/deploy-storage';
 import { transferOwnership } from './scripts-create2/transfer-ownership';
+import deployERC20CommerceEscrowWrapper from './scripts/deploy-erc20-commerce-escrow-wrapper';
 
 config();
 
@@ -204,6 +205,11 @@ export default {
       chainId: 8453,
       accounts,
     },
+    'base-sepolia': {
+      url: process.env.WEB3_PROVIDER_URL || 'https://sepolia.base.org',
+      chainId: 84532,
+      accounts,
+    },
     sonic: {
       url: url('sonic'),
       chainId: 146,
@@ -262,6 +268,14 @@ export default {
         urls: {
           apiURL: 'https://api.sonicscan.org/api',
           browserURL: 'https://sonicscan.org/',
+        },
+      },
+      {
+        network: 'base-sepolia',
+        chainId: 84532,
+        urls: {
+          apiURL: 'https://api-sepolia.basescan.org/api',
+          browserURL: 'https://sepolia.basescan.org/',
         },
       },
     ],
@@ -392,3 +406,16 @@ subtask(DEPLOYER_KEY_GUARD, 'prevent usage of the deployer master key').setActio
     throw new Error('The deployer master key should not be used for this action');
   }
 });
+
+task(
+  'deploy-erc20-commerce-escrow-wrapper',
+  'Deploy ERC20CommerceEscrowWrapper and its dependencies',
+)
+  .addFlag('dryRun', 'to prevent any deployment')
+  .addFlag('force', 'to force re-deployment')
+  .setAction(async (args, hre) => {
+    args.force = args.force ?? false;
+    args.dryRun = args.dryRun ?? false;
+    args.simulate = args.dryRun;
+    await deployERC20CommerceEscrowWrapper(args, hre);
+  });
