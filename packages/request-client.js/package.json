@@ -49,6 +49,7 @@
     "@requestnetwork/epk-signature": "0.10.0",
     "@requestnetwork/multi-format": "0.28.0",
     "@requestnetwork/payment-detection": "0.54.0",
+    "@requestnetwork/payment-processor": "0.57.0",
     "@requestnetwork/request-logic": "0.44.0",
     "@requestnetwork/smart-contracts": "0.48.0",
     "@requestnetwork/transaction-manager": "0.45.0",

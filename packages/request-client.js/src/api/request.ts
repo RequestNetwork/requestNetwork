@@ -11,6 +11,9 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import { getRecurringPaymentProxyAddress } from '@requestnetwork/payment-processor';
+import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
+import { BigNumber } from 'ethers';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import localUtils from './utils';
@@ -203,12 +206,24 @@ export default class Request {
    *
    * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
    * @param refundInformation refund information to add (any because it is specific to the payment network used by the request)
-   * @returns The updated request
+   * @param options Optional cancellation options for recurring payments
+   * @param options.isRecurringPayment Whether this is a recurring payment cancellation
+   * @param options.isPayerCancel Whether the payer is canceling (true) or payee (false). Only relevant for recurring payments.
+   * @param options.recurringPaymentInfo Information needed to generate allowance revocation calldata for recurring payments
+   * @returns The updated request and optional calldata for allowance revocation (if payer cancels recurring payment)
    */
   public async cancel(
     signerIdentity: IdentityTypes.IIdentity,
     refundInformation?: any,
-  ): Promise<Types.IRequestDataWithEvents> {
+    options?: {
+      isRecurringPayment?: boolean;
+      isPayerCancel?: boolean;
+      recurringPaymentInfo?: {
+        tokenAddress: string;
+        network: CurrencyTypes.EvmChainName;
+      };
+    },
+  ): Promise<Types.IRequestDataWithEvents & { allowanceRevocationCalldata?: string }> {
     const extensionsData: any[] = [];
     if (refundInformation) {
       if (!this.paymentNetwork) {
@@ -225,8 +240,23 @@ export default class Request {
     };
 
     const cancelResult = await this.requestLogic.cancelRequest(parameters, signerIdentity, true);
+    const result = await this.handleRequestDataEvents(cancelResult);
 
-    return this.handleRequestDataEvents(cancelResult);
+    // Generate allowance revocation calldata if payer is canceling a recurring payment
+    let allowanceRevocationCalldata: string | undefined;
+    if (options?.isRecurringPayment && options?.isPayerCancel && options?.recurringPaymentInfo) {
+      const proxyAddress = getRecurringPaymentProxyAddress(options.recurringPaymentInfo.network);
+      const erc20Interface = ERC20__factory.createInterface();
+      allowanceRevocationCalldata = erc20Interface.encodeFunctionData('approve', [
+        proxyAddress,
+        BigNumber.from(0),
+      ]);
+    }
+
+    return {
+      ...result,
+      ...(allowanceRevocationCalldata && { allowanceRevocationCalldata }),
+    };
   }
 
   /**

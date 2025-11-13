@@ -219,6 +219,57 @@ describe('api/request', () => {
         request.cancel(signatureIdentity, { refundAddress: bitcoinAddress }),
       ).rejects.toThrowError('Cannot add refund information without payment network');
     });
+
+    it('returns allowance revocation calldata when payer cancels recurring payment', async () => {
+      const request = new Request('1', mockRequestLogic, currencyManager);
+      const result = await request.cancel(signatureIdentity, undefined, {
+        isRecurringPayment: true,
+        isPayerCancel: true,
+        recurringPaymentInfo: {
+          tokenAddress: '0x9FBDa871d559710256a2502A2517b794B482Db40',
+          network: 'private',
+        },
+      });
+
+      expect(result.allowanceRevocationCalldata).toBeDefined();
+      expect(typeof result.allowanceRevocationCalldata).toBe('string');
+      expect(result.allowanceRevocationCalldata?.startsWith('0x')).toBe(true);
+    });
+
+    it('does not return allowance revocation calldata when payee cancels recurring payment', async () => {
+      const request = new Request('1', mockRequestLogic, currencyManager);
+      const result = await request.cancel(signatureIdentity, undefined, {
+        isRecurringPayment: true,
+        isPayerCancel: false,
+        recurringPaymentInfo: {
+          tokenAddress: '0x9FBDa871d559710256a2502A2517b794B482Db40',
+          network: 'private',
+        },
+      });
+
+      expect(result.allowanceRevocationCalldata).toBeUndefined();
+    });
+
+    it('does not return allowance revocation calldata for non-recurring payment cancellation', async () => {
+      const request = new Request('1', mockRequestLogic, currencyManager);
+      const result = await request.cancel(signatureIdentity);
+
+      expect(result.allowanceRevocationCalldata).toBeUndefined();
+    });
+
+    it('does not return allowance revocation calldata when isRecurringPayment is false', async () => {
+      const request = new Request('1', mockRequestLogic, currencyManager);
+      const result = await request.cancel(signatureIdentity, undefined, {
+        isRecurringPayment: false,
+        isPayerCancel: true,
+        recurringPaymentInfo: {
+          tokenAddress: '0x9FBDa871d559710256a2502A2517b794B482Db40',
+          network: 'private',
+        },
+      });
+
+      expect(result.allowanceRevocationCalldata).toBeUndefined();
+    });
   });
 
   describe('increaseExpectedAmountRequest', () => {
