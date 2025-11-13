@@ -97,6 +97,10 @@ export function encodeSetCommerceEscrowAllowance({
  * @param provider - Web3 provider or signer to interact with the blockchain
  * @returns The encoded function data as a hex string, ready to be used in a transaction
  * @throws {Error} If the ERC20CommerceEscrowWrapper is not deployed on the specified network
+ * @remarks
+ * Uses utils.Interface to handle large parameter count (12 params). TypeScript has encoding limitations
+ * when dealing with functions that have many parameters. This workaround is needed for functions with
+ * 12+ parameters. Similar pattern used in single-request-forwarder.ts.
  */
 export function encodeAuthorizePayment({
   params,
@@ -188,6 +192,10 @@ export function encodeVoidPayment({
  * @param provider - Web3 provider or signer to interact with the blockchain
  * @returns The encoded function data as a hex string, ready to be used in a transaction
  * @throws {Error} If the ERC20CommerceEscrowWrapper is not deployed on the specified network
+ * @remarks
+ * Uses utils.Interface to handle large parameter count (14 params). TypeScript has encoding limitations
+ * when dealing with functions that have many parameters. This workaround is needed for functions with
+ * 12+ parameters. Similar pattern used in single-request-forwarder.ts.
  */
 export function encodeChargePayment({
   params,

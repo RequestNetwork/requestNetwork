@@ -104,8 +104,8 @@ export const getConstructorArgs = (
         throw new Error('ERC20CommerceEscrowWrapper requires network parameter');
       }
       // Constructor requires commerceEscrow address and erc20FeeProxy address
-      // Using the deployed AuthCaptureEscrow address
-      const commerceEscrowAddress = '0xBdEA0D1bcC5966192B070Fdf62aB4EF5b4420cff'; // AuthCaptureEscrow deployed address
+      const commerceEscrowArtifact = artifacts.authCaptureEscrowArtifact;
+      const commerceEscrowAddress = commerceEscrowArtifact.getAddress(network);
       const erc20FeeProxy = artifacts.erc20FeeProxyArtifact;
       const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
 

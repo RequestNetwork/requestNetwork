@@ -10,6 +10,13 @@ import {IAuthCaptureEscrow} from './interfaces/IAuthCaptureEscrow.sol';
 /// @title ERC20CommerceEscrowWrapper
 /// @notice Wrapper around Commerce Payments escrow that acts as depositor, operator, and recipient
 /// @dev This contract maintains payment reference linking and provides secure operator delegation
+/// @dev Fee Architecture:
+///      - Fees are Request Network platform fees, NOT Commerce Escrow protocol fees
+///      - Merchant pays fee (subtracted from capture amount: merchantReceives = captureAmount - fee)
+///      - Single fee recipient per operation (can be a fee-splitting contract if needed)
+///      - All fees distributed via ERC20FeeProxy for Request Network compatibility and event tracking
+///      - Commerce Escrow fee mechanism is intentionally bypassed (feeBps=0, feeReceiver=address(0))
+///      - See docs/design-decisions/FEE_MECHANISM_DESIGN.md for detailed architecture and future enhancements
 /// @author Request Network & Coinbase Commerce Payments Integration
 contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   using SafeERC20 for IERC20;
@@ -134,7 +141,11 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     uint256 preApprovalExpiry;
     uint256 authorizationExpiry;
     uint256 refundExpiry;
+    /// @dev Request Network platform fee in basis points (0-10000, where 10000 = 100%)
+    /// Paid by merchant (subtracted from payment amount). Example: 250 bps = 2.5% fee
     uint16 feeBps;
+    /// @dev Request Network platform fee recipient address (single recipient per operation)
+    /// Can be a fee-splitting smart contract for multi-party distribution if needed
     address feeReceiver;
     address tokenCollector;
     bytes collectorData;
@@ -301,6 +312,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     if (authorizationExpiry > type(uint48).max) revert ScalarOverflow();
     if (refundExpiry > type(uint48).max) revert ScalarOverflow();
 
+    // Commerce Escrow fees intentionally bypassed - all fee handling via ERC20FeeProxy
+    // minFeeBps=0, maxFeeBps=10000 allows 0% fee (effectively disables Commerce Escrow fees)
+    // feeReceiver=address(0) indicates no Commerce Escrow fee recipient
     return
       IAuthCaptureEscrow.PaymentInfo({
         operator: address(this),
@@ -356,6 +370,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     view
     returns (IAuthCaptureEscrow.PaymentInfo memory)
   {
+    // Commerce Escrow fees bypassed (same as authorization)
     return
       IAuthCaptureEscrow.PaymentInfo({
         operator: address(this),
@@ -381,9 +396,15 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
 
   /// @notice Capture a payment by payment reference
   /// @param paymentReference Request Network payment reference
-  /// @param captureAmount Amount to capture
-  /// @param feeBps Fee basis points
-  /// @param feeReceiver Fee recipient address
+  /// @param captureAmount Amount to capture from escrow (total amount before fees)
+  /// @param feeBps Request Network platform fee in basis points (0-10000, where 10000 = 100%).
+  ///                Paid by merchant (subtracted from captureAmount).
+  ///                Formula: feeAmount = (captureAmount * feeBps) / 10000
+  ///                Example: 250 bps on 1000 USDC = 25 USDC fee, merchant receives 975 USDC
+  /// @param feeReceiver Request Network platform fee recipient address (single recipient).
+  ///                    This is NOT a Commerce Escrow protocol fee - it's a Request Network service fee.
+  ///                    Can be a fee-splitting contract for multi-party distribution if needed.
+  ///                    Separate from any Commerce Escrow fees (which are bypassed in this wrapper).
   function capturePayment(
     bytes8 paymentReference,
     uint256 captureAmount,
@@ -398,18 +419,25 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
       paymentReference
     );
 
-    // Capture from escrow with NO FEE - let ERC20FeeProxy handle fee distribution
-    // This way the wrapper receives the full captureAmount
+    // Capture from escrow with NO FEE - Commerce Escrow fees are intentionally bypassed
+    // All fee handling is done via ERC20FeeProxy for Request Network compatibility
+    // This ensures: 1) Proper RN event emission, 2) Unified fee tracking, 3) Flexible fee recipients
     commerceEscrow.capture(paymentInfo, captureAmount, 0, address(0));
 
-    // Calculate fee amounts - ERC20FeeProxy will handle the split
+    // Calculate Request Network platform fee amounts
+    // Merchant pays the fee (receives captureAmount - feeAmount)
+    // Formula: feeAmount = (captureAmount * feeBps) / 10000
+    // Integer division truncates (slightly favors merchant in rounding)
     uint256 feeAmount = (captureAmount * feeBps) / 10000;
     uint256 merchantAmount = captureAmount - feeAmount;
 
     // Approve ERC20FeeProxy to spend the full amount we received
     IERC20(payment.token).forceApprove(address(erc20FeeProxy), captureAmount);
 
-    // Transfer via ERC20FeeProxy - it handles the fee distribution
+    // Transfer via ERC20FeeProxy - splits payment between merchant and fee recipient
+    // ERC20FeeProxy emits TransferWithReferenceAndFee event for Request Network tracking
+    // Merchant receives: merchantAmount (captureAmount - feeAmount)
+    // Fee recipient receives: feeAmount
     erc20FeeProxy.transferFromWithReferenceAndFee(
       payment.token,
       payment.merchant,
@@ -512,7 +540,8 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
       commerceHash
     );
 
-    // Take no fee at escrow; split via ERC20FeeProxy for RN compatibility/events
+    // Commerce Escrow charge with NO FEE - bypassing Commerce Escrow fee mechanism
+    // All fee handling delegated to ERC20FeeProxy for Request Network compatibility
     commerceEscrow.charge(
       paymentInfo,
       params.amount,
@@ -522,7 +551,8 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
       address(0)
     );
 
-    // Transfer to merchant via ERC20FeeProxy
+    // Transfer to merchant via ERC20FeeProxy with Request Network platform fee
+    // Merchant pays fee (receives amount - fee)
     _transferToMerchant(
       params.token,
       params.merchant,
@@ -542,7 +572,14 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     );
   }
 
-  /// @notice Transfer funds to merchant via ERC20FeeProxy
+  /// @notice Transfer funds to merchant via ERC20FeeProxy with Request Network platform fee
+  /// @dev Merchant pays the fee (receives amount - feeAmount)
+  /// @param token ERC20 token address
+  /// @param merchant Merchant address (receives amount after fee deduction)
+  /// @param amount Total payment amount (before fee deduction)
+  /// @param feeBps Request Network platform fee in basis points (0-10000)
+  /// @param feeReceiver Request Network platform fee recipient address
+  /// @param paymentReference Request Network payment reference for tracking
   function _transferToMerchant(
     address token,
     address merchant,
@@ -551,10 +588,15 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     address feeReceiver,
     bytes8 paymentReference
   ) internal {
+    // Calculate Request Network platform fee (merchant pays)
     uint256 feeAmount = (amount * feeBps) / 10000;
     uint256 merchantAmount = amount - feeAmount;
 
+    // Approve ERC20FeeProxy to spend the full amount
     IERC20(token).forceApprove(address(erc20FeeProxy), amount);
+
+    // Transfer via ERC20FeeProxy - splits between merchant and fee recipient
+    // Emits TransferWithReferenceAndFee event for Request Network tracking
     erc20FeeProxy.transferFromWithReferenceAndFee(
       token,
       merchant,
