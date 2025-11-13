@@ -244,7 +244,12 @@ export default class Request {
 
     // Generate allowance revocation calldata if payer is canceling a recurring payment
     let allowanceRevocationCalldata: string | undefined;
-    if (options?.isRecurringPayment && options?.isPayerCancel && options?.recurringPaymentInfo) {
+    if (options?.isRecurringPayment && options?.isPayerCancel) {
+      if (!options.recurringPaymentInfo) {
+        throw new Error(
+          'recurringPaymentInfo is required when the payer cancels a recurring payment',
+        );
+      }
       const proxyAddress = getRecurringPaymentProxyAddress(options.recurringPaymentInfo.network);
       const erc20Interface = ERC20__factory.createInterface();
       allowanceRevocationCalldata = erc20Interface.encodeFunctionData('approve', [
