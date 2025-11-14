@@ -1,5 +1,5 @@
 import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
-import { providers, Signer, BigNumberish, utils } from 'ethers';
+import { providers, Signer, BigNumberish, utils, constants } from 'ethers';
 import { erc20CommerceEscrowWrapperArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getErc20Allowance } from './erc20';
@@ -513,6 +513,9 @@ export async function getPaymentData({
   const rawData = await wrapperContract.getPaymentData(paymentReference);
 
   // Convert BigNumber fields to numbers/strings as expected by the interface
+  // isActive is determined by whether the commercePaymentHash is set (non-zero)
+  const isActive = rawData.commercePaymentHash !== constants.HashZero;
+
   return {
     payer: rawData.payer,
     merchant: rawData.merchant,
@@ -520,11 +523,11 @@ export async function getPaymentData({
     token: rawData.token,
     amount: rawData.amount,
     maxAmount: rawData.maxAmount,
-    preApprovalExpiry: rawData.preApprovalExpiry.toNumber(),
-    authorizationExpiry: rawData.authorizationExpiry.toNumber(),
-    refundExpiry: rawData.refundExpiry.toNumber(),
+    preApprovalExpiry: rawData.preApprovalExpiry,
+    authorizationExpiry: rawData.authorizationExpiry,
+    refundExpiry: rawData.refundExpiry,
     commercePaymentHash: rawData.commercePaymentHash,
-    isActive: rawData.isActive,
+    isActive,
   };
 }
 
