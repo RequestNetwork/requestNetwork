@@ -388,7 +388,7 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
         ).to.emit(wrapper, 'PaymentCaptured');
       });
 
-      it('should revert with fee basis points over 10000 (arithmetic overflow)', async () => {
+      it('should revert with fee basis points over 10000 (InvalidFeeBps)', async () => {
         const captureAmount = amount.div(2);
         await expect(
           wrapper.connect(operator).capturePayment(
@@ -397,7 +397,7 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
             10001, // Over 100%
             feeReceiverAddress,
           ),
-        ).to.be.reverted;
+        ).to.be.revertedWith('InvalidFeeBps()');
       });
 
       it('should handle zero fee receiver address', async () => {
@@ -562,6 +562,16 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
     it('should revert with invalid payment reference', async () => {
       const invalidParams = { ...chargeParams, paymentReference: '0x0000000000000000' };
       await expect(wrapper.chargePayment(invalidParams)).to.be.reverted;
+    });
+
+    it('should revert with fee basis points over 10000 (InvalidFeeBps)', async () => {
+      const invalidParams = { ...chargeParams, feeBps: 10001 };
+      await expect(wrapper.chargePayment(invalidParams)).to.be.revertedWith('InvalidFeeBps()');
+    });
+
+    it('should handle maximum fee basis points (10000)', async () => {
+      const validParams = { ...chargeParams, feeBps: 10000 };
+      await expect(wrapper.chargePayment(validParams)).to.emit(wrapper, 'PaymentCharged');
     });
   });
 

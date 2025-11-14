@@ -188,6 +188,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   /// @notice Scalar overflow when casting to smaller uint types
   error ScalarOverflow();
 
+  /// @notice Invalid fee basis points (must be <= 10000)
+  error InvalidFeeBps();
+
   /// @notice Check call sender is the operator for this payment
   /// @param paymentReference Request Network payment reference
   modifier onlyOperator(bytes8 paymentReference) {
@@ -248,6 +251,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     IAuthCaptureEscrow.PaymentInfo memory paymentInfo = _createPaymentInfo(
       params.payer,
       params.token,
+      params.amount,
       params.maxAmount,
       params.preApprovalExpiry,
       params.authorizationExpiry,
@@ -299,6 +303,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   function _createPaymentInfo(
     address payer,
     address token,
+    uint256 amount,
     uint256 maxAmount,
     uint256 preApprovalExpiry,
     uint256 authorizationExpiry,
@@ -307,6 +312,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   ) internal view returns (IAuthCaptureEscrow.PaymentInfo memory) {
     // Validate against uint96 (storage type) which is stricter than uint120 (escrow type)
     // uint96 supports up to ~79B tokens (18 decimals) - sufficient for all practical use cases
+    if (amount > type(uint96).max) revert ScalarOverflow();
     if (maxAmount > type(uint96).max) revert ScalarOverflow();
     if (preApprovalExpiry > type(uint48).max) revert ScalarOverflow();
     if (authorizationExpiry > type(uint48).max) revert ScalarOverflow();
@@ -413,6 +419,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   ) external nonReentrant onlyOperator(paymentReference) {
     PaymentData storage payment = payments[paymentReference];
 
+    // Validate fee basis points to prevent underflow
+    if (feeBps > 10000) revert InvalidFeeBps();
+
     // Create PaymentInfo for the capture operation (must match the original authorization)
     IAuthCaptureEscrow.PaymentInfo memory paymentInfo = _createPaymentInfoFromStored(
       payment,
@@ -517,6 +526,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     IAuthCaptureEscrow.PaymentInfo memory paymentInfo = _createPaymentInfo(
       params.payer,
       params.token,
+      params.amount,
       params.maxAmount,
       params.preApprovalExpiry,
       params.authorizationExpiry,
@@ -588,6 +598,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     address feeReceiver,
     bytes8 paymentReference
   ) internal {
+    // Validate fee basis points to prevent underflow
+    if (feeBps > 10000) revert InvalidFeeBps();
+
     // Calculate Request Network platform fee (merchant pays)
     uint256 feeAmount = (amount * feeBps) / 10000;
     uint256 merchantAmount = amount - feeAmount;
