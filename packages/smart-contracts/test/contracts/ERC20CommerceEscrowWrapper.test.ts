@@ -174,7 +174,25 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
       expect(paymentData.authorizationExpiry).to.equal(authorizationExpiry);
       expect(paymentData.refundExpiry).to.equal(refundExpiry);
       // tokenCollector and collectorData are not stored in PaymentData struct
-      expect(paymentData.isActive).to.be.true;
+      expect(paymentData.commercePaymentHash).to.not.equal(ethers.constants.HashZero);
+    });
+
+    it('should transfer correct token amounts during authorization', async () => {
+      const payerBefore = await testERC20.balanceOf(payerAddress);
+      const escrowBefore = await testERC20.balanceOf(mockCommerceEscrow.address);
+
+      await wrapper.authorizePayment(authParams);
+
+      // Verify tokens moved from payer to escrow
+      expect(await testERC20.balanceOf(payerAddress)).to.equal(payerBefore.sub(amount));
+      expect(await testERC20.balanceOf(mockCommerceEscrow.address)).to.equal(
+        escrowBefore.add(amount),
+      );
+      // Verify no tokens stuck in wrapper
+      expect(await testERC20.balanceOf(wrapper.address)).to.equal(
+        0,
+        'Tokens should not get stuck in wrapper',
+      );
     });
 
     it('should revert with invalid payment reference', async () => {
@@ -336,6 +354,38 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
       await expect(tx).to.emit(mockCommerceEscrow, 'CaptureCalled');
     });
 
+    it('should transfer correct token amounts during capture', async () => {
+      const captureAmount = amount.div(2);
+      const feeAmountCalc = captureAmount.mul(feeBps).div(10000);
+      const merchantAmount = captureAmount.sub(feeAmountCalc);
+
+      const merchantBefore = await testERC20.balanceOf(merchantAddress);
+      const feeReceiverBefore = await testERC20.balanceOf(feeReceiverAddress);
+      const escrowBefore = await testERC20.balanceOf(mockCommerceEscrow.address);
+
+      await wrapper
+        .connect(operator)
+        .capturePayment(authParams.paymentReference, captureAmount, feeBps, feeReceiverAddress);
+
+      // Verify escrow balance decreased by captured amount
+      expect(await testERC20.balanceOf(mockCommerceEscrow.address)).to.equal(
+        escrowBefore.sub(captureAmount),
+      );
+      // Verify merchant received correct amount (capture amount minus fee)
+      expect(await testERC20.balanceOf(merchantAddress)).to.equal(
+        merchantBefore.add(merchantAmount),
+      );
+      // Verify fee receiver received correct fee
+      expect(await testERC20.balanceOf(feeReceiverAddress)).to.equal(
+        feeReceiverBefore.add(feeAmountCalc),
+      );
+      // Verify no tokens stuck in wrapper
+      expect(await testERC20.balanceOf(wrapper.address)).to.equal(
+        0,
+        'Tokens should not get stuck in wrapper',
+      );
+    });
+
     it('should revert if called by non-operator', async () => {
       await expect(
         wrapper
@@ -432,6 +482,251 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
             .capturePayment(authParams.paymentReference, secondCapture, feeBps, feeReceiverAddress),
         ).to.emit(wrapper, 'PaymentCaptured');
       });
+
+      it('should transfer correct token amounts during partial captures', async () => {
+        const firstCapture = amount.div(4);
+        const secondCapture = amount.div(4);
+        const firstFee = firstCapture.mul(feeBps).div(10000);
+        const secondFee = secondCapture.mul(feeBps).div(10000);
+        const firstMerchantAmount = firstCapture.sub(firstFee);
+        const secondMerchantAmount = secondCapture.sub(secondFee);
+
+        const merchantBefore = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBefore = await testERC20.balanceOf(feeReceiverAddress);
+        const escrowBefore = await testERC20.balanceOf(mockCommerceEscrow.address);
+
+        // First partial capture
+        await wrapper
+          .connect(operator)
+          .capturePayment(authParams.paymentReference, firstCapture, feeBps, feeReceiverAddress);
+
+        // Verify balances after first capture
+        expect(await testERC20.balanceOf(mockCommerceEscrow.address)).to.equal(
+          escrowBefore.sub(firstCapture),
+        );
+        expect(await testERC20.balanceOf(merchantAddress)).to.equal(
+          merchantBefore.add(firstMerchantAmount),
+        );
+        expect(await testERC20.balanceOf(feeReceiverAddress)).to.equal(
+          feeReceiverBefore.add(firstFee),
+        );
+
+        const merchantAfterFirst = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverAfterFirst = await testERC20.balanceOf(feeReceiverAddress);
+        const escrowAfterFirst = await testERC20.balanceOf(mockCommerceEscrow.address);
+
+        // Second partial capture
+        await wrapper
+          .connect(operator)
+          .capturePayment(authParams.paymentReference, secondCapture, feeBps, feeReceiverAddress);
+
+        // Verify balances after second capture
+        expect(await testERC20.balanceOf(mockCommerceEscrow.address)).to.equal(
+          escrowAfterFirst.sub(secondCapture),
+        );
+        expect(await testERC20.balanceOf(merchantAddress)).to.equal(
+          merchantAfterFirst.add(secondMerchantAmount),
+        );
+        expect(await testERC20.balanceOf(feeReceiverAddress)).to.equal(
+          feeReceiverAfterFirst.add(secondFee),
+        );
+        // Verify no tokens stuck in wrapper
+        expect(await testERC20.balanceOf(wrapper.address)).to.equal(
+          0,
+          'Tokens should not get stuck in wrapper',
+        );
+      });
+    });
+
+    describe('Fee Calculation with Balance Verification', () => {
+      beforeEach(async () => {
+        // Create fresh authorization for each fee test
+        authParams = {
+          paymentReference: getUniquePaymentReference(),
+          payer: payerAddress,
+          merchant: merchantAddress,
+          operator: operatorAddress,
+          token: testERC20.address,
+          amount,
+          maxAmount,
+          preApprovalExpiry,
+          authorizationExpiry,
+          refundExpiry,
+          tokenCollector: tokenCollectorAddress,
+          collectorData: '0x',
+        };
+        await wrapper.authorizePayment(authParams);
+      });
+
+      it('should correctly transfer tokens with 0% fee (feeBps = 0)', async () => {
+        const captureAmount = amount.div(2);
+
+        const merchantBalanceBefore = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceBefore = await testERC20.balanceOf(feeReceiverAddress);
+        const escrowBalanceBefore = await testERC20.balanceOf(mockCommerceEscrow.address);
+
+        await wrapper
+          .connect(operator)
+          .capturePayment(authParams.paymentReference, captureAmount, 0, feeReceiverAddress);
+
+        const merchantBalanceAfter = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceAfter = await testERC20.balanceOf(feeReceiverAddress);
+        const escrowBalanceAfter = await testERC20.balanceOf(mockCommerceEscrow.address);
+
+        const expectedFeeAmount = captureAmount.mul(0).div(10000);
+        const expectedMerchantAmount = captureAmount.sub(expectedFeeAmount);
+
+        // Verify merchant gets full amount
+        expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(expectedMerchantAmount);
+        expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(captureAmount);
+        // Verify fee receiver gets nothing
+        expect(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)).to.equal(expectedFeeAmount);
+        expect(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)).to.equal(0);
+        // Verify escrow balance decreased by captured amount
+        expect(escrowBalanceBefore.sub(escrowBalanceAfter)).to.equal(captureAmount);
+      });
+
+      it('should correctly transfer tokens with 100% fee (feeBps = 10000)', async () => {
+        const captureAmount = amount.div(2);
+
+        const merchantBalanceBefore = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceBefore = await testERC20.balanceOf(feeReceiverAddress);
+        const escrowBalanceBefore = await testERC20.balanceOf(mockCommerceEscrow.address);
+
+        await wrapper
+          .connect(operator)
+          .capturePayment(authParams.paymentReference, captureAmount, 10000, feeReceiverAddress);
+
+        const merchantBalanceAfter = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceAfter = await testERC20.balanceOf(feeReceiverAddress);
+        const escrowBalanceAfter = await testERC20.balanceOf(mockCommerceEscrow.address);
+
+        const expectedFeeAmount = captureAmount.mul(10000).div(10000);
+        const expectedMerchantAmount = captureAmount.sub(expectedFeeAmount);
+
+        // Verify merchant gets nothing
+        expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(expectedMerchantAmount);
+        expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(0);
+        // Verify fee receiver gets all
+        expect(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)).to.equal(expectedFeeAmount);
+        expect(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)).to.equal(captureAmount);
+        // Verify escrow balance decreased by captured amount
+        expect(escrowBalanceBefore.sub(escrowBalanceAfter)).to.equal(captureAmount);
+      });
+
+      it('should correctly transfer tokens with 2.5% fee (feeBps = 250)', async () => {
+        const captureAmount = amount.div(2);
+
+        const merchantBalanceBefore = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceBefore = await testERC20.balanceOf(feeReceiverAddress);
+        const escrowBalanceBefore = await testERC20.balanceOf(mockCommerceEscrow.address);
+
+        await wrapper
+          .connect(operator)
+          .capturePayment(authParams.paymentReference, captureAmount, 250, feeReceiverAddress);
+
+        const merchantBalanceAfter = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceAfter = await testERC20.balanceOf(feeReceiverAddress);
+        const escrowBalanceAfter = await testERC20.balanceOf(mockCommerceEscrow.address);
+
+        const expectedFeeAmount = captureAmount.mul(250).div(10000);
+        const expectedMerchantAmount = captureAmount.sub(expectedFeeAmount);
+
+        // Verify exact split matches calculation
+        expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(expectedMerchantAmount);
+        expect(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)).to.equal(expectedFeeAmount);
+        // Verify total equals capture amount
+        expect(
+          merchantBalanceAfter
+            .sub(merchantBalanceBefore)
+            .add(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)),
+        ).to.equal(captureAmount);
+        // Verify escrow balance decreased by captured amount
+        expect(escrowBalanceBefore.sub(escrowBalanceAfter)).to.equal(captureAmount);
+      });
+
+      it('should correctly transfer tokens with 5% fee (feeBps = 500)', async () => {
+        const captureAmount = amount.div(2);
+
+        const merchantBalanceBefore = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceBefore = await testERC20.balanceOf(feeReceiverAddress);
+
+        await wrapper
+          .connect(operator)
+          .capturePayment(authParams.paymentReference, captureAmount, 500, feeReceiverAddress);
+
+        const merchantBalanceAfter = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceAfter = await testERC20.balanceOf(feeReceiverAddress);
+
+        const expectedFeeAmount = captureAmount.mul(500).div(10000);
+        const expectedMerchantAmount = captureAmount.sub(expectedFeeAmount);
+
+        expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(expectedMerchantAmount);
+        expect(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)).to.equal(expectedFeeAmount);
+      });
+
+      it('should correctly transfer tokens with 50% fee (feeBps = 5000)', async () => {
+        const captureAmount = amount.div(2);
+
+        const merchantBalanceBefore = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceBefore = await testERC20.balanceOf(feeReceiverAddress);
+
+        await wrapper
+          .connect(operator)
+          .capturePayment(authParams.paymentReference, captureAmount, 5000, feeReceiverAddress);
+
+        const merchantBalanceAfter = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceAfter = await testERC20.balanceOf(feeReceiverAddress);
+
+        const expectedFeeAmount = captureAmount.mul(5000).div(10000);
+        const expectedMerchantAmount = captureAmount.sub(expectedFeeAmount);
+
+        // Verify 50/50 split
+        expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(expectedMerchantAmount);
+        expect(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)).to.equal(expectedFeeAmount);
+        expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(
+          feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore),
+        );
+      });
+
+      it('should handle multiple partial captures with different fees correctly', async () => {
+        const firstCapture = amount.div(4);
+        const secondCapture = amount.div(4);
+
+        // First capture with 2.5% fee
+        const merchantBalanceBefore1 = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceBefore1 = await testERC20.balanceOf(feeReceiverAddress);
+
+        await wrapper
+          .connect(operator)
+          .capturePayment(authParams.paymentReference, firstCapture, 250, feeReceiverAddress);
+
+        const merchantBalanceAfter1 = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceAfter1 = await testERC20.balanceOf(feeReceiverAddress);
+
+        const expectedFee1 = firstCapture.mul(250).div(10000);
+        const expectedMerchant1 = firstCapture.sub(expectedFee1);
+
+        expect(merchantBalanceAfter1.sub(merchantBalanceBefore1)).to.equal(expectedMerchant1);
+        expect(feeReceiverBalanceAfter1.sub(feeReceiverBalanceBefore1)).to.equal(expectedFee1);
+
+        // Second capture with 5% fee
+        const merchantBalanceBefore2 = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceBefore2 = await testERC20.balanceOf(feeReceiverAddress);
+
+        await wrapper
+          .connect(operator)
+          .capturePayment(authParams.paymentReference, secondCapture, 500, feeReceiverAddress);
+
+        const merchantBalanceAfter2 = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceAfter2 = await testERC20.balanceOf(feeReceiverAddress);
+
+        const expectedFee2 = secondCapture.mul(500).div(10000);
+        const expectedMerchant2 = secondCapture.sub(expectedFee2);
+
+        expect(merchantBalanceAfter2.sub(merchantBalanceBefore2)).to.equal(expectedMerchant2);
+        expect(feeReceiverBalanceAfter2.sub(feeReceiverBalanceBefore2)).to.equal(expectedFee2);
+      });
     });
   });
 
@@ -474,6 +769,25 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
         authParams.paymentReference,
         0, // no fee for voids
         ethers.constants.AddressZero,
+      );
+    });
+
+    it('should transfer correct token amounts during void', async () => {
+      const payerBefore = await testERC20.balanceOf(payerAddress);
+      const escrowBefore = await testERC20.balanceOf(mockCommerceEscrow.address);
+
+      await wrapper.connect(operator).voidPayment(authParams.paymentReference);
+
+      // Verify escrow balance decreased by voided amount
+      expect(await testERC20.balanceOf(mockCommerceEscrow.address)).to.equal(
+        escrowBefore.sub(amount),
+      );
+      // Verify payer received refund
+      expect(await testERC20.balanceOf(payerAddress)).to.equal(payerBefore.add(amount));
+      // Verify no tokens stuck in wrapper
+      expect(await testERC20.balanceOf(wrapper.address)).to.equal(
+        0,
+        'Tokens should not get stuck in wrapper',
       );
     });
 
@@ -559,6 +873,33 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
       await expect(tx).to.emit(mockCommerceEscrow, 'ChargeCalled');
     });
 
+    it('should transfer correct token amounts during charge', async () => {
+      const feeAmountCalc = amount.mul(feeBps).div(10000);
+      const merchantAmount = amount.sub(feeAmountCalc);
+
+      const payerBefore = await testERC20.balanceOf(payerAddress);
+      const merchantBefore = await testERC20.balanceOf(merchantAddress);
+      const feeReceiverBefore = await testERC20.balanceOf(feeReceiverAddress);
+
+      await wrapper.chargePayment(chargeParams);
+
+      // Verify payer balance decreased
+      expect(await testERC20.balanceOf(payerAddress)).to.equal(payerBefore.sub(amount));
+      // Verify merchant received correct amount (charge amount minus fee)
+      expect(await testERC20.balanceOf(merchantAddress)).to.equal(
+        merchantBefore.add(merchantAmount),
+      );
+      // Verify fee receiver received correct fee
+      expect(await testERC20.balanceOf(feeReceiverAddress)).to.equal(
+        feeReceiverBefore.add(feeAmountCalc),
+      );
+      // Verify no tokens stuck in wrapper
+      expect(await testERC20.balanceOf(wrapper.address)).to.equal(
+        0,
+        'Tokens should not get stuck in wrapper',
+      );
+    });
+
     it('should revert with invalid payment reference', async () => {
       const invalidParams = { ...chargeParams, paymentReference: '0x0000000000000000' };
       await expect(wrapper.chargePayment(invalidParams)).to.be.reverted;
@@ -572,6 +913,152 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
     it('should handle maximum fee basis points (10000)', async () => {
       const validParams = { ...chargeParams, feeBps: 10000 };
       await expect(wrapper.chargePayment(validParams)).to.emit(wrapper, 'PaymentCharged');
+    });
+
+    describe('Fee Calculation with Balance Verification', () => {
+      it('should correctly transfer tokens with 0% fee (feeBps = 0)', async () => {
+        const zeroFeeParams = {
+          ...chargeParams,
+          paymentReference: getUniquePaymentReference(),
+          feeBps: 0,
+        };
+
+        const merchantBalanceBefore = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceBefore = await testERC20.balanceOf(feeReceiverAddress);
+        const payerBalanceBefore = await testERC20.balanceOf(payerAddress);
+
+        await wrapper.chargePayment(zeroFeeParams);
+
+        const merchantBalanceAfter = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceAfter = await testERC20.balanceOf(feeReceiverAddress);
+        const payerBalanceAfter = await testERC20.balanceOf(payerAddress);
+
+        const expectedFeeAmount = amount.mul(0).div(10000);
+        const expectedMerchantAmount = amount.sub(expectedFeeAmount);
+
+        // Verify merchant gets full amount
+        expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(expectedMerchantAmount);
+        expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(amount);
+        // Verify fee receiver gets nothing
+        expect(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)).to.equal(expectedFeeAmount);
+        expect(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)).to.equal(0);
+        // Verify payer paid full amount
+        expect(payerBalanceBefore.sub(payerBalanceAfter)).to.equal(amount);
+      });
+
+      it('should correctly transfer tokens with 100% fee (feeBps = 10000)', async () => {
+        const maxFeeParams = {
+          ...chargeParams,
+          paymentReference: getUniquePaymentReference(),
+          feeBps: 10000,
+        };
+
+        const merchantBalanceBefore = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceBefore = await testERC20.balanceOf(feeReceiverAddress);
+        const payerBalanceBefore = await testERC20.balanceOf(payerAddress);
+
+        await wrapper.chargePayment(maxFeeParams);
+
+        const merchantBalanceAfter = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceAfter = await testERC20.balanceOf(feeReceiverAddress);
+        const payerBalanceAfter = await testERC20.balanceOf(payerAddress);
+
+        const expectedFeeAmount = amount.mul(10000).div(10000);
+        const expectedMerchantAmount = amount.sub(expectedFeeAmount);
+
+        // Verify merchant gets nothing
+        expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(expectedMerchantAmount);
+        expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(0);
+        // Verify fee receiver gets all
+        expect(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)).to.equal(expectedFeeAmount);
+        expect(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)).to.equal(amount);
+        // Verify payer paid full amount
+        expect(payerBalanceBefore.sub(payerBalanceAfter)).to.equal(amount);
+      });
+
+      it('should correctly transfer tokens with 2.5% fee (feeBps = 250)', async () => {
+        const standardFeeParams = {
+          ...chargeParams,
+          paymentReference: getUniquePaymentReference(),
+          feeBps: 250,
+        };
+
+        const merchantBalanceBefore = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceBefore = await testERC20.balanceOf(feeReceiverAddress);
+        const payerBalanceBefore = await testERC20.balanceOf(payerAddress);
+
+        await wrapper.chargePayment(standardFeeParams);
+
+        const merchantBalanceAfter = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceAfter = await testERC20.balanceOf(feeReceiverAddress);
+        const payerBalanceAfter = await testERC20.balanceOf(payerAddress);
+
+        const expectedFeeAmount = amount.mul(250).div(10000);
+        const expectedMerchantAmount = amount.sub(expectedFeeAmount);
+
+        // Verify exact split matches calculation
+        expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(expectedMerchantAmount);
+        expect(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)).to.equal(expectedFeeAmount);
+        // Verify total equals amount
+        expect(
+          merchantBalanceAfter
+            .sub(merchantBalanceBefore)
+            .add(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)),
+        ).to.equal(amount);
+        // Verify payer paid full amount
+        expect(payerBalanceBefore.sub(payerBalanceAfter)).to.equal(amount);
+      });
+
+      it('should correctly transfer tokens with 5% fee (feeBps = 500)', async () => {
+        const fivePercentFeeParams = {
+          ...chargeParams,
+          paymentReference: getUniquePaymentReference(),
+          feeBps: 500,
+        };
+
+        const merchantBalanceBefore = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceBefore = await testERC20.balanceOf(feeReceiverAddress);
+        const payerBalanceBefore = await testERC20.balanceOf(payerAddress);
+
+        await wrapper.chargePayment(fivePercentFeeParams);
+
+        const merchantBalanceAfter = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceAfter = await testERC20.balanceOf(feeReceiverAddress);
+        const payerBalanceAfter = await testERC20.balanceOf(payerAddress);
+
+        const expectedFeeAmount = amount.mul(500).div(10000);
+        const expectedMerchantAmount = amount.sub(expectedFeeAmount);
+
+        expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(expectedMerchantAmount);
+        expect(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)).to.equal(expectedFeeAmount);
+        expect(payerBalanceBefore.sub(payerBalanceAfter)).to.equal(amount);
+      });
+
+      it('should correctly transfer tokens with 50% fee (feeBps = 5000)', async () => {
+        const fiftyPercentFeeParams = {
+          ...chargeParams,
+          paymentReference: getUniquePaymentReference(),
+          feeBps: 5000,
+        };
+
+        const merchantBalanceBefore = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceBefore = await testERC20.balanceOf(feeReceiverAddress);
+
+        await wrapper.chargePayment(fiftyPercentFeeParams);
+
+        const merchantBalanceAfter = await testERC20.balanceOf(merchantAddress);
+        const feeReceiverBalanceAfter = await testERC20.balanceOf(feeReceiverAddress);
+
+        const expectedFeeAmount = amount.mul(5000).div(10000);
+        const expectedMerchantAmount = amount.sub(expectedFeeAmount);
+
+        // Verify 50/50 split
+        expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(expectedMerchantAmount);
+        expect(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)).to.equal(expectedFeeAmount);
+        expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(
+          feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore),
+        );
+      });
     });
   });
 
@@ -617,6 +1104,25 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
       );
     });
 
+    it('should transfer correct token amounts during reclaim', async () => {
+      const payerBefore = await testERC20.balanceOf(payerAddress);
+      const escrowBefore = await testERC20.balanceOf(mockCommerceEscrow.address);
+
+      await wrapper.connect(payer).reclaimPayment(authParams.paymentReference);
+
+      // Verify escrow balance decreased by reclaimed amount
+      expect(await testERC20.balanceOf(mockCommerceEscrow.address)).to.equal(
+        escrowBefore.sub(amount),
+      );
+      // Verify payer received reclaimed tokens
+      expect(await testERC20.balanceOf(payerAddress)).to.equal(payerBefore.add(amount));
+      // Verify no tokens stuck in wrapper
+      expect(await testERC20.balanceOf(wrapper.address)).to.equal(
+        0,
+        'Tokens should not get stuck in wrapper',
+      );
+    });
+
     it('should revert if called by non-payer', async () => {
       await expect(wrapper.connect(operator).reclaimPayment(authParams.paymentReference)).to.be
         .reverted;
@@ -657,9 +1163,70 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
       ).to.be.reverted;
     });
 
-    // Note: Refund functionality test is complex due to mock contract interactions
-    // The wrapper expects operator to have tokens and approve the tokenCollector
-    // This is tested in integration tests with real contracts
+    it('should transfer correct token amounts during refund', async () => {
+      const refundAmount = amount.div(4);
+
+      // Operator needs to approve wrapper to transfer their tokens
+      await testERC20.connect(operator).approve(wrapper.address, refundAmount);
+
+      const operatorBefore = await testERC20.balanceOf(operatorAddress);
+      const payerBefore = await testERC20.balanceOf(payerAddress);
+
+      await wrapper
+        .connect(operator)
+        .refundPayment(authParams.paymentReference, refundAmount, tokenCollectorAddress, '0x');
+
+      // Verify operator balance decreased (they provided the refund)
+      expect(await testERC20.balanceOf(operatorAddress)).to.equal(operatorBefore.sub(refundAmount));
+      // Verify payer received refund
+      expect(await testERC20.balanceOf(payerAddress)).to.equal(payerBefore.add(refundAmount));
+      // Verify no tokens stuck in wrapper
+      expect(await testERC20.balanceOf(wrapper.address)).to.equal(
+        0,
+        'Tokens should not get stuck in wrapper',
+      );
+    });
+
+    // TODO: Add comprehensive refund functionality tests in future PR
+    // Refund flows are deferred to post-MVP work due to complexity with mock contracts.
+    // The wrapper expects operator to provide liquidity (have tokens and approve tokenCollector).
+    //
+    // Current test coverage:
+    // ✓ Access control: only operator can refund
+    // ✓ Happy path: operator provides liquidity and tokens transfer correctly
+    //
+    // Future integration tests should cover:
+    // 1. Partial refund scenarios:
+    //    - Multiple partial refunds sum correctly
+    //    - Cannot refund more than captured amount (refundableAmount validation)
+    //    - Refund state updates correctly after partial refund
+    //    - Remaining refundable amount is tracked accurately
+    //
+    // 2. Edge cases and validations:
+    //    - Cannot refund with zero amount
+    //    - Cannot refund when refundableAmount is zero (nothing was captured)
+    //    - Cannot refund after refundExpiry timestamp
+    //    - Verify tokenCollector address validation
+    //    - Verify collectorData is passed through correctly to underlying commerce escrow
+    //    - Handle cases where operator has insufficient balance or approval
+    //
+    // 3. Event verification:
+    //    - PaymentRefunded event emitted with correct parameters
+    //    - TransferWithReferenceAndFee event emitted during token transfer
+    //    - Events from underlying commerce escrow contract
+    //
+    // 4. Integration testing considerations:
+    //    - Test with real ERC20FeeProxy contract instead of mock
+    //    - Test with real CommerceEscrow contract instead of mock
+    //    - Test operator approval and balance management in realistic scenarios
+    //    - Test reentrancy protection during refund operations (already covered in reentrancy tests)
+    //    - Test refund after partial capture (not full amount captured)
+    //
+    // 5. Business logic validation:
+    //    - Verify refund reduces refundableAmount in commerce escrow
+    //    - Verify refund does not affect capturableAmount
+    //    - Verify payer receives exact refund amount (no fees on refunds)
+    //    - Verify operator liquidity is properly utilized
   });
 
   describe('View Functions', () => {
@@ -691,7 +1258,7 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
       expect(paymentData.token).to.equal(testERC20.address);
       expect(paymentData.amount).to.equal(amount);
       expect(paymentData.maxAmount).to.equal(maxAmount);
-      expect(paymentData.isActive).to.be.true;
+      expect(paymentData.commercePaymentHash).to.not.equal(ethers.constants.HashZero);
     });
 
     it('should return correct payment state', async () => {
@@ -727,13 +1294,13 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
         const nonExistentRef = '0xdeadbeefdeadbeef';
         const paymentData = await wrapper.getPaymentData(nonExistentRef);
         expect(paymentData.payer).to.equal(ethers.constants.AddressZero);
-        expect(paymentData.isActive).to.be.false;
+        expect(paymentData.commercePaymentHash).to.equal(ethers.constants.HashZero);
       });
 
       it('should handle getPaymentData with zero payment reference', async () => {
         const zeroRef = '0x0000000000000000';
         const paymentData = await wrapper.getPaymentData(zeroRef);
-        expect(paymentData.isActive).to.be.false;
+        expect(paymentData.commercePaymentHash).to.equal(ethers.constants.HashZero);
       });
 
       it('should return false for canCapture with invalid payment', async () => {
@@ -859,7 +1426,7 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
         // Setup the attack: when the wrapper calls token.approve() during capture,
         // the malicious token will attempt to call capturePayment again
         await maliciousToken.setupAttack(
-          1, // CaptureReentry
+          2, // CaptureReentry (enum value is 2, not 1)
           authParams.paymentReference,
           amount.div(4),
           feeBps,
@@ -918,7 +1485,7 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
 
         // Setup the attack: during void, attempt to reenter voidPayment
         await maliciousToken.setupAttack(
-          2, // VoidReentry
+          3, // VoidReentry (enum value is 3, not 2)
           authParams.paymentReference,
           0,
           0,
@@ -955,7 +1522,7 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
 
         // Setup the attack: during reclaim, attempt to reenter reclaimPayment
         await maliciousToken.setupAttack(
-          3, // ReclaimReentry
+          5, // ReclaimReentry (enum value is 5, not 3)
           authParams.paymentReference,
           0,
           0,
@@ -993,7 +1560,7 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
 
         // Setup malicious token to attack during transferFrom (when operator provides refund tokens)
         await maliciousToken.setupAttack(
-          5, // RefundReentry
+          6, // RefundReentry (enum value is 6, not 5)
           authParams.paymentReference,
           amount.div(4),
           0,
@@ -1026,13 +1593,7 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
         };
 
         // Setup attack to attempt reentering chargePayment
-        await maliciousToken.setupAttack(
-          3, // ChargeReentry
-          chargeParams.paymentReference,
-          amount.div(2),
-          feeBps,
-          feeReceiverAddress,
-        );
+        await maliciousToken.setupChargeAttack(chargeParams);
 
         // The malicious token will try to reenter during approve/transferFrom
         // The transaction should succeed, but the attack should fail
@@ -1082,7 +1643,7 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
 
         // Setup attack: during capture, try to void the same payment
         await maliciousToken.setupAttack(
-          2, // VoidReentry
+          3, // VoidReentry (enum value is 3, not 2)
           authParams.paymentReference,
           0,
           0,
@@ -1137,7 +1698,7 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
 
         // Setup attack: during capture, try to reclaim the payment
         await maliciousToken.setupAttack(
-          4, // ReclaimReentry
+          5, // ReclaimReentry (enum value is 5, not 4)
           authParams.paymentReference,
           0,
           0,

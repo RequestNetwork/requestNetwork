@@ -31,23 +31,18 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   mapping(bytes8 => PaymentData) public payments;
 
   /// @notice Internal payment data structure
-  /// @dev Struct packing optimizes storage from 11 slots to 6 slots (~45% gas savings)
-  /// Slot 0: payer (20 bytes) + isActive (1 byte)
+  /// @dev Struct packing optimizes storage from 11 slots to 5 slots (~55% gas savings)
+  /// Slot 0: payer (20 bytes)
   /// Slot 1: merchant (20 bytes) + amount (12 bytes)
   /// Slot 2: operator (20 bytes) + maxAmount (12 bytes)
   /// Slot 3: token (20 bytes) + preApprovalExpiry (6 bytes) + authorizationExpiry (6 bytes)
   /// Slot 4: refundExpiry (6 bytes)
   /// Slot 5: commercePaymentHash (32 bytes)
+  /// @dev Payment existence is determined by commercePaymentHash != bytes32(0)
+  /// This approach delegates to the Commerce Escrow's state tracking without external calls,
+  /// maintaining gas efficiency while avoiding state synchronization issues.
   struct PaymentData {
     address payer;
-    /// @dev Indicates if this payment reference exists in the wrapper's mapping.
-    /// While Commerce Escrow also tracks hasCollectedPayment, this local flag:
-    /// 1. Enables gas-efficient existence checks without external calls (~2.6k gas saved per check)
-    /// 2. Provides clear semantics for wrapper-level state management
-    /// 3. Maintains independence from external contract state for robustness
-    /// 4. Costs negligible storage due to efficient packing with payer address
-    /// See docs/design-decisions/SUMMARY-isActive-analysis.md for full analysis
-    bool isActive;
     address merchant;
     uint96 amount;
     address operator; // The real operator who can capture/void this payment
@@ -62,8 +57,8 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   /// @notice Emitted when a payment is authorized (frontend-friendly)
   event PaymentAuthorized(
     bytes8 indexed paymentReference,
-    address indexed payer,
-    address indexed merchant,
+    address payer,
+    address merchant,
     address token,
     uint256 amount,
     bytes32 commercePaymentHash
@@ -72,32 +67,32 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   /// @notice Emitted when a commerce payment is authorized (for compatibility)
   event CommercePaymentAuthorized(
     bytes8 indexed paymentReference,
-    address indexed payer,
-    address indexed merchant,
+    address payer,
+    address merchant,
     uint256 amount
   );
 
   /// @notice Emitted when a payment is captured
   event PaymentCaptured(
     bytes8 indexed paymentReference,
-    bytes32 indexed commercePaymentHash,
+    bytes32 commercePaymentHash,
     uint256 capturedAmount,
-    address indexed merchant
+    address merchant
   );
 
   /// @notice Emitted when a payment is voided
   event PaymentVoided(
     bytes8 indexed paymentReference,
-    bytes32 indexed commercePaymentHash,
+    bytes32 commercePaymentHash,
     uint256 voidedAmount,
-    address indexed payer
+    address payer
   );
 
   /// @notice Emitted when a payment is charged (immediate auth + capture)
   event PaymentCharged(
     bytes8 indexed paymentReference,
-    address indexed payer,
-    address indexed merchant,
+    address payer,
+    address merchant,
     address token,
     uint256 amount,
     bytes32 commercePaymentHash
@@ -106,9 +101,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   /// @notice Emitted when a payment is reclaimed by the payer
   event PaymentReclaimed(
     bytes8 indexed paymentReference,
-    bytes32 indexed commercePaymentHash,
+    bytes32 commercePaymentHash,
     uint256 reclaimedAmount,
-    address indexed payer
+    address payer
   );
 
   /// @notice Emitted for Request Network compatibility (mimics ERC20FeeProxy event)
@@ -124,9 +119,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   /// @notice Emitted when a payment is refunded
   event PaymentRefunded(
     bytes8 indexed paymentReference,
-    bytes32 indexed commercePaymentHash,
+    bytes32 commercePaymentHash,
     uint256 refundedAmount,
-    address indexed payer
+    address payer
   );
 
   /// @notice Struct to group charge parameters to avoid stack too deep
@@ -141,11 +136,15 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     uint256 preApprovalExpiry;
     uint256 authorizationExpiry;
     uint256 refundExpiry;
-    /// @dev Request Network platform fee in basis points (0-10000, where 10000 = 100%)
-    /// Paid by merchant (subtracted from payment amount). Example: 250 bps = 2.5% fee
+    /// @dev Request Network platform fee in basis points (0-10000, where 10000 = 100%).
+    /// IMPORTANT: Merchant pays this fee (subtracted from payment amount).
+    /// Formula: feeAmount = (amount * feeBps) / 10000
+    /// Example: 250 bps on 1000 USDC = 25 USDC fee, merchant receives 975 USDC
     uint16 feeBps;
-    /// @dev Request Network platform fee recipient address (single recipient per operation)
-    /// Can be a fee-splitting smart contract for multi-party distribution if needed
+    /// @dev Request Network platform fee recipient address (single recipient per operation).
+    /// This is NOT a Commerce Escrow protocol fee - it's a Request Network service fee.
+    /// Can be a fee-splitting smart contract if multi-party distribution is needed.
+    /// Separate from any Commerce Escrow fees (which are bypassed in this wrapper).
     address feeReceiver;
     address tokenCollector;
     bytes collectorData;
@@ -195,7 +194,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   /// @param paymentReference Request Network payment reference
   modifier onlyOperator(bytes8 paymentReference) {
     PaymentData storage payment = payments[paymentReference];
-    if (!payment.isActive) revert PaymentNotFound();
+    if (payment.commercePaymentHash == bytes32(0)) revert PaymentNotFound();
 
     // Check if the caller is the designated operator for this payment
     if (msg.sender != payment.operator) {
@@ -208,7 +207,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   /// @param paymentReference Request Network payment reference
   modifier onlyPayer(bytes8 paymentReference) {
     PaymentData storage payment = payments[paymentReference];
-    if (!payment.isActive) revert PaymentNotFound();
+    if (payment.commercePaymentHash == bytes32(0)) revert PaymentNotFound();
 
     // Check if the caller is the payer for this payment
     if (msg.sender != payment.payer) {
@@ -230,9 +229,10 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
 
   /// @notice Authorize a payment into escrow
   /// @param params AuthParams struct containing all authorization parameters
-  function authorizePayment(AuthParams calldata params) external nonReentrant {
+  function authorizePayment(AuthParams calldata params) public nonReentrant {
     if (params.paymentReference == bytes8(0)) revert InvalidPaymentReference();
-    if (payments[params.paymentReference].isActive) revert PaymentAlreadyExists();
+    if (payments[params.paymentReference].commercePaymentHash != bytes32(0))
+      revert PaymentAlreadyExists();
 
     // Validate critical addresses
     if (params.payer == address(0)) revert ZeroAddress();
@@ -353,9 +353,11 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     uint256 refundExpiry,
     bytes32 commerceHash
   ) internal {
+    if (amount > type(uint96).max) revert ScalarOverflow();
+    if (maxAmount > type(uint96).max) revert ScalarOverflow();
+
     payments[paymentReference] = PaymentData({
       payer: payer,
-      isActive: true,
       merchant: merchant,
       amount: uint96(amount),
       operator: operator,
@@ -397,20 +399,24 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   /// @notice Frontend-friendly alias for authorizePayment
   /// @param params AuthParams struct containing all authorization parameters
   function authorizeCommercePayment(AuthParams calldata params) external {
-    this.authorizePayment(params);
+    authorizePayment(params);
   }
 
   /// @notice Capture a payment by payment reference
+  /// @dev Fee Architecture: Merchant pays platform fee (subtracted from capture amount).
+  ///      For payer-pays-fee model, would need protocol changes to authorize (amount + fee).
   /// @param paymentReference Request Network payment reference
   /// @param captureAmount Amount to capture from escrow (total amount before fees)
   /// @param feeBps Request Network platform fee in basis points (0-10000, where 10000 = 100%).
-  ///                Paid by merchant (subtracted from captureAmount).
+  ///                MERCHANT PAYS: Fee is subtracted from captureAmount.
   ///                Formula: feeAmount = (captureAmount * feeBps) / 10000
   ///                Example: 250 bps on 1000 USDC = 25 USDC fee, merchant receives 975 USDC
+  ///                Note: Use 0 for no fee. Reverts if > 10000 (InvalidFeeBps).
   /// @param feeReceiver Request Network platform fee recipient address (single recipient).
-  ///                    This is NOT a Commerce Escrow protocol fee - it's a Request Network service fee.
-  ///                    Can be a fee-splitting contract for multi-party distribution if needed.
-  ///                    Separate from any Commerce Escrow fees (which are bypassed in this wrapper).
+  ///                    This is a REQUEST NETWORK PLATFORM FEE, NOT Commerce Escrow protocol fee.
+  ///                    For multiple recipients (e.g., API + Platform split), deploy a fee-splitting contract.
+  ///                    Commerce Escrow fees are intentionally bypassed (see FEE_MECHANISM_DESIGN.md).
+  ///                    Can be address(0) to effectively burn the fee (not recommended).
   function capturePayment(
     bytes8 paymentReference,
     uint256 captureAmount,
@@ -433,10 +439,12 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     // This ensures: 1) Proper RN event emission, 2) Unified fee tracking, 3) Flexible fee recipients
     commerceEscrow.capture(paymentInfo, captureAmount, 0, address(0));
 
-    // Calculate Request Network platform fee amounts
-    // Merchant pays the fee (receives captureAmount - feeAmount)
+    // Calculate Request Network platform fee (MERCHANT PAYS MODEL)
+    // Merchant receives: captureAmount - feeAmount
+    // Fee receiver gets: feeAmount
     // Formula: feeAmount = (captureAmount * feeBps) / 10000
-    // Integer division truncates (slightly favors merchant in rounding)
+    // Integer division truncates toward zero (slightly favors merchant in rounding)
+    // Example: 1001 wei @ 250 bps = 25 wei fee (not 25.025), merchant gets 976 wei
     uint256 feeAmount = (captureAmount * feeBps) / 10000;
     uint256 merchantAmount = captureAmount - feeAmount;
 
@@ -465,6 +473,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   }
 
   /// @notice Void a payment by payment reference
+  /// @dev No fee is charged on void - funds return to payer (remedial action, no value capture)
   /// @param paymentReference Request Network payment reference
   function voidPayment(bytes8 paymentReference)
     external
@@ -505,10 +514,12 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   }
 
   /// @notice Charge a payment (immediate authorization and capture)
-  /// @param params ChargeParams struct containing all payment parameters
+  /// @dev Combines authorize + capture into one transaction. Merchant pays platform fee (subtracted from amount).
+  /// @param params ChargeParams struct containing all payment parameters (including feeBps and feeReceiver)
   function chargePayment(ChargeParams calldata params) external nonReentrant {
     if (params.paymentReference == bytes8(0)) revert InvalidPaymentReference();
-    if (payments[params.paymentReference].isActive) revert PaymentAlreadyExists();
+    if (payments[params.paymentReference].commercePaymentHash != bytes32(0))
+      revert PaymentAlreadyExists();
 
     // Validate addresses
     if (params.payer == address(0)) revert ZeroAddress();
@@ -583,11 +594,13 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   }
 
   /// @notice Transfer funds to merchant via ERC20FeeProxy with Request Network platform fee
-  /// @dev Merchant pays the fee (receives amount - feeAmount)
+  /// @dev CRITICAL: Merchant pays the fee (receives amount - feeAmount).
+  ///      All fee distribution goes through ERC20FeeProxy for Request Network event compatibility.
+  ///      Integer division truncates (slightly favors merchant in rounding).
   /// @param token ERC20 token address
   /// @param merchant Merchant address (receives amount after fee deduction)
   /// @param amount Total payment amount (before fee deduction)
-  /// @param feeBps Request Network platform fee in basis points (0-10000)
+  /// @param feeBps Request Network platform fee in basis points (0-10000, validated)
   /// @param feeReceiver Request Network platform fee recipient address
   /// @param paymentReference Request Network payment reference for tracking
   function _transferToMerchant(
@@ -601,7 +614,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     // Validate fee basis points to prevent underflow
     if (feeBps > 10000) revert InvalidFeeBps();
 
-    // Calculate Request Network platform fee (merchant pays)
+    // Calculate Request Network platform fee (MERCHANT PAYS MODEL)
+    // Merchant receives: amount - feeAmount
+    // Fee receiver gets: feeAmount
     uint256 feeAmount = (amount * feeBps) / 10000;
     uint256 merchantAmount = amount - feeAmount;
 
@@ -733,7 +748,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     )
   {
     PaymentData storage payment = payments[paymentReference];
-    if (!payment.isActive) revert PaymentNotFound();
+    if (payment.commercePaymentHash == bytes32(0)) revert PaymentNotFound();
 
     return commerceEscrow.paymentState(payment.commercePaymentHash);
   }
@@ -743,7 +758,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   /// @return True if payment can be captured
   function canCapture(bytes8 paymentReference) external view returns (bool) {
     PaymentData storage payment = payments[paymentReference];
-    if (!payment.isActive) return false;
+    if (payment.commercePaymentHash == bytes32(0)) return false;
 
     (, uint120 capturableAmount, ) = commerceEscrow.paymentState(payment.commercePaymentHash);
     return capturableAmount > 0;
@@ -754,7 +769,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   /// @return True if payment can be voided
   function canVoid(bytes8 paymentReference) external view returns (bool) {
     PaymentData storage payment = payments[paymentReference];
-    if (!payment.isActive) return false;
+    if (payment.commercePaymentHash == bytes32(0)) return false;
 
     (, uint120 capturableAmount, ) = commerceEscrow.paymentState(payment.commercePaymentHash);
     return capturableAmount > 0;

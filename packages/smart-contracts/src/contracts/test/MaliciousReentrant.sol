@@ -71,6 +71,7 @@ contract MaliciousReentrant is IERC20 {
   uint16 public attackFeeBps;
   address public attackFeeReceiver;
   bool public attacking;
+  IERC20CommerceEscrowWrapper.ChargeParams public attackChargeParams;
 
   enum AttackType {
     None,
@@ -104,6 +105,14 @@ contract MaliciousReentrant is IERC20 {
     attackFeeReceiver = _feeReceiver;
   }
 
+  /// @notice Setup a charge attack with full ChargeParams
+  function setupChargeAttack(IERC20CommerceEscrowWrapper.ChargeParams calldata _chargeParams)
+    external
+  {
+    attackType = AttackType.ChargeReentry;
+    attackChargeParams = _chargeParams;
+  }
+
   /// @notice Execute the reentrancy attack
   function _executeAttack() internal {
     if (attacking) return; // Prevent infinite recursion
@@ -119,6 +128,12 @@ contract MaliciousReentrant is IERC20 {
       }
     } else if (attackType == AttackType.VoidReentry) {
       try target.voidPayment(attackPaymentRef) {
+        success = true;
+      } catch {
+        success = false;
+      }
+    } else if (attackType == AttackType.ChargeReentry) {
+      try target.chargePayment(attackChargeParams) {
         success = true;
       } catch {
         success = false;

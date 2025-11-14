@@ -96,9 +96,14 @@ describe('erc20-commerce-escrow-wrapper', () => {
       const goerliAddress = getCommerceEscrowWrapperAddress('goerli');
       const mumbaiAddress = getCommerceEscrowWrapperAddress('mumbai');
 
-      expect(sepoliaAddress).toBe('0x1234567890123456789012345678901234567890');
-      expect(goerliAddress).toBe('0x1234567890123456789012345678901234567890');
-      expect(mumbaiAddress).toBe('0x1234567890123456789012345678901234567890');
+      // Verify all addresses are valid hex-formatted addresses
+      [sepoliaAddress, goerliAddress, mumbaiAddress].forEach((addr) => {
+        expect(addr).toMatch(/^0x[0-9a-fA-F]{40}$/);
+        expect(addr).not.toBe('0x0000000000000000000000000000000000000000');
+      });
+
+      // Verify all addresses are different
+      expect(new Set([sepoliaAddress, goerliAddress, mumbaiAddress]).size).toBe(3);
     });
   });
 
