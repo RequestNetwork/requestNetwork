@@ -69,7 +69,15 @@ const requestDeployer = process.env.REQUEST_DEPLOYER_LIVE
 const url = (network: string): string => process.env.WEB3_PROVIDER_URL || networkRpcs[network];
 
 export default {
-  solidity: '0.8.9',
+  solidity: {
+    version: '0.8.9',
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
+  },
   paths: {
     sources: 'src/contracts',
     tests: 'test/contracts',
