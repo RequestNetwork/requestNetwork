@@ -1,6 +1,5 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { deployOne } from './deploy-one';
-import hre from 'hardhat';
 
 // Base Mainnet & Base Sepolia Contract Addresses
 const BASE_SEPOLIA_CONTRACTS = {
@@ -90,12 +89,5 @@ export default async function deployERC20CommerceEscrowWrapper(
   };
 }
 
-// Allow script to be run directly
-if (require.main === module) {
-  deployERC20CommerceEscrowWrapper({}, hre)
-    .then(() => process.exit(0))
-    .catch((error) => {
-      console.error(error);
-      process.exit(1);
-    });
-}
+// Note: This script should be run via the Hardhat task:
+// yarn hardhat deploy-erc20-commerce-escrow-wrapper --network <network-name>

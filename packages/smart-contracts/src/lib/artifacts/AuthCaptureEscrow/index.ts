@@ -1,6 +1,6 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
-import { abi as ABI_0_1_0 } from './0.1.0.json';
+import ABI_0_1_0 from './0.1.0.json';
 // @ts-ignore Cannot find module
 import type { AuthCaptureEscrow } from '../../../types';
 
