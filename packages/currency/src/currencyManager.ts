@@ -11,6 +11,7 @@ import { nativeCurrencies } from './native';
 import { defaultConversionPairs, getPath } from './conversion-aggregators';
 import { isValidNearAddress } from './currency-utils';
 import { NearChains } from './chains';
+import { isValidSuiAddress } from '@mysten/sui/utils';
 
 const { BTC, ERC20, ERC777, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 
@@ -272,6 +273,8 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
           return this.validateStarknetAddress(address);
         } else if (currency.network === 'aleo') {
           return this.validateAleoAddress(address);
+        } else if (currency.network === 'sui') {
+          return this.validateSuiAddress(address);
         }
         return addressValidator.validate(address, 'ETH');
       case RequestLogicTypes.CURRENCY.BTC:
@@ -345,6 +348,19 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
 
       const numericPart = address.slice(0, -5);
       return numericPart.length === 76 && /^\d+$/.test(numericPart);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Validate a Sui address.
+   * @param address
+   * @returns True if the address is valid, false otherwise
+   */
+  validateSuiAddress(address: string): boolean {
+    try {
+      return !!isValidSuiAddress(address);
     } catch {
       return false;
     }
