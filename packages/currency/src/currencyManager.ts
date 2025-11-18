@@ -360,6 +360,9 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
    */
   validateSuiAddress(address: string): boolean {
     try {
+      if (address.includes(':')) {
+        return !!isValidSuiAddress(address.split(':')[0]);
+      }
       return !!isValidSuiAddress(address);
     } catch {
       return false;
