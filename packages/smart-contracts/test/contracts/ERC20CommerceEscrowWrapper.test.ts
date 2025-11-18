@@ -447,7 +447,7 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
             10001, // Over 100%
             feeReceiverAddress,
           ),
-        ).to.be.revertedWith('InvalidFeeBps()');
+        ).to.be.revertedWithCustomError(wrapper, 'InvalidFeeBps');
       });
 
       it('should handle zero fee receiver address', async () => {
@@ -907,7 +907,10 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
 
     it('should revert with fee basis points over 10000 (InvalidFeeBps)', async () => {
       const invalidParams = { ...chargeParams, feeBps: 10001 };
-      await expect(wrapper.chargePayment(invalidParams)).to.be.revertedWith('InvalidFeeBps()');
+      await expect(wrapper.chargePayment(invalidParams)).to.be.revertedWithCustomError(
+        wrapper,
+        'InvalidFeeBps',
+      );
     });
 
     it('should handle maximum fee basis points (10000)', async () => {
