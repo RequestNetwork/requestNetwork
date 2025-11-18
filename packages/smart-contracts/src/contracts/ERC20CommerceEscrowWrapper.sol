@@ -31,27 +31,29 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   mapping(bytes8 => PaymentData) public payments;
 
   /// @notice Internal payment data structure
-  /// @dev Struct packing optimizes storage from 11 slots to 5 slots (~55% gas savings)
+  /// @dev Struct packing optimizes storage to 6 slots for gas efficiency
   /// Slot 0: payer (20 bytes)
   /// Slot 1: merchant (20 bytes) + amount (12 bytes)
   /// Slot 2: operator (20 bytes) + maxAmount (12 bytes)
   /// Slot 3: token (20 bytes) + preApprovalExpiry (6 bytes) + authorizationExpiry (6 bytes)
   /// Slot 4: refundExpiry (6 bytes)
   /// Slot 5: commercePaymentHash (32 bytes)
+  /// @dev uint96 supports up to ~79B tokens (18 decimals) - sufficient for all practical use cases
+  /// @dev uint48 timestamps valid until year 8,921,556 - no practical limitation
   /// @dev Payment existence is determined by commercePaymentHash != bytes32(0)
   /// This approach delegates to the Commerce Escrow's state tracking without external calls,
   /// maintaining gas efficiency while avoiding state synchronization issues.
   struct PaymentData {
-    address payer;
-    address merchant;
-    uint96 amount;
-    address operator; // The real operator who can capture/void this payment
-    uint96 maxAmount;
-    address token;
-    uint48 preApprovalExpiry;
-    uint48 authorizationExpiry; // When authorization expires and can be reclaimed
-    uint48 refundExpiry; // When refunds are no longer allowed
-    bytes32 commercePaymentHash;
+    address payer; // Slot 0 (20 bytes)
+    address merchant; // Slot 1 (20 bytes)
+    uint96 amount; // Slot 1 (12 bytes) ← PACKED
+    address operator; // Slot 2 (20 bytes) - The real operator who can capture/void this payment
+    uint96 maxAmount; // Slot 2 (12 bytes) ← PACKED
+    address token; // Slot 3 (20 bytes)
+    uint48 preApprovalExpiry; // Slot 3 (6 bytes) ← PACKED
+    uint48 authorizationExpiry; // Slot 3 (6 bytes) ← PACKED - When authorization expires and can be reclaimed
+    uint48 refundExpiry; // Slot 4 (6 bytes) - When refunds are no longer allowed
+    bytes32 commercePaymentHash; // Slot 5 (32 bytes)
   }
 
   /// @notice Emitted when a payment is authorized (frontend-friendly)
