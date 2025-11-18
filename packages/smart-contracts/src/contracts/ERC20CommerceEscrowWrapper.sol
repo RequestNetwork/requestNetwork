@@ -10,13 +10,25 @@ import {IAuthCaptureEscrow} from './interfaces/IAuthCaptureEscrow.sol';
 /// @title ERC20CommerceEscrowWrapper
 /// @notice Wrapper around Commerce Payments escrow that acts as depositor, operator, and recipient
 /// @dev This contract maintains payment reference linking and provides secure operator delegation
-/// @dev Fee Architecture:
-///      - Fees are Request Network platform fees, NOT Commerce Escrow protocol fees
-///      - Merchant pays fee (subtracted from capture amount: merchantReceives = captureAmount - fee)
-///      - Single fee recipient per operation (can be a fee-splitting contract if needed)
+///
+/// @dev Fee Architecture Summary:
+///      - Fees are REQUEST NETWORK PLATFORM FEES, NOT Commerce Escrow protocol fees
+///      - MERCHANT PAYS fee (subtracted from capture amount: merchantReceives = captureAmount - fee)
+///      - Single fee recipient per operation (can be a fee-splitting contract for multi-party distribution)
 ///      - All fees distributed via ERC20FeeProxy for Request Network compatibility and event tracking
 ///      - Commerce Escrow fee mechanism is intentionally bypassed (feeBps=0, feeReceiver=address(0))
-///      - See docs/design-decisions/FEE_MECHANISM_DESIGN.md for detailed architecture and future enhancements
+///      - Fee calculation: feeAmount = (captureAmount * feeBps) / 10000 (basis points, max 10000 = 100%)
+///      - Integer division truncates (slightly favors merchant in rounding)
+///      - Fee-free operations: void, reclaim, refund (remedial actions, no value capture)
+///
+/// @dev For comprehensive fee mechanism documentation including:
+///      - Fee payer model alternatives (payer-pays vs merchant-pays)
+///      - Multi-recipient fee split strategies
+///      - Future extensibility paths
+///      - Security considerations
+///      - Integration guidelines
+///      See: docs/design-decisions/FEE_MECHANISM_DESIGN.md
+///
 /// @author Request Network & Coinbase Commerce Payments Integration
 contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
   using SafeERC20 for IERC20;
@@ -139,14 +151,18 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     uint256 authorizationExpiry;
     uint256 refundExpiry;
     /// @dev Request Network platform fee in basis points (0-10000, where 10000 = 100%).
-    /// IMPORTANT: Merchant pays this fee (subtracted from payment amount).
-    /// Formula: feeAmount = (amount * feeBps) / 10000
-    /// Example: 250 bps on 1000 USDC = 25 USDC fee, merchant receives 975 USDC
+    ///      CRITICAL: MERCHANT PAYS this fee (subtracted from payment amount).
+    ///      Formula: feeAmount = (amount * feeBps) / 10000
+    ///      Example: 250 bps on 1000 USDC = 25 USDC fee, merchant receives 975 USDC
+    ///      Validation: Reverts with InvalidFeeBps() if feeBps > 10000
+    ///      See: FEE_MECHANISM_DESIGN.md for payer-pays alternatives
     uint16 feeBps;
     /// @dev Request Network platform fee recipient address (single recipient per operation).
-    /// This is NOT a Commerce Escrow protocol fee - it's a Request Network service fee.
-    /// Can be a fee-splitting smart contract if multi-party distribution is needed.
-    /// Separate from any Commerce Escrow fees (which are bypassed in this wrapper).
+    ///      This is NOT a Commerce Escrow protocol fee - it's a Request Network service fee.
+    ///      For multi-party fee splits (e.g., RN API + Platform), use a fee-splitting contract.
+    ///      Commerce Escrow fees are intentionally bypassed in this wrapper.
+    ///      Can be address(0) to effectively burn the fee (not recommended).
+    ///      See: FEE_MECHANISM_DESIGN.md for fee splitter contract examples
     address feeReceiver;
     address tokenCollector;
     bytes collectorData;

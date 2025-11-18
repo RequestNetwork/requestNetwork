@@ -337,10 +337,24 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
     it('should capture payment successfully by operator', async () => {
       const captureAmount = amount.div(2);
       const expectedFeeAmount = captureAmount.mul(feeBps).div(10000);
+      const expectedMerchantAmount = captureAmount.sub(expectedFeeAmount);
+
+      // Before capturing payment
+      const merchantBalanceBefore = await testERC20.balanceOf(merchantAddress);
+      const feeReceiverBalanceBefore = await testERC20.balanceOf(feeReceiverAddress);
 
       const tx = await wrapper
         .connect(operator)
         .capturePayment(authParams.paymentReference, captureAmount, feeBps, feeReceiverAddress);
+
+      // After capturing payment - verify actual token transfers
+      const merchantBalanceAfter = await testERC20.balanceOf(merchantAddress);
+      const feeReceiverBalanceAfter = await testERC20.balanceOf(feeReceiverAddress);
+
+      // Verify merchant received correct amount (after fee deduction)
+      expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(expectedMerchantAmount);
+      // Verify fee receiver received correct fee amount
+      expect(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)).to.equal(expectedFeeAmount);
 
       const receipt = await tx.wait();
       const captureEvent = receipt.events?.find((e) => e.event === 'PaymentCaptured');
@@ -856,8 +870,26 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
 
     it('should charge payment successfully', async () => {
       const expectedFeeAmount = amount.mul(feeBps).div(10000);
+      const expectedMerchantAmount = amount.sub(expectedFeeAmount);
+
+      // Before charging payment
+      const merchantBalanceBefore = await testERC20.balanceOf(merchantAddress);
+      const feeReceiverBalanceBefore = await testERC20.balanceOf(feeReceiverAddress);
+      const payerBalanceBefore = await testERC20.balanceOf(payerAddress);
 
       const tx = await wrapper.chargePayment(chargeParams);
+
+      // After charging payment - verify actual token transfers
+      const merchantBalanceAfter = await testERC20.balanceOf(merchantAddress);
+      const feeReceiverBalanceAfter = await testERC20.balanceOf(feeReceiverAddress);
+      const payerBalanceAfter = await testERC20.balanceOf(payerAddress);
+
+      // Verify merchant received correct amount (after fee deduction)
+      expect(merchantBalanceAfter.sub(merchantBalanceBefore)).to.equal(expectedMerchantAmount);
+      // Verify fee receiver received correct fee amount
+      expect(feeReceiverBalanceAfter.sub(feeReceiverBalanceBefore)).to.equal(expectedFeeAmount);
+      // Verify payer paid the full amount
+      expect(payerBalanceBefore.sub(payerBalanceAfter)).to.equal(amount);
 
       const receipt = await tx.wait();
       const chargeEvent = receipt.events?.find((e) => e.event === 'PaymentCharged');
@@ -1195,41 +1227,55 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
     // The wrapper expects operator to provide liquidity (have tokens and approve tokenCollector).
     //
     // Current test coverage:
-    // ✓ Access control: only operator can refund
-    // ✓ Happy path: operator provides liquidity and tokens transfer correctly
+    // ✓ Access control: only operator can refund (line 1161)
+    // ✓ Happy path: operator provides liquidity and tokens transfer correctly (line 1169)
     //
-    // Future integration tests should cover:
-    // 1. Partial refund scenarios:
+    // Integration tests should cover:
+    //
+    // 1. Operator liquidity provision:
+    //    - Operator must have sufficient token balance
+    //    - Operator must approve wrapper/tokenCollector to spend tokens
+    //    - Verify tokens transfer from operator to payer
+    //    - Handle cases where operator has insufficient balance or approval
+    //
+    // 2. Token transfer verification:
+    //    - Payer receives exact refund tokens (no fees on refunds)
+    //    - Operator balance decreases by refund amount
+    //    - No tokens stuck in wrapper contract
+    //    - Verify TransferWithReferenceAndFee event emitted correctly
+    //
+    // 3. Partial refund scenarios:
     //    - Multiple partial refunds sum correctly
     //    - Cannot refund more than captured amount (refundableAmount validation)
     //    - Refund state updates correctly after partial refund
     //    - Remaining refundable amount is tracked accurately
+    //    - Verify refund reduces refundableAmount in commerce escrow
     //
-    // 2. Edge cases and validations:
+    // 4. Edge cases and validations:
     //    - Cannot refund with zero amount
     //    - Cannot refund when refundableAmount is zero (nothing was captured)
     //    - Cannot refund after refundExpiry timestamp
     //    - Verify tokenCollector address validation
     //    - Verify collectorData is passed through correctly to underlying commerce escrow
-    //    - Handle cases where operator has insufficient balance or approval
+    //    - Handle non-existent payment reference
     //
-    // 3. Event verification:
-    //    - PaymentRefunded event emitted with correct parameters
+    // 5. Event verification:
+    //    - PaymentRefunded event emitted with correct parameters (paymentReference, hash, amount, payer)
     //    - TransferWithReferenceAndFee event emitted during token transfer
     //    - Events from underlying commerce escrow contract
     //
-    // 4. Integration testing considerations:
-    //    - Test with real ERC20FeeProxy contract instead of mock
-    //    - Test with real CommerceEscrow contract instead of mock
+    // 6. Integration testing with real contracts (not mocks):
+    //    - Test with real ERC20FeeProxy contract
+    //    - Test with real CommerceEscrow contract
     //    - Test operator approval and balance management in realistic scenarios
-    //    - Test reentrancy protection during refund operations (already covered in reentrancy tests)
     //    - Test refund after partial capture (not full amount captured)
+    //    - Reentrancy protection already covered in reentrancy tests (line 1540)
     //
-    // 5. Business logic validation:
-    //    - Verify refund reduces refundableAmount in commerce escrow
-    //    - Verify refund does not affect capturableAmount
-    //    - Verify payer receives exact refund amount (no fees on refunds)
+    // 7. Business logic validation:
+    //    - Verify refund does not affect capturableAmount (only refundableAmount)
     //    - Verify operator liquidity is properly utilized
+    //    - Verify refund flow works correctly with different token types
+    //    - Verify refund respects commerce escrow state transitions
   });
 
   describe('View Functions', () => {
