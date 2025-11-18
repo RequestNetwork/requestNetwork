@@ -18,7 +18,7 @@
     },
     {
       "inputs": [],
-      "name": "InvalidPaymentReference",
+      "name": "InvalidFeeBps",
       "type": "error"
     },
     {
@@ -38,6 +38,27 @@
       "type": "error"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "expectedPayer",
+          "type": "address"
+        }
+      ],
+      "name": "InvalidPayer",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidPaymentReference",
+      "type": "error"
+    },
+    {
       "inputs": [],
       "name": "PaymentAlreadyExists",
       "type": "error"
@@ -45,6 +66,16 @@
     {
       "inputs": [],
       "name": "PaymentNotFound",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ScalarOverflow",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAddress",
       "type": "error"
     },
     {
@@ -57,18 +88,19 @@
           "type": "bytes8"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "payer",
           "type": "address"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "merchant",
           "type": "address"
         },
         {
+          "indexed": false,
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
@@ -87,28 +119,31 @@
           "type": "bytes8"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "payer",
           "type": "address"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "merchant",
           "type": "address"
         },
         {
+          "indexed": false,
           "internalType": "address",
           "name": "token",
           "type": "address"
         },
         {
+          "indexed": false,
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
         },
         {
+          "indexed": false,
           "internalType": "bytes32",
           "name": "commercePaymentHash",
           "type": "bytes32"
@@ -127,18 +162,19 @@
           "type": "bytes8"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "bytes32",
           "name": "commercePaymentHash",
           "type": "bytes32"
         },
         {
+          "indexed": false,
           "internalType": "uint256",
           "name": "capturedAmount",
           "type": "uint256"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "merchant",
           "type": "address"
@@ -157,28 +193,31 @@
           "type": "bytes8"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "payer",
           "type": "address"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "merchant",
           "type": "address"
         },
         {
+          "indexed": false,
           "internalType": "address",
           "name": "token",
           "type": "address"
         },
         {
+          "indexed": false,
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
         },
         {
+          "indexed": false,
           "internalType": "bytes32",
           "name": "commercePaymentHash",
           "type": "bytes32"
@@ -197,18 +236,19 @@
           "type": "bytes8"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "bytes32",
           "name": "commercePaymentHash",
           "type": "bytes32"
         },
         {
+          "indexed": false,
           "internalType": "uint256",
           "name": "reclaimedAmount",
           "type": "uint256"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "payer",
           "type": "address"
@@ -227,18 +267,19 @@
           "type": "bytes8"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "bytes32",
           "name": "commercePaymentHash",
           "type": "bytes32"
         },
         {
+          "indexed": false,
           "internalType": "uint256",
           "name": "refundedAmount",
           "type": "uint256"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "payer",
           "type": "address"
@@ -257,18 +298,19 @@
           "type": "bytes8"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "bytes32",
           "name": "commercePaymentHash",
           "type": "bytes32"
         },
         {
+          "indexed": false,
           "internalType": "uint256",
           "name": "voidedAmount",
           "type": "uint256"
         },
         {
-          "indexed": true,
+          "indexed": false,
           "internalType": "address",
           "name": "payer",
           "type": "address"
@@ -281,16 +323,19 @@
       "anonymous": false,
       "inputs": [
         {
+          "indexed": false,
           "internalType": "address",
           "name": "tokenAddress",
           "type": "address"
         },
         {
+          "indexed": false,
           "internalType": "address",
           "name": "to",
           "type": "address"
         },
         {
+          "indexed": false,
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
@@ -302,11 +347,13 @@
           "type": "bytes8"
         },
         {
+          "indexed": false,
           "internalType": "uint256",
           "name": "feeAmount",
           "type": "uint256"
         },
         {
+          "indexed": false,
           "internalType": "address",
           "name": "feeAddress",
           "type": "address"
@@ -318,64 +365,71 @@
     {
       "inputs": [
         {
-          "internalType": "bytes8",
-          "name": "paymentReference",
-          "type": "bytes8"
-        },
-        {
-          "internalType": "address",
-          "name": "payer",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "merchant",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "operator",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "maxAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "preApprovalExpiry",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "authorizationExpiry",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "refundExpiry",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "tokenCollector",
-          "type": "address"
-        },
-        {
-          "internalType": "bytes",
-          "name": "collectorData",
-          "type": "bytes"
+          "components": [
+            {
+              "internalType": "bytes8",
+              "name": "paymentReference",
+              "type": "bytes8"
+            },
+            {
+              "internalType": "address",
+              "name": "payer",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "merchant",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "operator",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "preApprovalExpiry",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "authorizationExpiry",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "refundExpiry",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenCollector",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "collectorData",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct ERC20CommerceEscrowWrapper.AuthParams",
+          "name": "params",
+          "type": "tuple"
         }
       ],
       "name": "authorizeCommercePayment",
@@ -386,64 +440,71 @@
     {
       "inputs": [
         {
-          "internalType": "bytes8",
-          "name": "paymentReference",
-          "type": "bytes8"
-        },
-        {
-          "internalType": "address",
-          "name": "payer",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "merchant",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "operator",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "maxAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "preApprovalExpiry",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "authorizationExpiry",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "refundExpiry",
-          "type": "uint256"
-        },
-        {
-          "internalType": "address",
-          "name": "tokenCollector",
-          "type": "address"
-        },
-        {
-          "internalType": "bytes",
-          "name": "collectorData",
-          "type": "bytes"
+          "components": [
+            {
+              "internalType": "bytes8",
+              "name": "paymentReference",
+              "type": "bytes8"
+            },
+            {
+              "internalType": "address",
+              "name": "payer",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "merchant",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "operator",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "preApprovalExpiry",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "authorizationExpiry",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "refundExpiry",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenCollector",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "collectorData",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct ERC20CommerceEscrowWrapper.AuthParams",
+          "name": "params",
+          "type": "tuple"
         }
       ],
       "name": "authorizePayment",
@@ -520,119 +581,12 @@
     {
       "inputs": [
         {
-          "internalType": "bytes8",
-          "name": "paymentReference",
-          "type": "bytes8"
-        },
-        {
-          "internalType": "address",
-          "name": "payer",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "merchant",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "operator",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "maxAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "preApprovalExpiry",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "authorizationExpiry",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "refundExpiry",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint16",
-          "name": "feeBps",
-          "type": "uint16"
-        },
-        {
-          "internalType": "address",
-          "name": "feeReceiver",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "tokenCollector",
-          "type": "address"
-        },
-        {
-          "internalType": "bytes",
-          "name": "collectorData",
-          "type": "bytes"
-        }
-      ],
-      "name": "chargePayment",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "commerceEscrow",
-      "outputs": [
-        {
-          "internalType": "contract AuthCaptureEscrow",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "erc20FeeProxy",
-      "outputs": [
-        {
-          "internalType": "contract IERC20FeeProxy",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes8",
-          "name": "paymentReference",
-          "type": "bytes8"
-        }
-      ],
-      "name": "getPaymentData",
-      "outputs": [
-        {
           "components": [
+            {
+              "internalType": "bytes8",
+              "name": "paymentReference",
+              "type": "bytes8"
+            },
             {
               "internalType": "address",
               "name": "payer",
@@ -679,14 +633,123 @@
               "type": "uint256"
             },
             {
+              "internalType": "uint16",
+              "name": "feeBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "address",
+              "name": "feeReceiver",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "tokenCollector",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "collectorData",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct ERC20CommerceEscrowWrapper.ChargeParams",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "name": "chargePayment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "commerceEscrow",
+      "outputs": [
+        {
+          "internalType": "contract IAuthCaptureEscrow",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "erc20FeeProxy",
+      "outputs": [
+        {
+          "internalType": "contract IERC20FeeProxy",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes8",
+          "name": "paymentReference",
+          "type": "bytes8"
+        }
+      ],
+      "name": "getPaymentData",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "payer",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "merchant",
+              "type": "address"
+            },
+            {
+              "internalType": "uint96",
+              "name": "amount",
+              "type": "uint96"
+            },
+            {
+              "internalType": "address",
+              "name": "operator",
+              "type": "address"
+            },
+            {
+              "internalType": "uint96",
+              "name": "maxAmount",
+              "type": "uint96"
+            },
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint48",
+              "name": "preApprovalExpiry",
+              "type": "uint48"
+            },
+            {
+              "internalType": "uint48",
+              "name": "authorizationExpiry",
+              "type": "uint48"
+            },
+            {
+              "internalType": "uint48",
+              "name": "refundExpiry",
+              "type": "uint48"
+            },
+            {
               "internalType": "bytes32",
               "name": "commercePaymentHash",
               "type": "bytes32"
-            },
-            {
-              "internalType": "bool",
-              "name": "isActive",
-              "type": "bool"
             }
           ],
           "internalType": "struct ERC20CommerceEscrowWrapper.PaymentData",
@@ -747,9 +810,19 @@
           "type": "address"
         },
         {
+          "internalType": "uint96",
+          "name": "amount",
+          "type": "uint96"
+        },
+        {
           "internalType": "address",
           "name": "operator",
           "type": "address"
+        },
+        {
+          "internalType": "uint96",
+          "name": "maxAmount",
+          "type": "uint96"
         },
         {
           "internalType": "address",
@@ -757,39 +830,24 @@
           "type": "address"
         },
         {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "maxAmount",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
+          "internalType": "uint48",
           "name": "preApprovalExpiry",
-          "type": "uint256"
+          "type": "uint48"
         },
         {
-          "internalType": "uint256",
+          "internalType": "uint48",
           "name": "authorizationExpiry",
-          "type": "uint256"
+          "type": "uint48"
         },
         {
-          "internalType": "uint256",
+          "internalType": "uint48",
           "name": "refundExpiry",
-          "type": "uint256"
+          "type": "uint48"
         },
         {
           "internalType": "bytes32",
           "name": "commercePaymentHash",
           "type": "bytes32"
-        },
-        {
-          "internalType": "bool",
-          "name": "isActive",
-          "type": "bool"
         }
       ],
       "stateMutability": "view",
