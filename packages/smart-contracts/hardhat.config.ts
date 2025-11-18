@@ -425,5 +425,6 @@ task(
     args.force = args.force ?? false;
     args.dryRun = args.dryRun ?? false;
     args.simulate = args.dryRun;
+    await hre.run(DEPLOYER_KEY_GUARD);
     await deployERC20CommerceEscrowWrapper(args, hre);
   });

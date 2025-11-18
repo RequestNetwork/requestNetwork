@@ -1451,18 +1451,17 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
             e.topics[0] === maliciousToken.interface.getEventTopic('AttackAttempted'),
         );
 
-        // If attack was attempted, verify it failed (success = false)
-        if (attackEvent) {
-          const decoded = maliciousToken.interface.decodeEventLog(
-            'AttackAttempted',
-            attackEvent.data,
-            attackEvent.topics,
-          );
-          expect(decoded.success).to.be.false;
-        }
+        // Verify attack was attempted and failed (success = false)
+        expect(attackEvent, 'AttackAttempted event should be emitted').to.not.be.undefined;
+        const decoded = maliciousToken.interface.decodeEventLog(
+          'AttackAttempted',
+          attackEvent!.data,
+          attackEvent!.topics,
+        );
+        expect(decoded.success).to.be.false;
 
         // The capture should still succeed (protected by reentrancy guard)
-        expect(tx).to.emit(wrapper, 'PaymentCaptured');
+        await expect(tx).to.emit(wrapper, 'PaymentCaptured');
       });
     });
 
@@ -1610,18 +1609,17 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
             e.topics[0] === maliciousToken.interface.getEventTopic('AttackAttempted'),
         );
 
-        // If attack was attempted, verify it failed (success = false)
-        if (attackEvent) {
-          const decoded = maliciousToken.interface.decodeEventLog(
-            'AttackAttempted',
-            attackEvent.data,
-            attackEvent.topics,
-          );
-          expect(decoded.success).to.be.false;
-        }
+        // Verify attack was attempted and failed (success = false)
+        expect(attackEvent, 'AttackAttempted event should be emitted').to.not.be.undefined;
+        const decoded = maliciousToken.interface.decodeEventLog(
+          'AttackAttempted',
+          attackEvent!.data,
+          attackEvent!.topics,
+        );
+        expect(decoded.success).to.be.false;
 
         // The charge should still succeed (protected by reentrancy guard)
-        expect(tx).to.emit(wrapper, 'PaymentCharged');
+        await expect(tx).to.emit(wrapper, 'PaymentCharged');
       });
     });
 
@@ -1667,18 +1665,17 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
             e.topics[0] === maliciousToken.interface.getEventTopic('AttackAttempted'),
         );
 
-        // If attack was attempted, verify it failed (success = false)
-        if (attackEvent) {
-          const decoded = maliciousToken.interface.decodeEventLog(
-            'AttackAttempted',
-            attackEvent.data,
-            attackEvent.topics,
-          );
-          expect(decoded.success).to.be.false;
-        }
+        // Verify attack was attempted and failed (success = false)
+        expect(attackEvent, 'AttackAttempted event should be emitted').to.not.be.undefined;
+        const decoded = maliciousToken.interface.decodeEventLog(
+          'AttackAttempted',
+          attackEvent!.data,
+          attackEvent!.topics,
+        );
+        expect(decoded.success).to.be.false;
 
         // The capture should still succeed
-        expect(tx).to.emit(wrapper, 'PaymentCaptured');
+        await expect(tx).to.emit(wrapper, 'PaymentCaptured');
       });
 
       it('should prevent reentrancy from capturePayment to reclaimPayment', async () => {
@@ -1722,18 +1719,17 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
             e.topics[0] === maliciousToken.interface.getEventTopic('AttackAttempted'),
         );
 
-        // If attack was attempted, verify it failed (success = false)
-        if (attackEvent) {
-          const decoded = maliciousToken.interface.decodeEventLog(
-            'AttackAttempted',
-            attackEvent.data,
-            attackEvent.topics,
-          );
-          expect(decoded.success).to.be.false;
-        }
+        // Verify attack was attempted and failed (success = false)
+        expect(attackEvent, 'AttackAttempted event should be emitted').to.not.be.undefined;
+        const decoded = maliciousToken.interface.decodeEventLog(
+          'AttackAttempted',
+          attackEvent!.data,
+          attackEvent!.topics,
+        );
+        expect(decoded.success).to.be.false;
 
         // The capture should still succeed
-        expect(tx).to.emit(wrapper, 'PaymentCaptured');
+        await expect(tx).to.emit(wrapper, 'PaymentCaptured');
       });
     });
   });

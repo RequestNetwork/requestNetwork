@@ -147,7 +147,6 @@ describe('erc20-commerce-escrow-wrapper', () => {
         amount: '0',
         provider,
         network,
-        isUSDT: false,
       });
 
       expect(transactions).toHaveLength(1);
@@ -170,7 +169,6 @@ describe('erc20-commerce-escrow-wrapper', () => {
         amount: maxUint256,
         provider,
         network,
-        isUSDT: false,
       });
 
       expect(transactions).toHaveLength(1);
@@ -192,7 +190,6 @@ describe('erc20-commerce-escrow-wrapper', () => {
         amount: '1000000000000000000',
         provider,
         network,
-        isUSDT: false,
       });
 
       expect(transactions).toHaveLength(1);
@@ -206,7 +203,6 @@ describe('erc20-commerce-escrow-wrapper', () => {
           amount: '1000000000000000000',
           provider,
           network: 'mainnet' as CurrencyTypes.EvmChainName,
-          isUSDT: false,
         });
       }).toThrow('No deployment for network: mainnet.');
     });
@@ -215,20 +211,10 @@ describe('erc20-commerce-escrow-wrapper', () => {
   describe('getPayerCommerceEscrowAllowance', () => {
     it('should call getErc20Allowance with correct parameters', async () => {
       // Mock getErc20Allowance to avoid actual blockchain calls
+      const erc20Module = require('../../src/payment/erc20');
       const mockGetErc20Allowance = jest
-        .fn()
+        .spyOn(erc20Module, 'getErc20Allowance')
         .mockResolvedValue({ toString: () => '1000000000000000000' });
-
-      // Mock the getErc20Allowance function
-      jest.doMock('../../src/payment/erc20', () => ({
-        getErc20Allowance: mockGetErc20Allowance,
-      }));
-
-      // Clear the module cache and re-import
-      jest.resetModules();
-      const {
-        getPayerCommerceEscrowAllowance,
-      } = require('../../src/payment/erc20-commerce-escrow-wrapper');
 
       const result = await getPayerCommerceEscrowAllowance({
         payerAddress: wallet.address,
