@@ -140,8 +140,13 @@ jobs:
         working-directory: packages/smart-contracts
         run: |
           # Count passed and failed properties
-          PASSED=$(grep -c "echidna.*: passed" reports/security/echidna-report.txt || echo "0")
-          FAILED=$(grep -c "echidna.*: failed" reports/security/echidna-report.txt || echo "0")
+          PASSED=$(grep -c "echidna.*: passed" reports/security/echidna-report.txt 2>/dev/null || echo "0")
+          FAILED=$(grep -c "echidna.*: failed" reports/security/echidna-report.txt 2>/dev/null || echo "0")
+
+          # Ensure variables are single line and numeric
+          PASSED=${PASSED##*$'\n'}
+          FAILED=${FAILED##*$'\n'}
+
           TOTAL=$((PASSED + FAILED))
 
           echo "PASSED=$PASSED" >> $GITHUB_OUTPUT
@@ -149,8 +154,8 @@ jobs:
           echo "TOTAL=$TOTAL" >> $GITHUB_OUTPUT
 
           # Extract any counterexamples
-          if [ $FAILED -gt 0 ]; then
-            grep -A 10 "failed" reports/security/echidna-report.txt > reports/security/counterexamples.txt || true
+          if [ "$FAILED" -gt 0 ]; then
+            grep -A 10 "failed" reports/security/echidna-report.txt > reports/security/counterexamples.txt 2>/dev/null || true
           fi
 
       - name: Upload Echidna reports
