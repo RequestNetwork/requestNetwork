@@ -1,0 +1,170 @@
+name: Security - Slither Analysis
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'packages/smart-contracts/src/contracts/**/*.sol'
+      - 'packages/smart-contracts/.slither.config.json'
+      - '.github/workflows/security-slither.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
+jobs:
+  slither-analysis:
+    name: Slither Static Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        working-directory: packages/smart-contracts
+        run: |
+          yarn install --frozen-lockfile
+
+      - name: Compile contracts
+        working-directory: packages/smart-contracts
+        run: |
+          yarn build:sol
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Slither
+        run: |
+          pip3 install slither-analyzer
+          slither --version
+
+      - name: Run Slither
+        working-directory: packages/smart-contracts
+        id: slither
+        continue-on-error: true
+        run: |
+          mkdir -p reports/security
+
+          # Run Slither and capture output
+          slither src/contracts/ERC20CommerceEscrowWrapper.sol \
+            --config-file .slither.config.json \
+            --checklist \
+            --markdown-root reports/security \
+            | tee reports/security/slither-report.txt
+
+          SLITHER_EXIT=$?
+
+          # Generate JSON report for artifact
+          slither src/contracts/ERC20CommerceEscrowWrapper.sol \
+            --config-file .slither.config.json \
+            --json reports/security/slither-report.json \
+            2>/dev/null || true
+
+          # Generate SARIF report for GitHub Security tab
+          slither src/contracts/ERC20CommerceEscrowWrapper.sol \
+            --config-file .slither.config.json \
+            --sarif reports/security/slither.sarif \
+            2>/dev/null || true
+
+          exit $SLITHER_EXIT
+
+      - name: Upload SARIF to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: packages/smart-contracts/reports/security/slither.sarif
+          category: slither
+
+      - name: Upload Slither reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: slither-reports
+          path: packages/smart-contracts/reports/security/
+          retention-days: 30
+
+      - name: Parse Slither results
+        if: github.event_name == 'pull_request' && always()
+        id: parse
+        working-directory: packages/smart-contracts
+        run: |
+          # Count findings by severity
+          if [ -f reports/security/slither-report.json ]; then
+            HIGH=$(jq '[.results.detectors[] | select(.impact == "High")] | length' reports/security/slither-report.json || echo "0")
+            MEDIUM=$(jq '[.results.detectors[] | select(.impact == "Medium")] | length' reports/security/slither-report.json || echo "0")
+            LOW=$(jq '[.results.detectors[] | select(.impact == "Low")] | length' reports/security/slither-report.json || echo "0")
+            INFO=$(jq '[.results.detectors[] | select(.impact == "Informational")] | length' reports/security/slither-report.json || echo "0")
+            
+            echo "HIGH=$HIGH" >> $GITHUB_OUTPUT
+            echo "MEDIUM=$MEDIUM" >> $GITHUB_OUTPUT
+            echo "LOW=$LOW" >> $GITHUB_OUTPUT
+            echo "INFO=$INFO" >> $GITHUB_OUTPUT
+          else
+            echo "HIGH=0" >> $GITHUB_OUTPUT
+            echo "MEDIUM=0" >> $GITHUB_OUTPUT
+            echo "LOW=0" >> $GITHUB_OUTPUT
+            echo "INFO=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const high = '${{ steps.parse.outputs.HIGH }}';
+            const medium = '${{ steps.parse.outputs.MEDIUM }}';
+            const low = '${{ steps.parse.outputs.LOW }}';
+            const info = '${{ steps.parse.outputs.INFO }}';
+            const status = '${{ steps.slither.outcome }}';
+
+            const statusEmoji = status === 'success' ? '✅' : '⚠️';
+            const highEmoji = high > 0 ? '🔴' : '✅';
+            const mediumEmoji = medium > 0 ? '🟡' : '✅';
+
+            const body = `## ${statusEmoji} Slither Security Analysis
+
+            **Status:** ${status === 'success' ? 'Passed' : 'Issues Found'}
+
+            ### Findings Summary
+
+            | Severity | Count | Status |
+            |----------|-------|--------|
+            | ${highEmoji} High | ${high} | ${high > 0 ? '**Action Required**' : 'Pass'} |
+            | ${mediumEmoji} Medium | ${medium} | ${medium > 0 ? 'Review Recommended' : 'Pass'} |
+            | 🔵 Low | ${low} | Info |
+            | ℹ️ Informational | ${info} | Info |
+
+            ${high > 0 || medium > 0 ? '⚠️ **Please review the findings in the Security tab or download the artifacts.**' : ''}
+
+            📄 Full report available in workflow artifacts.
+            🔍 View detailed findings in the [Security tab](${context.payload.repository.html_url}/security/code-scanning).
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+      - name: Fail on High severity findings
+        if: steps.slither.outcome == 'failure'
+        run: |
+          echo "::error::Slither found security issues. Check the reports for details."
+          exit 1

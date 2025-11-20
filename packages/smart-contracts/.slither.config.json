@@ -1,0 +1,14 @@
+{
+  "filter_paths": "node_modules|test|build|cache|scripts|@openzeppelin/contracts",
+  "exclude_informational": false,
+  "exclude_optimization": false,
+  "exclude_low": false,
+  "exclude_medium": false,
+  "exclude_high": false,
+  "solc_remaps": ["@openzeppelin=node_modules/@openzeppelin"],
+  "solc_args": "--optimize --optimize-runs 200",
+  "exclude_dependencies": true,
+  "json": "-",
+  "detectors_to_exclude": "naming-convention,similar-names",
+  "disable_color": false
+}

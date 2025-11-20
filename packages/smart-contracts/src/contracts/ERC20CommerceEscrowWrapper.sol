@@ -293,14 +293,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
       commerceHash
     );
 
-    // Execute authorization
-    commerceEscrow.authorize(
-      paymentInfo,
-      params.amount,
-      params.tokenCollector,
-      params.collectorData
-    );
-
+    // Emit events before external call to prevent reentrancy concerns
     emit PaymentAuthorized(
       params.paymentReference,
       params.payer,
@@ -314,6 +307,14 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
       params.payer,
       params.merchant,
       params.amount
+    );
+
+    // Execute authorization (external call)
+    commerceEscrow.authorize(
+      paymentInfo,
+      params.amount,
+      params.tokenCollector,
+      params.collectorData
     );
   }
 
@@ -507,7 +508,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     );
 
     // Get the amount to void before the operation
-    (, uint120 capturableAmount, ) = commerceEscrow.paymentState(payment.commercePaymentHash);
+    // solhint-disable-next-line no-unused-vars
+    (bool hasCollectedPayment, uint120 capturableAmount, uint120 refundableAmount) = commerceEscrow
+      .paymentState(payment.commercePaymentHash);
 
     // Void the payment - funds go directly from TokenStore to payer (not through wrapper)
     commerceEscrow.void(paymentInfo);
@@ -669,7 +672,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     );
 
     // Get the amount to reclaim before the operation
-    (, uint120 capturableAmount, ) = commerceEscrow.paymentState(payment.commercePaymentHash);
+    // solhint-disable-next-line no-unused-vars
+    (bool hasCollectedPayment, uint120 capturableAmount, uint120 refundableAmount) = commerceEscrow
+      .paymentState(payment.commercePaymentHash);
 
     // Reclaim the payment - funds go directly from TokenStore to payer (not through wrapper)
     commerceEscrow.reclaim(paymentInfo);
@@ -768,7 +773,10 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     PaymentData storage payment = payments[paymentReference];
     if (payment.commercePaymentHash == bytes32(0)) revert PaymentNotFound();
 
-    return commerceEscrow.paymentState(payment.commercePaymentHash);
+    (hasCollectedPayment, capturableAmount, refundableAmount) = commerceEscrow.paymentState(
+      payment.commercePaymentHash
+    );
+    return (hasCollectedPayment, capturableAmount, refundableAmount);
   }
 
   /// @notice Check if payment can be captured
@@ -778,7 +786,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     PaymentData storage payment = payments[paymentReference];
     if (payment.commercePaymentHash == bytes32(0)) return false;
 
-    (, uint120 capturableAmount, ) = commerceEscrow.paymentState(payment.commercePaymentHash);
+    // solhint-disable-next-line no-unused-vars
+    (bool hasCollectedPayment, uint120 capturableAmount, uint120 refundableAmount) = commerceEscrow
+      .paymentState(payment.commercePaymentHash);
     return capturableAmount > 0;
   }
 
@@ -789,7 +799,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     PaymentData storage payment = payments[paymentReference];
     if (payment.commercePaymentHash == bytes32(0)) return false;
 
-    (, uint120 capturableAmount, ) = commerceEscrow.paymentState(payment.commercePaymentHash);
+    // solhint-disable-next-line no-unused-vars
+    (bool hasCollectedPayment, uint120 capturableAmount, uint120 refundableAmount) = commerceEscrow
+      .paymentState(payment.commercePaymentHash);
     return capturableAmount > 0;
   }
 }
