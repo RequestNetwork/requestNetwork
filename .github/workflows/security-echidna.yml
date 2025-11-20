@@ -277,7 +277,9 @@ jobs:
             });
 
       - name: Fail on property violations
-        if: steps.echidna.outcome == 'failure'
+        if: steps.parse.outputs.FAILED != '0' && steps.parse.outputs.FAILED != ''
         run: |
           echo "::error::Echidna found property violations. Check the reports for counterexamples."
+          echo "::error::Failed properties: ${{ steps.parse.outputs.FAILED }}"
+          echo "::error::Passed properties: ${{ steps.parse.outputs.PASSED }}"
           exit 1
