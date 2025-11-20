@@ -178,21 +178,26 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
     });
 
     it('should transfer correct token amounts during authorization', async () => {
+      // Get balances right before the authorization
       const payerBefore = await testERC20.balanceOf(payerAddress);
       const escrowBefore = await testERC20.balanceOf(mockCommerceEscrow.address);
+      const wrapperBefore = await testERC20.balanceOf(wrapper.address);
 
       await wrapper.authorizePayment(authParams);
 
+      // Get balances after authorization
+      const payerAfter = await testERC20.balanceOf(payerAddress);
+      const escrowAfter = await testERC20.balanceOf(mockCommerceEscrow.address);
+      const wrapperAfter = await testERC20.balanceOf(wrapper.address);
+
       // Verify tokens moved from payer to escrow
-      expect(await testERC20.balanceOf(payerAddress)).to.equal(payerBefore.sub(amount));
-      expect(await testERC20.balanceOf(mockCommerceEscrow.address)).to.equal(
-        escrowBefore.add(amount),
+      expect(payerBefore.sub(payerAfter)).to.equal(amount, 'Payer should have paid exactly amount');
+      expect(escrowAfter.sub(escrowBefore)).to.equal(
+        amount,
+        'Escrow should have received exactly amount',
       );
       // Verify no tokens stuck in wrapper
-      expect(await testERC20.balanceOf(wrapper.address)).to.equal(
-        0,
-        'Tokens should not get stuck in wrapper',
-      );
+      expect(wrapperAfter).to.equal(wrapperBefore, 'Tokens should not get stuck in wrapper');
     });
 
     it('should revert with invalid payment reference', async () => {
