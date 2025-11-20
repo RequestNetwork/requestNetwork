@@ -33,9 +33,14 @@ jobs:
           cache: 'yarn'
 
       - name: Install dependencies
-        working-directory: packages/smart-contracts
         run: |
           yarn install --frozen-lockfile
+
+      - name: Build dependencies
+        run: |
+          yarn workspace @requestnetwork/types build
+          yarn workspace @requestnetwork/utils build
+          yarn workspace @requestnetwork/currency build
 
       - name: Compile contracts
         working-directory: packages/smart-contracts
@@ -84,8 +89,8 @@ jobs:
           exit $SLITHER_EXIT
 
       - name: Upload SARIF to GitHub Security
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('packages/smart-contracts/reports/security/slither.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: packages/smart-contracts/reports/security/slither.sarif
           category: slither
