@@ -57,10 +57,16 @@ jobs:
 
       - name: Setup Echidna
         run: |
-          # Install Echidna from binary release
-          wget https://github.com/crytic/echidna/releases/download/v2.2.4/echidna-2.2.4-Ubuntu-22.04.tar.gz
-          tar -xzf echidna-2.2.4-Ubuntu-22.04.tar.gz
-          sudo mv echidna /usr/local/bin/
+          # Pull Echidna Docker image
+          docker pull trailofbits/echidna:latest
+
+          # Create a wrapper script to run echidna via docker
+          cat > /tmp/echidna << 'EOF'
+          #!/bin/bash
+          docker run --rm -v "$PWD":/src -w /src trailofbits/echidna:latest "$@"
+          EOF
+
+          sudo mv /tmp/echidna /usr/local/bin/echidna
           sudo chmod +x /usr/local/bin/echidna
           echidna --version
 
