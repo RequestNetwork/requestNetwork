@@ -63,7 +63,7 @@ jobs:
           # Create a wrapper script to run echidna via docker
           cat > /tmp/echidna << 'EOF'
           #!/bin/bash
-          docker run --rm -v "$PWD":/src -w /src trailofbits/echidna:latest "$@"
+          docker run --rm -v "$PWD":/src -w /src trailofbits/echidna:latest echidna "$@"
           EOF
 
           sudo mv /tmp/echidna /usr/local/bin/echidna
