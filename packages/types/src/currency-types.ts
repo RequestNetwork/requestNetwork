@@ -42,7 +42,7 @@ export type BtcChainName = 'mainnet' | 'testnet';
 /**
  * List of supported Declarative chains
  */
-export type DeclarativeChainName = 'tron' | 'solana' | 'ton' | 'starknet' | 'aleo';
+export type DeclarativeChainName = 'tron' | 'solana' | 'ton' | 'starknet' | 'aleo' | 'sui';
 
 /**
  * List of supported NEAR chains
