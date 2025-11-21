@@ -134,6 +134,8 @@ contract MockAuthCaptureEscrow is IAuthCaptureEscrow {
     require(authorizedPayments[hash], 'Payment not authorized');
 
     PaymentState storage state = paymentStates[hash];
+    require(state.capturableAmount > 0, 'Nothing to reclaim');
+
     uint120 amountToReclaim = state.capturableAmount;
 
     // Transfer tokens to receiver (wrapper) first, then wrapper forwards to payer
