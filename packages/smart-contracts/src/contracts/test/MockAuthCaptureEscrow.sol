@@ -7,14 +7,14 @@ import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 /// @title MockAuthCaptureEscrow
 /// @notice Mock implementation of IAuthCaptureEscrow for testing
 contract MockAuthCaptureEscrow is IAuthCaptureEscrow {
-  mapping(bytes32 => PaymentState) public paymentStates;
-  mapping(bytes32 => bool) public authorizedPayments;
-
   struct PaymentState {
     bool hasCollectedPayment;
     uint120 capturableAmount;
     uint120 refundableAmount;
   }
+
+  mapping(bytes32 => PaymentState) public paymentStates;
+  mapping(bytes32 => bool) public authorizedPayments;
 
   // Events to track calls for testing
   event AuthorizeCalled(bytes32 paymentHash, uint256 amount);
