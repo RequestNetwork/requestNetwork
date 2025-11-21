@@ -51,7 +51,8 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
           case 'BatchConversionPayments':
           case 'ERC20TransferableReceivable':
           case 'SingleRequestProxyFactory':
-          case 'ERC20RecurringPaymentProxy': {
+          case 'ERC20RecurringPaymentProxy':
+          case 'ERC20CommerceEscrowWrapper': {
             const network = hre.config.xdeploy.networks[0];
             EvmChains.assertChainSupported(network);
             const constructorArgs = getConstructorArgs(contract, network);

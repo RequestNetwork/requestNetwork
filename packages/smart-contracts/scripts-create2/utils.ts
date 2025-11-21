@@ -22,6 +22,7 @@ export const create2ContractDeploymentList = [
   'ERC20TransferableReceivable',
   'SingleRequestProxyFactory',
   'ERC20RecurringPaymentProxy',
+  'ERC20CommerceEscrowWrapper',
 ];
 
 /**
@@ -62,6 +63,8 @@ export const getArtifact = (contract: string): artifacts.ContractArtifact<Contra
       return artifacts.singleRequestForwarderFactoryArtifact;
     case 'ERC20RecurringPaymentProxy':
       return artifacts.erc20RecurringPaymentProxyArtifact;
+    case 'ERC20CommerceEscrowWrapper':
+      return artifacts.erc20CommerceEscrowWrapperArtifact;
     default:
       throw new Error('Contract unknown');
   }

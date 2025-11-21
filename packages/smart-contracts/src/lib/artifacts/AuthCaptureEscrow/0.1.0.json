@@ -1,0 +1,1274 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "PAYMENT_INFO_TYPEHASH",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "authorize",
+    "inputs": [
+      {
+        "name": "paymentInfo",
+        "type": "tuple",
+        "internalType": "struct AuthCaptureEscrow.PaymentInfo",
+        "components": [
+          {
+            "name": "operator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "payer",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "receiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "token",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "maxAmount",
+            "type": "uint120",
+            "internalType": "uint120"
+          },
+          {
+            "name": "preApprovalExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "authorizationExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "refundExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "minFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "maxFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "feeReceiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "salt",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenCollector",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "collectorData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "capture",
+    "inputs": [
+      {
+        "name": "paymentInfo",
+        "type": "tuple",
+        "internalType": "struct AuthCaptureEscrow.PaymentInfo",
+        "components": [
+          {
+            "name": "operator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "payer",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "receiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "token",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "maxAmount",
+            "type": "uint120",
+            "internalType": "uint120"
+          },
+          {
+            "name": "preApprovalExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "authorizationExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "refundExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "minFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "maxFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "feeReceiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "salt",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "feeBps",
+        "type": "uint16",
+        "internalType": "uint16"
+      },
+      {
+        "name": "feeReceiver",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "charge",
+    "inputs": [
+      {
+        "name": "paymentInfo",
+        "type": "tuple",
+        "internalType": "struct AuthCaptureEscrow.PaymentInfo",
+        "components": [
+          {
+            "name": "operator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "payer",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "receiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "token",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "maxAmount",
+            "type": "uint120",
+            "internalType": "uint120"
+          },
+          {
+            "name": "preApprovalExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "authorizationExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "refundExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "minFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "maxFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "feeReceiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "salt",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenCollector",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "collectorData",
+        "type": "bytes",
+        "internalType": "bytes"
+      },
+      {
+        "name": "feeBps",
+        "type": "uint16",
+        "internalType": "uint16"
+      },
+      {
+        "name": "feeReceiver",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getHash",
+    "inputs": [
+      {
+        "name": "paymentInfo",
+        "type": "tuple",
+        "internalType": "struct AuthCaptureEscrow.PaymentInfo",
+        "components": [
+          {
+            "name": "operator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "payer",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "receiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "token",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "maxAmount",
+            "type": "uint120",
+            "internalType": "uint120"
+          },
+          {
+            "name": "preApprovalExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "authorizationExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "refundExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "minFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "maxFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "feeReceiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "salt",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTokenStore",
+    "inputs": [
+      {
+        "name": "operator",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "paymentState",
+    "inputs": [
+      {
+        "name": "paymentInfoHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "hasCollectedPayment",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "capturableAmount",
+        "type": "uint120",
+        "internalType": "uint120"
+      },
+      {
+        "name": "refundableAmount",
+        "type": "uint120",
+        "internalType": "uint120"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "reclaim",
+    "inputs": [
+      {
+        "name": "paymentInfo",
+        "type": "tuple",
+        "internalType": "struct AuthCaptureEscrow.PaymentInfo",
+        "components": [
+          {
+            "name": "operator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "payer",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "receiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "token",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "maxAmount",
+            "type": "uint120",
+            "internalType": "uint120"
+          },
+          {
+            "name": "preApprovalExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "authorizationExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "refundExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "minFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "maxFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "feeReceiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "salt",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "refund",
+    "inputs": [
+      {
+        "name": "paymentInfo",
+        "type": "tuple",
+        "internalType": "struct AuthCaptureEscrow.PaymentInfo",
+        "components": [
+          {
+            "name": "operator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "payer",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "receiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "token",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "maxAmount",
+            "type": "uint120",
+            "internalType": "uint120"
+          },
+          {
+            "name": "preApprovalExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "authorizationExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "refundExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "minFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "maxFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "feeReceiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "salt",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenCollector",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "collectorData",
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "tokenStoreImplementation",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "void",
+    "inputs": [
+      {
+        "name": "paymentInfo",
+        "type": "tuple",
+        "internalType": "struct AuthCaptureEscrow.PaymentInfo",
+        "components": [
+          {
+            "name": "operator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "payer",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "receiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "token",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "maxAmount",
+            "type": "uint120",
+            "internalType": "uint120"
+          },
+          {
+            "name": "preApprovalExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "authorizationExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "refundExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "minFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "maxFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "feeReceiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "salt",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "PaymentAuthorized",
+    "inputs": [
+      {
+        "name": "paymentInfoHash",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "paymentInfo",
+        "type": "tuple",
+        "indexed": false,
+        "internalType": "struct AuthCaptureEscrow.PaymentInfo",
+        "components": [
+          {
+            "name": "operator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "payer",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "receiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "token",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "maxAmount",
+            "type": "uint120",
+            "internalType": "uint120"
+          },
+          {
+            "name": "preApprovalExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "authorizationExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "refundExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "minFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "maxFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "feeReceiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "salt",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenCollector",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PaymentCaptured",
+    "inputs": [
+      {
+        "name": "paymentInfoHash",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "feeBps",
+        "type": "uint16",
+        "indexed": false,
+        "internalType": "uint16"
+      },
+      {
+        "name": "feeReceiver",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PaymentCharged",
+    "inputs": [
+      {
+        "name": "paymentInfoHash",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "paymentInfo",
+        "type": "tuple",
+        "indexed": false,
+        "internalType": "struct AuthCaptureEscrow.PaymentInfo",
+        "components": [
+          {
+            "name": "operator",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "payer",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "receiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "token",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "maxAmount",
+            "type": "uint120",
+            "internalType": "uint120"
+          },
+          {
+            "name": "preApprovalExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "authorizationExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "refundExpiry",
+            "type": "uint48",
+            "internalType": "uint48"
+          },
+          {
+            "name": "minFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "maxFeeBps",
+            "type": "uint16",
+            "internalType": "uint16"
+          },
+          {
+            "name": "feeReceiver",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "salt",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenCollector",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "feeBps",
+        "type": "uint16",
+        "indexed": false,
+        "internalType": "uint16"
+      },
+      {
+        "name": "feeReceiver",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PaymentReclaimed",
+    "inputs": [
+      {
+        "name": "paymentInfoHash",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PaymentRefunded",
+    "inputs": [
+      {
+        "name": "paymentInfoHash",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenCollector",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PaymentVoided",
+    "inputs": [
+      {
+        "name": "paymentInfoHash",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TokenStoreCreated",
+    "inputs": [
+      {
+        "name": "operator",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "tokenStore",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AfterAuthorizationExpiry",
+    "inputs": [
+      {
+        "name": "timestamp",
+        "type": "uint48",
+        "internalType": "uint48"
+      },
+      {
+        "name": "expiry",
+        "type": "uint48",
+        "internalType": "uint48"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "AfterPreApprovalExpiry",
+    "inputs": [
+      {
+        "name": "timestamp",
+        "type": "uint48",
+        "internalType": "uint48"
+      },
+      {
+        "name": "expiry",
+        "type": "uint48",
+        "internalType": "uint48"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "AfterRefundExpiry",
+    "inputs": [
+      {
+        "name": "timestamp",
+        "type": "uint48",
+        "internalType": "uint48"
+      },
+      {
+        "name": "expiry",
+        "type": "uint48",
+        "internalType": "uint48"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "AmountOverflow",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "limit",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "BeforeAuthorizationExpiry",
+    "inputs": [
+      {
+        "name": "timestamp",
+        "type": "uint48",
+        "internalType": "uint48"
+      },
+      {
+        "name": "expiry",
+        "type": "uint48",
+        "internalType": "uint48"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "ExceedsMaxAmount",
+    "inputs": [
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "maxAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "FeeBpsOutOfRange",
+    "inputs": [
+      {
+        "name": "feeBps",
+        "type": "uint16",
+        "internalType": "uint16"
+      },
+      {
+        "name": "minFeeBps",
+        "type": "uint16",
+        "internalType": "uint16"
+      },
+      {
+        "name": "maxFeeBps",
+        "type": "uint16",
+        "internalType": "uint16"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "FeeBpsOverflow",
+    "inputs": [
+      {
+        "name": "feeBps",
+        "type": "uint16",
+        "internalType": "uint16"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InsufficientAuthorization",
+    "inputs": [
+      {
+        "name": "paymentInfoHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "authorizedAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "requestedAmount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InvalidCollectorForOperation",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidExpiries",
+    "inputs": [
+      {
+        "name": "preApproval",
+        "type": "uint48",
+        "internalType": "uint48"
+      },
+      {
+        "name": "authorization",
+        "type": "uint48",
+        "internalType": "uint48"
+      },
+      {
+        "name": "refund",
+        "type": "uint48",
+        "internalType": "uint48"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InvalidFeeBpsRange",
+    "inputs": [
+      {
+        "name": "minFeeBps",
+        "type": "uint16",
+        "internalType": "uint16"
+      },
+      {
+        "name": "maxFeeBps",
+        "type": "uint16",
+        "internalType": "uint16"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InvalidFeeReceiver",
+    "inputs": [
+      {
+        "name": "attempted",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "expected",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "InvalidSender",
+    "inputs": [
+      {
+        "name": "sender",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "expected",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "PaymentAlreadyCollected",
+    "inputs": [
+      {
+        "name": "paymentInfoHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "Reentrancy",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "RefundExceedsCapture",
+    "inputs": [
+      {
+        "name": "refund",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "captured",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "TokenCollectionFailed",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ZeroAmount",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "ZeroAuthorization",
+    "inputs": [
+      {
+        "name": "paymentInfoHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ]
+  },
+  {
+    "type": "error",
+    "name": "ZeroFeeReceiver",
+    "inputs": []
+  }
+]

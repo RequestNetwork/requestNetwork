@@ -109,55 +109,7 @@ describe('erc20-recurring-payment-proxy', () => {
   });
 
   describe('encodeSetRecurringAllowance', () => {
-    it('should return a single transaction for a non-USDT token', () => {
-      const amount = '1000000000000000000';
-      const transactions = encodeSetRecurringAllowance({
-        tokenAddress: erc20ContractAddress,
-        amount,
-        provider,
-        network,
-        isUSDT: false,
-      });
-
-      expect(transactions).toHaveLength(1);
-      const [tx] = transactions;
-      expect(tx.to).toBe(erc20ContractAddress);
-      expect(tx.data).toContain('095ea7b3'); // approve
-      expect(tx.value).toBe(0);
-    });
-
-    it('should return two transactions for a USDT token', () => {
-      const amount = '1000000000000000000';
-      const transactions = encodeSetRecurringAllowance({
-        tokenAddress: erc20ContractAddress,
-        amount,
-        provider,
-        network,
-        isUSDT: true,
-      });
-
-      expect(transactions).toHaveLength(2);
-
-      const [tx1, tx2] = transactions;
-      // tx1 is approve(0)
-      expect(tx1.to).toBe(erc20ContractAddress);
-      expect(tx1.data).toContain('095ea7b3'); // approve
-      // check that amount is 0
-      expect(tx1.data).toContain(
-        '0000000000000000000000000000000000000000000000000000000000000000',
-      );
-      expect(tx1.value).toBe(0);
-
-      // tx2 is approve(amount)
-      expect(tx2.to).toBe(erc20ContractAddress);
-      expect(tx2.data).toContain('095ea7b3'); // approve
-      expect(tx2.data).not.toContain(
-        '0000000000000000000000000000000000000000000000000000000000000000',
-      );
-      expect(tx2.value).toBe(0);
-    });
-
-    it('should default to non-USDT behavior if isUSDT is not provided', () => {
+    it('should return a single transaction for token approval', () => {
       const amount = '1000000000000000000';
       const transactions = encodeSetRecurringAllowance({
         tokenAddress: erc20ContractAddress,

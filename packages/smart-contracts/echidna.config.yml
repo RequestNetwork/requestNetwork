@@ -1,0 +1,54 @@
+# Echidna Configuration for ERC20CommerceEscrowWrapper Fuzzing
+# Documentation: https://github.com/crytic/echidna
+
+# Test execution settings
+testLimit: 100000 # Number of test sequences to run (increase for deeper testing)
+testMode: property # Test mode: assertion, property, or overflow
+timeout: 300 # Timeout in seconds (5 minutes for CI, increase locally)
+
+# Solver configuration
+solver: cvc5 # SMT solver: cvc5, z3, or bitwuzla
+solverTimeout: 20 # Solver timeout in seconds
+
+# Coverage and corpus settings
+coverage: true # Enable coverage-guided fuzzing
+corpusDir: 'corpus' # Directory to save/load corpus
+codeSize: 100000 # Maximum bytecode size
+deployer: '0x30000' # Address of contract deployer
+sender: ['0x10000', '0x20000', '0x30000'] # List of transaction senders
+
+# Transaction generation
+seqLen: 15 # Sequence length per test
+shrinkLimit: 5000 # Number of shrinking attempts
+dictFreq: 0.40 # Dictionary usage frequency
+
+# Gas settings
+gasLimit: 12000000 # Gas limit per transaction
+maxGasPerBlock: 12000000 # Maximum gas per block
+
+# Property testing
+checkAsserts: true # Check Solidity assertions
+estimateGas: true # Estimate gas usage
+maxValue: 100000000000000000000 # Max ETH to send (100 ETH)
+
+# Output settings
+format: text # Output format: text, json, or none
+quiet: false # Reduce output verbosity
+
+# Advanced settings
+allContracts: false # Test all contracts or just the target
+balanceContract: 100000000000000000000 # Initial contract balance (100 ETH)
+balanceAddr: 100000000000000000000 # Initial balance for sender addresses (100 ETH)
+
+# Filters and excludes
+filterBlacklist: true # Filter out blacklisted functions
+filterFunctions: [] # Functions to exclude from testing
+
+# Compilation settings
+solcArgs: '--optimize --optimize-runs 200 --allow-paths .'
+solcRemaps: ['@openzeppelin/=node_modules/@openzeppelin/']
+crytic-export-dir: 'crytic-export'
+# CI-specific overrides (can be overridden via command line)
+# For faster CI: --test-limit 50000 --timeout 180
+# For thorough local testing: --test-limit 500000 --timeout 3600
+
