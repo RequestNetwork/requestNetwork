@@ -36,7 +36,7 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
   let tokenCollectorAddress: string;
 
   const paymentReference = '0x1234567890abcdef';
-  let testCounter = 0;
+  let testCounter = 1; // Start at 1 to avoid 0x0000000000000000 which is invalid
   const amount = ethers.utils.parseEther('100');
   const maxAmount = ethers.utils.parseEther('150');
   const feeBps = 250; // 2.5%
@@ -81,13 +81,13 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
   // Helper function to generate unique payment references
   const getUniquePaymentReference = () => {
     const counter = testCounter.toString(16).padStart(16, '0');
+    testCounter++; // Increment counter each time a reference is generated
     return '0x' + counter;
   };
 
   beforeEach(async () => {
     // Give payer approval to spend tokens for authorization
     await testERC20.connect(payer).approve(mockCommerceEscrow.address, ethers.constants.MaxUint256);
-    testCounter++;
   });
 
   describe('Constructor', () => {
