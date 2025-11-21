@@ -468,7 +468,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     uint256 merchantAmount = captureAmount - feeAmount;
 
     // Approve ERC20FeeProxy to spend the full amount we received
-    IERC20(payment.token).forceApprove(address(erc20FeeProxy), captureAmount);
+    // Reset approval to 0 first for tokens that require it, then set to captureAmount
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), 0);
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), captureAmount);
 
     // Transfer via ERC20FeeProxy - splits payment between merchant and fee recipient
     // ERC20FeeProxy emits TransferWithReferenceAndFee event for Request Network tracking
@@ -642,7 +644,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     uint256 merchantAmount = amount - feeAmount;
 
     // Approve ERC20FeeProxy to spend the full amount
-    IERC20(token).forceApprove(address(erc20FeeProxy), amount);
+    // Reset approval to 0 first for tokens that require it, then set to amount
+    IERC20(token).safeApprove(address(erc20FeeProxy), 0);
+    IERC20(token).safeApprove(address(erc20FeeProxy), amount);
 
     // Transfer via ERC20FeeProxy - splits between merchant and fee recipient
     // Emits TransferWithReferenceAndFee event for Request Network tracking
@@ -725,7 +729,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     IERC20(payment.token).safeTransferFrom(msg.sender, address(this), refundAmount);
 
     // Approve the OperatorRefundCollector to pull from this wrapper
-    IERC20(payment.token).forceApprove(tokenCollector, refundAmount);
+    // Reset approval to 0 first for tokens that require it, then set to refundAmount
+    IERC20(payment.token).safeApprove(tokenCollector, 0);
+    IERC20(payment.token).safeApprove(tokenCollector, refundAmount);
 
     // Refund the payment - OperatorRefundCollector will pull from wrapper to TokenStore
     // Then escrow sends from TokenStore to payer
