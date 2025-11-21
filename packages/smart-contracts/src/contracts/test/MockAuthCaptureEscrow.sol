@@ -95,8 +95,9 @@ contract MockAuthCaptureEscrow is IAuthCaptureEscrow {
 
     uint120 amountToVoid = state.capturableAmount;
 
-    // Transfer tokens back to payer
-    IERC20(paymentInfo.token).transfer(paymentInfo.payer, amountToVoid);
+    // Transfer tokens to receiver (wrapper) first, then wrapper forwards to payer
+    // This matches the real escrow behavior where funds go through the wrapper
+    IERC20(paymentInfo.token).transfer(paymentInfo.receiver, amountToVoid);
 
     // Update state
     state.capturableAmount = 0;
@@ -135,8 +136,9 @@ contract MockAuthCaptureEscrow is IAuthCaptureEscrow {
     PaymentState storage state = paymentStates[hash];
     uint120 amountToReclaim = state.capturableAmount;
 
-    // Transfer tokens back to payer
-    IERC20(paymentInfo.token).transfer(paymentInfo.payer, amountToReclaim);
+    // Transfer tokens to receiver (wrapper) first, then wrapper forwards to payer
+    // This matches the real escrow behavior where funds go through the wrapper
+    IERC20(paymentInfo.token).transfer(paymentInfo.receiver, amountToReclaim);
 
     // Update state
     state.capturableAmount = 0;
@@ -147,7 +149,7 @@ contract MockAuthCaptureEscrow is IAuthCaptureEscrow {
   function refund(
     PaymentInfo memory paymentInfo,
     uint256 refundAmount,
-    address, /* tokenCollector */
+    address tokenCollector,
     bytes calldata /* collectorData */
   ) external override {
     bytes32 hash = this.getHash(paymentInfo);
@@ -156,9 +158,17 @@ contract MockAuthCaptureEscrow is IAuthCaptureEscrow {
     PaymentState storage state = paymentStates[hash];
     require(state.refundableAmount >= refundAmount, 'Insufficient refundable amount');
 
-    // Transfer tokens from operator to payer via this contract
-    IERC20(paymentInfo.token).transferFrom(paymentInfo.operator, address(this), refundAmount);
-    IERC20(paymentInfo.token).transfer(paymentInfo.payer, refundAmount);
+    // Use tokenCollector to pull tokens from operator (wrapper) to this contract
+    // The wrapper should have already approved the tokenCollector
+    if (tokenCollector != address(0)) {
+      IERC20(paymentInfo.token).transferFrom(paymentInfo.operator, address(this), refundAmount);
+    } else {
+      // Fallback: pull directly from operator
+      IERC20(paymentInfo.token).transferFrom(paymentInfo.operator, address(this), refundAmount);
+    }
+
+    // Transfer to payer via receiver (wrapper) so wrapper can emit events
+    IERC20(paymentInfo.token).transfer(paymentInfo.receiver, refundAmount);
 
     // Update state
     state.refundableAmount -= uint120(refundAmount);

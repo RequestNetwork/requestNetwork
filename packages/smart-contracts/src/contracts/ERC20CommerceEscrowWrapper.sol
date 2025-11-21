@@ -514,16 +514,18 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     (bool hasCollectedPayment, uint120 capturableAmount, uint120 refundableAmount) = commerceEscrow
       .paymentState(payment.commercePaymentHash);
 
-    // Void the payment - funds go directly from TokenStore to payer (not through wrapper)
+    // Void the payment - funds come to wrapper first
     commerceEscrow.void(paymentInfo);
 
-    // No need to transfer - the escrow sends directly from TokenStore to payer
-    // Just emit the Request Network compatible event
-    emit TransferWithReferenceAndFee(
+    // Transfer the voided amount to payer via ERC20FeeProxy (no fee for voids)
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), 0);
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), capturableAmount);
+
+    erc20FeeProxy.transferFromWithReferenceAndFee(
       payment.token,
       payment.payer,
       capturableAmount,
-      paymentReference,
+      abi.encodePacked(paymentReference),
       0, // No fee for voids
       address(0)
     );
@@ -680,16 +682,18 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     (bool hasCollectedPayment, uint120 capturableAmount, uint120 refundableAmount) = commerceEscrow
       .paymentState(payment.commercePaymentHash);
 
-    // Reclaim the payment - funds go directly from TokenStore to payer (not through wrapper)
+    // Reclaim the payment - funds come to wrapper first
     commerceEscrow.reclaim(paymentInfo);
 
-    // No need to transfer - the escrow sends directly from TokenStore to payer
-    // Just emit the Request Network compatible event
-    emit TransferWithReferenceAndFee(
+    // Transfer the reclaimed amount to payer via ERC20FeeProxy (no fee for reclaims)
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), 0);
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), capturableAmount);
+
+    erc20FeeProxy.transferFromWithReferenceAndFee(
       payment.token,
       payment.payer,
       capturableAmount,
-      paymentReference,
+      abi.encodePacked(paymentReference),
       0, // No fee for reclaims
       address(0)
     );
@@ -733,16 +737,18 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     IERC20(payment.token).safeApprove(tokenCollector, 0);
     IERC20(payment.token).safeApprove(tokenCollector, refundAmount);
 
-    // Refund the payment - OperatorRefundCollector will pull from wrapper to TokenStore
-    // Then escrow sends from TokenStore to payer
+    // Refund the payment - escrow will pull from wrapper and send to wrapper
     commerceEscrow.refund(paymentInfo, refundAmount, tokenCollector, collectorData);
 
-    // Emit Request Network compatible event
-    emit TransferWithReferenceAndFee(
+    // Forward the refund to payer via ERC20FeeProxy (no fee for refunds)
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), 0);
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), refundAmount);
+
+    erc20FeeProxy.transferFromWithReferenceAndFee(
       payment.token,
       payment.payer,
       refundAmount,
-      paymentReference,
+      abi.encodePacked(paymentReference),
       0, // No fee for refunds
       address(0)
     );
