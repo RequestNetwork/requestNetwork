@@ -467,12 +467,12 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     uint256 feeAmount = (captureAmount * feeBps) / 10000;
     uint256 merchantAmount = captureAmount - feeAmount;
 
-    // Approve ERC20FeeProxy to spend the full amount we received
-    // Reset approval to 0 first for tokens that require it, then set to captureAmount
+    // Transfer via ERC20FeeProxy - splits payment between merchant and fee recipient
+    // ERC20FeeProxy pulls tokens from this wrapper via transferFrom
+    // First approve the total amount to be transferred (merchant + fee)
     IERC20(payment.token).safeApprove(address(erc20FeeProxy), 0);
     IERC20(payment.token).safeApprove(address(erc20FeeProxy), captureAmount);
 
-    // Transfer via ERC20FeeProxy - splits payment between merchant and fee recipient
     // ERC20FeeProxy emits TransferWithReferenceAndFee event for Request Network tracking
     // Merchant receives: merchantAmount (captureAmount - feeAmount)
     // Fee recipient receives: feeAmount
@@ -484,6 +484,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
       feeAmount,
       feeReceiver
     );
+
+    // Reset approval to 0 after use for security
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), 0);
 
     emit PaymentCaptured(
       paymentReference,
@@ -529,6 +532,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
       0, // No fee for voids
       address(0)
     );
+
+    // Reset approval to 0 after use for security
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), 0);
 
     emit PaymentVoided(
       paymentReference,
@@ -660,6 +666,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
       feeAmount,
       feeReceiver
     );
+
+    // Reset approval to 0 after use for security
+    IERC20(token).safeApprove(address(erc20FeeProxy), 0);
   }
 
   /// @notice Reclaim a payment after authorization expiry (payer only)
@@ -697,6 +706,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
       0, // No fee for reclaims
       address(0)
     );
+
+    // Reset approval to 0 after use for security
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), 0);
 
     emit PaymentReclaimed(
       paymentReference,
@@ -752,6 +764,9 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
       0, // No fee for refunds
       address(0)
     );
+
+    // Reset approval to 0 after use for security
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), 0);
 
     emit PaymentRefunded(
       paymentReference,
