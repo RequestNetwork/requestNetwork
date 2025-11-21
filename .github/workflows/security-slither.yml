@@ -115,15 +115,19 @@ jobs:
             LOW=$(jq '[.results.detectors[] | select(.impact == "Low")] | length' reports/security/slither-report.json || echo "0")
             INFO=$(jq '[.results.detectors[] | select(.impact == "Informational")] | length' reports/security/slither-report.json || echo "0")
             
-            echo "HIGH=$HIGH" >> $GITHUB_OUTPUT
-            echo "MEDIUM=$MEDIUM" >> $GITHUB_OUTPUT
-            echo "LOW=$LOW" >> $GITHUB_OUTPUT
-            echo "INFO=$INFO" >> $GITHUB_OUTPUT
+            {
+              echo "HIGH=$HIGH"
+              echo "MEDIUM=$MEDIUM"
+              echo "LOW=$LOW"
+              echo "INFO=$INFO"
+            } >> "$GITHUB_OUTPUT"
           else
-            echo "HIGH=0" >> $GITHUB_OUTPUT
-            echo "MEDIUM=0" >> $GITHUB_OUTPUT
-            echo "LOW=0" >> $GITHUB_OUTPUT
-            echo "INFO=0" >> $GITHUB_OUTPUT
+            {
+              echo "HIGH=0"
+              echo "MEDIUM=0"
+              echo "LOW=0"
+              echo "INFO=0"
+            } >> "$GITHUB_OUTPUT"
           fi
 
       - name: Comment on PR
@@ -169,7 +173,7 @@ jobs:
             });
 
       - name: Fail on High severity findings
-        if: steps.slither.outcome == 'failure'
+        if: ${{ github.event_name == 'pull_request' && steps.parse.outputs.HIGH != '0' }}
         run: |
-          echo "::error::Slither found security issues. Check the reports for details."
+          echo "::error::Slither found HIGH severity issues. Check the reports for details."
           exit 1

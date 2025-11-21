@@ -45,9 +45,9 @@ slither . \
     --hardhat-ignore-compile \
     --include-paths "src/contracts/ERC20CommerceEscrowWrapper.sol" \
     --json - \
-    2>/dev/null > reports/security/slither-report.json || true
+    2>/dev/null > reports/security/slither-report.json
 
-EXIT_CODE=0  # We always want to process the results
+EXIT_CODE=$?  # Capture Slither's exit code but continue processing the report
 
 set -e # Re-enable for safety (though we don't use it at top level)
 
