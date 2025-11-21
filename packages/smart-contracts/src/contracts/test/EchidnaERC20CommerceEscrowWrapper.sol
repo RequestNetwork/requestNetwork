@@ -660,10 +660,9 @@ contract MockAuthCaptureEscrow is IAuthCaptureEscrow {
     require(payments[hash].exists, 'Payment not found');
     require(payments[hash].refundableAmount >= amount, 'Insufficient refundable amount');
 
-    // Collect refund from operator (wrapper), then send to payer
-    IERC20(info.token).transferFrom(info.operator, address(this), amount);
-    IERC20(info.token).transfer(info.payer, amount);
-
+    // In the wrapper flow, the operator already sent refundAmount tokens to the wrapper,
+    // and the wrapper will forward them to the payer via ERC20FeeProxy.
+    // The mock escrow only needs to update its internal refundable state.
     payments[hash].refundableAmount -= uint120(amount);
   }
 

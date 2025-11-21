@@ -158,9 +158,17 @@ contract MockAuthCaptureEscrow is IAuthCaptureEscrow {
     PaymentState storage state = paymentStates[hash];
     require(state.refundableAmount >= refundAmount, 'Insufficient refundable amount');
 
-    // In the wrapper flow, the operator already sent refundAmount tokens to the wrapper,
-    // and the wrapper will forward them to the payer via ERC20FeeProxy.
-    // The mock escrow only needs to update its internal refundable state and emit the event.
+    // In the wrapper flow:
+    // 1. Real operator (msg.sender in wrapper) transfers tokens to wrapper
+    // 2. Wrapper approves tokenCollector to spend wrapper's tokens
+    // 3. Real escrow would use tokenCollector to pull from operator (wrapper) and send to receiver (wrapper)
+    //
+    // In this simplified mock:
+    // - Wrapper already has the tokens (transferred in step 1 before calling this function)
+    // - Wrapper will forward them to payer after this call
+    // - We just need to update state, no token transfers needed in the mock
+    // - The wrapper is both operator and receiver in PaymentInfo, tokens are already there
+
     state.refundableAmount -= uint120(refundAmount);
     emit RefundCalled(hash, refundAmount);
   }
