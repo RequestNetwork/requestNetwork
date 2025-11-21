@@ -149,7 +149,7 @@ contract MockAuthCaptureEscrow is IAuthCaptureEscrow {
   function refund(
     PaymentInfo memory paymentInfo,
     uint256 refundAmount,
-    address tokenCollector,
+    address, /* tokenCollector */
     bytes calldata /* collectorData */
   ) external override {
     bytes32 hash = this.getHash(paymentInfo);
@@ -158,21 +158,10 @@ contract MockAuthCaptureEscrow is IAuthCaptureEscrow {
     PaymentState storage state = paymentStates[hash];
     require(state.refundableAmount >= refundAmount, 'Insufficient refundable amount');
 
-    // Use tokenCollector to pull tokens from operator (wrapper) to this contract
-    // The wrapper should have already approved the tokenCollector
-    if (tokenCollector != address(0)) {
-      IERC20(paymentInfo.token).transferFrom(paymentInfo.operator, address(this), refundAmount);
-    } else {
-      // Fallback: pull directly from operator
-      IERC20(paymentInfo.token).transferFrom(paymentInfo.operator, address(this), refundAmount);
-    }
-
-    // Transfer to payer via receiver (wrapper) so wrapper can emit events
-    IERC20(paymentInfo.token).transfer(paymentInfo.receiver, refundAmount);
-
-    // Update state
+    // In the wrapper flow, the operator already sent refundAmount tokens to the wrapper,
+    // and the wrapper will forward them to the payer via ERC20FeeProxy.
+    // The mock escrow only needs to update its internal refundable state and emit the event.
     state.refundableAmount -= uint120(refundAmount);
-
     emit RefundCalled(hash, refundAmount);
   }
 
