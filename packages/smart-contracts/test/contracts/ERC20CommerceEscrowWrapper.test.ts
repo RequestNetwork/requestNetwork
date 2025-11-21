@@ -294,12 +294,12 @@ describe('Contract: ERC20CommerceEscrowWrapper', () => {
         await expect(wrapper.authorizePayment(params)).to.emit(wrapper, 'PaymentAuthorized');
       });
 
-      it('should handle maximum fee basis points (10000)', async () => {
-        const maxFeeParams = {
+      it('should authorize payment with unique payment reference', async () => {
+        const uniqueParams = {
           ...authParams,
           paymentReference: getUniquePaymentReference(),
         };
-        await expect(wrapper.authorizePayment(maxFeeParams)).to.emit(wrapper, 'PaymentAuthorized');
+        await expect(wrapper.authorizePayment(uniqueParams)).to.emit(wrapper, 'PaymentAuthorized');
       });
 
       it('should handle same addresses for payer, merchant, and operator', async () => {
