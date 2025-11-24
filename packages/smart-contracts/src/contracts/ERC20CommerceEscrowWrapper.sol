@@ -458,23 +458,26 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     // This ensures: 1) Proper RN event emission, 2) Unified fee tracking, 3) Flexible fee recipients
     commerceEscrow.capture(paymentInfo, captureAmount, 0, address(0));
 
+    // Get the actual balance in wrapper (transfer all tokens to handle any existing balance)
+    uint256 amountToTransfer = IERC20(payment.token).balanceOf(address(this));
+
     // Calculate Request Network platform fee (MERCHANT PAYS MODEL)
-    // Merchant receives: captureAmount - feeAmount
+    // Merchant receives: amountToTransfer - feeAmount
     // Fee receiver gets: feeAmount
-    // Formula: feeAmount = (captureAmount * feeBps) / 10000
+    // Formula: feeAmount = (amountToTransfer * feeBps) / 10000
     // Integer division truncates toward zero (slightly favors merchant in rounding)
     // Example: 1001 wei @ 250 bps = 25 wei fee (not 25.025), merchant gets 976 wei
-    uint256 feeAmount = (captureAmount * feeBps) / 10000;
-    uint256 merchantAmount = captureAmount - feeAmount;
+    uint256 feeAmount = (amountToTransfer * feeBps) / 10000;
+    uint256 merchantAmount = amountToTransfer - feeAmount;
 
     // Transfer via ERC20FeeProxy - splits payment between merchant and fee recipient
     // ERC20FeeProxy pulls tokens from this wrapper via transferFrom
-    // First approve the total amount to be transferred (merchant + fee)
+    // Approve the exact amount to be transferred (merchant + fee = amountToTransfer)
     IERC20(payment.token).safeApprove(address(erc20FeeProxy), 0);
-    IERC20(payment.token).safeApprove(address(erc20FeeProxy), captureAmount);
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), amountToTransfer);
 
     // ERC20FeeProxy emits TransferWithReferenceAndFee event for Request Network tracking
-    // Merchant receives: merchantAmount (captureAmount - feeAmount)
+    // Merchant receives: merchantAmount (amountToTransfer - feeAmount)
     // Fee recipient receives: feeAmount
     erc20FeeProxy.transferFromWithReferenceAndFee(
       payment.token,
@@ -505,6 +508,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     onlyOperator(paymentReference)
   {
     PaymentData storage payment = payments[paymentReference];
+    if (payment.commercePaymentHash == bytes32(0)) revert PaymentNotFound();
 
     // Create PaymentInfo for the void operation (must match the original authorization)
     IAuthCaptureEscrow.PaymentInfo memory paymentInfo = _createPaymentInfoFromStored(
@@ -512,22 +516,37 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
       paymentReference
     );
 
-    // Get the amount to void before the operation
-    // solhint-disable-next-line no-unused-vars
-    (bool hasCollectedPayment, uint120 capturableAmount, uint120 refundableAmount) = commerceEscrow
-      .paymentState(payment.commercePaymentHash);
+    // Verify the hash matches the stored hash to ensure escrow will accept it
+    bytes32 computedHash = commerceEscrow.getHash(paymentInfo);
+    if (computedHash != payment.commercePaymentHash) revert PaymentNotFound();
+
+    // Reset any existing approval before escrow call (prevents reentrancy issues)
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), 0);
+
+    // Get balance before void to calculate actual amount received
+    uint256 balanceBefore = IERC20(payment.token).balanceOf(address(this));
 
     // Void the payment - funds come to wrapper first
     commerceEscrow.void(paymentInfo);
 
+    // Get the actual balance received from escrow (may include existing tokens)
+    uint256 balanceAfter = IERC20(payment.token).balanceOf(address(this));
+    uint256 actualVoidedAmount = balanceAfter > balanceBefore
+      ? balanceAfter - balanceBefore
+      : balanceAfter;
+
+    // If we didn't receive the expected amount, use the full balance (handles edge cases)
+    if (actualVoidedAmount == 0) {
+      actualVoidedAmount = balanceAfter;
+    }
+
     // Transfer the voided amount to payer via ERC20FeeProxy (no fee for voids)
-    IERC20(payment.token).safeApprove(address(erc20FeeProxy), 0);
-    IERC20(payment.token).safeApprove(address(erc20FeeProxy), capturableAmount);
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), actualVoidedAmount);
 
     erc20FeeProxy.transferFromWithReferenceAndFee(
       payment.token,
       payment.payer,
-      capturableAmount,
+      actualVoidedAmount,
       abi.encodePacked(paymentReference),
       0, // No fee for voids
       address(0)
@@ -539,7 +558,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     emit PaymentVoided(
       paymentReference,
       payment.commercePaymentHash,
-      capturableAmount,
+      actualVoidedAmount,
       payment.payer
     );
   }
@@ -645,16 +664,20 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     // Validate fee basis points to prevent underflow
     if (feeBps > 10000) revert InvalidFeeBps();
 
-    // Calculate Request Network platform fee (MERCHANT PAYS MODEL)
-    // Merchant receives: amount - feeAmount
-    // Fee receiver gets: feeAmount
-    uint256 feeAmount = (amount * feeBps) / 10000;
-    uint256 merchantAmount = amount - feeAmount;
+    // Get the actual balance in wrapper (transfer all tokens to handle any existing balance)
+    uint256 amountToTransfer = IERC20(token).balanceOf(address(this));
 
-    // Approve ERC20FeeProxy to spend the full amount
-    // Reset approval to 0 first for tokens that require it, then set to amount
+    // Calculate Request Network platform fee (MERCHANT PAYS MODEL)
+    // Merchant receives: amountToTransfer - feeAmount
+    // Fee receiver gets: feeAmount
+    uint256 feeAmount = (amountToTransfer * feeBps) / 10000;
+    uint256 merchantAmount = amountToTransfer - feeAmount;
+    uint256 totalToTransfer = merchantAmount + feeAmount;
+
+    // Approve ERC20FeeProxy to spend the exact amount to be transferred
+    // Reset approval to 0 first for tokens that require it, then set to totalToTransfer
     IERC20(token).safeApprove(address(erc20FeeProxy), 0);
-    IERC20(token).safeApprove(address(erc20FeeProxy), amount);
+    IERC20(token).safeApprove(address(erc20FeeProxy), totalToTransfer);
 
     // Transfer via ERC20FeeProxy - splits between merchant and fee recipient
     // Emits TransferWithReferenceAndFee event for Request Network tracking
@@ -679,6 +702,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     onlyPayer(paymentReference)
   {
     PaymentData storage payment = payments[paymentReference];
+    if (payment.commercePaymentHash == bytes32(0)) revert PaymentNotFound();
 
     // Create PaymentInfo for the reclaim operation (must match the original authorization)
     IAuthCaptureEscrow.PaymentInfo memory paymentInfo = _createPaymentInfoFromStored(
@@ -686,22 +710,37 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
       paymentReference
     );
 
-    // Get the amount to reclaim before the operation
-    // solhint-disable-next-line no-unused-vars
-    (bool hasCollectedPayment, uint120 capturableAmount, uint120 refundableAmount) = commerceEscrow
-      .paymentState(payment.commercePaymentHash);
+    // Verify the hash matches the stored hash to ensure escrow will accept it
+    bytes32 computedHash = commerceEscrow.getHash(paymentInfo);
+    if (computedHash != payment.commercePaymentHash) revert PaymentNotFound();
+
+    // Reset any existing approval before escrow call (prevents reentrancy issues)
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), 0);
+
+    // Get balance before reclaim to calculate actual amount received
+    uint256 balanceBefore = IERC20(payment.token).balanceOf(address(this));
 
     // Reclaim the payment - funds come to wrapper first
     commerceEscrow.reclaim(paymentInfo);
 
+    // Get the actual balance received from escrow (may include existing tokens)
+    uint256 balanceAfter = IERC20(payment.token).balanceOf(address(this));
+    uint256 actualReclaimedAmount = balanceAfter > balanceBefore
+      ? balanceAfter - balanceBefore
+      : balanceAfter;
+
+    // If we didn't receive the expected amount, use the full balance (handles edge cases)
+    if (actualReclaimedAmount == 0) {
+      actualReclaimedAmount = balanceAfter;
+    }
+
     // Transfer the reclaimed amount to payer via ERC20FeeProxy (no fee for reclaims)
-    IERC20(payment.token).safeApprove(address(erc20FeeProxy), 0);
-    IERC20(payment.token).safeApprove(address(erc20FeeProxy), capturableAmount);
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), actualReclaimedAmount);
 
     erc20FeeProxy.transferFromWithReferenceAndFee(
       payment.token,
       payment.payer,
-      capturableAmount,
+      actualReclaimedAmount,
       abi.encodePacked(paymentReference),
       0, // No fee for reclaims
       address(0)
@@ -713,7 +752,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     emit PaymentReclaimed(
       paymentReference,
       payment.commercePaymentHash,
-      capturableAmount,
+      actualReclaimedAmount,
       payment.payer
     );
   }
@@ -752,14 +791,17 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     // Refund the payment - escrow will pull from wrapper and send to wrapper
     commerceEscrow.refund(paymentInfo, refundAmount, tokenCollector, collectorData);
 
+    // Get the actual balance in wrapper (transfer all tokens to handle any existing balance)
+    uint256 actualRefundAmount = IERC20(payment.token).balanceOf(address(this));
+
     // Forward the refund to payer via ERC20FeeProxy (no fee for refunds)
     IERC20(payment.token).safeApprove(address(erc20FeeProxy), 0);
-    IERC20(payment.token).safeApprove(address(erc20FeeProxy), refundAmount);
+    IERC20(payment.token).safeApprove(address(erc20FeeProxy), actualRefundAmount);
 
     erc20FeeProxy.transferFromWithReferenceAndFee(
       payment.token,
       payment.payer,
-      refundAmount,
+      actualRefundAmount,
       abi.encodePacked(paymentReference),
       0, // No fee for refunds
       address(0)
@@ -771,7 +813,7 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     emit PaymentRefunded(
       paymentReference,
       payment.commercePaymentHash,
-      refundAmount,
+      actualRefundAmount,
       payment.payer
     );
   }
@@ -814,8 +856,11 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     if (payment.commercePaymentHash == bytes32(0)) return false;
 
     // solhint-disable-next-line no-unused-vars
-    (bool hasCollectedPayment, uint120 capturableAmount, uint120 refundableAmount) = commerceEscrow
-      .paymentState(payment.commercePaymentHash);
+    (
+      bool _hasCollectedPayment,
+      uint120 capturableAmount,
+      uint120 _refundableAmount
+    ) = commerceEscrow.paymentState(payment.commercePaymentHash);
     return capturableAmount > 0;
   }
 
@@ -827,8 +872,11 @@ contract ERC20CommerceEscrowWrapper is ReentrancyGuard {
     if (payment.commercePaymentHash == bytes32(0)) return false;
 
     // solhint-disable-next-line no-unused-vars
-    (bool hasCollectedPayment, uint120 capturableAmount, uint120 refundableAmount) = commerceEscrow
-      .paymentState(payment.commercePaymentHash);
+    (
+      bool _hasCollectedPayment,
+      uint120 capturableAmount,
+      uint120 _refundableAmount
+    ) = commerceEscrow.paymentState(payment.commercePaymentHash);
     return capturableAmount > 0;
   }
 }

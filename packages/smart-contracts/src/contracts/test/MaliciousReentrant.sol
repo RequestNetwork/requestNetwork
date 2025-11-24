@@ -73,6 +73,11 @@ contract MaliciousReentrant is IERC20 {
   bool public attacking;
   IERC20CommerceEscrowWrapper.ChargeParams public attackChargeParams;
 
+  // ERC20 state
+  mapping(address => uint256) private _balances;
+  mapping(address => mapping(address => uint256)) private _allowances;
+  uint256 private _totalSupply;
+
   enum AttackType {
     None,
     AuthorizeReentry,
@@ -88,6 +93,12 @@ contract MaliciousReentrant is IERC20 {
   constructor(address _target, address _underlyingToken) {
     target = IERC20CommerceEscrowWrapper(_target);
     underlyingToken = _underlyingToken;
+  }
+
+  /// @notice Mint tokens to an address (for testing)
+  function mint(address to, uint256 amount) external {
+    _totalSupply += amount;
+    _balances[to] += amount;
   }
 
   /// @notice Setup an attack to be executed during transfer/transferFrom
@@ -156,37 +167,51 @@ contract MaliciousReentrant is IERC20 {
     attacking = false;
   }
 
-  // ERC20 functions that trigger reentrancy
-  function transfer(address, uint256) external override returns (bool) {
+  // ERC20 functions that trigger reentrancy but also properly implement ERC20
+  function transfer(address to, uint256 amount) external override returns (bool) {
+    address from = msg.sender;
+    require(_balances[from] >= amount, 'ERC20: insufficient balance');
     _executeAttack();
+    _balances[from] -= amount;
+    _balances[to] += amount;
     return true;
   }
 
   function transferFrom(
-    address,
-    address,
-    uint256
+    address from,
+    address to,
+    uint256 amount
   ) external override returns (bool) {
+    uint256 currentAllowance = _allowances[from][msg.sender];
+    require(currentAllowance >= amount, 'ERC20: insufficient allowance');
+    require(_balances[from] >= amount, 'ERC20: insufficient balance');
     _executeAttack();
+    _allowances[from][msg.sender] = currentAllowance - amount;
+    _balances[from] -= amount;
+    _balances[to] += amount;
     return true;
   }
 
-  function approve(address, uint256) external override returns (bool) {
+  function approve(address spender, uint256 amount) external override returns (bool) {
+    address owner = msg.sender;
+    // Execute attack before updating allowance (triggers reentrancy)
     _executeAttack();
+    // Properly update allowance so SafeERC20 doesn't revert
+    _allowances[owner][spender] = amount;
     return true;
   }
 
-  // Minimal ERC20 implementation (not actually used, just for interface compliance)
-  function totalSupply() external pure override returns (uint256) {
-    return 1000000 ether;
+  // Proper ERC20 implementation
+  function totalSupply() external view override returns (uint256) {
+    return _totalSupply;
   }
 
-  function balanceOf(address) external pure override returns (uint256) {
-    return 1000 ether;
+  function balanceOf(address account) external view override returns (uint256) {
+    return _balances[account];
   }
 
-  function allowance(address, address) external pure override returns (uint256) {
-    return type(uint256).max;
+  function allowance(address owner, address spender) external view override returns (uint256) {
+    return _allowances[owner][spender];
   }
 
   // Add other required functions with empty implementations
