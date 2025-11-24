@@ -245,8 +245,8 @@ describe('erc20-commerce-escrow-wrapper', () => {
       expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/); // Should be valid hex string
 
       // Verify it starts with the correct function selector for authorizePayment
-      // Function signature: authorizePayment(bytes8,address,address,address,address,uint256,uint256,uint256,uint256,uint256,address,bytes)
-      expect(encodedData.substring(0, 10)).toBe('0x5532a547'); // Actual function selector
+      // Function signature: authorizePayment((bytes8,address,address,address,address,uint256,uint256,uint256,uint256,uint256,address,bytes))
+      expect(encodedData.substring(0, 10)).toBe('0x03af28e0'); // Actual function selector
 
       // Verify the encoded data contains our test parameters
       expect(encodedData.length).toBeGreaterThan(10); // More than just function selector
@@ -325,7 +325,7 @@ describe('erc20-commerce-escrow-wrapper', () => {
       expect(encodedData).toMatch(/^0x[a-fA-F0-9]+$/); // Should be valid hex string
 
       // Verify it starts with the correct function selector for chargePayment
-      expect(encodedData.substring(0, 10)).toBe('0x739802a3');
+      expect(encodedData.substring(0, 10)).toBe('0x246b52d3');
 
       // Verify the encoded data contains our test parameters
       expect(encodedData).toContain(mockChargeParams.paymentReference.substring(2));
@@ -955,7 +955,7 @@ describe('ERC20 Commerce Escrow Wrapper Integration', () => {
       provider,
     });
     expect(chargeData).toMatch(/^0x[a-fA-F0-9]+$/);
-    expect(chargeData.substring(0, 10)).toBe('0x739802a3'); // chargePayment selector
+    expect(chargeData.substring(0, 10)).toBe('0x246b52d3'); // chargePayment selector
     expect(chargeData.length).toBeGreaterThan(100); // Should be long due to many parameters
   });
 
