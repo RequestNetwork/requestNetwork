@@ -118,21 +118,8 @@ export function encodeAuthorizePayment({
     wrapperContract.interface.format(utils.FormatTypes.json) as string,
   );
 
-  // Pass individual parameters as expected by the ABI (not struct)
-  return iface.encodeFunctionData('authorizePayment', [
-    params.paymentReference,
-    params.payer,
-    params.merchant,
-    params.operator,
-    params.token,
-    params.amount,
-    params.maxAmount,
-    params.preApprovalExpiry,
-    params.authorizationExpiry,
-    params.refundExpiry,
-    params.tokenCollector,
-    params.collectorData,
-  ]);
+  // Pass params as a tuple (struct) as expected by the ABI
+  return iface.encodeFunctionData('authorizePayment', [params]);
 }
 
 /**
@@ -213,23 +200,8 @@ export function encodeChargePayment({
     wrapperContract.interface.format(utils.FormatTypes.json) as string,
   );
 
-  // Pass individual parameters as expected by the ABI (not struct)
-  return iface.encodeFunctionData('chargePayment', [
-    params.paymentReference,
-    params.payer,
-    params.merchant,
-    params.operator,
-    params.token,
-    params.amount,
-    params.maxAmount,
-    params.preApprovalExpiry,
-    params.authorizationExpiry,
-    params.refundExpiry,
-    params.feeBps,
-    params.feeReceiver,
-    params.tokenCollector,
-    params.collectorData,
-  ]);
+  // Pass params as a tuple (struct) as expected by the ABI
+  return iface.encodeFunctionData('chargePayment', [params]);
 }
 
 /**

@@ -72,6 +72,7 @@ contract MaliciousReentrant is IERC20 {
   address public attackFeeReceiver;
   bool public attacking;
   IERC20CommerceEscrowWrapper.ChargeParams public attackChargeParams;
+  IERC20CommerceEscrowWrapper.AuthParams public attackAuthParams;
 
   // ERC20 state
   mapping(address => uint256) private _balances;
@@ -124,6 +125,14 @@ contract MaliciousReentrant is IERC20 {
     attackChargeParams = _chargeParams;
   }
 
+  /// @notice Setup an authorize attack with full AuthParams
+  function setupAuthorizeAttack(IERC20CommerceEscrowWrapper.AuthParams calldata _authParams)
+    external
+  {
+    attackType = AttackType.AuthorizeReentry;
+    attackAuthParams = _authParams;
+  }
+
   /// @notice Execute the reentrancy attack
   function _executeAttack() internal {
     if (attacking) return; // Prevent infinite recursion
@@ -131,7 +140,13 @@ contract MaliciousReentrant is IERC20 {
 
     bool success = false;
 
-    if (attackType == AttackType.CaptureReentry) {
+    if (attackType == AttackType.AuthorizeReentry) {
+      try target.authorizePayment(attackAuthParams) {
+        success = true;
+      } catch {
+        success = false;
+      }
+    } else if (attackType == AttackType.CaptureReentry) {
       try target.capturePayment(attackPaymentRef, attackAmount, attackFeeBps, attackFeeReceiver) {
         success = true;
       } catch {

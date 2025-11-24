@@ -19,11 +19,11 @@ export const erc20CommerceEscrowWrapperArtifact = new ContractArtifact<ERC20Comm
           creationBlockNumber: 0,
         },
         goerli: {
-          address: '0x1234567890123456789012345678901234567890', // Placeholder - to be updated with actual deployment
+          address: '0x2345678901234567890123456789012345678901', // Placeholder - to be updated with actual deployment
           creationBlockNumber: 0,
         },
         mumbai: {
-          address: '0x1234567890123456789012345678901234567890', // Placeholder - to be updated with actual deployment
+          address: '0x3456789012345678901234567890123456789012', // Placeholder - to be updated with actual deployment
           creationBlockNumber: 0,
         },
         // TODO: Add deployment addresses for mainnet networks once deployed
