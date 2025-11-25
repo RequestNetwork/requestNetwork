@@ -117,12 +117,16 @@ jobs:
           echo "Test limit: ${{ steps.mode.outputs.TEST_LIMIT }}"
           echo "Timeout: ${{ steps.mode.outputs.TIMEOUT }}s"
 
+          # Get absolute path to OpenZeppelin for remapping
+          OZ_PATH="$(cd ../.. && pwd)/node_modules/@openzeppelin/"
+
           echidna src/contracts/test/EchidnaERC20CommerceEscrowWrapper.sol \
             --contract EchidnaERC20CommerceEscrowWrapper \
             --config echidna.config.yml \
             --test-limit ${{ steps.mode.outputs.TEST_LIMIT }} \
             --timeout ${{ steps.mode.outputs.TIMEOUT }} \
             --format text \
+            --crytic-args "--solc-remaps @openzeppelin/=$OZ_PATH" \
             | tee reports/security/echidna-report.txt
 
           ECHIDNA_EXIT=${PIPESTATUS[0]}

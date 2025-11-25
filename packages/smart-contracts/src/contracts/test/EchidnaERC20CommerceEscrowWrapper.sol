@@ -50,6 +50,9 @@ contract EchidnaERC20CommerceEscrowWrapper {
   uint256 public totalReclaimed;
   uint256 public totalRefunded;
 
+  // Track supply for invariant checking
+  uint256 private supply;
+
   // Test accounts
   address public constant PAYER = address(0x1000);
   address public constant MERCHANT = address(0x2000);
@@ -71,6 +74,9 @@ contract EchidnaERC20CommerceEscrowWrapper {
     // In Echidna, this contract is the caller for all operations
     // We mint initial tokens but will mint more as needed in drivers
     token.mint(address(this), 10000000 ether);
+
+    // Track initial supply
+    supply = token.totalSupply();
 
     // Pre-approve wrapper and feeProxy for efficiency
     // Individual operations will also approve mockEscrow as needed
@@ -105,6 +111,7 @@ contract EchidnaERC20CommerceEscrowWrapper {
     // In Echidna, this contract IS the caller, so we use address(this) for all roles
     // Ensure this contract has tokens and has approved escrow
     token.mint(address(this), amount);
+    supply += amount; // Track minted tokens
     token.approve(address(mockEscrow), amount);
 
     // Authorize payment (this contract acts as payer, we use different addresses for merchant/operator)
@@ -185,6 +192,7 @@ contract EchidnaERC20CommerceEscrowWrapper {
 
     // Setup: Mint tokens and approve escrow
     token.mint(address(this), amount);
+    supply += amount; // Track minted tokens
     token.approve(address(mockEscrow), amount);
 
     try
@@ -240,6 +248,7 @@ contract EchidnaERC20CommerceEscrowWrapper {
 
     // Setup: Give this contract (operator) tokens for refund and approve
     token.mint(address(this), refundAmount);
+    supply += refundAmount; // Track minted tokens
     // Note: refund flow pulls from operator, so we need approval on wrapper
     token.approve(address(wrapper), refundAmount);
 
@@ -271,7 +280,7 @@ contract EchidnaERC20CommerceEscrowWrapper {
   // ============================================
   /// @notice Invariant: Fees can never exceed the capture amount
   /// @dev This ensures merchant always receives non-negative amount
-  function echidna_fee_never_exceeds_capture() public view returns (bool) {
+  function echidna_fee_never_exceeds_capture() public returns (bool) {
     // For any valid feeBps (0-10000), fee should never exceed captureAmount
     uint256 captureAmount = 1000 ether;
     for (uint16 feeBps = 0; feeBps <= 10000; feeBps += 100) {
@@ -285,7 +294,7 @@ contract EchidnaERC20CommerceEscrowWrapper {
 
   /// @notice Invariant: Fee basis points validation works correctly
   /// @dev feeBps > 10000 should always revert
-  function echidna_invalid_fee_bps_reverts() public view returns (bool) {
+  function echidna_invalid_fee_bps_reverts() public returns (bool) {
     // This is a pure mathematical invariant - fee calculation should never overflow
     // For any valid feeBps (0-10000), (amount * feeBps) / 10000 should be <= amount
     // For invalid feeBps (>10000), the contract should revert in capturePayment
@@ -301,7 +310,7 @@ contract EchidnaERC20CommerceEscrowWrapper {
   // ============================================
   /// @notice Invariant: Fee calculation cannot cause underflow
   /// @dev merchantAmount = captureAmount - feeAmount should always be >= 0
-  function echidna_no_underflow_in_merchant_payment() public view returns (bool) {
+  function echidna_no_underflow_in_merchant_payment() public returns (bool) {
     uint256 captureAmount = 1000 ether;
     // Test various fee percentages
     for (uint16 feeBps = 0; feeBps <= 10000; feeBps += 500) {
@@ -344,18 +353,17 @@ contract EchidnaERC20CommerceEscrowWrapper {
   // ============================================
   // INVARIANT 4: Accounting Bounds
   // ============================================
-  /// @notice Invariant: Total supply of test token should never decrease (except explicit burns)
-  /// @dev Detects any unexpected token loss
-  function echidna_token_supply_never_decreases() public view returns (bool) {
+  /// @notice Invariant: Total supply of test token should never decrease
+  /// @dev Detects any unexpected token loss (supply only increases via mints, never burns)
+  function echidna_token_supply_never_decreases() public returns (bool) {
     uint256 currentSupply = token.totalSupply();
-    // Supply should be at least the initial minted amount
-    uint256 minExpectedSupply = 30000000 ether; // 3 accounts * 10M each
-    return currentSupply >= minExpectedSupply;
+    // Supply should equal our tracked supply (we only mint, never burn)
+    return currentSupply == supply;
   }
 
   /// @notice Invariant: Wrapper contract should never hold tokens permanently
   /// @dev All tokens should either be in escrow or returned
-  function echidna_wrapper_not_token_sink() public view returns (bool) {
+  function echidna_wrapper_not_token_sink() public returns (bool) {
     // The wrapper itself should not accumulate tokens
     // (tokens go to escrow, merchant, or fee receiver)
     uint256 wrapperBalance = token.balanceOf(address(wrapper));
@@ -369,13 +377,13 @@ contract EchidnaERC20CommerceEscrowWrapper {
 
   /// @notice Invariant: Total captured should never exceed total authorized
   /// @dev This ensures we can't capture more than we've authorized
-  function echidna_captured_never_exceeds_authorized() public view returns (bool) {
+  function echidna_captured_never_exceeds_authorized() public returns (bool) {
     return totalCaptured <= totalAuthorized;
   }
 
   /// @notice Invariant: Fee calculation in practice never causes underflow
   /// @dev Merchant should always receive a non-negative amount
-  function echidna_merchant_receives_nonnegative() public view returns (bool) {
+  function echidna_merchant_receives_nonnegative() public returns (bool) {
     // Check merchant's balance never decreases inappropriately
     // Merchant balance should be >= 0 (trivially true for uint256, but checks for logic errors)
     uint256 merchantBalance = token.balanceOf(MERCHANT);
@@ -384,7 +392,7 @@ contract EchidnaERC20CommerceEscrowWrapper {
 
   /// @notice Invariant: Fee receiver accumulates fees correctly
   /// @dev Fee receiver should only get tokens from fee payments
-  function echidna_fee_receiver_only_gets_fees() public view returns (bool) {
+  function echidna_fee_receiver_only_gets_fees() public returns (bool) {
     // Fee receiver balance should be reasonable relative to total captures
     uint256 feeReceiverBalance = token.balanceOf(FEE_RECEIVER);
     // Fees can't exceed all captured amounts (max 100% fee)
@@ -393,7 +401,7 @@ contract EchidnaERC20CommerceEscrowWrapper {
 
   /// @notice Invariant: Token conservation law
   /// @dev Total supply should equal sum of all account balances
-  function echidna_token_conservation() public view returns (bool) {
+  function echidna_token_conservation() public returns (bool) {
     uint256 supply = token.totalSupply();
     uint256 accountedFor = token.balanceOf(address(this)) +
       token.balanceOf(PAYER) +
@@ -409,7 +417,7 @@ contract EchidnaERC20CommerceEscrowWrapper {
 
   /// @notice Invariant: Escrow should not hold tokens after operations complete
   /// @dev Tokens should flow through escrow, not accumulate
-  function echidna_escrow_not_token_sink() public view returns (bool) {
+  function echidna_escrow_not_token_sink() public returns (bool) {
     uint256 escrowBalance = token.balanceOf(address(mockEscrow));
     // Escrow may hold tokens temporarily, but shouldn't accumulate excessively
     // Allow up to total authorized amount (worst case all authorized, none captured/voided)
@@ -422,7 +430,7 @@ contract EchidnaERC20CommerceEscrowWrapper {
 
   /// @notice Invariant: Payment reference counter only increases
   /// @dev Counter should be monotonically increasing
-  function echidna_payment_ref_counter_monotonic() public view returns (bool) {
+  function echidna_payment_ref_counter_monotonic() public returns (bool) {
     // Counter should never decrease
     // We track this implicitly - if counter decreased, we'd have collisions
     return paymentRefCounter >= 0; // Always true, but documents the property
@@ -430,7 +438,7 @@ contract EchidnaERC20CommerceEscrowWrapper {
 
   /// @notice Invariant: Mock escrow state consistency
   /// @dev For any payment, capturableAmount + refundableAmount should have sensible bounds
-  function echidna_escrow_state_consistent() public view returns (bool) {
+  function echidna_escrow_state_consistent() public returns (bool) {
     // Check a few recent payments for state consistency
     if (paymentRefCounter == 0) return true;
 
@@ -461,7 +469,7 @@ contract EchidnaERC20CommerceEscrowWrapper {
 
   /// @notice Invariant: Operator authorization is respected
   /// @dev Only designated operators should be able to capture/void
-  function echidna_operator_authorization_enforced() public view returns (bool) {
+  function echidna_operator_authorization_enforced() public returns (bool) {
     // This is enforced by modifiers in the wrapper
     // We verify the modifier exists by checking operator field is set
     if (paymentRefCounter == 0) return true;
@@ -481,7 +489,7 @@ contract EchidnaERC20CommerceEscrowWrapper {
 
   /// @notice Invariant: Fee basis points are validated
   /// @dev Captures with invalid feeBps should always revert
-  function echidna_fee_bps_validation_enforced() public view returns (bool) {
+  function echidna_fee_bps_validation_enforced() public returns (bool) {
     // This property is enforced by the wrapper's InvalidFeeBps check
     // We test it by ensuring our driver respects the bounds
     // The wrapper should never allow feeBps > 10000

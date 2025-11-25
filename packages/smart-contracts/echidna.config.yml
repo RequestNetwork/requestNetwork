@@ -6,9 +6,9 @@ testLimit: 100000 # Number of test sequences to run (increase for deeper testing
 testMode: property # Test mode: assertion, property, or overflow
 timeout: 300 # Timeout in seconds (5 minutes for CI, increase locally)
 
-# Solver configuration
-solver: cvc5 # SMT solver: cvc5, z3, or bitwuzla
-solverTimeout: 20 # Solver timeout in seconds
+# Solver configuration (deprecated in Echidna 2.x, kept for backwards compatibility)
+# solver: cvc5 # SMT solver: cvc5, z3, or bitwuzla
+# solverTimeout: 20 # Solver timeout in seconds
 
 # Coverage and corpus settings
 coverage: true # Enable coverage-guided fuzzing
@@ -22,12 +22,12 @@ seqLen: 15 # Sequence length per test
 shrinkLimit: 5000 # Number of shrinking attempts
 dictFreq: 0.40 # Dictionary usage frequency
 
-# Gas settings
-gasLimit: 12000000 # Gas limit per transaction
-maxGasPerBlock: 12000000 # Maximum gas per block
+# Gas settings (deprecated in Echidna 2.x)
+# gasLimit: 12000000 # Gas limit per transaction
+# maxGasPerBlock: 12000000 # Maximum gas per block
 
 # Property testing
-checkAsserts: true # Check Solidity assertions
+# checkAsserts: true # Check Solidity assertions (deprecated in Echidna 2.x)
 estimateGas: true # Estimate gas usage
 maxValue: 100000000000000000000 # Max ETH to send (100 ETH)
 
@@ -45,9 +45,8 @@ filterBlacklist: true # Filter out blacklisted functions
 filterFunctions: [] # Functions to exclude from testing
 
 # Compilation settings
-solcArgs: '--optimize --optimize-runs 200 --allow-paths .'
-solcRemaps: ['@openzeppelin/=node_modules/@openzeppelin/']
-crytic-export-dir: 'crytic-export'
+# Note: In Echidna 2.x, compiler options should be passed via --crytic-args, not in config
+# Example: --crytic-args "--solc-remaps @openzeppelin/=/path/to/node_modules/@openzeppelin/"
 # CI-specific overrides (can be overridden via command line)
 # For faster CI: --test-limit 50000 --timeout 180
 # For thorough local testing: --test-limit 500000 --timeout 3600
