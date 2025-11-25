@@ -13,6 +13,7 @@ import { supportedOptimismERC20 } from './optimism';
 import { supportedRinkebyERC20 } from './rinkeby';
 import { supportedXDAIERC20 } from './xdai';
 import { supportedSepoliaERC20 } from './sepolia';
+import { supportedBaseSepoliaERC20 } from './base-sepolia';
 
 export const supportedNetworks: Partial<
   Record<CurrencyTypes.EvmChainName, CurrencyTypes.TokenMap>
@@ -31,4 +32,5 @@ export const supportedNetworks: Partial<
   optimism: supportedOptimismERC20,
   moonbeam: supportedMoonbeamERC20,
   sepolia: supportedSepoliaERC20,
+  'base-sepolia': supportedBaseSepoliaERC20,
 };

@@ -9,6 +9,7 @@ export type EvmChainName =
   | 'arbitrum-rinkeby'
   | 'avalanche'
   | 'base'
+  | 'base-sepolia'
   | 'bsc'
   | 'bsctest'
   | 'celo'

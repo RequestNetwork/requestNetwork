@@ -23,6 +23,11 @@ export const authCaptureEscrowArtifact = new ContractArtifact<AuthCaptureEscrow>
           address: '0xBdEA0D1bcC5966192B070Fdf62aB4EF5b4420cff',
           creationBlockNumber: 0,
         },
+        // Base Sepolia testnet deployment
+        'base-sepolia': {
+          address: '0xBdEA0D1bcC5966192B070Fdf62aB4EF5b4420cff',
+          creationBlockNumber: 0,
+        },
       },
     },
   },

@@ -26,6 +26,10 @@ export const erc20CommerceEscrowWrapperArtifact = new ContractArtifact<ERC20Comm
           address: '0x3456789012345678901234567890123456789012', // Placeholder - to be updated with actual deployment
           creationBlockNumber: 0,
         },
+        'base-sepolia': {
+          address: '0xDF4945F8AB31C666714f34DDF8Ac9445379fD3f5', // To be updated after deployment
+          creationBlockNumber: 0,
+        },
         // TODO: Add deployment addresses for mainnet networks once deployed
         // mainnet: {
         //   address: '0x0000000000000000000000000000000000000000',
