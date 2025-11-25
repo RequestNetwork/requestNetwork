@@ -118,14 +118,15 @@ echo -e "${GREEN}🚀 Running Echidna Fuzzing...${NC}\n"
 CONTRACTS_DIR=$(pwd)
 MONOREPO_ROOT=$(cd ../.. && pwd)
 
-# Run Echidna with explicit remappings using absolute paths
+# Run Echidna with OpenZeppelin remapping
+# Use absolute path for local execution (relative path ../../node_modules also works)
 echidna src/contracts/test/EchidnaERC20CommerceEscrowWrapper.sol \
     --contract EchidnaERC20CommerceEscrowWrapper \
     --config echidna.config.yml \
     --test-limit $TEST_LIMIT \
     --timeout $TIMEOUT \
     --format text \
-    --crytic-args "--solc-remaps @openzeppelin/=$MONOREPO_ROOT/node_modules/@openzeppelin/" \
+    --crytic-args="--solc-remaps @openzeppelin/=$MONOREPO_ROOT/node_modules/@openzeppelin/" \
     | tee reports/security/echidna-report.txt
 
 EXIT_CODE=${PIPESTATUS[0]}

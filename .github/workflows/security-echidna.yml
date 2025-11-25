@@ -61,9 +61,20 @@ jobs:
           docker pull trailofbits/echidna:latest
 
           # Create a wrapper script to run echidna via docker
+          # Mount the entire monorepo to ensure node_modules is accessible
           cat > /tmp/echidna << 'EOF'
           #!/bin/bash
-          docker run --rm -v "$PWD":/src -w /src trailofbits/echidna:latest echidna "$@"
+          # Find monorepo root (contains package.json with workspaces)
+          REPO_ROOT="$PWD"
+          while [ ! -f "$REPO_ROOT/lerna.json" ] && [ "$REPO_ROOT" != "/" ]; do
+            REPO_ROOT="$(dirname "$REPO_ROOT")"
+          done
+
+          # Calculate relative path from repo root to current dir
+          REL_PATH="${PWD#$REPO_ROOT/}"
+
+          # Run echidna with repo root mounted
+          docker run --rm -v "$REPO_ROOT":/src -w "/src/$REL_PATH" trailofbits/echidna:latest echidna "$@"
           EOF
 
           sudo mv /tmp/echidna /usr/local/bin/echidna
@@ -117,16 +128,15 @@ jobs:
           echo "Test limit: ${{ steps.mode.outputs.TEST_LIMIT }}"
           echo "Timeout: ${{ steps.mode.outputs.TIMEOUT }}s"
 
-          # Get absolute path to OpenZeppelin for remapping
-          OZ_PATH="$(cd ../.. && pwd)/node_modules/@openzeppelin/"
-
+          # Use relative path from smart-contracts directory to OpenZeppelin
+          # Docker now mounts the entire monorepo, so ../../node_modules is accessible
           echidna src/contracts/test/EchidnaERC20CommerceEscrowWrapper.sol \
             --contract EchidnaERC20CommerceEscrowWrapper \
             --config echidna.config.yml \
             --test-limit ${{ steps.mode.outputs.TEST_LIMIT }} \
             --timeout ${{ steps.mode.outputs.TIMEOUT }} \
             --format text \
-            --crytic-args "--solc-remaps @openzeppelin/=$OZ_PATH" \
+            --crytic-args="--solc-remaps @openzeppelin/=../../node_modules/@openzeppelin/" \
             | tee reports/security/echidna-report.txt
 
           ECHIDNA_EXIT=${PIPESTATUS[0]}
