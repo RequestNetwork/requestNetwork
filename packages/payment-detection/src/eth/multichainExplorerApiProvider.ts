@@ -77,6 +77,8 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
         return 'https://explorer.zksync.io/';
       case 'base':
         return 'https://api.basescan.org/api';
+      case 'base-sepolia':
+        return 'https://api-sepolia.basescan.org/api';
       case 'sonic':
         return 'https://api.sonicscan.org/api';
       default:

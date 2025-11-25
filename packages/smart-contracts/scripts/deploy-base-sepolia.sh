@@ -21,7 +21,9 @@ NC='\033[0m' # No Color
 # Load .env file if it exists
 if [ -f .env ]; then
     echo -e "${BLUE}Loading .env file...${NC}"
-    export $(cat .env | grep -v '^#' | grep -v '^$' | xargs)
+    set -a
+    source .env
+    set +a
     echo ""
 fi
 
