@@ -154,7 +154,8 @@ jobs:
         working-directory: packages/smart-contracts
         run: |
           # Count passed and failed properties
-          PASSED=$(grep -c "echidna.*: passed" reports/security/echidna-report.txt 2>/dev/null || echo "0")
+          # Note: Echidna 2.x outputs "passing" not "passed"
+          PASSED=$(grep -c "echidna.*: passing" reports/security/echidna-report.txt 2>/dev/null || echo "0")
           FAILED=$(grep -c "echidna.*: failed" reports/security/echidna-report.txt 2>/dev/null || echo "0")
 
           # Ensure variables are single line and numeric
