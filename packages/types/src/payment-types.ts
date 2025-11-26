@@ -412,3 +412,75 @@ export interface SchedulePermit {
   deadline: BigNumberish;
   strictOrder: boolean;
 }
+
+/**
+ * Parameters for Commerce Escrow payment data
+ */
+export interface CommerceEscrowPaymentData {
+  payer: string;
+  merchant: string;
+  operator: string;
+  token: string;
+  amount: BigNumberish;
+  maxAmount: BigNumberish;
+  preApprovalExpiry: number;
+  authorizationExpiry: number;
+  refundExpiry: number;
+  commercePaymentHash: string;
+  isActive: boolean;
+}
+
+/**
+ * Parameters for authorizing a commerce escrow payment
+ */
+export interface CommerceEscrowAuthorizeParams {
+  paymentReference: string;
+  payer: string;
+  merchant: string;
+  operator: string;
+  token: string;
+  amount: BigNumberish;
+  maxAmount: BigNumberish;
+  preApprovalExpiry: number;
+  authorizationExpiry: number;
+  refundExpiry: number;
+  tokenCollector: string;
+  collectorData: string;
+}
+
+/**
+ * Parameters for capturing a commerce escrow payment
+ */
+export interface CommerceEscrowCaptureParams {
+  paymentReference: string;
+  captureAmount: BigNumberish;
+  feeBps: number;
+  feeReceiver: string;
+}
+
+/**
+ * Parameters for charging a commerce escrow payment (authorize + capture)
+ */
+export interface CommerceEscrowChargeParams extends CommerceEscrowAuthorizeParams {
+  feeBps: number;
+  feeReceiver: string;
+}
+
+/**
+ * Parameters for refunding a commerce escrow payment
+ */
+export interface CommerceEscrowRefundParams {
+  paymentReference: string;
+  refundAmount: BigNumberish;
+  tokenCollector: string;
+  collectorData: string;
+}
+
+/**
+ * Commerce escrow payment state information
+ */
+export interface CommerceEscrowPaymentState {
+  hasCollectedPayment: boolean;
+  capturableAmount: BigNumberish;
+  refundableAmount: BigNumberish;
+}

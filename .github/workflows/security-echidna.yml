@@ -1,0 +1,300 @@
+name: Security - Echidna Fuzzing
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'packages/smart-contracts/src/contracts/**/*.sol'
+      - 'packages/smart-contracts/echidna.config.yml'
+      - '.github/workflows/security-echidna.yml'
+  schedule:
+    # Run thorough fuzzing nightly at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Testing mode'
+        required: true
+        default: 'ci'
+        type: choice
+        options:
+          - ci
+          - quick
+          - thorough
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  echidna-fuzzing:
+    name: Echidna Property-Based Fuzzing
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        working-directory: packages/smart-contracts
+        run: |
+          yarn install --frozen-lockfile
+
+      - name: Compile contracts
+        working-directory: packages/smart-contracts
+        run: |
+          yarn build:sol
+
+      - name: Setup Echidna
+        run: |
+          # Pull Echidna Docker image
+          docker pull trailofbits/echidna:latest
+
+          # Create a wrapper script to run echidna via docker
+          # Mount the entire monorepo to ensure node_modules is accessible
+          cat > /tmp/echidna << 'EOF'
+          #!/bin/bash
+          # Find monorepo root (contains package.json with workspaces)
+          REPO_ROOT="$PWD"
+          while [ ! -f "$REPO_ROOT/lerna.json" ] && [ "$REPO_ROOT" != "/" ]; do
+            REPO_ROOT="$(dirname "$REPO_ROOT")"
+          done
+
+          # Calculate relative path from repo root to current dir
+          REL_PATH="${PWD#$REPO_ROOT/}"
+
+          # Run echidna with repo root mounted
+          docker run --rm -v "$REPO_ROOT":/src -w "/src/$REL_PATH" trailofbits/echidna:latest echidna "$@"
+          EOF
+
+          sudo mv /tmp/echidna /usr/local/bin/echidna
+          sudo chmod +x /usr/local/bin/echidna
+          echidna --version
+
+      - name: Restore corpus cache
+        uses: actions/cache@v4
+        with:
+          path: packages/smart-contracts/corpus
+          key: echidna-corpus-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            echidna-corpus-${{ github.ref_name }}-
+            echidna-corpus-master-
+
+      - name: Determine test mode
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "MODE=thorough" >> $GITHUB_OUTPUT
+            echo "TEST_LIMIT=500000" >> $GITHUB_OUTPUT
+            echo "TIMEOUT=3600" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            MODE="${{ github.event.inputs.mode }}"
+            echo "MODE=$MODE" >> $GITHUB_OUTPUT
+            if [ "$MODE" = "thorough" ]; then
+              echo "TEST_LIMIT=500000" >> $GITHUB_OUTPUT
+              echo "TIMEOUT=3600" >> $GITHUB_OUTPUT
+            elif [ "$MODE" = "quick" ]; then
+              echo "TEST_LIMIT=100000" >> $GITHUB_OUTPUT
+              echo "TIMEOUT=300" >> $GITHUB_OUTPUT
+            else
+              echo "TEST_LIMIT=50000" >> $GITHUB_OUTPUT
+              echo "TIMEOUT=180" >> $GITHUB_OUTPUT
+            fi
+          else
+            # Default CI mode
+            echo "MODE=ci" >> $GITHUB_OUTPUT
+            echo "TEST_LIMIT=50000" >> $GITHUB_OUTPUT
+            echo "TIMEOUT=180" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Echidna Fuzzing
+        id: echidna
+        working-directory: packages/smart-contracts
+        continue-on-error: true
+        run: |
+          mkdir -p reports/security
+
+          echo "Running Echidna in ${{ steps.mode.outputs.MODE }} mode..."
+          echo "Test limit: ${{ steps.mode.outputs.TEST_LIMIT }}"
+          echo "Timeout: ${{ steps.mode.outputs.TIMEOUT }}s"
+
+          # Use relative path from smart-contracts directory to OpenZeppelin
+          # Docker now mounts the entire monorepo, so ../../node_modules is accessible
+          echidna src/contracts/test/EchidnaERC20CommerceEscrowWrapper.sol \
+            --contract EchidnaERC20CommerceEscrowWrapper \
+            --config echidna.config.yml \
+            --test-limit ${{ steps.mode.outputs.TEST_LIMIT }} \
+            --timeout ${{ steps.mode.outputs.TIMEOUT }} \
+            --format text \
+            --crytic-args="--solc-remaps @openzeppelin/=../../node_modules/@openzeppelin/" \
+            | tee reports/security/echidna-report.txt
+
+          ECHIDNA_EXIT=${PIPESTATUS[0]}
+
+          # Save coverage if available
+          if [ -f coverage.txt ]; then
+            mv coverage.txt reports/security/echidna-coverage.txt
+          fi
+
+          exit $ECHIDNA_EXIT
+
+      - name: Parse Echidna results
+        if: always()
+        id: parse
+        working-directory: packages/smart-contracts
+        run: |
+          # Count passed and failed properties
+          # Note: Echidna 2.x outputs "passing" not "passed"
+          PASSED=$(grep -c "echidna.*: passing" reports/security/echidna-report.txt 2>/dev/null || echo "0")
+          FAILED=$(grep -c "echidna.*: failed" reports/security/echidna-report.txt 2>/dev/null || echo "0")
+
+          # Ensure variables are single line and numeric
+          PASSED=${PASSED##*$'\n'}
+          FAILED=${FAILED##*$'\n'}
+
+          TOTAL=$((PASSED + FAILED))
+
+          echo "PASSED=$PASSED" >> $GITHUB_OUTPUT
+          echo "FAILED=$FAILED" >> $GITHUB_OUTPUT
+          echo "TOTAL=$TOTAL" >> $GITHUB_OUTPUT
+
+          # Extract any counterexamples
+          if [ "$FAILED" -gt 0 ]; then
+            grep -A 10 "failed" reports/security/echidna-report.txt > reports/security/counterexamples.txt 2>/dev/null || true
+          fi
+
+      - name: Upload Echidna reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: echidna-reports-${{ steps.mode.outputs.MODE }}
+          path: |
+            packages/smart-contracts/reports/security/
+            packages/smart-contracts/corpus/
+          retention-days: 90
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const passed = '${{ steps.parse.outputs.PASSED }}';
+            const failed = '${{ steps.parse.outputs.FAILED }}';
+            const total = '${{ steps.parse.outputs.TOTAL }}';
+            const mode = '${{ steps.mode.outputs.MODE }}';
+            const testLimit = '${{ steps.mode.outputs.TEST_LIMIT }}';
+            const status = '${{ steps.echidna.outcome }}';
+
+            const statusEmoji = status === 'success' ? '✅' : '❌';
+            const passRate = total > 0 ? ((passed / total) * 100).toFixed(1) : '0';
+
+            let body = `## ${statusEmoji} Echidna Fuzzing Results
+
+            **Mode:** ${mode} (${testLimit} test sequences)
+            **Status:** ${status === 'success' ? 'All Properties Passed' : 'Property Violations Found'}
+
+            ### Property Test Results
+
+            | Status | Count |
+            |--------|-------|
+            | ✅ Passed | ${passed} |
+            | ❌ Failed | ${failed} |
+            | **Total** | **${total}** |
+            | **Pass Rate** | **${passRate}%** |
+
+            `;
+
+            if (failed > 0) {
+              body += `### ⚠️ Invariant Violations Detected
+
+            Echidna found sequences of transactions that violate defined invariants.
+            This indicates potential security issues or logic errors.
+
+            **Action Required:**
+            1. Download the artifacts to see counterexamples
+            2. Review the failing properties
+            3. Fix the contract or adjust the properties
+            4. Re-run the fuzzing campaign
+
+            `;
+            }
+
+            body += `📄 Full report and corpus available in workflow artifacts.
+
+            <details>
+            <summary>ℹ️ About Echidna Fuzzing</summary>
+
+            Echidna is a property-based fuzzer that generates random sequences of transactions
+            to test invariants (properties that should always hold true).
+
+            **Properties tested:**
+            - Fee calculation bounds
+            - Access control enforcement
+            - Amount constraints
+            - No duplicate payments
+            - Zero address validation
+            - Integer overflow protection
+
+            </details>`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+      - name: Create issue for nightly failures
+        if: github.event_name == 'schedule' && steps.echidna.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const passed = '${{ steps.parse.outputs.PASSED }}';
+            const failed = '${{ steps.parse.outputs.FAILED }}';
+
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🔴 Echidna Nightly Fuzzing Failed - ${new Date().toISOString().split('T')[0]}`,
+              body: `## Echidna Nightly Fuzzing Campaign Failed
+
+            **Date:** ${new Date().toISOString()}
+            **Branch:** ${context.ref}
+            **Commit:** ${context.sha}
+
+            ### Results
+            - ✅ Passed: ${passed}
+            - ❌ Failed: ${failed}
+
+            ### Details
+            The thorough nightly fuzzing campaign found property violations.
+
+            **Action Items:**
+            1. Review the [workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            2. Download artifacts to examine counterexamples
+            3. Investigate and fix violations
+            4. Re-run fuzzing to verify fix
+
+            /cc @RequestNetwork/security-team`,
+              labels: ['security', 'fuzzing', 'high-priority']
+            });
+
+      - name: Fail on property violations
+        if: steps.parse.outputs.FAILED != '0' && steps.parse.outputs.FAILED != ''
+        run: |
+          echo "::error::Echidna found property violations. Check the reports for counterexamples."
+          echo "::error::Failed properties: ${{ steps.parse.outputs.FAILED }}"
+          echo "::error::Passed properties: ${{ steps.parse.outputs.PASSED }}"
+          exit 1

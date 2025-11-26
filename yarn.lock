@@ -10102,6 +10102,10 @@ comment-parser@1.1.2:
   resolved "https://registry.npmjs.org/comment-parser/-/comment-parser-1.1.2.tgz"
   integrity sha512-AOdq0i8ghZudnYv8RUnHrhTgafUGs61Rdz9jemU5x2lnZwAWyOq7vySo626K59e1fVKH1xSRorJwPVRLSWOoAQ==
 
+"commerce-payments@git+https://github.com/base/commerce-payments.git#v1.0.0":
+  version "0.0.0"
+  resolved "git+https://github.com/base/commerce-payments.git#d33b5d5f74fff55f1c0857b1cb6fb4995949330b"
+
 common-ancestor-path@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/common-ancestor-path/-/common-ancestor-path-1.0.1.tgz"
