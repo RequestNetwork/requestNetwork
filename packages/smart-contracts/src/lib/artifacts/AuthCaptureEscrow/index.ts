@@ -15,18 +15,18 @@ export const authCaptureEscrowArtifact = new ContractArtifact<AuthCaptureEscrow>
         },
         // Base Sepolia deployment (same address as mainnet via CREATE2)
         sepolia: {
-          address: '0xBdEA0D1bcC5966192B070Fdf62aB4EF5b4420cff',
+          address: '0x1234567890123456789012345678901234567890', // Placeholder - to be updated with actual deployment
           creationBlockNumber: 0,
         },
         // Base Mainnet deployment (same address as sepolia via CREATE2)
         base: {
           address: '0xBdEA0D1bcC5966192B070Fdf62aB4EF5b4420cff',
-          creationBlockNumber: 0,
+          creationBlockNumber: 29931650,
         },
         // Base Sepolia testnet deployment
         'base-sepolia': {
           address: '0xBdEA0D1bcC5966192B070Fdf62aB4EF5b4420cff',
-          creationBlockNumber: 0,
+          creationBlockNumber: 25442083,
         },
       },
     },
