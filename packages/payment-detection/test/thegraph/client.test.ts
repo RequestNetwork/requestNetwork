@@ -5,10 +5,10 @@ describe('getTheGraphClientUrl', () => {
     const url = getTheGraphClientUrl('base', { url: 'test' });
     expect(url).toBe('test');
   });
-  it('should build the correct URL for network supported by Alchemy', () => {
+  it('should build the correct URL for network using TheGraph Studio', () => {
     const url = getTheGraphClientUrl('base');
     expect(url).toBe(
-      'https://subgraph.satsuma-prod.com/e2e4905ab7c8/request-network--434873/request-payments-base/api',
+      'https://api.studio.thegraph.com/query/67444/request-payments-base/version/latest',
     );
   });
   it('should build the correct URL when using TheGraph Explorer API key', () => {
