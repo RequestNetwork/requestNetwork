@@ -1,22 +1,29 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { deployOne } from './deploy-one';
 
-// Base Mainnet & Base Sepolia Contract Addresses
-const BASE_SEPOLIA_CONTRACTS = {
-  AuthCaptureEscrow: '0xBdEA0D1bcC5966192B070Fdf62aB4EF5b4420cff',
-  ERC3009PaymentCollector: '0x0E3dF9510de65469C4518D7843919c0b8C7A7757',
-  Permit2PaymentCollector: '0x992476B9Ee81d52a5BdA0622C333938D0Af0aB26',
-  PreApprovalPaymentCollector: '0x1b77ABd71FCD21fbe2398AE821Aa27D1E6B94bC6',
-  SpendPermissionPaymentCollector: '0x8d9F34934dc9619e5DC3Df27D0A40b4A744E7eAa',
-  OperatorRefundCollector: '0x934907bffd0901b6A21e398B9C53A4A38F02fa5d',
+// Contract Addresses by Network
+const NETWORK_CONTRACTS: Record<
+  string,
+  {
+    AuthCaptureEscrow: string;
+    ERC20FeeProxy?: string;
+  }
+> = {
+  'base-sepolia': {
+    AuthCaptureEscrow: '0xBdEA0D1bcC5966192B070Fdf62aB4EF5b4420cff',
+  },
+  sepolia: {
+    AuthCaptureEscrow: '0xF81E3F293c92CaCfc0d723d2D8183e39Cc3AEdC7',
+    ERC20FeeProxy: '0x399F5EE127ce7432E4921a61b8CF52b0af52cbfE',
+  },
 };
 
 /**
- * Deploy ERC20CommerceEscrowWrapper using official Base contracts
+ * Deploy ERC20CommerceEscrowWrapper using network-specific contracts
  *
  * This script will:
- * 1. Deploy ERC20FeeProxy if not already deployed
- * 2. Use the official AuthCaptureEscrow contract deployed on Base Sepolia
+ * 1. Use existing ERC20FeeProxy if available, or deploy a new one
+ * 2. Use the official AuthCaptureEscrow contract deployed on the target network
  * 3. Deploy ERC20CommerceEscrowWrapper with the above dependencies
  */
 export default async function deployERC20CommerceEscrowWrapper(
@@ -42,16 +49,34 @@ export default async function deployERC20CommerceEscrowWrapper(
   console.log(`Deployer: ${deployer.address}`);
   console.log(`Deployer balance: ${hre.ethers.utils.formatEther(await deployer.getBalance())} ETH`);
 
-  // Step 1: Deploy ERC20FeeProxy
-  console.log('\n--- Step 1: Deploying ERC20FeeProxy ---');
-  const { address: erc20FeeProxyAddress } = await deployOne(args, hre, 'ERC20FeeProxy', {
-    verify: true,
-  });
-  console.log(`✅ ERC20FeeProxy deployed at: ${erc20FeeProxyAddress}`);
+  // Get network-specific contract addresses
+  const networkContracts = NETWORK_CONTRACTS[hre.network.name];
+  if (!networkContracts) {
+    throw new Error(
+      `Network ${hre.network.name} is not configured. Please add contract addresses to NETWORK_CONTRACTS.`,
+    );
+  }
+
+  let erc20FeeProxyAddress: string;
+
+  // Step 1: Get or Deploy ERC20FeeProxy
+  console.log('\n--- Step 1: ERC20FeeProxy ---');
+  if (networkContracts.ERC20FeeProxy) {
+    // Use existing ERC20FeeProxy
+    erc20FeeProxyAddress = networkContracts.ERC20FeeProxy;
+    console.log(`✅ Using existing ERC20FeeProxy at: ${erc20FeeProxyAddress}`);
+  } else {
+    // Deploy ERC20FeeProxy
+    const result = await deployOne(args, hre, 'ERC20FeeProxy', {
+      verify: true,
+    });
+    erc20FeeProxyAddress = result.address;
+    console.log(`✅ ERC20FeeProxy deployed at: ${erc20FeeProxyAddress}`);
+  }
 
   // Step 2: Use official AuthCaptureEscrow contract
   console.log('\n--- Step 2: Using official AuthCaptureEscrow ---');
-  const authCaptureEscrowAddress = BASE_SEPOLIA_CONTRACTS.AuthCaptureEscrow;
+  const authCaptureEscrowAddress = networkContracts.AuthCaptureEscrow;
   console.log(`✅ Using official AuthCaptureEscrow at: ${authCaptureEscrowAddress}`);
 
   // Step 3: Deploy ERC20CommerceEscrowWrapper
