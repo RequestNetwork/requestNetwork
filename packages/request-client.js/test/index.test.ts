@@ -1282,12 +1282,12 @@ describe('request-client.js', () => {
     // This test checks that 2 payments with reference `c19da4923539c37f` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
     it('can get the balance of an ETH request', async () => {
       const etherscanMock = new EtherscanProviderMock();
-      ethers.providers.EtherscanProvider.prototype.getHistory = jest
-        .fn()
-        .mockImplementation(etherscanMock.getHistory);
-      ethers.providers.EtherscanProvider.prototype.getNetwork = jest
-        .fn()
-        .mockImplementation(etherscanMock.getNetwork);
+      jest
+        .spyOn(ethers.providers.EtherscanProvider.prototype, 'getHistory')
+        .mockImplementation(etherscanMock.getHistory.bind(etherscanMock));
+      jest
+        .spyOn(ethers.providers.EtherscanProvider.prototype, 'getNetwork')
+        .mockImplementation(etherscanMock.getNetwork.bind(etherscanMock));
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
@@ -1346,12 +1346,12 @@ describe('request-client.js', () => {
       jest.useFakeTimers({ advanceTimers: true });
 
       const etherscanMock = new EtherscanProviderMock();
-      ethers.providers.EtherscanProvider.prototype.getHistory = jest
-        .fn()
-        .mockImplementation(etherscanMock.getHistory);
-      ethers.providers.EtherscanProvider.prototype.getNetwork = jest
-        .fn()
-        .mockImplementation(etherscanMock.getNetwork);
+      jest
+        .spyOn(ethers.providers.EtherscanProvider.prototype, 'getHistory')
+        .mockImplementation(etherscanMock.getHistory.bind(etherscanMock));
+      jest
+        .spyOn(ethers.providers.EtherscanProvider.prototype, 'getNetwork')
+        .mockImplementation(etherscanMock.getNetwork.bind(etherscanMock));
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
@@ -1431,12 +1431,12 @@ describe('request-client.js', () => {
       jest.useFakeTimers({ advanceTimers: true });
 
       const etherscanMock = new EtherscanProviderMock();
-      ethers.providers.EtherscanProvider.prototype.getHistory = jest
-        .fn()
-        .mockImplementation(etherscanMock.getHistory);
-      ethers.providers.EtherscanProvider.prototype.getNetwork = jest
-        .fn()
-        .mockImplementation(etherscanMock.getNetwork);
+      jest
+        .spyOn(ethers.providers.EtherscanProvider.prototype, 'getHistory')
+        .mockImplementation(etherscanMock.getHistory.bind(etherscanMock));
+      jest
+        .spyOn(ethers.providers.EtherscanProvider.prototype, 'getNetwork')
+        .mockImplementation(etherscanMock.getNetwork.bind(etherscanMock));
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
