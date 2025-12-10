@@ -1343,7 +1343,7 @@ describe('request-client.js', () => {
     });
 
     it('can disable and enable the get the balance of a request', async () => {
-      jest.useFakeTimers();
+      jest.useFakeTimers({ advanceTimers: true });
 
       const etherscanMock = new EtherscanProviderMock();
       ethers.providers.EtherscanProvider.prototype.getHistory = jest
@@ -1428,7 +1428,7 @@ describe('request-client.js', () => {
     });
 
     it('can get the balance on a skipped payment detection request', async () => {
-      jest.useFakeTimers();
+      jest.useFakeTimers({ advanceTimers: true });
 
       const etherscanMock = new EtherscanProviderMock();
       ethers.providers.EtherscanProvider.prototype.getHistory = jest
