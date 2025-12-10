@@ -205,10 +205,12 @@ describe('request-client.js', () => {
       mockServer.listen({ onUnhandledRequest: 'bypass' });
     });
     beforeEach(() => {
+      mockServer.resetHandlers();
       spyPersistTransaction.mockReturnValue({});
       spyGetTransactionsByChannelId.mockReturnValue({ result: mockedTransactions });
     });
     afterAll(() => {
+      mockServer.resetHandlers();
       mockServer.close();
     });
 
@@ -355,6 +357,7 @@ describe('request-client.js', () => {
       mockServer.close();
     });
     beforeEach(() => {
+      mockServer.resetHandlers();
       hits = { get: 0, post: 0 };
     });
     it('allows to create a request', async () => {
@@ -1157,6 +1160,7 @@ describe('request-client.js', () => {
 
   describe('ETH requests', () => {
     beforeEach(() => {
+      jest.useRealTimers();
       jest.clearAllMocks();
       jest.restoreAllMocks();
     });
@@ -1281,6 +1285,7 @@ describe('request-client.js', () => {
 
     // This test checks that 2 payments with reference `c19da4923539c37f` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
     it('can get the balance of an ETH request', async () => {
+      jest.useFakeTimers({ advanceTimers: true });
       const etherscanMock = new EtherscanProviderMock();
       jest
         .spyOn(ethers.providers.EtherscanProvider.prototype, 'getHistory')
@@ -1313,12 +1318,13 @@ describe('request-client.js', () => {
       });
 
       const request = await requestNetwork.createRequest({
+        disablePaymentDetection: true,
         paymentNetwork,
         requestInfo,
         signer: TestData.payee.identity,
       });
-      await request.waitForConfirmation();
 
+      jest.advanceTimersByTime(150);
       const data = await request.refresh();
 
       // Payment reference should be fixed
@@ -1330,6 +1336,8 @@ describe('request-client.js', () => {
         ),
       ).toBe('efce79375b2db9f7');
 
+      request.enablePaymentDetection();
+      jest.advanceTimersByTime(150);
       const dataAfterRefresh = await request.refresh();
 
       expect(dataAfterRefresh.balance?.balance).toBe('12300000000');
@@ -1340,6 +1348,7 @@ describe('request-client.js', () => {
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).toBe(
         '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
       );
+      jest.useRealTimers();
     });
 
     it('can disable and enable the get the balance of a request', async () => {
