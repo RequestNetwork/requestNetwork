@@ -168,6 +168,7 @@ const waitForConfirmation = async (
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('request-client.js', () => {
   afterEach(() => {
+    jest.useRealTimers();
     jest.resetAllMocks();
   });
 
@@ -1291,6 +1292,7 @@ describe('request-client.js', () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
         useMockStorage: true,
+        paymentOptions: { getSubgraphClient: () => undefined },
       });
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -1354,6 +1356,7 @@ describe('request-client.js', () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
         useMockStorage: true,
+        paymentOptions: { getSubgraphClient: () => undefined },
       });
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -1438,6 +1441,7 @@ describe('request-client.js', () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
         useMockStorage: true,
+        paymentOptions: { getSubgraphClient: () => undefined },
       });
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
