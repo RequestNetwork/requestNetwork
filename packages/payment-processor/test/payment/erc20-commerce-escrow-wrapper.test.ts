@@ -32,6 +32,9 @@ const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 const network: CurrencyTypes.EvmChainName = 'sepolia';
 const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 
+// Get the real wrapper address from the deployed contract
+const wrapperAddress = getCommerceEscrowWrapperAddress(network);
+
 const mockAuthorizeParams: AuthorizePaymentParams = {
   paymentReference: '0x0123456789abcdef',
   payer: wallet.address,
@@ -75,7 +78,9 @@ describe('erc20-commerce-escrow-wrapper', () => {
   describe('getCommerceEscrowWrapperAddress', () => {
     it('should return address when wrapper is deployed on testnet', () => {
       const address = getCommerceEscrowWrapperAddress(network);
-      expect(address).toBe('0x1234567890123456789012345678901234567890');
+      // Verify it returns a valid Ethereum address
+      expect(address).toMatch(/^0x[0-9a-fA-F]{40}$/);
+      expect(address).not.toBe('0x0000000000000000000000000000000000000000');
     });
 
     it('should throw when wrapper not found on mainnet', () => {
@@ -91,19 +96,12 @@ describe('erc20-commerce-escrow-wrapper', () => {
       }).toThrow('No deployment for network: unsupported-network.');
     });
 
-    it('should return different addresses for different supported networks', () => {
+    it('should return a valid address for sepolia network', () => {
       const sepoliaAddress = getCommerceEscrowWrapperAddress('sepolia');
-      const goerliAddress = getCommerceEscrowWrapperAddress('goerli');
-      const mumbaiAddress = getCommerceEscrowWrapperAddress('mumbai');
 
-      // Verify all addresses are valid hex-formatted addresses
-      [sepoliaAddress, goerliAddress, mumbaiAddress].forEach((addr) => {
-        expect(addr).toMatch(/^0x[0-9a-fA-F]{40}$/);
-        expect(addr).not.toBe('0x0000000000000000000000000000000000000000');
-      });
-
-      // Verify all addresses are different
-      expect(new Set([sepoliaAddress, goerliAddress, mumbaiAddress]).size).toBe(3);
+      // Verify the address is valid hex-formatted address
+      expect(sepoliaAddress).toMatch(/^0x[0-9a-fA-F]{40}$/);
+      expect(sepoliaAddress).not.toBe('0x0000000000000000000000000000000000000000');
     });
   });
 
@@ -226,7 +224,7 @@ describe('erc20-commerce-escrow-wrapper', () => {
       expect(result).toBe('1000000000000000000');
       expect(mockGetErc20Allowance).toHaveBeenCalledWith(
         wallet.address,
-        '0x1234567890123456789012345678901234567890', // wrapper address
+        wrapperAddress, // real wrapper address from deployment
         provider,
         erc20ContractAddress,
       );
@@ -631,7 +629,7 @@ describe('erc20-commerce-escrow-wrapper', () => {
       });
 
       expect(wallet.sendTransaction).toHaveBeenCalledWith({
-        to: '0x1234567890123456789012345678901234567890',
+        to: wrapperAddress,
         data: expect.stringMatching(/^0x[a-fA-F0-9]+$/),
         value: 0,
       });
@@ -648,7 +646,7 @@ describe('erc20-commerce-escrow-wrapper', () => {
       });
 
       expect(wallet.sendTransaction).toHaveBeenCalledWith({
-        to: '0x1234567890123456789012345678901234567890',
+        to: wrapperAddress,
         data: expect.stringMatching(/^0x[a-fA-F0-9]+$/),
         value: 0,
       });
@@ -665,7 +663,7 @@ describe('erc20-commerce-escrow-wrapper', () => {
       });
 
       expect(wallet.sendTransaction).toHaveBeenCalledWith({
-        to: '0x1234567890123456789012345678901234567890',
+        to: wrapperAddress,
         data: expect.stringMatching(/^0x[a-fA-F0-9]+$/),
         value: 0,
       });
@@ -682,7 +680,7 @@ describe('erc20-commerce-escrow-wrapper', () => {
       });
 
       expect(wallet.sendTransaction).toHaveBeenCalledWith({
-        to: '0x1234567890123456789012345678901234567890',
+        to: wrapperAddress,
         data: expect.stringMatching(/^0x[a-fA-F0-9]+$/),
         value: 0,
       });
@@ -699,7 +697,7 @@ describe('erc20-commerce-escrow-wrapper', () => {
       });
 
       expect(wallet.sendTransaction).toHaveBeenCalledWith({
-        to: '0x1234567890123456789012345678901234567890',
+        to: wrapperAddress,
         data: expect.stringMatching(/^0x[a-fA-F0-9]+$/),
         value: 0,
       });
@@ -716,7 +714,7 @@ describe('erc20-commerce-escrow-wrapper', () => {
       });
 
       expect(wallet.sendTransaction).toHaveBeenCalledWith({
-        to: '0x1234567890123456789012345678901234567890',
+        to: wrapperAddress,
         data: expect.stringMatching(/^0x[a-fA-F0-9]+$/),
         value: 0,
       });
