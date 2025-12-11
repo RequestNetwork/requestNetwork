@@ -169,6 +169,7 @@ const waitForConfirmation = async (
 describe('request-client.js', () => {
   afterEach(() => {
     jest.useRealTimers();
+    jest.restoreAllMocks();
     jest.resetAllMocks();
   });
 
