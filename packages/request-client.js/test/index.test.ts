@@ -1286,7 +1286,7 @@ describe('request-client.js', () => {
 
     // This test checks that 2 payments with reference `c19da4923539c37f` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
     it('can get the balance of an ETH request', async () => {
-      jest.useFakeTimers({ advanceTimers: true });
+      jest.useFakeTimers();
       const etherscanMock = new EtherscanProviderMock();
       jest
         .spyOn(ethers.providers.EtherscanProvider.prototype, 'getHistory')
@@ -1353,7 +1353,7 @@ describe('request-client.js', () => {
     });
 
     it('can disable and enable the get the balance of a request', async () => {
-      jest.useFakeTimers({ advanceTimers: true });
+      jest.useFakeTimers();
 
       const etherscanMock = new EtherscanProviderMock();
       jest
@@ -1438,7 +1438,7 @@ describe('request-client.js', () => {
     });
 
     it('can get the balance on a skipped payment detection request', async () => {
-      jest.useFakeTimers({ advanceTimers: true });
+      jest.useFakeTimers();
 
       const etherscanMock = new EtherscanProviderMock();
       jest
