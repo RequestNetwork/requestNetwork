@@ -13,32 +13,16 @@ export const erc20CommerceEscrowWrapperArtifact = new ContractArtifact<ERC20Comm
           address: '0x0000000000000000000000000000000000000000', // Placeholder - to be updated with actual deployment
           creationBlockNumber: 0,
         },
-        // Testnet deployments for testing
+        // Testnet deployments
         sepolia: {
-          address: '0x1234567890123456789012345678901234567890', // Placeholder - to be updated with actual deployment
-          creationBlockNumber: 0,
+          address: '0xc9b2eCBc2bfb38908f0Ee59729875959A09E6Ea5',
+          creationBlockNumber: 9822153,
         },
-        goerli: {
-          address: '0x2345678901234567890123456789012345678901', // Placeholder - to be updated with actual deployment
-          creationBlockNumber: 0,
+        // Mainnet deployments
+        base: {
+          address: '0x9A73b3774183d07d4a2b585B04982F2Ec672B03b',
+          creationBlockNumber: 39363932,
         },
-        mumbai: {
-          address: '0x3456789012345678901234567890123456789012', // Placeholder - to be updated with actual deployment
-          creationBlockNumber: 0,
-        },
-        'base-sepolia': {
-          address: '0xDF4945F8AB31C666714f34DDF8Ac9445379fD3f5', // To be updated after deployment
-          creationBlockNumber: 0,
-        },
-        // TODO: Add deployment addresses for mainnet networks once deployed
-        // mainnet: {
-        //   address: '0x0000000000000000000000000000000000000000',
-        //   creationBlockNumber: 0,
-        // },
-        // matic: {
-        //   address: '0x0000000000000000000000000000000000000000',
-        //   creationBlockNumber: 0,
-        // },
       },
     },
   },

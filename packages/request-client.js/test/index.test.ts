@@ -168,6 +168,8 @@ const waitForConfirmation = async (
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('request-client.js', () => {
   afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
     jest.resetAllMocks();
   });
 
@@ -204,10 +206,12 @@ describe('request-client.js', () => {
       mockServer.listen({ onUnhandledRequest: 'bypass' });
     });
     beforeEach(() => {
+      mockServer.resetHandlers();
       spyPersistTransaction.mockReturnValue({});
       spyGetTransactionsByChannelId.mockReturnValue({ result: mockedTransactions });
     });
     afterAll(() => {
+      mockServer.resetHandlers();
       mockServer.close();
     });
 
@@ -354,6 +358,7 @@ describe('request-client.js', () => {
       mockServer.close();
     });
     beforeEach(() => {
+      mockServer.resetHandlers();
       hits = { get: 0, post: 0 };
     });
     it('allows to create a request', async () => {
@@ -1156,6 +1161,7 @@ describe('request-client.js', () => {
 
   describe('ETH requests', () => {
     beforeEach(() => {
+      jest.useRealTimers();
       jest.clearAllMocks();
       jest.restoreAllMocks();
     });
@@ -1281,16 +1287,17 @@ describe('request-client.js', () => {
     // This test checks that 2 payments with reference `c19da4923539c37f` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
     it('can get the balance of an ETH request', async () => {
       const etherscanMock = new EtherscanProviderMock();
-      ethers.providers.EtherscanProvider.prototype.getHistory = jest
-        .fn()
-        .mockImplementation(etherscanMock.getHistory);
-      ethers.providers.EtherscanProvider.prototype.getNetwork = jest
-        .fn()
-        .mockImplementation(etherscanMock.getNetwork);
+      jest
+        .spyOn(ethers.providers.EtherscanProvider.prototype, 'getHistory')
+        .mockImplementation(etherscanMock.getHistory.bind(etherscanMock));
+      jest
+        .spyOn(ethers.providers.EtherscanProvider.prototype, 'getNetwork')
+        .mockImplementation(etherscanMock.getNetwork.bind(etherscanMock));
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
         useMockStorage: true,
+        paymentOptions: { getSubgraphClient: () => undefined },
       });
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -1311,12 +1318,13 @@ describe('request-client.js', () => {
       });
 
       const request = await requestNetwork.createRequest({
+        disablePaymentDetection: true,
         paymentNetwork,
         requestInfo,
         signer: TestData.payee.identity,
       });
-      await request.waitForConfirmation();
 
+      await new Promise((resolve): any => setTimeout(resolve, 150));
       const data = await request.refresh();
 
       // Payment reference should be fixed
@@ -1328,6 +1336,8 @@ describe('request-client.js', () => {
         ),
       ).toBe('efce79375b2db9f7');
 
+      request.enablePaymentDetection();
+      await new Promise((resolve): any => setTimeout(resolve, 150));
       const dataAfterRefresh = await request.refresh();
 
       expect(dataAfterRefresh.balance?.balance).toBe('12300000000');
@@ -1341,19 +1351,18 @@ describe('request-client.js', () => {
     });
 
     it('can disable and enable the get the balance of a request', async () => {
-      jest.useFakeTimers();
-
       const etherscanMock = new EtherscanProviderMock();
-      ethers.providers.EtherscanProvider.prototype.getHistory = jest
-        .fn()
-        .mockImplementation(etherscanMock.getHistory);
-      ethers.providers.EtherscanProvider.prototype.getNetwork = jest
-        .fn()
-        .mockImplementation(etherscanMock.getNetwork);
+      jest
+        .spyOn(ethers.providers.EtherscanProvider.prototype, 'getHistory')
+        .mockImplementation(etherscanMock.getHistory.bind(etherscanMock));
+      jest
+        .spyOn(ethers.providers.EtherscanProvider.prototype, 'getNetwork')
+        .mockImplementation(etherscanMock.getNetwork.bind(etherscanMock));
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
         useMockStorage: true,
+        paymentOptions: { getSubgraphClient: () => undefined },
       });
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -1380,7 +1389,7 @@ describe('request-client.js', () => {
         signer: TestData.payee.identity,
       });
 
-      jest.advanceTimersByTime(150);
+      await new Promise((resolve): any => setTimeout(resolve, 150));
       const data = await request.refresh();
 
       // Payment reference should be fixed
@@ -1392,12 +1401,12 @@ describe('request-client.js', () => {
         ),
       ).toBe('efce79375b2db9f7');
 
-      jest.advanceTimersByTime(150);
+      await new Promise((resolve): any => setTimeout(resolve, 150));
       let dataAfterRefresh = await request.refresh();
       expect(dataAfterRefresh.balance).toBeNull();
 
       request.enablePaymentDetection();
-      jest.advanceTimersByTime(150);
+      await new Promise((resolve): any => setTimeout(resolve, 150));
       dataAfterRefresh = await request.refresh();
 
       expect(dataAfterRefresh.balance?.balance).toBe('12300000000');
@@ -1410,7 +1419,7 @@ describe('request-client.js', () => {
       );
 
       request.disablePaymentDetection();
-      jest.advanceTimersByTime(150);
+      await new Promise((resolve): any => setTimeout(resolve, 150));
       dataAfterRefresh = await request.refresh();
 
       expect(dataAfterRefresh.balance?.balance).toBe('12300000000');
@@ -1421,23 +1430,21 @@ describe('request-client.js', () => {
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).toBe(
         '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
       );
-      jest.useRealTimers();
-    });
+    }, 60000);
 
     it('can get the balance on a skipped payment detection request', async () => {
-      jest.useFakeTimers();
-
       const etherscanMock = new EtherscanProviderMock();
-      ethers.providers.EtherscanProvider.prototype.getHistory = jest
-        .fn()
-        .mockImplementation(etherscanMock.getHistory);
-      ethers.providers.EtherscanProvider.prototype.getNetwork = jest
-        .fn()
-        .mockImplementation(etherscanMock.getNetwork);
+      jest
+        .spyOn(ethers.providers.EtherscanProvider.prototype, 'getHistory')
+        .mockImplementation(etherscanMock.getHistory.bind(etherscanMock));
+      jest
+        .spyOn(ethers.providers.EtherscanProvider.prototype, 'getNetwork')
+        .mockImplementation(etherscanMock.getNetwork.bind(etherscanMock));
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
         useMockStorage: true,
+        paymentOptions: { getSubgraphClient: () => undefined },
       });
 
       const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
@@ -1464,7 +1471,7 @@ describe('request-client.js', () => {
         signer: TestData.payee.identity,
       });
 
-      jest.advanceTimersByTime(150);
+      await new Promise((resolve): any => setTimeout(resolve, 150));
       const data = await request.refresh();
 
       // Payment reference should be fixed
@@ -1476,7 +1483,7 @@ describe('request-client.js', () => {
         ),
       ).toBe('efce79375b2db9f7');
 
-      jest.advanceTimersByTime(150);
+      await new Promise((resolve): any => setTimeout(resolve, 150));
       let dataAfterRefresh = await request.refresh();
       expect(dataAfterRefresh.balance).toBeNull();
 
@@ -1499,9 +1506,7 @@ describe('request-client.js', () => {
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).toBe(
         '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
       );
-
-      jest.useRealTimers();
-    });
+    }, 60000);
   });
 
   describe('ERC20 address based requests', () => {

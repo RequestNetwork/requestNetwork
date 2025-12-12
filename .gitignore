@@ -49,3 +49,6 @@ tsconfig.build.tsbuildinfo
 /packages/smart-contracts/crytic-export/
 
 .nx-cache/
+
+# A place to store AI-generated or temporary files
+.ignore/
