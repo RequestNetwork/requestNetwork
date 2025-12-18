@@ -15,7 +15,8 @@ npm install @requestnetwork/web3-signature
 
 ## Usage
 
-### Usage as commonjs module
+### Usage (ESM / TypeScript)
+
 
 See [packages/usage-examples/src/request-client-js.ts](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/usage-examples/src/request-client-js.ts).
 
