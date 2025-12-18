@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-node",
-  "version": "0.46.0",
+  "version": "0.47.0",
   "publishConfig": {
     "access": "public"
   },
@@ -47,13 +47,13 @@
     "@lit-protocol/contracts-sdk": "7.0.5",
     "@lit-protocol/lit-node-client": "7.0.5",
     "@lit-protocol/types": "7.0.5",
-    "@requestnetwork/currency": "0.29.0",
-    "@requestnetwork/data-access": "0.46.0",
-    "@requestnetwork/ethereum-storage": "0.46.0",
-    "@requestnetwork/smart-contracts": "0.49.0",
-    "@requestnetwork/thegraph-data-access": "0.52.0",
-    "@requestnetwork/types": "0.55.0",
-    "@requestnetwork/utils": "0.55.0",
+    "@requestnetwork/currency": "0.30.0",
+    "@requestnetwork/data-access": "0.47.0",
+    "@requestnetwork/ethereum-storage": "0.47.0",
+    "@requestnetwork/smart-contracts": "0.50.0",
+    "@requestnetwork/thegraph-data-access": "0.53.0",
+    "@requestnetwork/types": "0.56.0",
+    "@requestnetwork/utils": "0.56.0",
     "chalk": "4.1.0",
     "cors": "2.8.5",
     "dotenv": "16.5.0",
