@@ -1,0 +1,13 @@
+name: Auto Add to Project
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+jobs:
+  add-to-project:
+    uses: RequestNetwork/.github/.github/workflows/add-to-project.yml@main
+    secrets:
+      PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
