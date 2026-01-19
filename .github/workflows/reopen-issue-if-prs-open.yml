@@ -1,0 +1,11 @@
+name: Reopen Issue If PRs Open
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  reopen-if-needed:
+    uses: RequestNetwork/.github/.github/workflows/reopen-issue-if-prs-open.yml@main
+    secrets:
+      token: ${{ secrets.REOPEN_ISSUES_TOKEN }}
