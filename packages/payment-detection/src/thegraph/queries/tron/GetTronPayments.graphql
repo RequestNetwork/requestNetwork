@@ -1,0 +1,45 @@
+# Getting TRC20 payments from the ERC20FeeProxy contract on TRON
+query GetTronPayments(
+  $reference: Bytes!
+  $to: String!
+  $tokenAddress: String!
+  $contractAddress: String!
+) {
+  payments(
+    where: {
+      reference: $reference
+      to: $to
+      tokenAddress: $tokenAddress
+      contractAddress: $contractAddress
+    }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    amount
+    block
+    txHash
+    feeAmount
+    feeAddress
+    from
+    timestamp
+    tokenAddress
+  }
+}
+
+# Getting TRC20 payments without token address filter (for any token)
+query GetTronPaymentsAnyToken($reference: Bytes!, $to: String!, $contractAddress: String!) {
+  payments(
+    where: { reference: $reference, to: $to, contractAddress: $contractAddress }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    amount
+    block
+    txHash
+    feeAmount
+    feeAddress
+    from
+    timestamp
+    tokenAddress
+  }
+}

@@ -1,0 +1,52 @@
+specVersion: v0.1.0
+package:
+  name: request_network_tron
+  version: v0.1.0
+  url: https://github.com/RequestNetwork/requestNetwork
+  doc: |
+    Request Network TRON Substreams module for indexing ERC20FeeProxy payment events.
+    Indexes TransferWithReferenceAndFee events from the deployed ERC20FeeProxy contracts
+    on TRON mainnet and Nile testnet.
+
+imports:
+  tron: https://spkg.io/streamingfast/tron-foundational-v0.1.2.spkg
+
+protobuf:
+  files:
+    - payments.proto
+  importPaths:
+    - ./proto
+
+binaries:
+  default:
+    type: wasm/rust-v1
+    file: ./target/wasm32-unknown-unknown/release/request_network_tron.wasm
+
+modules:
+  - name: map_erc20_fee_proxy_payments
+    kind: map
+    initialBlock: 63208782 # Nile testnet deployment block (use lower for both networks)
+    inputs:
+      - source: sf.tron.type.v1.Block
+    output:
+      type: proto:request.tron.v1.Payments
+    doc: |
+      Extracts TransferWithReferenceAndFee events from ERC20FeeProxy contracts.
+      Filters transactions to the known proxy contract addresses and parses
+      the event logs to extract payment details.
+
+  - name: store_payments
+    kind: store
+    updatePolicy: set
+    valueType: proto:request.tron.v1.Payment
+    inputs:
+      - map: map_erc20_fee_proxy_payments
+    doc: |
+      Stores payment events indexed by payment reference for efficient querying.
+
+network: tron
+
+params:
+  map_erc20_fee_proxy_payments: |
+    mainnet_proxy_address=TCUDPYnS9dH3WvFEaE7wN7vnDa51J4R4fd
+    nile_proxy_address=THK5rNmrvCujhmrXa5DB1dASepwXTr9cJs
