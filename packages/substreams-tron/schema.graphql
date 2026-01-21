@@ -1,0 +1,40 @@
+# GraphQL schema for Request Network TRON payments
+# This schema is used when deploying a Substreams-powered subgraph
+
+type Payment @entity {
+  "Unique identifier: txHash-logIndex"
+  id: ID!
+
+  "The TRC20 token contract address"
+  tokenAddress: String!
+
+  "The payment recipient address"
+  to: String!
+
+  "The payment amount"
+  amount: BigInt!
+
+  "The indexed payment reference (keccak256 hash)"
+  reference: Bytes!
+
+  "The fee amount"
+  feeAmount: BigInt!
+
+  "The fee recipient address"
+  feeAddress: String
+
+  "The sender address"
+  from: String!
+
+  "Block number"
+  block: Int!
+
+  "Block timestamp (Unix seconds)"
+  timestamp: Int!
+
+  "Transaction hash"
+  txHash: String!
+
+  "The ERC20FeeProxy contract address"
+  contractAddress: String!
+}

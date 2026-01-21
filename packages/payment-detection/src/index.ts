@@ -16,6 +16,7 @@ import {
   getTheGraphClientUrl,
   getTheGraphEvmClient,
   getTheGraphNearClient,
+  getTheGraphTronClient,
 } from './thegraph';
 import {
   calculateEscrowState,
@@ -30,6 +31,7 @@ import {
   unpadAmountFromChainlink,
 } from './utils';
 import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetector } from './near';
+import { TronERC20FeeProxyPaymentDetector, TronInfoRetriever } from './tron';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
 import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
 import { EscrowERC20InfoRetriever } from './erc20/escrow-info-retriever';
@@ -55,6 +57,8 @@ export {
   SuperFluidPaymentDetector,
   NearNativeTokenPaymentDetector,
   NearConversionNativeTokenPaymentDetector,
+  TronERC20FeeProxyPaymentDetector,
+  TronInfoRetriever,
   EscrowERC20InfoRetriever,
   SuperFluidInfoRetriever,
   MetaDetector,
@@ -65,6 +69,7 @@ export {
   getTheGraphClientUrl,
   getTheGraphEvmClient,
   getTheGraphNearClient,
+  getTheGraphTronClient,
   parseLogArgs,
   padAmountForChainlink,
   unpadAmountFromChainlink,
