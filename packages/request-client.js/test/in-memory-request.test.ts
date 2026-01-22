@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events';
 import { RequestNetwork, RequestNetworkBase } from '../src/index';
 import * as TestData from './data-test';
 
@@ -10,6 +11,7 @@ import {
   NoPersistDataWrite,
   PendingStore,
 } from '@requestnetwork/data-access';
+import { ClientTypes } from '@requestnetwork/types';
 
 class MyCustomDataAccess extends CombinedDataAccess {
   constructor() {
@@ -125,6 +127,19 @@ describe('handle in-memory request', () => {
 
     await expect(requestNetwork.persistRequest(request)).rejects.toThrow(
       'Cannot persist request without inMemoryInfo',
+    );
+  });
+
+  it('returns an empty EventEmitter object when calling getData', async () => {
+    requestNetwork = new RequestNetwork({
+      skipPersistence: true,
+      signatureProvider: TestData.fakeSignatureProvider,
+    });
+
+    const request = await requestNetwork.createRequest(requestCreationParams);
+
+    expect(request.getData()).toStrictEqual(
+      Object.assign(new EventEmitter(), {} as ClientTypes.IRequestDataWithEvents),
     );
   });
 
