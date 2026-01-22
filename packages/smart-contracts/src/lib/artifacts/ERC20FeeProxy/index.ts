@@ -182,6 +182,20 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
         },
       },
     },
+    // Tron network deployments - uses Base58 addresses
+    tron: {
+      abi: ABI_0_1_0,
+      deployment: {
+        nile: {
+          address: 'THK5rNmrvCujhmrXa5DB1dASepwXTr9cJs',
+          creationBlockNumber: 63208782,
+        },
+        tron: {
+          address: 'TCUDPYnS9dH3WvFEaE7wN7vnDa51J4R4fd',
+          creationBlockNumber: 79216121,
+        },
+      },
+    },
     // Additional deployments of same versions, not worth upgrading the version number but worth using within next versions
     /*
     '0.2.0-next': {

@@ -1,6 +1,7 @@
 import { CurrencyTypes } from '@requestnetwork/types';
 
 import * as TronDefinition from './data/tron';
+import * as NileDefinition from './data/nile';
 import * as SolanaDefinition from './data/solana';
 import * as StarknetDefinition from './data/starknet';
 import * as TonDefinition from './data/ton';
@@ -11,6 +12,7 @@ export type DeclarativeChain = CurrencyTypes.Chain;
 
 export const chains: Record<CurrencyTypes.DeclarativeChainName, DeclarativeChain> = {
   tron: TronDefinition,
+  nile: NileDefinition,
   solana: SolanaDefinition,
   starknet: StarknetDefinition,
   ton: TonDefinition,
