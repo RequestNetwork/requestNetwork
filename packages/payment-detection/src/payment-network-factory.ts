@@ -24,6 +24,7 @@ import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
 import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
 import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
 import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetector } from './near';
+import { TronERC20FeeProxyPaymentDetector } from './tron';
 import { getPaymentNetworkExtension } from './utils';
 import { getTheGraphClient } from './thegraph';
 import { getDefaultProvider } from 'ethers';
@@ -54,6 +55,13 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
     },
     'near-testnet': {
       [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector<CurrencyTypes.NearChainName>,
+    },
+    // TRON chains
+    tron: {
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: TronERC20FeeProxyPaymentDetector,
+    },
+    nile: {
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: TronERC20FeeProxyPaymentDetector,
     },
 
     '*': {

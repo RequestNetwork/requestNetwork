@@ -1,0 +1,2 @@
+# Using local schema until the subgraph is deployed to The Graph Studio
+schema: ../../../../../substreams-tron/schema.graphql
