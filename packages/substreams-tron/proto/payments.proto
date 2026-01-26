@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package request.tron.v1;
+
+// A single payment event from the ERC20FeeProxy contract
+message Payment {
+  // The token contract address (TRC20)
+  string token_address = 1;
+  
+  // The recipient address
+  string to = 2;
+  
+  // The payment amount (as string to preserve precision)
+  string amount = 3;
+  
+  // The indexed payment reference (hex encoded)
+  string payment_reference = 4;
+  
+  // The fee amount (as string to preserve precision)
+  string fee_amount = 5;
+  
+  // The fee recipient address
+  string fee_address = 6;
+  
+  // The sender address (msg.sender)
+  string from = 7;
+  
+  // Block number where the event was emitted
+  uint64 block = 8;
+  
+  // Block timestamp (Unix timestamp in seconds)
+  uint64 timestamp = 9;
+  
+  // Transaction hash
+  string tx_hash = 10;
+  
+  // The proxy contract address that emitted the event
+  string contract_address = 11;
+}
+
+// Collection of payment events
+message Payments {
+  repeated Payment payments = 1;
+}
