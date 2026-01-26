@@ -1,0 +1,20 @@
+# Substreams-powered Subgraph configuration for TRON payments
+specVersion: 1.0.0
+description: Request Network TRON ERC20FeeProxy payment events
+repository: https://github.com/RequestNetwork/requestNetwork
+schema:
+  file: ./schema.graphql
+
+dataSources:
+  - kind: substreams
+    name: TronPayments
+    network: tron
+    source:
+      package:
+        moduleName: map_erc20_fee_proxy_payments
+        file: ./request-network-tron-v0.1.0.spkg
+    mapping:
+      apiVersion: 0.0.7
+      kind: substreams/graph-entities
+      file: ./src/mappings.ts
+      handler: handlePayments
