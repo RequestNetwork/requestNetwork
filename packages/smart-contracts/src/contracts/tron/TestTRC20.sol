@@ -60,6 +60,10 @@ contract TestTRC20 {
     return true;
   }
 
+  /**
+   * @notice Mint new tokens - intentionally unrestricted for testing purposes
+   * @dev This is a test contract; in production, this would require access control
+   */
   function mint(address to, uint256 amount) external {
     totalSupply += amount;
     balanceOf[to] += amount;
