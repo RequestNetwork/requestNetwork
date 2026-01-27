@@ -44,7 +44,7 @@ async function main() {
   }
 
   // Load compiled contract
-  const buildPath = path.join(__dirname, '../build/tron/TestTRC20.json');
+  const buildPath = path.join(__dirname, '../../tron/build/TestTRC20.json');
 
   if (!fs.existsSync(buildPath)) {
     console.error('❌ Contract not compiled. Run: yarn tron:compile');
@@ -104,7 +104,7 @@ async function main() {
           },
         };
 
-        const outputPath = path.join(__dirname, '../deployments/tron/nile-test-token.json');
+        const outputPath = path.join(__dirname, '../../deployments/tron/nile-test-token.json');
         fs.writeFileSync(outputPath, JSON.stringify(deploymentInfo, null, 2));
         console.log('\nDeployment info saved to:', outputPath);
 

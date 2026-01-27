@@ -33,7 +33,7 @@ const tronWeb = new TronWeb({
 });
 
 async function loadDeployment(network) {
-  const deploymentPath = path.join(__dirname, `../deployments/${network}.json`);
+  const deploymentPath = path.join(__dirname, `../../deployments/tron/${network}.json`);
   if (!fs.existsSync(deploymentPath)) {
     throw new Error(`Deployment file not found: ${deploymentPath}`);
   }
@@ -41,7 +41,7 @@ async function loadDeployment(network) {
 }
 
 async function loadArtifact(contractName) {
-  const artifactPath = path.join(__dirname, `../build/tron/${contractName}.json`);
+  const artifactPath = path.join(__dirname, `../../tron/build/${contractName}.json`);
   return JSON.parse(fs.readFileSync(artifactPath, 'utf8'));
 }
 
