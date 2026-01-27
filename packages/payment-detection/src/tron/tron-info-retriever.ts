@@ -50,7 +50,9 @@ export class TronInfoRetriever implements ITheGraphBaseInfoRetriever<TronPayment
     }
 
     return {
-      paymentEvents: payments.map((p) => this.mapPaymentEvent(p, params)),
+      paymentEvents: payments.map((p: GetTronPaymentsQuery['payments'][0]) =>
+        this.mapPaymentEvent(p, params),
+      ),
     };
   }
 

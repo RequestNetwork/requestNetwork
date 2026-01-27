@@ -46,14 +46,23 @@ export class TronERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetect
    * Gets the deployment information for the ERC20FeeProxy contract on TRON
    */
   public static getDeploymentInformation(
-    network: CurrencyTypes.TronChainName,
+    network: CurrencyTypes.VMChainName,
     _paymentNetworkVersion?: string,
   ): { address: string; creationBlockNumber: number } {
     void _paymentNetworkVersion; // Parameter kept for API compatibility
+
+    // Validate that the network is a TRON chain
+    if (network !== 'tron' && network !== 'nile') {
+      throw new Error(
+        `TronERC20FeeProxyPaymentDetector only supports TRON networks, got: ${network}`,
+      );
+    }
+
     // For TRON, we use the 'tron' version of the artifact
-    const address = erc20FeeProxyArtifact.getAddress(network, 'tron');
+    const tronNetwork = network as CurrencyTypes.TronChainName;
+    const address = erc20FeeProxyArtifact.getAddress(tronNetwork, 'tron');
     const creationBlockNumber =
-      network === 'tron'
+      tronNetwork === 'tron'
         ? 79216121 // TRON mainnet
         : 63208782; // Nile testnet
 
