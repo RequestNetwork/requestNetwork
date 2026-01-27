@@ -4,7 +4,8 @@
   "description": "Request Network TRON Substreams module for ERC20FeeProxy payment detection",
   "private": true,
   "scripts": {
-    "build": "make build",
+    "build": "echo 'Substreams-tron requires Rust toolchain. Run make build directly or use CI.'",
+    "build:rust": "make build",
     "protogen": "make protogen",
     "package": "make package",
     "gui": "make gui",
