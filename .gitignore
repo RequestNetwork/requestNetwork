@@ -37,6 +37,7 @@ tsconfig.build.tsbuildinfo
 
 # smart-contracts generated files
 /packages/smart-contracts/build/
+!/packages/smart-contracts/build/tron/
 /packages/smart-contracts/cache/
 /packages/smart-contracts/types/
 /packages/smart-contracts/src/types/

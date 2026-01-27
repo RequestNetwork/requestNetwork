@@ -60,10 +60,10 @@ module.exports = {
     },
   },
 
-  // Contract build directory - separate from Hardhat to avoid conflicts
+  // Contract build directory - Tron builds go under build/tron alongside Hardhat builds
   // Tron-specific contracts are in src/contracts/tron/ alongside the main contracts
   contracts_directory: './src/contracts/tron',
-  contracts_build_directory: './tron-build',
+  contracts_build_directory: './build/tron',
   migrations_directory: './migrations/tron',
   test_directory: './test/tron',
 
