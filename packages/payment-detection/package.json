@@ -38,7 +38,7 @@
     "prepare": "yarn run build",
     "test": "jest --runInBand",
     "test:watch": "yarn test --watch",
-    "codegen": "graphql-codegen --config codegen.yml ; graphql-codegen --config codegen-superfluid.yml; graphql-codegen --config codegen-near.yml; graphql-codegen --config codegen-tron.yml"
+    "codegen": "graphql-codegen --config codegen.yml ; graphql-codegen --config codegen-superfluid.yml; graphql-codegen --config codegen-near.yml; test -f ../substreams-tron/schema.graphql && graphql-codegen --config codegen-tron.yml || echo 'Skipping tron codegen (schema not found)'"
   },
   "dependencies": {
     "@requestnetwork/currency": "0.30.0",
