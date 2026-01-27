@@ -31,6 +31,6 @@
     "gui": "make gui",
     "run": "make run",
     "clean": "make clean",
-    "test": "make test"
+    "test": "echo 'Substreams-tron tests require Rust toolchain. Run make test directly or use CI.'"
   }
 }
