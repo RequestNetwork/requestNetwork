@@ -105,6 +105,7 @@ async function main() {
         };
 
         const outputPath = path.join(__dirname, '../../deployments/tron/nile-test-token.json');
+        fs.mkdirSync(path.dirname(outputPath), { recursive: true });
         fs.writeFileSync(outputPath, JSON.stringify(deploymentInfo, null, 2));
         console.log('\nDeployment info saved to:', outputPath);
 
