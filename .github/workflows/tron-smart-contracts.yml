@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - 'packages/smart-contracts/src/contracts/tron/**'
+      - 'packages/smart-contracts/tron/**'
       - 'packages/smart-contracts/deployments/tron/**'
       - 'packages/smart-contracts/migrations/tron/**'
       - 'packages/smart-contracts/scripts/tron/**'
@@ -20,7 +20,7 @@ on:
     branches:
       - master
     paths:
-      - 'packages/smart-contracts/src/contracts/tron/**'
+      - 'packages/smart-contracts/tron/**'
       - 'packages/smart-contracts/deployments/tron/**'
       - 'packages/smart-contracts/migrations/tron/**'
       - 'packages/smart-contracts/scripts/tron/**'
