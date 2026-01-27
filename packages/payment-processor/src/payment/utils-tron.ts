@@ -137,8 +137,15 @@ export const getTronAllowance = async (
   }
 };
 
+/** Default fee limit for TRC20 approval (100 TRX in SUN) */
+export const DEFAULT_APPROVAL_FEE_LIMIT = 100_000_000;
+
+/** Default fee limit for TRC20 fee proxy payment (150 TRX in SUN) */
+export const DEFAULT_PAYMENT_FEE_LIMIT = 150_000_000;
+
 /**
  * Approves the ERC20FeeProxy contract to spend TRC20 tokens
+ * @param feeLimit - Optional fee limit in SUN (1 TRX = 1,000,000 SUN). Defaults to 100 TRX.
  */
 export const approveTrc20 = async (
   tronWeb: TronWeb,
@@ -146,13 +153,14 @@ export const approveTrc20 = async (
   network: CurrencyTypes.TronChainName,
   amount: BigNumberish,
   callback?: ITronTransactionCallback,
+  feeLimit: number = DEFAULT_APPROVAL_FEE_LIMIT,
 ): Promise<string> => {
   const proxyAddress = getERC20FeeProxyAddress(network);
   const contract = await tronWeb.contract(TRC20_ABI, tokenAddress);
 
   try {
     const result = await contract.approve(proxyAddress, amount.toString()).send({
-      feeLimit: 100000000, // 100 TRX fee limit
+      feeLimit,
       shouldPollResponse: true,
     });
 
@@ -168,6 +176,7 @@ export const approveTrc20 = async (
 
 /**
  * Processes a TRC20 fee proxy payment on Tron
+ * @param feeLimit - Optional fee limit in SUN (1 TRX = 1,000,000 SUN). Defaults to 150 TRX.
  */
 export const processTronFeeProxyPayment = async (
   tronWeb: TronWeb,
@@ -179,6 +188,7 @@ export const processTronFeeProxyPayment = async (
   feeAmount: BigNumberish,
   feeAddress: string,
   callback?: ITronTransactionCallback,
+  feeLimit: number = DEFAULT_PAYMENT_FEE_LIMIT,
 ): Promise<string> => {
   // Validate addresses
   if (!isValidTronAddress(to)) {
@@ -213,7 +223,7 @@ export const processTronFeeProxyPayment = async (
         feeAddress,
       )
       .send({
-        feeLimit: 150000000, // 150 TRX fee limit for proxy call
+        feeLimit,
         shouldPollResponse: true,
       });
 
