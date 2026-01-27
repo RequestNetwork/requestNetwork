@@ -43,7 +43,12 @@ export type BtcChainName = 'mainnet' | 'testnet';
 /**
  * List of supported Declarative chains
  */
-export type DeclarativeChainName = 'tron' | 'solana' | 'ton' | 'starknet' | 'aleo' | 'sui';
+export type DeclarativeChainName = 'solana' | 'ton' | 'starknet' | 'aleo' | 'sui';
+
+/**
+ * List of supported Tron chains (mainnet and testnets)
+ */
+export type TronChainName = 'tron' | 'nile';
 
 /**
  * List of supported NEAR chains
@@ -51,12 +56,17 @@ export type DeclarativeChainName = 'tron' | 'solana' | 'ton' | 'starknet' | 'ale
  */
 export type NearChainName = 'aurora' | 'aurora-testnet' | 'near' | 'near-testnet';
 
-export type ChainName = EvmChainName | BtcChainName | NearChainName | DeclarativeChainName;
+export type ChainName =
+  | EvmChainName
+  | BtcChainName
+  | NearChainName
+  | TronChainName
+  | DeclarativeChainName;
 
 /**
- * Virtual machin chains, where payment proxy contracts can be deployed
+ * Virtual machine chains, where payment proxy contracts can be deployed
  */
-export type VMChainName = EvmChainName | NearChainName;
+export type VMChainName = EvmChainName | NearChainName | TronChainName;
 
 /**
  * Common types used in token configuration files
