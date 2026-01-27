@@ -1,4 +1,8 @@
 # Substreams-powered Subgraph configuration for TRON payments
+# Note: This is a template. To deploy:
+# 1. Build the substreams: make build
+# 2. Package it: substreams pack
+# 3. Deploy to The Graph with this subgraph.yaml
 specVersion: 1.0.0
 description: Request Network TRON ERC20FeeProxy payment events
 repository: https://github.com/RequestNetwork/requestNetwork
@@ -16,5 +20,3 @@ dataSources:
     mapping:
       apiVersion: 0.0.7
       kind: substreams/graph-entities
-      file: ./src/mappings.ts
-      handler: handlePayments

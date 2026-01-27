@@ -40,15 +40,6 @@ modules:
         mainnet_proxy_address=<address>
         nile_proxy_address=<address>
 
-  - name: store_payments
-    kind: store
-    updatePolicy: set
-    valueType: proto:request.tron.v1.Payment
-    inputs:
-      - map: map_erc20_fee_proxy_payments
-    doc: |
-      Stores payment events indexed by payment reference for efficient querying.
-
 network: tron
 
 params:
