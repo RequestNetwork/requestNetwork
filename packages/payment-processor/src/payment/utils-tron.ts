@@ -151,6 +151,7 @@ export const getTronAllowance = async (
 
 /**
  * Approves the ERC20FeeProxy contract to spend TRC20 tokens
+ * @param feeLimit - Optional fee limit in SUN (1 TRX = 1,000,000 SUN). Defaults to 100 TRX.
  */
 export const approveTrc20 = async (
   tronWeb: TronWeb,
@@ -181,6 +182,7 @@ export const approveTrc20 = async (
 
 /**
  * Processes a TRC20 fee proxy payment on Tron
+ * @param feeLimit - Optional fee limit in SUN (1 TRX = 1,000,000 SUN). Defaults to 150 TRX.
  */
 export const processTronFeeProxyPayment = async (
   tronWeb: TronWeb,
