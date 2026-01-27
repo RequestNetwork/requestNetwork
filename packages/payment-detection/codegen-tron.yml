@@ -1,6 +1,5 @@
 overwrite: true
-# Using local schema until the subgraph is deployed to The Graph Studio
-schema: '../substreams-tron/schema.graphql'
+schema: 'src/thegraph/queries/tron/schema.graphql'
 documents: src/thegraph/queries/tron/*.graphql
 generates:
   src/thegraph/generated/graphql-tron.ts:
