@@ -27,6 +27,7 @@ modules:
     kind: map
     initialBlock: 63208782 # Nile testnet deployment block (use lower for both networks)
     inputs:
+      - params: string
       - source: sf.tron.type.v1.Block
     output:
       type: proto:request.tron.v1.Payments
@@ -34,6 +35,10 @@ modules:
       Extracts TransferWithReferenceAndFee events from ERC20FeeProxy contracts.
       Filters transactions to the known proxy contract addresses and parses
       the event logs to extract payment details.
+
+      Params format:
+        mainnet_proxy_address=<address>
+        nile_proxy_address=<address>
 
   - name: store_payments
     kind: store
