@@ -13,7 +13,7 @@ imports:
 
 protobuf:
   files:
-    - payments.proto
+    - request/tron/v1/payments.proto
   importPaths:
     - ./proto
 
