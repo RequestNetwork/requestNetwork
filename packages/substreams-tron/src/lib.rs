@@ -16,8 +16,9 @@ const NILE_PROXY_ADDRESS: &str = "THK5rNmrvCujhmrXa5DB1dASepwXTr9cJs";
 
 /// TransferWithReferenceAndFee event signature (keccak256 hash of event signature)
 /// Event: TransferWithReferenceAndFee(address,address,uint256,bytes indexed,uint256,address)
+/// keccak256("TransferWithReferenceAndFee(address,address,uint256,bytes,uint256,address)")
 const TRANSFER_WITH_REF_AND_FEE_TOPIC: &str =
-    "e8e8ca0a945b88ee72ec3e1e5f1e9c8f2a0a1e8a";
+    "9f16cbcc523c67a60c450e5ffe4f3b7b6dbe772e7abcadb2686ce029a9a0a2b6";
 
 /// Maps TRON blocks to extract ERC20FeeProxy payment events
 #[substreams::handlers::map]
@@ -43,6 +44,12 @@ fn map_erc20_fee_proxy_payments(block: Block) -> Result<Payments, substreams::er
                 // Check if this is a TransferWithReferenceAndFee event
                 // The first topic should be the event signature
                 if log_entry.topics.is_empty() {
+                    continue;
+                }
+
+                // Validate the event signature matches TransferWithReferenceAndFee
+                let topic0 = hex::encode(&log_entry.topics[0]);
+                if topic0 != TRANSFER_WITH_REF_AND_FEE_TOPIC {
                     continue;
                 }
 
