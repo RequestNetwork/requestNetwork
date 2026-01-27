@@ -164,7 +164,7 @@ async function main() {
       },
     };
 
-    const outputPath = path.join(__dirname, '../../tron/deployments/mainnet.json');
+    const outputPath = path.join(__dirname, '../deployments/tron/mainnet.json');
     fs.writeFileSync(outputPath, JSON.stringify(deploymentInfo, null, 2));
     console.log(`\nDeployment info saved to: ${outputPath}`);
 
