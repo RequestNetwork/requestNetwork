@@ -12,7 +12,7 @@
  *
  * Usage:
  *   export TRON_PRIVATE_KEY=your_private_key
- *   node tron/scripts/test-deployed-nile.js
+ *   node scripts/tron/test-deployed-nile.js
  */
 
 const TronWeb = require('tronweb');
@@ -79,7 +79,7 @@ async function main() {
     console.error('❌ Error: TRON_PRIVATE_KEY environment variable not set');
     console.log('\nUsage:');
     console.log('  export TRON_PRIVATE_KEY=your_private_key');
-    console.log('  node tron/scripts/test-deployed-nile.js');
+    console.log('  node scripts/tron/test-deployed-nile.js');
     process.exit(1);
   }
 

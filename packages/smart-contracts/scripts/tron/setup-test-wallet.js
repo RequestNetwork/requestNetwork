@@ -8,7 +8,7 @@
  * 2. Deploy a test TRC20 token if needed
  *
  * Usage:
- *   node tron/scripts/setup-test-wallet.js
+ *   node scripts/tron/setup-test-wallet.js
  */
 
 require('dotenv').config();

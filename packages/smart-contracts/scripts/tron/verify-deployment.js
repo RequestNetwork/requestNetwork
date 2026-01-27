@@ -5,7 +5,7 @@
  * Verifies that deployed contracts are working correctly on Tron testnet/mainnet.
  *
  * Usage:
- *   TRON_PRIVATE_KEY=your_key TRON_NETWORK=nile node tron/scripts/verify-deployment.js
+ *   TRON_PRIVATE_KEY=your_key TRON_NETWORK=nile node scripts/tron/verify-deployment.js
  */
 
 const TronWeb = require('tronweb');
@@ -41,7 +41,7 @@ async function loadDeployment(network) {
 }
 
 async function loadArtifact(contractName) {
-  const artifactPath = path.join(__dirname, `../../tron-build/${contractName}.json`);
+  const artifactPath = path.join(__dirname, `../build/tron/${contractName}.json`);
   return JSON.parse(fs.readFileSync(artifactPath, 'utf8'));
 }
 

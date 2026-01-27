@@ -5,7 +5,11 @@ on:
     branches:
       - master
     paths:
-      - 'packages/smart-contracts/tron/**'
+      - 'packages/smart-contracts/src/contracts/tron/**'
+      - 'packages/smart-contracts/deployments/tron/**'
+      - 'packages/smart-contracts/migrations/tron/**'
+      - 'packages/smart-contracts/scripts/tron/**'
+      - 'packages/smart-contracts/test/tron/**'
       - 'packages/smart-contracts/tronbox-config.js'
       - 'packages/smart-contracts/src/lib/artifacts/ERC20FeeProxy/**'
       - 'packages/payment-processor/src/payment/*tron*'
@@ -16,7 +20,11 @@ on:
     branches:
       - master
     paths:
-      - 'packages/smart-contracts/tron/**'
+      - 'packages/smart-contracts/src/contracts/tron/**'
+      - 'packages/smart-contracts/deployments/tron/**'
+      - 'packages/smart-contracts/migrations/tron/**'
+      - 'packages/smart-contracts/scripts/tron/**'
+      - 'packages/smart-contracts/test/tron/**'
       - 'packages/smart-contracts/tronbox-config.js'
       - 'packages/smart-contracts/src/lib/artifacts/ERC20FeeProxy/**'
       - 'packages/payment-processor/src/payment/*tron*'
@@ -53,11 +61,11 @@ jobs:
         working-directory: packages/smart-contracts
         run: |
           echo "Checking build artifacts..."
-          ls -la tron-build/
+          ls -la build/tron/
 
           # Verify key contracts were compiled
           for contract in ERC20FeeProxy TestTRC20 BadTRC20 TRC20True TRC20NoReturn TRC20False TRC20Revert; do
-            if [ ! -f "tron-build/${contract}.json" ]; then
+            if [ ! -f "build/tron/${contract}.json" ]; then
               echo "ERROR: ${contract}.json not found!"
               exit 1
             fi
@@ -73,7 +81,7 @@ jobs:
 
           # Check that the compiled contract has the expected functions
           for func in transferFromWithReferenceAndFee; do
-            if ! grep -q "$func" tron-build/ERC20FeeProxy.json; then
+            if ! grep -q "$func" build/tron/ERC20FeeProxy.json; then
               echo "ERROR: ERC20FeeProxy missing $func function!"
               exit 1
             fi
@@ -82,7 +90,7 @@ jobs:
 
           # Verify TestTRC20 has standard ERC20 functions
           for func in transfer approve transferFrom balanceOf allowance; do
-            if ! grep -q "$func" tron-build/TestTRC20.json; then
+            if ! grep -q "$func" build/tron/TestTRC20.json; then
               echo "ERROR: TestTRC20 missing $func function!"
               exit 1
             fi
@@ -97,7 +105,7 @@ jobs:
           echo "Validating deployment files..."
 
           for network in nile mainnet; do
-            file="tron/deployments/${network}.json"
+            file="deployments/tron/${network}.json"
             if [ -f "$file" ]; then
               if ! python3 -m json.tool "$file" > /dev/null 2>&1; then
                 echo "ERROR: $file is not valid JSON!"

@@ -9,7 +9,7 @@
  * 3. Nile testnet TRX in your account (get from faucet: https://nileex.io/join/getJoinPage)
  *
  * Usage:
- *   TRON_PRIVATE_KEY=your_private_key node tron/scripts/deploy-nile.js
+ *   TRON_PRIVATE_KEY=your_private_key node scripts/tron/deploy-nile.js
  */
 
 const TronWeb = require('tronweb');
@@ -32,7 +32,7 @@ const tronWeb = new TronWeb({
 });
 
 // Contract artifacts paths
-const ARTIFACTS_DIR = path.join(__dirname, '../../tron-build');
+const ARTIFACTS_DIR = path.join(__dirname, '../build/tron');
 
 async function loadArtifact(contractName) {
   const artifactPath = path.join(ARTIFACTS_DIR, `${contractName}.json`);
