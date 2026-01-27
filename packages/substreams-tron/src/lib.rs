@@ -6,9 +6,10 @@
 mod pb;
 
 use hex;
+use pb::protocol::transaction_info::Log;
 use pb::request::tron::v1::{Payment, Payments};
+use pb::sf::tron::r#type::v1::{Block, Transaction};
 use substreams::log;
-use substreams_tron::pb::sf::tron::r#type::v1::Block;
 
 /// TransferWithReferenceAndFee event signature (keccak256 hash of event signature)
 /// Event: TransferWithReferenceAndFee(address,address,uint256,bytes indexed,uint256,address)
@@ -42,15 +43,15 @@ fn map_erc20_fee_proxy_payments(params: String, block: Block) -> Result<Payments
     let (mainnet_proxy, nile_proxy) = parse_proxy_addresses(&params);
     
     let mut payments = Vec::new();
-    let block_number = block.number;
-    let block_timestamp = block.header.as_ref().map(|h| h.timestamp).unwrap_or(0) / 1000; // Convert from ms to seconds
+    let block_number = block.header.as_ref().map(|h| h.number).unwrap_or(0);
+    let block_timestamp = block.header.as_ref().map(|h| h.timestamp).unwrap_or(0) as u64 / 1000; // Convert from ms to seconds
 
     for transaction in block.transactions.iter() {
         let tx_hash = hex::encode(&transaction.txid);
         
-        // Get the transaction result to access logs
-        if let Some(result) = &transaction.result {
-            for log_entry in result.logs.iter() {
+        // Get the transaction info to access logs
+        if let Some(info) = &transaction.info {
+            for log_entry in info.log.iter() {
                 // Check if this log is from one of our proxy contracts
                 let contract_address = base58_encode(&log_entry.address);
                 
@@ -72,7 +73,7 @@ fn map_erc20_fee_proxy_payments(params: String, block: Block) -> Result<Payments
 
                 // Parse the event data
                 if let Some(payment) = parse_transfer_with_reference_and_fee(
-                    &log_entry,
+                    log_entry,
                     &contract_address,
                     &tx_hash,
                     block_number,
@@ -90,12 +91,12 @@ fn map_erc20_fee_proxy_payments(params: String, block: Block) -> Result<Payments
 
 /// Parses a TransferWithReferenceAndFee event from a log entry
 fn parse_transfer_with_reference_and_fee(
-    log_entry: &substreams_tron::pb::sf::tron::r#type::v1::Log,
+    log_entry: &Log,
     contract_address: &str,
     tx_hash: &str,
     block_number: u64,
     block_timestamp: u64,
-    transaction: &substreams_tron::pb::sf::tron::r#type::v1::TransactionTrace,
+    transaction: &Transaction,
 ) -> Option<Payment> {
     // Event: TransferWithReferenceAndFee(address tokenAddress, address to, uint256 amount, 
     //                                    bytes indexed paymentReference, uint256 feeAmount, address feeAddress)
@@ -131,12 +132,10 @@ fn parse_transfer_with_reference_and_fee(
     let fee_amount = parse_uint256_from_data(data, 96);
     let fee_address = parse_address_from_data(data, 128)?;
 
-    // Get the sender (from) address from the transaction
+    // Get the sender (from) address from the transaction contracts
     let from = transaction
-        .transaction
-        .as_ref()
-        .and_then(|tx| tx.raw_data.as_ref())
-        .and_then(|raw| raw.contract.first())
+        .contracts
+        .first()
         .and_then(|c| c.parameter.as_ref())
         .map(|p| extract_owner_address(p))
         .unwrap_or_default();
