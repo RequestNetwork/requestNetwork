@@ -33,7 +33,7 @@ Compile contracts for Tron:
 yarn tron:compile
 ```
 
-This creates artifacts in `tron-build/` directory.
+This creates artifacts in `build/tron/` directory.
 
 ## Testing
 
@@ -74,7 +74,7 @@ This will:
 
 1. Deploy ERC20FeeProxy
 2. Deploy TestTRC20 tokens
-3. Save deployment info to `tron/deployments/nile.json`
+3. Save deployment info to `deployments/tron/nile.json`
 
 ### Mainnet
 

@@ -63,13 +63,13 @@
     "tron:migrate:mainnet": "tronbox migrate --config tronbox-config.js --network mainnet",
     "tron:test": "tronbox test --config tronbox-config.js --network development",
     "tron:test:nile": "tronbox test --config tronbox-config.js --network nile",
-    "tron:deploy:nile": "node tron/scripts/deploy-nile.js",
-    "tron:deploy:mainnet": "node tron/scripts/deploy-mainnet.js",
-    "tron:verify:nile": "TRON_NETWORK=nile node tron/scripts/verify-deployment.js",
-    "tron:verify:mainnet": "TRON_NETWORK=mainnet node tron/scripts/verify-deployment.js",
-    "tron:test:deployed:nile": "node tron/scripts/test-deployed-nile.js",
-    "tron:setup-wallet": "node tron/scripts/setup-test-wallet.js",
-    "tron:deploy:test-token": "node tron/scripts/deploy-test-token.js"
+    "tron:deploy:nile": "node scripts/tron/deploy-nile.js",
+    "tron:deploy:mainnet": "node scripts/tron/deploy-mainnet.js",
+    "tron:verify:nile": "TRON_NETWORK=nile node scripts/tron/verify-deployment.js",
+    "tron:verify:mainnet": "TRON_NETWORK=mainnet node scripts/tron/verify-deployment.js",
+    "tron:test:deployed:nile": "node scripts/tron/test-deployed-nile.js",
+    "tron:setup-wallet": "node scripts/tron/setup-test-wallet.js",
+    "tron:deploy:test-token": "node scripts/tron/deploy-test-token.js"
   },
   "dependencies": {
     "commerce-payments": "git+https://github.com/base/commerce-payments.git#v1.0.0",

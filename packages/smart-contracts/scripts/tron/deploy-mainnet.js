@@ -13,7 +13,7 @@
  * 4. All testnet tests have passed
  *
  * Usage:
- *   TRON_PRIVATE_KEY=your_private_key node tron/scripts/deploy-mainnet.js
+ *   TRON_PRIVATE_KEY=your_private_key node scripts/tron/deploy-mainnet.js
  */
 
 const TronWeb = require('tronweb');
@@ -39,7 +39,7 @@ const tronWeb = new TronWeb({
   privateKey: PRIVATE_KEY,
 });
 
-const ARTIFACTS_DIR = path.join(__dirname, '../../tron-build');
+const ARTIFACTS_DIR = path.join(__dirname, '../build/tron');
 
 async function loadArtifact(contractName) {
   const artifactPath = path.join(ARTIFACTS_DIR, `${contractName}.json`);
