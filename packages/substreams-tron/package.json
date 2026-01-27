@@ -1,8 +1,28 @@
 {
   "name": "@requestnetwork/substreams-tron",
   "version": "0.1.0",
-  "description": "Request Network TRON Substreams module for ERC20FeeProxy payment detection",
   "private": true,
+  "description": "Request Network TRON Substreams module for ERC20FeeProxy payment detection.",
+  "keywords": [
+    "request-network",
+    "tron",
+    "substreams",
+    "payment-detection"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RequestNetwork/requestNetwork.git",
+    "directory": "packages/substreams-tron"
+  },
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/substreams-tron#readme",
+  "bugs": {
+    "url": "https://github.com/RequestNetwork/requestNetwork/issues"
+  },
+  "license": "MIT",
+  "author": "Request Network",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "build": "echo 'Substreams-tron requires Rust toolchain. Run make build directly or use CI.'",
     "build:rust": "make build",
@@ -12,18 +32,5 @@
     "run": "make run",
     "clean": "make clean",
     "test": "make test"
-  },
-  "keywords": [
-    "request-network",
-    "tron",
-    "substreams",
-    "payment-detection"
-  ],
-  "author": "Request Network",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/RequestNetwork/requestNetwork.git",
-    "directory": "packages/substreams-tron"
   }
 }
