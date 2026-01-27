@@ -12,14 +12,15 @@ crate-type = ["cdylib"]
 
 [dependencies]
 substreams = "0.5"
-substreams-tron = "0.1"
-prost = "0.11"
-prost-types = "0.11"
+prost = "0.12"
+prost-types = "0.12"
 hex = "0.4"
 bs58 = { version = "0.5", features = ["check"] }
+sha2 = "0.10"
+anyhow = "1.0"
 
-[build-dependencies]
-prost-build = "0.11"
+[target.wasm32-unknown-unknown.dependencies]
+getrandom = { version = "0.2", features = ["custom"] }
 
 [profile.release]
 lto = true
