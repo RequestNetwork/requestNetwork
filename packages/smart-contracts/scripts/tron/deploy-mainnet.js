@@ -39,7 +39,7 @@ const tronWeb = new TronWeb({
   privateKey: PRIVATE_KEY,
 });
 
-const ARTIFACTS_DIR = path.join(__dirname, '../build/tron');
+const ARTIFACTS_DIR = path.join(__dirname, '../../tron/build');
 
 async function loadArtifact(contractName) {
   const artifactPath = path.join(ARTIFACTS_DIR, `${contractName}.json`);
@@ -164,7 +164,7 @@ async function main() {
       },
     };
 
-    const outputPath = path.join(__dirname, '../deployments/tron/mainnet.json');
+    const outputPath = path.join(__dirname, '../../deployments/tron/mainnet.json');
     fs.writeFileSync(outputPath, JSON.stringify(deploymentInfo, null, 2));
     console.log(`\nDeployment info saved to: ${outputPath}`);
 

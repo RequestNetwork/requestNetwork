@@ -32,7 +32,7 @@ const tronWeb = new TronWeb({
 });
 
 // Contract artifacts paths
-const ARTIFACTS_DIR = path.join(__dirname, '../build/tron');
+const ARTIFACTS_DIR = path.join(__dirname, '../../tron/build');
 
 async function loadArtifact(contractName) {
   const artifactPath = path.join(ARTIFACTS_DIR, `${contractName}.json`);
@@ -130,7 +130,7 @@ async function main() {
       contracts: deployments,
     };
 
-    const outputPath = path.join(__dirname, '../deployments/tron/nile.json');
+    const outputPath = path.join(__dirname, '../../deployments/tron/nile.json');
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
     fs.writeFileSync(outputPath, JSON.stringify(deploymentInfo, null, 2));
     console.log(`\nDeployment info saved to: ${outputPath}`);
