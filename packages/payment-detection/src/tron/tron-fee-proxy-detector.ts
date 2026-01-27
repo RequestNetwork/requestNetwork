@@ -48,7 +48,7 @@ export class TronERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetect
   public static getDeploymentInformation(
     network: CurrencyTypes.VMChainName,
     _paymentNetworkVersion?: string,
-  ): { address: string; creationBlockNumber: number } {
+  ): { address: string; creationBlockNumber: number; contractVersion: string } {
     void _paymentNetworkVersion; // Parameter kept for API compatibility
 
     // Validate that the network is a TRON chain
@@ -66,7 +66,7 @@ export class TronERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetect
         ? 79216121 // TRON mainnet
         : 63208782; // Nile testnet
 
-    return { address, creationBlockNumber };
+    return { address, creationBlockNumber, contractVersion: 'tron' };
   }
 
   /**
