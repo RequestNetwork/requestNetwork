@@ -1,0 +1,69 @@
+# GraphQL schema for Request Network TRON payments
+# This schema is used for generating TypeScript types for The Graph queries
+
+type Query {
+  payments(
+    where: Payment_filter
+    orderBy: Payment_orderBy
+    orderDirection: OrderDirection
+  ): [Payment!]!
+}
+
+enum OrderDirection {
+  asc
+  desc
+}
+
+enum Payment_orderBy {
+  timestamp
+  block
+  amount
+}
+
+input Payment_filter {
+  reference: Bytes
+  to: String
+  tokenAddress: String
+  contractAddress: String
+}
+
+type Payment {
+  "Unique identifier: txHash-logIndex"
+  id: ID!
+
+  "The TRC20 token contract address"
+  tokenAddress: String!
+
+  "The payment recipient address"
+  to: String!
+
+  "The payment amount"
+  amount: BigInt!
+
+  "The indexed payment reference (keccak256 hash)"
+  reference: Bytes!
+
+  "The fee amount"
+  feeAmount: BigInt!
+
+  "The fee recipient address"
+  feeAddress: String
+
+  "The sender address"
+  from: String!
+
+  "Block number"
+  block: Int!
+
+  "Block timestamp (Unix seconds)"
+  timestamp: Int!
+
+  "Transaction hash"
+  txHash: String!
+
+  "The ERC20FeeProxy contract address"
+  contractAddress: String!
+}
+
+scalar BigInt
+scalar Bytes
