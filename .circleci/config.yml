@@ -6,8 +6,6 @@ references:
     image: cimg/node:22.14
     environment:
       NODE_OPTIONS: '--max-old-space-size=4096'
-  rust_image: &rust_image
-    image: cimg/rust:1.85
   ipfs_image: &ipfs_image
     image: requestnetwork/request-ipfs:v0.13.0
   ganache_image: &ganache_image
@@ -264,35 +262,6 @@ jobs:
           name: 'Build toolbox'
           command: 'yarn workspace @requestnetwork/toolbox run build'
 
-  build-substreams-tron:
-    docker:
-      - *rust_image
-    working_directory: *working_directory
-    steps:
-      - checkout
-      - run:
-          name: 'Install wasm32 target'
-          command: rustup target add wasm32-unknown-unknown
-      - restore_cache:
-          name: Restore Cargo Cache
-          keys:
-            - cargo-cache-{{ checksum "packages/substreams-tron/Cargo.toml" }}
-            - cargo-cache-
-      - run:
-          name: 'Build substreams-tron'
-          command: make build
-          working_directory: ~/repo/packages/substreams-tron
-      - save_cache:
-          name: Save Cargo Cache
-          key: cargo-cache-{{ checksum "packages/substreams-tron/Cargo.toml" }}
-          paths:
-            - ~/.cargo
-            - packages/substreams-tron/target
-      - run:
-          name: 'Run tests'
-          command: make test
-          working_directory: ~/repo/packages/substreams-tron
-
   test-nightly:
     docker:
       - *node_image
@@ -365,7 +334,6 @@ workflows:
   build-and-test:
     jobs:
       - build
-      - build-substreams-tron
       - test-unit:
           requires:
             - build
@@ -390,7 +358,6 @@ workflows:
           requires:
             - lint
             - build
-            - build-substreams-tron
             - test-unit
             - test-integration-with-smart-contracts
             - test-integration-with-request-node
