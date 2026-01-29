@@ -29,7 +29,7 @@ export * as Escrow from './payment/erc20-escrow-payment';
 export * from './payment/prepared-transaction';
 export * from './payment/utils-near';
 export * from './payment/utils-tron';
-export * from './payment/tron-fee-proxy';
+export * from './payment/trc20-fee-proxy';
 export * from './payment/single-request-forwarder';
 export * from './payment/erc20-recurring-payment-proxy';
 export * from './payment/erc20-commerce-escrow-wrapper';

@@ -9,7 +9,7 @@ import {
   hasSufficientTronAllowance,
   hasSufficientTronBalance,
   getTronPaymentInfo,
-} from '../../src/payment/tron-fee-proxy';
+} from '../../src/payment/trc20-fee-proxy';
 import { BigNumber } from 'ethers';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
