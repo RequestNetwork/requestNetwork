@@ -7,6 +7,7 @@
   "contracts": {
     "ERC20FeeProxy": {
       "address": "TCUDPYnS9dH3WvFEaE7wN7vnDa51J4R4fd",
+      "hexAddress": "411b6ca35d39842cf8fbe49000653a1505412da659",
       "creationBlockNumber": 79216121
     }
   }
