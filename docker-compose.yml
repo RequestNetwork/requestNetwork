@@ -1,6 +1,7 @@
 # Warning! This Docker config is meant to be used for development and debugging, specially for running tests, not in prod.
 services:
   graph-node:
+    platform: linux/amd64
     image: graphprotocol/graph-node:v0.25.0
     ports:
       - '8000:8000'
@@ -22,6 +23,7 @@ services:
       RUST_LOG: info
       GRAPH_ALLOW_NON_DETERMINISTIC_IPFS: 1
   ipfs:
+    platform: linux/amd64
     image: requestnetwork/request-ipfs:v0.13.0
     ports:
       - '5001:5001'
@@ -29,6 +31,7 @@ services:
     # volumes:
     #   - ./data/ipfs:/data/ipfs
   ganache:
+    platform: linux/amd64
     image: trufflesuite/ganache:v7.6.0
     ports:
       - 8545:8545
@@ -41,6 +44,7 @@ services:
       - 'london'
     restart: on-failure:20
   postgres:
+    platform: linux/amd64
     image: postgres
     ports:
       - '5432:5432'
@@ -51,6 +55,7 @@ services:
       POSTGRES_DB: graph-node
     restart: on-failure:20
   graph-deploy:
+    platform: linux/amd64
     build:
       context: https://github.com/RequestNetwork/docker-images.git#main:request-subgraph-storage
       dockerfile: ./Dockerfile

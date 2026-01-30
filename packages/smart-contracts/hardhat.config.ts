@@ -68,7 +68,15 @@ const requestDeployer = process.env.REQUEST_DEPLOYER_LIVE
 const url = (network: string): string => process.env.WEB3_PROVIDER_URL || networkRpcs[network];
 
 export default {
-  solidity: '0.8.9',
+  solidity: {
+    version: '0.8.9',
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
+  },
   paths: {
     sources: 'src/contracts',
     tests: 'test/contracts',
@@ -204,6 +212,11 @@ export default {
       chainId: 8453,
       accounts,
     },
+    'base-sepolia': {
+      url: process.env.WEB3_PROVIDER_URL || 'https://sepolia.base.org',
+      chainId: 84532,
+      accounts,
+    },
     sonic: {
       url: url('sonic'),
       chainId: 146,
@@ -262,6 +275,14 @@ export default {
         urls: {
           apiURL: 'https://api.sonicscan.org/api',
           browserURL: 'https://sonicscan.org/',
+        },
+      },
+      {
+        network: 'base-sepolia',
+        chainId: 84532,
+        urls: {
+          apiURL: 'https://api-sepolia.basescan.org/api',
+          browserURL: 'https://sepolia.basescan.org/',
         },
       },
     ],

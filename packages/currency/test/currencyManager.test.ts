@@ -765,4 +765,41 @@ describe('CurrencyManager', () => {
       });
     });
   });
+
+  describe('validateAleoAddress', () => {
+    it('should validate correct Aleo field elements', () => {
+      // Known valid Aleo field elements
+      expect(
+        currencyManager.validateAleoAddress(
+          '7311977476241952331367670434347097026669181172395481678807963832961201831695field',
+        ),
+      ).toBe(true);
+      expect(
+        currencyManager.validateAleoAddress(
+          '6088188135219746443092391282916151282477828391085949070550825603498725268775field',
+        ),
+      ).toBe(true);
+    });
+
+    it('should reject invalid addresses', () => {
+      expect(
+        currencyManager.validateAleoAddress(
+          '7311977476241952331367670434347097026669181172395481678807963832961201831695',
+        ),
+      ).toBe(false);
+      expect(currencyManager.validateAleoAddress('123FIELD')).toBe(false);
+      expect(currencyManager.validateAleoAddress('123field')).toBe(false);
+      expect(
+        currencyManager.validateAleoAddress(
+          '731197747624195233136767043434709702666918117239548167880796383296120183169512345field',
+        ),
+      ).toBe(false);
+      expect(
+        currencyManager.validateAleoAddress(
+          '73119774762419523313676704343470970266691811723954816788079638329612018316abfield',
+        ),
+      ).toBe(false);
+      expect(currencyManager.validateAleoAddress('')).toBe(false);
+    });
+  });
 });

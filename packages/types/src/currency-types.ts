@@ -9,6 +9,7 @@ export type EvmChainName =
   | 'arbitrum-rinkeby'
   | 'avalanche'
   | 'base'
+  | 'base-sepolia'
   | 'bsc'
   | 'bsctest'
   | 'celo'
@@ -42,7 +43,7 @@ export type BtcChainName = 'mainnet' | 'testnet';
 /**
  * List of supported Declarative chains
  */
-export type DeclarativeChainName = 'tron' | 'solana';
+export type DeclarativeChainName = 'tron' | 'solana' | 'ton' | 'starknet' | 'aleo' | 'sui';
 
 /**
  * List of supported NEAR chains

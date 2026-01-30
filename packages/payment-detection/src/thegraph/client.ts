@@ -11,9 +11,6 @@ const THE_GRAPH_STUDIO_URL =
 const THE_GRAPH_EXPLORER_URL =
   'https://gateway.thegraph.com/api/$API_KEY/subgraphs/id/$SUBGRAPH_ID';
 
-const THE_GRAPH_ALCHEMY_URL =
-  'https://subgraph.satsuma-prod.com/e2e4905ab7c8/request-network--434873/request-payments-$NETWORK/api';
-
 const THE_GRAPH_URL_MANTLE_TESTNET =
   'https://graph.testnet.mantle.xyz/subgraphs/name/requestnetwork/request-payments-mantle-testnet';
 
@@ -22,19 +19,6 @@ const THE_GRAPH_URL_MANTLE =
 
 const THE_GRAPH_URL_CORE =
   'https://thegraph.coredao.org/subgraphs/name/requestnetwork/request-payments-core';
-
-const THE_GRAPH_ALCHEMY_CHAINS: CurrencyTypes.ChainName[] = [
-  'arbitrum-one',
-  'avalanche',
-  'base',
-  'bsc',
-  'fantom',
-  'mainnet',
-  'matic',
-  'sepolia',
-  'optimism',
-  'zksyncera',
-];
 
 const THE_GRAPH_EXPLORER_SUBGRAPH_ID: Partial<Record<CurrencyTypes.ChainName, string>> = {
   ['arbitrum-one']: '3MtDdHbzvBVNBpzUTYXGuDDLgTd1b8bPYwoH1Hdssgp9',
@@ -83,6 +67,8 @@ export type TheGraphClientOptions = RequestConfig & {
   minIndexedBlock?: number | undefined;
   /** API key for accessing subgraphs hosted on TheGraph Explorer */
   theGraphExplorerApiKey?: string;
+  /** URL to access the subgraph. Using this option will ignore theGraphExplorerApiKey */
+  url?: string;
 };
 
 /** Splits the input options into "client options" to pass to the SDK, and "query options" to use in queries */
@@ -112,10 +98,16 @@ const extractClientOptions = (
   return [clientOptions, queryOptions];
 };
 
-export const getTheGraphClient = (network: string, url: string, options?: TheGraphClientOptions) =>
-  NearChains.isChainSupported(network)
+export const getTheGraphClient = (
+  network: CurrencyTypes.ChainName,
+  options?: TheGraphClientOptions,
+) => {
+  const url = getTheGraphClientUrl(network, options);
+  if (!url) return;
+  return NearChains.isChainSupported(network)
     ? getTheGraphNearClient(url, options)
     : getTheGraphEvmClient(url, options);
+};
 
 export const getTheGraphEvmClient = (url: string, options?: TheGraphClientOptions) => {
   const [clientOptions, queryOptions] = extractClientOptions(url, options);
@@ -135,10 +127,12 @@ export const getTheGraphNearClient = (url: string, options?: TheGraphClientOptio
   return sdk;
 };
 
-export const defaultGetTheGraphClientUrl = (
+export const getTheGraphClientUrl = (
   network: CurrencyTypes.ChainName,
   options?: TheGraphClientOptions,
 ) => {
+  if (options?.url) return options.url;
+
   const chain = network.replace('aurora', 'near') as CurrencyTypes.ChainName;
   const theGraphExplorerSubgraphId = THE_GRAPH_EXPLORER_SUBGRAPH_ID[chain];
   const { theGraphExplorerApiKey } = options || {};
@@ -149,10 +143,8 @@ export const defaultGetTheGraphClientUrl = (
     '$API_KEY',
     theGraphExplorerApiKey || '',
   ).replace('$SUBGRAPH_ID', theGraphExplorerSubgraphId || '');
-  const theGraphAlchemyUrl = THE_GRAPH_ALCHEMY_URL.replace('$NETWORK', chain);
 
   const shouldUseTheGraphExplorer = !!theGraphExplorerApiKey && !!theGraphExplorerSubgraphId;
-  const shouldUseAlchemy = THE_GRAPH_ALCHEMY_CHAINS.includes(chain);
 
   switch (true) {
     case chain === 'private':
@@ -164,20 +156,6 @@ export const defaultGetTheGraphClientUrl = (
     case chain === 'core':
       return THE_GRAPH_URL_CORE;
     default:
-      return shouldUseTheGraphExplorer
-        ? theGraphExplorerUrl
-        : shouldUseAlchemy
-        ? theGraphAlchemyUrl
-        : theGraphStudioUrl;
+      return shouldUseTheGraphExplorer ? theGraphExplorerUrl : theGraphStudioUrl;
   }
-};
-
-export const defaultGetTheGraphClient = (
-  network: CurrencyTypes.ChainName,
-  options?: TheGraphClientOptions,
-) => {
-  const url = defaultGetTheGraphClientUrl(network, options);
-  if (!url) return;
-  if (NearChains.isChainSupported(network)) return getTheGraphNearClient(url, options);
-  return getTheGraphEvmClient(url, options);
 };

@@ -935,5 +935,103 @@ describe('batch-proxy', () => {
         ).toBe(batchConversionPaymentsArtifact.getAddress('private', '0.1.0'));
       });
     });
+
+    describe('getBatchTxValue (ETH_FEE_PROXY_CONTRACT)', () => {
+      it('includes feeAmount for a single ETH_FEE_PROXY_CONTRACT payment', () => {
+        const requestWithFee = {
+          ...ETHValidRequest,
+          expectedAmount: '1000000000000000000', // 1 ETH
+          extensions: {
+            [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
+              ...ETHValidRequest.extensions[
+                ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT
+              ],
+              values: {
+                ...ETHValidRequest.extensions[
+                  ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT
+                ].values,
+                feeAmount: '2000000000000000', // 0.002 ETH
+              },
+            },
+          },
+        };
+
+        const enrichedRequests: EnrichedRequest[] = [
+          {
+            paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
+            request: requestWithFee,
+            paymentSettings: { maxToSpend: '0' },
+          },
+        ];
+
+        const tx = prepareBatchConversionPaymentTransaction(enrichedRequests, options);
+
+        const expectedValue = BigNumber.from(requestWithFee.expectedAmount).add('2000000000000000');
+        expect(tx.value.toString()).toBe(expectedValue.toString());
+      });
+
+      it('includes feeAmount in a batch of 2 ETH_FEE_PROXY_CONTRACT payments (bug case)', () => {
+        const payment1 = {
+          ...ETHValidRequest,
+          expectedAmount: '10000000000000000000', // 10 ETH
+          extensions: {
+            [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
+              ...ETHValidRequest.extensions[
+                ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT
+              ],
+              values: {
+                ...ETHValidRequest.extensions[
+                  ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT
+                ].values,
+                feeAmount: '2000000000000000', // 0.002 ETH
+              },
+            },
+          },
+        };
+
+        const payment2 = {
+          ...ETHValidRequest,
+          expectedAmount: '5000000000000000', // 0.005 ETH
+          extensions: {
+            [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
+              ...ETHValidRequest.extensions[
+                ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT
+              ],
+              values: {
+                ...ETHValidRequest.extensions[
+                  ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT
+                ].values,
+                feeAmount: '0',
+              },
+            },
+          },
+        };
+
+        const enrichedRequests: EnrichedRequest[] = [
+          {
+            paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
+            request: payment1,
+            paymentSettings: { maxToSpend: '0' },
+          },
+          {
+            paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
+            request: payment2,
+            paymentSettings: { maxToSpend: '0' },
+          },
+        ];
+
+        const tx = prepareBatchConversionPaymentTransaction(enrichedRequests, options);
+
+        const expectedValue = BigNumber.from(payment1.expectedAmount)
+          .add('2000000000000000')
+          .add(payment2.expectedAmount);
+        expect(tx.value.toString()).toBe(expectedValue.toString());
+
+        const valueWithoutFee = BigNumber.from(payment1.expectedAmount).add(
+          payment2.expectedAmount,
+        );
+        expect(tx.value.toString()).not.toBe(valueWithoutFee.toString());
+      });
+    });
   });
 });

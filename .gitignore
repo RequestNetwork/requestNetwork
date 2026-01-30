@@ -43,4 +43,12 @@ tsconfig.build.tsbuildinfo
 /packages/smart-contracts/build-zk/
 /packages/smart-contracts/cache-zk/
 
+# security testing artifacts
+/packages/smart-contracts/corpus/
+/packages/smart-contracts/.slither-cache/
+/packages/smart-contracts/crytic-export/
+
 .nx-cache/
+
+# A place to store AI-generated or temporary files
+.ignore/

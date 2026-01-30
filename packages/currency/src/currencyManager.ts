@@ -1,5 +1,7 @@
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
+import { Address } from '@ton/core';
+import { validateAndParseAddress } from 'starknet';
 import addressValidator from 'multicoin-address-validator';
 import { getSupportedERC20Tokens } from './erc20';
 import { getSupportedERC777Tokens } from './erc777';
@@ -9,6 +11,7 @@ import { nativeCurrencies } from './native';
 import { defaultConversionPairs, getPath } from './conversion-aggregators';
 import { isValidNearAddress } from './currency-utils';
 import { NearChains } from './chains';
+import { isValidSuiAddress } from '@mysten/sui/utils';
 
 const { BTC, ERC20, ERC777, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 
@@ -264,6 +267,14 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
           return isValidNearAddress(address, currency.network);
         } else if (currency.network === 'tron' || currency.network === 'solana') {
           return addressValidator.validate(address, currency.network);
+        } else if (currency.network === 'ton') {
+          return this.validateTonAddress(address);
+        } else if (currency.network === 'starknet') {
+          return this.validateStarknetAddress(address);
+        } else if (currency.network === 'aleo') {
+          return this.validateAleoAddress(address);
+        } else if (currency.network === 'sui') {
+          return this.validateSuiAddress(address);
         }
         return addressValidator.validate(address, 'ETH');
       case RequestLogicTypes.CURRENCY.BTC:
@@ -288,6 +299,74 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
     )
       return true;
     return this.validateAddress(currency.value, currency);
+  }
+
+  /**
+   * Validate a TON address. See https://ton-org.github.io/ton-core/classes/Address.html#parse for more details.
+   * @param address - The address to validate
+   * @returns True if the address is valid, false otherwise
+   */
+  validateTonAddress(address: string): boolean {
+    try {
+      return !!Address.parse(address);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Validate a Starknet address. See https://starknetjs.com/docs/next/API/modules/#validateandparseaddress for more details.
+   * @param address - The address to validate
+   * @returns True if the address is valid, false otherwise
+   */
+  validateStarknetAddress(address: string): boolean {
+    try {
+      return !!validateAndParseAddress(address);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Validate an Aleo currency address (field element).
+   * Aleo currency addresses are field elements with exactly 76 digits followed by "field".
+   * See https://developer.aleo.org/guides/standards/token_registry#token-registry-program-constants
+   * And https://developer.aleo.org/concepts/fundamentals/accounts#prime-fields
+   *
+   * Examples:
+   * - 7311977476241952331367670434347097026669181172395481678807963832961201831695field
+   * - 6088188135219746443092391282916151282477828391085949070550825603498725268775field
+   *
+   * @param address - The Aleo currency address to validate
+   * @returns True if the address is valid, false otherwise
+   */
+  validateAleoAddress(address: string): boolean {
+    try {
+      if (!address || typeof address !== 'string' || !address.endsWith('field')) {
+        return false;
+      }
+
+      const numericPart = address.slice(0, -5);
+      return numericPart.length === 76 && /^\d+$/.test(numericPart);
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Validate a Sui address.
+   * @param address
+   * @returns True if the address is valid, false otherwise
+   */
+  validateSuiAddress(address: string): boolean {
+    try {
+      if (address.includes('::')) {
+        return !!isValidSuiAddress(address.split('::')[0]);
+      }
+      return !!isValidSuiAddress(address);
+    } catch {
+      return false;
+    }
   }
 
   /**

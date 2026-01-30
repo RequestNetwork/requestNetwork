@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/thegraph-data-access",
-  "version": "0.51.0",
+  "version": "0.53.0",
   "publishConfig": {
     "access": "public"
   },
@@ -40,10 +40,10 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/data-access": "0.45.0",
-    "@requestnetwork/smart-contracts": "0.48.0",
-    "@requestnetwork/types": "0.54.0",
-    "@requestnetwork/utils": "0.54.0",
+    "@requestnetwork/data-access": "0.47.0",
+    "@requestnetwork/smart-contracts": "0.50.0",
+    "@requestnetwork/types": "0.56.0",
+    "@requestnetwork/utils": "0.56.0",
     "ethers": "5.7.2",
     "graphql-request": "7.1.2",
     "tslib": "2.8.1"

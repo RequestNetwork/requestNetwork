@@ -310,11 +310,13 @@ const getBatchTxValue = (enrichedRequests: EnrichedRequest[]) => {
       curr.paymentNetworkId !== ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT
     )
       return prev;
-    return prev.add(
-      curr.paymentNetworkId === ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY
-        ? curr.paymentSettings.maxToSpend
-        : getAmountToPay(curr.request),
-    );
+
+    if (curr.paymentNetworkId === ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY) {
+      return prev.add(curr.paymentSettings.maxToSpend);
+    }
+
+    const { feeAmount } = getRequestPaymentValues(curr.request);
+    return prev.add(getAmountToPay(curr.request)).add(BigNumber.from(feeAmount || '0'));
   }, BigNumber.from(0));
 };
 
