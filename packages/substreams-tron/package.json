@@ -1,0 +1,28 @@
+{
+  "name": "@requestnetwork/substreams-tron",
+  "version": "0.1.0",
+  "description": "Request Network TRON Substreams module for ERC20FeeProxy payment detection",
+  "private": true,
+  "scripts": {
+    "build": "make build",
+    "protogen": "make protogen",
+    "package": "make package",
+    "gui": "make gui",
+    "run": "make run",
+    "clean": "make clean",
+    "test": "make test"
+  },
+  "keywords": [
+    "request-network",
+    "tron",
+    "substreams",
+    "payment-detection"
+  ],
+  "author": "Request Network",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RequestNetwork/requestNetwork.git",
+    "directory": "packages/substreams-tron"
+  }
+}

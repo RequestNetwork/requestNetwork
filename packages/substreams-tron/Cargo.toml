@@ -1,0 +1,26 @@
+[package]
+name = "request-network-tron"
+version = "0.1.0"
+edition = "2021"
+repository = "https://github.com/RequestNetwork/requestNetwork"
+license = "MIT"
+description = "Request Network TRON Substreams module for ERC20FeeProxy payment detection"
+
+[lib]
+name = "request_network_tron"
+crate-type = ["cdylib"]
+
+[dependencies]
+substreams = "0.5"
+substreams-tron = "0.1"
+prost = "0.11"
+prost-types = "0.11"
+hex = "0.4"
+
+[build-dependencies]
+prost-build = "0.11"
+
+[profile.release]
+lto = true
+opt-level = 's'
+strip = "debuginfo"
