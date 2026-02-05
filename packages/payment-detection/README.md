@@ -66,6 +66,99 @@ The code generation is included in the pre-build script and can be run manually:
 yarn codegen
 ```
 
+## TRON Payment Detection (Hasura-based)
+
+TRON payment detection uses a Hasura GraphQL API backed by a PostgreSQL database that is populated by a Substreams-based indexer. This approach was chosen because The Graph does not support subgraphs for native TRON (only TRON EVM).
+
+### Architecture
+
+```
+TRON Blockchain → Substreams → PostgreSQL → Hasura GraphQL → SDK
+```
+
+The payment data flows through:
+
+1. **Substreams**: Indexes ERC20FeeProxy payment events from the TRON blockchain
+2. **PostgreSQL**: Stores payment data via `substreams-sink-sql`
+3. **Hasura**: Exposes the PostgreSQL data as a GraphQL API
+4. **SDK**: Queries Hasura via `TronInfoRetriever` and `HasuraClient`
+
+### Components
+
+- **`TronFeeProxyPaymentDetector`**: Payment detector for TRON ERC20 Fee Proxy payments
+- **`TronInfoRetriever`**: Retrieves payment events from Hasura, implements `ITheGraphBaseInfoRetriever`
+- **`HasuraClient`**: GraphQL client for querying the Hasura endpoint
+
+### Usage
+
+The `TronFeeProxyPaymentDetector` is automatically registered in the `PaymentNetworkFactory` for TRON networks (`tron` and `nile`).
+
+```typescript
+import { PaymentNetworkFactory } from '@requestnetwork/payment-detection';
+
+// The factory automatically uses TronFeeProxyPaymentDetector for TRON
+const paymentNetwork = PaymentNetworkFactory.getPaymentNetworkFromRequest({
+  request,
+  advancedLogic,
+});
+
+const balance = await paymentNetwork.getBalance(request);
+```
+
+### Custom Hasura Endpoint
+
+By default, the `HasuraClient` connects to the production Hasura endpoint. To use a custom endpoint:
+
+```typescript
+import {
+  HasuraClient,
+  TronInfoRetriever,
+  TronFeeProxyPaymentDetector,
+} from '@requestnetwork/payment-detection';
+
+// Create a custom Hasura client
+const customClient = new HasuraClient({
+  baseUrl: 'https://your-hasura-instance.com/v1/graphql',
+});
+
+// Use it with TronInfoRetriever
+const retriever = new TronInfoRetriever(customClient);
+
+// Or use getHasuraClient with custom options
+import { getHasuraClient } from '@requestnetwork/payment-detection';
+
+const client = getHasuraClient('tron', {
+  baseUrl: 'https://your-hasura-instance.com/v1/graphql',
+});
+```
+
+### TRON-specific Event Fields
+
+TRON payment events include additional fields specific to the TRON blockchain:
+
+```typescript
+interface TronPaymentEvent {
+  txHash: string;
+  feeAmount: string;
+  block: number;
+  to: string;
+  from: string;
+  feeAddress?: string;
+  tokenAddress?: string;
+  // TRON-specific resource consumption
+  energyUsed?: string; // Total energy consumed
+  energyFee?: string; // Energy fee in SUN
+  netFee?: string; // Network/bandwidth fee in SUN
+}
+```
+
+### Supported Networks
+
+| Network | Chain Identifier | Description       |
+| ------- | ---------------- | ----------------- |
+| `tron`  | `tron`           | TRON Mainnet      |
+| `nile`  | `tron-nile`      | TRON Nile Testnet |
+
 # Test
 
 ```sh
