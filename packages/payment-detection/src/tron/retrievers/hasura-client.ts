@@ -1,7 +1,9 @@
 import { CurrencyTypes } from '@requestnetwork/types';
 
 /**
- * Hasura payment response type matching the database schema
+ * Hasura payment response type matching the database schema.
+ * Note: amount and fee_amount use NUMERIC in PostgreSQL, which Hasura may
+ * return as JSON numbers (when they fit) or strings (for very large values).
  */
 export interface HasuraPayment {
   id: string;
@@ -13,8 +15,8 @@ export interface HasuraPayment {
   token_address: string;
   from_address: string;
   to_address: string;
-  amount: string;
-  fee_amount: string;
+  amount: string | number;
+  fee_amount: string | number;
   fee_address: string;
   payment_reference: string;
   // TRON-specific resource fields
@@ -125,6 +127,9 @@ export class HasuraClient {
   }
 }
 
+/** TRON network identifiers supported by the Hasura client */
+const SUPPORTED_TRON_NETWORKS = ['tron', 'nile'];
+
 /**
  * Factory function to create a Hasura client
  */
@@ -132,8 +137,8 @@ export function getHasuraClient(
   network: CurrencyTypes.ChainName,
   options?: Partial<HasuraClientOptions>,
 ): HasuraClient | undefined {
-  // Only return a client for TRON networks
-  if (!network.toLowerCase().includes('tron')) {
+  // Only return a client for TRON networks (mainnet and Nile testnet)
+  if (!SUPPORTED_TRON_NETWORKS.includes(network.toLowerCase())) {
     return undefined;
   }
 

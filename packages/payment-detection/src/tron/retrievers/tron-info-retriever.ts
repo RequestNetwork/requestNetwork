@@ -1,4 +1,5 @@
 import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
+import { utils } from 'ethers';
 import { ITheGraphBaseInfoRetriever, TransferEventsParams } from '../../types';
 import { HasuraClient, HasuraPayment } from './hasura-client';
 
@@ -32,8 +33,12 @@ export class TronInfoRetriever implements ITheGraphBaseInfoRetriever<TronPayment
     // Map chain name to the chain identifier used in the database
     const chainIdentifier = this.getChainIdentifier(paymentChain);
 
+    // The substream stores the keccak256 hash of the payment reference (from the indexed event topic)
+    // so we must hash the raw reference before querying, matching the TheGraph-based retriever behavior
+    const hashedReference = utils.keccak256(`0x${paymentReference}`);
+
     const payments = await this.client.getPaymentsByReference({
-      paymentReference: `0x${paymentReference}`,
+      paymentReference: hashedReference,
       toAddress,
       chain: chainIdentifier,
       tokenAddress: acceptedTokens?.[0],
@@ -61,13 +66,15 @@ export class TronInfoRetriever implements ITheGraphBaseInfoRetriever<TronPayment
   ): PaymentTypes.IPaymentNetworkEvent<TronPaymentEvent> {
     // Note: TRON addresses use Base58 format, not Ethereum checksum format
     // So we don't use formatAddress which expects EVM addresses
+    // Hasura returns NUMERIC fields as JSON numbers; we must coerce to strings
+    // since IPaymentNetworkEvent.amount and feeAmount expect string types
     return {
-      amount: payment.amount,
+      amount: String(payment.amount),
       name: params.eventName,
       timestamp: payment.timestamp,
       parameters: {
         txHash: payment.tx_hash,
-        feeAmount: payment.fee_amount,
+        feeAmount: String(payment.fee_amount),
         block: payment.block_number,
         to: payment.to_address,
         from: payment.from_address,
