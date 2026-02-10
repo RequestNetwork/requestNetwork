@@ -115,6 +115,30 @@ describe('HasuraClient', () => {
       );
     });
 
+    it('should use GraphQL variables instead of string interpolation', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ data: { payments: mockPayments } }),
+      });
+
+      await client.getPaymentsByReference({
+        paymentReference: '0xabc123',
+        toAddress: 'TToAddress456',
+      });
+
+      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      // Query should use $variables, not interpolated values
+      expect(callBody.query).toContain('$paymentReference');
+      expect(callBody.query).toContain('$toAddress');
+      expect(callBody.query).not.toContain('0xabc123');
+      expect(callBody.query).not.toContain('TToAddress456');
+      // Variables should contain the actual values
+      expect(callBody.variables).toEqual({
+        paymentReference: '0xabc123',
+        toAddress: 'TToAddress456',
+      });
+    });
+
     it('should include chain filter when provided', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -127,9 +151,10 @@ describe('HasuraClient', () => {
         chain: 'tron',
       });
 
-      const callBody = mockFetch.mock.calls[0][1].body;
-      expect(callBody).toContain('chain');
-      expect(callBody).toContain('tron');
+      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(callBody.query).toContain('$chain');
+      expect(callBody.query).toContain('chain: { _eq: $chain }');
+      expect(callBody.variables.chain).toBe('tron');
     });
 
     it('should include tokenAddress filter when provided', async () => {
@@ -144,8 +169,9 @@ describe('HasuraClient', () => {
         tokenAddress: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
       });
 
-      const callBody = mockFetch.mock.calls[0][1].body;
-      expect(callBody).toContain('token_address: { _ilike:');
+      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(callBody.query).toContain('token_address: { _ilike: $tokenAddress }');
+      expect(callBody.variables.tokenAddress).toBe('TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t');
     });
 
     it('should include contractAddress filter when provided', async () => {
@@ -160,8 +186,9 @@ describe('HasuraClient', () => {
         contractAddress: 'TCUDPYnS9dH3WvFEaE7wN7vnDa51J4R4fd',
       });
 
-      const callBody = mockFetch.mock.calls[0][1].body;
-      expect(callBody).toContain('contract_address: { _ilike:');
+      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(callBody.query).toContain('contract_address: { _ilike: $contractAddress }');
+      expect(callBody.variables.contractAddress).toBe('TCUDPYnS9dH3WvFEaE7wN7vnDa51J4R4fd');
     });
 
     it('should throw error when fetch fails', async () => {

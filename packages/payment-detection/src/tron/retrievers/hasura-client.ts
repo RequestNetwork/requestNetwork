@@ -70,25 +70,36 @@ export class HasuraClient {
     tokenAddress?: string;
     contractAddress?: string;
   }): Promise<HasuraPayment[]> {
+    const variableDefinitions: string[] = ['$paymentReference: String!', '$toAddress: String!'];
     const whereConditions: string[] = [
-      `payment_reference: { _eq: "${params.paymentReference}" }`,
-      `to_address: { _ilike: "${params.toAddress}" }`,
+      'payment_reference: { _eq: $paymentReference }',
+      'to_address: { _ilike: $toAddress }',
     ];
+    const variables: Record<string, string> = {
+      paymentReference: params.paymentReference,
+      toAddress: params.toAddress,
+    };
 
     if (params.chain) {
-      whereConditions.push(`chain: { _eq: "${params.chain}" }`);
+      variableDefinitions.push('$chain: String!');
+      whereConditions.push('chain: { _eq: $chain }');
+      variables.chain = params.chain;
     }
 
     if (params.tokenAddress) {
-      whereConditions.push(`token_address: { _ilike: "${params.tokenAddress}" }`);
+      variableDefinitions.push('$tokenAddress: String!');
+      whereConditions.push('token_address: { _ilike: $tokenAddress }');
+      variables.tokenAddress = params.tokenAddress;
     }
 
     if (params.contractAddress) {
-      whereConditions.push(`contract_address: { _ilike: "${params.contractAddress}" }`);
+      variableDefinitions.push('$contractAddress: String!');
+      whereConditions.push('contract_address: { _ilike: $contractAddress }');
+      variables.contractAddress = params.contractAddress;
     }
 
     const query = `
-      query GetPayments {
+      query GetPayments(${variableDefinitions.join(', ')}) {
         payments(
           where: { ${whereConditions.join(', ')} }
           order_by: { block_number: asc }
@@ -116,7 +127,7 @@ export class HasuraClient {
     const response = await fetch(this.url, {
       method: 'POST',
       headers: this.headers,
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({ query, variables }),
     });
 
     if (!response.ok) {
