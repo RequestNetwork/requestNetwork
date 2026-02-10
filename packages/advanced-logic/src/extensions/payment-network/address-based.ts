@@ -150,16 +150,20 @@ export default abstract class AddressBasedPaymentNetwork<
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
       case RequestLogicTypes.CURRENCY.ERC777:
-        // Also accept TRON Base58 addresses (start with T, 34 chars)
-        if (/^T[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{33}$/.test(address)) {
-          return true;
-        }
         return this.isValidAddressForSymbolAndNetwork(address, 'ETH', 'mainnet');
       default:
         throw new Error(
           `Default implementation of isValidAddressForNetwork() does not support currency type ${this.supportedCurrencyType}. Please override this method if needed.`,
         );
     }
+  }
+
+  /**
+   * Check if an address is a valid TRON Base58 address (starts with 'T', 34 chars).
+   * Use this in subclasses that override isValidAddress for TRON-specific networks.
+   */
+  public static isTronAddress(address: string): boolean {
+    return /^T[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{33}$/.test(address);
   }
 
   protected isValidAddressForSymbolAndNetwork(
