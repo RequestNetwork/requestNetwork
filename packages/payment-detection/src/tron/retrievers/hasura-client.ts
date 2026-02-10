@@ -32,8 +32,12 @@ export interface HasuraPaymentsResponse {
 export interface HasuraClientOptions {
   /** Hasura GraphQL endpoint URL */
   url: string;
-  /** Optional admin secret for authentication */
+  /** Optional admin secret for authentication (x-hasura-admin-secret header) */
   adminSecret?: string;
+  /** Optional JWT token for authentication (Authorization: Bearer header) */
+  jwtToken?: string;
+  /** Optional Hasura role to use with JWT auth (x-hasura-role header) */
+  hasuraRole?: string;
   /** Optional custom headers */
   headers?: Record<string, string>;
 }
@@ -50,6 +54,8 @@ export class HasuraClient {
     this.headers = {
       'Content-Type': 'application/json',
       ...(options.adminSecret && { 'x-hasura-admin-secret': options.adminSecret }),
+      ...(options.jwtToken && { Authorization: `Bearer ${options.jwtToken}` }),
+      ...(options.hasuraRole && { 'x-hasura-role': options.hasuraRole }),
       ...options.headers,
     };
   }
@@ -144,10 +150,13 @@ export function getHasuraClient(
 
   const defaultUrl = process.env.HASURA_GRAPHQL_URL || 'https://graphql.request.network/v1/graphql';
   const adminSecret = process.env.HASURA_ADMIN_SECRET;
+  const jwtToken = process.env.HASURA_GRAPHQL_JWT_TOKEN;
 
   return new HasuraClient({
     url: options?.url || defaultUrl,
     adminSecret: options?.adminSecret || adminSecret,
+    jwtToken: options?.jwtToken || jwtToken,
+    hasuraRole: options?.hasuraRole,
     headers: options?.headers,
   });
 }

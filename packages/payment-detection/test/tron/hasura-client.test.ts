@@ -230,7 +230,7 @@ describe('getHasuraClient', () => {
 
   it('should return a client for nile (tron testnet) network', () => {
     const client = getHasuraClient('nile' as any);
-    expect(client).toBeUndefined(); // 'nile' doesn't contain 'tron'
+    expect(client).toBeInstanceOf(HasuraClient);
   });
 
   it('should return undefined for non-TRON networks', () => {
