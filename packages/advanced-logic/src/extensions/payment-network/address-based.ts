@@ -150,6 +150,10 @@ export default abstract class AddressBasedPaymentNetwork<
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
       case RequestLogicTypes.CURRENCY.ERC777:
+        // Also accept TRON Base58 addresses (start with T, 34 chars)
+        if (/^T[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{33}$/.test(address)) {
+          return true;
+        }
         return this.isValidAddressForSymbolAndNetwork(address, 'ETH', 'mainnet');
       default:
         throw new Error(
