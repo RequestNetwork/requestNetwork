@@ -96,9 +96,10 @@ describe('Lit Protocol Integration Tests', () => {
   }, 30000);
 
   afterAll(async () => {
-    if (!litNetworkAvailable) return;
     try {
-      // Get all pending promises
+      // Always attempt cleanup regardless of litNetworkAvailable,
+      // because litClient/litProvider may hold connections even if
+      // initializeClient() failed partway through.
       const promises = [];
       if (litProvider) {
         promises.push(litProvider.disconnectClient());
