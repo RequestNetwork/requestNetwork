@@ -2,6 +2,18 @@ import { BigNumber, BigNumberish } from 'ethers';
 import { CurrencyTypes } from '@requestnetwork/types';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 
+/** Default fee limit for TRC20 approval (100 TRX in SUN) */
+export const DEFAULT_TRON_APPROVAL_FEE_LIMIT = 100_000_000;
+
+/**
+ * Default fee limit for TRC20 fee proxy payment (300 TRX in SUN).
+ * Uses a higher safety margin because `transferFromWithReferenceAndFee`
+ * involves multiple internal transfers (token transfer, fee transfer,
+ * reference event emission) which can consume more energy than a
+ * simple approve call.
+ */
+export const DEFAULT_TRON_PAYMENT_FEE_LIMIT = 300_000_000;
+
 // TronWeb types for v6+
 // Using interface that matches TronWeb's actual API
 export interface TronWeb {
@@ -146,13 +158,14 @@ export const approveTrc20 = async (
   network: CurrencyTypes.TronChainName,
   amount: BigNumberish,
   callback?: ITronTransactionCallback,
+  feeLimit: number = DEFAULT_TRON_APPROVAL_FEE_LIMIT,
 ): Promise<string> => {
   const proxyAddress = getERC20FeeProxyAddress(network);
   const contract = await tronWeb.contract(TRC20_ABI, tokenAddress);
 
   try {
     const result = await contract.approve(proxyAddress, amount.toString()).send({
-      feeLimit: 100000000, // 100 TRX fee limit
+      feeLimit,
       shouldPollResponse: true,
     });
 
@@ -179,6 +192,7 @@ export const processTronFeeProxyPayment = async (
   feeAmount: BigNumberish,
   feeAddress: string,
   callback?: ITronTransactionCallback,
+  feeLimit: number = DEFAULT_TRON_PAYMENT_FEE_LIMIT,
 ): Promise<string> => {
   // Validate addresses
   if (!isValidTronAddress(to)) {
@@ -213,7 +227,7 @@ export const processTronFeeProxyPayment = async (
         feeAddress,
       )
       .send({
-        feeLimit: 150000000, // 150 TRX fee limit for proxy call
+        feeLimit,
         shouldPollResponse: true,
       });
 
