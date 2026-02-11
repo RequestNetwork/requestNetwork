@@ -53,6 +53,9 @@ describe('Lit Protocol Integration Tests', () => {
   };
 
   beforeAll(async () => {
+    // Reset the flag so that re-runs in the same process re-check availability
+    litNetworkAvailable = true;
+
     // Create wallet
     userWallet = new ethers.Wallet(
       '0x7b595b2bb732edddc4d4fe758ae528c7a748c40f0f6220f4494e214f15c5bfeb',
