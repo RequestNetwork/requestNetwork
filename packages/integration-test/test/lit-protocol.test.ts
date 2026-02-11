@@ -28,9 +28,15 @@ async function waitForConfirmation(request: any, maxAttempts = 10, delayMs = 100
   throw new Error(`Request not confirmed after ${maxAttempts} attempts`);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const isCI = !!process.env.CI;
 let litNetworkAvailable = true;
+
+function skipIfNoLitNetwork(): boolean {
+  if (!litNetworkAvailable) {
+    console.warn('SKIPPED: Lit Protocol network (datil-dev) is not reachable');
+    return true;
+  }
+  return false;
+}
 
 describe('Lit Protocol Integration Tests', () => {
   let requestNetwork: RequestNetwork;
@@ -71,9 +77,9 @@ describe('Lit Protocol Integration Tests', () => {
       await litProvider.initializeClient();
     } catch (error) {
       console.warn(
-        `⚠ Lit Protocol network (datil-dev) is not reachable: ${
+        `Lit Protocol network (datil-dev) is not reachable: ${
           (error as Error).message
-        }. Skipping Lit tests.`,
+        }. Lit tests will be skipped.`,
       );
       litNetworkAvailable = false;
       return;
@@ -89,14 +95,8 @@ describe('Lit Protocol Integration Tests', () => {
     });
   }, 30000);
 
-  beforeEach(() => {
-    if (!litNetworkAvailable) {
-      // eslint-disable-next-line jest/no-jasmine-globals
-      pending('Lit Protocol network is not reachable — skipping test');
-    }
-  });
-
   afterAll(async () => {
+    if (!litNetworkAvailable) return;
     try {
       // Get all pending promises
       const promises = [];
@@ -116,6 +116,8 @@ describe('Lit Protocol Integration Tests', () => {
   });
 
   it('should encrypt and decrypt data directly', async () => {
+    if (skipIfNoLitNetwork()) return;
+
     const testData = 'test encryption';
     const encryptionParams = [
       {
@@ -134,6 +136,8 @@ describe('Lit Protocol Integration Tests', () => {
   });
 
   it('should create and encrypt a request', async () => {
+    if (skipIfNoLitNetwork()) return;
+
     const requestParams = {
       requestInfo: {
         currency: {
@@ -209,6 +213,8 @@ describe('Lit Protocol Integration Tests', () => {
   });
 
   it('should handle encryption errors gracefully', async () => {
+    if (skipIfNoLitNetwork()) return;
+
     const invalidEncryptionParams = [
       {
         key: '',
@@ -222,6 +228,8 @@ describe('Lit Protocol Integration Tests', () => {
   });
 
   it('should handle decryption errors gracefully', async () => {
+    if (skipIfNoLitNetwork()) return;
+
     const invalidEncryptedData = {
       ciphertext: 'invalid-ciphertext',
       dataToEncryptHash: 'invalid-hash',
