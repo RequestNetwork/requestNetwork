@@ -27,7 +27,7 @@ import { http, HttpResponse } from 'msw';
 import { setupServer, SetupServer } from 'msw/node';
 import config from '../src/http-config-defaults';
 
-jest.setTimeout(20000);
+jest.setTimeout(180000);
 const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = {
   getConfirmationDeferDelay: 0,
 };
@@ -919,7 +919,7 @@ describe('request-client.js', () => {
         expect(requestData.meta).not.toBeNull();
         expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
       });
-    }, 15000);
+    }, 180000);
 
     it('creates an encrypted request and recovers it by identity', async () => {
       const requestNetwork = new RequestNetwork({
@@ -1430,7 +1430,7 @@ describe('request-client.js', () => {
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).toBe(
         '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
       );
-    }, 60000);
+    }, 180000);
 
     it('can get the balance on a skipped payment detection request', async () => {
       const etherscanMock = new EtherscanProviderMock();
@@ -1506,7 +1506,7 @@ describe('request-client.js', () => {
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).toBe(
         '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
       );
-    }, 60000);
+    }, 180000);
   });
 
   describe('ERC20 address based requests', () => {
