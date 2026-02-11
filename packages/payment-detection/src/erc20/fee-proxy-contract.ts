@@ -14,7 +14,7 @@ import { makeGetDeploymentInformation } from '../utils';
 import { TheGraphClient, TheGraphInfoRetriever } from '../thegraph';
 import { ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
 import { NearInfoRetriever } from '../near';
-import { TronInfoRetriever } from '../tron';
+import { TronInfoRetriever } from '../tron/tron-info-retriever';
 import { NetworkNotSupported } from '../balance-error';
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
