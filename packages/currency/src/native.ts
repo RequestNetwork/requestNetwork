@@ -1,7 +1,7 @@
 import { CurrencyTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 type NativeEthCurrency = CurrencyTypes.NamedNativeCurrency & {
-  network: CurrencyTypes.EvmChainName | CurrencyTypes.NearChainName;
+  network: CurrencyTypes.EvmChainName | CurrencyTypes.NearChainName | CurrencyTypes.TronChainName;
 };
 type NativeBtcCurrency = CurrencyTypes.NamedNativeCurrency & {
   network: CurrencyTypes.BtcChainName;
@@ -177,6 +177,18 @@ export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthC
       decimals: 18,
       name: '$S',
       network: 'sonic',
+    },
+    {
+      symbol: 'TRX',
+      decimals: 6,
+      name: 'Tron',
+      network: 'tron',
+    },
+    {
+      symbol: 'TRX-nile',
+      decimals: 6,
+      name: 'Nile Tron',
+      network: 'nile',
     },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [

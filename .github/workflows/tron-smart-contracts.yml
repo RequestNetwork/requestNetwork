@@ -1,0 +1,210 @@
+name: Tron Smart Contracts Tests
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'packages/smart-contracts/tron/**'
+      - 'packages/smart-contracts/deployments/tron/**'
+      - 'packages/smart-contracts/migrations/tron/**'
+      - 'packages/smart-contracts/scripts/tron/**'
+      - 'packages/smart-contracts/test/tron/**'
+      - 'packages/smart-contracts/tronbox-config.js'
+      - 'packages/smart-contracts/src/lib/artifacts/ERC20FeeProxy/**'
+      - 'packages/payment-processor/src/payment/*tron*'
+      - 'packages/payment-processor/test/payment/*tron*'
+      - 'packages/currency/src/chains/tron/**'
+      - '.github/workflows/tron-smart-contracts.yml'
+  push:
+    branches:
+      - master
+    paths:
+      - 'packages/smart-contracts/tron/**'
+      - 'packages/smart-contracts/deployments/tron/**'
+      - 'packages/smart-contracts/migrations/tron/**'
+      - 'packages/smart-contracts/scripts/tron/**'
+      - 'packages/smart-contracts/test/tron/**'
+      - 'packages/smart-contracts/tronbox-config.js'
+      - 'packages/smart-contracts/src/lib/artifacts/ERC20FeeProxy/**'
+      - 'packages/payment-processor/src/payment/*tron*'
+      - 'packages/payment-processor/test/payment/*tron*'
+      - 'packages/currency/src/chains/tron/**'
+  workflow_dispatch:
+
+jobs:
+  tron-compile-check:
+    name: Tron Contract Compilation Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Install TronBox globally
+        run: npm install -g tronbox
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Compile Tron contracts
+        working-directory: packages/smart-contracts
+        run: yarn tron:compile
+
+      - name: Verify build artifacts exist
+        working-directory: packages/smart-contracts
+        run: |
+          echo "Checking build artifacts..."
+          ls -la build/tron/
+
+          # Verify key contracts were compiled
+          for contract in ERC20FeeProxy TestTRC20 BadTRC20 TRC20True TRC20NoReturn TRC20False TRC20Revert; do
+            if [ ! -f "build/tron/${contract}.json" ]; then
+              echo "ERROR: ${contract}.json not found!"
+              exit 1
+            fi
+            echo "✓ ${contract}.json exists"
+          done
+
+          echo "✅ All required artifacts present"
+
+      - name: Verify contract ABI structure
+        working-directory: packages/smart-contracts
+        run: |
+          echo "Verifying ERC20FeeProxy ABI..."
+
+          # Check that the compiled contract has the expected functions
+          for func in transferFromWithReferenceAndFee; do
+            if ! grep -q "$func" build/tron/ERC20FeeProxy.json; then
+              echo "ERROR: ERC20FeeProxy missing $func function!"
+              exit 1
+            fi
+            echo "✓ ERC20FeeProxy has $func"
+          done
+
+          # Verify TestTRC20 has standard ERC20 functions
+          for func in transfer approve transferFrom balanceOf allowance; do
+            if ! grep -q "$func" build/tron/TestTRC20.json; then
+              echo "ERROR: TestTRC20 missing $func function!"
+              exit 1
+            fi
+            echo "✓ TestTRC20 has $func"
+          done
+
+          echo "✅ Contract ABI structure verified"
+
+      - name: Verify deployment files are valid JSON
+        working-directory: packages/smart-contracts
+        run: |
+          echo "Validating deployment files..."
+
+          for network in nile mainnet; do
+            file="deployments/tron/${network}.json"
+            if [ -f "$file" ]; then
+              if ! python3 -m json.tool "$file" > /dev/null 2>&1; then
+                echo "ERROR: $file is not valid JSON!"
+                exit 1
+              fi
+              
+              # Verify required fields
+              if ! grep -q '"ERC20FeeProxy"' "$file"; then
+                echo "ERROR: $file missing ERC20FeeProxy entry!"
+                exit 1
+              fi
+              
+              if ! grep -q '"address"' "$file"; then
+                echo "ERROR: $file missing address field!"
+                exit 1
+              fi
+              
+              echo "✓ $file is valid"
+            fi
+          done
+
+          echo "✅ Deployment files validated"
+
+  tron-payment-processor-tests:
+    name: Tron Payment Processor Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build dependencies
+        run: |
+          yarn workspace @requestnetwork/types build
+          yarn workspace @requestnetwork/utils build
+          yarn workspace @requestnetwork/currency build
+          yarn workspace @requestnetwork/smart-contracts build
+          yarn workspace @requestnetwork/payment-detection build
+
+      - name: Run Tron payment processor tests
+        working-directory: packages/payment-processor
+        run: yarn test -- --testPathPattern="tron" --passWithNoTests
+
+  tron-artifact-registry-check:
+    name: Tron Artifact Registry Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build smart-contracts package
+        run: |
+          yarn workspace @requestnetwork/types build
+          yarn workspace @requestnetwork/utils build
+          yarn workspace @requestnetwork/currency build
+          yarn workspace @requestnetwork/smart-contracts build
+
+      - name: Verify Tron addresses in artifact registry
+        run: |
+          echo "Checking Tron addresses in artifact registry..."
+
+          # Check that nile address is registered
+          if ! grep -q "THK5rNmrvCujhmrXa5DB1dASepwXTr9cJs" packages/smart-contracts/src/lib/artifacts/ERC20FeeProxy/index.ts; then
+            echo "ERROR: Nile testnet address not found in artifact registry!"
+            exit 1
+          fi
+          echo "✓ Nile address registered"
+
+          # Check that mainnet address is registered
+          if ! grep -q "TCUDPYnS9dH3WvFEaE7wN7vnDa51J4R4fd" packages/smart-contracts/src/lib/artifacts/ERC20FeeProxy/index.ts; then
+            echo "ERROR: Mainnet address not found in artifact registry!"
+            exit 1
+          fi
+          echo "✓ Mainnet address registered"
+
+          echo "✅ Tron addresses verified in artifact registry"
+
+# Note: Full integration tests require a Tron node and are skipped in CI.
+# Run integration tests locally with:
+#   docker run -d --name tron-tre -p 9090:9090 tronbox/tre  # On ARM64 machine
+#   yarn tron:test
+# Or run against Nile testnet:
+#   TRON_PRIVATE_KEY=your_key yarn tron:test:nile

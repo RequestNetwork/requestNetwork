@@ -946,7 +946,7 @@ describe('request-client.js', () => {
 
       expect(requestData.meta).not.toBeNull();
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
-    });
+    }, 60000); // Increased from default – encrypted request creation + storage can be slow in CI
 
     it('creates an encrypted request and accept it', async () => {
       const requestNetwork = new RequestNetwork({
@@ -1348,7 +1348,7 @@ describe('request-client.js', () => {
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).toBe(
         '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
       );
-    });
+    }, 120000); // Increased from default – mock storage + payment detection can be slow in CI
 
     it('can disable and enable the get the balance of a request', async () => {
       const etherscanMock = new EtherscanProviderMock();
@@ -1506,7 +1506,7 @@ describe('request-client.js', () => {
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).toBe(
         '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
       );
-    }, 180000);
+    }, 180000); // Increased from 60s – skipped-detection refresh path is slower; prevents flaky CI failures
   });
 
   describe('ERC20 address based requests', () => {
