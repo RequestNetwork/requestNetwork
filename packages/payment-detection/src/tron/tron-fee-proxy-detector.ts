@@ -9,9 +9,9 @@ import { TronChains, isSameChain } from '@requestnetwork/currency';
 
 import { ERC20FeeProxyPaymentDetectorBase } from '../erc20/fee-proxy-contract';
 import { NetworkNotSupported } from '../balance-error';
-import { ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
-import { TronInfoRetriever, TronPaymentEvent } from './tron-info-retriever';
-import { TheGraphClient } from '../thegraph';
+import { ReferenceBasedDetectorOptions } from '../types';
+import { TronInfoRetriever, TronPaymentEvent } from './retrievers/tron-info-retriever';
+import { getHasuraClient, HasuraClientOptions } from './retrievers/hasura-client';
 
 /**
  * Handle payment networks with ERC20 fee proxy contract extension on TRON chains
@@ -20,17 +20,17 @@ export class TronERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetect
   ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
   TronPaymentEvent
 > {
-  private readonly getSubgraphClient: TGetSubGraphClient<CurrencyTypes.TronChainName>;
+  private readonly hasuraClientOptions?: Partial<HasuraClientOptions>;
   protected readonly network: CurrencyTypes.TronChainName | undefined;
 
   constructor({
     advancedLogic,
     currencyManager,
-    getSubgraphClient,
     network,
+    hasuraClientOptions,
   }: ReferenceBasedDetectorOptions & {
     network?: CurrencyTypes.TronChainName;
-    getSubgraphClient: TGetSubGraphClient<CurrencyTypes.TronChainName>;
+    hasuraClientOptions?: Partial<HasuraClientOptions>;
   }) {
     super(
       ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
@@ -38,7 +38,7 @@ export class TronERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetect
         advancedLogic.extensions.feeProxyContractErc20,
       currencyManager,
     );
-    this.getSubgraphClient = getSubgraphClient;
+    this.hasuraClientOptions = hasuraClientOptions;
     this.network = network;
   }
 
@@ -103,18 +103,16 @@ export class TronERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetect
     const { address: proxyContractAddress } =
       TronERC20FeeProxyPaymentDetector.getDeploymentInformation(paymentChain);
 
-    const subgraphClient = this.getSubgraphClient(
-      paymentChain,
-    ) as TheGraphClient<CurrencyTypes.TronChainName>;
+    const hasuraClient = getHasuraClient(paymentChain, this.hasuraClientOptions);
 
-    if (!subgraphClient) {
+    if (!hasuraClient) {
       throw new Error(
-        `Could not get a TheGraph-based info retriever for TRON chain ${paymentChain}. ` +
-          `Ensure the TRON Substreams-powered subgraph is deployed and accessible.`,
+        `Could not get a Hasura client for TRON chain ${paymentChain}. ` +
+          `Ensure HASURA_GRAPHQL_URL is configured or the network is supported.`,
       );
     }
 
-    const infoRetriever = new TronInfoRetriever(subgraphClient);
+    const infoRetriever = new TronInfoRetriever(hasuraClient);
 
     return infoRetriever.getTransferEvents({
       eventName,

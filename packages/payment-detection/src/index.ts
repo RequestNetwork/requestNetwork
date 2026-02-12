@@ -31,7 +31,13 @@ import {
   unpadAmountFromChainlink,
 } from './utils';
 import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetector } from './near';
-import { TronERC20FeeProxyPaymentDetector, TronInfoRetriever } from './tron';
+import {
+  TronFeeProxyPaymentDetector,
+  getHasuraClient,
+  HasuraClient,
+  TronInfoRetriever,
+} from './tron';
+export type { TronPaymentEvent } from './tron/retrievers/tron-info-retriever';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
 import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
 import { EscrowERC20InfoRetriever } from './erc20/escrow-info-retriever';
@@ -57,8 +63,11 @@ export {
   SuperFluidPaymentDetector,
   NearNativeTokenPaymentDetector,
   NearConversionNativeTokenPaymentDetector,
-  TronERC20FeeProxyPaymentDetector,
+  // TRON
+  TronFeeProxyPaymentDetector,
   TronInfoRetriever,
+  getHasuraClient,
+  HasuraClient,
   EscrowERC20InfoRetriever,
   SuperFluidInfoRetriever,
   MetaDetector,

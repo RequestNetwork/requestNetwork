@@ -6,7 +6,24 @@ import {
 } from '@requestnetwork/types';
 import { TronERC20FeeProxyPaymentDetector } from '../../src/tron/tron-fee-proxy-detector';
 
+// Mock the hasura-client module so we can control getHasuraClient's return value
+jest.mock('../../src/tron/retrievers/hasura-client', () => {
+  const actual = jest.requireActual('../../src/tron/retrievers/hasura-client');
+  return {
+    ...actual,
+    getHasuraClient: jest.fn(actual.getHasuraClient),
+  };
+});
+
+import { getHasuraClient } from '../../src/tron/retrievers/hasura-client';
+const mockedGetHasuraClient = getHasuraClient as jest.MockedFunction<typeof getHasuraClient>;
+
 describe('TronERC20FeeProxyPaymentDetector', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+    mockedGetHasuraClient.mockReset();
+  });
+
   describe('getDeploymentInformation', () => {
     it('should return correct address for TRON mainnet', () => {
       const info = TronERC20FeeProxyPaymentDetector.getDeploymentInformation('tron');
@@ -38,13 +55,10 @@ describe('TronERC20FeeProxyPaymentDetector', () => {
       fromStorageCurrency: jest.fn(),
     };
 
-    const mockGetSubgraphClient = jest.fn();
-
     it('should create detector for TRON network', () => {
       const detector = new TronERC20FeeProxyPaymentDetector({
         advancedLogic: mockAdvancedLogic as any,
         currencyManager: mockCurrencyManager as any,
-        getSubgraphClient: mockGetSubgraphClient,
         network: 'tron',
       });
 
@@ -55,7 +69,6 @@ describe('TronERC20FeeProxyPaymentDetector', () => {
       const detector = new TronERC20FeeProxyPaymentDetector({
         advancedLogic: mockAdvancedLogic as any,
         currencyManager: mockCurrencyManager as any,
-        getSubgraphClient: mockGetSubgraphClient,
         network: 'nile',
       });
 
@@ -64,23 +77,6 @@ describe('TronERC20FeeProxyPaymentDetector', () => {
   });
 
   describe('extractEvents', () => {
-    const mockPayment = {
-      amount: '1000000',
-      block: 63208800,
-      txHash: 'abc123def456',
-      feeAmount: '10000',
-      feeAddress: 'TFeeAddress1234567890123456789012',
-      from: 'TFromAddress1234567890123456789012',
-      timestamp: 1700000000,
-      tokenAddress: 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
-    };
-
-    const mockSubgraphClient = {
-      GetTronPayments: jest.fn().mockResolvedValue({ payments: [mockPayment] }),
-      GetTronPaymentsAnyToken: jest.fn().mockResolvedValue({ payments: [mockPayment] }),
-      options: {},
-    };
-
     const mockAdvancedLogic = {
       getFeeProxyContractErc20ForNetwork: jest.fn().mockReturnValue(undefined),
       extensions: {
@@ -102,13 +98,13 @@ describe('TronERC20FeeProxyPaymentDetector', () => {
       }),
     };
 
-    it('should throw error when subgraph client is not available', async () => {
-      const mockGetSubgraphClient = jest.fn().mockReturnValue(undefined);
+    it('should throw error when Hasura client is not available', async () => {
+      // Mock getHasuraClient to return undefined (simulating misconfiguration)
+      mockedGetHasuraClient.mockReturnValue(undefined);
 
       const detector = new TronERC20FeeProxyPaymentDetector({
         advancedLogic: mockAdvancedLogic as any,
         currencyManager: mockCurrencyManager as any,
-        getSubgraphClient: mockGetSubgraphClient,
         network: 'tron',
       });
 
@@ -127,16 +123,13 @@ describe('TronERC20FeeProxyPaymentDetector', () => {
           'tron' as CurrencyTypes.TronChainName,
           { version: '0.1.0' } as ExtensionTypes.IState,
         ),
-      ).rejects.toThrow('Could not get a TheGraph-based info retriever');
+      ).rejects.toThrow('Could not get a Hasura client for TRON chain tron');
     });
 
     it('should return empty events when toAddress is undefined', async () => {
-      const mockGetSubgraphClient = jest.fn().mockReturnValue(mockSubgraphClient);
-
       const detector = new TronERC20FeeProxyPaymentDetector({
         advancedLogic: mockAdvancedLogic as any,
         currencyManager: mockCurrencyManager as any,
-        getSubgraphClient: mockGetSubgraphClient,
         network: 'tron',
       });
 
@@ -159,12 +152,9 @@ describe('TronERC20FeeProxyPaymentDetector', () => {
     });
 
     it('should throw NetworkNotSupported for unsupported chains', async () => {
-      const mockGetSubgraphClient = jest.fn().mockReturnValue(mockSubgraphClient);
-
       const detector = new TronERC20FeeProxyPaymentDetector({
         advancedLogic: mockAdvancedLogic as any,
         currencyManager: mockCurrencyManager as any,
-        getSubgraphClient: mockGetSubgraphClient,
         network: 'tron',
       });
 

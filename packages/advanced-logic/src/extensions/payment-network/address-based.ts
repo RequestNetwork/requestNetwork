@@ -158,6 +158,14 @@ export default abstract class AddressBasedPaymentNetwork<
     }
   }
 
+  /**
+   * Check if an address is a valid TRON Base58 address (starts with 'T', 34 chars).
+   * Use this in subclasses that override isValidAddress for TRON-specific networks.
+   */
+  public static isTronAddress(address: string): boolean {
+    return /^T[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]{33}$/.test(address);
+  }
+
   protected isValidAddressForSymbolAndNetwork(
     address: string,
     symbol: string,

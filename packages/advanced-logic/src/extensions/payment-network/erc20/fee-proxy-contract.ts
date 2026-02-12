@@ -1,6 +1,6 @@
 import { CurrencyTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { NearChains, isSameChain } from '@requestnetwork/currency';
-import { UnsupportedNetworkError } from '../address-based';
+import AddressBasedPaymentNetwork, { UnsupportedNetworkError } from '../address-based';
 import { FeeReferenceBasedPaymentNetwork } from '../fee-reference-based';
 
 const EVM_CURRENT_VERSION = '0.2.0';
@@ -57,8 +57,16 @@ export default class Erc20FeeProxyPaymentNetwork<
       } else {
         return this.isValidAddressForSymbolAndNetwork(address, 'NEAR', 'near');
       }
+    } else if (Erc20FeeProxyPaymentNetwork.isTronNetwork(this.network)) {
+      return AddressBasedPaymentNetwork.isTronAddress(address);
     } else {
       return super.isValidAddress(address);
     }
+  }
+
+  private static isTronNetwork(network?: string): boolean {
+    if (!network) return false;
+    const normalized = network.toLowerCase();
+    return normalized === 'tron' || normalized === 'nile';
   }
 }
