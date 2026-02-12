@@ -173,9 +173,16 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
   }
 
   public getFeeProxyContractErc20ForNetwork(network?: string): FeeProxyContractErc20 {
-    return NearChains.isChainSupported(network)
-      ? new FeeProxyContractErc20(this.currencyManager, undefined, undefined, network)
-      : this.extensions.feeProxyContractErc20;
+    if (NearChains.isChainSupported(network) || this.isTronNetwork(network)) {
+      return new FeeProxyContractErc20(this.currencyManager, undefined, undefined, network);
+    }
+    return this.extensions.feeProxyContractErc20;
+  }
+
+  private isTronNetwork(network?: string): boolean {
+    if (!network) return false;
+    const normalized = network.toLowerCase();
+    return normalized === 'tron' || normalized === 'nile';
   }
 
   protected getNetwork(

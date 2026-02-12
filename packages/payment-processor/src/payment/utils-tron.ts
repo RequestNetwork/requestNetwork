@@ -26,6 +26,7 @@ export interface TronWeb {
     getBalance: (address: string) => Promise<number>;
     sign: (transaction: unknown, privateKey?: string) => Promise<unknown>;
     sendRawTransaction: (signedTransaction: unknown) => Promise<TronTransactionResult>;
+    getTransactionInfo: (txHash: string) => Promise<TronTransactionInfo>;
   };
   contract: <T extends readonly unknown[]>(
     abi: T,
@@ -46,6 +47,24 @@ export interface TronWeb {
   };
   toSun: (amount: number) => number;
   fromSun: (amount: number) => number;
+}
+
+/**
+ * Transaction info returned by getTransactionInfo
+ */
+export interface TronTransactionInfo {
+  id?: string;
+  blockNumber?: number;
+  blockTimeStamp?: number;
+  contractResult?: string[];
+  receipt?: {
+    result?: string;
+    energy_usage?: number;
+    energy_usage_total?: number;
+    net_usage?: number;
+  };
+  result?: string;
+  resMessage?: string;
 }
 
 // Generic contract instance type that provides method typing based on ABI
@@ -149,8 +168,74 @@ export const getTronAllowance = async (
   }
 };
 
+/** Maximum retries when waiting for transaction confirmation */
+const MAX_CONFIRMATION_RETRIES = 10;
+
+/** Delay between retries in milliseconds */
+const CONFIRMATION_RETRY_DELAY = 3000;
+
+/**
+ * Waits for a transaction to be confirmed and validates its success
+ * @param tronWeb - TronWeb instance
+ * @param txHash - Transaction hash to validate
+ * @returns The transaction info if successful
+ * @throws Error if transaction failed or couldn't be confirmed
+ */
+export const waitForTransactionConfirmation = async (
+  tronWeb: TronWeb,
+  txHash: string,
+): Promise<TronTransactionInfo> => {
+  for (let i = 0; i < MAX_CONFIRMATION_RETRIES; i++) {
+    try {
+      const txInfo = await tronWeb.trx.getTransactionInfo(txHash);
+
+      // If we have receipt info, the transaction is confirmed
+      if (txInfo.receipt) {
+        // Check if the transaction was successful
+        if (txInfo.receipt.result && txInfo.receipt.result !== 'SUCCESS') {
+          const errorMsg = txInfo.resMessage
+            ? Buffer.from(txInfo.resMessage, 'hex').toString('utf8')
+            : `Transaction failed with result: ${txInfo.receipt.result}`;
+          throw new Error(errorMsg);
+        }
+
+        // Check contractResult for revert
+        if (txInfo.contractResult && txInfo.contractResult.length > 0) {
+          const result = txInfo.contractResult[0];
+          // Empty result or success
+          if (
+            result === '' ||
+            result === '0000000000000000000000000000000000000000000000000000000000000001'
+          ) {
+            return txInfo;
+          }
+          // Non-empty result that's not success could indicate an error
+          // But some contracts return data, so we check receipt.result primarily
+        }
+
+        return txInfo;
+      }
+
+      // Transaction not yet confirmed, wait and retry
+      await new Promise((resolve) => setTimeout(resolve, CONFIRMATION_RETRY_DELAY));
+    } catch (error) {
+      // If it's our own error (from failed transaction), rethrow
+      if ((error as Error).message.includes('Transaction failed')) {
+        throw error;
+      }
+      // Otherwise, wait and retry (network error, tx not found yet, etc.)
+      await new Promise((resolve) => setTimeout(resolve, CONFIRMATION_RETRY_DELAY));
+    }
+  }
+
+  throw new Error(
+    `Transaction ${txHash} confirmation timeout after ${MAX_CONFIRMATION_RETRIES} retries`,
+  );
+};
 /**
  * Approves the ERC20FeeProxy contract to spend TRC20 tokens
+ * @param feeLimit - Optional fee limit in SUN (1 TRX = 1,000,000 SUN). Defaults to 100 TRX.
+ * @param waitForConfirmation - If true, waits for transaction confirmation and validates success. Defaults to false.
  */
 export const approveTrc20 = async (
   tronWeb: TronWeb,
@@ -159,6 +244,7 @@ export const approveTrc20 = async (
   amount: BigNumberish,
   callback?: ITronTransactionCallback,
   feeLimit: number = DEFAULT_TRON_APPROVAL_FEE_LIMIT,
+  waitForConfirmation = false,
 ): Promise<string> => {
   const proxyAddress = getERC20FeeProxyAddress(network);
   const contract = await tronWeb.contract(TRC20_ABI, tokenAddress);
@@ -172,6 +258,11 @@ export const approveTrc20 = async (
     const txHash = result.txid || result.transaction?.txID || '';
     callback?.onHash?.(txHash);
 
+    if (waitForConfirmation && txHash) {
+      const txInfo = await waitForTransactionConfirmation(tronWeb, txHash);
+      callback?.onConfirmation?.(txInfo);
+    }
+
     return txHash;
   } catch (error) {
     callback?.onError?.(error as Error);
@@ -181,6 +272,8 @@ export const approveTrc20 = async (
 
 /**
  * Processes a TRC20 fee proxy payment on Tron
+ * @param feeLimit - Optional fee limit in SUN (1 TRX = 1,000,000 SUN). Defaults to 150 TRX.
+ * @param waitForConfirmation - If true, waits for transaction confirmation and validates success. Defaults to false.
  */
 export const processTronFeeProxyPayment = async (
   tronWeb: TronWeb,
@@ -193,6 +286,7 @@ export const processTronFeeProxyPayment = async (
   feeAddress: string,
   callback?: ITronTransactionCallback,
   feeLimit: number = DEFAULT_TRON_PAYMENT_FEE_LIMIT,
+  waitForConfirmation = false,
 ): Promise<string> => {
   // Validate addresses
   if (!isValidTronAddress(to)) {
@@ -233,6 +327,11 @@ export const processTronFeeProxyPayment = async (
 
     const txHash = result.txid || result.transaction?.txID || '';
     callback?.onHash?.(txHash);
+
+    if (waitForConfirmation && txHash) {
+      const txInfo = await waitForTransactionConfirmation(tronWeb, txHash);
+      callback?.onConfirmation?.(txInfo);
+    }
 
     return txHash;
   } catch (error) {

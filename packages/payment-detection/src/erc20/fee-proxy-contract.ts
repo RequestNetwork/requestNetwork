@@ -14,7 +14,7 @@ import { makeGetDeploymentInformation } from '../utils';
 import { TheGraphClient, TheGraphInfoRetriever } from '../thegraph';
 import { ReferenceBasedDetectorOptions, TGetSubGraphClient } from '../types';
 import { NearInfoRetriever } from '../near';
-import { TronInfoRetriever } from '../tron/tron-info-retriever';
+import { TronTheGraphInfoRetriever } from '../tron/retrievers/tron-thegraph-info-retriever';
 import { NetworkNotSupported } from '../balance-error';
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
@@ -166,13 +166,13 @@ export class ERC20FeeProxyPaymentDetector<
       | TheGraphClient
       | TheGraphClient<CurrencyTypes.NearChainName>
       | TheGraphClient<CurrencyTypes.TronChainName>,
-  ): TheGraphInfoRetriever | NearInfoRetriever | TronInfoRetriever {
+  ): TheGraphInfoRetriever | NearInfoRetriever | TronTheGraphInfoRetriever {
     const graphInfoRetriever = EvmChains.isChainSupported(paymentChain)
       ? new TheGraphInfoRetriever(subgraphClient as TheGraphClient, this.currencyManager)
       : NearChains.isChainSupported(paymentChain) && this.network
       ? new NearInfoRetriever(subgraphClient as TheGraphClient<CurrencyTypes.NearChainName>)
       : TronChains.isChainSupported(paymentChain)
-      ? new TronInfoRetriever(subgraphClient as TheGraphClient<CurrencyTypes.TronChainName>)
+      ? new TronTheGraphInfoRetriever(subgraphClient as TheGraphClient<CurrencyTypes.TronChainName>)
       : undefined;
     if (!graphInfoRetriever) {
       throw new Error(
