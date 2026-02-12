@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { CurrencyTypes } from '@requestnetwork/types';
-import { NearChains } from '@requestnetwork/currency';
+import { NearChains, TronChains } from '@requestnetwork/currency';
 import { GraphQLClient } from 'graphql-request';
 import { Block_Height, getSdk, Maybe } from './generated/graphql';
 import { getSdk as getNearSdk } from './generated/graphql-near';
+import { getSdk as getTronSdk } from './generated/graphql-tron';
 
 const THE_GRAPH_STUDIO_URL =
   'https://api.studio.thegraph.com/query/67444/request-payments-$NETWORK/version/latest';
@@ -19,6 +20,13 @@ const THE_GRAPH_URL_MANTLE =
 
 const THE_GRAPH_URL_CORE =
   'https://thegraph.coredao.org/subgraphs/name/requestnetwork/request-payments-core';
+
+// TRON Substreams-powered subgraph URLs
+const THE_GRAPH_URL_TRON =
+  'https://api.studio.thegraph.com/query/67444/request-payments-tron/version/latest';
+
+const THE_GRAPH_URL_TRON_NILE =
+  'https://api.studio.thegraph.com/query/67444/request-payments-tron-nile/version/latest';
 
 const THE_GRAPH_EXPLORER_SUBGRAPH_ID: Partial<Record<CurrencyTypes.ChainName, string>> = {
   ['arbitrum-one']: '3MtDdHbzvBVNBpzUTYXGuDDLgTd1b8bPYwoH1Hdssgp9',
@@ -47,11 +55,13 @@ const THE_GRAPH_EXPLORER_SUBGRAPH_ID: Partial<Record<CurrencyTypes.ChainName, st
 /**
  * A GraphQL client to query Request's subgraph.
  *
- * @type TGraphClientVariant: null if no variant, 'near' if native token payments detection on Near
+ * @type TGraphClientVariant: null if no variant, 'near' if native token payments detection on Near, 'tron' for TRON
  */
 export type TheGraphClient<TChain extends CurrencyTypes.VMChainName = CurrencyTypes.EvmChainName> =
   (TChain extends CurrencyTypes.NearChainName
     ? ReturnType<typeof getNearSdk>
+    : TChain extends CurrencyTypes.TronChainName
+    ? ReturnType<typeof getTronSdk>
     : ReturnType<typeof getSdk>) & {
     options?: TheGraphQueryOptions;
   };
@@ -104,6 +114,9 @@ export const getTheGraphClient = (
 ) => {
   const url = getTheGraphClientUrl(network, options);
   if (!url) return;
+  if (TronChains.isChainSupported(network)) {
+    return getTheGraphTronClient(url, options);
+  }
   return NearChains.isChainSupported(network)
     ? getTheGraphNearClient(url, options)
     : getTheGraphEvmClient(url, options);
@@ -121,6 +134,15 @@ export const getTheGraphEvmClient = (url: string, options?: TheGraphClientOption
 export const getTheGraphNearClient = (url: string, options?: TheGraphClientOptions) => {
   const [clientOptions, queryOptions] = extractClientOptions(url, options);
   const sdk: TheGraphClient<CurrencyTypes.NearChainName> = getNearSdk(
+    new GraphQLClient(url, clientOptions),
+  );
+  sdk.options = queryOptions;
+  return sdk;
+};
+
+export const getTheGraphTronClient = (url: string, options?: TheGraphClientOptions) => {
+  const [clientOptions, queryOptions] = extractClientOptions(url, options);
+  const sdk: TheGraphClient<CurrencyTypes.TronChainName> = getTronSdk(
     new GraphQLClient(url, clientOptions),
   );
   sdk.options = queryOptions;
@@ -155,6 +177,10 @@ export const getTheGraphClientUrl = (
       return THE_GRAPH_URL_MANTLE_TESTNET;
     case chain === 'core':
       return THE_GRAPH_URL_CORE;
+    case chain === 'tron':
+      return THE_GRAPH_URL_TRON;
+    case chain === 'nile':
+      return THE_GRAPH_URL_TRON_NILE;
     default:
       return shouldUseTheGraphExplorer ? theGraphExplorerUrl : theGraphStudioUrl;
   }

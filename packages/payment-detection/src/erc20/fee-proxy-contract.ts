@@ -161,7 +161,10 @@ export class ERC20FeeProxyPaymentDetector<
 
   protected getTheGraphInfoRetriever(
     paymentChain: TChain,
-    subgraphClient: TheGraphClient | TheGraphClient<CurrencyTypes.NearChainName>,
+    subgraphClient:
+      | TheGraphClient
+      | TheGraphClient<CurrencyTypes.NearChainName>
+      | TheGraphClient<CurrencyTypes.TronChainName>,
   ): TheGraphInfoRetriever | NearInfoRetriever {
     const graphInfoRetriever = EvmChains.isChainSupported(paymentChain)
       ? new TheGraphInfoRetriever(subgraphClient as TheGraphClient, this.currencyManager)

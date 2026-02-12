@@ -1,0 +1,10 @@
+overwrite: true
+schema: 'src/thegraph/queries/tron/schema.graphql'
+documents: src/thegraph/queries/tron/*.graphql
+generates:
+  src/thegraph/generated/graphql-tron.ts:
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-graphql-request'
+      - 'typescript-document-nodes'
