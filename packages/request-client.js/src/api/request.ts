@@ -696,6 +696,12 @@ export default class Request {
    * @returns The updated request data
    */
   public getData(): Types.IRequestDataWithEvents {
+    if (this.inMemoryInfo) {
+      return Object.assign(new EventEmitter(), {
+        ...this.inMemoryInfo.requestData,
+      });
+    }
+
     if (this.confirmationErrorOccurredAtCreation) {
       throw Error('request confirmation failed');
     }
@@ -709,8 +715,6 @@ export default class Request {
       requestData = pending as RequestLogicTypes.IRequest;
       requestData.state = RequestLogicTypes.STATE.PENDING;
       pending = { state: this.pendingData?.state };
-    } else if (!requestData && !pending) {
-      return Object.assign(new EventEmitter(), {} as Types.IRequestDataWithEvents);
     }
 
     const currency = this.currencyManager.fromStorageCurrency(requestData.currency);
