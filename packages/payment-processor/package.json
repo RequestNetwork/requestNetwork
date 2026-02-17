@@ -36,11 +36,11 @@
     "lint:check": "eslint .",
     "prepare": "yarn run build",
     "test": "jest --testPathIgnorePatterns test/payment/erc-20-private-payment-hinkal.test.ts --runInBand",
-    "test:hinkal": "jest test/payment/erc-20-private-payment-hinkal.test.ts --runInBand",
+    "test:hinkal": "ISOLATED_MODULES=false jest test/payment/erc-20-private-payment-hinkal.test.ts --runInBand",
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@hinkal/common": "0.2.12",
+    "@hinkal/common": "0.2.15",
     "@openzeppelin/contracts": "4.9.6",
     "@requestnetwork/currency": "0.31.0",
     "@requestnetwork/payment-detection": "0.57.0",
