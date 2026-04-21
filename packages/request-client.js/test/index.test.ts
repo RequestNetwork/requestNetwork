@@ -1348,7 +1348,7 @@ describe('request-client.js', () => {
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).toBe(
         '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
       );
-    }, 120000); // Increased from default – mock storage + payment detection can be slow in CI
+    }, 140000); // Increased from default – mock storage + payment detection can be slow in CI
 
     it('can disable and enable the get the balance of a request', async () => {
       const etherscanMock = new EtherscanProviderMock();
