@@ -72,14 +72,26 @@ export const setupBatchConversionPayments = async ({
       'chainlinkConversionPath',
     ];
     for (const proxy of proxies) {
-      await updateBatchConversionProxy(
-        batchConversionPaymentConnected,
-        network,
-        txOverrides,
-        proxy,
-        signer,
-        signWithEoa,
-      );
+      try {
+        await updateBatchConversionProxy(
+          batchConversionPaymentConnected,
+          network,
+          txOverrides,
+          proxy,
+          signer,
+          signWithEoa,
+        );
+      } catch (err) {
+        if (err.message.includes('No deployment for network')) {
+          console.warn(`No deployment for proxy ${proxy} on ${network}`);
+          console.warn(`Skipping Batch contract setup for ${proxy} on ${network}`);
+          console.warn(
+            `If ${proxy} was deployed on ${network} update the artifacts and run the contract setup script`,
+          );
+        } else {
+          throw err;
+        }
+      }
     }
     await updateNativeAndUSDAddress(
       batchConversionPaymentConnected,

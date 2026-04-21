@@ -222,6 +222,11 @@ export default {
       chainId: 146,
       accounts,
     },
+    boba: {
+      url: url('boba'),
+      chainId: 288,
+      accounts,
+    },
   },
   zksolc: {
     version: '1.3.16',
@@ -285,6 +290,14 @@ export default {
           browserURL: 'https://sepolia.basescan.org/',
         },
       },
+      {
+        network: 'boba',
+        chainId: 288,
+        urls: {
+          apiURL: 'https://api.routescan.io/v2/network/mainnet/evm/288/etherscan/api',
+          browserURL: 'https://bobascan.com/',
+        },
+      },
     ],
   },
   tenderly: {
@@ -318,6 +331,7 @@ export default {
           'optimism',
           'moonbeam',
           'sonic',
+          'boba',
         ],
     gasLimit: undefined,
     deployerAddress: requestDeployer,
