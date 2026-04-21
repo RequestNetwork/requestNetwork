@@ -4,6 +4,7 @@ import * as AlfajoresDefinition from './data/alfajores';
 import * as ArbitrumOneDefinition from './data/arbitrum-one';
 import * as ArbitrumRinkebyDefinition from './data/arbitrum-rinkeby';
 import * as AvalancheDefinition from './data/avalanche';
+import * as BobaDefinition from './data/boba';
 import * as BscDefinition from './data/bsc';
 import * as BscTestDefinition from './data/bsctest';
 import * as CeloDefinition from './data/celo';
@@ -64,6 +65,7 @@ export const chains: Record<CurrencyTypes.EvmChainName, EvmChain> = {
   zksynceratestnet: ZkSyncEraTestnetDefinition,
   zksyncera: ZkSyncEraDefinition,
   base: BaseDefinition,
+  boba: BobaDefinition,
   'base-sepolia': BaseSepoliaDefinition,
   sonic: SonicDefinition,
 };

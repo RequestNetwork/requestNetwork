@@ -54,6 +54,7 @@ const networkRpcs: Record<string, string> = {
   sepolia: 'https://rpc.sepolia.org/',
   base: 'https://mainnet.base.org/',
   sonic: 'https://rpc.soniclabs.com',
+  boba: 'https://mainnet.boba.network',
 };
 
 /**

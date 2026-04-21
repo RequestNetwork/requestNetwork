@@ -190,6 +190,12 @@ export const nativeCurrencies: Record<RequestLogicTypes.CURRENCY.ETH, NativeEthC
       name: 'Nile Tron',
       network: 'nile',
     },
+    {
+      symbol: 'ETH-boba',
+      decimals: 18,
+      name: 'Boba Ether',
+      network: 'boba',
+    },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [
     {
