@@ -90,6 +90,11 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
           address: '0x118159B0fD020c5Ba3891fD7B626573E810FB265',
           creationBlockNumber: 3974167,
         },
+        // Caution: no ETHConversion, ERC20Conversion, and chainlinkConversionPath proxies on boba
+        boba: {
+          address: '0xD83031c8e0A855c512661CB626ec3B05E4Df7C76',
+          creationBlockNumber: 32880253,
+        },
       },
     },
   },

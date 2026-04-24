@@ -19,6 +19,7 @@ const networks: Record<string, ethers.providers.Network> = {
   zksyncera: { chainId: 324, name: 'zksyncera' },
   'base-sepolia': { chainId: 84532, name: 'base-sepolia' },
   sonic: { chainId: 146, name: 'sonic' },
+  boba: { chainId: 288, name: 'boba' },
 };
 
 /**
@@ -81,6 +82,8 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
         return 'https://api-sepolia.basescan.org/api';
       case 'sonic':
         return 'https://api.sonicscan.org/api';
+      case 'boba':
+        return 'https://api.routescan.io/v2/network/mainnet/evm/288/etherscan/api';
       default:
         return super.getBaseUrl();
     }

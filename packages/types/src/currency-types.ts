@@ -8,6 +8,7 @@ export type EvmChainName =
   | 'arbitrum-one'
   | 'arbitrum-rinkeby'
   | 'avalanche'
+  | 'boba'
   | 'base'
   | 'base-sepolia'
   | 'bsc'

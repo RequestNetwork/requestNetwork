@@ -164,6 +164,16 @@ const waitForConfirmation = async (
   });
 };
 
+/**
+ * Avoid live `eth_getLogs` RPC in CI. With subgraph disabled, ETH/ERC20 proxy
+ * fallbacks use `getDefaultProvider().getLogs` over large block ranges, which
+ * is slow and can time out. Tests that use mocked Etherscan (or only assert
+ * currency) do not need those logs. Do not use for local `private` chain
+ * transfer integration tests.
+ */
+const mockEvmGetLogsEmpty = (): jest.SpyInstance =>
+  jest.spyOn(ethers.providers.BaseProvider.prototype, 'getLogs').mockResolvedValue([] as any);
+
 // Integration tests
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('request-client.js', () => {
@@ -1164,6 +1174,7 @@ describe('request-client.js', () => {
       jest.useRealTimers();
       jest.clearAllMocks();
       jest.restoreAllMocks();
+      mockEvmGetLogsEmpty();
     });
 
     it('can create ETH requests with given salt', async () => {
@@ -1987,6 +1998,7 @@ describe('request-client.js', () => {
     };
 
     it('supports a default list when nothing is provided', async () => {
+      mockEvmGetLogsEmpty();
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
         useMockStorage: true,
@@ -2062,6 +2074,7 @@ describe('request-client.js', () => {
       });
 
       it('overrides the default token list', async () => {
+        mockEvmGetLogsEmpty();
         const daiRequest = await requestNetwork.createRequest({
           requestInfo: daiData,
           paymentNetwork,
