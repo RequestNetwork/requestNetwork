@@ -32,17 +32,24 @@ on:
       - 'packages/currency/src/chains/tron/**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   tron-compile-check:
     name: Tron Contract Compilation Check
     runs-on: ubuntu-latest
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf # v2
+        with:
+          egress-policy: audit
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
           cache: 'yarn'
@@ -50,8 +57,13 @@ jobs:
       - name: Install TronBox globally
         run: npm install -g tronbox
 
+      - name: Setup Socket.dev
+        uses: SocketDev/action@ba6de6cc0565af1f42295590380973573297e31f # v1.3.2
+        with:
+          mode: firewall-free
+
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: sfw yarn install --frozen-lockfile
 
       - name: Compile Tron contracts
         working-directory: packages/smart-contracts
@@ -134,17 +146,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf # v2
+        with:
+          egress-policy: audit
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
           cache: 'yarn'
 
+      - name: Setup Socket.dev
+        uses: SocketDev/action@ba6de6cc0565af1f42295590380973573297e31f # v1.3.2
+        with:
+          mode: firewall-free
+
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: sfw yarn install --frozen-lockfile
 
       - name: Build dependencies
         run: |
@@ -163,17 +184,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf # v2
+        with:
+          egress-policy: audit
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22'
           cache: 'yarn'
 
+      - name: Setup Socket.dev
+        uses: SocketDev/action@ba6de6cc0565af1f42295590380973573297e31f # v1.3.2
+        with:
+          mode: firewall-free
+
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: sfw yarn install --frozen-lockfile
 
       - name: Build smart-contracts package
         run: |

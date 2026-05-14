@@ -12,4 +12,8 @@ jobs:
   add-reviews:
     runs-on: ubuntu-latest
     steps:
-      - uses: kentaro-m/auto-assign-action@v1.2.0
+      - name: Harden Runner
+        uses: step-security/harden-runner@c6295a65d1254861815972266d5933fd6e532bdf # v2
+        with:
+          egress-policy: audit
+      - uses: kentaro-m/auto-assign-action@50ee9a1818bde2eb93a948448994a9d414457e3a # v1.2.0

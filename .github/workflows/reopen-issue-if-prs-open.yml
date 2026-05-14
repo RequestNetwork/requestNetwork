@@ -4,6 +4,9 @@ on:
   issues:
     types: [closed]
 
+permissions:
+  contents: read
+
 jobs:
   reopen-if-needed:
     uses: RequestNetwork/.github/.github/workflows/reopen-issue-if-prs-open.yml@main
