@@ -112,11 +112,8 @@ const expectNonOwnerReverts = async (fn, getState) => {
   } catch (_error) {}
   await waitForConfirmation(2000);
 
-  if (getState) {
-    const after = await getState();
-    assert.equal(after, before, 'state should be unchanged after failed non-owner call');
-  }
-  return { reverted: threw };
+  const after = await getState();
+  assert.equal(after, before, 'state should be unchanged after failed non-owner call');
 };
 
 /**
