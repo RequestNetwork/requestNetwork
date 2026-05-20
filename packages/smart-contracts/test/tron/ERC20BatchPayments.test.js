@@ -1,4 +1,4 @@
-const BatchPaymentsTronSimplified = artifacts.require('BatchPaymentsTronSimplified');
+const ERC20BatchPayments = artifacts.require('ERC20BatchPayments');
 const {
   REF_A,
   REF_B,
@@ -34,13 +34,12 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
   before(async () => {
     const setup = await deployBaseSetup({
       accounts,
-      batchDeployFn: (erc20FeeProxy, owner) =>
-        BatchPaymentsTronSimplified.new(erc20FeeProxy.address, owner),
+      batchDeployFn: (erc20FeeProxy, owner) => ERC20BatchPayments.new(erc20FeeProxy.address, owner),
     });
     batch = setup.batch;
     [token1, token2, token3] = setup.tokens;
 
-    console.log('\n=== BatchPaymentsTronSimplified Test Setup ===');
+    console.log('\n=== ERC20BatchPayments Test Setup ===');
     console.log('Batch:', batch.address);
     await waitForConfirmation(3000);
   });
