@@ -7,14 +7,14 @@ import './interfaces/ERC20FeeProxy.sol';
 import './lib/SafeERC20.sol';
 
 /**
- * @title BatchPaymentsTronSimplified
+ * @title ERC20BatchPayments
  * @notice Tron-only batch contract that routes each payment through ERC20FeeProxy.
  *         If one payment fails, the whole batch reverts.
  * @dev Uses ERC20FeeProxy to pay an invoice and fees, with a payment reference.
  *      Make sure this contract has allowance to spend the payer's tokens.
  *      Make sure the payer has enough tokens to pay the amounts and fees.
  */
-contract BatchPaymentsTronSimplified is Ownable {
+contract ERC20BatchPayments is Ownable {
   using SafeERC20 for IERC20;
 
   IERC20FeeProxy public paymentErc20FeeProxy;

@@ -19,7 +19,7 @@ const {
   getApprovalAmount,
 } = require('./helpers');
 
-contract('BatchPaymentsTronSimplified Tron Test Suite', (accounts) => {
+contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
   const payer = accounts[0];
   const payee1 = accounts[1] || 'TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE';
   const payee2 = accounts[2] || 'TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs';
