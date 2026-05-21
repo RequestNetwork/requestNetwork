@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import './interfaces/ERC20FeeProxy.sol';
 import './lib/SafeERC20.sol';
@@ -14,7 +13,7 @@ import './lib/SafeERC20.sol';
  *      Make sure this contract has allowance to spend the payer's tokens.
  *      Make sure the payer has enough tokens to pay the amounts and fees.
  */
-contract ERC20BatchPayments is Ownable {
+contract ERC20BatchPayments {
   using SafeERC20 for IERC20;
 
   IERC20FeeProxy public paymentErc20FeeProxy;
@@ -26,11 +25,9 @@ contract ERC20BatchPayments is Ownable {
 
   /**
    * @param _paymentErc20FeeProxy The address of the ERC20FeeProxy to use.
-   * @param _owner Owner of the contract.
    */
-  constructor(address _paymentErc20FeeProxy, address _owner) {
+  constructor(address _paymentErc20FeeProxy) {
     paymentErc20FeeProxy = IERC20FeeProxy(_paymentErc20FeeProxy);
-    transferOwnership(_owner);
   }
 
   /**
@@ -143,14 +140,6 @@ contract ERC20BatchPayments is Ownable {
     IERC20 erc20 = IERC20(_erc20Address);
     uint256 max = type(uint256).max;
     require(erc20.safeApprove(address(paymentErc20FeeProxy), max), 'approve() failed');
-  }
-
-  /**
-   * @notice Updates the ERC20FeeProxy address.
-   * @param _paymentErc20FeeProxy The address of the ERC20FeeProxy to use.
-   */
-  function setPaymentErc20FeeProxy(address _paymentErc20FeeProxy) public onlyOwner {
-    paymentErc20FeeProxy = IERC20FeeProxy(_paymentErc20FeeProxy);
   }
 
   /**

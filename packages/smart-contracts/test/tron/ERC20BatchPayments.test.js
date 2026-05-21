@@ -12,7 +12,6 @@ const {
   deployTokenWithSupply,
   expectRevertOrNoBalanceChange,
   assertBatchTokenBalancesZero,
-  expectNonOwnerReverts,
   deployBadTRC20,
   sumStrings,
   mulString,
@@ -34,7 +33,7 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
   before(async () => {
     const setup = await deployBaseSetup({
       accounts,
-      batchDeployFn: (erc20FeeProxy, owner) => ERC20BatchPayments.new(erc20FeeProxy.address, owner),
+      batchDeployFn: (erc20FeeProxy) => ERC20BatchPayments.new(erc20FeeProxy.address),
     });
     batch = setup.batch;
     [token1, token2, token3] = setup.tokens;
@@ -747,24 +746,6 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         assert(unchanged, 'should not transfer when array lengths mismatch');
         assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
         assert.equal((await balanceOf(token2, payee2)).toString(), payee2Before.toString());
-      });
-    });
-  });
-
-  describe('Admin', () => {
-    describe('setPaymentErc20FeeProxy', () => {
-      it('should allow owner to update proxy addresses', async () => {
-        const ERC20FeeProxy = artifacts.require('ERC20FeeProxy');
-        const newProxy = await ERC20FeeProxy.new();
-        await batch.setPaymentErc20FeeProxy(newProxy.address, { from: payer });
-        assert.equal(await batch.paymentErc20FeeProxy(), newProxy.address);
-      });
-
-      it('should revert when a non-owner tries to update proxy addresses', async () => {
-        await expectNonOwnerReverts(
-          () => batch.setPaymentErc20FeeProxy(payee1, { from: payee1 }),
-          async () => await batch.paymentErc20FeeProxy(),
-        );
       });
     });
   });
