@@ -54,13 +54,13 @@ jobs:
           node-version: '22'
           cache: 'yarn'
 
-      - name: Install TronBox globally
-        run: npm install -g tronbox
-
       - name: Setup Socket.dev
         uses: SocketDev/action@ba6de6cc0565af1f42295590380973573297e31f # v1.3.2
         with:
           mode: firewall-free
+
+      - name: Install TronBox globally
+        run: sfw npm install -g tronbox
 
       - name: Install dependencies
         run: sfw yarn install --frozen-lockfile

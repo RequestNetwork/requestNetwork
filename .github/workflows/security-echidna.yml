@@ -50,10 +50,15 @@ jobs:
           node-version: '22'
           cache: 'yarn'
 
+      - name: Setup Socket.dev
+        uses: SocketDev/action@ba6de6cc0565af1f42295590380973573297e31f # v1.3.2
+        with:
+          mode: firewall-free
+
       - name: Install dependencies
         working-directory: packages/smart-contracts
         run: |
-          yarn install --frozen-lockfile
+          sfw yarn install --frozen-lockfile
 
       - name: Compile contracts
         working-directory: packages/smart-contracts
@@ -191,15 +196,22 @@ jobs:
       - name: Comment on PR
         if: github.event_name == 'pull_request' && always()
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        env:
+          PASSED: ${{ steps.parse.outputs.PASSED }}
+          FAILED: ${{ steps.parse.outputs.FAILED }}
+          TOTAL: ${{ steps.parse.outputs.TOTAL }}
+          MODE: ${{ steps.mode.outputs.MODE }}
+          TEST_LIMIT: ${{ steps.mode.outputs.TEST_LIMIT }}
+          STATUS: ${{ steps.echidna.outcome }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const passed = '${{ steps.parse.outputs.PASSED }}';
-            const failed = '${{ steps.parse.outputs.FAILED }}';
-            const total = '${{ steps.parse.outputs.TOTAL }}';
-            const mode = '${{ steps.mode.outputs.MODE }}';
-            const testLimit = '${{ steps.mode.outputs.TEST_LIMIT }}';
-            const status = '${{ steps.echidna.outcome }}';
+            const passed = process.env.PASSED;
+            const failed = process.env.FAILED;
+            const total = process.env.TOTAL;
+            const mode = process.env.MODE;
+            const testLimit = process.env.TEST_LIMIT;
+            const status = process.env.STATUS;
 
             const statusEmoji = status === 'success' ? '✅' : '❌';
             const passRate = total > 0 ? ((passed / total) * 100).toFixed(1) : '0';
@@ -263,11 +275,14 @@ jobs:
       - name: Create issue for nightly failures
         if: github.event_name == 'schedule' && steps.echidna.outcome == 'failure'
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        env:
+          PASSED: ${{ steps.parse.outputs.PASSED }}
+          FAILED: ${{ steps.parse.outputs.FAILED }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const passed = '${{ steps.parse.outputs.PASSED }}';
-            const failed = '${{ steps.parse.outputs.FAILED }}';
+            const passed = process.env.PASSED;
+            const failed = process.env.FAILED;
 
             github.rest.issues.create({
               owner: context.repo.owner,
