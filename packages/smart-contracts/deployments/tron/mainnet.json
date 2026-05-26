@@ -1,14 +1,20 @@
 {
   "network": "mainnet",
   "chainId": "1",
-  "timestamp": "2024-01-01T00:00:00.000Z",
-  "deployer": "TO_BE_FILLED_ON_DEPLOYMENT",
-  "note": "Existing deployment from handover document",
+  "timestamp": "2026-05-26T17:02:20.157Z",
+  "deployer": "TR7EydtGnsxriSieLfEuspTAqhQRmoscWC",
+  "deploymentDuration": "3.244s",
+  "note": "Deployment of ERC20BatchPayments",
   "contracts": {
     "ERC20FeeProxy": {
       "address": "TCUDPYnS9dH3WvFEaE7wN7vnDa51J4R4fd",
       "hexAddress": "411b6ca35d39842cf8fbe49000653a1505412da659",
       "creationBlockNumber": 79216121
+    },
+    "ERC20BatchPayments": {
+      "address": "TUdcGd29QpV65MkbqgBLWJKbTG3UL7PuQB",
+      "hexAddress": "41ccb57e7bbb729b1c8c94294a61b658a6f2304281",
+      "creationBlockNumber": 83048743
     }
   }
 }
