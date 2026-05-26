@@ -91,6 +91,15 @@ async function main() {
       hexAddress: erc20FeeProxy.address,
     };
 
+    // 2. Deploy ERC20BatchPayments
+    const erc20BatchPayments = await deployContract('ERC20BatchPayments', [
+      deployments.ERC20FeeProxy.address,
+    ]);
+    deployments.ERC20BatchPayments = {
+      address: tronWeb.address.fromHex(erc20BatchPayments.address),
+      hexAddress: erc20BatchPayments.address,
+    };
+
     // 2. Deploy TestTRC20 for testing
     const testToken = await deployContract('TestTRC20', [
       '1000000000000000000000000000', // 1 billion tokens
@@ -141,6 +150,9 @@ async function main() {
     console.log('╚══════════════════════════════════════════════════════════╝\n');
     console.log('1. Verify contracts on Nile Tronscan:');
     console.log('   https://nile.tronscan.org/#/contract/' + deployments.ERC20FeeProxy.address);
+    console.log(
+      '   https://nile.tronscan.org/#/contract/' + deployments.ERC20BatchPayments.address,
+    );
     console.log('\n2. Run tests against deployed contracts:');
     console.log('   TRON_PRIVATE_KEY=... yarn tron:test:nile');
     console.log('\n3. Update artifact registry with deployment addresses');
