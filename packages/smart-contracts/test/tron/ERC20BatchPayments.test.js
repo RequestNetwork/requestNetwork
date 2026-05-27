@@ -750,3 +750,25 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
     });
   });
 });
+
+contract('ERC20BatchPayments constructor', () => {
+  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+  it('should revert when paymentErc20FeeProxy is the zero address', async () => {
+    let reverted = false;
+    let errorMessage = '';
+
+    try {
+      await ERC20BatchPayments.new(ZERO_ADDRESS);
+    } catch (error) {
+      reverted = true;
+      errorMessage = error.message || String(error);
+    }
+
+    assert(reverted, 'deployment should revert when paymentErc20FeeProxy is address(0)');
+    assert(
+      errorMessage.includes('paymentErc20FeeProxy cannot be 0x'),
+      `expected zero-address revert, got: ${errorMessage}`,
+    );
+  });
+});

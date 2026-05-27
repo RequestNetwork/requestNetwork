@@ -16,7 +16,7 @@ import './lib/SafeERC20.sol';
 contract ERC20BatchPayments {
   using SafeERC20 for IERC20;
 
-  IERC20FeeProxy public paymentErc20FeeProxy;
+  IERC20FeeProxy public immutable paymentErc20FeeProxy;
 
   struct Token {
     address tokenAddress;
@@ -27,6 +27,7 @@ contract ERC20BatchPayments {
    * @param _paymentErc20FeeProxy The address of the ERC20FeeProxy to use.
    */
   constructor(address _paymentErc20FeeProxy) {
+    require(_paymentErc20FeeProxy != address(0), 'ERC20BatchPayments: paymentErc20FeeProxy cannot be 0x');
     paymentErc20FeeProxy = IERC20FeeProxy(_paymentErc20FeeProxy);
   }
 
@@ -136,7 +137,7 @@ contract ERC20BatchPayments {
    * @notice Authorizes the proxy to spend a request currency (ERC20).
    * @param _erc20Address Address of an ERC20 used as the request currency.
    */
-  function approvePaymentProxyToSpend(address _erc20Address) public {
+  function approvePaymentProxyToSpend(address _erc20Address) internal {
     IERC20 erc20 = IERC20(_erc20Address);
     uint256 max = type(uint256).max;
     require(erc20.safeApprove(address(paymentErc20FeeProxy), max), 'approve() failed');
