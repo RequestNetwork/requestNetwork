@@ -14,19 +14,6 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "_erc20Address",
-          "type": "address"
-        }
-      ],
-      "name": "approvePaymentProxyToSpend",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "address[]",
           "name": "_tokenAddresses",
           "type": "address[]"
