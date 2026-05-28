@@ -16,6 +16,8 @@ Join the [Request Discord][request-discord-url] to get in touch with us.
 [whitepaper-url]: https://request.network/assets/pdf/request_whitepaper.pdf
 [request-discord-url]: https://request.network/discord
 
+## No Change
+
 ### Published Packages
 
 | Package                                                                  | Version                                                                                                                                             | Description                                                         |
