@@ -60,9 +60,10 @@ module.exports = {
     },
   },
 
-  // Tron artifacts must not live under Hardhat's `build/` (paths.artifacts) or HH701 duplicate names occur.
+  // Contract build directory - Tron builds go under build/tron alongside Hardhat builds
+  // Tron-specific contracts are in tron/contracts/ (outside Hardhat sources to avoid conflicts)
   contracts_directory: './tron/contracts',
-  contracts_build_directory: './build-tron',
+  contracts_build_directory: './build/tron',
   migrations_directory: './migrations/tron',
   test_directory: './test/tron',
 
