@@ -2,7 +2,7 @@
 /**
  * Tron Mainnet Deployment Script
  *
- * This script deploys the ERC20FeeProxy to Tron mainnet.
+ * This script deploys the ERC20FeeProxy and ERC20BatchPayments to Tron mainnet.
  *
  * ⚠️ WARNING: This deploys to MAINNET with real TRX!
  *
@@ -28,6 +28,18 @@ const PRIVATE_KEY = process.env.TRON_PRIVATE_KEY;
 // Safety check
 const CONFIRM_MAINNET = process.env.CONFIRM_MAINNET_DEPLOY === 'true';
 
+const MAINNET_DEPLOYMENT_PATH = path.join(__dirname, '../../deployments/tron/mainnet.json');
+
+/**
+ * Contracts to deploy
+ *
+ * Comment out the contracts you don't want to deploy.
+ */
+const CONTRACTS_TO_DEPLOY = [
+  //'ERC20FeeProxy',
+  'ERC20BatchPayments',
+];
+
 if (!PRIVATE_KEY) {
   console.error('Error: TRON_PRIVATE_KEY environment variable is required');
   process.exit(1);
@@ -47,6 +59,13 @@ async function loadArtifact(contractName) {
     throw new Error(`Artifact not found: ${artifactPath}. Run 'yarn tron:compile' first.`);
   }
   return JSON.parse(fs.readFileSync(artifactPath, 'utf8'));
+}
+
+function loadExistingMainnetDeployment() {
+  if (!fs.existsSync(MAINNET_DEPLOYMENT_PATH)) {
+    return null;
+  }
+  return JSON.parse(fs.readFileSync(MAINNET_DEPLOYMENT_PATH, 'utf8'));
 }
 
 async function confirmDeployment() {
@@ -92,6 +111,24 @@ async function deployContract(contractName, constructorArgs = []) {
   };
 }
 
+async function deployContractWrapper({
+  contractName,
+  deployments,
+  blockNumbers,
+  constructorArgs = [],
+}) {
+  const contract = await deployContract(contractName, constructorArgs);
+  deployments[contractName] = {
+    address: contract.address,
+    hexAddress: contract.hexAddress,
+  };
+
+  // Get block number
+  const block = await tronWeb.trx.getCurrentBlock();
+  const blockNumber = block.block_header.raw_data.number;
+  blockNumbers[contractName] = blockNumber;
+}
+
 async function main() {
   console.log('╔══════════════════════════════════════════════════════════╗');
   console.log('║       TRON MAINNET DEPLOYMENT                             ║');
@@ -123,50 +160,80 @@ async function main() {
   console.log('\n🚀 Starting mainnet deployment...\n');
 
   const deployments = {};
+  const blockNumbers = {};
   const startTime = Date.now();
 
   try {
-    // Deploy ERC20FeeProxy only (no test tokens on mainnet)
-    const erc20FeeProxy = await deployContract('ERC20FeeProxy');
-    deployments.ERC20FeeProxy = {
-      address: erc20FeeProxy.address,
-      hexAddress: erc20FeeProxy.hexAddress,
-    };
+    const existingDeployment = loadExistingMainnetDeployment();
 
-    // Get block number
-    const block = await tronWeb.trx.getCurrentBlock();
-    const blockNumber = block.block_header.raw_data.number;
+    // Deploy ERC20FeeProxy
+    if (CONTRACTS_TO_DEPLOY.includes('ERC20FeeProxy')) {
+      await deployContractWrapper({ contractName: 'ERC20FeeProxy', deployments, blockNumbers });
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
+
+    // Deploy ERC20BatchPayments
+    if (CONTRACTS_TO_DEPLOY.includes('ERC20BatchPayments')) {
+      const erc20FeeProxyAddress = deployments.ERC20FeeProxy
+        ? deployments.ERC20FeeProxy.address
+        : existingDeployment.contracts.ERC20FeeProxy.address;
+
+      if (!erc20FeeProxyAddress) {
+        console.error(
+          'ERC20FeeProxy address not found in deployments/tron/mainnet.json; cannot deploy ERC20BatchPayments',
+        );
+        process.exit(1);
+      }
+
+      console.log('Using ERC20FeeProxy at:', erc20FeeProxyAddress);
+      await deployContractWrapper({
+        contractName: 'ERC20BatchPayments',
+        deployments,
+        blockNumbers,
+        constructorArgs: [erc20FeeProxyAddress],
+      });
+    }
 
     // Print summary
     console.log('\n╔══════════════════════════════════════════════════════════╗');
     console.log('║                  MAINNET DEPLOYMENT SUMMARY               ║');
     console.log('╚══════════════════════════════════════════════════════════╝\n');
 
-    console.log('ERC20FeeProxy:');
-    console.log(`  Address:     ${deployments.ERC20FeeProxy.address}`);
-    console.log(`  Block:       ${blockNumber}`);
-    console.log(
-      `  Tronscan:    https://tronscan.org/#/contract/${deployments.ERC20FeeProxy.address}`,
-    );
+    for (const contractName of Object.keys(deployments)) {
+      console.log(`${contractName}:`);
+      console.log(`  Address:     ${deployments[contractName].address}`);
+      console.log(`  Block:       ${blockNumbers[contractName]}`);
+      console.log(
+        `  Tronscan:    https://tronscan.org/#/contract/${deployments[contractName].address}`,
+      );
+    }
 
-    // Save deployment info
+    const newContracts = Object.entries(deployments).reduce((acc, [contractName, contract]) => {
+      acc[contractName] = {
+        ...contract,
+        creationBlockNumber: blockNumbers[contractName],
+      };
+      return acc;
+    }, {});
+
+    const contracts = {
+      ...(existingDeployment.contracts || {}),
+      ...newContracts,
+    };
+
+    // Save deployment info (merge with existing mainnet.json)
     const deploymentInfo = {
       network: 'mainnet',
       chainId: '1',
       timestamp: new Date().toISOString(),
       deployer: deployerAddress,
       deploymentDuration: `${(Date.now() - startTime) / 1000}s`,
-      contracts: {
-        ERC20FeeProxy: {
-          ...deployments.ERC20FeeProxy,
-          creationBlockNumber: blockNumber,
-        },
-      },
+      contracts,
     };
 
-    const outputPath = path.join(__dirname, '../../deployments/tron/mainnet.json');
-    fs.writeFileSync(outputPath, JSON.stringify(deploymentInfo, null, 2));
-    console.log(`\nDeployment info saved to: ${outputPath}`);
+    fs.mkdirSync(path.dirname(MAINNET_DEPLOYMENT_PATH), { recursive: true });
+    fs.writeFileSync(MAINNET_DEPLOYMENT_PATH, JSON.stringify(deploymentInfo, null, 2));
+    console.log(`\nDeployment info saved to: ${MAINNET_DEPLOYMENT_PATH}`);
 
     // Next steps
     console.log('\n╔══════════════════════════════════════════════════════════╗');
@@ -174,8 +241,7 @@ async function main() {
     console.log('╚══════════════════════════════════════════════════════════╝\n');
     console.log('1. Verify contract on Tronscan');
     console.log('2. Run verification script: yarn tron:verify:mainnet');
-    console.log('3. Update artifact registry in:');
-    console.log('   packages/smart-contracts/src/lib/artifacts/ERC20FeeProxy/index.ts');
+    console.log('3. Update artifact registry with new deployment addresses');
     console.log('4. Test with a real TRC20 token payment');
   } catch (error) {
     console.error('\n❌ Deployment failed:', error.message);

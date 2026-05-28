@@ -9,6 +9,11 @@
       "address": "TCUDPYnS9dH3WvFEaE7wN7vnDa51J4R4fd",
       "hexAddress": "411b6ca35d39842cf8fbe49000653a1505412da659",
       "creationBlockNumber": 79216121
+    },
+    "ERC20BatchPayments": {
+      "address": "TRZbXXuLd3HW5utzVysA3rpLgU7sVBrd1D",
+      "hexAddress": "41ab0ad52e1d1615ee6bc20ab8f2a4c498fb89fd10",
+      "creationBlockNumber": 83104290
     }
   }
 }

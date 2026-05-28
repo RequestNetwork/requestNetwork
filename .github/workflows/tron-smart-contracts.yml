@@ -12,6 +12,9 @@ on:
       - 'packages/smart-contracts/test/tron/**'
       - 'packages/smart-contracts/tronbox-config.js'
       - 'packages/smart-contracts/src/lib/artifacts/ERC20FeeProxy/**'
+      - 'packages/smart-contracts/src/lib/artifacts/ERC20BatchPayments/**'
+      - 'packages/smart-contracts/src/contracts/ERC20FeeProxy.sol'
+      - 'packages/smart-contracts/src/contracts/ERC20BatchPayments.sol'
       - 'packages/payment-processor/src/payment/*tron*'
       - 'packages/payment-processor/test/payment/*tron*'
       - 'packages/currency/src/chains/tron/**'
@@ -27,6 +30,9 @@ on:
       - 'packages/smart-contracts/test/tron/**'
       - 'packages/smart-contracts/tronbox-config.js'
       - 'packages/smart-contracts/src/lib/artifacts/ERC20FeeProxy/**'
+      - 'packages/smart-contracts/src/lib/artifacts/ERC20BatchPayments/**'
+      - 'packages/smart-contracts/src/contracts/ERC20FeeProxy.sol'
+      - 'packages/smart-contracts/src/contracts/ERC20BatchPayments.sol'
       - 'packages/payment-processor/src/payment/*tron*'
       - 'packages/payment-processor/test/payment/*tron*'
       - 'packages/currency/src/chains/tron/**'
@@ -76,7 +82,7 @@ jobs:
           ls -la build/tron/
 
           # Verify key contracts were compiled
-          for contract in ERC20FeeProxy TestTRC20 BadTRC20 TRC20True TRC20NoReturn TRC20False TRC20Revert; do
+          for contract in ERC20FeeProxy ERC20BatchPayments TestTRC20 BadTRC20 TRC20True TRC20NoReturn TRC20False TRC20Revert; do
             if [ ! -f "build/tron/${contract}.json" ]; then
               echo "ERROR: ${contract}.json not found!"
               exit 1
@@ -107,6 +113,15 @@ jobs:
               exit 1
             fi
             echo "✓ TestTRC20 has $func"
+          done
+
+          echo "Verifying ERC20BatchPayments ABI..."
+          for func in batchERC20PaymentsWithReference batchERC20PaymentsMultiTokensWithReference paymentErc20FeeProxy; do
+            if ! grep -q "$func" build/tron/ERC20BatchPayments.json; then
+              echo "ERROR: ERC20BatchPayments missing $func!"
+              exit 1
+            fi
+            echo "✓ ERC20BatchPayments has $func"
           done
 
           echo "✅ Contract ABI structure verified"

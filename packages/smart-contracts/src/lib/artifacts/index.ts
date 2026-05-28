@@ -4,6 +4,7 @@
 export * from './ChainlinkConversionPath';
 export * from './Erc20ConversionProxy';
 export * from './ERC20FeeProxy';
+export * from './ERC20BatchPayments';
 export * from './ERC20Proxy';
 export * from './ERC20SwapToPay';
 export * from './Erc20SwapConversion';

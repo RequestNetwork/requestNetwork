@@ -3,12 +3,17 @@
   "chainId": "3",
   "timestamp": "2024-01-01T00:00:00.000Z",
   "deployer": "TO_BE_FILLED_ON_DEPLOYMENT",
-  "note": "Existing deployment from handover document. Run 'yarn tron:deploy:nile' to redeploy.",
+  "note": "Existing deployment from handover document",
   "contracts": {
     "ERC20FeeProxy": {
       "address": "THK5rNmrvCujhmrXa5DB1dASepwXTr9cJs",
       "hexAddress": "41508b3b4059c40bb3aac5da5ac006ccdd9c4dc957",
       "creationBlockNumber": 63208782
+    },
+    "ERC20BatchPayments": {
+      "address": "TBAtFt46T7LUW5Sya6PNjw7MQrKkzKEFMx",
+      "hexAddress": "410d2d78623480a4caf18ea157badd9a8a7311b746",
+      "creationBlockNumber": 67830042
     }
   }
 }
