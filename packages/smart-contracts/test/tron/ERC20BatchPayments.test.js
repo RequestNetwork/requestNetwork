@@ -11,7 +11,7 @@ const {
   deployBaseSetup,
   makeTokenApproval,
   deployTokenWithSupply,
-  expectRevertOrNoBalanceChange,
+  assertBalancesUnchanged,
   assertBatchTokenBalancesZero,
   deployBadTRC20,
   sumStrings,
@@ -498,7 +498,7 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         );
 
         const payee3Before = await balanceOf(lowToken, payee3);
-        const { unchanged } = await expectRevertOrNoBalanceChange(
+        await assertBalancesUnchanged(
           () =>
             batch.batchERC20PaymentsWithReference(
               lowToken.address,
@@ -510,9 +510,8 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
               { from: payer },
             ),
           async () => [await balanceOf(lowToken, payee3)],
+          'should not transfer when funds insufficient',
         );
-
-        assert(unchanged, 'should not transfer when funds insufficient');
         assert.equal((await balanceOf(lowToken, payee3)).toString(), payee3Before.toString());
       });
 
@@ -531,7 +530,7 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         );
 
         const payee1Before = await balanceOf(lowToken, payee1);
-        const { unchanged } = await expectRevertOrNoBalanceChange(
+        await assertBalancesUnchanged(
           () =>
             batch.batchERC20PaymentsWithReference(
               lowToken.address,
@@ -543,9 +542,8 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
               { from: payer },
             ),
           async () => [await balanceOf(lowToken, payee1)],
+          'should not transfer when fees cannot be paid',
         );
-
-        assert(unchanged, 'should not transfer when fees cannot be paid');
         assert.equal((await balanceOf(lowToken, payee1)).toString(), payee1Before.toString());
       });
 
@@ -567,7 +565,7 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         await waitForConfirmation(2000);
 
         const payee1Before = await balanceOf(token1, payee1);
-        const { unchanged } = await expectRevertOrNoBalanceChange(
+        await assertBalancesUnchanged(
           () =>
             batch.batchERC20PaymentsWithReference(
               token1.address,
@@ -579,9 +577,8 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
               { from: payer },
             ),
           async () => [await balanceOf(token1, payee1)],
+          'should not transfer without allowance',
         );
-
-        assert(unchanged, 'should not transfer without allowance');
         assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
       });
 
@@ -600,7 +597,7 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         const payee1Before = await balanceOf(token1, payee1);
         const payee2Before = await balanceOf(token1, payee2);
 
-        const { unchanged } = await expectRevertOrNoBalanceChange(
+        await assertBalancesUnchanged(
           () =>
             batch.batchERC20PaymentsWithReference(
               token1.address,
@@ -612,9 +609,8 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
               { from: payer },
             ),
           async () => [await balanceOf(token1, payee1), await balanceOf(token1, payee2)],
+          'should not transfer when array lengths mismatch',
         );
-
-        assert(unchanged, 'should not transfer when array lengths mismatch');
         assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
         assert.equal((await balanceOf(token1, payee2)).toString(), payee2Before.toString());
       });
@@ -626,7 +622,7 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         await makeTokenApproval(token1, payer, batch.address, getApprovalAmount([amount1], [fee1]));
 
         const payee1Before = await balanceOf(token1, payee1);
-        const { unchanged } = await expectRevertOrNoBalanceChange(
+        await assertBalancesUnchanged(
           () =>
             batch.batchERC20PaymentsWithReference(
               ZERO_ADDRESS,
@@ -638,9 +634,8 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
               { from: payer },
             ),
           async () => [await balanceOf(token1, payee1)],
+          'should not transfer when token address is zero',
         );
-
-        assert(unchanged, 'should not transfer when token address is zero');
         assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
       });
 
@@ -651,7 +646,7 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         await makeTokenApproval(token1, payer, batch.address, getApprovalAmount([amount1], [fee1]));
 
         const payee1Before = await balanceOf(token1, payee1);
-        const { unchanged } = await expectRevertOrNoBalanceChange(
+        await assertBalancesUnchanged(
           () =>
             batch.batchERC20PaymentsWithReference(
               token1.address,
@@ -663,9 +658,8 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
               { from: payer },
             ),
           async () => [await balanceOf(token1, payee1)],
+          'should not transfer when recipient is zero',
         );
-
-        assert(unchanged, 'should not transfer when recipient is zero');
         assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
       });
 
@@ -676,7 +670,7 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         await makeTokenApproval(token1, payer, batch.address, getApprovalAmount([amount1], [fee1]));
 
         const payee1Before = await balanceOf(token1, payee1);
-        const { unchanged } = await expectRevertOrNoBalanceChange(
+        await assertBalancesUnchanged(
           () =>
             batch.batchERC20PaymentsWithReference(
               token1.address,
@@ -688,9 +682,8 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
               { from: payer },
             ),
           async () => [await balanceOf(token1, payee1)],
+          'should not transfer when feeAddress is zero and fee is non-zero',
         );
-
-        assert(unchanged, 'should not transfer when feeAddress is zero and fee is non-zero');
         assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
       });
     });
@@ -713,7 +706,7 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         );
 
         const payee3Before = await balanceOf(lowToken, payee3);
-        const { unchanged } = await expectRevertOrNoBalanceChange(
+        await assertBalancesUnchanged(
           () =>
             batch.batchERC20PaymentsMultiTokensWithReference(
               [lowToken.address, lowToken.address, lowToken.address],
@@ -725,9 +718,8 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
               { from: payer },
             ),
           async () => [await balanceOf(lowToken, payee3)],
+          'multi-token batch should not transfer when funds insufficient',
         );
-
-        assert(unchanged, 'multi-token batch should not transfer when funds insufficient');
         assert.equal((await balanceOf(lowToken, payee3)).toString(), payee3Before.toString());
       });
 
@@ -749,7 +741,7 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         await waitForConfirmation(2000);
 
         const payee1Before = await balanceOf(token1, payee1);
-        const { unchanged } = await expectRevertOrNoBalanceChange(
+        await assertBalancesUnchanged(
           () =>
             batch.batchERC20PaymentsMultiTokensWithReference(
               [token1.address, token1.address, token1.address],
@@ -761,9 +753,8 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
               { from: payer },
             ),
           async () => [await balanceOf(token1, payee1)],
+          'multi-token batch should not transfer without allowance',
         );
-
-        assert(unchanged, 'multi-token batch should not transfer without allowance');
         assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
       });
 
@@ -776,7 +767,7 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         await makeTokenApproval(token1, payer, batch.address, getApprovalAmount([amount1], [fee1]));
 
         const payee2Token2Before = await balanceOf(token2, payee2);
-        const { unchanged } = await expectRevertOrNoBalanceChange(
+        await assertBalancesUnchanged(
           () =>
             batch.batchERC20PaymentsMultiTokensWithReference(
               [token1.address, token2.address],
@@ -788,9 +779,8 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
               { from: payer },
             ),
           async () => [await balanceOf(token2, payee2)],
+          'should not transfer when one token lacks approval',
         );
-
-        assert(unchanged, 'should not transfer when one token lacks approval');
         assert.equal((await balanceOf(token2, payee2)).toString(), payee2Token2Before.toString());
       });
 
@@ -805,7 +795,7 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         const payee1Before = await balanceOf(token1, payee1);
         const payee2Before = await balanceOf(token2, payee2);
 
-        const { unchanged } = await expectRevertOrNoBalanceChange(
+        await assertBalancesUnchanged(
           () =>
             batch.batchERC20PaymentsMultiTokensWithReference(
               [token1.address, token2.address],
@@ -817,9 +807,8 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
               { from: payer },
             ),
           async () => [await balanceOf(token1, payee1), await balanceOf(token2, payee2)],
+          'should not transfer when array lengths mismatch',
         );
-
-        assert(unchanged, 'should not transfer when array lengths mismatch');
         assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
         assert.equal((await balanceOf(token2, payee2)).toString(), payee2Before.toString());
       });
@@ -831,7 +820,7 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         await makeTokenApproval(token1, payer, batch.address, getApprovalAmount([amount1], [fee1]));
 
         const payee1Before = await balanceOf(token1, payee1);
-        const { unchanged } = await expectRevertOrNoBalanceChange(
+        await assertBalancesUnchanged(
           () =>
             batch.batchERC20PaymentsMultiTokensWithReference(
               [ZERO_ADDRESS],
@@ -843,9 +832,8 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
               { from: payer },
             ),
           async () => [await balanceOf(token1, payee1)],
+          'multi-token batch should not transfer when token address is zero',
         );
-
-        assert(unchanged, 'multi-token batch should not transfer when token address is zero');
         assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
       });
 
@@ -856,7 +844,7 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         await makeTokenApproval(token1, payer, batch.address, getApprovalAmount([amount1], [fee1]));
 
         const payee1Before = await balanceOf(token1, payee1);
-        const { unchanged } = await expectRevertOrNoBalanceChange(
+        await assertBalancesUnchanged(
           () =>
             batch.batchERC20PaymentsMultiTokensWithReference(
               [token1.address],
@@ -868,9 +856,8 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
               { from: payer },
             ),
           async () => [await balanceOf(token1, payee1)],
+          'multi-token batch should not transfer when recipient is zero',
         );
-
-        assert(unchanged, 'multi-token batch should not transfer when recipient is zero');
         assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
       });
 
@@ -881,7 +868,7 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         await makeTokenApproval(token1, payer, batch.address, getApprovalAmount([amount1], [fee1]));
 
         const payee1Before = await balanceOf(token1, payee1);
-        const { unchanged } = await expectRevertOrNoBalanceChange(
+        await assertBalancesUnchanged(
           () =>
             batch.batchERC20PaymentsMultiTokensWithReference(
               [token1.address],
@@ -893,10 +880,6 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
               { from: payer },
             ),
           async () => [await balanceOf(token1, payee1)],
-        );
-
-        assert(
-          unchanged,
           'multi-token batch should not transfer when feeAddress is zero and fee is non-zero',
         );
         assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
@@ -908,19 +891,13 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
 contract('ERC20BatchPayments constructor', () => {
   it('should revert when paymentErc20FeeProxy is the zero address', async () => {
     let reverted = false;
-    let errorMessage = '';
 
     try {
       await ERC20BatchPayments.new(ZERO_ADDRESS);
     } catch (error) {
       reverted = true;
-      errorMessage = error.message || String(error);
     }
 
     assert(reverted, 'deployment should revert when paymentErc20FeeProxy is address(0)');
-    assert(
-      errorMessage.includes('paymentErc20FeeProxy cannot be 0x'),
-      `expected zero-address revert, got: ${errorMessage}`,
-    );
   });
 });

@@ -75,17 +75,21 @@ const deployTokenWithSupply = async (supply, payer) => {
 };
 
 /**
- * Runs fn and asserts tracked balances are unchanged (source of truth on Tron when tx reverts).
+ * Runs fn (errors propagate) and asserts tracked balances are unchanged.
  */
-const expectRevertOrNoBalanceChange = async (fn, getBalances) => {
+const assertBalancesUnchanged = async (
+  fn,
+  getBalances,
+  message = 'balances should be unchanged',
+) => {
   const before = await getBalances();
-  try {
-    await fn();
-  } catch (_error) {}
+  await fn();
   await waitForConfirmation(2000);
   const after = await getBalances();
-  const unchanged = before.every((value, index) => value === after[index]);
-  return { unchanged };
+  assert(
+    before.every((value, index) => value === after[index]),
+    message,
+  );
 };
 
 /**
@@ -138,7 +142,7 @@ module.exports = {
   deployBaseSetup,
   makeTokenApproval,
   deployTokenWithSupply,
-  expectRevertOrNoBalanceChange,
+  assertBalancesUnchanged,
   assertBatchTokenBalancesZero,
   expectNonOwnerReverts,
   deployBadTRC20,
