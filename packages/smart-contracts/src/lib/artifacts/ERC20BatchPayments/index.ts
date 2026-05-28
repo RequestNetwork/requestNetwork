@@ -10,12 +10,12 @@ export const erc20BatchPaymentsArtifact = new ContractArtifact<ERC20BatchPayment
       abi: ABI_0_1_0,
       deployment: {
         nile: {
-          address: 'TC6nD547PRDVWuX8hBMREU7vVvSZNCAZot',
-          creationBlockNumber: 63208782,
+          address: 'TBAtFt46T7LUW5Sya6PNjw7MQrKkzKEFMx',
+          creationBlockNumber: 67830042,
         },
         tron: {
-          address: 'THm8vX6GNfRFZ15mRqdgvj56wjB6575S7C',
-          creationBlockNumber: 83068367,
+          address: 'TRZbXXuLd3HW5utzVysA3rpLgU7sVBrd1D',
+          creationBlockNumber: 83104290,
         },
       },
     },
