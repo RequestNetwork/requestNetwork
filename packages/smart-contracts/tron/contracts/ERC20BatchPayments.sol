@@ -12,11 +12,17 @@ import './lib/SafeERC20.sol';
  * @dev Uses ERC20FeeProxy to pay an invoice and fees, with a payment reference.
  *      Make sure this contract has allowance to spend the payer's tokens.
  *      Make sure the payer has enough tokens to pay the amounts and fees.
+ *      This contract emits no events. Index TransferWithReferenceAndFee on ERC20FeeProxy
+ *      with msg.sender == address(this batch contract).
+ *      The proxy receives a one-time max allowance per token.
  */
 contract ERC20BatchPayments {
   using SafeERC20 for IERC20;
 
   IERC20FeeProxy public immutable paymentErc20FeeProxy;
+
+  /// @dev True after unlimited proxy approval was set for a token (avoids repeated approve calls).
+  mapping(address => bool) private _proxyApproved;
 
   struct Token {
     address tokenAddress;
@@ -54,15 +60,32 @@ contract ERC20BatchPayments {
         _recipients.length == _feeAmounts.length,
       'the input arrays must have the same length'
     );
+    require(_tokenAddress != address(0), 'ERC20BatchPayments: token cannot be 0x');
 
     uint256 amountAndFee = 0;
-    for (uint256 i = 0; i < _recipients.length; i++) {
+    for (uint256 i = 0; i < _recipients.length; ) {
       amountAndFee += _amounts[i] + _feeAmounts[i];
+      unchecked {
+        ++i;
+      }
     }
 
-    _transferToContractAndApproveProxy(IERC20(_tokenAddress), amountAndFee);
+    if (amountAndFee > 0) {
+      _transferToContractAndApproveProxy(IERC20(_tokenAddress), amountAndFee);
+    }
 
-    for (uint256 i = 0; i < _recipients.length; i++) {
+    for (uint256 i = 0; i < _recipients.length; ) {
+      uint256 paymentSum = _amounts[i] + _feeAmounts[i];
+      if (paymentSum == 0) {
+        unchecked {
+          ++i;
+        }
+        continue;
+      }
+      require(_recipients[i] != address(0), 'ERC20BatchPayments: recipient cannot be 0x');
+      if (_feeAmounts[i] > 0) {
+        require(_feeAddress != address(0), 'ERC20BatchPayments: feeAddress cannot be 0x when fee > 0');
+      }
       paymentErc20FeeProxy.transferFromWithReferenceAndFee(
         _tokenAddress,
         _recipients[i],
@@ -71,6 +94,9 @@ contract ERC20BatchPayments {
         _feeAmounts[i],
         _feeAddress
       );
+      unchecked {
+        ++i;
+      }
     }
   }
 
@@ -100,8 +126,9 @@ contract ERC20BatchPayments {
     );
 
     Token[] memory uniqueTokens = new Token[](_tokenAddresses.length);
-    for (uint256 i = 0; i < _tokenAddresses.length; i++) {
-      for (uint256 j = 0; j < _tokenAddresses.length; j++) {
+    for (uint256 i = 0; i < _tokenAddresses.length; ) {
+      require(_tokenAddresses[i] != address(0), 'ERC20BatchPayments: token cannot be 0x');
+      for (uint256 j = 0; j < _tokenAddresses.length; ) {
         if (uniqueTokens[j].tokenAddress == _tokenAddresses[i]) {
           uniqueTokens[j].amountAndFee += _amounts[i] + _feeAmounts[i];
           break;
@@ -111,17 +138,37 @@ contract ERC20BatchPayments {
           uniqueTokens[j].amountAndFee = _amounts[i] + _feeAmounts[i];
           break;
         }
+        unchecked {
+          ++j;
+        }
+      }
+      unchecked {
+        ++i;
       }
     }
 
-    for (uint256 i = 0; i < uniqueTokens.length && uniqueTokens[i].amountAndFee > 0; i++) {
+    for (uint256 i = 0; i < uniqueTokens.length && uniqueTokens[i].amountAndFee > 0; ) {
       _transferToContractAndApproveProxy(
         IERC20(uniqueTokens[i].tokenAddress),
         uniqueTokens[i].amountAndFee
       );
+      unchecked {
+        ++i;
+      }
     }
 
-    for (uint256 i = 0; i < _recipients.length; i++) {
+    for (uint256 i = 0; i < _recipients.length; ) {
+      uint256 paymentSum = _amounts[i] + _feeAmounts[i];
+      if (paymentSum == 0) {
+        unchecked {
+          ++i;
+        }
+        continue;
+      }
+      require(_recipients[i] != address(0), 'ERC20BatchPayments: recipient cannot be 0x');
+      if (_feeAmounts[i] > 0) {
+        require(_feeAddress != address(0), 'ERC20BatchPayments: feeAddress cannot be 0x when fee > 0');
+      }
       paymentErc20FeeProxy.transferFromWithReferenceAndFee(
         _tokenAddresses[i],
         _recipients[i],
@@ -130,21 +177,15 @@ contract ERC20BatchPayments {
         _feeAmounts[i],
         _feeAddress
       );
+      unchecked {
+        ++i;
+      }
     }
   }
 
   /**
-   * @notice Authorizes the proxy to spend a request currency (ERC20).
-   * @param _erc20Address Address of an ERC20 used as the request currency.
-   */
-  function approvePaymentProxyToSpend(address _erc20Address) internal {
-    IERC20 erc20 = IERC20(_erc20Address);
-    uint256 max = type(uint256).max;
-    require(erc20.safeApprove(address(paymentErc20FeeProxy), max), 'approve() failed');
-  }
-
-  /**
    * @notice Pulls tokens from the payer to this contract and approves the proxy to spend them.
+   * @dev Approves the proxy once per token with max allowance; later batches skip approve.
    * @param requestedToken The token to pay.
    * @param amountAndFee The sum of payment amounts and fees for this token.
    */
@@ -153,17 +194,17 @@ contract ERC20BatchPayments {
     uint256 amountAndFee
   ) internal {
     require(
-      requestedToken.allowance(msg.sender, address(this)) >= amountAndFee,
-      'Not sufficient allowance for batch to pay'
-    );
-    require(requestedToken.balanceOf(msg.sender) >= amountAndFee, 'not enough funds');
-    require(
       requestedToken.safeTransferFrom(msg.sender, address(this), amountAndFee),
       'payment transferFrom() failed'
     );
 
-    if (requestedToken.allowance(address(this), address(paymentErc20FeeProxy)) < amountAndFee) {
-      approvePaymentProxyToSpend(address(requestedToken));
+    address token = address(requestedToken);
+    if (!_proxyApproved[token]) {
+      require(
+        requestedToken.safeApprove(address(paymentErc20FeeProxy), type(uint256).max),
+        'approve() failed'
+      );
+      _proxyApproved[token] = true;
     }
   }
 }

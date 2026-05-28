@@ -4,6 +4,7 @@ const {
   REF_B,
   REF_C,
   TRON_ZERO_ADDRESS,
+  ZERO_ADDRESS,
   waitForConfirmation,
   balanceOf,
   diff,
@@ -617,6 +618,81 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
         assert.equal((await balanceOf(token1, payee2)).toString(), payee2Before.toString());
       });
+
+      it('should revert when token address is zero', async () => {
+        const amount1 = '100';
+        const fee1 = '1';
+
+        await makeTokenApproval(token1, payer, batch.address, getApprovalAmount([amount1], [fee1]));
+
+        const payee1Before = await balanceOf(token1, payee1);
+        const { unchanged } = await expectRevertOrNoBalanceChange(
+          () =>
+            batch.batchERC20PaymentsWithReference(
+              ZERO_ADDRESS,
+              [payee1],
+              [amount1],
+              [REF_A],
+              [fee1],
+              feeAddress,
+              { from: payer },
+            ),
+          async () => [await balanceOf(token1, payee1)],
+        );
+
+        assert(unchanged, 'should not transfer when token address is zero');
+        assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
+      });
+
+      it('should revert when recipient is zero', async () => {
+        const amount1 = '100';
+        const fee1 = '1';
+
+        await makeTokenApproval(token1, payer, batch.address, getApprovalAmount([amount1], [fee1]));
+
+        const payee1Before = await balanceOf(token1, payee1);
+        const { unchanged } = await expectRevertOrNoBalanceChange(
+          () =>
+            batch.batchERC20PaymentsWithReference(
+              token1.address,
+              [ZERO_ADDRESS],
+              [amount1],
+              [REF_A],
+              [fee1],
+              feeAddress,
+              { from: payer },
+            ),
+          async () => [await balanceOf(token1, payee1)],
+        );
+
+        assert(unchanged, 'should not transfer when recipient is zero');
+        assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
+      });
+
+      it('should revert when feeAddress is zero and fee is non-zero', async () => {
+        const amount1 = '100';
+        const fee1 = '1';
+
+        await makeTokenApproval(token1, payer, batch.address, getApprovalAmount([amount1], [fee1]));
+
+        const payee1Before = await balanceOf(token1, payee1);
+        const { unchanged } = await expectRevertOrNoBalanceChange(
+          () =>
+            batch.batchERC20PaymentsWithReference(
+              token1.address,
+              [payee1],
+              [amount1],
+              [REF_A],
+              [fee1],
+              ZERO_ADDRESS,
+              { from: payer },
+            ),
+          async () => [await balanceOf(token1, payee1)],
+        );
+
+        assert(unchanged, 'should not transfer when feeAddress is zero and fee is non-zero');
+        assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
+      });
     });
 
     describe('batchERC20PaymentsMultiTokensWithReference', () => {
@@ -747,13 +823,89 @@ contract('ERC20BatchPayments Tron Test Suite', (accounts) => {
         assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
         assert.equal((await balanceOf(token2, payee2)).toString(), payee2Before.toString());
       });
+
+      it('should revert when token address is zero', async () => {
+        const amount1 = '100';
+        const fee1 = '1';
+
+        await makeTokenApproval(token1, payer, batch.address, getApprovalAmount([amount1], [fee1]));
+
+        const payee1Before = await balanceOf(token1, payee1);
+        const { unchanged } = await expectRevertOrNoBalanceChange(
+          () =>
+            batch.batchERC20PaymentsMultiTokensWithReference(
+              [ZERO_ADDRESS],
+              [payee1],
+              [amount1],
+              [REF_A],
+              [fee1],
+              feeAddress,
+              { from: payer },
+            ),
+          async () => [await balanceOf(token1, payee1)],
+        );
+
+        assert(unchanged, 'multi-token batch should not transfer when token address is zero');
+        assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
+      });
+
+      it('should revert when recipient is zero', async () => {
+        const amount1 = '100';
+        const fee1 = '1';
+
+        await makeTokenApproval(token1, payer, batch.address, getApprovalAmount([amount1], [fee1]));
+
+        const payee1Before = await balanceOf(token1, payee1);
+        const { unchanged } = await expectRevertOrNoBalanceChange(
+          () =>
+            batch.batchERC20PaymentsMultiTokensWithReference(
+              [token1.address],
+              [ZERO_ADDRESS],
+              [amount1],
+              [REF_A],
+              [fee1],
+              feeAddress,
+              { from: payer },
+            ),
+          async () => [await balanceOf(token1, payee1)],
+        );
+
+        assert(unchanged, 'multi-token batch should not transfer when recipient is zero');
+        assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
+      });
+
+      it('should revert when feeAddress is zero and fee is non-zero', async () => {
+        const amount1 = '100';
+        const fee1 = '1';
+
+        await makeTokenApproval(token1, payer, batch.address, getApprovalAmount([amount1], [fee1]));
+
+        const payee1Before = await balanceOf(token1, payee1);
+        const { unchanged } = await expectRevertOrNoBalanceChange(
+          () =>
+            batch.batchERC20PaymentsMultiTokensWithReference(
+              [token1.address],
+              [payee1],
+              [amount1],
+              [REF_A],
+              [fee1],
+              ZERO_ADDRESS,
+              { from: payer },
+            ),
+          async () => [await balanceOf(token1, payee1)],
+        );
+
+        assert(
+          unchanged,
+          'multi-token batch should not transfer when feeAddress is zero and fee is non-zero',
+        );
+        assert.equal((await balanceOf(token1, payee1)).toString(), payee1Before.toString());
+      });
     });
   });
 });
 
 contract('ERC20BatchPayments constructor', () => {
-  const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-
   it('should revert when paymentErc20FeeProxy is the zero address', async () => {
     let reverted = false;
     let errorMessage = '';

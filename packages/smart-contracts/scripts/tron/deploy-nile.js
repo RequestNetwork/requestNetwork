@@ -56,10 +56,19 @@ async function deployContract(contractName, constructorArgs = []) {
     parameters: constructorArgs,
   });
 
-  console.log(`${contractName} deployed at: ${contract.address}`);
-  console.log(`Base58 address: ${tronWeb.address.fromHex(contract.address)}`);
+  const base58Address = tronWeb.address.fromHex(contract.address);
+  const block = await tronWeb.trx.getCurrentBlock();
+  const creationBlockNumber = block.block_header.raw_data.number;
 
-  return contract;
+  console.log(`${contractName} deployed at: ${contract.address}`);
+  console.log(`Base58 address: ${base58Address}`);
+  console.log(`Block: ${creationBlockNumber}`);
+
+  return {
+    address: base58Address,
+    hexAddress: contract.address,
+    creationBlockNumber,
+  };
 }
 
 async function main() {
@@ -85,39 +94,25 @@ async function main() {
 
   try {
     // 1. Deploy ERC20FeeProxy
-    const erc20FeeProxy = await deployContract('ERC20FeeProxy');
-    deployments.ERC20FeeProxy = {
-      address: tronWeb.address.fromHex(erc20FeeProxy.address),
-      hexAddress: erc20FeeProxy.address,
-    };
+    deployments.ERC20FeeProxy = await deployContract('ERC20FeeProxy');
 
     // 2. Deploy ERC20BatchPayments
-    const erc20BatchPayments = await deployContract('ERC20BatchPayments', [
+    deployments.ERC20BatchPayments = await deployContract('ERC20BatchPayments', [
       deployments.ERC20FeeProxy.address,
     ]);
-    deployments.ERC20BatchPayments = {
-      address: tronWeb.address.fromHex(erc20BatchPayments.address),
-      hexAddress: erc20BatchPayments.address,
-    };
 
-    // 2. Deploy TestTRC20 for testing
-    const testToken = await deployContract('TestTRC20', [
+    // 3. Deploy TestTRC20 for testing
+    deployments.TestTRC20 = await deployContract('TestTRC20', [
       '1000000000000000000000000000', // 1 billion tokens
       'Nile Test TRC20',
       'NTRC20',
       18,
     ]);
-    deployments.TestTRC20 = {
-      address: tronWeb.address.fromHex(testToken.address),
-      hexAddress: testToken.address,
-    };
 
-    // 3. Deploy test token variants
-    const trc20NoReturn = await deployContract('TRC20NoReturn', ['1000000000000000000000000000']);
-    deployments.TRC20NoReturn = {
-      address: tronWeb.address.fromHex(trc20NoReturn.address),
-      hexAddress: trc20NoReturn.address,
-    };
+    // 4. Deploy test token variants
+    deployments.TRC20NoReturn = await deployContract('TRC20NoReturn', [
+      '1000000000000000000000000000',
+    ]);
 
     // Print summary
     console.log('\n╔══════════════════════════════════════════════════════════╗');
@@ -128,6 +123,7 @@ async function main() {
       console.log(`${name}:`);
       console.log(`  Base58: ${info.address}`);
       console.log(`  Hex:    ${info.hexAddress}`);
+      console.log(`  Block:  ${info.creationBlockNumber}`);
     }
 
     // Save deployment info

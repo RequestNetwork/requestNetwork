@@ -7,6 +7,9 @@ const REF_C = '0xcccc';
 /** Tron base58 zero address (unset EthFeeProxy on Tron deployments). */
 const TRON_ZERO_ADDRESS = '410000000000000000000000000000000000000000';
 
+/** EVM-style zero address for revert tests. */
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
 /** 1 TRX = 1_000_000 sun on Tron. */
 const ONE_TRX_SUN = 1_000_000;
 
@@ -28,16 +31,12 @@ const sumStrings = (values) => values.reduce((acc, value) => acc + BigInt(value)
 
 const mulString = (value, count) => (BigInt(value) * BigInt(count)).toString();
 
-const computeBatchFee = (totalPaymentAmount, bps) =>
-  ((BigInt(totalPaymentAmount) * BigInt(bps)) / 1000n).toString();
-
-const getApprovalAmount = (amountList, feeList, batchFee = '0') =>
-  sumStrings([...amountList, ...feeList, batchFee]);
+const getApprovalAmount = (amountList, feeList) => sumStrings([...amountList, ...feeList]);
 
 /**
  * Deploy ERC20FeeProxy, optional batch contract, and one or more TestTRC20 tokens.
  */
-const deployBaseSetup = async ({ accounts, batchDeployFn, batchFee, tokenCount = 3 }) => {
+const deployBaseSetup = async ({ accounts, batchDeployFn, tokenCount = 3 }) => {
   const ERC20FeeProxy = artifacts.require('ERC20FeeProxy');
   const TestTRC20 = artifacts.require('TestTRC20');
 
@@ -48,9 +47,6 @@ const deployBaseSetup = async ({ accounts, batchDeployFn, batchFee, tokenCount =
   let batch = null;
   if (batchDeployFn) {
     batch = await batchDeployFn(erc20FeeProxy, owner, dummyEthProxy);
-    if (batchFee !== undefined && batch.setBatchFee) {
-      await batch.setBatchFee(batchFee, { from: owner });
-    }
   }
 
   const tokens = [];
@@ -79,7 +75,7 @@ const deployTokenWithSupply = async (supply, payer) => {
 };
 
 /**
- * Runs fn and asserts tracked balances are unchanged (source of truth Tron when Tron tx reverts).
+ * Runs fn and asserts tracked balances are unchanged (source of truth on Tron when tx reverts).
  */
 const expectRevertOrNoBalanceChange = async (fn, getBalances) => {
   const before = await getBalances();
@@ -130,6 +126,7 @@ module.exports = {
   REF_B,
   REF_C,
   TRON_ZERO_ADDRESS,
+  ZERO_ADDRESS,
   ONE_TRX_SUN,
   waitForConfirmation,
   balanceOf,
@@ -137,7 +134,6 @@ module.exports = {
   diff,
   sumStrings,
   mulString,
-  computeBatchFee,
   getApprovalAmount,
   deployBaseSetup,
   makeTokenApproval,
