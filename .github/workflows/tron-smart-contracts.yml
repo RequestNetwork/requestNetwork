@@ -61,11 +61,11 @@ jobs:
         working-directory: packages/smart-contracts
         run: |
           echo "Checking build artifacts..."
-          ls -la build/tron/
+          ls -la build-tron/
 
           # Verify key contracts were compiled
           for contract in ERC20FeeProxy TestTRC20 BadTRC20 TRC20True TRC20NoReturn TRC20False TRC20Revert; do
-            if [ ! -f "build/tron/${contract}.json" ]; then
+            if [ ! -f "build-tron/${contract}.json" ]; then
               echo "ERROR: ${contract}.json not found!"
               exit 1
             fi
@@ -81,7 +81,7 @@ jobs:
 
           # Check that the compiled contract has the expected functions
           for func in transferFromWithReferenceAndFee; do
-            if ! grep -q "$func" build/tron/ERC20FeeProxy.json; then
+            if ! grep -q "$func" build-tron/ERC20FeeProxy.json; then
               echo "ERROR: ERC20FeeProxy missing $func function!"
               exit 1
             fi
@@ -90,7 +90,7 @@ jobs:
 
           # Verify TestTRC20 has standard ERC20 functions
           for func in transfer approve transferFrom balanceOf allowance; do
-            if ! grep -q "$func" build/tron/TestTRC20.json; then
+            if ! grep -q "$func" build-tron/TestTRC20.json; then
               echo "ERROR: TestTRC20 missing $func function!"
               exit 1
             fi

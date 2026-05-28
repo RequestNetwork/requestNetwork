@@ -51,7 +51,7 @@ const tronWeb = new TronWeb({
   privateKey: PRIVATE_KEY,
 });
 
-const ARTIFACTS_DIR = path.join(__dirname, '../../build/tron');
+const ARTIFACTS_DIR = path.join(__dirname, '../../build-tron');
 
 async function loadArtifact(contractName) {
   const artifactPath = path.join(ARTIFACTS_DIR, `${contractName}.json`);

@@ -33,7 +33,7 @@ Compile contracts for Tron:
 yarn tron:compile
 ```
 
-This creates artifacts in `build/tron/` directory.
+This creates artifacts in `build-tron/` directory (outside Hardhat's `build/` to avoid artifact name collisions).
 
 ## Testing
 
