@@ -64,6 +64,41 @@ export interface PendingInvoiceOptions {
   maxAmount?: string;
 }
 
+/**
+ * Minimal structural types for the Request Network client surface used here.
+ * Mirrors the relevant parts of `@requestnetwork/request-client.js` and
+ * `@requestnetwork/types` so callers get compile-time checking without us
+ * depending on the full client type. The real `RequestNetwork` client and
+ * `Request` objects satisfy these shapes.
+ */
+export interface RequestCurrencyInfo {
+  type: string;
+  value: string;
+  network?: string;
+}
+
+export interface RequestData {
+  requestId: string;
+  state: string;
+  expectedAmount: string;
+  currency?: RequestCurrencyInfo;
+  payer?: { value?: string };
+  payee?: { value?: string };
+  balance?: { balance?: string } | null;
+  contentData?: { reason?: string };
+}
+
+export interface RequestLike {
+  getData(): RequestData;
+}
+
+export interface RequestNetworkClientLike {
+  fromIdentity(identity: {
+    type: string;
+    value: string;
+  }): Promise<RequestLike[]>;
+}
+
 // ---------------------------------------------------------------------------
 // SpraayBatchPayer
 // ---------------------------------------------------------------------------
@@ -160,13 +195,29 @@ export class SpraayBatchPayer {
     const allowance: bigint = await token.allowance(senderAddr, batchContractAddr);
     if (allowance < total) {
       const approveTx = await token.approve(batchContractAddr, total);
-      await approveTx.wait();
+      const approveReceipt = await approveTx.wait();
+      // ethers v6: wait() resolves to null if the tx was replaced/dropped.
+      // Surface a clear error instead of falling through to a confusing
+      // allowance failure in batchTransfer.
+      if (!approveReceipt || approveReceipt.status !== 1) {
+        throw new Error(
+          "USDC approval transaction failed or was replaced before confirmation. " +
+            "Please retry the batch payment."
+        );
+      }
     }
 
     // Execute batch
     const spraay = new Contract(batchContractAddr, SPRAAY_BATCH_ABI, this.signer);
     const tx = await spraay.batchTransfer(tokenAddr, recipients, amounts);
-    const receipt: ContractTransactionReceipt = await tx.wait();
+    const receipt: ContractTransactionReceipt | null = await tx.wait();
+
+    if (!receipt) {
+      throw new Error(
+        "Batch transfer transaction was replaced or dropped before confirmation. " +
+          "Check the transaction status before retrying to avoid double payment."
+      );
+    }
 
     const settled = receipt.status === 1;
     const explorerBase = EXPLORER_URLS[chainId] ?? "https://blockscan.com/tx/";
@@ -196,7 +247,7 @@ export class SpraayBatchPayer {
    * @param options       - Filter options (max count, amount range)
    */
   async payPendingInvoices(
-    requestClient: any,
+    requestClient: RequestNetworkClientLike,
     payerAddress: string,
     options?: PendingInvoiceOptions
   ): Promise<BatchPaymentResult> {
@@ -204,6 +255,12 @@ export class SpraayBatchPayer {
       type: "ETHEREUM_ADDRESS",
       value: payerAddress,
     });
+
+    // USDC uses 6 decimals on every chain Spraay supports. This is only used
+    // to render a human-readable amount string; payInvoices() re-parses that
+    // string against the live token.decimals() value, which is the
+    // authoritative source for the actual on-chain amount.
+    const USDC_DECIMALS = 6;
 
     const invoices: InvoicePayment[] = [];
 
@@ -215,21 +272,28 @@ export class SpraayBatchPayer {
 
       const currency = data.currency;
       if (currency?.type !== "ERC20") continue;
+      // Only match USDC on the chain this payer is configured for — a USDC
+      // address from another network must not be swept into this batch.
       if (!this.isUSDC(currency.value)) continue;
+
+      // Skip invoices with a missing or invalid payee rather than pushing an
+      // empty address, which would later abort the entire batch.
+      const payeeAddress = data.payee?.value;
+      if (!payeeAddress || !ethers.isAddress(payeeAddress)) continue;
 
       const paid = BigInt(data.balance?.balance ?? "0");
       const expected = BigInt(data.expectedAmount);
       const remaining = expected - paid;
       if (remaining <= 0n) continue;
 
-      const amt = ethers.formatUnits(remaining, 6);
+      const amt = ethers.formatUnits(remaining, USDC_DECIMALS);
 
       if (options?.minAmount && parseFloat(amt) < parseFloat(options.minAmount)) continue;
       if (options?.maxAmount && parseFloat(amt) > parseFloat(options.maxAmount)) continue;
 
       invoices.push({
         requestId: data.requestId,
-        recipient: data.payee?.value ?? "",
+        recipient: payeeAddress,
         amount: amt,
         memo: data.contentData?.reason ?? data.requestId.slice(0, 8),
       });
@@ -244,9 +308,15 @@ export class SpraayBatchPayer {
     return this.payInvoices({ invoices });
   }
 
+  /**
+   * Returns true only if `addr` is the USDC contract on this payer's
+   * configured chain. Checking against a single chain (not every chain's
+   * USDC) prevents cross-chain address collisions from being misclassified.
+   */
   private isUSDC(addr: string): boolean {
-    return Object.values(USDC_ADDRESSES).some(
-      (a) => a.toLowerCase() === addr.toLowerCase()
+    const usdcForChain = USDC_ADDRESSES[this.chainId];
+    return (
+      !!usdcForChain && usdcForChain.toLowerCase() === addr.toLowerCase()
     );
   }
 }

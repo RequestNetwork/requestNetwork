@@ -105,4 +105,69 @@ describe("SpraayBatchPayer", () => {
       }
     });
   });
+
+  describe("Pending invoice discovery", () => {
+    // A fake Request Network client returning canned requests, so we can
+    // assert the filtering logic without a live node.
+    const makeClient = (requests: any[]) => ({
+      fromIdentity: async () => requests.map((r) => ({ getData: () => r })),
+    });
+
+    const payer = "0x1111111111111111111111111111111111111111";
+    const goodPayee = "0x2222222222222222222222222222222222222222";
+
+    const baseRequest = (overrides: any = {}) => ({
+      requestId: "01" + "a".repeat(62),
+      state: "created",
+      expectedAmount: "1000000", // 1 USDC (6 decimals)
+      currency: {
+        type: "ERC20",
+        value: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // Base USDC
+        network: "base",
+      },
+      payer: { value: payer },
+      payee: { value: goodPayee },
+      balance: { balance: "0" },
+      contentData: { reason: "Invoice #1" },
+      ...overrides,
+    });
+
+    it("skips invoices with a missing payee instead of aborting the batch", async () => {
+      // Mix one valid invoice with one that has a null payee. The bad one
+      // must be skipped, and the batch must still attempt with the good one.
+      const client = makeClient([
+        baseRequest(),
+        baseRequest({ requestId: "02" + "b".repeat(62), payee: { value: undefined } }),
+      ]);
+      const wallet = ethers.Wallet.createRandom();
+      const payer2 = new SpraayBatchPayer(wallet as any, 8453);
+
+      // payInvoices will be reached and fail later (no provider/balance),
+      // but it must NOT fail with an "Invalid address" abort from the empty
+      // payee — that's the regression we're guarding against.
+      try {
+        await payer2.payPendingInvoices(client as any, payer);
+      } catch (err: any) {
+        expect(err.message).to.not.include("Invalid address");
+      }
+    });
+
+    it("does not match USDC from a different chain", async () => {
+      // Configure for Base but feed an Ethereum-USDC invoice; it must be
+      // ignored, yielding "no pending invoices" rather than a wrong-chain pay.
+      const ethUsdc = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+      const client = makeClient([
+        baseRequest({ currency: { type: "ERC20", value: ethUsdc, network: "mainnet" } }),
+      ]);
+      const wallet = ethers.Wallet.createRandom();
+      const payer2 = new SpraayBatchPayer(wallet as any, 8453);
+
+      try {
+        await payer2.payPendingInvoices(client as any, payer);
+        expect.fail("Should have thrown");
+      } catch (err: any) {
+        expect(err.message).to.include("No pending USDC invoices");
+      }
+    });
+  });
 });
