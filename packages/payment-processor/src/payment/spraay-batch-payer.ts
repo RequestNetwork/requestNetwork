@@ -219,7 +219,17 @@ export class SpraayBatchPayer {
       );
     }
 
-    const settled = receipt.status === 1;
+    // A mined-but-reverted transaction (status 0) means no funds moved. Throw
+    // rather than returning a result with a real transactionHash, so callers
+    // can't mistake a reverted batch for an attempted/successful one.
+    if (receipt.status !== 1) {
+      const explorerBase = EXPLORER_URLS[chainId] ?? "https://blockscan.com/tx/";
+      throw new Error(
+        `Batch transfer reverted on-chain (status ${receipt.status}). ` +
+          `No funds were transferred. Tx: ${explorerBase}${receipt.hash}`
+      );
+    }
+
     const explorerBase = EXPLORER_URLS[chainId] ?? "https://blockscan.com/tx/";
 
     return {
@@ -231,7 +241,7 @@ export class SpraayBatchPayer {
         requestId: inv.requestId,
         recipient: inv.recipient,
         amount: inv.amount,
-        status: settled ? "settled" : "failed",
+        status: "settled" as const,
       })),
       blockNumber: receipt.blockNumber,
       explorerUrl: `${explorerBase}${receipt.hash}`,
