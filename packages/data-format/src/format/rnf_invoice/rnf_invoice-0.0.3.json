@@ -154,6 +154,7 @@
             "then": {
               "properties": {
                 "amount": {
+                  "type": "string",
                   "pattern": "^\\d*\\.?\\d+$"
                 }
               }
@@ -161,6 +162,7 @@
             "else": {
               "properties": {
                 "amount": {
+                  "type": "string",
                   "pattern": "^\\d+$"
                 }
               }
