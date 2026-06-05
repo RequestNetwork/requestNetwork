@@ -46,6 +46,7 @@ const THE_GRAPH_EXPLORER_SUBGRAPH_ID: Partial<Record<CurrencyTypes.ChainName, st
   optimism: '525fra79nG3Z1w8aPZh3nHsH5zCVetrVmceB1hKcTrTX',
   xdai: '2UAW7B94eeeqaL5qUM5FDzTWJcmgA6ta1RcWMo3XuLmU',
   zksyncera: 'HJNZW9vRSGXrcCVyQMdNKxxuLKeZcV6yMjTCyY6T2oon',
+  boba: 'HKpAPWqjshp2LF1BFxKMJjnKMkmxAqMZ4xYgGdCc8PvT',
 };
 
 // NB: the GraphQL client is automatically generated based on files present in ./queries,
