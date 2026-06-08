@@ -1,0 +1,92 @@
+# GraphQL schema for Request Network NEAR payments
+# This schema is used for generating TypeScript types for The Graph queries
+
+type Query {
+  payments(
+    where: Payment_filter
+    orderBy: Payment_orderBy
+    orderDirection: OrderDirection
+  ): [Payment!]!
+}
+
+enum OrderDirection {
+  asc
+  desc
+}
+
+enum Payment_orderBy {
+  timestamp
+  block
+  amount
+}
+
+input Payment_filter {
+  reference: String
+  to: String
+  tokenAddress: String
+  contractAddress: String
+  currency: String
+  maxRateTimespan_gte: Int
+}
+
+type Payment {
+  "Unique identifier"
+  id: ID!
+
+  "The payment recipient address"
+  to: String!
+
+  "The payment amount"
+  amount: BigInt!
+
+  "The indexed payment reference"
+  reference: String!
+
+  "The fee amount"
+  feeAmount: BigInt
+
+  "The fee recipient address"
+  feeAddress: String
+
+  "The sender address"
+  from: String!
+
+  "Block number"
+  block: Int!
+
+  "Block timestamp (Unix seconds)"
+  timestamp: Int!
+
+  "Receipt ID (NEAR transaction identifier)"
+  receiptId: String!
+
+  "Transaction hash"
+  txHash: String
+
+  "Gas price"
+  gasPrice: String
+
+  "Gas used"
+  gasUsed: String
+
+  "The contract address"
+  contractAddress: String!
+
+  "The token address (null for native NEAR payments)"
+  tokenAddress: String
+
+  "The currency symbol (for conversion payments)"
+  currency: String
+
+  "Amount in crypto (for conversion payments)"
+  amountInCrypto: String
+
+  "Fee amount in crypto (for conversion payments)"
+  feeAmountInCrypto: String
+
+  "Max rate timespan (for conversion payments)"
+  maxRateTimespan: Int
+}
+
+scalar BigInt
+scalar Bytes

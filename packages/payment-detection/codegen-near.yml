@@ -1,5 +1,5 @@
 overwrite: true
-schema: 'https://api.studio.thegraph.com/query/67444/request-payments-near-testnet/version/latest'
+schema: 'src/thegraph/queries/near/schema.graphql'
 documents: src/thegraph/queries/near/*.graphql
 generates:
   src/thegraph/generated/graphql-near.ts:
