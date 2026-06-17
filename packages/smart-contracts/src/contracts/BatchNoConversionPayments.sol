@@ -200,7 +200,10 @@ contract BatchNoConversionPayments is Ownable {
     // Check that batch contract has enough funds to pay batch fee
     require(address(this).balance >= amount, 'Not enough funds for batch fee');
     // Batch pays batch fee
-    feeAddress.transfer(amount);
+    if (batchFeeToPay > 0) {
+      (bool feePaymentSuccess, ) = payable(feeAddress).call{value: batchFeeToPay}('');
+      require(feePaymentSuccess, 'Could not pay fees');
+    }
 
     // Batch contract transfers the remaining Native tokens to the payer
     if (transferBackRemainingNativeTokens && address(this).balance > 0) {
