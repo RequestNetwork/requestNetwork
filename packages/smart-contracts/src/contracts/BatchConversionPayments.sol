@@ -309,7 +309,10 @@ contract BatchConversionPayments is BatchNoConversionPayments {
     }
 
     require(address(this).balance >= batchFeeToPay, 'Not enough funds for batch conversion fees');
-    feeAddress.transfer(batchFeeToPay);
+    if (batchFeeToPay > 0) {
+      (bool feePaymentSuccess, ) = payable(feeAddress).call{value: batchFeeToPay}('');
+      require(feePaymentSuccess, 'Could not pay fees');
+    }
 
     // Batch contract transfers the remaining native tokens to the payer
     (bool sendBackSuccess, ) = payable(msg.sender).call{value: address(this).balance}('');
