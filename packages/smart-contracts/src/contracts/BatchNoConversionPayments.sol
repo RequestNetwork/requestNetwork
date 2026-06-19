@@ -543,6 +543,23 @@ contract BatchNoConversionPayments is Ownable {
   }
 
   /*
+   * Admin functions for balance handling
+   */
+
+  /**
+   * @notice 
+   * @param erc20TokenAddress Address of an ERC20 to drain
+   * @param recipientAddress Address of the receiver
+   */
+  function rescueERC20Funds(address erc20TokenAddress, address recipientAddress)
+    external
+    onlyOwner
+  {
+    IERC20 token = IERC20(erc20TokenAddress);
+    token.transfer(recipientAddress, token.balanceOf(address(this)));
+  }
+
+  /*
    * Admin functions to edit the proxies address and fees
    */
 

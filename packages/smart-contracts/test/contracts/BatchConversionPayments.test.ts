@@ -1108,5 +1108,34 @@ describe('contract: BatchConversionPayments', async () => {
         initialFeeETHBalance,
       );
     });
+    describe('rescueERC20Funds', () => {
+      it('lets the owner drain a stranded ERC20 balance to a recipient', async () => {
+        // A dedicated token, so a leftover does not pollute other tests' balances.
+        const stranded = BigNumber.from(1_234).mul(oneDai);
+        const token = await new TestERC20__factory(adminSigner).deploy(
+          stranded.add(thousandWith18Decimal),
+        );
+        await token.transfer(batchConversionProxy.address, stranded);
+        expect(await token.balanceOf(batchConversionProxy.address)).to.equals(stranded);
+
+        const initialRecipientBalance = await token.balanceOf(to);
+        await batchConversionProxy.connect(adminSigner).rescueERC20Funds(token.address, to);
+
+        expect(await token.balanceOf(batchConversionProxy.address)).to.equals(
+          0,
+          'contract balance must be fully drained',
+        );
+        expect(await token.balanceOf(to)).to.equals(
+          initialRecipientBalance.add(stranded),
+          'recipient must receive the whole drained balance',
+        );
+      });
+      it('reverts when called by a non-owner', async () => {
+        await expect(
+          // batchConversionProxy is connected to fromSigner, a non-owner.
+          batchConversionProxy.rescueERC20Funds(fauERC20.address, to),
+        ).to.be.revertedWith('Ownable: caller is not the owner');
+      });
+    });
   });
 });
