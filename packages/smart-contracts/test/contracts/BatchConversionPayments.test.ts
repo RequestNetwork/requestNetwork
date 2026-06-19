@@ -7,6 +7,7 @@ import {
   ChainlinkConversionPath,
   TestERC20,
   TestERC20__factory,
+  AggregatorMock__factory,
   BatchConversionPayments__factory,
   BatchConversionPayments,
 } from '../../src/types';
@@ -45,6 +46,7 @@ describe('contract: BatchConversionPayments', async () => {
   const BATCH_FEE = 100; // 1%
   const BATCH_DENOMINATOR = 10000;
   const daiDecimals = '000000000000000000'; // 18 decimals
+  const oneDai = '1' + daiDecimals;
   const fiatDecimals = '00000000'; // 8 decimals
   const thousandWith18Decimal = '1000000000000000000000'; // 21 decimals
   const referenceExample = '0xaaaa';
@@ -447,6 +449,112 @@ describe('contract: BatchConversionPayments', async () => {
             expectedToFAUBalanceDiff,
             expectedFeeFAUBalanceDiff,
           );
+        });
+        it(`make 1 ERC20 conversion payment, with a pre-existing batch contract balance (user mistake) that must be untouched`, async function () {
+          // Pre-existing contract balance is only at risk for conversion payments, when
+          // there is change to refund.
+          if (applyLimit) {
+            this.skip();
+          }
+          // Simulate a user mistake: tokens were accidentally sent directly to the batch
+          // contract before the payment. This balance must be left untouched.
+          // We deploy a dedicated ERC20 token for the stranded balance so that its
+          // leftover on the batch contract does not pollute the other tests
+          // (FAU balance = 0).
+          // We refer to this token as "TOK" in this test, although the deployed contract
+          // has its actual code (ERC20) derived from TestERC20__factory.
+          const strandedBalance = BigNumber.from(1_234).mul(oneDai);
+          // The spender must hold (and approve) the converted amount plus fees, with
+          // margin. 200_000 TOK comfortably covers a $100_000 payment at the FAU rate.
+          const fromFunding = BigNumber.from(200_000).mul(oneDai);
+
+          // Deploy TOK with enough supply for both the spender funding and the stranded
+          // transfer below. TestERC20 mints the whole supply to the deployer (admin)
+          // then immediately gives away 10 wei in its constructor, so mint a little
+          // extra slack to keep admin's balance above what it transfers out.
+          const tokContract = await new TestERC20__factory(adminSigner).deploy(
+            fromFunding.add(strandedBalance).add(thousandWith18Decimal),
+          );
+          await tokContract.transfer(from, fromFunding);
+          await tokContract.connect(fromSigner).approve(batchConversionProxy.address, fromFunding.mul(10_000));
+
+          // Give TOK a USD rate so the conversion proxy can price it. We reuse the FAU/USD
+          // rate value: nothing checks that this aggregator actually prices TOK, and the
+          // expected balances below are computed with the same 'USD_FAU' rate.
+          const tokAggregator = await new AggregatorMock__factory(adminSigner).deploy(
+            FAU_USD_RATE,
+            8,
+            60,
+          );
+          await chainlinkPath
+            .connect(adminSigner)
+            .updateAggregator(tokContract.address, USD_hash, tokAggregator.address);
+
+          // Strand some TOK directly on the batch contract (the user mistake).
+          await tokContract.transfer(batchConversionProxy.address, strandedBalance);
+          expect(await tokContract.balanceOf(batchConversionProxy.address)).to.equals(
+            strandedBalance,
+            'pre-existing stranded batch balance',
+          );
+
+            // amountAndFee for a conversion request is taken from maxToSpend (the contract
+            // pulls in maxToSpend upfront and requires the payer to hold it), so it must be
+            // sized to TOK, not the giant FAU value. Bigger than the ~50_000 TOK real spend
+            // so there is genuine excess to refund - which is where the stranded-balance
+            // bug bites.
+          const maxToSpend = BigNumber.from(100_000).mul(oneDai).toString();
+          const tokConvRequest: PaymentTypes.RequestDetail = {
+            ...fauConvRequest,
+            path: [USD_hash, tokContract.address],
+            recipient: to,
+            maxToSpend,
+          };
+
+          const [initialFromTOKBalance, initialToTOKBalance, initialFeeTOKBalance] =
+            await getERC20Balances(tokContract);
+          await batchConversionProxy.connect(fromSigner).batchPayments(
+            [
+              {
+                paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
+                requestDetails: [tokConvRequest],
+              },
+            ],
+            pathsToUSD,
+            feeAddress,
+          );
+          const [fromBalance, toBalance, feeBalance, batchBalance] =
+            await getERC20Balances(tokContract);
+
+          const [expectedFromTOKBalanceDiff, expectedToTOKBalanceDiff, expectedFeeTOKBalanceDiff] =
+            getExpectedConvERC20Balances(100000, 100, 1, 'USD_FAU');
+
+          // Main test
+          // The stranded balance is part of the batch contract balance both before and
+          // after: the payment must flow through without consuming it.
+          expect(batchBalance.toString()).to.equals(
+            strandedBalance.toString(),
+            'stranded batch balance after payment must be untouched',
+          );
+
+          // Sanity checks
+          expect(toBalance.sub(initialToTOKBalance)).to.equals(
+            expectedToTOKBalanceDiff,
+            '(sanity) Receiver should receive the request amount',
+          );
+          expect(feeBalance.sub(initialFeeTOKBalance)).to.equals(
+            expectedFeeTOKBalanceDiff,
+            '(sanity) Fee address should receive the request and batch fees',
+          );
+          expect(fromBalance.sub(initialFromTOKBalance)).to.equals(
+            expectedFromTOKBalanceDiff,
+            '(sanity) Spender should spend the amount plus fees',
+          );
+          // The real spend must be strictly below maxToSpend, otherwise there is no
+          // excess slack and the stranded balance could not be touched at all.
+          expect(
+            expectedFromTOKBalanceDiff.abs().lt(BigNumber.from(maxToSpend)),
+            '(sanity) Real spend must be below maxToSpend to leave excess slack',
+          ).to.be.true;
         });
         it('make 3 ERC20 payments with different tokens and conversion lengths', async () => {
           const batchPayments = async () => {

@@ -44,11 +44,14 @@ contract BatchNoConversionPayments is Ownable {
   address public NativeAddress;
   address[][] public pathsNativeToUSD;
 
-  /** Contains the address of a token, the sum of the amount and fees paid with it, and the batch fee amount */
   struct Token {
     address tokenAddress;
+    // Sum of the amount and fees paid with a token
     uint256 amountAndFee;
+    // Batch fee to pay with this token
     uint256 batchFeeAmount;
+    // Contract balance before the batch call
+    uint256 tareBalance;
   }
 
   /**
@@ -391,7 +394,7 @@ contract BatchNoConversionPayments is Ownable {
    */
   function getUTokens(RequestDetail[] calldata requestDetails)
     internal
-    pure
+    view
     returns (Token[] memory uTokens)
   {
     // A list of unique tokens, with the sum of maxToSpend by token
@@ -415,6 +418,9 @@ contract BatchNoConversionPayments is Ownable {
           uTokens[k].amountAndFee == 0 && (rD.maxToSpend > 0 || rD.requestAmount + rD.feeAmount > 0)
         ) {
           uTokens[k].tokenAddress = rD.path[rD.path.length - 1];
+
+          IERC20 paymentToken = IERC20(uTokens[k].tokenAddress);
+          uTokens[k].tareBalance = paymentToken.balanceOf(address(this));
 
           if (rD.path.length > 1) {
             // amountAndFee is used to store _maxToSpend, useful to send enough tokens to this contract
