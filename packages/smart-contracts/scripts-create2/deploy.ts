@@ -20,7 +20,7 @@ export const deployOneWithCreate2 = async (
     throw new Error('Invalid networks');
   }
   // Deploy the contract on several network through xdeployer
-  let deployed = 'no' as any;
+  let deployed: 'success' | 'yes' | 'no' = 'no';
   const deploymentResult = await xdeploy(deploymentParams, hre);
   hre.config.xdeploy.networks.forEach((network, i) => {
     if (deploymentResult[i].deployed) {
