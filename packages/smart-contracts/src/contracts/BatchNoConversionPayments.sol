@@ -547,16 +547,20 @@ contract BatchNoConversionPayments is Ownable {
    */
 
   /**
-   * @notice 
-   * @param erc20TokenAddress Address of an ERC20 to drain
+   * @notice Transfers the entire ERC20 balance of this contract to the specified recipient. Only callable by the owner.
+   * @param erc20TokenAddress Address of an ERC20 token sent to the contract (eg. user mistake)
    * @param recipientAddress Address of the receiver
    */
   function rescueERC20Funds(address erc20TokenAddress, address recipientAddress)
     external
     onlyOwner
   {
+    require(erc20TokenAddress != address(0), 'Invalid token address');
     IERC20 token = IERC20(erc20TokenAddress);
-    token.transfer(recipientAddress, token.balanceOf(address(this)));
+    uint256 balance = token.balanceOf(address(this));
+    require(balance > 0, 'No funds to rescue');
+    bool success = SafeERC20.safeTransfer(token, recipientAddress, balance);
+    require(success, 'ERC20 rescue failed');
   }
 
   /*

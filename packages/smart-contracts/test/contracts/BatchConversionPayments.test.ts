@@ -543,10 +543,10 @@ describe('contract: BatchConversionPayments', async () => {
           );
           expect(feeBalance.sub(initialFeeTOKBalance).gt(0),
             '(sanity) Fee address should receive fees',
-          );
-          expect(fromBalance.sub(initialFromTOKBalance).gt(0),
-            '(sanity) Spender should spend',
-          );
+          ).to.be.true;
+          expect(initialFromTOKBalance.sub(fromBalance).gt(0),
+            `(sanity) Spender should spend >0, spent: ${initialFromTOKBalance.sub(fromBalance).toString()}`,
+          ).to.be.true;
           // The real spend must be strictly below maxToSpend, otherwise there is no
           // excess slack and the stranded balance could not be touched at all.
           expect(
