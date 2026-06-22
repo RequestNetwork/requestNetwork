@@ -28,7 +28,7 @@ export const deployOneWithCreate2 = async (
       console.log(`         On network:        ${network}`);
       console.log(`         At address:        ${deploymentResult[i].address}`);
       console.log(`         At block:          ${deploymentResult[i].receipt.blockNumber}`);
-      deployed = 'successed';
+      deployed = 'success';
     } else {
       if (isContractDeployed(deploymentParams.contract, network, deploymentResult[i].address)) {
         console.log(`${deploymentParams.contract} already deployed:`);
