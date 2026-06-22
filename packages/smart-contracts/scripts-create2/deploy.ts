@@ -28,7 +28,7 @@ export const deployOneWithCreate2 = async (
       console.log(`         On network:        ${network}`);
       console.log(`         At address:        ${deploymentResult[i].address}`);
       console.log(`         At block:          ${deploymentResult[i].receipt.blockNumber}`);
-      deployed = 'success';
+      deployed = 'successed';
     } else {
       if (isContractDeployed(deploymentParams.contract, network, deploymentResult[i].address)) {
         console.log(`${deploymentParams.contract} already deployed:`);
@@ -63,7 +63,7 @@ export const deployWithCreate2FromList = async (
     const { deployed, address } = await deployOneWithCreate2({ contract, constructorArgs }, hre);
     if (deployed === 'no') {
       console.warn('Skipping contract setup');
-      return;
+      continue;
     }
     await setupContract({
       contractAddress: address,
