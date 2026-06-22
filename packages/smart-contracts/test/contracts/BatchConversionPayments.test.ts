@@ -471,7 +471,9 @@ describe('contract: BatchConversionPayments', async () => {
             fromFunding.add(strandedBalance).add(thousandWith18Decimal),
           );
           await tokContract.transfer(from, fromFunding);
-          await tokContract.connect(fromSigner).approve(batchConversionProxy.address, fromFunding.mul(10_000));
+          await tokContract
+            .connect(fromSigner)
+            .approve(batchConversionProxy.address, fromFunding.mul(10_000));
 
           // Give TOK a USD rate so the conversion proxy can price it. We reuse the FAU/USD
           // rate value: nothing checks that this aggregator actually prices TOK, and the
@@ -492,11 +494,11 @@ describe('contract: BatchConversionPayments', async () => {
             'pre-existing stranded batch balance',
           );
 
-            // amountAndFee for a conversion request is taken from maxToSpend (the contract
-            // pulls in maxToSpend upfront and requires the payer to hold it), so it must be
-            // sized to TOK, not the giant FAU value. Bigger than the ~50_000 TOK real spend
-            // so there is genuine excess to refund - which is where the stranded-balance
-            // bug bites.
+          // amountAndFee for a conversion request is taken from maxToSpend (the contract
+          // pulls in maxToSpend upfront and requires the payer to hold it), so it must be
+          // sized to TOK, not the giant FAU value. Bigger than the ~50_000 TOK real spend
+          // so there is genuine excess to refund - which is where the stranded-balance
+          // bug bites.
           const maxToSpend = BigNumber.from(100_000).mul(oneDai).toString();
           const tokConvRequest: PaymentTypes.RequestDetail = {
             ...fauConvRequest,
@@ -507,11 +509,7 @@ describe('contract: BatchConversionPayments', async () => {
 
           const [initialFromTOKBalance, initialToTOKBalance, initialFeeTOKBalance] =
             await getERC20Balances(tokContract);
-          const pathsToUSD = applyLimit
-            ? [
-                [tokContract.address, USD_hash],
-              ]
-            : [];
+          const pathsToUSD = applyLimit ? [[tokContract.address, USD_hash]] : [];
           await batchConversionProxy.connect(fromSigner).batchPayments(
             [
               {
@@ -522,11 +520,16 @@ describe('contract: BatchConversionPayments', async () => {
             pathsToUSD,
             feeAddress,
           );
-          const [fromBalance, toBalance, feeBalance, batchBalance] =
-            await getERC20Balances(tokContract);
+          const [fromBalance, toBalance, feeBalance, batchBalance] = await getERC20Balances(
+            tokContract,
+          );
 
-          const [, expectedToTOKBalanceDiff] =
-            getExpectedConvERC20Balances(100000, 100, 1, 'USD_FAU');
+          const [, expectedToTOKBalanceDiff] = getExpectedConvERC20Balances(
+            100000,
+            100,
+            1,
+            'USD_FAU',
+          );
 
           // Main test
           // The stranded balance is part of the batch contract balance both before and
@@ -541,11 +544,15 @@ describe('contract: BatchConversionPayments', async () => {
             expectedToTOKBalanceDiff,
             '(sanity) Receiver should receive the request amount',
           );
-          expect(feeBalance.sub(initialFeeTOKBalance).gt(0),
+          expect(
+            feeBalance.sub(initialFeeTOKBalance).gt(0),
             '(sanity) Fee address should receive fees',
           ).to.be.true;
-          expect(initialFromTOKBalance.sub(fromBalance).gt(0),
-            `(sanity) Spender should spend >0, spent: ${initialFromTOKBalance.sub(fromBalance).toString()}`,
+          expect(
+            initialFromTOKBalance.sub(fromBalance).gt(0),
+            `(sanity) Spender should spend >0, spent: ${initialFromTOKBalance
+              .sub(fromBalance)
+              .toString()}`,
           ).to.be.true;
           // The real spend must be strictly below maxToSpend, otherwise there is no
           // excess slack and the stranded balance could not be touched at all.
