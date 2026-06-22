@@ -102,7 +102,7 @@ export const xdeploy = async (
       receipt = createReceipt;
       deployed = true;
     } catch (err) {
-      if (err.message.match(/insufficient funds for intrinsic transaction cost/)) {
+      if (err?.message?.match(/insufficient funds for intrinsic transaction cost/)) {
         error = 'Insufficient funds';
       } else {
         error = err;
