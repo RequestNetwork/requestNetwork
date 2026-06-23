@@ -235,7 +235,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
 
       // Batch sends back to the payer the tokens not spent = excessAmount
       // excessAmount = maxToSpend - reallySpent, which is equal to the remaining tokens on the contract
-      uint256 excessAmount = requestedToken.balanceOf(address(this));
+      uint256 excessAmount = requestedToken.balanceOf(address(this)) - uTokens[k].tareBalance;
       if (excessAmount > 0) {
         requestedToken.safeTransfer(msg.sender, excessAmount);
       }
