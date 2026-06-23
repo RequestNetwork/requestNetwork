@@ -76,6 +76,7 @@ export const xdeploy = async (
         'Contract address could not be computed, check your contract name and arguments',
       );
     }
+    console.log(`... at ${computedContractAddress}`);
 
     let receipt = undefined;
     let deployed = false;

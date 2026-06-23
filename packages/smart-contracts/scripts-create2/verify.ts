@@ -34,6 +34,9 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
     };
 
     let address: string;
+    const network = hre.config.xdeploy.networks[0];
+    EvmChains.assertChainSupported(network);
+    console.debug(`Verifying ${create2ContractDeploymentList.length} contracts on ${network}`);
     for (const contract of create2ContractDeploymentList) {
       try {
         await delay();
@@ -53,11 +56,11 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
           case 'SingleRequestProxyFactory':
           case 'ERC20RecurringPaymentProxy':
           case 'ERC20CommerceEscrowWrapper': {
-            const network = hre.config.xdeploy.networks[0];
-            EvmChains.assertChainSupported(network);
             const constructorArgs = getConstructorArgs(contract, network);
             address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
+            console.debug(`Verifying ${contract} at ${address} on ${network}`);
             await verifyOne(address, { contract, constructorArgs }, hre);
+            console.debug(`Verified ${contract} on ${network}`);
             break;
           }
           // Other cases to add when necessary
