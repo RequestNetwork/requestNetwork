@@ -557,7 +557,7 @@ describe('contract: BatchConversionPayments', async () => {
           // The real spend must be strictly below maxToSpend, otherwise there is no
           // excess slack and the stranded balance could not be touched at all.
           expect(
-            fromBalance.sub(initialFromTOKBalance).lt(BigNumber.from(maxToSpend)),
+            initialFromTOKBalance.sub(fromBalance).lt(BigNumber.from(maxToSpend)),
             '(sanity) Real spend must be below maxToSpend to leave excess slack',
           ).to.be.true;
         });
