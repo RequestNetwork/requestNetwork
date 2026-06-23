@@ -40,7 +40,10 @@ export async function computeCreate2DeploymentAddress(
     );
     return computedAddress;
   } catch (e) {
-    console.warn("Unknown error while computing the deployment address", {"deploymentParams.contract": deploymentParams.contract, "WEB3_PROVIDER_URL": process.env.WEB3_PROVIDER_URL});
+    console.warn('Unknown error while computing the deployment address', {
+      'deploymentParams.contract': deploymentParams.contract,
+      WEB3_PROVIDER_URL: process.env.WEB3_PROVIDER_URL,
+    });
     throw new Error(e.toString());
   }
 }
