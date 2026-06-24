@@ -15,11 +15,12 @@ import { setupContract } from './contract-setup/setups';
 export const deployOneWithCreate2 = async (
   deploymentParams: IDeploymentParams,
   hre: HardhatRuntimeEnvironmentExtended,
-): Promise<string> => {
+): Promise<{ deployed: 'success' | 'yes' | 'no'; address: string }> => {
   if (!hre.config.xdeploy.networks || hre.config.xdeploy.networks.length === 0) {
     throw new Error('Invalid networks');
   }
   // Deploy the contract on several network through xdeployer
+  let deployed: 'success' | 'yes' | 'no' = 'no';
   const deploymentResult = await xdeploy(deploymentParams, hre);
   hre.config.xdeploy.networks.forEach((network, i) => {
     if (deploymentResult[i].deployed) {
@@ -27,11 +28,13 @@ export const deployOneWithCreate2 = async (
       console.log(`         On network:        ${network}`);
       console.log(`         At address:        ${deploymentResult[i].address}`);
       console.log(`         At block:          ${deploymentResult[i].receipt.blockNumber}`);
+      deployed = 'success';
     } else {
       if (isContractDeployed(deploymentParams.contract, network, deploymentResult[i].address)) {
         console.log(`${deploymentParams.contract} already deployed:`);
         console.log(`         On network:        ${network}`);
         console.log(`         At address:        ${deploymentResult[i].address}`);
+        deployed = 'yes';
       } else {
         console.log(`${deploymentParams.contract} has not been deployed:`);
         console.log(`         On network:        ${network}`);
@@ -42,7 +45,7 @@ export const deployOneWithCreate2 = async (
       }
     }
   });
-  return deploymentResult[0].address;
+  return { deployed, address: deploymentResult[0].address };
 };
 
 /**
@@ -53,11 +56,15 @@ export const deployOneWithCreate2 = async (
 export const deployWithCreate2FromList = async (
   hre: HardhatRuntimeEnvironmentExtended,
 ): Promise<void> => {
+  const network = hre.config.xdeploy.networks[0];
+  EvmChains.assertChainSupported(network);
   for (const contract of create2ContractDeploymentList) {
-    const network = hre.config.xdeploy.networks[0];
-    EvmChains.assertChainSupported(network);
     const constructorArgs = getConstructorArgs(contract, network);
-    const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
+    const { deployed, address } = await deployOneWithCreate2({ contract, constructorArgs }, hre);
+    if (deployed === 'no') {
+      console.warn('Skipping contract setup');
+      continue;
+    }
     await setupContract({
       contractAddress: address,
       contractName: contract,

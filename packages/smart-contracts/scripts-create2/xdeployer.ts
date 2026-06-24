@@ -16,6 +16,9 @@ export const xdeploy = async (
   hre: HardhatRuntimeEnvironmentExtended,
 ): Promise<Array<IDeploymentResult>> => {
   const { contract, constructorArgs } = deploymentParams;
+  if (!hre.config.xdeploy.signer) {
+    throw new Error('Xdeployer signer (process.env.ADMIN_PRIVATE_KEY) missing');
+  }
   console.log(
     `Deployment of ${contract} through xdeployer starting now, with ${
       new hre.ethers.Wallet(hre.config.xdeploy.signer).address
@@ -73,6 +76,7 @@ export const xdeploy = async (
         'Contract address could not be computed, check your contract name and arguments',
       );
     }
+    console.log(`... at ${computedContractAddress}`);
 
     let receipt = undefined;
     let deployed = false;
@@ -99,7 +103,11 @@ export const xdeploy = async (
       receipt = createReceipt;
       deployed = true;
     } catch (err) {
-      error = err;
+      if (err?.message?.match(/insufficient funds for intrinsic transaction cost/)) {
+        error = 'Insufficient funds';
+      } else {
+        error = err;
+      }
     }
     result.push({
       network,

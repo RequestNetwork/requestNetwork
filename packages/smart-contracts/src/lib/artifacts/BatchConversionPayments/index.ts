@@ -1,6 +1,7 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
+import { abi as ABI_0_2_0 } from './0.2.0.json';
 // @ts-ignore Cannot find module
 import type { BatchConversionPayments } from '../../../types';
 
@@ -94,6 +95,15 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
         boba: {
           address: '0xD83031c8e0A855c512661CB626ec3B05E4Df7C76',
           creationBlockNumber: 32880253,
+        },
+      },
+    },
+    '0.2.0': {
+      abi: ABI_0_2_0,
+      deployment: {
+        mainnet: {
+          address: '0x1E7E0E707B482E6858a88289E0E4004875EcEEbD',
+          creationBlockNumber: 25380305,
         },
       },
     },

@@ -67,7 +67,7 @@ The package stores the following smart contracts:
 - `RequestOpenHashSubmitter` entry point to add hashes in `RequestHashStorage`. It gives the rules to get the right to submit hashes and collect the fees. This contract must be whitelisted in `RequestHashStorage`. The only condition for adding hash is to pay the fees.
 - `StorageFeeCollector` parent contract (not deployed) of `RequestOpenHashSubmitter`, computes the fees and send them to the burner.
 
-**Smart contracts for advanced-logic package**
+**Smart contracts for payments (advanced-logic package)**
 
 - `TestERC20` minimal erc20 token used for tests.
 - `ERC20Proxy` used to pay requests with an ERC20 proxy contract payment network
