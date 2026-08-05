@@ -20,7 +20,7 @@ describe('getTheGraphClientUrl', () => {
   it('should build the correct URL for Mantle', () => {
     const url = getTheGraphClientUrl('mantle');
     expect(url).toBe(
-      'https://subgraph-api.mantle.xyz/api/public/555176e7-c1f4-49f9-9180-f2f03538b039/subgraphs/requestnetwork/request-payments-mantle/v0.1.0/gn',
+      'https://subgraph-api.mantle.xyz/api/public/555176e7-c1f4-49f9-9180-f2f03538b039/subgraphs/requestnetwork/request-payments-mantle/541f68f/gn',
     );
   });
   it('should build the correct URL for Near', () => {
