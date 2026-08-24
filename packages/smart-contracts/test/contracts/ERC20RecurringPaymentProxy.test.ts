@@ -675,6 +675,114 @@ describe('ERC20RecurringPaymentProxy', () => {
     });
   });
 
+  describe('Pull assertions', () => {
+    const paymentReference = '0x1234567890abcdef';
+
+    it('reverts an under-funded pull, leaves the bitmap unset, and stays collectable after funding', async () => {
+      await testERC20.transfer(subscriberAddress, 50);
+      await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+
+      const permit = createSchedulePermit();
+      const signature = await createSignature(permit, subscriber);
+      const digest = await erc20RecurringPaymentProxy.hashSchedule(permit);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPayment(permit, signature, 1, paymentReference),
+      ).to.be.reverted;
+      expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(digest)).to.equal(0);
+
+      await testERC20.transfer(subscriberAddress, 500);
+      await erc20RecurringPaymentProxy
+        .connect(relayer)
+        .triggerRecurringPayment(permit, signature, 1, paymentReference);
+      expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(digest)).to.not.equal(0);
+    });
+
+    it('cannot settle an unfunded subscriber from a residual proxy balance', async () => {
+      const SilentFailFactory = await ethers.getContractFactory('ERC20SilentFail');
+      const silentFail = await SilentFailFactory.deploy(1000);
+      await silentFail.deployed();
+
+      await silentFail.transfer(erc20RecurringPaymentProxy.address, 500);
+
+      const permit = createSchedulePermit({ token: silentFail.address });
+      const signature = await createSignature(permit, subscriber);
+      const digest = await erc20RecurringPaymentProxy.hashSchedule(permit);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPayment(permit, signature, 1, paymentReference),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__TransferFailed');
+      expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(digest)).to.equal(0);
+      expect(await silentFail.balanceOf(erc20RecurringPaymentProxy.address)).to.equal(500);
+      expect(await silentFail.balanceOf(recipientAddress)).to.equal(0);
+    });
+
+    it('reverts a fee-on-transfer token that under-delivers', async () => {
+      const FeeOnTransferFactory = await ethers.getContractFactory('ERC20FeeOnTransfer');
+      const feeOnTransfer = await FeeOnTransferFactory.deploy(1000);
+      await feeOnTransfer.deployed();
+
+      await feeOnTransfer.transfer(subscriberAddress, 500);
+      await feeOnTransfer.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+
+      const permit = createSchedulePermit({ token: feeOnTransfer.address });
+      const signature = await createSignature(permit, subscriber);
+      const digest = await erc20RecurringPaymentProxy.hashSchedule(permit);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPayment(permit, signature, 1, paymentReference),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__ShortPull');
+      expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(digest)).to.equal(0);
+    });
+
+    it('reverts when the token returns false without reverting', async () => {
+      const SilentFailFactory = await ethers.getContractFactory('ERC20SilentFail');
+      const silentFail = await SilentFailFactory.deploy(1000);
+      await silentFail.deployed();
+
+      await silentFail.transfer(subscriberAddress, 500);
+      // No approve: transferFrom returns false instead of reverting.
+
+      const permit = createSchedulePermit({ token: silentFail.address });
+      const signature = await createSignature(permit, subscriber);
+      const digest = await erc20RecurringPaymentProxy.hashSchedule(permit);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPayment(permit, signature, 1, paymentReference),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__TransferFailed');
+      expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(digest)).to.equal(0);
+    });
+
+    it('does not mark the cycle paid when the relayer-fee transfer fails', async () => {
+      const FailTransferFactory = await ethers.getContractFactory('ERC20FailTransfer');
+      const failTransfer = await FailTransferFactory.deploy(1000);
+      await failTransfer.deployed();
+
+      await failTransfer.transfer(subscriberAddress, 500);
+      await failTransfer.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+
+      const permit = createSchedulePermit({ token: failTransfer.address });
+      const signature = await createSignature(permit, subscriber);
+      const digest = await erc20RecurringPaymentProxy.hashSchedule(permit);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPayment(permit, signature, 1, paymentReference),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__TransferFailed');
+      expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(digest)).to.equal(0);
+      expect(await failTransfer.balanceOf(recipientAddress)).to.equal(0);
+    });
+  });
+
   describe('EIP-1271 signatures', () => {
     const paymentReference = '0x1234567890abcdef';
 

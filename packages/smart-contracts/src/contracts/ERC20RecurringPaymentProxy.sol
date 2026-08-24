@@ -25,6 +25,8 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   error ERC20RecurringPaymentProxy__NotDueYet();
   error ERC20RecurringPaymentProxy__AlreadyPaid();
   error ERC20RecurringPaymentProxy__ZeroAddress();
+  error ERC20RecurringPaymentProxy__TransferFailed();
+  error ERC20RecurringPaymentProxy__ShortPull();
 
   bytes32 public constant RELAYER_ROLE = keccak256('RELAYER_ROLE');
 
@@ -170,6 +172,38 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     }
   }
 
+  function _pullExact(
+    IERC20 token,
+    address from,
+    uint256 amount
+  ) private {
+    uint256 balanceBefore = token.balanceOf(address(this));
+    if (!token.safeTransferFrom(from, address(this), amount)) {
+      revert ERC20RecurringPaymentProxy__TransferFailed();
+    }
+    if (token.balanceOf(address(this)) - balanceBefore != amount) {
+      revert ERC20RecurringPaymentProxy__ShortPull();
+    }
+  }
+
+  function _approveFeeProxy(IERC20 token, uint256 amount) private {
+    if (!token.safeApprove(address(erc20FeeProxy), 0)) {
+      revert ERC20RecurringPaymentProxy__TransferFailed();
+    }
+    if (!token.safeApprove(address(erc20FeeProxy), amount)) {
+      revert ERC20RecurringPaymentProxy__TransferFailed();
+    }
+  }
+
+  function _payRelayer(IERC20 token, uint256 amount) private {
+    if (amount == 0) {
+      return;
+    }
+    if (!token.safeTransfer(msg.sender, amount)) {
+      revert ERC20RecurringPaymentProxy__TransferFailed();
+    }
+  }
+
   function _proxyTransfer(SchedulePermit calldata p, bytes calldata paymentReference) private {
     erc20FeeProxy.transferFromWithReferenceAndFee(
       p.token,
@@ -213,17 +247,10 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     uint256 total = p.amount + p.feeAmount + p.relayerFee;
 
     IERC20 token = IERC20(p.token);
-    token.safeTransferFrom(p.subscriber, address(this), total);
-
-    /* USDT-safe zero-approve then set allowance */
-    token.safeApprove(address(erc20FeeProxy), 0);
-    token.safeApprove(address(erc20FeeProxy), p.amount + p.feeAmount);
-
+    _pullExact(token, p.subscriber, total);
+    _approveFeeProxy(token, p.amount + p.feeAmount);
     _proxyTransfer(p, paymentReference);
-
-    if (p.relayerFee != 0) {
-      token.safeTransfer(msg.sender, p.relayerFee);
-    }
+    _payRelayer(token, p.relayerFee);
   }
 
   function setRelayer(address oldRelayer, address newRelayer) external onlyOwner {
