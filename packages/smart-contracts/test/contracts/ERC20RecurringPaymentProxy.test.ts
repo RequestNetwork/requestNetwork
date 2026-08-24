@@ -675,6 +675,73 @@ describe('ERC20RecurringPaymentProxy', () => {
     });
   });
 
+  describe('EIP-1271 signatures', () => {
+    const paymentReference = '0x1234567890abcdef';
+
+    it('accepts a valid smart-account signature', async () => {
+      const MockERC1271Factory = await ethers.getContractFactory('MockERC1271');
+      const mockWallet = await MockERC1271Factory.deploy(subscriberAddress);
+      await mockWallet.deployed();
+
+      await testERC20.transfer(mockWallet.address, 500);
+      await mockWallet
+        .connect(subscriber)
+        .approveToken(testERC20.address, erc20RecurringPaymentProxy.address, 500);
+
+      const permit = createSchedulePermit({ subscriber: mockWallet.address });
+      const signature = await createSignature(permit, subscriber);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPayment(permit, signature, 1, paymentReference),
+      )
+        .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+        .withArgs(
+          testERC20.address,
+          recipientAddress,
+          permit.amount,
+          ethers.utils.keccak256(paymentReference),
+          permit.feeAmount,
+          feeAddressString,
+        );
+    });
+
+    it('rejects a malformed smart-account signature', async () => {
+      const MockERC1271Factory = await ethers.getContractFactory('MockERC1271');
+      const mockWallet = await MockERC1271Factory.deploy(subscriberAddress);
+      await mockWallet.deployed();
+
+      await testERC20.transfer(mockWallet.address, 500);
+      await mockWallet
+        .connect(subscriber)
+        .approveToken(testERC20.address, erc20RecurringPaymentProxy.address, 500);
+
+      const permit = createSchedulePermit({ subscriber: mockWallet.address });
+      const signature = '0x' + '11'.repeat(65);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPayment(permit, signature, 1, paymentReference),
+      ).to.be.reverted;
+    });
+
+    it('still accepts an EOA signature through SignatureChecker', async () => {
+      await testERC20.transfer(subscriberAddress, 500);
+      await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+
+      const permit = createSchedulePermit();
+      const signature = await createSignature(permit, subscriber);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPayment(permit, signature, 1, paymentReference),
+      ).to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee');
+    });
+  });
+
   describe('Integration: Paused state affects execution', () => {
     it('should revert trigger when contract is paused', async () => {
       await erc20RecurringPaymentProxy.pause();

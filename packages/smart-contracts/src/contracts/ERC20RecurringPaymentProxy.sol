@@ -5,7 +5,7 @@ import '@openzeppelin/contracts/access/AccessControl.sol';
 import '@openzeppelin/contracts/security/Pausable.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/utils/cryptography/EIP712.sol';
-import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
+import '@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import './interfaces/ERC20FeeProxy.sol';
 import './lib/SafeERC20.sol';
@@ -16,7 +16,6 @@ import './lib/SafeERC20.sol';
  */
 contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, ReentrancyGuard, Ownable {
   using SafeERC20 for IERC20;
-  using ECDSA for bytes32;
 
   error ERC20RecurringPaymentProxy__BadSignature();
   error ERC20RecurringPaymentProxy__SignatureExpired();
@@ -161,6 +160,16 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     return _hashScheduleBatch(p);
   }
 
+  function _assertSigner(
+    address subscriber,
+    bytes32 digest,
+    bytes calldata signature
+  ) private view {
+    if (!SignatureChecker.isValidSignatureNow(subscriber, digest, signature)) {
+      revert ERC20RecurringPaymentProxy__BadSignature();
+    }
+  }
+
   function _proxyTransfer(SchedulePermit calldata p, bytes calldata paymentReference) private {
     erc20FeeProxy.transferFromWithReferenceAndFee(
       p.token,
@@ -180,8 +189,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   ) external whenNotPaused onlyRole(RELAYER_ROLE) nonReentrant {
     bytes32 digest = _hashSchedule(p);
 
-    if (digest.recover(signature) != p.subscriber)
-      revert ERC20RecurringPaymentProxy__BadSignature();
+    _assertSigner(p.subscriber, digest, signature);
     if (block.timestamp > p.deadline) revert ERC20RecurringPaymentProxy__SignatureExpired();
 
     if (index >= 256) revert ERC20RecurringPaymentProxy__IndexTooLarge();
