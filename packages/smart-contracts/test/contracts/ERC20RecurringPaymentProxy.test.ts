@@ -380,6 +380,56 @@ describe('ERC20RecurringPaymentProxy', () => {
     });
   });
 
+  describe('Fee destination and rescue', () => {
+    const paymentReference = '0x1234567890abcdef';
+
+    it('reverts when feeAmount is non-zero and feeAddress is zero', async () => {
+      await testERC20.transfer(subscriberAddress, 500);
+      await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+
+      const permit = createSchedulePermit({ feeAddress: ethers.constants.AddressZero });
+      const signature = await createSignature(permit, subscriber);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromPermit(permit);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPayment(permit, signature, 1, paymentReference),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__ZeroAddress');
+      expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(scheduleKey)).to.equal(0);
+    });
+
+    it('allows the owner to rescue a residual balance', async () => {
+      await testERC20.transfer(erc20RecurringPaymentProxy.address, 40);
+      const ownerBalanceBefore = await testERC20.balanceOf(ownerAddress);
+
+      await erc20RecurringPaymentProxy.rescueTokens(testERC20.address, ownerAddress, 40);
+
+      expect(await testERC20.balanceOf(erc20RecurringPaymentProxy.address)).to.equal(0);
+      expect(await testERC20.balanceOf(ownerAddress)).to.equal(ownerBalanceBefore.add(40));
+    });
+
+    it('reverts when a non-owner tries to rescue tokens', async () => {
+      await testERC20.transfer(erc20RecurringPaymentProxy.address, 10);
+
+      await expect(
+        erc20RecurringPaymentProxy.connect(user).rescueTokens(testERC20.address, userAddress, 10),
+      ).to.be.revertedWith('Ownable: caller is not the owner');
+    });
+
+    it('reverts rescue to the zero address', async () => {
+      await testERC20.transfer(erc20RecurringPaymentProxy.address, 10);
+
+      await expect(
+        erc20RecurringPaymentProxy.rescueTokens(
+          testERC20.address,
+          ethers.constants.AddressZero,
+          10,
+        ),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__ZeroAddress');
+    });
+  });
+
   describe('Trigger Recurring Payment', () => {
     beforeEach(async () => {
       // Transfer tokens to subscriber and approve the recurring payment proxy

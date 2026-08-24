@@ -277,6 +277,12 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     }
   }
 
+  function _assertNonZeroRecipient(address account, uint256 amount) private pure {
+    if (amount > 0 && account == address(0)) {
+      revert ERC20RecurringPaymentProxy__ZeroAddress();
+    }
+  }
+
   function _proxyTransfer(SchedulePermit calldata p, bytes calldata paymentReference) private {
     erc20FeeProxy.transferFromWithReferenceAndFee(
       p.token,
@@ -310,6 +316,8 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     uint256 execTime = uint256(p.firstPayment) + uint256(index - 1) * p.periodSeconds;
     if (block.timestamp < execTime) revert ERC20RecurringPaymentProxy__NotDueYet();
 
+    _assertNonZeroRecipient(p.feeAddress, p.feeAmount);
+
     uint256 total = p.amount + p.feeAmount + p.relayerFee;
 
     IERC20 token = IERC20(p.token);
@@ -337,5 +345,18 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
 
   function unpause() external onlyOwner {
     _unpause();
+  }
+
+  function rescueTokens(
+    address token,
+    address to,
+    uint256 amount
+  ) external onlyOwner nonReentrant {
+    if (token == address(0) || to == address(0)) {
+      revert ERC20RecurringPaymentProxy__ZeroAddress();
+    }
+    if (!IERC20(token).safeTransfer(to, amount)) {
+      revert ERC20RecurringPaymentProxy__TransferFailed();
+    }
   }
 }
