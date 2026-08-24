@@ -1388,6 +1388,101 @@ describe('ERC20RecurringPaymentProxy', () => {
     });
   });
 
+  describe('cancelSchedule', () => {
+    const paymentReference = '0x1234567890abcdef';
+    const ref = (n: number) => ethers.utils.hexZeroPad(ethers.utils.hexlify(n), 8);
+
+    const latestTs = async () => (await ethers.provider.getBlock('latest')).timestamp;
+
+    const simpleBatch = async () => {
+      const now = await latestTs();
+      return {
+        subscriber: subscriberAddress,
+        token: testERC20.address,
+        relayerFee: 0,
+        totalPayments: 1,
+        nonce: 0,
+        deadline: now + 86400,
+        strictOrder: false,
+        scheduleId: '0x0303030303030303030303030303030303030303030303030303030303030303',
+        dueTimes: [now],
+        initialLegs: [],
+        recurringLegs: [{ recipient: recipientAddress, amount: 10, paymentReference: ref(0x21) }],
+      };
+    };
+
+    it('blocks the single-fee entry point after the subscriber cancels', async () => {
+      await testERC20.transfer(subscriberAddress, 500);
+      await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+
+      const now = await latestTs();
+      const permit = createSchedulePermit({ firstPayment: now, deadline: now + 86400 });
+      const signature = await createSignature(permit, subscriber);
+
+      await erc20RecurringPaymentProxy.connect(subscriber).cancelSchedule(permit);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPayment(permit, signature, 1, paymentReference),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__Cancelled');
+    });
+
+    it('blocks the batch entry point after the subscriber cancels', async () => {
+      await testERC20.transfer(subscriberAddress, 500);
+      await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+
+      const permit = await simpleBatch();
+      const signature = await createBatchSignature(permit, subscriber);
+      await erc20RecurringPaymentProxy.connect(subscriber).cancelScheduleBatch(permit);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(permit, signature, 1),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__Cancelled');
+    });
+
+    it('keeps a cancelled single-fee schedule cancelled after a deadline re-sign', async () => {
+      const now = await latestTs();
+      const permit = createSchedulePermit({ firstPayment: now, deadline: now + 86400 });
+      await erc20RecurringPaymentProxy.connect(subscriber).cancelSchedule(permit);
+
+      const resigned = { ...permit, deadline: now + 86400 * 30 };
+      const signature = await createSignature(resigned, subscriber);
+      await testERC20.transfer(subscriberAddress, 500);
+      await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPayment(resigned, signature, 1, paymentReference),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__Cancelled');
+    });
+
+    it('reverts when a non-subscriber tries to cancel', async () => {
+      const permit = createSchedulePermit();
+      await expect(
+        erc20RecurringPaymentProxy.connect(relayer).cancelSchedule(permit),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__NotSubscriber');
+      await expect(
+        erc20RecurringPaymentProxy.connect(user).cancelScheduleBatch(await simpleBatch()),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__NotSubscriber');
+    });
+
+    it("reverts when another subscriber tries to cancel someone else's schedule", async () => {
+      const permit = createSchedulePermit();
+      const hijack = { ...permit, subscriber: userAddress };
+      await expect(erc20RecurringPaymentProxy.connect(user).cancelSchedule(hijack)).to.not.be
+        .reverted;
+      expect(
+        await erc20RecurringPaymentProxy.cancelledSchedules(
+          await erc20RecurringPaymentProxy.scheduleKeyFromPermit(permit),
+        ),
+      ).to.equal(false);
+    });
+  });
+
   describe('EIP-712 digest parity', () => {
     const ref = (n: number) => ethers.utils.hexZeroPad(ethers.utils.hexlify(n), 8);
 

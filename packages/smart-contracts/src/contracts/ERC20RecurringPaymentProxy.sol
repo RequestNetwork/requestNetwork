@@ -31,6 +31,8 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   error ERC20RecurringPaymentProxy__TooManyLegs();
   error ERC20RecurringPaymentProxy__EmptyLegs();
   error ERC20RecurringPaymentProxy__ZeroAmount();
+  error ERC20RecurringPaymentProxy__NotSubscriber();
+  error ERC20RecurringPaymentProxy__Cancelled();
 
   uint8 public constant MAX_LEGS = 8;
 
@@ -60,6 +62,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   /* replay defence */
   mapping(bytes32 => uint256) public triggeredPaymentsBitmap;
   mapping(bytes32 => uint8) public lastPaymentIndex;
+  mapping(bytes32 => bool) public cancelledSchedules;
 
   IERC20FeeProxy public erc20FeeProxy;
 
@@ -223,6 +226,18 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     return _scheduleKeyFromBatch(p);
   }
 
+  function _assertSubscriber(address subscriber) private view {
+    if (msg.sender != subscriber) revert ERC20RecurringPaymentProxy__NotSubscriber();
+  }
+
+  function _assertNotCancelled(bytes32 scheduleKey) private view {
+    if (cancelledSchedules[scheduleKey]) revert ERC20RecurringPaymentProxy__Cancelled();
+  }
+
+  function _cancel(bytes32 scheduleKey) private {
+    cancelledSchedules[scheduleKey] = true;
+  }
+
   function _assertUnpaid(bytes32 scheduleKey, uint8 index) private view {
     if (triggeredPaymentsBitmap[scheduleKey] & (1 << index) != 0) {
       revert ERC20RecurringPaymentProxy__AlreadyPaid();
@@ -365,6 +380,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     if (index > p.totalPayments) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
 
     bytes32 scheduleKey = _scheduleKeyFromPermit(p);
+    _assertNotCancelled(scheduleKey);
     _assertOrder(scheduleKey, index, p.strictOrder);
     _assertUnpaid(scheduleKey, index);
 
@@ -416,6 +432,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     _assertScheduleLegs(p);
 
     bytes32 scheduleKey = _scheduleKeyFromBatch(p);
+    _assertNotCancelled(scheduleKey);
     _assertOrder(scheduleKey, index, p.strictOrder);
     _assertUnpaid(scheduleKey, index);
 
@@ -435,6 +452,28 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
       _settleLegs(proxy, p.token, p.recurringLegs);
     }
     _payRelayer(token, p.relayerFee);
+  }
+
+  /**
+   * @notice Blocks further triggers for this single-fee schedule.
+   * @dev Does not revoke the subscriber's ERC-20 allowance to this contract. A relayer can
+   *      still collect a due cycle if they include a trigger in the same block ahead of
+   *      cancel. Also `approve` this proxy to 0 (or decrease) in the same wallet batch.
+   */
+  function cancelSchedule(SchedulePermit calldata p) external {
+    _assertSubscriber(p.subscriber);
+    _cancel(_scheduleKeyFromPermit(p));
+  }
+
+  /**
+   * @notice Blocks further triggers for this batch schedule.
+   * @dev Does not revoke the subscriber's ERC-20 allowance to this contract. A relayer can
+   *      still collect a due cycle if they include a trigger in the same block ahead of
+   *      cancel. Also `approve` this proxy to 0 (or decrease) in the same wallet batch.
+   */
+  function cancelScheduleBatch(SchedulePermitBatch calldata p) external {
+    _assertSubscriber(p.subscriber);
+    _cancel(_scheduleKeyFromBatch(p));
   }
 
   function setRelayer(address oldRelayer, address newRelayer) external onlyOwner {
