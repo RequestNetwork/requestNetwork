@@ -27,6 +27,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   error ERC20RecurringPaymentProxy__ZeroAddress();
   error ERC20RecurringPaymentProxy__TransferFailed();
   error ERC20RecurringPaymentProxy__ShortPull();
+  error ERC20RecurringPaymentProxy__ZeroScheduleId();
 
   bytes32 public constant RELAYER_ROLE = keccak256('RELAYER_ROLE');
 
@@ -172,6 +173,78 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     }
   }
 
+  function _scheduleKeyFromPermit(SchedulePermit calldata p) private pure returns (bytes32) {
+    return
+      keccak256(
+        abi.encode(
+          p.subscriber,
+          p.token,
+          p.recipient,
+          p.feeAddress,
+          p.amount,
+          p.feeAmount,
+          p.relayerFee,
+          p.periodSeconds,
+          p.firstPayment,
+          p.totalPayments,
+          p.strictOrder
+        )
+      );
+  }
+
+  function scheduleKeyFromPermit(SchedulePermit calldata p) public pure returns (bytes32) {
+    return _scheduleKeyFromPermit(p);
+  }
+
+  function _scheduleKeyFromBatch(SchedulePermitBatch calldata p) private pure returns (bytes32) {
+    if (p.scheduleId == bytes32(0)) revert ERC20RecurringPaymentProxy__ZeroScheduleId();
+    return
+      keccak256(
+        abi.encode(
+          p.subscriber,
+          p.scheduleId,
+          p.token,
+          p.relayerFee,
+          p.totalPayments,
+          p.strictOrder,
+          _hashUint32Array(p.dueTimes),
+          _hashLegs(p.initialLegs),
+          _hashLegs(p.recurringLegs)
+        )
+      );
+  }
+
+  function scheduleKeyFromBatch(SchedulePermitBatch calldata p) public pure returns (bytes32) {
+    return _scheduleKeyFromBatch(p);
+  }
+
+  function _assertUnpaid(bytes32 scheduleKey, uint8 index) private view {
+    if (triggeredPaymentsBitmap[scheduleKey] & (1 << index) != 0) {
+      revert ERC20RecurringPaymentProxy__AlreadyPaid();
+    }
+  }
+
+  function _assertOrder(
+    bytes32 scheduleKey,
+    uint8 index,
+    bool strictOrder
+  ) private view {
+    if (strictOrder && index != lastPaymentIndex[scheduleKey] + 1) {
+      revert ERC20RecurringPaymentProxy__PaymentOutOfOrder();
+    }
+  }
+
+  function _markPaid(
+    bytes32 scheduleKey,
+    uint8 index,
+    bool strictOrder
+  ) private {
+    triggeredPaymentsBitmap[scheduleKey] |= (1 << index);
+    if (strictOrder) {
+      lastPaymentIndex[scheduleKey] = index;
+    }
+  }
+
   function _pullExact(
     IERC20 token,
     address from,
@@ -226,23 +299,16 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     _assertSigner(p.subscriber, digest, signature);
     if (block.timestamp > p.deadline) revert ERC20RecurringPaymentProxy__SignatureExpired();
 
+    if (index == 0) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
     if (index >= 256) revert ERC20RecurringPaymentProxy__IndexTooLarge();
-
-    if (p.strictOrder) {
-      if (index != lastPaymentIndex[digest] + 1)
-        revert ERC20RecurringPaymentProxy__PaymentOutOfOrder();
-      lastPaymentIndex[digest] = index;
-    }
-
     if (index > p.totalPayments) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
+
+    bytes32 scheduleKey = _scheduleKeyFromPermit(p);
+    _assertOrder(scheduleKey, index, p.strictOrder);
+    _assertUnpaid(scheduleKey, index);
 
     uint256 execTime = uint256(p.firstPayment) + uint256(index - 1) * p.periodSeconds;
     if (block.timestamp < execTime) revert ERC20RecurringPaymentProxy__NotDueYet();
-
-    uint256 mask = 1 << index;
-    uint256 word = triggeredPaymentsBitmap[digest];
-    if (word & mask != 0) revert ERC20RecurringPaymentProxy__AlreadyPaid();
-    triggeredPaymentsBitmap[digest] = word | mask;
 
     uint256 total = p.amount + p.feeAmount + p.relayerFee;
 
@@ -251,6 +317,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     _approveFeeProxy(token, p.amount + p.feeAmount);
     _proxyTransfer(p, paymentReference);
     _payRelayer(token, p.relayerFee);
+    _markPaid(scheduleKey, index, p.strictOrder);
   }
 
   function setRelayer(address oldRelayer, address newRelayer) external onlyOwner {
