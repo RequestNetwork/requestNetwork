@@ -6,7 +6,6 @@ import '@openzeppelin/contracts/security/Pausable.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/utils/cryptography/EIP712.sol';
 import '@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol';
-import '@openzeppelin/contracts/access/Ownable.sol';
 import './interfaces/ERC20FeeProxy.sol';
 import './lib/SafeERC20.sol';
 
@@ -14,7 +13,7 @@ import './lib/SafeERC20.sol';
  * @title ERC20RecurringPaymentProxy
  * @notice Triggers recurring ERC20 payments based on predefined schedules.
  */
-contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, ReentrancyGuard, Ownable {
+contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, ReentrancyGuard {
   using SafeERC20 for IERC20;
 
   error ERC20RecurringPaymentProxy__BadSignature();
@@ -35,9 +34,12 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   error ERC20RecurringPaymentProxy__NotSubscriber();
   error ERC20RecurringPaymentProxy__Cancelled();
   error ERC20RecurringPaymentProxy__NotAdmitted();
+  error ERC20RecurringPaymentProxy__NotRelayer();
 
   uint8 public constant MAX_LEGS = 8;
 
+  /// @notice Relayers may trigger any due cycle. Extra holders of this role compete
+  ///         for `relayerFee` because `_payRelayer` pays `msg.sender`.
   bytes32 public constant RELAYER_ROLE = keccak256('RELAYER_ROLE');
 
   bytes32 private constant _LEG_TYPEHASH =
@@ -102,7 +104,6 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     }
     _grantRole(DEFAULT_ADMIN_ROLE, adminSafe);
     _grantRole(RELAYER_ROLE, relayerEOA);
-    transferOwnership(adminSafe);
     erc20FeeProxy = IERC20FeeProxy(erc20FeeProxyAddress);
   }
 
@@ -413,24 +414,36 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     emit ScheduleCancelled(scheduleKey, p.subscriber);
   }
 
-  function setRelayer(address oldRelayer, address newRelayer) external onlyOwner {
-    if (newRelayer == address(0)) revert ERC20RecurringPaymentProxy__ZeroAddress();
-    _revokeRole(RELAYER_ROLE, oldRelayer);
-    _grantRole(RELAYER_ROLE, newRelayer);
+  /**
+   * @notice Grants `RELAYER_ROLE`. Every holder can collect `relayerFee` on trigger.
+   */
+  function grantRelayer(address relayer) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    if (relayer == address(0)) revert ERC20RecurringPaymentProxy__ZeroAddress();
+    _grantRole(RELAYER_ROLE, relayer);
   }
 
-  function setFeeProxy(address newProxy) external onlyOwner {
+  /**
+   * @notice Revokes `RELAYER_ROLE`. Reverts if `relayer` does not hold the role.
+   */
+  function revokeRelayer(address relayer) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    if (!hasRole(RELAYER_ROLE, relayer)) {
+      revert ERC20RecurringPaymentProxy__NotRelayer();
+    }
+    _revokeRole(RELAYER_ROLE, relayer);
+  }
+
+  function setFeeProxy(address newProxy) external onlyRole(DEFAULT_ADMIN_ROLE) {
     if (newProxy == address(0)) revert ERC20RecurringPaymentProxy__ZeroAddress();
     address oldProxy = address(erc20FeeProxy);
     erc20FeeProxy = IERC20FeeProxy(newProxy);
     emit FeeProxyUpdated(oldProxy, newProxy);
   }
 
-  function pause() external onlyOwner {
+  function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {
     _pause();
   }
 
-  function unpause() external onlyOwner {
+  function unpause() external onlyRole(DEFAULT_ADMIN_ROLE) {
     _unpause();
   }
 
@@ -438,7 +451,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     address token,
     address to,
     uint256 amount
-  ) external onlyOwner nonReentrant {
+  ) external onlyRole(DEFAULT_ADMIN_ROLE) nonReentrant {
     if (token == address(0) || to == address(0)) {
       revert ERC20RecurringPaymentProxy__ZeroAddress();
     }
