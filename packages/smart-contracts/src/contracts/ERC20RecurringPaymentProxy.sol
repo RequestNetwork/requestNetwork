@@ -38,6 +38,18 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
       'uint256 nonce,uint256 deadline,bool strictOrder)'
     );
 
+  bytes32 private constant _LEG_TYPEHASH =
+    keccak256('Leg(address recipient,uint128 amount,bytes8 paymentReference)');
+
+  /* Nested Leg is appended once, in EIP-712 referenced-type order. */
+  bytes32 private constant _BATCH_TYPEHASH =
+    keccak256(
+      'SchedulePermitBatch(address subscriber,address token,uint128 relayerFee,'
+      'uint8 totalPayments,uint256 nonce,uint256 deadline,bool strictOrder,'
+      'bytes32 scheduleId,uint32[] dueTimes,Leg[] initialLegs,Leg[] recurringLegs)'
+      'Leg(address recipient,uint128 amount,bytes8 paymentReference)'
+    );
+
   /* replay defence */
   mapping(bytes32 => uint256) public triggeredPaymentsBitmap;
   mapping(bytes32 => uint8) public lastPaymentIndex;
@@ -60,6 +72,26 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     bool strictOrder;
   }
 
+  struct Leg {
+    address recipient;
+    uint128 amount;
+    bytes8 paymentReference;
+  }
+
+  struct SchedulePermitBatch {
+    address subscriber;
+    address token;
+    uint128 relayerFee;
+    uint8 totalPayments;
+    uint256 nonce;
+    uint256 deadline;
+    bool strictOrder;
+    bytes32 scheduleId;
+    uint32[] dueTimes;
+    Leg[] initialLegs;
+    Leg[] recurringLegs;
+  }
+
   constructor(
     address adminSafe,
     address relayerEOA,
@@ -78,6 +110,55 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, p));
 
     return _hashTypedDataV4(structHash);
+  }
+
+  function hashSchedule(SchedulePermit calldata p) public view returns (bytes32) {
+    return _hashSchedule(p);
+  }
+
+  function _hashUint32Array(uint32[] calldata values) private pure returns (bytes32) {
+    bytes32[] memory words = new bytes32[](values.length);
+    for (uint256 i = 0; i < values.length; ++i) {
+      words[i] = bytes32(uint256(values[i]));
+    }
+    return keccak256(abi.encodePacked(words));
+  }
+
+  function _hashLeg(Leg calldata leg) private pure returns (bytes32) {
+    return keccak256(abi.encode(_LEG_TYPEHASH, leg.recipient, leg.amount, leg.paymentReference));
+  }
+
+  function _hashLegs(Leg[] calldata legs) private pure returns (bytes32) {
+    bytes32[] memory words = new bytes32[](legs.length);
+    for (uint256 i = 0; i < legs.length; ++i) {
+      words[i] = _hashLeg(legs[i]);
+    }
+    return keccak256(abi.encodePacked(words));
+  }
+
+  function _hashScheduleBatch(SchedulePermitBatch calldata p) private view returns (bytes32) {
+    bytes32 structHash = keccak256(
+      abi.encode(
+        _BATCH_TYPEHASH,
+        p.subscriber,
+        p.token,
+        p.relayerFee,
+        p.totalPayments,
+        p.nonce,
+        p.deadline,
+        p.strictOrder,
+        p.scheduleId,
+        _hashUint32Array(p.dueTimes),
+        _hashLegs(p.initialLegs),
+        _hashLegs(p.recurringLegs)
+      )
+    );
+
+    return _hashTypedDataV4(structHash);
+  }
+
+  function hashScheduleBatch(SchedulePermitBatch calldata p) public view returns (bytes32) {
+    return _hashScheduleBatch(p);
   }
 
   function _proxyTransfer(SchedulePermit calldata p, bytes calldata paymentReference) private {

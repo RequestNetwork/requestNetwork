@@ -81,32 +81,61 @@ describe('ERC20RecurringPaymentProxy', () => {
     };
   };
 
+  const schedulePermitTypes = {
+    SchedulePermit: [
+      { name: 'subscriber', type: 'address' },
+      { name: 'token', type: 'address' },
+      { name: 'recipient', type: 'address' },
+      { name: 'feeAddress', type: 'address' },
+      { name: 'amount', type: 'uint128' },
+      { name: 'feeAmount', type: 'uint128' },
+      { name: 'relayerFee', type: 'uint128' },
+      { name: 'periodSeconds', type: 'uint32' },
+      { name: 'firstPayment', type: 'uint32' },
+      { name: 'totalPayments', type: 'uint8' },
+      { name: 'nonce', type: 'uint256' },
+      { name: 'deadline', type: 'uint256' },
+      { name: 'strictOrder', type: 'bool' },
+    ],
+  };
+
+  const schedulePermitBatchTypes = {
+    SchedulePermitBatch: [
+      { name: 'subscriber', type: 'address' },
+      { name: 'token', type: 'address' },
+      { name: 'relayerFee', type: 'uint128' },
+      { name: 'totalPayments', type: 'uint8' },
+      { name: 'nonce', type: 'uint256' },
+      { name: 'deadline', type: 'uint256' },
+      { name: 'strictOrder', type: 'bool' },
+      { name: 'scheduleId', type: 'bytes32' },
+      { name: 'dueTimes', type: 'uint32[]' },
+      { name: 'initialLegs', type: 'Leg[]' },
+      { name: 'recurringLegs', type: 'Leg[]' },
+    ],
+    Leg: [
+      { name: 'recipient', type: 'address' },
+      { name: 'amount', type: 'uint128' },
+      { name: 'paymentReference', type: 'bytes8' },
+    ],
+  };
+
+  const eip712Domain = async () => ({
+    name: 'ERC20RecurringPaymentProxy',
+    version: '1',
+    chainId: await subscriber.getChainId(),
+    verifyingContract: erc20RecurringPaymentProxy.address,
+  });
+
+  const hashPermitOffchain = async (permit: any) =>
+    ethers.utils._TypedDataEncoder.hash(await eip712Domain(), schedulePermitTypes, permit);
+
+  const hashBatchOffchain = async (permit: any) =>
+    ethers.utils._TypedDataEncoder.hash(await eip712Domain(), schedulePermitBatchTypes, permit);
+
   // Helper function to create EIP712 signature
   const createSignature = async (permit: any, signer: Signer) => {
-    const domain = {
-      name: 'ERC20RecurringPaymentProxy',
-      version: '1',
-      chainId: await signer.getChainId(),
-      verifyingContract: erc20RecurringPaymentProxy.address,
-    };
-
-    const types = {
-      SchedulePermit: [
-        { name: 'subscriber', type: 'address' },
-        { name: 'token', type: 'address' },
-        { name: 'recipient', type: 'address' },
-        { name: 'feeAddress', type: 'address' },
-        { name: 'amount', type: 'uint128' },
-        { name: 'feeAmount', type: 'uint128' },
-        { name: 'relayerFee', type: 'uint128' },
-        { name: 'periodSeconds', type: 'uint32' },
-        { name: 'firstPayment', type: 'uint32' },
-        { name: 'totalPayments', type: 'uint8' },
-        { name: 'nonce', type: 'uint256' },
-        { name: 'deadline', type: 'uint256' },
-        { name: 'strictOrder', type: 'bool' },
-      ],
-    };
+    const domain = await eip712Domain();
 
     // Some providers (Hardhat in-process) happily accept the string-encoded data (what
     // ethers' _signTypedData sends). Others (Hardhat JSON-RPC, Ganache) expect the object
@@ -121,7 +150,7 @@ describe('ERC20RecurringPaymentProxy', () => {
           { name: 'chainId', type: 'uint256' },
           { name: 'verifyingContract', type: 'address' },
         ],
-        ...types,
+        ...schedulePermitTypes,
       },
       primaryType: 'SchedulePermit',
       domain,
@@ -134,7 +163,31 @@ describe('ERC20RecurringPaymentProxy', () => {
       return await (signer.provider as any).send('eth_signTypedData', [address, typedDataObject]);
     } catch (_) {
       // Fallback to ethers helper (works in most in-process Hardhat environments)
-      return await (signer as any)._signTypedData(domain, types, permit);
+      return await (signer as any)._signTypedData(domain, schedulePermitTypes, permit);
+    }
+  };
+
+  const createBatchSignature = async (permit: any, signer: Signer) => {
+    const domain = await eip712Domain();
+    const address = await signer.getAddress();
+    const typedDataObject = {
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        ...schedulePermitBatchTypes,
+      },
+      primaryType: 'SchedulePermitBatch',
+      domain,
+      message: permit,
+    };
+    try {
+      return await (signer.provider as any).send('eth_signTypedData', [address, typedDataObject]);
+    } catch (_) {
+      return await (signer as any)._signTypedData(domain, schedulePermitBatchTypes, permit);
     }
   };
 
@@ -650,6 +703,73 @@ describe('ERC20RecurringPaymentProxy', () => {
           .connect(relayer)
           .triggerRecurringPayment(schedulePermit, signature, 1, paymentReference),
       ).to.be.revertedWith('Pausable: paused');
+    });
+  });
+
+  describe('EIP-712 digest parity', () => {
+    const ref = (n: number) => ethers.utils.hexZeroPad(ethers.utils.hexlify(n), 8);
+
+    const workedExample = () => {
+      const t0 = Math.floor(Date.UTC(2026, 8, 1) / 1000);
+      const oct1 = Math.floor(Date.UTC(2026, 9, 1) / 1000);
+      const nov1 = Math.floor(Date.UTC(2026, 10, 1) / 1000);
+      const dec1 = Math.floor(Date.UTC(2026, 11, 1) / 1000);
+      return {
+        subscriber: subscriberAddress,
+        token: testERC20.address,
+        relayerFee: 1_000_000,
+        totalPayments: 4,
+        nonce: 0,
+        deadline: Math.floor(Date.UTC(2027, 0, 1) / 1000),
+        strictOrder: false,
+        scheduleId: '0x0101010101010101010101010101010101010101010101010101010101010101',
+        dueTimes: [t0, oct1, nov1, dec1],
+        initialLegs: [
+          { recipient: recipientAddress, amount: 30_000_000, paymentReference: ref(0x0a) },
+          { recipient: feeAddressString, amount: 3_000_000, paymentReference: ref(0x0b) },
+        ],
+        recurringLegs: [
+          { recipient: recipientAddress, amount: 99_000_000, paymentReference: ref(0x0c) },
+          { recipient: feeAddressString, amount: 5_000_000, paymentReference: ref(0x0d) },
+          { recipient: userAddress, amount: 4_000_000, paymentReference: ref(0x0e) },
+          { recipient: newRelayerAddress, amount: 2_000_000, paymentReference: ref(0x0f) },
+        ],
+      };
+    };
+
+    it('matches ethers _TypedDataEncoder for SchedulePermit', async () => {
+      const permit = createSchedulePermit();
+      expect(await erc20RecurringPaymentProxy.hashSchedule(permit)).to.equal(
+        await hashPermitOffchain(permit),
+      );
+    });
+
+    it('matches ethers _TypedDataEncoder for the worked-example SchedulePermitBatch', async () => {
+      const permit = workedExample();
+      expect(await erc20RecurringPaymentProxy.hashScheduleBatch(permit)).to.equal(
+        await hashBatchOffchain(permit),
+      );
+    });
+
+    it('matches ethers _TypedDataEncoder when initialLegs is empty', async () => {
+      const permit = { ...workedExample(), initialLegs: [] };
+      expect(await erc20RecurringPaymentProxy.hashScheduleBatch(permit)).to.equal(
+        await hashBatchOffchain(permit),
+      );
+    });
+
+    it('createBatchSignature is a valid typed-data payload for the worked example', async () => {
+      const permit = workedExample();
+      const signature = await createBatchSignature(permit, subscriber);
+      expect(signature).to.match(/^0x[0-9a-fA-F]{130}$/);
+    });
+
+    it('uses an 8-byte payment reference whose fee-proxy topic is not the 32-byte pad', () => {
+      const ref8 = ref(0x0a);
+      const ref32 = ethers.utils.hexZeroPad(ref8, 32);
+      expect(ref8).to.equal('0x000000000000000a');
+      expect(ethers.utils.keccak256(ref8)).to.equal(ethers.utils.keccak256('0x000000000000000a'));
+      expect(ethers.utils.keccak256(ref8)).to.not.equal(ethers.utils.keccak256(ref32));
     });
   });
 });
