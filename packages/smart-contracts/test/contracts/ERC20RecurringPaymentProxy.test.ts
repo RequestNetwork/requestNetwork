@@ -119,7 +119,6 @@ describe('ERC20RecurringPaymentProxy', () => {
     it('should be deployed with correct initial values', async () => {
       expect(erc20RecurringPaymentProxy.address).to.not.equal(ethers.constants.AddressZero);
       expect(await erc20RecurringPaymentProxy.erc20FeeProxy()).to.equal(erc20FeeProxy.address);
-      expect(await erc20RecurringPaymentProxy.owner()).to.equal(ownerAddress);
       expect(
         await erc20RecurringPaymentProxy.hasRole(
           await erc20RecurringPaymentProxy.RELAYER_ROLE(),
@@ -169,16 +168,16 @@ describe('ERC20RecurringPaymentProxy', () => {
     });
   });
 
-  describe('setRelayer', () => {
-    it('should allow owner to set new relayer', async () => {
-      await erc20RecurringPaymentProxy.setRelayer(relayerAddress, newRelayerAddress);
+  describe('grantRelayer and revokeRelayer', () => {
+    it('grants RELAYER_ROLE to a new address', async () => {
+      await erc20RecurringPaymentProxy.grantRelayer(newRelayerAddress);
 
       expect(
         await erc20RecurringPaymentProxy.hasRole(
           await erc20RecurringPaymentProxy.RELAYER_ROLE(),
           relayerAddress,
         ),
-      ).to.be.false;
+      ).to.be.true;
       expect(
         await erc20RecurringPaymentProxy.hasRole(
           await erc20RecurringPaymentProxy.RELAYER_ROLE(),
@@ -187,18 +186,51 @@ describe('ERC20RecurringPaymentProxy', () => {
       ).to.be.true;
     });
 
-    it('should revert when non-owner tries to set relayer', async () => {
-      await expect(
-        erc20RecurringPaymentProxy.connect(user).setRelayer(relayerAddress, newRelayerAddress),
-      ).to.be.revertedWith('Ownable: caller is not the owner');
+    it('revokes RELAYER_ROLE from a current relayer', async () => {
+      await erc20RecurringPaymentProxy.revokeRelayer(relayerAddress);
+
+      expect(
+        await erc20RecurringPaymentProxy.hasRole(
+          await erc20RecurringPaymentProxy.RELAYER_ROLE(),
+          relayerAddress,
+        ),
+      ).to.be.false;
     });
 
-    it('should emit RoleRevoked and RoleGranted events', async () => {
-      await expect(erc20RecurringPaymentProxy.setRelayer(relayerAddress, newRelayerAddress))
-        .to.emit(erc20RecurringPaymentProxy, 'RoleRevoked')
-        .withArgs(await erc20RecurringPaymentProxy.RELAYER_ROLE(), relayerAddress, ownerAddress)
-        .and.to.emit(erc20RecurringPaymentProxy, 'RoleGranted')
+    it('reverts when a non-admin tries to grant or revoke', async () => {
+      await expect(
+        erc20RecurringPaymentProxy.connect(user).grantRelayer(newRelayerAddress),
+      ).to.be.revertedWith('AccessControl: account');
+      await expect(
+        erc20RecurringPaymentProxy.connect(user).revokeRelayer(relayerAddress),
+      ).to.be.revertedWith('AccessControl: account');
+    });
+
+    it('emits RoleGranted and RoleRevoked', async () => {
+      await expect(erc20RecurringPaymentProxy.grantRelayer(newRelayerAddress))
+        .to.emit(erc20RecurringPaymentProxy, 'RoleGranted')
         .withArgs(await erc20RecurringPaymentProxy.RELAYER_ROLE(), newRelayerAddress, ownerAddress);
+
+      await expect(erc20RecurringPaymentProxy.revokeRelayer(relayerAddress))
+        .to.emit(erc20RecurringPaymentProxy, 'RoleRevoked')
+        .withArgs(await erc20RecurringPaymentProxy.RELAYER_ROLE(), relayerAddress, ownerAddress);
+    });
+
+    it('reverts grant of the zero address', async () => {
+      await expect(
+        erc20RecurringPaymentProxy.grantRelayer(ethers.constants.AddressZero),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__ZeroAddress');
+    });
+
+    it('reverts revoke when the address does not hold RELAYER_ROLE and leaves holders unchanged', async () => {
+      const relayerRole = await erc20RecurringPaymentProxy.RELAYER_ROLE();
+
+      await expect(erc20RecurringPaymentProxy.revokeRelayer(userAddress)).to.be.revertedWith(
+        'ERC20RecurringPaymentProxy__NotRelayer',
+      );
+
+      expect(await erc20RecurringPaymentProxy.hasRole(relayerRole, relayerAddress)).to.be.true;
+      expect(await erc20RecurringPaymentProxy.hasRole(relayerRole, userAddress)).to.be.false;
     });
   });
 
@@ -219,7 +251,7 @@ describe('ERC20RecurringPaymentProxy', () => {
 
       await expect(
         erc20RecurringPaymentProxy.connect(user).setFeeProxy(newERC20FeeProxy.address),
-      ).to.be.revertedWith('Ownable: caller is not the owner');
+      ).to.be.revertedWith('AccessControl: account');
     });
 
     it('should revert when trying to set zero address as fee proxy', async () => {
@@ -244,7 +276,7 @@ describe('ERC20RecurringPaymentProxy', () => {
 
     it('should revert when non-owner tries to pause', async () => {
       await expect(erc20RecurringPaymentProxy.connect(user).pause()).to.be.revertedWith(
-        'Ownable: caller is not the owner',
+        'AccessControl: account',
       );
     });
 
@@ -252,7 +284,7 @@ describe('ERC20RecurringPaymentProxy', () => {
       await erc20RecurringPaymentProxy.pause();
 
       await expect(erc20RecurringPaymentProxy.connect(user).unpause()).to.be.revertedWith(
-        'Ownable: caller is not the owner',
+        'AccessControl: account',
       );
     });
 
@@ -271,38 +303,22 @@ describe('ERC20RecurringPaymentProxy', () => {
     });
   });
 
-  describe('Ownership', () => {
-    it('should allow owner to transfer ownership', async () => {
-      await erc20RecurringPaymentProxy.transferOwnership(newOwnerAddress);
-      expect(await erc20RecurringPaymentProxy.owner()).to.equal(newOwnerAddress);
+  describe('Admin role', () => {
+    it('lets the admin grant and revoke DEFAULT_ADMIN_ROLE', async () => {
+      const adminRole = await erc20RecurringPaymentProxy.DEFAULT_ADMIN_ROLE();
+      await erc20RecurringPaymentProxy.grantRole(adminRole, newOwnerAddress);
+      expect(await erc20RecurringPaymentProxy.hasRole(adminRole, newOwnerAddress)).to.be.true;
+
+      await erc20RecurringPaymentProxy.connect(newOwner).revokeRole(adminRole, ownerAddress);
+      expect(await erc20RecurringPaymentProxy.hasRole(adminRole, ownerAddress)).to.be.false;
     });
 
-    it('should revert when non-owner tries to transfer ownership', async () => {
+    it('reverts when a non-admin tries to grant admin', async () => {
       await expect(
-        erc20RecurringPaymentProxy.connect(user).transferOwnership(newOwnerAddress),
-      ).to.be.revertedWith('Ownable: caller is not the owner');
-    });
-
-    it('should emit OwnershipTransferred event', async () => {
-      await expect(erc20RecurringPaymentProxy.transferOwnership(newOwnerAddress))
-        .to.emit(erc20RecurringPaymentProxy, 'OwnershipTransferred')
-        .withArgs(ownerAddress, newOwnerAddress);
-    });
-
-    it('should allow new owner to renounce ownership', async () => {
-      await erc20RecurringPaymentProxy.transferOwnership(newOwnerAddress);
-
-      await expect(erc20RecurringPaymentProxy.connect(newOwner).renounceOwnership())
-        .to.emit(erc20RecurringPaymentProxy, 'OwnershipTransferred')
-        .withArgs(newOwnerAddress, ethers.constants.AddressZero);
-
-      expect(await erc20RecurringPaymentProxy.owner()).to.equal(ethers.constants.AddressZero);
-    });
-
-    it('should revert when non-owner tries to renounce ownership', async () => {
-      await expect(erc20RecurringPaymentProxy.connect(user).renounceOwnership()).to.be.revertedWith(
-        'Ownable: caller is not the owner',
-      );
+        erc20RecurringPaymentProxy
+          .connect(user)
+          .grantRole(await erc20RecurringPaymentProxy.DEFAULT_ADMIN_ROLE(), userAddress),
+      ).to.be.revertedWith('AccessControl: account');
     });
   });
 
@@ -322,7 +338,7 @@ describe('ERC20RecurringPaymentProxy', () => {
 
       await expect(
         erc20RecurringPaymentProxy.connect(user).rescueTokens(testERC20.address, userAddress, 10),
-      ).to.be.revertedWith('Ownable: caller is not the owner');
+      ).to.be.revertedWith('AccessControl: account');
     });
 
     it('reverts rescue to the zero address', async () => {
