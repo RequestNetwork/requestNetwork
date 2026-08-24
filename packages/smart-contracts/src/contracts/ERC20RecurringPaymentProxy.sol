@@ -19,7 +19,6 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
 
   error ERC20RecurringPaymentProxy__BadSignature();
   error ERC20RecurringPaymentProxy__SignatureExpired();
-  error ERC20RecurringPaymentProxy__IndexTooLarge();
   error ERC20RecurringPaymentProxy__PaymentOutOfOrder();
   error ERC20RecurringPaymentProxy__IndexOutOfBounds();
   error ERC20RecurringPaymentProxy__NotDueYet();
@@ -28,6 +27,12 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   error ERC20RecurringPaymentProxy__TransferFailed();
   error ERC20RecurringPaymentProxy__ShortPull();
   error ERC20RecurringPaymentProxy__ZeroScheduleId();
+  error ERC20RecurringPaymentProxy__InvalidDueTimes();
+  error ERC20RecurringPaymentProxy__TooManyLegs();
+  error ERC20RecurringPaymentProxy__EmptyLegs();
+  error ERC20RecurringPaymentProxy__ZeroAmount();
+
+  uint8 public constant MAX_LEGS = 8;
 
   bytes32 public constant RELAYER_ROLE = keccak256('RELAYER_ROLE');
 
@@ -259,11 +264,15 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     }
   }
 
-  function _approveFeeProxy(IERC20 token, uint256 amount) private {
-    if (!token.safeApprove(address(erc20FeeProxy), 0)) {
+  function _approveFeeProxy(
+    IERC20 token,
+    IERC20FeeProxy proxy,
+    uint256 amount
+  ) private {
+    if (!token.safeApprove(address(proxy), 0)) {
       revert ERC20RecurringPaymentProxy__TransferFailed();
     }
-    if (!token.safeApprove(address(erc20FeeProxy), amount)) {
+    if (!token.safeApprove(address(proxy), amount)) {
       revert ERC20RecurringPaymentProxy__TransferFailed();
     }
   }
@@ -280,6 +289,53 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   function _assertNonZeroRecipient(address account, uint256 amount) private pure {
     if (amount > 0 && account == address(0)) {
       revert ERC20RecurringPaymentProxy__ZeroAddress();
+    }
+  }
+
+  function _assertLegs(Leg[] calldata legs) private pure {
+    if (legs.length == 0) revert ERC20RecurringPaymentProxy__EmptyLegs();
+    for (uint256 i = 0; i < legs.length; ++i) {
+      if (legs[i].recipient == address(0)) {
+        revert ERC20RecurringPaymentProxy__ZeroAddress();
+      }
+      if (legs[i].amount == 0) {
+        revert ERC20RecurringPaymentProxy__ZeroAmount();
+      }
+    }
+  }
+
+  function _assertScheduleLegs(SchedulePermitBatch calldata p) private pure {
+    if (p.initialLegs.length > MAX_LEGS || p.recurringLegs.length > MAX_LEGS) {
+      revert ERC20RecurringPaymentProxy__TooManyLegs();
+    }
+    if (p.initialLegs.length != 0) {
+      _assertLegs(p.initialLegs);
+    }
+    if (p.recurringLegs.length != 0 || p.totalPayments > 1 || p.initialLegs.length == 0) {
+      _assertLegs(p.recurringLegs);
+    }
+  }
+
+  function _sumLegs(Leg[] calldata legs) private pure returns (uint256 sum) {
+    for (uint256 i = 0; i < legs.length; ++i) {
+      sum += legs[i].amount;
+    }
+  }
+
+  function _settleLegs(
+    IERC20FeeProxy proxy,
+    address token,
+    Leg[] calldata legs
+  ) private {
+    for (uint256 i = 0; i < legs.length; ++i) {
+      proxy.transferFromWithReferenceAndFee(
+        token,
+        legs[i].recipient,
+        legs[i].amount,
+        abi.encodePacked(legs[i].paymentReference),
+        0,
+        address(0)
+      );
     }
   }
 
@@ -306,7 +362,6 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     if (block.timestamp > p.deadline) revert ERC20RecurringPaymentProxy__SignatureExpired();
 
     if (index == 0) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
-    if (index >= 256) revert ERC20RecurringPaymentProxy__IndexTooLarge();
     if (index > p.totalPayments) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
 
     bytes32 scheduleKey = _scheduleKeyFromPermit(p);
@@ -322,10 +377,64 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
 
     IERC20 token = IERC20(p.token);
     _pullExact(token, p.subscriber, total);
-    _approveFeeProxy(token, p.amount + p.feeAmount);
+    _approveFeeProxy(token, erc20FeeProxy, p.amount + p.feeAmount);
     _proxyTransfer(p, paymentReference);
     _payRelayer(token, p.relayerFee);
     _markPaid(scheduleKey, index, p.strictOrder);
+  }
+
+  function triggerRecurringPaymentBatch(
+    SchedulePermitBatch calldata p,
+    bytes calldata signature,
+    uint8 index
+  ) external whenNotPaused onlyRole(RELAYER_ROLE) nonReentrant {
+    if (p.token == address(0) || p.subscriber == address(0)) {
+      revert ERC20RecurringPaymentProxy__ZeroAddress();
+    }
+
+    bytes32 digest = _hashScheduleBatch(p);
+
+    _assertSigner(p.subscriber, digest, signature);
+    if (block.timestamp > p.deadline) revert ERC20RecurringPaymentProxy__SignatureExpired();
+
+    if (index == 0) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
+    if (p.totalPayments == 0 || index > p.totalPayments) {
+      revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
+    }
+    if (p.dueTimes.length != p.totalPayments) {
+      revert ERC20RecurringPaymentProxy__InvalidDueTimes();
+    }
+    for (uint256 i = 1; i < p.dueTimes.length; ++i) {
+      if (p.dueTimes[i] <= p.dueTimes[i - 1]) {
+        revert ERC20RecurringPaymentProxy__InvalidDueTimes();
+      }
+    }
+    if (block.timestamp < p.dueTimes[index - 1]) {
+      revert ERC20RecurringPaymentProxy__NotDueYet();
+    }
+
+    _assertScheduleLegs(p);
+
+    bytes32 scheduleKey = _scheduleKeyFromBatch(p);
+    _assertOrder(scheduleKey, index, p.strictOrder);
+    _assertUnpaid(scheduleKey, index);
+
+    bool useInitial = p.initialLegs.length != 0 && index == 1;
+    uint256 legsSum = _sumLegs(useInitial ? p.initialLegs : p.recurringLegs);
+    uint256 payerTotal = legsSum + p.relayerFee;
+
+    _markPaid(scheduleKey, index, p.strictOrder);
+
+    IERC20 token = IERC20(p.token);
+    IERC20FeeProxy proxy = erc20FeeProxy;
+    _pullExact(token, p.subscriber, payerTotal);
+    _approveFeeProxy(token, proxy, legsSum);
+    if (useInitial) {
+      _settleLegs(proxy, p.token, p.initialLegs);
+    } else {
+      _settleLegs(proxy, p.token, p.recurringLegs);
+    }
+    _payRelayer(token, p.relayerFee);
   }
 
   function setRelayer(address oldRelayer, address newRelayer) external onlyOwner {

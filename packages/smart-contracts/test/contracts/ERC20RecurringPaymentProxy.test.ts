@@ -526,18 +526,6 @@ describe('ERC20RecurringPaymentProxy', () => {
       ).to.be.reverted;
     });
 
-    it('should revert when index is too large (>= 256)', async () => {
-      const permit = createSchedulePermit();
-      const signature = await createSignature(permit, subscriber);
-      const paymentReference = '0x1234567890abcdef';
-
-      await expect(
-        erc20RecurringPaymentProxy
-          .connect(relayer)
-          .triggerRecurringPayment(permit, signature, 256, paymentReference),
-      ).to.be.reverted;
-    });
-
     it('should revert when execution is out of order', async () => {
       const permit = createSchedulePermit({ strictOrder: true, periodSeconds: 1 });
       const signature = await createSignature(permit, subscriber);
@@ -874,6 +862,17 @@ describe('ERC20RecurringPaymentProxy', () => {
       ).to.be.revertedWith('ERC20RecurringPaymentProxy__IndexOutOfBounds');
     });
 
+    it('rejects index 256 before the call is encoded', async () => {
+      const permit = createSchedulePermit();
+      const signature = await createSignature(permit, subscriber);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPayment(permit, signature, 256, paymentReference),
+      ).to.be.reverted;
+    });
+
     it('keeps the batch schedule key stable across nonce and deadline re-sign', async () => {
       const permit = {
         subscriber: subscriberAddress,
@@ -925,7 +924,7 @@ describe('ERC20RecurringPaymentProxy', () => {
             {
               recipient: recipientAddress,
               amount: 1,
-              paymentReference: ethers.utils.hexZeroPad('0x01', 32),
+              paymentReference: ethers.utils.hexZeroPad('0x01', 8),
             },
           ],
         }),
@@ -1047,6 +1046,345 @@ describe('ERC20RecurringPaymentProxy', () => {
           .connect(relayer)
           .triggerRecurringPayment(schedulePermit, signature, 1, paymentReference),
       ).to.be.revertedWith('Pausable: paused');
+    });
+  });
+
+  describe('triggerRecurringPaymentBatch', () => {
+    const ref = (n: number) => ethers.utils.hexZeroPad(ethers.utils.hexlify(n), 8);
+    const t0 = Math.floor(Date.UTC(2026, 8, 1) / 1000);
+    const oct1 = Math.floor(Date.UTC(2026, 9, 1) / 1000);
+
+    const workedExample = (tokenAddress: string) => ({
+      subscriber: subscriberAddress,
+      token: tokenAddress,
+      relayerFee: 1_000_000,
+      totalPayments: 4,
+      nonce: 0,
+      deadline: Math.floor(Date.UTC(2027, 0, 1) / 1000),
+      strictOrder: false,
+      scheduleId: '0x0101010101010101010101010101010101010101010101010101010101010101',
+      dueTimes: [
+        t0,
+        oct1,
+        Math.floor(Date.UTC(2026, 10, 1) / 1000),
+        Math.floor(Date.UTC(2026, 11, 1) / 1000),
+      ],
+      initialLegs: [
+        { recipient: recipientAddress, amount: 30_000_000, paymentReference: ref(0x0a) },
+        { recipient: feeAddressString, amount: 3_000_000, paymentReference: ref(0x0b) },
+      ],
+      recurringLegs: [
+        { recipient: recipientAddress, amount: 99_000_000, paymentReference: ref(0x0c) },
+        { recipient: feeAddressString, amount: 5_000_000, paymentReference: ref(0x0d) },
+        { recipient: userAddress, amount: 4_000_000, paymentReference: ref(0x0e) },
+        { recipient: newRelayerAddress, amount: 2_000_000, paymentReference: ref(0x0f) },
+      ],
+    });
+
+    const warpTo = async (timestamp: number) => {
+      await ethers.provider.send('evm_setNextBlockTimestamp', [timestamp]);
+      await ethers.provider.send('evm_mine', []);
+    };
+
+    it('settles the worked-example initial and first recurring cycles atomically', async () => {
+      const TestERC20Factory = await ethers.getContractFactory('TestERC20');
+      const token = await TestERC20Factory.deploy(200_000_000);
+      await token.deployed();
+      await token.transfer(subscriberAddress, 160_000_000);
+      await token.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 160_000_000);
+
+      const permit = workedExample(token.address);
+      const signature = await createBatchSignature(permit, subscriber);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+
+      await warpTo(t0);
+      const subscriberBefore = await token.balanceOf(subscriberAddress);
+      const relayerBefore = await token.balanceOf(relayerAddress);
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(permit, signature, 1),
+      )
+        .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+        .withArgs(
+          token.address,
+          recipientAddress,
+          30_000_000,
+          ethers.utils.keccak256(ref(0x0a)),
+          0,
+          ethers.constants.AddressZero,
+        )
+        .and.to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+        .withArgs(
+          token.address,
+          feeAddressString,
+          3_000_000,
+          ethers.utils.keccak256(ref(0x0b)),
+          0,
+          ethers.constants.AddressZero,
+        );
+
+      expect(await token.balanceOf(subscriberAddress)).to.equal(subscriberBefore.sub(34_000_000));
+      expect(await token.balanceOf(recipientAddress)).to.equal(30_000_000);
+      expect(await token.balanceOf(feeAddressString)).to.equal(3_000_000);
+      expect(await token.balanceOf(relayerAddress)).to.equal(relayerBefore.add(1_000_000));
+      expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(scheduleKey)).to.equal(2);
+
+      await warpTo(oct1);
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(permit, signature, 2),
+      )
+        .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+        .withArgs(
+          token.address,
+          recipientAddress,
+          99_000_000,
+          ethers.utils.keccak256(ref(0x0c)),
+          0,
+          ethers.constants.AddressZero,
+        );
+
+      expect(await token.balanceOf(subscriberAddress)).to.equal(
+        subscriberBefore.sub(34_000_000 + 111_000_000),
+      );
+      expect(await token.balanceOf(recipientAddress)).to.equal(129_000_000);
+    });
+
+    it('still collects a pre-existing single-fee permit on the same instance', async () => {
+      await testERC20.transfer(subscriberAddress, 500);
+      await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+
+      const now = (await ethers.provider.getBlock('latest')).timestamp;
+      const permit = createSchedulePermit({ firstPayment: now, deadline: now + 86400 });
+      const signature = await createSignature(permit, subscriber);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPayment(permit, signature, 1, '0x1234567890abcdef'),
+      ).to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee');
+    });
+
+    it('reverts a zero token without moving balances', async () => {
+      await testERC20.transfer(subscriberAddress, 500);
+      await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+
+      const permit = workedExample(ethers.constants.AddressZero);
+      const signature = await createBatchSignature(permit, subscriber);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+      const subscriberBefore = await testERC20.balanceOf(subscriberAddress);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(permit, signature, 1),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__ZeroAddress');
+      expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(scheduleKey)).to.equal(0);
+      expect(await testERC20.balanceOf(subscriberAddress)).to.equal(subscriberBefore);
+    });
+
+    it('reverts when index is greater than totalPayments', async () => {
+      const permit = workedExample(testERC20.address);
+      const signature = await createBatchSignature(permit, subscriber);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(permit, signature, permit.totalPayments + 1),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__IndexOutOfBounds');
+    });
+
+    it('reverts when dueTimes are not strictly increasing', async () => {
+      const permit = workedExample(testERC20.address);
+      const decreasing = {
+        ...permit,
+        dueTimes: [permit.dueTimes[1], permit.dueTimes[0], permit.dueTimes[2], permit.dueTimes[3]],
+      };
+      const equal = {
+        ...permit,
+        dueTimes: [permit.dueTimes[0], permit.dueTimes[0], permit.dueTimes[2], permit.dueTimes[3]],
+      };
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(
+            decreasing,
+            await createBatchSignature(decreasing, subscriber),
+            1,
+          ),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__InvalidDueTimes');
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(equal, await createBatchSignature(equal, subscriber), 1),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__InvalidDueTimes');
+    });
+
+    it('rejects index 256 before the call is encoded', async () => {
+      const permit = workedExample(testERC20.address);
+      const signature = await createBatchSignature(permit, subscriber);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(permit, signature, 256),
+      ).to.be.reverted;
+    });
+
+    it('reverts a zero subscriber without moving balances', async () => {
+      await testERC20.transfer(subscriberAddress, 500);
+      await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+
+      const permit = {
+        ...workedExample(testERC20.address),
+        subscriber: ethers.constants.AddressZero,
+      };
+      const signature = await createBatchSignature(permit, subscriber);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+      const subscriberBefore = await testERC20.balanceOf(subscriberAddress);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(permit, signature, 1),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__ZeroAddress');
+      expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(scheduleKey)).to.equal(0);
+      expect(await testERC20.balanceOf(subscriberAddress)).to.equal(subscriberBefore);
+    });
+
+    const failingLegPermit = (
+      tokenAddress: string,
+      first: string,
+      middle: string,
+      last: string,
+    ) => ({
+      subscriber: subscriberAddress,
+      token: tokenAddress,
+      relayerFee: 0,
+      totalPayments: 1,
+      nonce: 0,
+      deadline: Math.floor(Date.now() / 1000) + 86400,
+      strictOrder: false,
+      scheduleId: '0x0202020202020202020202020202020202020202020202020202020202020202',
+      dueTimes: [Math.floor(Date.now() / 1000) - 1],
+      initialLegs: [],
+      recurringLegs: [
+        { recipient: first, amount: 10, paymentReference: ref(0x11) },
+        { recipient: middle, amount: 10, paymentReference: ref(0x12) },
+        { recipient: last, amount: 10, paymentReference: ref(0x13) },
+      ],
+    });
+
+    const expectFailedLegUnchanged = async (
+      blockedRecipient: string,
+      first: string,
+      middle: string,
+      last: string,
+    ) => {
+      const BlockFactory = await ethers.getContractFactory('ERC20BlockRecipient');
+      const token = await BlockFactory.deploy(1000);
+      await token.deployed();
+      await token.setBlocked(blockedRecipient);
+      await token.transfer(subscriberAddress, 500);
+      await token.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+
+      const permit = failingLegPermit(token.address, first, middle, last);
+      const signature = await createBatchSignature(permit, subscriber);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+      const subscriberBefore = await token.balanceOf(subscriberAddress);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(permit, signature, 1),
+      ).to.be.reverted;
+      expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(scheduleKey)).to.equal(0);
+      expect(await token.balanceOf(subscriberAddress)).to.equal(subscriberBefore);
+      expect(await token.balanceOf(first)).to.equal(0);
+      expect(await token.balanceOf(middle)).to.equal(0);
+      expect(await token.balanceOf(last)).to.equal(0);
+    };
+
+    it('reverts a failing first leg with balances and bitmap unchanged', async () => {
+      await expectFailedLegUnchanged(
+        recipientAddress,
+        recipientAddress,
+        userAddress,
+        feeAddressString,
+      );
+    });
+
+    it('reverts a failing middle leg with balances and bitmap unchanged', async () => {
+      await expectFailedLegUnchanged(userAddress, recipientAddress, userAddress, feeAddressString);
+    });
+
+    it('reverts a failing last leg with balances and bitmap unchanged', async () => {
+      await expectFailedLegUnchanged(
+        feeAddressString,
+        recipientAddress,
+        userAddress,
+        feeAddressString,
+      );
+    });
+
+    it('reverts a zero-amount leg without emitting a fee-proxy transfer', async () => {
+      const now = (await ethers.provider.getBlock('latest')).timestamp;
+      const permit = {
+        ...workedExample(testERC20.address),
+        deadline: now + 86400,
+        dueTimes: [now - 1, now + 86400, now + 2 * 86400, now + 3 * 86400],
+        initialLegs: [
+          { recipient: recipientAddress, amount: 30_000_000, paymentReference: ref(0x0a) },
+          { recipient: feeAddressString, amount: 0, paymentReference: ref(0x0b) },
+        ],
+      };
+      const signature = await createBatchSignature(permit, subscriber);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+      const subscriberBefore = await testERC20.balanceOf(subscriberAddress);
+      const recipientBefore = await testERC20.balanceOf(recipientAddress);
+      const feeBefore = await testERC20.balanceOf(feeAddressString);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(permit, signature, 1),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__ZeroAmount');
+
+      expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(scheduleKey)).to.equal(0);
+      expect(await testERC20.balanceOf(subscriberAddress)).to.equal(subscriberBefore);
+      expect(await testERC20.balanceOf(recipientAddress)).to.equal(recipientBefore);
+      expect(await testERC20.balanceOf(feeAddressString)).to.equal(feeBefore);
+    });
+
+    it('reverts index 1 when recurring legs are invalid even if initial legs are valid', async () => {
+      const now = (await ethers.provider.getBlock('latest')).timestamp;
+      const permit = {
+        ...workedExample(testERC20.address),
+        deadline: now + 86400,
+        dueTimes: [now - 1, now + 86400, now + 2 * 86400, now + 3 * 86400],
+        initialLegs: [
+          { recipient: recipientAddress, amount: 30_000_000, paymentReference: ref(0x0a) },
+          { recipient: feeAddressString, amount: 3_000_000, paymentReference: ref(0x0b) },
+        ],
+        recurringLegs: [{ recipient: recipientAddress, amount: 0, paymentReference: ref(0x0c) }],
+      };
+      const signature = await createBatchSignature(permit, subscriber);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+      const subscriberBefore = await testERC20.balanceOf(subscriberAddress);
+      const recipientBefore = await testERC20.balanceOf(recipientAddress);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(permit, signature, 1),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__ZeroAmount');
+
+      expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(scheduleKey)).to.equal(0);
+      expect(await testERC20.balanceOf(subscriberAddress)).to.equal(subscriberBefore);
+      expect(await testERC20.balanceOf(recipientAddress)).to.equal(recipientBefore);
     });
   });
 

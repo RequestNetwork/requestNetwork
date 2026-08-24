@@ -60,3 +60,26 @@ contract ERC20FailTransfer is ERC20 {
     return false;
   }
 }
+
+/**
+ * @notice ERC-20 that reverts transfers to a chosen recipient so a batch leg can fail.
+ */
+contract ERC20BlockRecipient is ERC20 {
+  address public blocked;
+
+  constructor(uint256 initialSupply) ERC20('Block Recipient', 'BLK') {
+    _mint(msg.sender, initialSupply);
+  }
+
+  function setBlocked(address account) external {
+    blocked = account;
+  }
+
+  function _beforeTokenTransfer(
+    address,
+    address to,
+    uint256
+  ) internal view override {
+    require(to != blocked, 'ERC20BlockRecipient: blocked');
+  }
+}
