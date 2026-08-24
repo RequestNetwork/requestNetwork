@@ -207,7 +207,9 @@ describe('ERC20RecurringPaymentProxy', () => {
       const newERC20FeeProxy = await (await ethers.getContractFactory('ERC20FeeProxy')).deploy();
       await newERC20FeeProxy.deployed();
 
-      await erc20RecurringPaymentProxy.setFeeProxy(newERC20FeeProxy.address);
+      await expect(erc20RecurringPaymentProxy.setFeeProxy(newERC20FeeProxy.address))
+        .to.emit(erc20RecurringPaymentProxy, 'FeeProxyUpdated')
+        .withArgs(erc20FeeProxy.address, newERC20FeeProxy.address);
       expect(await erc20RecurringPaymentProxy.erc20FeeProxy()).to.equal(newERC20FeeProxy.address);
     });
 
@@ -488,7 +490,9 @@ describe('ERC20RecurringPaymentProxy', () => {
           ethers.utils.keccak256(ref(0x0b)),
           0,
           ethers.constants.AddressZero,
-        );
+        )
+        .and.to.emit(erc20RecurringPaymentProxy, 'PaymentTriggered')
+        .withArgs(scheduleKey, subscriberAddress, token.address, 1, 34_000_000);
 
       expect(await token.balanceOf(subscriberAddress)).to.equal(subscriberBefore.sub(34_000_000));
       expect(await token.balanceOf(recipientAddress)).to.equal(30_000_000);
@@ -964,7 +968,10 @@ describe('ERC20RecurringPaymentProxy', () => {
 
       const permit = await simpleBatch();
       const signature = await createBatchSignature(permit, subscriber);
-      await erc20RecurringPaymentProxy.connect(subscriber).cancelScheduleBatch(permit);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+      await expect(erc20RecurringPaymentProxy.connect(subscriber).cancelScheduleBatch(permit))
+        .to.emit(erc20RecurringPaymentProxy, 'ScheduleCancelled')
+        .withArgs(scheduleKey, subscriberAddress);
 
       await expect(
         erc20RecurringPaymentProxy
@@ -1026,7 +1033,9 @@ describe('ERC20RecurringPaymentProxy', () => {
       const signature = await createBatchSignature(permit, subscriber);
       const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
 
-      await erc20RecurringPaymentProxy.connect(relayer).admitCycles(scheduleKey, bit(3));
+      await expect(erc20RecurringPaymentProxy.connect(relayer).admitCycles(scheduleKey, bit(3)))
+        .to.emit(erc20RecurringPaymentProxy, 'CyclesAdmitted')
+        .withArgs(scheduleKey, bit(3));
 
       await expect(
         erc20RecurringPaymentProxy
@@ -1141,7 +1150,9 @@ describe('ERC20RecurringPaymentProxy', () => {
       const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
 
       await erc20RecurringPaymentProxy.connect(relayer).admitCycles(scheduleKey, bit(3));
-      await erc20RecurringPaymentProxy.connect(relayer).revokeCycles(scheduleKey, bit(3));
+      await expect(erc20RecurringPaymentProxy.connect(relayer).revokeCycles(scheduleKey, bit(3)))
+        .to.emit(erc20RecurringPaymentProxy, 'CyclesRevoked')
+        .withArgs(scheduleKey, bit(3));
 
       await expect(
         erc20RecurringPaymentProxy

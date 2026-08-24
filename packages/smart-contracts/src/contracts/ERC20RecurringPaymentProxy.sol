@@ -58,6 +58,18 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   mapping(bytes32 => bool) public cancelledSchedules;
   mapping(bytes32 => uint256) public admittedCycles;
 
+  event PaymentTriggered(
+    bytes32 indexed scheduleKey,
+    address indexed subscriber,
+    address token,
+    uint8 index,
+    uint256 payerTotal
+  );
+  event ScheduleCancelled(bytes32 indexed scheduleKey, address indexed subscriber);
+  event CyclesAdmitted(bytes32 indexed scheduleKey, uint256 mask);
+  event CyclesRevoked(bytes32 indexed scheduleKey, uint256 mask);
+  event FeeProxyUpdated(address indexed oldProxy, address indexed newProxy);
+
   IERC20FeeProxy public erc20FeeProxy;
 
   struct Leg {
@@ -199,6 +211,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
 
   function admitCycles(bytes32 scheduleKey, uint256 mask) external onlyRole(RELAYER_ROLE) {
     admittedCycles[scheduleKey] |= mask;
+    emit CyclesAdmitted(scheduleKey, mask);
   }
 
   /**
@@ -207,6 +220,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
    */
   function revokeCycles(bytes32 scheduleKey, uint256 mask) external onlyRole(RELAYER_ROLE) {
     admittedCycles[scheduleKey] &= ~mask;
+    emit CyclesRevoked(scheduleKey, mask);
   }
 
   function _assertUnpaid(bytes32 scheduleKey, uint8 index) private view {
@@ -383,6 +397,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     if (token.balanceOf(address(this)) != baseline) {
       revert ERC20RecurringPaymentProxy__UnexpectedBalance();
     }
+    emit PaymentTriggered(scheduleKey, p.subscriber, p.token, index, payerTotal);
   }
 
   /**
@@ -393,7 +408,9 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
    */
   function cancelScheduleBatch(SchedulePermitBatch calldata p) external {
     _assertSubscriber(p.subscriber);
-    _cancel(_scheduleKeyFromBatch(p));
+    bytes32 scheduleKey = _scheduleKeyFromBatch(p);
+    _cancel(scheduleKey);
+    emit ScheduleCancelled(scheduleKey, p.subscriber);
   }
 
   function setRelayer(address oldRelayer, address newRelayer) external onlyOwner {
@@ -404,7 +421,9 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
 
   function setFeeProxy(address newProxy) external onlyOwner {
     if (newProxy == address(0)) revert ERC20RecurringPaymentProxy__ZeroAddress();
+    address oldProxy = address(erc20FeeProxy);
     erc20FeeProxy = IERC20FeeProxy(newProxy);
+    emit FeeProxyUpdated(oldProxy, newProxy);
   }
 
   function pause() external onlyOwner {
