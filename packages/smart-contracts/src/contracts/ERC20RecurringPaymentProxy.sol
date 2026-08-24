@@ -33,6 +33,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   error ERC20RecurringPaymentProxy__ZeroAmount();
   error ERC20RecurringPaymentProxy__NotSubscriber();
   error ERC20RecurringPaymentProxy__Cancelled();
+  error ERC20RecurringPaymentProxy__NotAdmitted();
 
   uint8 public constant MAX_LEGS = 8;
 
@@ -63,6 +64,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   mapping(bytes32 => uint256) public triggeredPaymentsBitmap;
   mapping(bytes32 => uint8) public lastPaymentIndex;
   mapping(bytes32 => bool) public cancelledSchedules;
+  mapping(bytes32 => uint256) public admittedCycles;
 
   IERC20FeeProxy public erc20FeeProxy;
 
@@ -238,6 +240,32 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     cancelledSchedules[scheduleKey] = true;
   }
 
+  function _assertRelayerOrAdmitted(
+    address subscriber,
+    bytes32 scheduleKey,
+    uint8 index
+  ) private view {
+    if (hasRole(RELAYER_ROLE, msg.sender)) {
+      return;
+    }
+    if (msg.sender != subscriber) revert ERC20RecurringPaymentProxy__NotSubscriber();
+    if (admittedCycles[scheduleKey] & (1 << index) == 0) {
+      revert ERC20RecurringPaymentProxy__NotAdmitted();
+    }
+  }
+
+  function admitCycles(bytes32 scheduleKey, uint256 mask) external onlyRole(RELAYER_ROLE) {
+    admittedCycles[scheduleKey] |= mask;
+  }
+
+  /**
+   * @notice Clears bits so a previously admitted cycle can no longer be self-triggered.
+   * Relayer-initiated triggers are unaffected.
+   */
+  function revokeCycles(bytes32 scheduleKey, uint256 mask) external onlyRole(RELAYER_ROLE) {
+    admittedCycles[scheduleKey] &= ~mask;
+  }
+
   function _assertUnpaid(bytes32 scheduleKey, uint8 index) private view {
     if (triggeredPaymentsBitmap[scheduleKey] & (1 << index) != 0) {
       revert ERC20RecurringPaymentProxy__AlreadyPaid();
@@ -403,17 +431,20 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     SchedulePermitBatch calldata p,
     bytes calldata signature,
     uint8 index
-  ) external whenNotPaused onlyRole(RELAYER_ROLE) nonReentrant {
+  ) external whenNotPaused nonReentrant {
     if (p.token == address(0) || p.subscriber == address(0)) {
       revert ERC20RecurringPaymentProxy__ZeroAddress();
     }
+    if (index == 0) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
+
+    bytes32 scheduleKey = _scheduleKeyFromBatch(p);
+    _assertRelayerOrAdmitted(p.subscriber, scheduleKey, index);
 
     bytes32 digest = _hashScheduleBatch(p);
 
     _assertSigner(p.subscriber, digest, signature);
     if (block.timestamp > p.deadline) revert ERC20RecurringPaymentProxy__SignatureExpired();
 
-    if (index == 0) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
     if (p.totalPayments == 0 || index > p.totalPayments) {
       revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
     }
@@ -431,7 +462,6 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
 
     _assertScheduleLegs(p);
 
-    bytes32 scheduleKey = _scheduleKeyFromBatch(p);
     _assertNotCancelled(scheduleKey);
     _assertOrder(scheduleKey, index, p.strictOrder);
     _assertUnpaid(scheduleKey, index);

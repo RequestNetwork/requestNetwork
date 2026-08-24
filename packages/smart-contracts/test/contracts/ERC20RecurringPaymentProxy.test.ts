@@ -1483,6 +1483,216 @@ describe('ERC20RecurringPaymentProxy', () => {
     });
   });
 
+  describe('admitCycles', () => {
+    const ref = (n: number) => ethers.utils.hexZeroPad(ethers.utils.hexlify(n), 32);
+    const latestTs = async () => (await ethers.provider.getBlock('latest')).timestamp;
+    const bit = (index: number) => ethers.BigNumber.from(1).shl(index);
+
+    const batchPermit = async (overrides: Record<string, unknown> = {}) => {
+      const now = await latestTs();
+      return {
+        subscriber: subscriberAddress,
+        token: testERC20.address,
+        relayerFee: 0,
+        totalPayments: 4,
+        nonce: 0,
+        deadline: now + 86400,
+        strictOrder: false,
+        scheduleId: '0x0404040404040404040404040404040404040404040404040404040404040404',
+        dueTimes: [now - 3, now - 2, now - 1, now],
+        initialLegs: [],
+        recurringLegs: [{ recipient: recipientAddress, amount: 10, paymentReference: ref(0x31) }],
+        ...overrides,
+      };
+    };
+
+    const fundSubscriber = async () => {
+      await testERC20.transfer(subscriberAddress, 500);
+      await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+    };
+
+    it('rejects a subscriber-initiated call when the cycle was never admitted', async () => {
+      await fundSubscriber();
+      const permit = await batchPermit();
+      const signature = await createBatchSignature(permit, subscriber);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(subscriber)
+          .triggerRecurringPaymentBatch(permit, signature, 1),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__NotAdmitted');
+    });
+
+    it('does not let admitting index 3 admit index 4', async () => {
+      await fundSubscriber();
+      const permit = await batchPermit();
+      const signature = await createBatchSignature(permit, subscriber);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+
+      await erc20RecurringPaymentProxy.connect(relayer).admitCycles(scheduleKey, bit(3));
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(subscriber)
+          .triggerRecurringPaymentBatch(permit, signature, 4),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__NotAdmitted');
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(subscriber)
+          .triggerRecurringPaymentBatch(permit, signature, 3),
+      ).to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee');
+    });
+
+    it('lets the relayer trigger a cycle that was never admitted', async () => {
+      await fundSubscriber();
+      const permit = await batchPermit();
+      const signature = await createBatchSignature(permit, subscriber);
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(permit, signature, 1),
+      ).to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee');
+    });
+
+    it("reverts when a subscriber tries to trigger another subscriber's admitted schedule", async () => {
+      await fundSubscriber();
+      const permit = await batchPermit();
+      const signature = await createBatchSignature(permit, subscriber);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+      await erc20RecurringPaymentProxy.connect(relayer).admitCycles(scheduleKey, bit(1));
+
+      await expect(
+        erc20RecurringPaymentProxy.connect(user).triggerRecurringPaymentBatch(permit, signature, 1),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__NotSubscriber');
+    });
+
+    it('still enforces NotDueYet on the self-trigger path', async () => {
+      await fundSubscriber();
+      const now = await latestTs();
+      const permit = await batchPermit({
+        dueTimes: [now + 3600, now + 7200, now + 10800, now + 14400],
+      });
+      const signature = await createBatchSignature(permit, subscriber);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+      await erc20RecurringPaymentProxy.connect(relayer).admitCycles(scheduleKey, bit(1));
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(subscriber)
+          .triggerRecurringPaymentBatch(permit, signature, 1),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__NotDueYet');
+    });
+
+    it('still enforces pause on the self-trigger path', async () => {
+      await fundSubscriber();
+      const permit = await batchPermit();
+      const signature = await createBatchSignature(permit, subscriber);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+      await erc20RecurringPaymentProxy.connect(relayer).admitCycles(scheduleKey, bit(1));
+      await erc20RecurringPaymentProxy.pause();
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(subscriber)
+          .triggerRecurringPaymentBatch(permit, signature, 1),
+      ).to.be.revertedWith('Pausable: paused');
+    });
+
+    it('keeps the single-fee entry point relayer-only', async () => {
+      const now = await latestTs();
+      const permit = createSchedulePermit({ firstPayment: now, deadline: now + 86400 });
+      const signature = await createSignature(permit, subscriber);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromPermit(permit);
+      await erc20RecurringPaymentProxy.connect(relayer).admitCycles(scheduleKey, bit(1));
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(subscriber)
+          .triggerRecurringPayment(permit, signature, 1, '0x1234567890abcdef'),
+      ).to.be.revertedWith('AccessControl: account');
+    });
+
+    it('reverts when a non-relayer tries to admit cycles', async () => {
+      const permit = await batchPermit();
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+      await expect(
+        erc20RecurringPaymentProxy.connect(subscriber).admitCycles(scheduleKey, bit(1)),
+      ).to.be.revertedWith('AccessControl: account');
+    });
+  });
+
+  describe('revokeCycles', () => {
+    const ref = (n: number) => ethers.utils.hexZeroPad(ethers.utils.hexlify(n), 32);
+    const latestTs = async () => (await ethers.provider.getBlock('latest')).timestamp;
+    const bit = (index: number) => ethers.BigNumber.from(1).shl(index);
+
+    const batchPermit = async (overrides: Record<string, unknown> = {}) => {
+      const now = await latestTs();
+      return {
+        subscriber: subscriberAddress,
+        token: testERC20.address,
+        relayerFee: 0,
+        totalPayments: 4,
+        nonce: 0,
+        deadline: now + 86400,
+        strictOrder: false,
+        scheduleId: '0x0505050505050505050505050505050505050505050505050505050505050505',
+        dueTimes: [now - 3, now - 2, now - 1, now],
+        initialLegs: [],
+        recurringLegs: [{ recipient: recipientAddress, amount: 10, paymentReference: ref(0x32) }],
+        ...overrides,
+      };
+    };
+
+    const fundSubscriber = async () => {
+      await testERC20.transfer(subscriberAddress, 500);
+      await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+    };
+
+    it('blocks a subscriber self-trigger after the admitted bit is revoked', async () => {
+      await fundSubscriber();
+      const permit = await batchPermit();
+      const signature = await createBatchSignature(permit, subscriber);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+
+      await erc20RecurringPaymentProxy.connect(relayer).admitCycles(scheduleKey, bit(3));
+      await erc20RecurringPaymentProxy.connect(relayer).revokeCycles(scheduleKey, bit(3));
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(subscriber)
+          .triggerRecurringPaymentBatch(permit, signature, 3),
+      ).to.be.revertedWith('ERC20RecurringPaymentProxy__NotAdmitted');
+    });
+
+    it('lets the relayer trigger a cycle after its admitted bit is revoked', async () => {
+      await fundSubscriber();
+      const permit = await batchPermit();
+      const signature = await createBatchSignature(permit, subscriber);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+
+      await erc20RecurringPaymentProxy.connect(relayer).admitCycles(scheduleKey, bit(3));
+      await erc20RecurringPaymentProxy.connect(relayer).revokeCycles(scheduleKey, bit(3));
+
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(permit, signature, 3),
+      ).to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee');
+    });
+
+    it('reverts when a non-relayer tries to revoke cycles', async () => {
+      const permit = await batchPermit();
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+      await erc20RecurringPaymentProxy.connect(relayer).admitCycles(scheduleKey, bit(1));
+      await expect(
+        erc20RecurringPaymentProxy.connect(subscriber).revokeCycles(scheduleKey, bit(1)),
+      ).to.be.revertedWith('AccessControl: account');
+    });
+  });
+
   describe('EIP-712 digest parity', () => {
     const ref = (n: number) => ethers.utils.hexZeroPad(ethers.utils.hexlify(n), 8);
 
