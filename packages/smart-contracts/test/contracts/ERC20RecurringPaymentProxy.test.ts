@@ -35,6 +35,7 @@ const expectCustomError = async (call: Promise<unknown>, errorName: string): Pro
 };
 
 describe('ERC20RecurringPaymentProxy', () => {
+  let chainSnapshot: unknown;
   let erc20RecurringPaymentProxy: Contract;
   let erc20FeeProxy: ERC20FeeProxy;
   let testERC20: TestERC20;
@@ -56,6 +57,16 @@ describe('ERC20RecurringPaymentProxy', () => {
   let subscriberAddress: string;
   let recipientAddress: string;
   let feeAddressString: string;
+
+  // warpTo advances the shared Hardhat/Ganache clock. Snapshot/revert so later
+  // files (SwapToPay, SwapToConversion) still see a current block.timestamp.
+  before(async () => {
+    chainSnapshot = await ethers.provider.send('evm_snapshot', []);
+  });
+
+  after(async () => {
+    await ethers.provider.send('evm_revert', [chainSnapshot]);
+  });
 
   beforeEach(async () => {
     [owner, relayer, user, newRelayer, newOwner, subscriber, recipient, feeAddress] =
