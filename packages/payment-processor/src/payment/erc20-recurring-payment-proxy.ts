@@ -5,6 +5,17 @@ import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getErc20Allowance } from './erc20';
 
 const RECURRING_PROXY_V2 = '0.2.0';
+const EIP712_DOMAIN_NAME = 'ERC20RecurringPaymentProxy';
+const EIP712_DOMAIN_VERSION = '1';
+
+function getSchedulePermitBatchDomain(chainId: number, verifyingContract: string) {
+  return {
+    name: EIP712_DOMAIN_NAME,
+    version: EIP712_DOMAIN_VERSION,
+    chainId,
+    verifyingContract,
+  };
+}
 
 function getRecurringPaymentProxyInterface(version: string): utils.Interface {
   return new utils.Interface(erc20RecurringPaymentProxyArtifact.getContractAbi(version));
@@ -243,21 +254,151 @@ export async function triggerRecurringPaymentBatch({
   signer: Signer;
   network: CurrencyTypes.EvmChainName;
 }): Promise<providers.TransactionResponse> {
-  const proxyAddress = getRecurringPaymentProxyAddress(network, RECURRING_PROXY_V2);
+  return sendToRecurringProxyV2(
+    signer,
+    network,
+    encodeRecurringPaymentTriggerBatch({
+      permitTuple,
+      permitSignature,
+      paymentIndex,
+    }),
+  );
+}
 
-  const data = encodeRecurringPaymentTriggerBatch({
+/**
+ * Encodes the 0.2.0 `cancelScheduleBatch` calldata.
+ * Does not require a deployed proxy address.
+ */
+export function encodeCancelScheduleBatch({
+  permitTuple,
+}: {
+  permitTuple: PaymentTypes.SchedulePermitBatch;
+}): string {
+  return getRecurringPaymentProxyInterface(RECURRING_PROXY_V2).encodeFunctionData(
+    'cancelScheduleBatch',
+    [permitTuple],
+  );
+}
+
+/**
+ * Cancels a 0.2.0 schedule. The signer must be the permit subscriber.
+ *
+ * @throws {Error} If the 0.2.0 proxy has no known deployment on the provided network
+ */
+export async function cancelScheduleBatch({
+  permitTuple,
+  signer,
+  network,
+}: {
+  permitTuple: PaymentTypes.SchedulePermitBatch;
+  signer: Signer;
+  network: CurrencyTypes.EvmChainName;
+}): Promise<providers.TransactionResponse> {
+  return sendToRecurringProxyV2(signer, network, encodeCancelScheduleBatch({ permitTuple }));
+}
+
+/**
+ * Off-chain EIP-712 digest of a 0.2.0 `SchedulePermitBatch`.
+ * Uses the same domain as the contract (`ERC20RecurringPaymentProxy` / `1`).
+ */
+export function hashScheduleBatch({
+  permitTuple,
+  network,
+  chainId,
+}: {
+  permitTuple: PaymentTypes.SchedulePermitBatch;
+  network: CurrencyTypes.EvmChainName;
+  chainId: number;
+}): string {
+  const verifyingContract = getRecurringPaymentProxyAddress(network, RECURRING_PROXY_V2);
+  return utils._TypedDataEncoder.hash(
+    getSchedulePermitBatchDomain(chainId, verifyingContract),
+    PaymentTypes.SCHEDULE_PERMIT_BATCH_EIP712_TYPES,
     permitTuple,
-    permitSignature,
-    paymentIndex,
-  });
+  );
+}
 
-  const tx = await signer.sendTransaction({
+/**
+ * On-chain `scheduleKeyFromBatch` for a 0.2.0 permit.
+ *
+ * @throws {Error} If the 0.2.0 proxy has no known deployment on the provided network
+ */
+export async function scheduleKeyFromBatch({
+  permitTuple,
+  provider,
+  network,
+}: {
+  permitTuple: PaymentTypes.SchedulePermitBatch;
+  provider: providers.Provider | Signer;
+  network: CurrencyTypes.EvmChainName;
+}): Promise<string> {
+  const proxyContract = connectRecurringPaymentProxy(network, provider, RECURRING_PROXY_V2);
+  return proxyContract.scheduleKeyFromBatch(permitTuple);
+}
+
+/**
+ * Signs a 0.2.0 `SchedulePermitBatch` with EIP-712 typed data.
+ */
+export async function signSchedulePermitBatch({
+  permitTuple,
+  signer,
+  network,
+}: {
+  permitTuple: PaymentTypes.SchedulePermitBatch;
+  signer: Signer;
+  network: CurrencyTypes.EvmChainName;
+}): Promise<string> {
+  const verifyingContract = getRecurringPaymentProxyAddress(network, RECURRING_PROXY_V2);
+  const chainId = await signer.getChainId();
+  const domain = getSchedulePermitBatchDomain(chainId, verifyingContract);
+  const types = PaymentTypes.SCHEDULE_PERMIT_BATCH_EIP712_TYPES;
+  const address = await signer.getAddress();
+
+  try {
+    if (!signer.provider) {
+      throw new Error('No provider');
+    }
+    return await (signer.provider as providers.JsonRpcProvider).send('eth_signTypedData', [
+      address,
+      {
+        types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+            { name: 'verifyingContract', type: 'address' },
+          ],
+          ...types,
+        },
+        primaryType: 'SchedulePermitBatch',
+        domain,
+        message: permitTuple,
+      },
+    ]);
+  } catch (_) {
+    return await (
+      signer as Signer & {
+        _signTypedData: (
+          typedDomain: ReturnType<typeof getSchedulePermitBatchDomain>,
+          typedTypes: typeof PaymentTypes.SCHEDULE_PERMIT_BATCH_EIP712_TYPES,
+          value: PaymentTypes.SchedulePermitBatch,
+        ) => Promise<string>;
+      }
+    )._signTypedData(domain, types, permitTuple);
+  }
+}
+
+async function sendToRecurringProxyV2(
+  signer: Signer,
+  network: CurrencyTypes.EvmChainName,
+  data: string,
+): Promise<providers.TransactionResponse> {
+  const proxyAddress = getRecurringPaymentProxyAddress(network, RECURRING_PROXY_V2);
+  return signer.sendTransaction({
     to: proxyAddress,
     data,
     value: 0,
   });
-
-  return tx;
 }
 
 /**
