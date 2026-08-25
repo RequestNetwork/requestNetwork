@@ -1,8 +1,24 @@
 import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
-import { providers, Signer, BigNumberish } from 'ethers';
+import { providers, Signer, BigNumberish, utils } from 'ethers';
 import { erc20RecurringPaymentProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getErc20Allowance } from './erc20';
+
+const RECURRING_PROXY_V2 = '0.2.0';
+
+function getRecurringPaymentProxyInterface(version: string): utils.Interface {
+  return new utils.Interface(erc20RecurringPaymentProxyArtifact.getContractAbi(version));
+}
+
+function connectRecurringPaymentProxy(
+  network: CurrencyTypes.EvmChainName,
+  provider: Signer | providers.Provider,
+  version?: string,
+) {
+  return version
+    ? erc20RecurringPaymentProxyArtifact.connect(network, provider, version)
+    : erc20RecurringPaymentProxyArtifact.connect(network, provider);
+}
 
 /**
  * Retrieves the current ERC-20 allowance that a subscriber (`payerAddress`) has
@@ -12,25 +28,28 @@ import { getErc20Allowance } from './erc20';
  * @param tokenAddress - Address of the ERC-20 token involved in the recurring payment schedule.
  * @param provider     - A Web3 provider or signer used to perform the on-chain call.
  * @param network      - The EVM chain name (e.g. `'mainnet'`, `'goerli'`, `'matic'`).
+ * @param version      - Artifact version. Defaults to the artifact last version (`0.1.0`).
  *
  * @returns A Promise that resolves to the allowance **as a decimal string** (same
  *          units as `token.decimals`). An empty allowance is returned as `"0"`.
  *
  * @throws {Error} If the `ERC20RecurringPaymentProxy` has no known deployment
- *                 on the provided `network`..
+ *                 on the provided `network`.
  */
 export async function getPayerRecurringPaymentAllowance({
   payerAddress,
   tokenAddress,
   provider,
   network,
+  version,
 }: {
   payerAddress: string;
   tokenAddress: string;
   provider: Signer | providers.Provider;
   network: CurrencyTypes.EvmChainName;
+  version?: string;
 }): Promise<string> {
-  const erc20RecurringPaymentProxy = erc20RecurringPaymentProxyArtifact.connect(network, provider);
+  const erc20RecurringPaymentProxy = connectRecurringPaymentProxy(network, provider, version);
 
   if (!erc20RecurringPaymentProxy.address) {
     throw new Error(`ERC20RecurringPaymentProxy not found on ${network}`);
@@ -53,6 +72,7 @@ export async function getPayerRecurringPaymentAllowance({
  * @param amount - The amount to approve, as a BigNumberish value
  * @param provider - Web3 provider or signer to interact with the blockchain
  * @param network - The EVM chain name where the proxy is deployed
+ * @param version - Artifact version. Defaults to the artifact last version (`0.1.0`).
  *
  * @returns Array of transaction objects ready to be sent to the blockchain
  *
@@ -63,13 +83,15 @@ export function encodeSetRecurringAllowance({
   amount,
   provider,
   network,
+  version,
 }: {
   tokenAddress: string;
   amount: BigNumberish;
   provider: providers.Provider | Signer;
   network: CurrencyTypes.EvmChainName;
+  version?: string;
 }): Array<{ to: string; data: string; value: number }> {
-  const erc20RecurringPaymentProxy = erc20RecurringPaymentProxyArtifact.connect(network, provider);
+  const erc20RecurringPaymentProxy = connectRecurringPaymentProxy(network, provider, version);
 
   if (!erc20RecurringPaymentProxy.address) {
     throw new Error(`ERC20RecurringPaymentProxy not found on ${network}`);
@@ -185,9 +207,64 @@ export async function triggerRecurringPayment({
 }
 
 /**
+ * Encodes the 0.2.0 `triggerRecurringPaymentBatch` calldata.
+ * Does not require a deployed proxy address.
+ */
+export function encodeRecurringPaymentTriggerBatch({
+  permitTuple,
+  permitSignature,
+  paymentIndex,
+}: {
+  permitTuple: PaymentTypes.SchedulePermitBatch;
+  permitSignature: string;
+  paymentIndex: number;
+}): string {
+  return getRecurringPaymentProxyInterface(RECURRING_PROXY_V2).encodeFunctionData(
+    'triggerRecurringPaymentBatch',
+    [permitTuple, permitSignature, paymentIndex],
+  );
+}
+
+/**
+ * Triggers a 0.2.0 recurring payment through `triggerRecurringPaymentBatch`.
+ *
+ * @throws {Error} If the 0.2.0 proxy has no known deployment on the provided network
+ */
+export async function triggerRecurringPaymentBatch({
+  permitTuple,
+  permitSignature,
+  paymentIndex,
+  signer,
+  network,
+}: {
+  permitTuple: PaymentTypes.SchedulePermitBatch;
+  permitSignature: string;
+  paymentIndex: number;
+  signer: Signer;
+  network: CurrencyTypes.EvmChainName;
+}): Promise<providers.TransactionResponse> {
+  const proxyAddress = getRecurringPaymentProxyAddress(network, RECURRING_PROXY_V2);
+
+  const data = encodeRecurringPaymentTriggerBatch({
+    permitTuple,
+    permitSignature,
+    paymentIndex,
+  });
+
+  const tx = await signer.sendTransaction({
+    to: proxyAddress,
+    data,
+    value: 0,
+  });
+
+  return tx;
+}
+
+/**
  * Returns the deployed address of the ERC20RecurringPaymentProxy contract for a given network.
  *
  * @param network - The EVM chain name (e.g. 'mainnet', 'sepolia', 'matic')
+ * @param version - Artifact version. Defaults to the artifact last version (`0.1.0`).
  *
  * @returns The deployed proxy contract address for the specified network
  *
@@ -199,8 +276,13 @@ export async function triggerRecurringPayment({
  * • The address is looked up from the deployment artifacts maintained by the smart-contracts package
  * • Use this when you only need the address and don't need to interact with the contract
  */
-export function getRecurringPaymentProxyAddress(network: CurrencyTypes.EvmChainName): string {
-  const address = erc20RecurringPaymentProxyArtifact.getAddress(network);
+export function getRecurringPaymentProxyAddress(
+  network: CurrencyTypes.EvmChainName,
+  version?: string,
+): string {
+  const address = version
+    ? erc20RecurringPaymentProxyArtifact.getAddress(network, version)
+    : erc20RecurringPaymentProxyArtifact.getAddress(network);
 
   if (!address) {
     throw new Error(`ERC20RecurringPaymentProxy not found on ${network}`);
