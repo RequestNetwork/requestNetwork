@@ -12,6 +12,11 @@
     { "inputs": [], "name": "ERC20RecurringPaymentProxy__AlreadyPaid", "type": "error" },
     { "inputs": [], "name": "ERC20RecurringPaymentProxy__BadSignature", "type": "error" },
     { "inputs": [], "name": "ERC20RecurringPaymentProxy__Cancelled", "type": "error" },
+    {
+      "inputs": [],
+      "name": "ERC20RecurringPaymentProxy__DuplicatePaymentReference",
+      "type": "error"
+    },
     { "inputs": [], "name": "ERC20RecurringPaymentProxy__EmptyLegs", "type": "error" },
     { "inputs": [], "name": "ERC20RecurringPaymentProxy__IndexOutOfBounds", "type": "error" },
     { "inputs": [], "name": "ERC20RecurringPaymentProxy__InvalidDueTimes", "type": "error" },

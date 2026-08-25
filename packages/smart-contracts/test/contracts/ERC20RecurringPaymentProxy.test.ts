@@ -1060,6 +1060,39 @@ describe('ERC20RecurringPaymentProxy', () => {
       expect(await testERC20.balanceOf(recipientAddress)).to.equal(10 * maxLegs);
     });
 
+    it('reverts when two recurring legs share a paymentReference', async () => {
+      const permit = await dueBatchPermit({
+        recurringLegs: [
+          { recipient: recipientAddress, amount: 50, paymentReference: paymentRef(0x61) },
+          { recipient: feeAddressString, amount: 50, paymentReference: paymentRef(0x61) },
+        ],
+      });
+      const signature = await createBatchSignature(permit, subscriber);
+      await expectCustomError(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(permit, signature, 1),
+        'ERC20RecurringPaymentProxy__DuplicatePaymentReference',
+      );
+    });
+
+    it('reverts when two initial legs share a paymentReference', async () => {
+      const permit = await dueBatchPermit({
+        initialLegs: [
+          { recipient: recipientAddress, amount: 50, paymentReference: paymentRef(0x61) },
+          { recipient: feeAddressString, amount: 50, paymentReference: paymentRef(0x61) },
+        ],
+        recurringLegs: [],
+      });
+      const signature = await createBatchSignature(permit, subscriber);
+      await expectCustomError(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(permit, signature, 1),
+        'ERC20RecurringPaymentProxy__DuplicatePaymentReference',
+      );
+    });
+
     it('reverts a zero-address leg recipient', async () => {
       const permit = await dueBatchPermit({
         recurringLegs: [

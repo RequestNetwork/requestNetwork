@@ -30,6 +30,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   error ERC20RecurringPaymentProxy__InvalidDueTimes();
   error ERC20RecurringPaymentProxy__TooManyLegs();
   error ERC20RecurringPaymentProxy__EmptyLegs();
+  error ERC20RecurringPaymentProxy__DuplicatePaymentReference();
   error ERC20RecurringPaymentProxy__ZeroAmount();
   error ERC20RecurringPaymentProxy__NotSubscriber();
   error ERC20RecurringPaymentProxy__Cancelled();
@@ -61,6 +62,9 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     bool cancelled;
   }
 
+  /// @dev Key includes every signed term except nonce and deadline. Changing any
+  ///      of those terms yields a new key with a virgin bitmap and cancelled flag —
+  ///      cancelling schedule A does not cancel an amended variant B.
   mapping(bytes32 => ScheduleState) public schedules;
 
   event PaymentTriggered(
@@ -130,7 +134,26 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     return keccak256(abi.encodePacked(words));
   }
 
-  function _hashScheduleBatch(SchedulePermitBatch calldata p) private view returns (bytes32) {
+  function _hashPermitParts(SchedulePermitBatch calldata p)
+    private
+    pure
+    returns (
+      bytes32 dueTimesHash,
+      bytes32 initialLegsHash,
+      bytes32 recurringLegsHash
+    )
+  {
+    dueTimesHash = _hashUint32Array(p.dueTimes);
+    initialLegsHash = _hashLegs(p.initialLegs);
+    recurringLegsHash = _hashLegs(p.recurringLegs);
+  }
+
+  function _hashScheduleBatch(
+    SchedulePermitBatch calldata p,
+    bytes32 dueTimesHash,
+    bytes32 initialLegsHash,
+    bytes32 recurringLegsHash
+  ) private view returns (bytes32) {
     bytes32 structHash = keccak256(
       abi.encode(
         _BATCH_TYPEHASH,
@@ -142,9 +165,9 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
         p.deadline,
         p.strictOrder,
         p.scheduleId,
-        _hashUint32Array(p.dueTimes),
-        _hashLegs(p.initialLegs),
-        _hashLegs(p.recurringLegs)
+        dueTimesHash,
+        initialLegsHash,
+        recurringLegsHash
       )
     );
 
@@ -152,7 +175,10 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   }
 
   function hashScheduleBatch(SchedulePermitBatch calldata p) public view returns (bytes32) {
-    return _hashScheduleBatch(p);
+    (bytes32 dueTimesHash, bytes32 initialLegsHash, bytes32 recurringLegsHash) = _hashPermitParts(
+      p
+    );
+    return _hashScheduleBatch(p, dueTimesHash, initialLegsHash, recurringLegsHash);
   }
 
   function _assertSigner(
@@ -165,7 +191,12 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     }
   }
 
-  function _scheduleKeyFromBatch(SchedulePermitBatch calldata p) private pure returns (bytes32) {
+  function _scheduleKeyFromBatch(
+    SchedulePermitBatch calldata p,
+    bytes32 dueTimesHash,
+    bytes32 initialLegsHash,
+    bytes32 recurringLegsHash
+  ) private pure returns (bytes32) {
     if (p.scheduleId == bytes32(0)) revert ERC20RecurringPaymentProxy__ZeroScheduleId();
     return
       keccak256(
@@ -176,15 +207,30 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
           p.relayerFee,
           p.totalPayments,
           p.strictOrder,
-          _hashUint32Array(p.dueTimes),
-          _hashLegs(p.initialLegs),
-          _hashLegs(p.recurringLegs)
+          dueTimesHash,
+          initialLegsHash,
+          recurringLegsHash
         )
       );
   }
 
   function scheduleKeyFromBatch(SchedulePermitBatch calldata p) public pure returns (bytes32) {
-    return _scheduleKeyFromBatch(p);
+    (bytes32 dueTimesHash, bytes32 initialLegsHash, bytes32 recurringLegsHash) = _hashPermitParts(
+      p
+    );
+    return _scheduleKeyFromBatch(p, dueTimesHash, initialLegsHash, recurringLegsHash);
+  }
+
+  function _keyAndDigest(SchedulePermitBatch calldata p)
+    private
+    view
+    returns (bytes32 scheduleKey, bytes32 digest)
+  {
+    (bytes32 dueTimesHash, bytes32 initialLegsHash, bytes32 recurringLegsHash) = _hashPermitParts(
+      p
+    );
+    scheduleKey = _scheduleKeyFromBatch(p, dueTimesHash, initialLegsHash, recurringLegsHash);
+    digest = _hashScheduleBatch(p, dueTimesHash, initialLegsHash, recurringLegsHash);
   }
 
   function triggeredPaymentsBitmap(bytes32 scheduleKey) external view returns (uint256) {
@@ -254,7 +300,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     uint8 index,
     bool strictOrder
   ) private view {
-    if (strictOrder && index != state.lastIndex + 1) {
+    if (strictOrder && uint256(index) != uint256(state.lastIndex) + 1) {
       revert ERC20RecurringPaymentProxy__PaymentOutOfOrder();
     }
   }
@@ -306,12 +352,6 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     }
   }
 
-  function _assertNonZeroRecipient(address account, uint256 amount) private pure {
-    if (amount > 0 && account == address(0)) {
-      revert ERC20RecurringPaymentProxy__ZeroAddress();
-    }
-  }
-
   function _assertLegs(Leg[] calldata legs) private pure {
     if (legs.length == 0) revert ERC20RecurringPaymentProxy__EmptyLegs();
     for (uint256 i = 0; i < legs.length; ++i) {
@@ -320,6 +360,11 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
       }
       if (legs[i].amount == 0) {
         revert ERC20RecurringPaymentProxy__ZeroAmount();
+      }
+      for (uint256 j = 0; j < i; ++j) {
+        if (legs[i].paymentReference == legs[j].paymentReference) {
+          revert ERC20RecurringPaymentProxy__DuplicatePaymentReference();
+        }
       }
     }
   }
@@ -369,11 +414,9 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     }
     if (index == 0) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
 
-    bytes32 scheduleKey = _scheduleKeyFromBatch(p);
+    (bytes32 scheduleKey, bytes32 digest) = _keyAndDigest(p);
     ScheduleState storage state = schedules[scheduleKey];
     _assertRelayerOrAdmitted(p.subscriber, state, index);
-
-    bytes32 digest = _hashScheduleBatch(p);
 
     _assertSigner(p.subscriber, digest, signature);
     if (block.timestamp > p.deadline) revert ERC20RecurringPaymentProxy__SignatureExpired();
@@ -429,7 +472,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
    */
   function cancelScheduleBatch(SchedulePermitBatch calldata p) external {
     _assertSubscriber(p.subscriber);
-    bytes32 scheduleKey = _scheduleKeyFromBatch(p);
+    bytes32 scheduleKey = scheduleKeyFromBatch(p);
     _cancel(schedules[scheduleKey]);
     emit ScheduleCancelled(scheduleKey, p.subscriber);
   }
