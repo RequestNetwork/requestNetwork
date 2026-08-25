@@ -659,9 +659,11 @@ describe('erc20-recurring-payment-proxy 0.2.0', () => {
     });
   });
 
+  const derivedScheduleKey = `0x${'11'.repeat(32)}`;
+
   describe('encodeAdmitCycles', () => {
     it('encodes admitCycles without a deployment', () => {
-      const scheduleKey = schedulePermitBatch.scheduleId;
+      const scheduleKey = derivedScheduleKey;
       const mask = 2;
       const encodedData = encodeAdmitCycles({ scheduleKey, mask });
 
@@ -675,7 +677,7 @@ describe('erc20-recurring-payment-proxy 0.2.0', () => {
   });
 
   describe('admitCycles', () => {
-    const scheduleKey = schedulePermitBatch.scheduleId;
+    const scheduleKey = derivedScheduleKey;
     const mask = 2;
 
     it('should throw if the 0.2.0 proxy is not deployed', async () => {
@@ -730,7 +732,7 @@ describe('erc20-recurring-payment-proxy 0.2.0', () => {
 
   describe('encodeRevokeCycles', () => {
     it('encodes revokeCycles without a deployment', () => {
-      const scheduleKey = schedulePermitBatch.scheduleId;
+      const scheduleKey = derivedScheduleKey;
       const mask = 2;
       const encodedData = encodeRevokeCycles({ scheduleKey, mask });
 
@@ -744,7 +746,7 @@ describe('erc20-recurring-payment-proxy 0.2.0', () => {
   });
 
   describe('revokeCycles', () => {
-    const scheduleKey = schedulePermitBatch.scheduleId;
+    const scheduleKey = derivedScheduleKey;
     const mask = 2;
 
     it('should throw if the 0.2.0 proxy is not deployed', async () => {
