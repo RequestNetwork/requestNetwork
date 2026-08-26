@@ -4,6 +4,7 @@ import { erc20RecurringPaymentProxyArtifact } from '@requestnetwork/smart-contra
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getErc20Allowance } from './erc20';
 
+const RECURRING_PROXY_V1 = '0.1.0';
 const RECURRING_PROXY_V2 = '0.2.0';
 const EIP712_DOMAIN_NAME = 'ERC20RecurringPaymentProxy';
 const EIP712_DOMAIN_VERSION = '1';
@@ -39,7 +40,7 @@ function connectRecurringPaymentProxy(
  * @param tokenAddress - Address of the ERC-20 token involved in the recurring payment schedule.
  * @param provider     - A Web3 provider or signer used to perform the on-chain call.
  * @param network      - The EVM chain name (e.g. `'mainnet'`, `'goerli'`, `'matic'`).
- * @param version      - Artifact version. Defaults to the artifact last version (`0.1.0`).
+ * @param version      - Artifact version. Defaults to the artifact last version (`0.2.0`).
  *
  * @returns A Promise that resolves to the allowance **as a decimal string** (same
  *          units as `token.decimals`). An empty allowance is returned as `"0"`.
@@ -83,7 +84,7 @@ export async function getPayerRecurringPaymentAllowance({
  * @param amount - The amount to approve, as a BigNumberish value
  * @param provider - Web3 provider or signer to interact with the blockchain
  * @param network - The EVM chain name where the proxy is deployed
- * @param version - Artifact version. Defaults to the artifact last version (`0.1.0`).
+ * @param version - Artifact version. Defaults to the artifact last version (`0.2.0`).
  *
  * @returns Array of transaction objects ready to be sent to the blockchain
  *
@@ -151,7 +152,7 @@ export function encodeRecurringPaymentTrigger({
   network: CurrencyTypes.EvmChainName;
   provider: providers.Provider | Signer;
 }): string {
-  const proxyContract = erc20RecurringPaymentProxyArtifact.connect(network, provider);
+  const proxyContract = connectRecurringPaymentProxy(network, provider, RECURRING_PROXY_V1);
 
   return proxyContract.interface.encodeFunctionData('triggerRecurringPayment', [
     permitTuple,
@@ -197,7 +198,7 @@ export async function triggerRecurringPayment({
   signer: Signer;
   network: CurrencyTypes.EvmChainName;
 }): Promise<providers.TransactionResponse> {
-  const proxyAddress = getRecurringPaymentProxyAddress(network);
+  const proxyAddress = getRecurringPaymentProxyAddress(network, RECURRING_PROXY_V1);
 
   const data = encodeRecurringPaymentTrigger({
     permitTuple,
@@ -479,7 +480,7 @@ async function sendToRecurringProxyV2(
  * Returns the deployed address of the ERC20RecurringPaymentProxy contract for a given network.
  *
  * @param network - The EVM chain name (e.g. 'mainnet', 'sepolia', 'matic')
- * @param version - Artifact version. Defaults to the artifact last version (`0.1.0`).
+ * @param version - Artifact version. Defaults to the artifact last version (`0.2.0`).
  *
  * @returns The deployed proxy contract address for the specified network
  *

@@ -17,6 +17,10 @@ const getRecurringPaymentExecutorWalletAddress = (contract: string): string => {
   return getEnvVariable('RECURRING_PAYMENT_EXECUTOR_WALLET_ADDRESS', contract);
 };
 
+const getReccuringPaymentAdminAddress = (contract: string): string => {
+  return getEnvVariable('RECURRING_PAYMENT_ADMIN_ADDRESS', contract);
+};
+
 export const getConstructorArgs = (
   contract: string,
   network?: CurrencyTypes.EvmChainName,
@@ -94,7 +98,9 @@ export const getConstructorArgs = (
       const erc20FeeProxy = artifacts.erc20FeeProxyArtifact;
       const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
 
-      const adminSafe = getAdminWalletAddress(contract);
+      const adminSafe =
+        getReccuringPaymentAdminAddress(contract) ??
+        artifacts.safeAdminArtifact.getAddress(network);
       const executorEOA = getRecurringPaymentExecutorWalletAddress(contract);
 
       return [adminSafe, executorEOA, erc20FeeProxyAddress];

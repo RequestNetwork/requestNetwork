@@ -45,8 +45,13 @@ export const erc20RecurringPaymentProxyArtifact = new ContractArtifact<Contract>
     },
     '0.2.0': {
       abi: ABI_0_2_0,
-      deployment: {},
+      deployment: {
+        sepolia: {
+          address: '0xD7b1553ffE25491377a505f97f92cc44427D80A0',
+          creationBlockNumber: 11570049,
+        },
+      },
     },
   },
-  '0.1.0',
+  '0.2.0',
 );
