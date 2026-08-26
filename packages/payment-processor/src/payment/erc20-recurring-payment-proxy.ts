@@ -22,14 +22,31 @@ function getRecurringPaymentProxyInterface(version: string): utils.Interface {
   return new utils.Interface(erc20RecurringPaymentProxyArtifact.getContractAbi(version));
 }
 
+function resolveRecurringPaymentProxyVersion(
+  network: CurrencyTypes.EvmChainName,
+  version?: string,
+): string {
+  if (version) {
+    return version;
+  }
+  if (
+    erc20RecurringPaymentProxyArtifact.getOptionalDeploymentInformation(network, RECURRING_PROXY_V2)
+  ) {
+    return RECURRING_PROXY_V2;
+  }
+  return RECURRING_PROXY_V1;
+}
+
 function connectRecurringPaymentProxy(
   network: CurrencyTypes.EvmChainName,
   provider: Signer | providers.Provider,
   version?: string,
 ) {
-  return version
-    ? erc20RecurringPaymentProxyArtifact.connect(network, provider, version)
-    : erc20RecurringPaymentProxyArtifact.connect(network, provider);
+  return erc20RecurringPaymentProxyArtifact.connect(
+    network,
+    provider,
+    resolveRecurringPaymentProxyVersion(network, version),
+  );
 }
 
 /**
@@ -40,7 +57,7 @@ function connectRecurringPaymentProxy(
  * @param tokenAddress - Address of the ERC-20 token involved in the recurring payment schedule.
  * @param provider     - A Web3 provider or signer used to perform the on-chain call.
  * @param network      - The EVM chain name (e.g. `'mainnet'`, `'goerli'`, `'matic'`).
- * @param version      - Artifact version. Defaults to the artifact last version (`0.2.0`).
+ * @param version      - Artifact version. Defaults to `0.2.0` when deployed, otherwise `0.1.0`.
  *
  * @returns A Promise that resolves to the allowance **as a decimal string** (same
  *          units as `token.decimals`). An empty allowance is returned as `"0"`.
@@ -84,7 +101,7 @@ export async function getPayerRecurringPaymentAllowance({
  * @param amount - The amount to approve, as a BigNumberish value
  * @param provider - Web3 provider or signer to interact with the blockchain
  * @param network - The EVM chain name where the proxy is deployed
- * @param version - Artifact version. Defaults to the artifact last version (`0.2.0`).
+ * @param version - Artifact version. Defaults to `0.2.0` when deployed, otherwise `0.1.0`.
  *
  * @returns Array of transaction objects ready to be sent to the blockchain
  *
@@ -480,7 +497,7 @@ async function sendToRecurringProxyV2(
  * Returns the deployed address of the ERC20RecurringPaymentProxy contract for a given network.
  *
  * @param network - The EVM chain name (e.g. 'mainnet', 'sepolia', 'matic')
- * @param version - Artifact version. Defaults to the artifact last version (`0.2.0`).
+ * @param version - Artifact version. Defaults to `0.2.0` when deployed, otherwise `0.1.0`.
  *
  * @returns The deployed proxy contract address for the specified network
  *
@@ -496,9 +513,10 @@ export function getRecurringPaymentProxyAddress(
   network: CurrencyTypes.EvmChainName,
   version?: string,
 ): string {
-  const address = version
-    ? erc20RecurringPaymentProxyArtifact.getAddress(network, version)
-    : erc20RecurringPaymentProxyArtifact.getAddress(network);
+  const address = erc20RecurringPaymentProxyArtifact.getAddress(
+    network,
+    resolveRecurringPaymentProxyVersion(network, version),
+  );
 
   if (!address) {
     throw new Error(`ERC20RecurringPaymentProxy not found on ${network}`);

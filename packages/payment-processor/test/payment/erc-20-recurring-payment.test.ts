@@ -42,8 +42,79 @@ const schedulePermit: PaymentTypes.SchedulePermit = {
 };
 
 const paymentReference = '0x0000000000000000000000000000000000000000000000000000000000000001';
-const dummyPermitSignature = '0x1234';
 const RECURRING_PROXY_V1 = '0.1.0';
+
+// Helper function to create EIP-712 signature for SchedulePermit
+async function createSchedulePermitSignature(
+  permit: PaymentTypes.SchedulePermit,
+  signer: Wallet,
+  proxyAddress: string,
+): Promise<string> {
+  const domain = {
+    name: 'ERC20RecurringPaymentProxy',
+    version: '1',
+    chainId: await signer.getChainId(),
+    verifyingContract: proxyAddress,
+  };
+
+  const types = {
+    SchedulePermit: [
+      { name: 'subscriber', type: 'address' },
+      { name: 'token', type: 'address' },
+      { name: 'recipient', type: 'address' },
+      { name: 'feeAddress', type: 'address' },
+      { name: 'amount', type: 'uint128' },
+      { name: 'feeAmount', type: 'uint128' },
+      { name: 'relayerFee', type: 'uint128' },
+      { name: 'periodSeconds', type: 'uint32' },
+      { name: 'firstPayment', type: 'uint32' },
+      { name: 'totalPayments', type: 'uint8' },
+      { name: 'nonce', type: 'uint256' },
+      { name: 'deadline', type: 'uint256' },
+      { name: 'strictOrder', type: 'bool' },
+    ],
+  };
+
+  // Convert string values to numbers where needed
+  const message = {
+    subscriber: permit.subscriber,
+    token: permit.token,
+    recipient: permit.recipient,
+    feeAddress: permit.feeAddress,
+    amount: permit.amount,
+    feeAmount: permit.feeAmount,
+    relayerFee: permit.relayerFee,
+    periodSeconds: permit.periodSeconds,
+    firstPayment: permit.firstPayment,
+    totalPayments: permit.totalPayments,
+    nonce: typeof permit.nonce === 'string' ? permit.nonce : permit.nonce.toString(),
+    deadline: permit.deadline,
+    strictOrder: permit.strictOrder,
+  };
+
+  try {
+    return await (signer.provider as any).send('eth_signTypedData', [
+      await signer.getAddress(),
+      {
+        types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+            { name: 'verifyingContract', type: 'address' },
+          ],
+          ...types,
+        },
+        primaryType: 'SchedulePermit',
+        domain,
+        message,
+      },
+    ]);
+  } catch (_) {
+    // Fallback to ethers helper (works in most in-process Hardhat environments)
+    return await (signer as any)._signTypedData(domain, types, message);
+  }
+}
 
 describe('erc20-recurring-payment-proxy', () => {
   afterEach(() => {
@@ -87,9 +158,19 @@ describe('erc20-recurring-payment-proxy', () => {
 
   describe('encodeRecurringPaymentTrigger', () => {
     it('should encode trigger data correctly', async () => {
+      const proxyAddress = erc20RecurringPaymentProxyArtifact.getAddress(
+        network,
+        RECURRING_PROXY_V1,
+      );
+      const permitSignature = await createSchedulePermitSignature(
+        schedulePermit,
+        wallet,
+        proxyAddress!,
+      );
+
       const encodedData = encodeRecurringPaymentTrigger({
         permitTuple: schedulePermit,
-        permitSignature: dummyPermitSignature,
+        permitSignature,
         paymentIndex: 1,
         paymentReference,
         network,
@@ -137,9 +218,12 @@ describe('ERC20 Recurring Payment', () => {
   };
 
   it('should encode recurring payment trigger', async () => {
+    const proxyAddress = erc20RecurringPaymentProxyArtifact.getAddress(network, RECURRING_PROXY_V1);
+    const permitSignature = await createSchedulePermitSignature(permit, wallet, proxyAddress!);
+
     const encoded = encodeRecurringPaymentTrigger({
       permitTuple: permit,
-      permitSignature: dummyPermitSignature,
+      permitSignature,
       paymentIndex: 1,
       paymentReference,
       network,
@@ -170,6 +254,13 @@ describe('ERC20 Recurring Payment', () => {
       strictOrder: false,
     };
 
+    // Create a valid signature for the permit
+    const permitSignature = await createSchedulePermitSignature(
+      validPermit,
+      wallet,
+      mockProxyAddress,
+    );
+
     // Mock the provider to simulate a successful transaction
     const mockProvider = {
       sendTransaction: jest.fn().mockResolvedValue({
@@ -191,7 +282,7 @@ describe('ERC20 Recurring Payment', () => {
     // Test the trigger function
     const result = await triggerRecurringPayment({
       permitTuple: validPermit,
-      permitSignature: dummyPermitSignature,
+      permitSignature,
       paymentIndex: 1,
       paymentReference,
       signer: mockWallet as any,
@@ -228,6 +319,12 @@ describe('ERC20 Recurring Payment', () => {
       strictOrder: false,
     };
 
+    const permitSignature = await createSchedulePermitSignature(
+      validPermit,
+      wallet,
+      mockProxyAddress,
+    );
+
     // Mock provider that throws an error
     const mockProvider = {
       sendTransaction: jest.fn().mockRejectedValue(new Error('Transaction failed')),
@@ -243,7 +340,7 @@ describe('ERC20 Recurring Payment', () => {
     await expect(
       triggerRecurringPayment({
         permitTuple: validPermit,
-        permitSignature: dummyPermitSignature,
+        permitSignature,
         paymentIndex: 1,
         paymentReference,
         signer: mockWallet as any,
@@ -297,6 +394,12 @@ describe('erc20-recurring-payment-proxy 0.2.0', () => {
 
       expect(() => getRecurringPaymentProxyAddress(network, '0.2.0')).toThrow(
         'ERC20RecurringPaymentProxy not found on private',
+      );
+    });
+
+    it('falls back to 0.1.0 when version is omitted and 0.2.0 is not deployed', () => {
+      expect(getRecurringPaymentProxyAddress(network)).toBe(
+        erc20RecurringPaymentProxyArtifact.getAddress(network, RECURRING_PROXY_V1),
       );
     });
   });
