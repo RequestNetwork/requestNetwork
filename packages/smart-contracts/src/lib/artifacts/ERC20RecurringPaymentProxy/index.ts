@@ -1,10 +1,10 @@
+import type { Contract } from 'ethers';
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
+import { abi as ABI_0_2_0 } from './0.2.0.json';
 
-import type { ERC20RecurringPaymentProxy } from '../../../types';
-
-export const erc20RecurringPaymentProxyArtifact = new ContractArtifact<ERC20RecurringPaymentProxy>(
+export const erc20RecurringPaymentProxyArtifact = new ContractArtifact<Contract>(
   {
     '0.1.0': {
       abi: ABI_0_1_0,
@@ -42,6 +42,10 @@ export const erc20RecurringPaymentProxyArtifact = new ContractArtifact<ERC20Recu
           creationBlockNumber: 32422496,
         },
       },
+    },
+    '0.2.0': {
+      abi: ABI_0_2_0,
+      deployment: {},
     },
   },
   '0.1.0',

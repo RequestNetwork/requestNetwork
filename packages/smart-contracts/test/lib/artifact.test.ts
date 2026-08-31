@@ -1,6 +1,10 @@
 import { BigNumber, providers } from 'ethers';
 import { RequestOpenHashSubmitter } from '../../src/types';
-import { erc20FeeProxyArtifact, erc20ProxyArtifact } from '../../src/lib';
+import {
+  erc20FeeProxyArtifact,
+  erc20ProxyArtifact,
+  erc20RecurringPaymentProxyArtifact,
+} from '../../src/lib';
 import { CurrencyTypes } from '@requestnetwork/types';
 
 describe('Artifact', () => {
@@ -53,6 +57,22 @@ describe('Artifact', () => {
         { version: '0.2.0', address: expect.stringMatching(/^0x.*$/) },
       ]),
     );
+  });
+
+  it('keeps the deployed recurring proxy ABI as default while exposing version 0.2.0', () => {
+    expect(
+      erc20RecurringPaymentProxyArtifact
+        .getContractAbi()
+        .some(({ name }) => name === 'triggerRecurringPayment'),
+    ).toBe(true);
+    expect(
+      erc20RecurringPaymentProxyArtifact
+        .getContractAbi('0.2.0')
+        .some(({ name }) => name === 'triggerRecurringPaymentBatch'),
+    ).toBe(true);
+    expect(
+      erc20RecurringPaymentProxyArtifact.getOptionalDeploymentInformation('mainnet', '0.2.0'),
+    ).toBeNull();
   });
 
   it('throws for a non-existing network', () => {

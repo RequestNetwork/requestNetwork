@@ -5,8 +5,7 @@ import '@openzeppelin/contracts/access/AccessControl.sol';
 import '@openzeppelin/contracts/security/Pausable.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 import '@openzeppelin/contracts/utils/cryptography/EIP712.sol';
-import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
-import '@openzeppelin/contracts/access/Ownable.sol';
+import '@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol';
 import './interfaces/ERC20FeeProxy.sol';
 import './lib/SafeERC20.sol';
 
@@ -14,50 +13,92 @@ import './lib/SafeERC20.sol';
  * @title ERC20RecurringPaymentProxy
  * @notice Triggers recurring ERC20 payments based on predefined schedules.
  */
-contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, ReentrancyGuard, Ownable {
+contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, ReentrancyGuard {
   using SafeERC20 for IERC20;
-  using ECDSA for bytes32;
 
   error ERC20RecurringPaymentProxy__BadSignature();
   error ERC20RecurringPaymentProxy__SignatureExpired();
-  error ERC20RecurringPaymentProxy__IndexTooLarge();
   error ERC20RecurringPaymentProxy__PaymentOutOfOrder();
   error ERC20RecurringPaymentProxy__IndexOutOfBounds();
   error ERC20RecurringPaymentProxy__NotDueYet();
   error ERC20RecurringPaymentProxy__AlreadyPaid();
   error ERC20RecurringPaymentProxy__ZeroAddress();
+  error ERC20RecurringPaymentProxy__TransferFailed();
+  error ERC20RecurringPaymentProxy__ShortPull();
+  error ERC20RecurringPaymentProxy__UnexpectedBalance();
+  error ERC20RecurringPaymentProxy__ZeroScheduleId();
+  error ERC20RecurringPaymentProxy__InvalidDueTimes();
+  error ERC20RecurringPaymentProxy__TooManyLegs();
+  error ERC20RecurringPaymentProxy__EmptyLegs();
+  error ERC20RecurringPaymentProxy__DuplicatePaymentReference();
+  error ERC20RecurringPaymentProxy__ZeroAmount();
+  error ERC20RecurringPaymentProxy__NotSubscriber();
+  error ERC20RecurringPaymentProxy__Cancelled();
+  error ERC20RecurringPaymentProxy__NotAdmitted();
+  error ERC20RecurringPaymentProxy__NotRelayer();
 
+  uint8 public constant MAX_LEGS = 8;
+
+  /// @notice Relayers may trigger any due cycle. Extra holders of this role compete
+  ///         for `relayerFee` because `_payRelayer` pays `msg.sender`.
   bytes32 public constant RELAYER_ROLE = keccak256('RELAYER_ROLE');
 
-  /* keccak256 of the typed-data struct with relayerFee field */
-  bytes32 private constant _PERMIT_TYPEHASH =
+  bytes32 private constant _LEG_TYPEHASH =
+    keccak256('Leg(address recipient,uint128 amount,bytes8 paymentReference)');
+
+  /* Nested Leg is appended once, in EIP-712 referenced-type order. */
+  bytes32 private constant _BATCH_TYPEHASH =
     keccak256(
-      'SchedulePermit(address subscriber,address token,address recipient,'
-      'address feeAddress,uint128 amount,uint128 feeAmount,uint128 relayerFee,'
-      'uint32 periodSeconds,uint32 firstPayment,uint8 totalPayments,'
-      'uint256 nonce,uint256 deadline,bool strictOrder)'
+      'SchedulePermitBatch(address subscriber,address token,uint128 relayerFee,'
+      'uint8 totalPayments,uint256 nonce,uint256 deadline,bool strictOrder,'
+      'bytes32 scheduleId,uint32[] dueTimes,Leg[] initialLegs,Leg[] recurringLegs)'
+      'Leg(address recipient,uint128 amount,bytes8 paymentReference)'
     );
 
-  /* replay defence */
-  mapping(bytes32 => uint256) public triggeredPaymentsBitmap;
-  mapping(bytes32 => uint8) public lastPaymentIndex;
+  struct ScheduleState {
+    uint256 bitmap;
+    uint256 admitted;
+    uint8 lastIndex;
+    bool cancelled;
+  }
+
+  /// @dev Key includes every signed term except nonce and deadline. Changing any
+  ///      of those terms yields a new key with a virgin bitmap and cancelled flag —
+  ///      cancelling schedule A does not cancel an amended variant B.
+  mapping(bytes32 => ScheduleState) public schedules;
+
+  event PaymentTriggered(
+    bytes32 indexed scheduleKey,
+    address indexed subscriber,
+    address token,
+    uint8 index,
+    uint256 payerTotal
+  );
+  event ScheduleCancelled(bytes32 indexed scheduleKey, address indexed subscriber);
+  event CyclesAdmitted(bytes32 indexed scheduleKey, uint256 mask);
+  event CyclesRevoked(bytes32 indexed scheduleKey, uint256 mask);
+  event FeeProxyUpdated(address indexed oldProxy, address indexed newProxy);
 
   IERC20FeeProxy public erc20FeeProxy;
 
-  struct SchedulePermit {
+  struct Leg {
+    address recipient;
+    uint128 amount;
+    bytes8 paymentReference;
+  }
+
+  struct SchedulePermitBatch {
     address subscriber;
     address token;
-    address recipient;
-    address feeAddress;
-    uint128 amount;
-    uint128 feeAmount;
     uint128 relayerFee;
-    uint32 periodSeconds;
-    uint32 firstPayment;
     uint8 totalPayments;
     uint256 nonce;
     uint256 deadline;
     bool strictOrder;
+    bytes32 scheduleId;
+    uint32[] dueTimes;
+    Leg[] initialLegs;
+    Leg[] recurringLegs;
   }
 
   constructor(
@@ -70,89 +111,415 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     }
     _grantRole(DEFAULT_ADMIN_ROLE, adminSafe);
     _grantRole(RELAYER_ROLE, relayerEOA);
-    transferOwnership(adminSafe);
     erc20FeeProxy = IERC20FeeProxy(erc20FeeProxyAddress);
   }
 
-  function _hashSchedule(SchedulePermit calldata p) private view returns (bytes32) {
-    bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, p));
+  function _hashUint32Array(uint32[] calldata values) private pure returns (bytes32) {
+    bytes32[] memory words = new bytes32[](values.length);
+    for (uint256 i = 0; i < values.length; ++i) {
+      words[i] = bytes32(uint256(values[i]));
+    }
+    return keccak256(abi.encodePacked(words));
+  }
+
+  function _hashLeg(Leg calldata leg) private pure returns (bytes32) {
+    return keccak256(abi.encode(_LEG_TYPEHASH, leg.recipient, leg.amount, leg.paymentReference));
+  }
+
+  function _hashLegs(Leg[] calldata legs) private pure returns (bytes32) {
+    bytes32[] memory words = new bytes32[](legs.length);
+    for (uint256 i = 0; i < legs.length; ++i) {
+      words[i] = _hashLeg(legs[i]);
+    }
+    return keccak256(abi.encodePacked(words));
+  }
+
+  function _hashPermitParts(SchedulePermitBatch calldata p)
+    private
+    pure
+    returns (
+      bytes32 dueTimesHash,
+      bytes32 initialLegsHash,
+      bytes32 recurringLegsHash
+    )
+  {
+    dueTimesHash = _hashUint32Array(p.dueTimes);
+    initialLegsHash = _hashLegs(p.initialLegs);
+    recurringLegsHash = _hashLegs(p.recurringLegs);
+  }
+
+  function _hashScheduleBatch(
+    SchedulePermitBatch calldata p,
+    bytes32 dueTimesHash,
+    bytes32 initialLegsHash,
+    bytes32 recurringLegsHash
+  ) private view returns (bytes32) {
+    bytes32 structHash = keccak256(
+      abi.encode(
+        _BATCH_TYPEHASH,
+        p.subscriber,
+        p.token,
+        p.relayerFee,
+        p.totalPayments,
+        p.nonce,
+        p.deadline,
+        p.strictOrder,
+        p.scheduleId,
+        dueTimesHash,
+        initialLegsHash,
+        recurringLegsHash
+      )
+    );
 
     return _hashTypedDataV4(structHash);
   }
 
-  function _proxyTransfer(SchedulePermit calldata p, bytes calldata paymentReference) private {
-    erc20FeeProxy.transferFromWithReferenceAndFee(
-      p.token,
-      p.recipient,
-      p.amount,
-      paymentReference,
-      p.feeAmount,
-      p.feeAddress
+  function hashScheduleBatch(SchedulePermitBatch calldata p) public view returns (bytes32) {
+    (bytes32 dueTimesHash, bytes32 initialLegsHash, bytes32 recurringLegsHash) = _hashPermitParts(
+      p
     );
+    return _hashScheduleBatch(p, dueTimesHash, initialLegsHash, recurringLegsHash);
   }
 
-  function triggerRecurringPayment(
-    SchedulePermit calldata p,
-    bytes calldata signature,
-    uint8 index,
-    bytes calldata paymentReference
-  ) external whenNotPaused onlyRole(RELAYER_ROLE) nonReentrant {
-    bytes32 digest = _hashSchedule(p);
-
-    if (digest.recover(signature) != p.subscriber)
+  function _assertSigner(
+    address subscriber,
+    bytes32 digest,
+    bytes calldata signature
+  ) private view {
+    if (!SignatureChecker.isValidSignatureNow(subscriber, digest, signature)) {
       revert ERC20RecurringPaymentProxy__BadSignature();
+    }
+  }
+
+  function _scheduleKeyFromBatch(
+    SchedulePermitBatch calldata p,
+    bytes32 dueTimesHash,
+    bytes32 initialLegsHash,
+    bytes32 recurringLegsHash
+  ) private pure returns (bytes32) {
+    if (p.scheduleId == bytes32(0)) revert ERC20RecurringPaymentProxy__ZeroScheduleId();
+    return
+      keccak256(
+        abi.encode(
+          p.subscriber,
+          p.scheduleId,
+          p.token,
+          p.relayerFee,
+          p.totalPayments,
+          p.strictOrder,
+          dueTimesHash,
+          initialLegsHash,
+          recurringLegsHash
+        )
+      );
+  }
+
+  function scheduleKeyFromBatch(SchedulePermitBatch calldata p) public pure returns (bytes32) {
+    (bytes32 dueTimesHash, bytes32 initialLegsHash, bytes32 recurringLegsHash) = _hashPermitParts(
+      p
+    );
+    return _scheduleKeyFromBatch(p, dueTimesHash, initialLegsHash, recurringLegsHash);
+  }
+
+  function _keyAndDigest(SchedulePermitBatch calldata p)
+    private
+    view
+    returns (bytes32 scheduleKey, bytes32 digest)
+  {
+    (bytes32 dueTimesHash, bytes32 initialLegsHash, bytes32 recurringLegsHash) = _hashPermitParts(
+      p
+    );
+    scheduleKey = _scheduleKeyFromBatch(p, dueTimesHash, initialLegsHash, recurringLegsHash);
+    digest = _hashScheduleBatch(p, dueTimesHash, initialLegsHash, recurringLegsHash);
+  }
+
+  function triggeredPaymentsBitmap(bytes32 scheduleKey) external view returns (uint256) {
+    return schedules[scheduleKey].bitmap;
+  }
+
+  function lastPaymentIndex(bytes32 scheduleKey) external view returns (uint8) {
+    return schedules[scheduleKey].lastIndex;
+  }
+
+  function cancelledSchedules(bytes32 scheduleKey) external view returns (bool) {
+    return schedules[scheduleKey].cancelled;
+  }
+
+  function admittedCycles(bytes32 scheduleKey) external view returns (uint256) {
+    return schedules[scheduleKey].admitted;
+  }
+
+  function _assertSubscriber(address subscriber) private view {
+    if (msg.sender != subscriber) revert ERC20RecurringPaymentProxy__NotSubscriber();
+  }
+
+  function _assertNotCancelled(ScheduleState storage state) private view {
+    if (state.cancelled) revert ERC20RecurringPaymentProxy__Cancelled();
+  }
+
+  function _cancel(ScheduleState storage state) private {
+    state.cancelled = true;
+  }
+
+  function _assertRelayerOrAdmitted(
+    address subscriber,
+    ScheduleState storage state,
+    uint8 index
+  ) private view {
+    if (hasRole(RELAYER_ROLE, msg.sender)) {
+      return;
+    }
+    if (msg.sender != subscriber) revert ERC20RecurringPaymentProxy__NotSubscriber();
+    if (state.admitted & (1 << index) == 0) {
+      revert ERC20RecurringPaymentProxy__NotAdmitted();
+    }
+  }
+
+  function admitCycles(bytes32 scheduleKey, uint256 mask) external onlyRole(RELAYER_ROLE) {
+    schedules[scheduleKey].admitted |= mask;
+    emit CyclesAdmitted(scheduleKey, mask);
+  }
+
+  /**
+   * @notice Clears bits so a previously admitted cycle can no longer be self-triggered.
+   * Relayer-initiated triggers are unaffected.
+   */
+  function revokeCycles(bytes32 scheduleKey, uint256 mask) external onlyRole(RELAYER_ROLE) {
+    schedules[scheduleKey].admitted &= ~mask;
+    emit CyclesRevoked(scheduleKey, mask);
+  }
+
+  function _assertUnpaid(ScheduleState storage state, uint8 index) private view {
+    if (state.bitmap & (1 << index) != 0) {
+      revert ERC20RecurringPaymentProxy__AlreadyPaid();
+    }
+  }
+
+  function _assertOrder(
+    ScheduleState storage state,
+    uint8 index,
+    bool strictOrder
+  ) private view {
+    if (strictOrder && uint256(index) != uint256(state.lastIndex) + 1) {
+      revert ERC20RecurringPaymentProxy__PaymentOutOfOrder();
+    }
+  }
+
+  function _markPaid(
+    ScheduleState storage state,
+    uint8 index,
+    bool strictOrder
+  ) private {
+    state.bitmap |= (1 << index);
+    if (strictOrder) {
+      state.lastIndex = index;
+    }
+  }
+
+  function _pullExact(
+    IERC20 token,
+    address from,
+    uint256 amount
+  ) private returns (uint256 balanceBefore) {
+    balanceBefore = token.balanceOf(address(this));
+    if (!token.safeTransferFrom(from, address(this), amount)) {
+      revert ERC20RecurringPaymentProxy__TransferFailed();
+    }
+    if (token.balanceOf(address(this)) - balanceBefore != amount) {
+      revert ERC20RecurringPaymentProxy__ShortPull();
+    }
+  }
+
+  function _approveFeeProxy(
+    IERC20 token,
+    IERC20FeeProxy proxy,
+    uint256 amount
+  ) private {
+    if (!token.safeApprove(address(proxy), 0)) {
+      revert ERC20RecurringPaymentProxy__TransferFailed();
+    }
+    if (!token.safeApprove(address(proxy), amount)) {
+      revert ERC20RecurringPaymentProxy__TransferFailed();
+    }
+  }
+
+  function _payRelayer(IERC20 token, uint256 amount) private {
+    if (amount == 0) {
+      return;
+    }
+    if (!token.safeTransfer(msg.sender, amount)) {
+      revert ERC20RecurringPaymentProxy__TransferFailed();
+    }
+  }
+
+  function _assertLegs(Leg[] calldata legs) private pure {
+    if (legs.length == 0) revert ERC20RecurringPaymentProxy__EmptyLegs();
+    for (uint256 i = 0; i < legs.length; ++i) {
+      if (legs[i].recipient == address(0)) {
+        revert ERC20RecurringPaymentProxy__ZeroAddress();
+      }
+      if (legs[i].amount == 0) {
+        revert ERC20RecurringPaymentProxy__ZeroAmount();
+      }
+      for (uint256 j = 0; j < i; ++j) {
+        if (legs[i].paymentReference == legs[j].paymentReference) {
+          revert ERC20RecurringPaymentProxy__DuplicatePaymentReference();
+        }
+      }
+    }
+  }
+
+  function _assertScheduleLegs(SchedulePermitBatch calldata p) private pure {
+    if (p.initialLegs.length > MAX_LEGS || p.recurringLegs.length > MAX_LEGS) {
+      revert ERC20RecurringPaymentProxy__TooManyLegs();
+    }
+    if (p.initialLegs.length != 0) {
+      _assertLegs(p.initialLegs);
+    }
+    if (p.recurringLegs.length != 0 || p.totalPayments > 1 || p.initialLegs.length == 0) {
+      _assertLegs(p.recurringLegs);
+    }
+  }
+
+  function _sumLegs(Leg[] calldata legs) private pure returns (uint256 sum) {
+    for (uint256 i = 0; i < legs.length; ++i) {
+      sum += legs[i].amount;
+    }
+  }
+
+  function _settleLegs(
+    IERC20FeeProxy proxy,
+    address token,
+    Leg[] calldata legs
+  ) private {
+    for (uint256 i = 0; i < legs.length; ++i) {
+      proxy.transferFromWithReferenceAndFee(
+        token,
+        legs[i].recipient,
+        legs[i].amount,
+        abi.encodePacked(legs[i].paymentReference),
+        0,
+        address(0)
+      );
+    }
+  }
+
+  function triggerRecurringPaymentBatch(
+    SchedulePermitBatch calldata p,
+    bytes calldata signature,
+    uint8 index
+  ) external whenNotPaused nonReentrant {
+    if (p.token == address(0) || p.subscriber == address(0)) {
+      revert ERC20RecurringPaymentProxy__ZeroAddress();
+    }
+    if (index == 0) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
+
+    (bytes32 scheduleKey, bytes32 digest) = _keyAndDigest(p);
+    ScheduleState storage state = schedules[scheduleKey];
+    _assertRelayerOrAdmitted(p.subscriber, state, index);
+
+    _assertSigner(p.subscriber, digest, signature);
     if (block.timestamp > p.deadline) revert ERC20RecurringPaymentProxy__SignatureExpired();
 
-    if (index >= 256) revert ERC20RecurringPaymentProxy__IndexTooLarge();
-
-    if (p.strictOrder) {
-      if (index != lastPaymentIndex[digest] + 1)
-        revert ERC20RecurringPaymentProxy__PaymentOutOfOrder();
-      lastPaymentIndex[digest] = index;
+    if (p.totalPayments == 0 || index > p.totalPayments) {
+      revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
+    }
+    if (p.dueTimes.length != p.totalPayments) {
+      revert ERC20RecurringPaymentProxy__InvalidDueTimes();
+    }
+    for (uint256 i = 1; i < p.dueTimes.length; ++i) {
+      if (p.dueTimes[i] <= p.dueTimes[i - 1]) {
+        revert ERC20RecurringPaymentProxy__InvalidDueTimes();
+      }
+    }
+    if (block.timestamp < p.dueTimes[index - 1]) {
+      revert ERC20RecurringPaymentProxy__NotDueYet();
     }
 
-    if (index > p.totalPayments) revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
+    _assertScheduleLegs(p);
 
-    uint256 execTime = uint256(p.firstPayment) + uint256(index - 1) * p.periodSeconds;
-    if (block.timestamp < execTime) revert ERC20RecurringPaymentProxy__NotDueYet();
+    _assertNotCancelled(state);
+    _assertOrder(state, index, p.strictOrder);
+    _assertUnpaid(state, index);
 
-    uint256 mask = 1 << index;
-    uint256 word = triggeredPaymentsBitmap[digest];
-    if (word & mask != 0) revert ERC20RecurringPaymentProxy__AlreadyPaid();
-    triggeredPaymentsBitmap[digest] = word | mask;
+    bool useInitial = p.initialLegs.length != 0 && index == 1;
+    uint256 legsSum = _sumLegs(useInitial ? p.initialLegs : p.recurringLegs);
+    uint256 payerTotal = legsSum + p.relayerFee;
 
-    uint256 total = p.amount + p.feeAmount + p.relayerFee;
+    _markPaid(state, index, p.strictOrder);
 
     IERC20 token = IERC20(p.token);
-    token.safeTransferFrom(p.subscriber, address(this), total);
-
-    /* USDT-safe zero-approve then set allowance */
-    token.safeApprove(address(erc20FeeProxy), 0);
-    token.safeApprove(address(erc20FeeProxy), p.amount + p.feeAmount);
-
-    _proxyTransfer(p, paymentReference);
-
-    if (p.relayerFee != 0) {
-      token.safeTransfer(msg.sender, p.relayerFee);
+    IERC20FeeProxy proxy = erc20FeeProxy;
+    uint256 baseline = _pullExact(token, p.subscriber, payerTotal);
+    _approveFeeProxy(token, proxy, legsSum);
+    if (useInitial) {
+      _settleLegs(proxy, p.token, p.initialLegs);
+    } else {
+      _settleLegs(proxy, p.token, p.recurringLegs);
     }
+    _payRelayer(token, p.relayerFee);
+    if (token.balanceOf(address(this)) != baseline) {
+      revert ERC20RecurringPaymentProxy__UnexpectedBalance();
+    }
+    emit PaymentTriggered(scheduleKey, p.subscriber, p.token, index, payerTotal);
   }
 
-  function setRelayer(address oldRelayer, address newRelayer) external onlyOwner {
-    if (newRelayer == address(0)) revert ERC20RecurringPaymentProxy__ZeroAddress();
-    _revokeRole(RELAYER_ROLE, oldRelayer);
-    _grantRole(RELAYER_ROLE, newRelayer);
+  /**
+   * @notice Blocks further triggers for this batch schedule.
+   * @dev Does not revoke the subscriber's ERC-20 allowance to this contract. A relayer can
+   *      still collect a due cycle if they include a trigger in the same block ahead of
+   *      cancel. Also `approve` this proxy to 0 (or decrease) in the same wallet batch.
+   */
+  function cancelScheduleBatch(SchedulePermitBatch calldata p) external {
+    _assertSubscriber(p.subscriber);
+    bytes32 scheduleKey = scheduleKeyFromBatch(p);
+    _cancel(schedules[scheduleKey]);
+    emit ScheduleCancelled(scheduleKey, p.subscriber);
   }
 
-  function setFeeProxy(address newProxy) external onlyOwner {
+  /**
+   * @notice Grants `RELAYER_ROLE`. Every holder can collect `relayerFee` on trigger.
+   */
+  function grantRelayer(address relayer) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    if (relayer == address(0)) revert ERC20RecurringPaymentProxy__ZeroAddress();
+    _grantRole(RELAYER_ROLE, relayer);
+  }
+
+  /**
+   * @notice Revokes `RELAYER_ROLE`. Reverts if `relayer` does not hold the role.
+   */
+  function revokeRelayer(address relayer) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    if (!hasRole(RELAYER_ROLE, relayer)) {
+      revert ERC20RecurringPaymentProxy__NotRelayer();
+    }
+    _revokeRole(RELAYER_ROLE, relayer);
+  }
+
+  function setFeeProxy(address newProxy) external onlyRole(DEFAULT_ADMIN_ROLE) {
     if (newProxy == address(0)) revert ERC20RecurringPaymentProxy__ZeroAddress();
+    address oldProxy = address(erc20FeeProxy);
     erc20FeeProxy = IERC20FeeProxy(newProxy);
+    emit FeeProxyUpdated(oldProxy, newProxy);
   }
 
-  function pause() external onlyOwner {
+  function pause() external onlyRole(DEFAULT_ADMIN_ROLE) {
     _pause();
   }
 
-  function unpause() external onlyOwner {
+  function unpause() external onlyRole(DEFAULT_ADMIN_ROLE) {
     _unpause();
+  }
+
+  function rescueTokens(
+    address token,
+    address to,
+    uint256 amount
+  ) external onlyRole(DEFAULT_ADMIN_ROLE) nonReentrant {
+    if (token == address(0) || to == address(0)) {
+      revert ERC20RecurringPaymentProxy__ZeroAddress();
+    }
+    if (!IERC20(token).safeTransfer(to, amount)) {
+      revert ERC20RecurringPaymentProxy__TransferFailed();
+    }
   }
 }

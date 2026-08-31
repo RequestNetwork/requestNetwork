@@ -1,0 +1,531 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        { "internalType": "address", "name": "adminSafe", "type": "address" },
+        { "internalType": "address", "name": "relayerEOA", "type": "address" },
+        { "internalType": "address", "name": "erc20FeeProxyAddress", "type": "address" }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__AlreadyPaid", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__BadSignature", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__Cancelled", "type": "error" },
+    {
+      "inputs": [],
+      "name": "ERC20RecurringPaymentProxy__DuplicatePaymentReference",
+      "type": "error"
+    },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__EmptyLegs", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__IndexOutOfBounds", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__InvalidDueTimes", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__NotAdmitted", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__NotDueYet", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__NotRelayer", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__NotSubscriber", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__PaymentOutOfOrder", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__ShortPull", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__SignatureExpired", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__TooManyLegs", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__TransferFailed", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__UnexpectedBalance", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__ZeroAddress", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__ZeroAmount", "type": "error" },
+    { "inputs": [], "name": "ERC20RecurringPaymentProxy__ZeroScheduleId", "type": "error" },
+    { "inputs": [], "name": "InvalidShortString", "type": "error" },
+    {
+      "inputs": [{ "internalType": "string", "name": "str", "type": "string" }],
+      "name": "StringTooLong",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "bytes32", "name": "scheduleKey", "type": "bytes32" },
+        { "indexed": false, "internalType": "uint256", "name": "mask", "type": "uint256" }
+      ],
+      "name": "CyclesAdmitted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "bytes32", "name": "scheduleKey", "type": "bytes32" },
+        { "indexed": false, "internalType": "uint256", "name": "mask", "type": "uint256" }
+      ],
+      "name": "CyclesRevoked",
+      "type": "event"
+    },
+    { "anonymous": false, "inputs": [], "name": "EIP712DomainChanged", "type": "event" },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "address", "name": "oldProxy", "type": "address" },
+        { "indexed": true, "internalType": "address", "name": "newProxy", "type": "address" }
+      ],
+      "name": "FeeProxyUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": false, "internalType": "address", "name": "account", "type": "address" }
+      ],
+      "name": "Paused",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "bytes32", "name": "scheduleKey", "type": "bytes32" },
+        { "indexed": true, "internalType": "address", "name": "subscriber", "type": "address" },
+        { "indexed": false, "internalType": "address", "name": "token", "type": "address" },
+        { "indexed": false, "internalType": "uint8", "name": "index", "type": "uint8" },
+        { "indexed": false, "internalType": "uint256", "name": "payerTotal", "type": "uint256" }
+      ],
+      "name": "PaymentTriggered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "bytes32", "name": "role", "type": "bytes32" },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "previousAdminRole",
+          "type": "bytes32"
+        },
+        { "indexed": true, "internalType": "bytes32", "name": "newAdminRole", "type": "bytes32" }
+      ],
+      "name": "RoleAdminChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "bytes32", "name": "role", "type": "bytes32" },
+        { "indexed": true, "internalType": "address", "name": "account", "type": "address" },
+        { "indexed": true, "internalType": "address", "name": "sender", "type": "address" }
+      ],
+      "name": "RoleGranted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "bytes32", "name": "role", "type": "bytes32" },
+        { "indexed": true, "internalType": "address", "name": "account", "type": "address" },
+        { "indexed": true, "internalType": "address", "name": "sender", "type": "address" }
+      ],
+      "name": "RoleRevoked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "bytes32", "name": "scheduleKey", "type": "bytes32" },
+        { "indexed": true, "internalType": "address", "name": "subscriber", "type": "address" }
+      ],
+      "name": "ScheduleCancelled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": false, "internalType": "address", "name": "account", "type": "address" }
+      ],
+      "name": "Unpaused",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "DEFAULT_ADMIN_ROLE",
+      "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_LEGS",
+      "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "RELAYER_ROLE",
+      "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "bytes32", "name": "scheduleKey", "type": "bytes32" },
+        { "internalType": "uint256", "name": "mask", "type": "uint256" }
+      ],
+      "name": "admitCycles",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "bytes32", "name": "scheduleKey", "type": "bytes32" }],
+      "name": "admittedCycles",
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            { "internalType": "address", "name": "subscriber", "type": "address" },
+            { "internalType": "address", "name": "token", "type": "address" },
+            { "internalType": "uint128", "name": "relayerFee", "type": "uint128" },
+            { "internalType": "uint8", "name": "totalPayments", "type": "uint8" },
+            { "internalType": "uint256", "name": "nonce", "type": "uint256" },
+            { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+            { "internalType": "bool", "name": "strictOrder", "type": "bool" },
+            { "internalType": "bytes32", "name": "scheduleId", "type": "bytes32" },
+            { "internalType": "uint32[]", "name": "dueTimes", "type": "uint32[]" },
+            {
+              "components": [
+                { "internalType": "address", "name": "recipient", "type": "address" },
+                { "internalType": "uint128", "name": "amount", "type": "uint128" },
+                { "internalType": "bytes8", "name": "paymentReference", "type": "bytes8" }
+              ],
+              "internalType": "struct ERC20RecurringPaymentProxy.Leg[]",
+              "name": "initialLegs",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                { "internalType": "address", "name": "recipient", "type": "address" },
+                { "internalType": "uint128", "name": "amount", "type": "uint128" },
+                { "internalType": "bytes8", "name": "paymentReference", "type": "bytes8" }
+              ],
+              "internalType": "struct ERC20RecurringPaymentProxy.Leg[]",
+              "name": "recurringLegs",
+              "type": "tuple[]"
+            }
+          ],
+          "internalType": "struct ERC20RecurringPaymentProxy.SchedulePermitBatch",
+          "name": "p",
+          "type": "tuple"
+        }
+      ],
+      "name": "cancelScheduleBatch",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "bytes32", "name": "scheduleKey", "type": "bytes32" }],
+      "name": "cancelledSchedules",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "eip712Domain",
+      "outputs": [
+        { "internalType": "bytes1", "name": "fields", "type": "bytes1" },
+        { "internalType": "string", "name": "name", "type": "string" },
+        { "internalType": "string", "name": "version", "type": "string" },
+        { "internalType": "uint256", "name": "chainId", "type": "uint256" },
+        { "internalType": "address", "name": "verifyingContract", "type": "address" },
+        { "internalType": "bytes32", "name": "salt", "type": "bytes32" },
+        { "internalType": "uint256[]", "name": "extensions", "type": "uint256[]" }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "erc20FeeProxy",
+      "outputs": [{ "internalType": "contract IERC20FeeProxy", "name": "", "type": "address" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "bytes32", "name": "role", "type": "bytes32" }],
+      "name": "getRoleAdmin",
+      "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "address", "name": "relayer", "type": "address" }],
+      "name": "grantRelayer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+        { "internalType": "address", "name": "account", "type": "address" }
+      ],
+      "name": "grantRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+        { "internalType": "address", "name": "account", "type": "address" }
+      ],
+      "name": "hasRole",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            { "internalType": "address", "name": "subscriber", "type": "address" },
+            { "internalType": "address", "name": "token", "type": "address" },
+            { "internalType": "uint128", "name": "relayerFee", "type": "uint128" },
+            { "internalType": "uint8", "name": "totalPayments", "type": "uint8" },
+            { "internalType": "uint256", "name": "nonce", "type": "uint256" },
+            { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+            { "internalType": "bool", "name": "strictOrder", "type": "bool" },
+            { "internalType": "bytes32", "name": "scheduleId", "type": "bytes32" },
+            { "internalType": "uint32[]", "name": "dueTimes", "type": "uint32[]" },
+            {
+              "components": [
+                { "internalType": "address", "name": "recipient", "type": "address" },
+                { "internalType": "uint128", "name": "amount", "type": "uint128" },
+                { "internalType": "bytes8", "name": "paymentReference", "type": "bytes8" }
+              ],
+              "internalType": "struct ERC20RecurringPaymentProxy.Leg[]",
+              "name": "initialLegs",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                { "internalType": "address", "name": "recipient", "type": "address" },
+                { "internalType": "uint128", "name": "amount", "type": "uint128" },
+                { "internalType": "bytes8", "name": "paymentReference", "type": "bytes8" }
+              ],
+              "internalType": "struct ERC20RecurringPaymentProxy.Leg[]",
+              "name": "recurringLegs",
+              "type": "tuple[]"
+            }
+          ],
+          "internalType": "struct ERC20RecurringPaymentProxy.SchedulePermitBatch",
+          "name": "p",
+          "type": "tuple"
+        }
+      ],
+      "name": "hashScheduleBatch",
+      "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "bytes32", "name": "scheduleKey", "type": "bytes32" }],
+      "name": "lastPaymentIndex",
+      "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "paused",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+        { "internalType": "address", "name": "account", "type": "address" }
+      ],
+      "name": "renounceRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "address", "name": "token", "type": "address" },
+        { "internalType": "address", "name": "to", "type": "address" },
+        { "internalType": "uint256", "name": "amount", "type": "uint256" }
+      ],
+      "name": "rescueTokens",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "bytes32", "name": "scheduleKey", "type": "bytes32" },
+        { "internalType": "uint256", "name": "mask", "type": "uint256" }
+      ],
+      "name": "revokeCycles",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "address", "name": "relayer", "type": "address" }],
+      "name": "revokeRelayer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "bytes32", "name": "role", "type": "bytes32" },
+        { "internalType": "address", "name": "account", "type": "address" }
+      ],
+      "name": "revokeRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            { "internalType": "address", "name": "subscriber", "type": "address" },
+            { "internalType": "address", "name": "token", "type": "address" },
+            { "internalType": "uint128", "name": "relayerFee", "type": "uint128" },
+            { "internalType": "uint8", "name": "totalPayments", "type": "uint8" },
+            { "internalType": "uint256", "name": "nonce", "type": "uint256" },
+            { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+            { "internalType": "bool", "name": "strictOrder", "type": "bool" },
+            { "internalType": "bytes32", "name": "scheduleId", "type": "bytes32" },
+            { "internalType": "uint32[]", "name": "dueTimes", "type": "uint32[]" },
+            {
+              "components": [
+                { "internalType": "address", "name": "recipient", "type": "address" },
+                { "internalType": "uint128", "name": "amount", "type": "uint128" },
+                { "internalType": "bytes8", "name": "paymentReference", "type": "bytes8" }
+              ],
+              "internalType": "struct ERC20RecurringPaymentProxy.Leg[]",
+              "name": "initialLegs",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                { "internalType": "address", "name": "recipient", "type": "address" },
+                { "internalType": "uint128", "name": "amount", "type": "uint128" },
+                { "internalType": "bytes8", "name": "paymentReference", "type": "bytes8" }
+              ],
+              "internalType": "struct ERC20RecurringPaymentProxy.Leg[]",
+              "name": "recurringLegs",
+              "type": "tuple[]"
+            }
+          ],
+          "internalType": "struct ERC20RecurringPaymentProxy.SchedulePermitBatch",
+          "name": "p",
+          "type": "tuple"
+        }
+      ],
+      "name": "scheduleKeyFromBatch",
+      "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+      "name": "schedules",
+      "outputs": [
+        { "internalType": "uint256", "name": "bitmap", "type": "uint256" },
+        { "internalType": "uint256", "name": "admitted", "type": "uint256" },
+        { "internalType": "uint8", "name": "lastIndex", "type": "uint8" },
+        { "internalType": "bool", "name": "cancelled", "type": "bool" }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "address", "name": "newProxy", "type": "address" }],
+      "name": "setFeeProxy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }],
+      "name": "supportsInterface",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            { "internalType": "address", "name": "subscriber", "type": "address" },
+            { "internalType": "address", "name": "token", "type": "address" },
+            { "internalType": "uint128", "name": "relayerFee", "type": "uint128" },
+            { "internalType": "uint8", "name": "totalPayments", "type": "uint8" },
+            { "internalType": "uint256", "name": "nonce", "type": "uint256" },
+            { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+            { "internalType": "bool", "name": "strictOrder", "type": "bool" },
+            { "internalType": "bytes32", "name": "scheduleId", "type": "bytes32" },
+            { "internalType": "uint32[]", "name": "dueTimes", "type": "uint32[]" },
+            {
+              "components": [
+                { "internalType": "address", "name": "recipient", "type": "address" },
+                { "internalType": "uint128", "name": "amount", "type": "uint128" },
+                { "internalType": "bytes8", "name": "paymentReference", "type": "bytes8" }
+              ],
+              "internalType": "struct ERC20RecurringPaymentProxy.Leg[]",
+              "name": "initialLegs",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                { "internalType": "address", "name": "recipient", "type": "address" },
+                { "internalType": "uint128", "name": "amount", "type": "uint128" },
+                { "internalType": "bytes8", "name": "paymentReference", "type": "bytes8" }
+              ],
+              "internalType": "struct ERC20RecurringPaymentProxy.Leg[]",
+              "name": "recurringLegs",
+              "type": "tuple[]"
+            }
+          ],
+          "internalType": "struct ERC20RecurringPaymentProxy.SchedulePermitBatch",
+          "name": "p",
+          "type": "tuple"
+        },
+        { "internalType": "bytes", "name": "signature", "type": "bytes" },
+        { "internalType": "uint8", "name": "index", "type": "uint8" }
+      ],
+      "name": "triggerRecurringPaymentBatch",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "bytes32", "name": "scheduleKey", "type": "bytes32" }],
+      "name": "triggeredPaymentsBitmap",
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "unpause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+}
