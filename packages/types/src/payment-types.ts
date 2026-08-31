@@ -414,6 +414,59 @@ export interface SchedulePermit {
 }
 
 /**
+ * One transfer in a 0.2.0 recurring schedule. `paymentReference` is 8-byte hex.
+ */
+export interface SchedulePermitLeg {
+  recipient: string;
+  amount: BigNumberish;
+  paymentReference: string;
+}
+
+/**
+ * Parameters for a 0.2.0 recurring payment schedule permit (SchedulePermitBatch).
+ */
+export interface SchedulePermitBatch {
+  subscriber: string;
+  token: string;
+  relayerFee: BigNumberish;
+  totalPayments: number;
+  nonce: BigNumberish;
+  deadline: BigNumberish;
+  strictOrder: boolean;
+  scheduleId: string;
+  dueTimes: number[];
+  initialLegs: SchedulePermitLeg[];
+  recurringLegs: SchedulePermitLeg[];
+}
+
+/**
+ * EIP-712 types for `SchedulePermitBatch`. Field order matches the 0.2.0 contract.
+ */
+export const SCHEDULE_PERMIT_BATCH_EIP712_TYPES: {
+  SchedulePermitBatch: Array<{ name: string; type: string }>;
+  Leg: Array<{ name: string; type: string }>;
+} = {
+  SchedulePermitBatch: [
+    { name: 'subscriber', type: 'address' },
+    { name: 'token', type: 'address' },
+    { name: 'relayerFee', type: 'uint128' },
+    { name: 'totalPayments', type: 'uint8' },
+    { name: 'nonce', type: 'uint256' },
+    { name: 'deadline', type: 'uint256' },
+    { name: 'strictOrder', type: 'bool' },
+    { name: 'scheduleId', type: 'bytes32' },
+    { name: 'dueTimes', type: 'uint32[]' },
+    { name: 'initialLegs', type: 'Leg[]' },
+    { name: 'recurringLegs', type: 'Leg[]' },
+  ],
+  Leg: [
+    { name: 'recipient', type: 'address' },
+    { name: 'amount', type: 'uint128' },
+    { name: 'paymentReference', type: 'bytes8' },
+  ],
+};
+
+/**
  * Parameters for Commerce Escrow payment data
  */
 export interface CommerceEscrowPaymentData {

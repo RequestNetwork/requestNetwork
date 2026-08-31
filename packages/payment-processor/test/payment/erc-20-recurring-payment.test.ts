@@ -1,10 +1,13 @@
 import { erc20RecurringPaymentProxyArtifact } from '@requestnetwork/smart-contracts';
 import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
-import { Wallet, providers } from 'ethers';
+import { Wallet, providers, utils } from 'ethers';
 import {
   encodeRecurringPaymentTrigger,
+  encodeRecurringPaymentTriggerBatch,
   encodeSetRecurringAllowance,
+  getRecurringPaymentProxyAddress,
   triggerRecurringPayment,
+  triggerRecurringPaymentBatch,
 } from '../../src/payment/erc20-recurring-payment-proxy';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
@@ -329,5 +332,173 @@ describe('ERC20 Recurring Payment', () => {
         network,
       }),
     ).rejects.toThrow('Transaction failed');
+  });
+});
+
+describe('erc20-recurring-payment-proxy 0.2.0', () => {
+  const paymentRef = (n: number) => utils.hexZeroPad(utils.hexlify(n), 8);
+  const now = Math.floor(Date.now() / 1000);
+
+  const schedulePermitBatch: PaymentTypes.SchedulePermitBatch = {
+    subscriber: wallet.address,
+    token: erc20ContractAddress,
+    relayerFee: '5000000000000000',
+    totalPayments: 2,
+    nonce: 0,
+    deadline: now + 3600,
+    strictOrder: false,
+    scheduleId: '0x0808080808080808080808080808080808080808080808080808080808080808',
+    dueTimes: [now - 1, now + 86400],
+    initialLegs: [],
+    recurringLegs: [
+      {
+        recipient: '0x3234567890123456789012345678901234567890',
+        amount: '1000000000000000000',
+        paymentReference: paymentRef(0x61),
+      },
+    ],
+  };
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  describe('getRecurringPaymentProxyAddress', () => {
+    it('passes an explicit version to the artifact', () => {
+      const mockProxyAddress = '0xd8672a4A1bf37D36beF74E36edb4f17845E76F4e';
+      const getAddress = jest
+        .spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress')
+        .mockReturnValue(mockProxyAddress);
+
+      expect(getRecurringPaymentProxyAddress(network, '0.2.0')).toBe(mockProxyAddress);
+      expect(getAddress).toHaveBeenCalledWith(network, '0.2.0');
+    });
+
+    it('throws when the 0.2.0 proxy is not deployed', () => {
+      jest.spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress').mockReturnValue('');
+
+      expect(() => getRecurringPaymentProxyAddress(network, '0.2.0')).toThrow(
+        'ERC20RecurringPaymentProxy not found on private',
+      );
+    });
+  });
+
+  describe('encodeSetRecurringAllowance', () => {
+    it('connects with the requested version', () => {
+      const mockProxyAddress = '0xd8672a4A1bf37D36beF74E36edb4f17845E76F4e';
+      const connect = jest.spyOn(erc20RecurringPaymentProxyArtifact, 'connect').mockReturnValue({
+        address: mockProxyAddress,
+      } as any);
+
+      const transactions = encodeSetRecurringAllowance({
+        tokenAddress: erc20ContractAddress,
+        amount: '1000000000000000000',
+        provider,
+        network,
+        version: '0.2.0',
+      });
+
+      expect(connect).toHaveBeenCalledWith(network, provider, '0.2.0');
+      expect(transactions).toHaveLength(1);
+      expect(transactions[0].data).toContain('095ea7b3');
+    });
+  });
+
+  describe('encodeRecurringPaymentTriggerBatch', () => {
+    it('encodes triggerRecurringPaymentBatch without a deployment', () => {
+      const encodedData = encodeRecurringPaymentTriggerBatch({
+        permitTuple: schedulePermitBatch,
+        permitSignature: '0x1234',
+        paymentIndex: 1,
+      });
+
+      expect(encodedData.startsWith('0x')).toBe(true);
+
+      const iface = new utils.Interface(erc20RecurringPaymentProxyArtifact.getContractAbi('0.2.0'));
+      const decoded = iface.decodeFunctionData('triggerRecurringPaymentBatch', encodedData);
+      expect(decoded.index).toBe(1);
+      expect(decoded.p.subscriber).toBe(schedulePermitBatch.subscriber);
+      expect(decoded.p.scheduleId).toBe(schedulePermitBatch.scheduleId);
+    });
+  });
+
+  describe('triggerRecurringPaymentBatch', () => {
+    it('should throw if the 0.2.0 proxy is not deployed', async () => {
+      jest.spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress').mockReturnValue('');
+
+      await expect(
+        triggerRecurringPaymentBatch({
+          permitTuple: schedulePermitBatch,
+          permitSignature: '0x1234567890abcdef',
+          paymentIndex: 1,
+          signer: wallet,
+          network,
+        }),
+      ).rejects.toThrow('ERC20RecurringPaymentProxy not found on private');
+    });
+
+    it('sends triggerRecurringPaymentBatch to the 0.2.0 address', async () => {
+      const mockProxyAddress = '0x1111111111111111111111111111111111111111';
+      const getAddress = jest
+        .spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress')
+        .mockReturnValue(mockProxyAddress);
+
+      const mockProvider = {
+        sendTransaction: jest.fn().mockResolvedValue({
+          hash: '0xabcdef',
+          wait: jest.fn().mockResolvedValue({ status: 1, transactionHash: '0xabcdef' }),
+        }),
+      };
+      const mockWallet = {
+        ...wallet,
+        provider: mockProvider,
+        sendTransaction: mockProvider.sendTransaction,
+      };
+
+      const result = await triggerRecurringPaymentBatch({
+        permitTuple: schedulePermitBatch,
+        permitSignature: '0x1234',
+        paymentIndex: 1,
+        signer: mockWallet as any,
+        network,
+      });
+
+      expect(result).toBeDefined();
+      expect(getAddress).toHaveBeenCalledWith(network, '0.2.0');
+      expect(mockProvider.sendTransaction).toHaveBeenCalledWith({
+        to: mockProxyAddress,
+        data: expect.any(String),
+        value: 0,
+      });
+
+      const sentData = mockProvider.sendTransaction.mock.calls[0][0].data;
+      const iface = new utils.Interface(erc20RecurringPaymentProxyArtifact.getContractAbi('0.2.0'));
+      expect(iface.parseTransaction({ data: sentData }).name).toBe('triggerRecurringPaymentBatch');
+    });
+
+    it('should handle triggerRecurringPaymentBatch errors properly', async () => {
+      jest
+        .spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress')
+        .mockReturnValue('0x1111111111111111111111111111111111111111');
+
+      const mockProvider = {
+        sendTransaction: jest.fn().mockRejectedValue(new Error('Transaction failed')),
+      };
+      const mockWallet = {
+        ...wallet,
+        provider: mockProvider,
+        sendTransaction: mockProvider.sendTransaction,
+      };
+
+      await expect(
+        triggerRecurringPaymentBatch({
+          permitTuple: schedulePermitBatch,
+          permitSignature: '0x1234',
+          paymentIndex: 1,
+          signer: mockWallet as any,
+          network,
+        }),
+      ).rejects.toThrow('Transaction failed');
+    });
   });
 });
