@@ -59,17 +59,23 @@ describe('Artifact', () => {
     );
   });
 
-  it('keeps the deployed recurring proxy ABI as default while exposing version 0.2.0', () => {
+  it('uses 0.2.0 as the default recurring proxy ABI while keeping 0.1.0 available', () => {
     expect(
       erc20RecurringPaymentProxyArtifact
         .getContractAbi()
-        .some(({ name }) => name === 'triggerRecurringPayment'),
+        .some(({ name }) => name === 'triggerRecurringPaymentBatch'),
     ).toBe(true);
     expect(
       erc20RecurringPaymentProxyArtifact
-        .getContractAbi('0.2.0')
-        .some(({ name }) => name === 'triggerRecurringPaymentBatch'),
+        .getContractAbi('0.1.0')
+        .some(({ name }) => name === 'triggerRecurringPayment'),
     ).toBe(true);
+    expect(
+      erc20RecurringPaymentProxyArtifact.getOptionalDeploymentInformation('sepolia', '0.2.0'),
+    ).toEqual({
+      address: '0xD7b1553ffE25491377a505f97f92cc44427D80A0',
+      creationBlockNumber: 11570049,
+    });
     expect(
       erc20RecurringPaymentProxyArtifact.getOptionalDeploymentInformation('mainnet', '0.2.0'),
     ).toBeNull();

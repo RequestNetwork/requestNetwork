@@ -45,8 +45,37 @@ export const erc20RecurringPaymentProxyArtifact = new ContractArtifact<Contract>
     },
     '0.2.0': {
       abi: ABI_0_2_0,
-      deployment: {},
+      deployment: {
+        sepolia: {
+          address: '0xD7b1553ffE25491377a505f97f92cc44427D80A0',
+          creationBlockNumber: 11570049,
+        },
+        mainnet: {
+          address: '0xeA8c5cc64A1C9E323209D12243822c31BeaDeD91',
+          creationBlockNumber: 25873673,
+        },
+        matic: {
+          address: '0xa58a5bf7F70c14eD1804192643c68201C541681c',
+          creationBlockNumber: 92972393,
+        },
+        base: {
+          address: '0xDc8781fFAb20Fef4aB0472c3d6E50073B540Ed9e',
+          creationBlockNumber: 50685271,
+        },
+        optimism: {
+          address: '0x368d9F4cEb9bbF06d1fF89dfE304c5dCfb7C0aed',
+          creationBlockNumber: 156281770,
+        },
+        'arbitrum-one': {
+          address: '0xE4e709F30d9c8b0a8923d18DEF6Ae6ac979E7Ad1',
+          creationBlockNumber: 500229938,
+        },
+        bsc: {
+          address: '0xED8D28Ae27800e06d477F630421a3170676A5244',
+          creationBlockNumber: 119119329,
+        },
+      },
     },
   },
-  '0.1.0',
+  '0.2.0',
 );

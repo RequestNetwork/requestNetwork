@@ -42,6 +42,7 @@ const schedulePermit: PaymentTypes.SchedulePermit = {
 };
 
 const paymentReference = '0x0000000000000000000000000000000000000000000000000000000000000001';
+const RECURRING_PROXY_V1 = '0.1.0';
 
 // Helper function to create EIP-712 signature for SchedulePermit
 async function createSchedulePermitSignature(
@@ -128,6 +129,7 @@ describe('erc20-recurring-payment-proxy', () => {
         amount,
         provider,
         network,
+        version: RECURRING_PROXY_V1,
       });
 
       expect(transactions).toHaveLength(1);
@@ -148,6 +150,7 @@ describe('erc20-recurring-payment-proxy', () => {
           amount: '1000000000000000000',
           provider,
           network,
+          version: RECURRING_PROXY_V1,
         });
       }).toThrow('ERC20RecurringPaymentProxy not found on private');
     });
@@ -155,7 +158,10 @@ describe('erc20-recurring-payment-proxy', () => {
 
   describe('encodeRecurringPaymentTrigger', () => {
     it('should encode trigger data correctly', async () => {
-      const proxyAddress = erc20RecurringPaymentProxyArtifact.getAddress(network);
+      const proxyAddress = erc20RecurringPaymentProxyArtifact.getAddress(
+        network,
+        RECURRING_PROXY_V1,
+      );
       const permitSignature = await createSchedulePermitSignature(
         schedulePermit,
         wallet,
@@ -212,7 +218,7 @@ describe('ERC20 Recurring Payment', () => {
   };
 
   it('should encode recurring payment trigger', async () => {
-    const proxyAddress = erc20RecurringPaymentProxyArtifact.getAddress(network);
+    const proxyAddress = erc20RecurringPaymentProxyArtifact.getAddress(network, RECURRING_PROXY_V1);
     const permitSignature = await createSchedulePermitSignature(permit, wallet, proxyAddress!);
 
     const encoded = encodeRecurringPaymentTrigger({
@@ -388,6 +394,12 @@ describe('erc20-recurring-payment-proxy 0.2.0', () => {
 
       expect(() => getRecurringPaymentProxyAddress(network, '0.2.0')).toThrow(
         'ERC20RecurringPaymentProxy not found on private',
+      );
+    });
+
+    it('falls back to 0.1.0 when version is omitted and 0.2.0 is not deployed', () => {
+      expect(getRecurringPaymentProxyAddress(network)).toBe(
+        erc20RecurringPaymentProxyArtifact.getAddress(network, RECURRING_PROXY_V1),
       );
     });
   });
