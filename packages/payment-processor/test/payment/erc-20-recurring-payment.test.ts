@@ -2,10 +2,15 @@ import { erc20RecurringPaymentProxyArtifact } from '@requestnetwork/smart-contra
 import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
 import { Wallet, providers, utils } from 'ethers';
 import {
+  cancelScheduleBatch,
+  encodeCancelScheduleBatch,
   encodeRecurringPaymentTrigger,
   encodeRecurringPaymentTriggerBatch,
   encodeSetRecurringAllowance,
   getRecurringPaymentProxyAddress,
+  hashScheduleBatch,
+  scheduleKeyFromBatch,
+  signSchedulePermitBatch,
   triggerRecurringPayment,
   triggerRecurringPaymentBatch,
 } from '../../src/payment/erc20-recurring-payment-proxy';
@@ -499,6 +504,154 @@ describe('erc20-recurring-payment-proxy 0.2.0', () => {
           network,
         }),
       ).rejects.toThrow('Transaction failed');
+    });
+  });
+
+  describe('encodeCancelScheduleBatch', () => {
+    it('encodes cancelScheduleBatch without a deployment', () => {
+      const encodedData = encodeCancelScheduleBatch({ permitTuple: schedulePermitBatch });
+
+      expect(encodedData.startsWith('0x')).toBe(true);
+
+      const iface = new utils.Interface(erc20RecurringPaymentProxyArtifact.getContractAbi('0.2.0'));
+      const decoded = iface.decodeFunctionData('cancelScheduleBatch', encodedData);
+      expect(decoded.p.subscriber).toBe(schedulePermitBatch.subscriber);
+      expect(decoded.p.scheduleId).toBe(schedulePermitBatch.scheduleId);
+    });
+  });
+
+  describe('cancelScheduleBatch', () => {
+    it('should throw if the 0.2.0 proxy is not deployed', async () => {
+      jest.spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress').mockReturnValue('');
+
+      await expect(
+        cancelScheduleBatch({
+          permitTuple: schedulePermitBatch,
+          signer: wallet,
+          network,
+        }),
+      ).rejects.toThrow('ERC20RecurringPaymentProxy not found on private');
+    });
+
+    it('sends cancelScheduleBatch to the 0.2.0 address', async () => {
+      const mockProxyAddress = '0x1111111111111111111111111111111111111111';
+      jest
+        .spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress')
+        .mockReturnValue(mockProxyAddress);
+
+      const mockProvider = {
+        sendTransaction: jest.fn().mockResolvedValue({
+          hash: '0xabcdef',
+          wait: jest.fn().mockResolvedValue({ status: 1, transactionHash: '0xabcdef' }),
+        }),
+      };
+      const mockWallet = {
+        ...wallet,
+        provider: mockProvider,
+        sendTransaction: mockProvider.sendTransaction,
+      };
+
+      await cancelScheduleBatch({
+        permitTuple: schedulePermitBatch,
+        signer: mockWallet as any,
+        network,
+      });
+
+      expect(mockProvider.sendTransaction).toHaveBeenCalledWith({
+        to: mockProxyAddress,
+        data: expect.any(String),
+        value: 0,
+      });
+
+      const sentData = mockProvider.sendTransaction.mock.calls[0][0].data;
+      const iface = new utils.Interface(erc20RecurringPaymentProxyArtifact.getContractAbi('0.2.0'));
+      expect(iface.parseTransaction({ data: sentData }).name).toBe('cancelScheduleBatch');
+    });
+  });
+
+  describe('hashScheduleBatch', () => {
+    it('returns a 32-byte EIP-712 digest', () => {
+      const mockProxyAddress = '0x1111111111111111111111111111111111111111';
+      jest
+        .spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress')
+        .mockReturnValue(mockProxyAddress);
+
+      const digest = hashScheduleBatch({
+        permitTuple: schedulePermitBatch,
+        network,
+        chainId: 1,
+      });
+
+      expect(digest).toMatch(/^0x[0-9a-fA-F]{64}$/);
+      expect(digest).toBe(
+        utils._TypedDataEncoder.hash(
+          {
+            name: 'ERC20RecurringPaymentProxy',
+            version: '1',
+            chainId: 1,
+            verifyingContract: mockProxyAddress,
+          },
+          PaymentTypes.SCHEDULE_PERMIT_BATCH_EIP712_TYPES,
+          schedulePermitBatch,
+        ),
+      );
+    });
+  });
+
+  describe('scheduleKeyFromBatch', () => {
+    it('calls the 0.2.0 contract view', async () => {
+      const mockKey = `0x${'11'.repeat(32)}`;
+      const scheduleKeyFromBatchFn = jest.fn().mockResolvedValue(mockKey);
+      const connect = jest.spyOn(erc20RecurringPaymentProxyArtifact, 'connect').mockReturnValue({
+        scheduleKeyFromBatch: scheduleKeyFromBatchFn,
+      } as any);
+
+      const key = await scheduleKeyFromBatch({
+        permitTuple: schedulePermitBatch,
+        provider,
+        network,
+      });
+
+      expect(key).toBe(mockKey);
+      expect(connect).toHaveBeenCalledWith(network, provider, '0.2.0');
+      expect(scheduleKeyFromBatchFn).toHaveBeenCalledWith(schedulePermitBatch);
+    });
+  });
+
+  describe('signSchedulePermitBatch', () => {
+    it('returns a 65-byte signature from the typed-data fallback', async () => {
+      const mockProxyAddress = '0x1111111111111111111111111111111111111111';
+      jest
+        .spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress')
+        .mockReturnValue(mockProxyAddress);
+
+      const signature = `0x${'ab'.repeat(65)}`;
+      const mockSigner = {
+        getAddress: jest.fn().mockResolvedValue(wallet.address),
+        getChainId: jest.fn().mockResolvedValue(1),
+        provider: {
+          send: jest.fn().mockRejectedValue(new Error('no rpc')),
+        },
+        _signTypedData: jest.fn().mockResolvedValue(signature),
+      };
+
+      const result = await signSchedulePermitBatch({
+        permitTuple: schedulePermitBatch,
+        signer: mockSigner as any,
+        network,
+      });
+
+      expect(result).toMatch(/^0x[0-9a-fA-F]{130}$/);
+      expect(mockSigner._signTypedData).toHaveBeenCalledWith(
+        {
+          name: 'ERC20RecurringPaymentProxy',
+          version: '1',
+          chainId: 1,
+          verifyingContract: mockProxyAddress,
+        },
+        PaymentTypes.SCHEDULE_PERMIT_BATCH_EIP712_TYPES,
+        schedulePermitBatch,
+      );
     });
   });
 });
