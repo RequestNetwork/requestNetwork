@@ -2,13 +2,17 @@ import { erc20RecurringPaymentProxyArtifact } from '@requestnetwork/smart-contra
 import { CurrencyTypes, PaymentTypes } from '@requestnetwork/types';
 import { Wallet, providers, utils } from 'ethers';
 import {
+  admitCycles,
   cancelScheduleBatch,
+  encodeAdmitCycles,
   encodeCancelScheduleBatch,
   encodeRecurringPaymentTrigger,
   encodeRecurringPaymentTriggerBatch,
+  encodeRevokeCycles,
   encodeSetRecurringAllowance,
   getRecurringPaymentProxyAddress,
   hashScheduleBatch,
+  revokeCycles,
   scheduleKeyFromBatch,
   signSchedulePermitBatch,
   triggerRecurringPayment,
@@ -652,6 +656,146 @@ describe('erc20-recurring-payment-proxy 0.2.0', () => {
         PaymentTypes.SCHEDULE_PERMIT_BATCH_EIP712_TYPES,
         schedulePermitBatch,
       );
+    });
+  });
+
+  const derivedScheduleKey = `0x${'11'.repeat(32)}`;
+
+  describe('encodeAdmitCycles', () => {
+    it('encodes admitCycles without a deployment', () => {
+      const scheduleKey = derivedScheduleKey;
+      const mask = 2;
+      const encodedData = encodeAdmitCycles({ scheduleKey, mask });
+
+      expect(encodedData.startsWith('0x')).toBe(true);
+
+      const iface = new utils.Interface(erc20RecurringPaymentProxyArtifact.getContractAbi('0.2.0'));
+      const decoded = iface.decodeFunctionData('admitCycles', encodedData);
+      expect(decoded.scheduleKey).toBe(scheduleKey);
+      expect(decoded.mask.toNumber()).toBe(mask);
+    });
+  });
+
+  describe('admitCycles', () => {
+    const scheduleKey = derivedScheduleKey;
+    const mask = 2;
+
+    it('should throw if the 0.2.0 proxy is not deployed', async () => {
+      jest.spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress').mockReturnValue('');
+
+      await expect(
+        admitCycles({
+          scheduleKey,
+          mask,
+          signer: wallet,
+          network,
+        }),
+      ).rejects.toThrow('ERC20RecurringPaymentProxy not found on private');
+    });
+
+    it('sends admitCycles to the 0.2.0 address', async () => {
+      const mockProxyAddress = '0x1111111111111111111111111111111111111111';
+      jest
+        .spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress')
+        .mockReturnValue(mockProxyAddress);
+
+      const mockProvider = {
+        sendTransaction: jest.fn().mockResolvedValue({
+          hash: '0xabcdef',
+          wait: jest.fn().mockResolvedValue({ status: 1, transactionHash: '0xabcdef' }),
+        }),
+      };
+      const mockWallet = {
+        ...wallet,
+        provider: mockProvider,
+        sendTransaction: mockProvider.sendTransaction,
+      };
+
+      await admitCycles({
+        scheduleKey,
+        mask,
+        signer: mockWallet as any,
+        network,
+      });
+
+      expect(mockProvider.sendTransaction).toHaveBeenCalledWith({
+        to: mockProxyAddress,
+        data: expect.any(String),
+        value: 0,
+      });
+
+      const sentData = mockProvider.sendTransaction.mock.calls[0][0].data;
+      const iface = new utils.Interface(erc20RecurringPaymentProxyArtifact.getContractAbi('0.2.0'));
+      expect(iface.parseTransaction({ data: sentData }).name).toBe('admitCycles');
+    });
+  });
+
+  describe('encodeRevokeCycles', () => {
+    it('encodes revokeCycles without a deployment', () => {
+      const scheduleKey = derivedScheduleKey;
+      const mask = 2;
+      const encodedData = encodeRevokeCycles({ scheduleKey, mask });
+
+      expect(encodedData.startsWith('0x')).toBe(true);
+
+      const iface = new utils.Interface(erc20RecurringPaymentProxyArtifact.getContractAbi('0.2.0'));
+      const decoded = iface.decodeFunctionData('revokeCycles', encodedData);
+      expect(decoded.scheduleKey).toBe(scheduleKey);
+      expect(decoded.mask.toNumber()).toBe(mask);
+    });
+  });
+
+  describe('revokeCycles', () => {
+    const scheduleKey = derivedScheduleKey;
+    const mask = 2;
+
+    it('should throw if the 0.2.0 proxy is not deployed', async () => {
+      jest.spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress').mockReturnValue('');
+
+      await expect(
+        revokeCycles({
+          scheduleKey,
+          mask,
+          signer: wallet,
+          network,
+        }),
+      ).rejects.toThrow('ERC20RecurringPaymentProxy not found on private');
+    });
+
+    it('sends revokeCycles to the 0.2.0 address', async () => {
+      const mockProxyAddress = '0x1111111111111111111111111111111111111111';
+      jest
+        .spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress')
+        .mockReturnValue(mockProxyAddress);
+
+      const mockProvider = {
+        sendTransaction: jest.fn().mockResolvedValue({
+          hash: '0xabcdef',
+          wait: jest.fn().mockResolvedValue({ status: 1, transactionHash: '0xabcdef' }),
+        }),
+      };
+      const mockWallet = {
+        ...wallet,
+        provider: mockProvider,
+        sendTransaction: mockProvider.sendTransaction,
+      };
+
+      await revokeCycles({
+        scheduleKey,
+        mask,
+        signer: mockWallet as any,
+        network,
+      });
+
+      expect(mockProvider.sendTransaction).toHaveBeenCalledWith({
+        to: mockProxyAddress,
+        data: expect.any(String),
+        value: 0,
+      });
+
+      const sentData = mockProvider.sendTransaction.mock.calls[0][0].data;
+      const iface = new utils.Interface(erc20RecurringPaymentProxyArtifact.getContractAbi('0.2.0'));
+      expect(iface.parseTransaction({ data: sentData }).name).toBe('revokeCycles');
     });
   });
 });

@@ -388,6 +388,80 @@ export async function signSchedulePermitBatch({
   }
 }
 
+/**
+ * Encodes the 0.2.0 `admitCycles` calldata.
+ * Does not require a deployed proxy address.
+ */
+export function encodeAdmitCycles({
+  scheduleKey,
+  mask,
+}: {
+  scheduleKey: string;
+  mask: BigNumberish;
+}): string {
+  return getRecurringPaymentProxyInterface(RECURRING_PROXY_V2).encodeFunctionData('admitCycles', [
+    scheduleKey,
+    mask,
+  ]);
+}
+
+/**
+ * Admits cycles so a subscriber can self-trigger them.
+ * The signer must hold `RELAYER_ROLE`.
+ *
+ * @throws {Error} If the 0.2.0 proxy has no known deployment on the provided network
+ */
+export async function admitCycles({
+  scheduleKey,
+  mask,
+  signer,
+  network,
+}: {
+  scheduleKey: string;
+  mask: BigNumberish;
+  signer: Signer;
+  network: CurrencyTypes.EvmChainName;
+}): Promise<providers.TransactionResponse> {
+  return sendToRecurringProxyV2(signer, network, encodeAdmitCycles({ scheduleKey, mask }));
+}
+
+/**
+ * Encodes the 0.2.0 `revokeCycles` calldata.
+ * Does not require a deployed proxy address.
+ */
+export function encodeRevokeCycles({
+  scheduleKey,
+  mask,
+}: {
+  scheduleKey: string;
+  mask: BigNumberish;
+}): string {
+  return getRecurringPaymentProxyInterface(RECURRING_PROXY_V2).encodeFunctionData('revokeCycles', [
+    scheduleKey,
+    mask,
+  ]);
+}
+
+/**
+ * Revokes previously admitted cycles. Relayer-initiated triggers are unaffected.
+ * The signer must hold `RELAYER_ROLE`.
+ *
+ * @throws {Error} If the 0.2.0 proxy has no known deployment on the provided network
+ */
+export async function revokeCycles({
+  scheduleKey,
+  mask,
+  signer,
+  network,
+}: {
+  scheduleKey: string;
+  mask: BigNumberish;
+  signer: Signer;
+  network: CurrencyTypes.EvmChainName;
+}): Promise<providers.TransactionResponse> {
+  return sendToRecurringProxyV2(signer, network, encodeRevokeCycles({ scheduleKey, mask }));
+}
+
 async function sendToRecurringProxyV2(
   signer: Signer,
   network: CurrencyTypes.EvmChainName,
