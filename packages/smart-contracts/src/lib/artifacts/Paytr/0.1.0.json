@@ -1,0 +1,761 @@
+{
+  "abi": [
+    {
+      "type": "constructor",
+      "inputs": [
+        {
+          "name": "_cometAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "_wrapperAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "_contractFeeModifier",
+          "type": "uint16",
+          "internalType": "uint16"
+        },
+        {
+          "name": "_minDueDateParameter",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "_maxDueDateParameter",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "_minTotalAmountParameter",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "_maxPayoutArraySize",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "payable"
+    },
+    {
+      "type": "function",
+      "name": "ERC20FeeProxyAddress",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "baseAsset",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "claimBaseAssetBalance",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "payable"
+    },
+    {
+      "type": "function",
+      "name": "claimCompRewards",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "payable"
+    },
+    {
+      "type": "function",
+      "name": "cometAddress",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "contractFeeModifier",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint16",
+          "internalType": "uint16"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "getMapping",
+      "inputs": [
+        {
+          "name": "_paymentReference",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "tuple",
+          "internalType": "struct Paytr.PaymentERC20",
+          "components": [
+            {
+              "name": "amount",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "feeAmount",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "wrapperSharesReceived",
+              "type": "uint256",
+              "internalType": "uint256"
+            },
+            {
+              "name": "dueDate",
+              "type": "uint40",
+              "internalType": "uint40"
+            },
+            {
+              "name": "payer",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "payee",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "feeAddress",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "shouldPayoutViaRequestNetwork",
+              "type": "uint8",
+              "internalType": "uint8"
+            }
+          ]
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "maxDueDateParameter",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "maxPayoutArraySize",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "minDueDateParameter",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "minTotalAmountParameter",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "owner",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "pause",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "payable"
+    },
+    {
+      "type": "function",
+      "name": "paused",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool",
+          "internalType": "bool"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "payInvoiceERC20",
+      "inputs": [
+        {
+          "name": "_payee",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "_feeAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "_dueDate",
+          "type": "uint40",
+          "internalType": "uint40"
+        },
+        {
+          "name": "_amount",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "_feeAmount",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "_paymentReference",
+          "type": "bytes",
+          "internalType": "bytes"
+        },
+        {
+          "name": "_shouldPayoutViaRequestNetwork",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "payOutERC20Invoice",
+      "inputs": [
+        {
+          "name": "payoutReferencesArray",
+          "type": "bytes[]",
+          "internalType": "bytes[]"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "paymentMapping",
+      "inputs": [
+        {
+          "name": "",
+          "type": "bytes",
+          "internalType": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "amount",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "feeAmount",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "wrapperSharesReceived",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "dueDate",
+          "type": "uint40",
+          "internalType": "uint40"
+        },
+        {
+          "name": "payer",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "payee",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "feeAddress",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "shouldPayoutViaRequestNetwork",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "renounceOwnership",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "setContractParameters",
+      "inputs": [
+        {
+          "name": "_contractFeeModifier",
+          "type": "uint16",
+          "internalType": "uint16"
+        },
+        {
+          "name": "_minDueDateParameter",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "_maxDueDateParameter",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "_minTotalAmountParameter",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "_maxPayoutArraySize",
+          "type": "uint8",
+          "internalType": "uint8"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "payable"
+    },
+    {
+      "type": "function",
+      "name": "setERC20FeeProxy",
+      "inputs": [
+        {
+          "name": "_ERC20FeeProxyAddress",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "payable"
+    },
+    {
+      "type": "function",
+      "name": "transferOwnership",
+      "inputs": [
+        {
+          "name": "newOwner",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "unpause",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "payable"
+    },
+    {
+      "type": "function",
+      "name": "wrapperAddress",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "address",
+          "internalType": "address"
+        }
+      ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "event",
+      "name": "ContractParametersUpdatedEvent",
+      "inputs": [
+        {
+          "name": "contractFeeModifier",
+          "type": "uint16",
+          "indexed": false,
+          "internalType": "uint16"
+        },
+        {
+          "name": "minDueDateParameter",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "maxDueDateParameter",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "minTotalAmount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "maxPayoutArraySize",
+          "type": "uint8",
+          "indexed": false,
+          "internalType": "uint8"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "InterestPayoutEvent",
+      "inputs": [
+        {
+          "name": "tokenAddress",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        },
+        {
+          "name": "payee",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        },
+        {
+          "name": "interestAmount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "paymentReference",
+          "type": "bytes",
+          "indexed": false,
+          "internalType": "bytes"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "OwnershipTransferred",
+      "inputs": [
+        {
+          "name": "previousOwner",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "newOwner",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "Paused",
+      "inputs": [
+        {
+          "name": "account",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "PayOutERC20Event",
+      "inputs": [
+        {
+          "name": "tokenAddress",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        },
+        {
+          "name": "payee",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        },
+        {
+          "name": "feeAddress",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        },
+        {
+          "name": "amount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "paymentReference",
+          "type": "bytes",
+          "indexed": false,
+          "internalType": "bytes"
+        },
+        {
+          "name": "feeAmount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "PaymentERC20Event",
+      "inputs": [
+        {
+          "name": "tokenAddress",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        },
+        {
+          "name": "payee",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        },
+        {
+          "name": "feeAddress",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        },
+        {
+          "name": "amount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "dueDate",
+          "type": "uint40",
+          "indexed": false,
+          "internalType": "uint40"
+        },
+        {
+          "name": "feeAmount",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        },
+        {
+          "name": "paymentReference",
+          "type": "bytes",
+          "indexed": false,
+          "internalType": "bytes"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "Unpaused",
+      "inputs": [
+        {
+          "name": "account",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "setERC20FeeProxyEvent",
+      "inputs": [
+        {
+          "name": "ERC20FeeProxyAddress",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "error",
+      "name": "DueDateNotAllowed",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "DueDateNotZero",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidArrayLength",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidContractFeeModifier",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidFeeAmount",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidFeeAmountMultiplier",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidMaxArraySize",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidMaxDueDate",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidMinAmount",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidMinDueDate",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidNewDueDate",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "InvalidTotalAmount",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "NoPrePayment",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "NotAuthorized",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "PaymentReferenceInUse",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "ReferenceNotDue",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "ZeroFeeAddress",
+      "inputs": []
+    },
+    {
+      "type": "error",
+      "name": "ZeroPayeeAddress",
+      "inputs": []
+    }
+  ]
+}
