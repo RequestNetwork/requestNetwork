@@ -16,7 +16,8 @@ import './lib/SafeERC20.sol';
  *      subscriber on a cycle the relayer has admitted — then calls
  *      {triggerRecurringPaymentBatch} for each due index.
  *
- *      Cancel is callable by the subscriber or a relayer and does not revoke ERC-20 allowance.
+ *      Cancel is callable by the subscriber, or by a relayer who presents the subscriber's
+ *      signature, and does not revoke ERC-20 allowance.
  *      {scheduleKeyFromBatch} hashes every signed term except `nonce` and `deadline`, so
  *      amending those other terms creates a new schedule; cancelling A does not cancel B.
  */
@@ -67,7 +68,8 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   /// @notice Maximum length of `initialLegs` or `recurringLegs`.
   uint8 public constant MAX_LEGS = 8;
 
-  /// @notice Role that may trigger any due cycle, admit/revoke self-triggers, and cancel.
+  /// @notice Role that may trigger any due cycle, admit/revoke self-triggers, and cancel
+  ///         with the subscriber's signature.
   /// @dev Extra holders compete for `relayerFee` because {_payRelayer} pays `msg.sender`.
   bytes32 public constant RELAYER_ROLE = keccak256('RELAYER_ROLE');
 
@@ -126,8 +128,13 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
    * @notice Emitted when a schedule is cancelled. Further triggers for this key revert.
    * @param scheduleKey Key returned by {scheduleKeyFromBatch}.
    * @param subscriber Subscriber recorded on the permit (not necessarily `msg.sender`).
+   * @param canceller Account that called {cancelScheduleBatch}: the subscriber or a relayer.
    */
-  event ScheduleCancelled(bytes32 indexed scheduleKey, address indexed subscriber);
+  event ScheduleCancelled(
+    bytes32 indexed scheduleKey,
+    address indexed subscriber,
+    address indexed canceller
+  );
 
   /**
    * @notice Emitted when a relayer admits cycles for subscriber self-trigger.
@@ -677,17 +684,23 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
 
   /**
    * @notice Blocks further triggers for this batch schedule.
-   * @dev Callable by the subscriber or a {RELAYER_ROLE} holder. Does not revoke the
-   *      subscriber's ERC-20 allowance to this contract. A relayer can still collect a due
-   *      cycle if they include a trigger in the same block ahead of cancel. Also `approve`
-   *      this proxy to 0 (or decrease) in the same wallet batch if allowance must drop.
+   * @dev Callable by the subscriber or a {RELAYER_ROLE} holder. A relayer must supply the
+   *      subscriber's EIP-712 (or ERC-1271) signature of `p`; `msg.sender == subscriber`
+   *      skips that check. Relayers cannot pre-cancel an unsigned permit. Does not revoke
+   *      the subscriber's ERC-20 allowance. A relayer can still collect a due cycle if they
+   *      include a trigger in the same block ahead of cancel.
    * @param p Permit that identifies the schedule via {scheduleKeyFromBatch}.
+   * @param signature Subscriber signature of {hashScheduleBatch} `(p)`. Ignored when the
+   *        subscriber is `msg.sender`; required for a relayer.
    */
-  function cancelScheduleBatch(SchedulePermitBatch calldata p) external {
+  function cancelScheduleBatch(SchedulePermitBatch calldata p, bytes calldata signature) external {
     _assertSubscriberOrRelayer(p.subscriber);
-    bytes32 scheduleKey = scheduleKeyFromBatch(p);
+    (bytes32 scheduleKey, bytes32 digest) = _keyAndDigest(p);
+    if (msg.sender != p.subscriber) {
+      _assertSigner(p.subscriber, digest, signature);
+    }
     _cancel(schedules[scheduleKey]);
-    emit ScheduleCancelled(scheduleKey, p.subscriber);
+    emit ScheduleCancelled(scheduleKey, p.subscriber, msg.sender);
   }
 
   /**

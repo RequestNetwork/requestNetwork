@@ -126,7 +126,8 @@
       "anonymous": false,
       "inputs": [
         { "indexed": true, "internalType": "bytes32", "name": "scheduleKey", "type": "bytes32" },
-        { "indexed": true, "internalType": "address", "name": "subscriber", "type": "address" }
+        { "indexed": true, "internalType": "address", "name": "subscriber", "type": "address" },
+        { "indexed": true, "internalType": "address", "name": "canceller", "type": "address" }
       ],
       "name": "ScheduleCancelled",
       "type": "event"
@@ -214,7 +215,8 @@
           "internalType": "struct ERC20RecurringPaymentProxy.SchedulePermitBatch",
           "name": "p",
           "type": "tuple"
-        }
+        },
+        { "internalType": "bytes", "name": "signature", "type": "bytes" }
       ],
       "name": "cancelScheduleBatch",
       "outputs": [],

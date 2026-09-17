@@ -533,6 +533,20 @@ describe('erc20-recurring-payment-proxy 0.2.0', () => {
       const decoded = iface.decodeFunctionData('cancelScheduleBatch', encodedData);
       expect(decoded.p.subscriber).toBe(schedulePermitBatch.subscriber);
       expect(decoded.p.scheduleId).toBe(schedulePermitBatch.scheduleId);
+      expect(decoded.signature).toBe('0x');
+    });
+
+    it('encodes the subscriber signature when permitSignature is provided', () => {
+      const permitSignature = `0x${'ab'.repeat(65)}`;
+      const encodedData = encodeCancelScheduleBatch({
+        permitTuple: schedulePermitBatch,
+        permitSignature,
+      });
+
+      const iface = new utils.Interface(erc20RecurringPaymentProxyArtifact.getContractAbi('0.2.0'));
+      const decoded = iface.decodeFunctionData('cancelScheduleBatch', encodedData);
+      expect(decoded.p.subscriber).toBe(schedulePermitBatch.subscriber);
+      expect(decoded.signature).toBe(permitSignature);
     });
   });
 
@@ -603,8 +617,10 @@ describe('erc20-recurring-payment-proxy 0.2.0', () => {
         sendTransaction: mockProvider.sendTransaction,
       };
 
+      const permitSignature = `0x${'cd'.repeat(65)}`;
       await cancelScheduleBatch({
         permitTuple: schedulePermitBatch,
+        permitSignature,
         signer: mockRelayer as any,
         network,
       });
@@ -612,7 +628,7 @@ describe('erc20-recurring-payment-proxy 0.2.0', () => {
       expect(relayer.address).not.toBe(schedulePermitBatch.subscriber);
       expect(mockProvider.sendTransaction).toHaveBeenCalledWith({
         to: mockProxyAddress,
-        data: encodeCancelScheduleBatch({ permitTuple: schedulePermitBatch }),
+        data: encodeCancelScheduleBatch({ permitTuple: schedulePermitBatch, permitSignature }),
         value: 0,
       });
     });

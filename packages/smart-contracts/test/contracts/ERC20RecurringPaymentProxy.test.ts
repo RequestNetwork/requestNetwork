@@ -1475,9 +1475,9 @@ describe('ERC20RecurringPaymentProxy', () => {
       const permit = await simpleBatch();
       const signature = await createBatchSignature(permit, subscriber);
       const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
-      await expect(erc20RecurringPaymentProxy.connect(subscriber).cancelScheduleBatch(permit))
+      await expect(erc20RecurringPaymentProxy.connect(subscriber).cancelScheduleBatch(permit, '0x'))
         .to.emit(erc20RecurringPaymentProxy, 'ScheduleCancelled')
-        .withArgs(scheduleKey, subscriberAddress);
+        .withArgs(scheduleKey, subscriberAddress, subscriberAddress);
 
       await expectCustomError(
         erc20RecurringPaymentProxy
@@ -1489,7 +1489,7 @@ describe('ERC20RecurringPaymentProxy', () => {
 
     it('reverts when a non-subscriber tries to cancel', async () => {
       await expectCustomError(
-        erc20RecurringPaymentProxy.connect(user).cancelScheduleBatch(await simpleBatch()),
+        erc20RecurringPaymentProxy.connect(user).cancelScheduleBatch(await simpleBatch(), '0x'),
         'ERC20RecurringPaymentProxy__NotSubscriber',
       );
     });
@@ -1497,20 +1497,29 @@ describe('ERC20RecurringPaymentProxy', () => {
     it('reports cancelledSchedules true after the subscriber cancels', async () => {
       const permit = await simpleBatch();
       const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
-      await erc20RecurringPaymentProxy.connect(subscriber).cancelScheduleBatch(permit);
+      await erc20RecurringPaymentProxy.connect(subscriber).cancelScheduleBatch(permit, '0x');
       expect(await erc20RecurringPaymentProxy.cancelledSchedules(scheduleKey)).to.be.true;
     });
 
-    it('lets the relayer cancel and then blocks further triggers', async () => {
+    it('reverts when a relayer cancels without a valid subscriber signature', async () => {
+      await expectCustomError(
+        erc20RecurringPaymentProxy.connect(relayer).cancelScheduleBatch(await simpleBatch(), '0x'),
+        'ERC20RecurringPaymentProxy__BadSignature',
+      );
+    });
+
+    it('lets the relayer cancel with a valid subscriber signature and then blocks further triggers', async () => {
       await testERC20.transfer(subscriberAddress, 500);
       await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
 
       const permit = await simpleBatch();
       const signature = await createBatchSignature(permit, subscriber);
       const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
-      await expect(erc20RecurringPaymentProxy.connect(relayer).cancelScheduleBatch(permit))
+      await expect(
+        erc20RecurringPaymentProxy.connect(relayer).cancelScheduleBatch(permit, signature),
+      )
         .to.emit(erc20RecurringPaymentProxy, 'ScheduleCancelled')
-        .withArgs(scheduleKey, subscriberAddress);
+        .withArgs(scheduleKey, subscriberAddress, relayerAddress);
 
       expect(await erc20RecurringPaymentProxy.cancelledSchedules(scheduleKey)).to.be.true;
       await expectCustomError(
@@ -1521,7 +1530,17 @@ describe('ERC20RecurringPaymentProxy', () => {
       );
     });
 
-    it('keeps already-paid cycles after a cancel and blocks the next trigger', async () => {
+    it('reverts when a relayer cancels with a bad subscriber signature', async () => {
+      const permit = await simpleBatch();
+      const badSignature = await createBatchSignature(permit, user);
+
+      await expectCustomError(
+        erc20RecurringPaymentProxy.connect(relayer).cancelScheduleBatch(permit, badSignature),
+        'ERC20RecurringPaymentProxy__BadSignature',
+      );
+    });
+
+    it('keeps already-paid cycles after a signed relayer cancel and blocks the next trigger', async () => {
       await testERC20.transfer(subscriberAddress, 500);
       await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
 
@@ -1547,7 +1566,7 @@ describe('ERC20RecurringPaymentProxy', () => {
         .triggerRecurringPaymentBatch(permit, signature, 1);
       expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(scheduleKey)).to.equal(2);
 
-      await erc20RecurringPaymentProxy.connect(relayer).cancelScheduleBatch(permit);
+      await erc20RecurringPaymentProxy.connect(relayer).cancelScheduleBatch(permit, signature);
       expect(await erc20RecurringPaymentProxy.cancelledSchedules(scheduleKey)).to.be.true;
       expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(scheduleKey)).to.equal(2);
 
