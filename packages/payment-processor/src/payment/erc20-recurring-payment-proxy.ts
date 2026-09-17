@@ -299,7 +299,8 @@ export function encodeCancelScheduleBatch({
 }
 
 /**
- * Cancels a 0.2.0 schedule. The signer must be the permit subscriber.
+ * Cancels a 0.2.0 schedule.
+ * The signer must be the permit subscriber or a `RELAYER_ROLE` holder.
  *
  * @throws {Error} If the 0.2.0 proxy has no known deployment on the provided network
  */

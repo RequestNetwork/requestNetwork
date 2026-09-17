@@ -78,7 +78,10 @@ describe('Artifact', () => {
     });
     expect(
       erc20RecurringPaymentProxyArtifact.getOptionalDeploymentInformation('mainnet', '0.2.0'),
-    ).toBeNull();
+    ).toEqual({
+      address: '0xeA8c5cc64A1C9E323209D12243822c31BeaDeD91',
+      creationBlockNumber: 25873673,
+    });
   });
 
   it('throws for a non-existing network', () => {

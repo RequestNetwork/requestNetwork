@@ -583,6 +583,39 @@ describe('erc20-recurring-payment-proxy 0.2.0', () => {
       const iface = new utils.Interface(erc20RecurringPaymentProxyArtifact.getContractAbi('0.2.0'));
       expect(iface.parseTransaction({ data: sentData }).name).toBe('cancelScheduleBatch');
     });
+
+    it('sends the same cancelScheduleBatch calldata with a relayer signer', async () => {
+      const mockProxyAddress = '0x1111111111111111111111111111111111111111';
+      jest
+        .spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress')
+        .mockReturnValue(mockProxyAddress);
+
+      const relayer = Wallet.createRandom();
+      const mockProvider = {
+        sendTransaction: jest.fn().mockResolvedValue({
+          hash: '0xrelayercancel',
+          wait: jest.fn().mockResolvedValue({ status: 1, transactionHash: '0xrelayercancel' }),
+        }),
+      };
+      const mockRelayer = {
+        ...relayer,
+        provider: mockProvider,
+        sendTransaction: mockProvider.sendTransaction,
+      };
+
+      await cancelScheduleBatch({
+        permitTuple: schedulePermitBatch,
+        signer: mockRelayer as any,
+        network,
+      });
+
+      expect(relayer.address).not.toBe(schedulePermitBatch.subscriber);
+      expect(mockProvider.sendTransaction).toHaveBeenCalledWith({
+        to: mockProxyAddress,
+        data: encodeCancelScheduleBatch({ permitTuple: schedulePermitBatch }),
+        value: 0,
+      });
+    });
   });
 
   describe('hashScheduleBatch', () => {
