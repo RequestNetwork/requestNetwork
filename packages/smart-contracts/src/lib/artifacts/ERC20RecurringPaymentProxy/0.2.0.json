@@ -126,7 +126,8 @@
       "anonymous": false,
       "inputs": [
         { "indexed": true, "internalType": "bytes32", "name": "scheduleKey", "type": "bytes32" },
-        { "indexed": true, "internalType": "address", "name": "subscriber", "type": "address" }
+        { "indexed": true, "internalType": "address", "name": "subscriber", "type": "address" },
+        { "indexed": true, "internalType": "address", "name": "canceller", "type": "address" }
       ],
       "name": "ScheduleCancelled",
       "type": "event"
@@ -186,7 +187,7 @@
             { "internalType": "uint128", "name": "relayerFee", "type": "uint128" },
             { "internalType": "uint8", "name": "totalPayments", "type": "uint8" },
             { "internalType": "uint256", "name": "nonce", "type": "uint256" },
-            { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+            { "internalType": "uint256", "name": "paymentDeadline", "type": "uint256" },
             { "internalType": "bool", "name": "strictOrder", "type": "bool" },
             { "internalType": "bytes32", "name": "scheduleId", "type": "bytes32" },
             { "internalType": "uint32[]", "name": "dueTimes", "type": "uint32[]" },
@@ -214,7 +215,8 @@
           "internalType": "struct ERC20RecurringPaymentProxy.SchedulePermitBatch",
           "name": "p",
           "type": "tuple"
-        }
+        },
+        { "internalType": "bytes", "name": "signature", "type": "bytes" }
       ],
       "name": "cancelScheduleBatch",
       "outputs": [],
@@ -293,7 +295,7 @@
             { "internalType": "uint128", "name": "relayerFee", "type": "uint128" },
             { "internalType": "uint8", "name": "totalPayments", "type": "uint8" },
             { "internalType": "uint256", "name": "nonce", "type": "uint256" },
-            { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+            { "internalType": "uint256", "name": "paymentDeadline", "type": "uint256" },
             { "internalType": "bool", "name": "strictOrder", "type": "bool" },
             { "internalType": "bytes32", "name": "scheduleId", "type": "bytes32" },
             { "internalType": "uint32[]", "name": "dueTimes", "type": "uint32[]" },
@@ -406,7 +408,7 @@
             { "internalType": "uint128", "name": "relayerFee", "type": "uint128" },
             { "internalType": "uint8", "name": "totalPayments", "type": "uint8" },
             { "internalType": "uint256", "name": "nonce", "type": "uint256" },
-            { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+            { "internalType": "uint256", "name": "paymentDeadline", "type": "uint256" },
             { "internalType": "bool", "name": "strictOrder", "type": "bool" },
             { "internalType": "bytes32", "name": "scheduleId", "type": "bytes32" },
             { "internalType": "uint32[]", "name": "dueTimes", "type": "uint32[]" },
@@ -476,7 +478,7 @@
             { "internalType": "uint128", "name": "relayerFee", "type": "uint128" },
             { "internalType": "uint8", "name": "totalPayments", "type": "uint8" },
             { "internalType": "uint256", "name": "nonce", "type": "uint256" },
-            { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+            { "internalType": "uint256", "name": "paymentDeadline", "type": "uint256" },
             { "internalType": "bool", "name": "strictOrder", "type": "bool" },
             { "internalType": "bytes32", "name": "scheduleId", "type": "bytes32" },
             { "internalType": "uint32[]", "name": "dueTimes", "type": "uint32[]" },

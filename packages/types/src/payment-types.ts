@@ -431,7 +431,7 @@ export interface SchedulePermitBatch {
   relayerFee: BigNumberish;
   totalPayments: number;
   nonce: BigNumberish;
-  deadline: BigNumberish;
+  paymentDeadline: BigNumberish;
   strictOrder: boolean;
   scheduleId: string;
   dueTimes: number[];
@@ -452,7 +452,7 @@ export const SCHEDULE_PERMIT_BATCH_EIP712_TYPES: {
     { name: 'relayerFee', type: 'uint128' },
     { name: 'totalPayments', type: 'uint8' },
     { name: 'nonce', type: 'uint256' },
-    { name: 'deadline', type: 'uint256' },
+    { name: 'paymentDeadline', type: 'uint256' },
     { name: 'strictOrder', type: 'bool' },
     { name: 'scheduleId', type: 'bytes32' },
     { name: 'dueTimes', type: 'uint32[]' },

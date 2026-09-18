@@ -109,7 +109,7 @@ describe('ERC20RecurringPaymentProxy', () => {
       { name: 'relayerFee', type: 'uint128' },
       { name: 'totalPayments', type: 'uint8' },
       { name: 'nonce', type: 'uint256' },
-      { name: 'deadline', type: 'uint256' },
+      { name: 'paymentDeadline', type: 'uint256' },
       { name: 'strictOrder', type: 'bool' },
       { name: 'scheduleId', type: 'bytes32' },
       { name: 'dueTimes', type: 'uint32[]' },
@@ -169,7 +169,7 @@ describe('ERC20RecurringPaymentProxy', () => {
       relayerFee: 5,
       totalPayments: 1,
       nonce: 0,
-      deadline: now + 86400,
+      paymentDeadline: now + 86400,
       strictOrder: false,
       scheduleId: '0x0808080808080808080808080808080808080808080808080808080808080808',
       dueTimes: [now - 1],
@@ -503,21 +503,21 @@ describe('ERC20RecurringPaymentProxy', () => {
   });
 
   describe('Schedule key replay', () => {
-    it('keeps the batch schedule key stable across nonce and deadline re-sign', async () => {
+    it('keeps the batch schedule key stable across nonce and paymentDeadline re-sign', async () => {
       const permit = {
         subscriber: subscriberAddress,
         token: testERC20.address,
         relayerFee: 1,
         totalPayments: 1,
         nonce: 0,
-        deadline: Math.floor(Date.now() / 1000) + 86400,
+        paymentDeadline: Math.floor(Date.now() / 1000) + 86400,
         strictOrder: false,
         scheduleId: '0x0101010101010101010101010101010101010101010101010101010101010101',
         dueTimes: [Math.floor(Date.now() / 1000)],
         initialLegs: [],
         recurringLegs: [],
       };
-      const resigned = { ...permit, nonce: 9, deadline: permit.deadline + 1 };
+      const resigned = { ...permit, nonce: 9, paymentDeadline: permit.paymentDeadline + 1 };
       expect(await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit)).to.equal(
         await erc20RecurringPaymentProxy.scheduleKeyFromBatch(resigned),
       );
@@ -530,7 +530,7 @@ describe('ERC20RecurringPaymentProxy', () => {
         relayerFee: 1,
         totalPayments: 1,
         nonce: 0,
-        deadline: Math.floor(Date.now() / 1000) + 86400,
+        paymentDeadline: Math.floor(Date.now() / 1000) + 86400,
         strictOrder: false,
         scheduleId: '0x0101010101010101010101010101010101010101010101010101010101010101',
         dueTimes: [Math.floor(Date.now() / 1000)],
@@ -568,7 +568,7 @@ describe('ERC20RecurringPaymentProxy', () => {
         relayerFee: 0,
         totalPayments: 1,
         nonce: 0,
-        deadline: Math.floor(Date.now() / 1000) + 86400,
+        paymentDeadline: Math.floor(Date.now() / 1000) + 86400,
         strictOrder: false,
         scheduleId: ethers.constants.HashZero,
         dueTimes: [Math.floor(Date.now() / 1000)],
@@ -593,7 +593,7 @@ describe('ERC20RecurringPaymentProxy', () => {
       relayerFee: 1_000_000,
       totalPayments: 4,
       nonce: 0,
-      deadline: Math.floor(Date.UTC(2027, 0, 1) / 1000),
+      paymentDeadline: Math.floor(Date.UTC(2027, 0, 1) / 1000),
       strictOrder: false,
       scheduleId: '0x0101010101010101010101010101010101010101010101010101010101010101',
       dueTimes: [
@@ -796,7 +796,7 @@ describe('ERC20RecurringPaymentProxy', () => {
       relayerFee: 0,
       totalPayments: 1,
       nonce: 0,
-      deadline: Math.floor(Date.now() / 1000) + 86400,
+      paymentDeadline: Math.floor(Date.now() / 1000) + 86400,
       strictOrder: false,
       scheduleId: '0x0202020202020202020202020202020202020202020202020202020202020202',
       dueTimes: [Math.floor(Date.now() / 1000) - 1],
@@ -864,7 +864,7 @@ describe('ERC20RecurringPaymentProxy', () => {
       const now = (await ethers.provider.getBlock('latest')).timestamp;
       const permit = {
         ...workedExample(testERC20.address),
-        deadline: now + 86400,
+        paymentDeadline: now + 86400,
         dueTimes: [now - 1, now + 86400, now + 2 * 86400, now + 3 * 86400],
         initialLegs: [
           { recipient: recipientAddress, amount: 30_000_000, paymentReference: ref(0x0a) },
@@ -894,7 +894,7 @@ describe('ERC20RecurringPaymentProxy', () => {
       const now = (await ethers.provider.getBlock('latest')).timestamp;
       const permit = {
         ...workedExample(testERC20.address),
-        deadline: now + 86400,
+        paymentDeadline: now + 86400,
         dueTimes: [now - 1, now + 86400, now + 2 * 86400, now + 3 * 86400],
         initialLegs: [
           { recipient: recipientAddress, amount: 30_000_000, paymentReference: ref(0x0a) },
@@ -1123,9 +1123,9 @@ describe('ERC20RecurringPaymentProxy', () => {
       );
     });
 
-    it('reverts when the deadline has passed', async () => {
+    it('reverts when the paymentDeadline has passed', async () => {
       const now = await latestBlockTs();
-      const permit = await dueBatchPermit({ deadline: now - 1, dueTimes: [now - 2] });
+      const permit = await dueBatchPermit({ paymentDeadline: now - 1, dueTimes: [now - 2] });
       const signature = await createBatchSignature(permit, subscriber);
       await expectCustomError(
         erc20RecurringPaymentProxy
@@ -1255,7 +1255,7 @@ describe('ERC20RecurringPaymentProxy', () => {
         relayerFee: 5,
         totalPayments: 1,
         nonce: 0,
-        deadline: now + 86400,
+        paymentDeadline: now + 86400,
         strictOrder: false,
         scheduleId: '0x0606060606060606060606060606060606060606060606060606060606060606',
         dueTimes: [now - 1],
@@ -1386,7 +1386,7 @@ describe('ERC20RecurringPaymentProxy', () => {
         relayerFee: 5,
         totalPayments: 1,
         nonce: 0,
-        deadline: now + 86400,
+        paymentDeadline: now + 86400,
         strictOrder: false,
         scheduleId: '0x0707070707070707070707070707070707070707070707070707070707070707',
         dueTimes: [now - 1],
@@ -1459,7 +1459,7 @@ describe('ERC20RecurringPaymentProxy', () => {
         relayerFee: 0,
         totalPayments: 1,
         nonce: 0,
-        deadline: now + 86400,
+        paymentDeadline: now + 86400,
         strictOrder: false,
         scheduleId: '0x0303030303030303030303030303030303030303030303030303030303030303',
         dueTimes: [now],
@@ -1475,9 +1475,9 @@ describe('ERC20RecurringPaymentProxy', () => {
       const permit = await simpleBatch();
       const signature = await createBatchSignature(permit, subscriber);
       const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
-      await expect(erc20RecurringPaymentProxy.connect(subscriber).cancelScheduleBatch(permit))
+      await expect(erc20RecurringPaymentProxy.connect(subscriber).cancelScheduleBatch(permit, '0x'))
         .to.emit(erc20RecurringPaymentProxy, 'ScheduleCancelled')
-        .withArgs(scheduleKey, subscriberAddress);
+        .withArgs(scheduleKey, subscriberAddress, subscriberAddress);
 
       await expectCustomError(
         erc20RecurringPaymentProxy
@@ -1489,7 +1489,7 @@ describe('ERC20RecurringPaymentProxy', () => {
 
     it('reverts when a non-subscriber tries to cancel', async () => {
       await expectCustomError(
-        erc20RecurringPaymentProxy.connect(user).cancelScheduleBatch(await simpleBatch()),
+        erc20RecurringPaymentProxy.connect(user).cancelScheduleBatch(await simpleBatch(), '0x'),
         'ERC20RecurringPaymentProxy__NotSubscriber',
       );
     });
@@ -1497,8 +1497,148 @@ describe('ERC20RecurringPaymentProxy', () => {
     it('reports cancelledSchedules true after the subscriber cancels', async () => {
       const permit = await simpleBatch();
       const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
-      await erc20RecurringPaymentProxy.connect(subscriber).cancelScheduleBatch(permit);
+      await erc20RecurringPaymentProxy.connect(subscriber).cancelScheduleBatch(permit, '0x');
       expect(await erc20RecurringPaymentProxy.cancelledSchedules(scheduleKey)).to.be.true;
+    });
+
+    it('reverts when a relayer cancels without a valid subscriber signature', async () => {
+      await expectCustomError(
+        erc20RecurringPaymentProxy.connect(relayer).cancelScheduleBatch(await simpleBatch(), '0x'),
+        'ERC20RecurringPaymentProxy__BadSignature',
+      );
+    });
+
+    it('lets the relayer cancel with a valid subscriber signature and then blocks further triggers', async () => {
+      await testERC20.transfer(subscriberAddress, 500);
+      await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+
+      const permit = await simpleBatch();
+      const signature = await createBatchSignature(permit, subscriber);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+      await expect(
+        erc20RecurringPaymentProxy.connect(relayer).cancelScheduleBatch(permit, signature),
+      )
+        .to.emit(erc20RecurringPaymentProxy, 'ScheduleCancelled')
+        .withArgs(scheduleKey, subscriberAddress, relayerAddress);
+
+      expect(await erc20RecurringPaymentProxy.cancelledSchedules(scheduleKey)).to.be.true;
+      await expectCustomError(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(permit, signature, 1),
+        'ERC20RecurringPaymentProxy__Cancelled',
+      );
+    });
+
+    it('reverts when a relayer cancels with a bad subscriber signature', async () => {
+      const permit = await simpleBatch();
+      const badSignature = await createBatchSignature(permit, user);
+
+      await expectCustomError(
+        erc20RecurringPaymentProxy.connect(relayer).cancelScheduleBatch(permit, badSignature),
+        'ERC20RecurringPaymentProxy__BadSignature',
+      );
+    });
+
+    it('keeps already-paid cycles after a signed relayer cancel and blocks the next trigger', async () => {
+      await testERC20.transfer(subscriberAddress, 500);
+      await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+
+      const now = await latestTs();
+      const permit = {
+        subscriber: subscriberAddress,
+        token: testERC20.address,
+        relayerFee: 0,
+        totalPayments: 2,
+        nonce: 0,
+        paymentDeadline: now + 86400,
+        strictOrder: false,
+        scheduleId: '0x0404040404040404040404040404040404040404040404040404040404040404',
+        dueTimes: [now - 2, now - 1],
+        initialLegs: [],
+        recurringLegs: [{ recipient: recipientAddress, amount: 10, paymentReference: ref(0x22) }],
+      };
+      const signature = await createBatchSignature(permit, subscriber);
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permit);
+
+      await erc20RecurringPaymentProxy
+        .connect(relayer)
+        .triggerRecurringPaymentBatch(permit, signature, 1);
+      expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(scheduleKey)).to.equal(2);
+
+      await erc20RecurringPaymentProxy.connect(relayer).cancelScheduleBatch(permit, signature);
+      expect(await erc20RecurringPaymentProxy.cancelledSchedules(scheduleKey)).to.be.true;
+      expect(await erc20RecurringPaymentProxy.triggeredPaymentsBitmap(scheduleKey)).to.equal(2);
+
+      await expectCustomError(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(permit, signature, 2),
+        'ERC20RecurringPaymentProxy__Cancelled',
+      );
+    });
+
+    it('lets an expired signature cancel but not trigger, and the renewed same-key permit stays cancelled', async () => {
+      await testERC20.transfer(subscriberAddress, 500);
+      await testERC20.connect(subscriber).approve(erc20RecurringPaymentProxy.address, 500);
+
+      const now = await latestTs();
+      const expiredPermit = {
+        ...(await simpleBatch()),
+        paymentDeadline: now - 1,
+        dueTimes: [now - 2],
+      };
+      const expiredSignature = await createBatchSignature(expiredPermit, subscriber);
+
+      const renewedPermit = { ...expiredPermit, nonce: 1, paymentDeadline: now + 86400 };
+      const renewedSignature = await createBatchSignature(renewedPermit, subscriber);
+
+      const scheduleKey = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(expiredPermit);
+      expect(await erc20RecurringPaymentProxy.scheduleKeyFromBatch(renewedPermit)).to.equal(
+        scheduleKey,
+      );
+
+      // paymentDeadline ends the authority to trigger payments...
+      await expectCustomError(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(expiredPermit, expiredSignature, 1),
+        'ERC20RecurringPaymentProxy__SignatureExpired',
+      );
+
+      // ...but not the authority to cancel.
+      await expect(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .cancelScheduleBatch(expiredPermit, expiredSignature),
+      )
+        .to.emit(erc20RecurringPaymentProxy, 'ScheduleCancelled')
+        .withArgs(scheduleKey, subscriberAddress, relayerAddress);
+
+      // Renewing the permit (new nonce/paymentDeadline, same key) cannot revive the schedule.
+      await expectCustomError(
+        erc20RecurringPaymentProxy
+          .connect(relayer)
+          .triggerRecurringPaymentBatch(renewedPermit, renewedSignature, 1),
+        'ERC20RecurringPaymentProxy__Cancelled',
+      );
+    });
+
+    it('rejects a subscriber signature for one schedule when cancelling another', async () => {
+      const permitA = await simpleBatch();
+      const permitB = {
+        ...permitA,
+        scheduleId: '0x0909090909090909090909090909090909090909090909090909090909090909',
+      };
+      const signatureA = await createBatchSignature(permitA, subscriber);
+
+      await expectCustomError(
+        erc20RecurringPaymentProxy.connect(relayer).cancelScheduleBatch(permitB, signatureA),
+        'ERC20RecurringPaymentProxy__BadSignature',
+      );
+
+      const scheduleKeyB = await erc20RecurringPaymentProxy.scheduleKeyFromBatch(permitB);
+      expect(await erc20RecurringPaymentProxy.cancelledSchedules(scheduleKeyB)).to.be.false;
     });
   });
 
@@ -1515,7 +1655,7 @@ describe('ERC20RecurringPaymentProxy', () => {
         relayerFee: 0,
         totalPayments: 4,
         nonce: 0,
-        deadline: now + 86400,
+        paymentDeadline: now + 86400,
         strictOrder: false,
         scheduleId: '0x0404040404040404040404040404040404040404040404040404040404040404',
         dueTimes: [now - 3, now - 2, now - 1, now],
@@ -1657,7 +1797,7 @@ describe('ERC20RecurringPaymentProxy', () => {
         relayerFee: 0,
         totalPayments: 4,
         nonce: 0,
-        deadline: now + 86400,
+        paymentDeadline: now + 86400,
         strictOrder: false,
         scheduleId: '0x0505050505050505050505050505050505050505050505050505050505050505',
         dueTimes: [now - 3, now - 2, now - 1, now],
@@ -1762,7 +1902,7 @@ describe('ERC20RecurringPaymentProxy', () => {
         relayerFee: 1_000_000,
         totalPayments: 4,
         nonce: 0,
-        deadline: Math.floor(Date.UTC(2027, 0, 1) / 1000),
+        paymentDeadline: Math.floor(Date.UTC(2027, 0, 1) / 1000),
         strictOrder: false,
         scheduleId: '0x0101010101010101010101010101010101010101010101010101010101010101',
         dueTimes: [t0, oct1, nov1, dec1],

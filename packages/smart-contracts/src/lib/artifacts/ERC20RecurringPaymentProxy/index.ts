@@ -47,32 +47,32 @@ export const erc20RecurringPaymentProxyArtifact = new ContractArtifact<Contract>
       abi: ABI_0_2_0,
       deployment: {
         sepolia: {
-          address: '0xD7b1553ffE25491377a505f97f92cc44427D80A0',
-          creationBlockNumber: 11570049,
+          address: '0xF17B277E0E3FC584dA6f50E8C46B2E8F1c9b951b',
+          creationBlockNumber: 11729088,
         },
         mainnet: {
-          address: '0xeA8c5cc64A1C9E323209D12243822c31BeaDeD91',
-          creationBlockNumber: 25873673,
+          address: '0xbd43EDecA92d4c4721F6EecaD347516f9DeB0711',
+          creationBlockNumber: 26002785,
         },
         matic: {
-          address: '0xa58a5bf7F70c14eD1804192643c68201C541681c',
-          creationBlockNumber: 92972393,
+          address: '0x04a118727287a1588DA09dE054a9AcaD66Bd99Dc',
+          creationBlockNumber: 94007691,
         },
         base: {
-          address: '0xDc8781fFAb20Fef4aB0472c3d6E50073B540Ed9e',
-          creationBlockNumber: 50685271,
+          address: '0xDdd4328fe040E44B8445e2dD2D9518c56CE4b07d',
+          creationBlockNumber: 51463809,
         },
         optimism: {
-          address: '0x368d9F4cEb9bbF06d1fF89dfE304c5dCfb7C0aed',
-          creationBlockNumber: 156281770,
+          address: '0x72B79b40e3e9F883FBff3ec30D4a2372489a95ed',
+          creationBlockNumber: 157059296,
         },
         'arbitrum-one': {
-          address: '0xE4e709F30d9c8b0a8923d18DEF6Ae6ac979E7Ad1',
-          creationBlockNumber: 500229938,
+          address: '0xBB9835Ecea4967AA7Dc06241cEA20323ddA8f1D5',
+          creationBlockNumber: 506369721,
         },
         bsc: {
-          address: '0xED8D28Ae27800e06d477F630421a3170676A5244',
-          creationBlockNumber: 119119329,
+          address: '0x322e3e9553a497434A68791e60BAFD2972597e3D',
+          creationBlockNumber: 122570929,
         },
       },
     },

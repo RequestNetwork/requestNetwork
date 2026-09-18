@@ -285,34 +285,46 @@ export async function triggerRecurringPaymentBatch({
 
 /**
  * Encodes the 0.2.0 `cancelScheduleBatch` calldata.
- * Does not require a deployed proxy address.
+ * Relayers must pass `permitSignature` (the subscriber's EIP-712 signature). Subscribers
+ * may omit it (`0x`); the contract skips the signature check when `msg.sender` is the
+ * subscriber. Does not require a deployed proxy address.
  */
 export function encodeCancelScheduleBatch({
   permitTuple,
+  permitSignature = '0x',
 }: {
   permitTuple: PaymentTypes.SchedulePermitBatch;
+  permitSignature?: string;
 }): string {
   return getRecurringPaymentProxyInterface(RECURRING_PROXY_V2).encodeFunctionData(
     'cancelScheduleBatch',
-    [permitTuple],
+    [permitTuple, permitSignature],
   );
 }
 
 /**
- * Cancels a 0.2.0 schedule. The signer must be the permit subscriber.
+ * Cancels a 0.2.0 schedule.
+ * The signer must be the permit subscriber, or a `RELAYER_ROLE` holder who also passes
+ * `permitSignature` (the subscriber's EIP-712 signature of `permitTuple`).
  *
  * @throws {Error} If the 0.2.0 proxy has no known deployment on the provided network
  */
 export async function cancelScheduleBatch({
   permitTuple,
+  permitSignature,
   signer,
   network,
 }: {
   permitTuple: PaymentTypes.SchedulePermitBatch;
+  permitSignature?: string;
   signer: Signer;
   network: CurrencyTypes.EvmChainName;
 }): Promise<providers.TransactionResponse> {
-  return sendToRecurringProxyV2(signer, network, encodeCancelScheduleBatch({ permitTuple }));
+  return sendToRecurringProxyV2(
+    signer,
+    network,
+    encodeCancelScheduleBatch({ permitTuple, permitSignature }),
+  );
 }
 
 /**

@@ -73,12 +73,15 @@ describe('Artifact', () => {
     expect(
       erc20RecurringPaymentProxyArtifact.getOptionalDeploymentInformation('sepolia', '0.2.0'),
     ).toEqual({
-      address: '0xD7b1553ffE25491377a505f97f92cc44427D80A0',
-      creationBlockNumber: 11570049,
+      address: '0xF17B277E0E3FC584dA6f50E8C46B2E8F1c9b951b',
+      creationBlockNumber: 11729088,
     });
     expect(
       erc20RecurringPaymentProxyArtifact.getOptionalDeploymentInformation('mainnet', '0.2.0'),
-    ).toBeNull();
+    ).toEqual({
+      address: '0xbd43EDecA92d4c4721F6EecaD347516f9DeB0711',
+      creationBlockNumber: 26002785,
+    });
   });
 
   it('throws for a non-existing network', () => {

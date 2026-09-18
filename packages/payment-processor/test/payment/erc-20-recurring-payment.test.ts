@@ -360,7 +360,7 @@ describe('erc20-recurring-payment-proxy 0.2.0', () => {
     relayerFee: '5000000000000000',
     totalPayments: 2,
     nonce: 0,
-    deadline: now + 3600,
+    paymentDeadline: now + 3600,
     strictOrder: false,
     scheduleId: '0x0808080808080808080808080808080808080808080808080808080808080808',
     dueTimes: [now - 1, now + 86400],
@@ -533,6 +533,20 @@ describe('erc20-recurring-payment-proxy 0.2.0', () => {
       const decoded = iface.decodeFunctionData('cancelScheduleBatch', encodedData);
       expect(decoded.p.subscriber).toBe(schedulePermitBatch.subscriber);
       expect(decoded.p.scheduleId).toBe(schedulePermitBatch.scheduleId);
+      expect(decoded.signature).toBe('0x');
+    });
+
+    it('encodes the subscriber signature when permitSignature is provided', () => {
+      const permitSignature = `0x${'ab'.repeat(65)}`;
+      const encodedData = encodeCancelScheduleBatch({
+        permitTuple: schedulePermitBatch,
+        permitSignature,
+      });
+
+      const iface = new utils.Interface(erc20RecurringPaymentProxyArtifact.getContractAbi('0.2.0'));
+      const decoded = iface.decodeFunctionData('cancelScheduleBatch', encodedData);
+      expect(decoded.p.subscriber).toBe(schedulePermitBatch.subscriber);
+      expect(decoded.signature).toBe(permitSignature);
     });
   });
 
@@ -582,6 +596,41 @@ describe('erc20-recurring-payment-proxy 0.2.0', () => {
       const sentData = mockProvider.sendTransaction.mock.calls[0][0].data;
       const iface = new utils.Interface(erc20RecurringPaymentProxyArtifact.getContractAbi('0.2.0'));
       expect(iface.parseTransaction({ data: sentData }).name).toBe('cancelScheduleBatch');
+    });
+
+    it('sends the same cancelScheduleBatch calldata with a relayer signer', async () => {
+      const mockProxyAddress = '0x1111111111111111111111111111111111111111';
+      jest
+        .spyOn(erc20RecurringPaymentProxyArtifact, 'getAddress')
+        .mockReturnValue(mockProxyAddress);
+
+      const relayer = Wallet.createRandom();
+      const mockProvider = {
+        sendTransaction: jest.fn().mockResolvedValue({
+          hash: '0xrelayercancel',
+          wait: jest.fn().mockResolvedValue({ status: 1, transactionHash: '0xrelayercancel' }),
+        }),
+      };
+      const mockRelayer = {
+        ...relayer,
+        provider: mockProvider,
+        sendTransaction: mockProvider.sendTransaction,
+      };
+
+      const permitSignature = `0x${'cd'.repeat(65)}`;
+      await cancelScheduleBatch({
+        permitTuple: schedulePermitBatch,
+        permitSignature,
+        signer: mockRelayer as any,
+        network,
+      });
+
+      expect(relayer.address).not.toBe(schedulePermitBatch.subscriber);
+      expect(mockProvider.sendTransaction).toHaveBeenCalledWith({
+        to: mockProxyAddress,
+        data: encodeCancelScheduleBatch({ permitTuple: schedulePermitBatch, permitSignature }),
+        value: 0,
+      });
     });
   });
 
