@@ -18,7 +18,7 @@ import './lib/SafeERC20.sol';
  *
  *      Cancel is callable by the subscriber, or by a relayer who presents the subscriber's
  *      signature, and does not revoke ERC-20 allowance.
- *      {scheduleKeyFromBatch} hashes every signed term except `nonce` and `deadline`, so
+ *      {scheduleKeyFromBatch} hashes every signed term except `nonce` and `paymentDeadline`, so
  *      amending those other terms creates a new schedule; cancelling A does not cancel B.
  */
 contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, ReentrancyGuard {
@@ -26,7 +26,8 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
 
   /// @notice The EIP-712 digest does not recover to `subscriber`.
   error ERC20RecurringPaymentProxy__BadSignature();
-  /// @notice `block.timestamp` is after the permit `deadline`.
+  /// @notice `block.timestamp` is after the permit `paymentDeadline`. Payment triggers only;
+  ///         cancellation is not bounded by `paymentDeadline`.
   error ERC20RecurringPaymentProxy__SignatureExpired();
   /// @notice `strictOrder` is set and `index` is not `lastIndex + 1`.
   error ERC20RecurringPaymentProxy__PaymentOutOfOrder();
@@ -82,7 +83,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   bytes32 private constant _BATCH_TYPEHASH =
     keccak256(
       'SchedulePermitBatch(address subscriber,address token,uint128 relayerFee,'
-      'uint8 totalPayments,uint256 nonce,uint256 deadline,bool strictOrder,'
+      'uint8 totalPayments,uint256 nonce,uint256 paymentDeadline,bool strictOrder,'
       'bytes32 scheduleId,uint32[] dueTimes,Leg[] initialLegs,Leg[] recurringLegs)'
       'Leg(address recipient,uint128 amount,bytes8 paymentReference)'
     );
@@ -103,8 +104,8 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
 
   /**
    * @notice Schedule state keyed by {scheduleKeyFromBatch}.
-   * @dev The key includes every signed term except `nonce` and `deadline`. Changing any of
-   *      those other terms yields a new key with a virgin bitmap and cancelled flag.
+   * @dev The key includes every signed term except `nonce` and `paymentDeadline`. Changing any
+   *      of those other terms yields a new key with a virgin bitmap and cancelled flag.
    */
   mapping(bytes32 => ScheduleState) public schedules;
 
@@ -179,7 +180,8 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
    * @param relayerFee Extra tokens paid to `msg.sender` on each successful trigger.
    * @param totalPayments Number of cycles; must equal `dueTimes.length`.
    * @param nonce Included in the signed digest only; not part of the schedule key.
-   * @param deadline Unix time after which the signature is rejected.
+   * @param paymentDeadline Unix time after which the signature can no longer trigger
+   *        payments. Does not bound {cancelScheduleBatch}.
    * @param strictOrder When true, cycles must be paid in increasing index order.
    * @param scheduleId Non-zero id that distinguishes otherwise identical permits.
    * @param dueTimes Unix times, strictly increasing, one per cycle (1-based index).
@@ -192,7 +194,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     uint128 relayerFee;
     uint8 totalPayments;
     uint256 nonce;
-    uint256 deadline;
+    uint256 paymentDeadline;
     bool strictOrder;
     bytes32 scheduleId;
     uint32[] dueTimes;
@@ -284,7 +286,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
         p.relayerFee,
         p.totalPayments,
         p.nonce,
-        p.deadline,
+        p.paymentDeadline,
         p.strictOrder,
         p.scheduleId,
         dueTimesHash,
@@ -323,8 +325,8 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
   }
 
   /**
-   * @dev Schedule key from precomputed dynamic-field hashes. `nonce` and `deadline` are omitted
-   *      so a refreshed signature does not reset payment state.
+   * @dev Schedule key from precomputed dynamic-field hashes. `nonce` and `paymentDeadline` are
+   *      omitted so a refreshed signature does not reset payment state.
    */
   function _scheduleKeyFromBatch(
     SchedulePermitBatch calldata p,
@@ -351,7 +353,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
 
   /**
    * @notice Deterministic id of the on-chain schedule described by `p`.
-   * @param p Permit whose terms (except `nonce` and `deadline`) identify the schedule.
+   * @param p Permit whose terms (except `nonce` and `paymentDeadline`) identify the schedule.
    * @return scheduleKey Storage key in {schedules}.
    */
   function scheduleKeyFromBatch(SchedulePermitBatch calldata p) public pure returns (bytes32) {
@@ -637,7 +639,7 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
     _assertRelayerOrAdmitted(p.subscriber, state, index);
 
     _assertSigner(p.subscriber, digest, signature);
-    if (block.timestamp > p.deadline) revert ERC20RecurringPaymentProxy__SignatureExpired();
+    if (block.timestamp > p.paymentDeadline) revert ERC20RecurringPaymentProxy__SignatureExpired();
 
     if (p.totalPayments == 0 || index > p.totalPayments) {
       revert ERC20RecurringPaymentProxy__IndexOutOfBounds();
@@ -689,6 +691,12 @@ contract ERC20RecurringPaymentProxy is EIP712, AccessControl, Pausable, Reentran
    *      skips that check. Relayers cannot pre-cancel an unsigned permit. Does not revoke
    *      the subscriber's ERC-20 allowance. A relayer can still collect a due cycle if they
    *      include a trigger in the same block ahead of cancel.
+   *
+   *      `paymentDeadline` ends the authority to trigger payments, not the authority to
+   *      cancel: an expired signature remains valid here. Because the schedule key excludes
+   *      `nonce` and `paymentDeadline`, that signature also cancels a renewed (re-signed)
+   *      permit over the same terms, and renewing a permit cannot revive a cancelled
+   *      schedule. This is intentional.
    * @param p Permit that identifies the schedule via {scheduleKeyFromBatch}.
    * @param signature Subscriber signature of {hashScheduleBatch} `(p)`. Ignored when the
    *        subscriber is `msg.sender`; required for a relayer.

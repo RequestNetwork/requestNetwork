@@ -360,7 +360,7 @@ describe('erc20-recurring-payment-proxy 0.2.0', () => {
     relayerFee: '5000000000000000',
     totalPayments: 2,
     nonce: 0,
-    deadline: now + 3600,
+    paymentDeadline: now + 3600,
     strictOrder: false,
     scheduleId: '0x0808080808080808080808080808080808080808080808080808080808080808',
     dueTimes: [now - 1, now + 86400],
