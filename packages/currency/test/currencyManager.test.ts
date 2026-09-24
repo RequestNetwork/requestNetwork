@@ -764,6 +764,15 @@ describe('CurrencyManager', () => {
         address: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
       });
     });
+    it('Detects native USDC matic (aka USDCn-matic) by USDC symbol and matic network', () => {
+      expect(currencyManager.from('USDC', 'matic')).toMatchObject({
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        network: 'matic',
+        symbol: 'USDC',
+        id: 'USDCn-matic',
+        address: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359',
+      });
+    });
   });
 
   describe('validateAleoAddress', () => {
