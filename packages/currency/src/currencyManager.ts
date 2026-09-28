@@ -73,7 +73,10 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
     }
 
     if (network && currencyIdentifier.indexOf(network) === -1) {
-      currencyIdentifier = CurrencyManager.currencyId({ symbol: currencyIdentifier, network });
+      currencyIdentifier = CurrencyManager.currencyId(
+        { symbol: currencyIdentifier, network },
+        this.knownCurrencies,
+      );
     }
 
     const currencyFromId = this.fromId(currencyIdentifier);
@@ -232,8 +235,16 @@ export class CurrencyManager<TMeta = unknown> implements CurrencyTypes.ICurrency
   /**
    * Utility function to compute the unique identifier
    */
-  static currencyId(currency: { symbol: string; network?: string }): string {
-    return 'network' in currency ? `${currency.symbol}-${currency.network}` : currency.symbol;
+  static currencyId(
+    currency: { symbol: string; network?: string },
+    knownCurrencies?: CurrencyTypes.CurrencyDefinition[],
+  ): string {
+    return 'network' in currency
+      ? knownCurrencies?.find(
+          (ccy) =>
+            'network' in ccy && ccy.network === currency.network && ccy.symbol === currency.symbol,
+        )?.id ?? `${currency.symbol}-${currency.network}`
+      : currency.symbol;
   }
 
   /**

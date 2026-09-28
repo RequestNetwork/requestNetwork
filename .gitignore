@@ -26,6 +26,8 @@ tsconfig.tsbuildinfo
 tsconfig.build.tsbuildinfo
 
 # tests
+/coverage/
+/reports/
 /packages/*/coverage/
 /packages/*/reports/
 
