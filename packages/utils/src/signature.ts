@@ -92,7 +92,7 @@ function recoverSigner(signedData: SignatureTypes.ISignedData): IdentityTypes.II
     if (v.toLowerCase() === '00') {
       signature = `${signedData.signature.value.slice(0, V_POSITION_FROM_END_IN_ECDSA_HEX)}1b`;
     } else if (v.toLowerCase() === '01') {
-      signature = `${signedData.signature.value.slice(0, V_POSITION_FROM_END_IN_ECDSA_HEX)}1b`;
+      signature = `${signedData.signature.value.slice(0, V_POSITION_FROM_END_IN_ECDSA_HEX)}1c`;
     }
     const normalizedData = ethers.utils.hashMessage(normalize(signedData.data));
     value = ecRecover(signature, normalizedData).toLowerCase();
