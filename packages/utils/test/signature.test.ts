@@ -128,37 +128,46 @@ describe('Signature', () => {
       expect(id).toEqual(otherIdRaw.identity);
     });
 
-    // Signed with otherIdRaw.privateKey using ethers Wallet.signMessage(normalize(data)).
+    // Canonical 1b/1c signatures use otherIdRaw.privateKey and ethers Wallet.signMessage(normalize(data)).
+    // Raw-parity 00/01 fixtures differ only in the final recovery byte.
     it.each([
       {
         signedData: data,
-        signature:
+        value:
           '0x3fbc7ed9dfa003067f646749d4223def2a69df70371d4f15ec001bc1491cdee40558de1f31fdc7cc5d805a5c4080b54cda3430b29ab14f04e17a5b23fcd39b391b',
-        ethereumV: '1b',
-        rawV: '00',
+        recoveryByte: '1b',
+      },
+      {
+        signedData: data,
+        value:
+          '0x3fbc7ed9dfa003067f646749d4223def2a69df70371d4f15ec001bc1491cdee40558de1f31fdc7cc5d805a5c4080b54cda3430b29ab14f04e17a5b23fcd39b3900',
+        recoveryByte: '00',
       },
       {
         signedData: { ...data, nonce: 0 },
-        signature:
+        value:
           '0xdcc840c5823c37a7399629e89f9ab8c8824eef6b59235ea98f2072244f23ab7d18e64adc43900aaaf8bf84de9e811aff4791d6603eba734153dffdec2c9f112d1c',
-        ethereumV: '1c',
-        rawV: '01',
+        recoveryByte: '1c',
+      },
+      {
+        signedData: { ...data, nonce: 0 },
+        value:
+          '0xdcc840c5823c37a7399629e89f9ab8c8824eef6b59235ea98f2072244f23ab7d18e64adc43900aaaf8bf84de9e811aff4791d6603eba734153dffdec2c9f112d01',
+        recoveryByte: '01',
       },
     ])(
-      'recovers the expected ECDSA_ETHEREUM signer with $ethereumV and $rawV',
-      ({ signedData, signature, ethereumV, rawV }) => {
-        expect(signature.slice(-2)).toBe(ethereumV);
-        for (const value of [signature, `${signature.slice(0, -2)}${rawV}`]) {
-          expect(
-            recoverSigner({
-              data: signedData,
-              signature: { method: SignatureTypes.METHOD.ECDSA_ETHEREUM, value },
-            }),
-          ).toEqual({
-            type: otherIdRaw.identity.type,
-            value: otherIdRaw.identity.value.toLowerCase(),
-          });
-        }
+      'recovers the expected ECDSA_ETHEREUM signer with recovery byte $recoveryByte',
+      ({ signedData, value, recoveryByte }) => {
+        expect(value.slice(-2)).toBe(recoveryByte);
+        expect(
+          recoverSigner({
+            data: signedData,
+            signature: { method: SignatureTypes.METHOD.ECDSA_ETHEREUM, value },
+          }),
+        ).toEqual({
+          type: otherIdRaw.identity.type,
+          value: otherIdRaw.identity.value.toLowerCase(),
+        });
       },
     );
 
