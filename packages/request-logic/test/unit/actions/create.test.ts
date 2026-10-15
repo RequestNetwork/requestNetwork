@@ -1,7 +1,7 @@
 import * as MultiFormat from '@requestnetwork/multi-format';
-import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { IdentityTypes, RequestLogicTypes, SignatureTypes } from '@requestnetwork/types';
 
-import { normalizeKeccak256Hash } from '@requestnetwork/utils';
+import { normalizeKeccak256Hash, sign } from '@requestnetwork/utils';
 
 import CreateAction from '../../../src/actions/create';
 
@@ -625,6 +625,63 @@ describe('CreateAction', () => {
   });
 
   describe('createRequest', () => {
+    describe('ECDSA_ETHEREUM recovery parity', () => {
+      // Keep this fixture fixed: both test keys produce parity-1 signatures for it.
+      const data: RequestLogicTypes.IUnsignedAction = {
+        name: RequestLogicTypes.ACTION_NAME.CREATE,
+        parameters: {
+          currency: { type: RequestLogicTypes.CURRENCY.ETH, value: 'ETH' },
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          payee: TestData.payeeRaw.identity,
+          timestamp: TestData.arbitraryTimestamp,
+          nonce: 3,
+        },
+        version: '2.0.3',
+      };
+
+      it.each(['1c', '01'])('accepts the payee signature ending in %s', (v) => {
+        const { signature } = sign(data, {
+          method: SignatureTypes.METHOD.ECDSA_ETHEREUM,
+          privateKey: TestData.payeeRaw.privateKey,
+        });
+        expect(signature.value.slice(-2)).toBe('1c');
+
+        const request = CreateAction.createRequest(
+          {
+            data,
+            signature: { ...signature, value: `${signature.value.slice(0, -2)}${v}` },
+          },
+          TestData.arbitraryTimestamp,
+        );
+
+        expect(request.state).toBe(RequestLogicTypes.STATE.CREATED);
+        expect(request.creator).toEqual(TestData.payeeRaw.identity);
+        expect(request.expectedAmount).toBe(TestData.arbitraryExpectedAmount);
+        expect(request.events[0].actionSigner).toEqual({
+          ...TestData.payeeRaw.identity,
+          value: TestData.payeeRaw.address.toLowerCase(),
+        });
+      });
+
+      it.each(['1c', '01'])('rejects an unrelated signer with a signature ending in %s', (v) => {
+        const { signature } = sign(data, {
+          method: SignatureTypes.METHOD.ECDSA_ETHEREUM,
+          privateKey: TestData.otherIdRaw.privateKey,
+        });
+        expect(signature.value.slice(-2)).toBe('1c');
+
+        expect(() =>
+          CreateAction.createRequest(
+            {
+              data,
+              signature: { ...signature, value: `${signature.value.slice(0, -2)}${v}` },
+            },
+            TestData.arbitraryTimestamp,
+          ),
+        ).toThrowError('Signer must be the payee or the payer');
+      });
+    });
+
     it('can create with only the payee', async () => {
       const createParams = {
         currency: {
