@@ -18,7 +18,7 @@ import {
   validateRequest,
 } from './utils';
 import { IPreparedPrivateTransaction } from './prepared-transaction';
-import type { IHinkal, RelayerTransaction } from '@hinkal/common';
+import { getERC20Token, type IHinkal, type RelayerTransaction } from '@hinkal/common';
 
 /**
  * This is a globally accessible state variable exported for use in other parts of the application or tests.
@@ -62,12 +62,45 @@ export async function sendToHinkalShieldedAddressFromPublic(
   const signer = getSigner(signerOrProvider);
   const hinkalObject = await addToHinkalStore(signer);
 
+  const token = getERC20Token(tokenAddress, await signer.getChainId());
+  if (!token) throw Error();
+
   const amountToPay = BigNumber.from(amount).toBigInt();
   if (recipientInfo) {
-    return hinkalObject.depositForOther([tokenAddress], [amountToPay], recipientInfo);
+    return hinkalObject.depositForOther([token], [amountToPay], recipientInfo);
   } else {
-    return hinkalObject.deposit([tokenAddress], [amountToPay]);
+    return hinkalObject.deposit([token], [amountToPay]);
   }
+}
+
+/**
+ * Sends a batch of payments to Hinkal shielded addresses from a public address.
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param tokenAddresses the addresses of the ERC20 tokens to send.
+ * @param amounts the amounts of tokens to send.
+ * @param recipientInfos include the shielded addresses of the recipients.
+ */
+export async function sendBatchPaymentsToHinkalShieldedAddressesFromPublic(
+  signerOrProvider: providers.Provider | Signer = getProvider(),
+  tokenAddresses: string[],
+  amounts: BigNumberish[],
+  recipientInfos: string[],
+): Promise<ContractTransaction> {
+  const signer = getSigner(signerOrProvider);
+  const hinkalObject = await addToHinkalStore(signer);
+  const chainId = await signer.getChainId();
+
+  const tokens = tokenAddresses.map((tokenAddress) => {
+    const token = getERC20Token(tokenAddress, chainId);
+    if (!token) throw Error('Token cannot be found');
+    return token;
+  });
+  const amountsToPay = amounts.map((amount) => BigNumber.from(amount).toBigInt());
+
+  console.log({ tokens, amountsToPay, recipientInfos });
+
+  const tx = await hinkalObject.multiSendPrivateRecipients(tokens, amountsToPay, recipientInfos);
+  return tx;
 }
 
 /**
@@ -147,13 +180,16 @@ export async function prepareErc20ProxyPaymentFromHinkalShieldedAddress(
   const { emporiumOp } = await import('@hinkal/common');
 
   const ops = [
-    emporiumOp(tokenContract, 'approve', [proxyContract.address, amountToPay]),
-    emporiumOp(proxyContract, 'transferFromWithReference', [
-      tokenAddress,
-      paymentAddress,
-      amountToPay,
-      `0x${paymentReference}`,
-    ]),
+    emporiumOp({
+      contract: tokenContract,
+      func: 'approve',
+      args: [proxyContract.address, amountToPay],
+    }),
+    emporiumOp({
+      contract: proxyContract,
+      func: 'transferFromWithReference',
+      args: [tokenAddress, paymentAddress, amountToPay, `0x${paymentReference}`],
+    }),
   ];
 
   return {
@@ -192,15 +228,23 @@ export async function prepareErc20FeeProxyPaymentFromHinkalShieldedAddress(
   const { emporiumOp } = await import('@hinkal/common');
 
   const ops = [
-    emporiumOp(tokenContract, 'approve', [proxyContract.address, totalAmount]),
-    emporiumOp(proxyContract, 'transferFromWithReferenceAndFee', [
-      tokenAddress,
-      paymentAddress,
-      amountToPay,
-      `0x${paymentReference}`,
-      feeToPay,
-      feeAddress,
-    ]),
+    emporiumOp({
+      contract: tokenContract,
+      func: 'approve',
+      args: [proxyContract.address, totalAmount],
+    }),
+    emporiumOp({
+      contract: proxyContract,
+      func: 'transferFromWithReferenceAndFee',
+      args: [
+        tokenAddress,
+        paymentAddress,
+        amountToPay,
+        `0x${paymentReference}`,
+        feeToPay,
+        feeAddress,
+      ],
+    }),
   ];
 
   return {
