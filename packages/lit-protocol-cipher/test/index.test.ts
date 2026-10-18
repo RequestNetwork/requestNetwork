@@ -43,6 +43,9 @@ describe('LitProvider', () => {
     },
   ];
 
+  const mockDomain = 'localhost';
+  const mockStatement = 'Sign in with Ethereum';
+
   beforeEach(async () => {
     jest.clearAllMocks();
 
@@ -71,7 +74,13 @@ describe('LitProvider', () => {
       signMessage: jest.fn().mockReturnValue(Promise.resolve('mock-signature')),
     } as unknown as jest.Mocked<Signer>;
 
-    litProvider = new LitProvider(mockLitClient, mockNodeConnectionConfig, mockChain);
+    litProvider = new LitProvider(
+      mockLitClient,
+      mockNodeConnectionConfig,
+      mockChain,
+      mockDomain,
+      mockStatement,
+    );
     await litProvider.initializeClient();
   });
 
@@ -189,18 +198,11 @@ describe('LitProvider', () => {
         derivedVia: 'mock',
         signedMessage: 'mock',
       };
-      const mockDomain = 'localhost';
-      const mockStatement = 'Sign in with Ethereum';
 
       (generateAuthSig as jest.Mock).mockReturnValue(Promise.resolve(mockAuthSig));
       (createSiweMessage as jest.Mock).mockReturnValue(Promise.resolve('mock-siwe-message'));
 
-      await litProvider.getSessionSignatures(
-        mockSigner,
-        mockWalletAddress,
-        mockDomain,
-        mockStatement,
-      );
+      await litProvider.getSessionSignatures(mockSigner, mockWalletAddress);
 
       expect(mockLitClient.connect).toHaveBeenCalled();
       expect(mockLitClient.getLatestBlockhash).toHaveBeenCalled();
@@ -226,10 +228,17 @@ describe('LitProvider', () => {
         signedMessage: 'mock',
       };
 
+      // Create new provider instance without domain and statement
+      const providerWithoutDomainStatement = new LitProvider(
+        mockLitClient,
+        mockNodeConnectionConfig,
+        mockChain,
+      );
+
       (generateAuthSig as jest.Mock).mockReturnValue(Promise.resolve(mockAuthSig));
       (createSiweMessage as jest.Mock).mockReturnValue(Promise.resolve('mock-siwe-message'));
 
-      await litProvider.getSessionSignatures(mockSigner, mockWalletAddress);
+      await providerWithoutDomainStatement.getSessionSignatures(mockSigner, mockWalletAddress);
 
       expect(mockLitClient.connect).toHaveBeenCalled();
       expect(mockLitClient.getLatestBlockhash).toHaveBeenCalled();
@@ -253,24 +262,28 @@ describe('LitProvider', () => {
         derivedVia: 'mock',
         signedMessage: 'mock',
       };
-      const mockDomain = 'custom.domain';
-      const mockStatement = 'Custom statement for signing';
+      const customDomain = 'custom.domain';
+      const customStatement = 'Custom statement for signing';
+
+      // Create new provider instance with custom domain and statement
+      const providerWithCustomParams = new LitProvider(
+        mockLitClient,
+        mockNodeConnectionConfig,
+        mockChain,
+        customDomain,
+        customStatement,
+      );
 
       (generateAuthSig as jest.Mock).mockReturnValue(Promise.resolve(mockAuthSig));
       (createSiweMessage as jest.Mock).mockReturnValue(Promise.resolve('mock-siwe-message'));
 
-      await litProvider.getSessionSignatures(
-        mockSigner,
-        mockWalletAddress,
-        mockDomain,
-        mockStatement,
-      );
+      await providerWithCustomParams.getSessionSignatures(mockSigner, mockWalletAddress);
 
       expect(mockLitClient.connect).toHaveBeenCalled();
       expect(mockLitClient.getLatestBlockhash).toHaveBeenCalled();
       expect(createSiweMessage).toHaveBeenCalledWith({
-        domain: mockDomain,
-        statement: mockStatement,
+        domain: customDomain,
+        statement: customStatement,
         uri: expect.any(String),
         expiration: expect.any(String),
         resources: expect.any(Array),
@@ -282,27 +295,14 @@ describe('LitProvider', () => {
     });
 
     it('should not get new signatures if they already exist', async () => {
-      const mockDomain = 'localhost';
-      const mockStatement = 'Sign in with Ethereum';
-
       // Set session signatures
-      await litProvider.getSessionSignatures(
-        mockSigner,
-        mockWalletAddress,
-        mockDomain,
-        mockStatement,
-      );
+      await litProvider.getSessionSignatures(mockSigner, mockWalletAddress);
 
       // Reset mocks
       jest.clearAllMocks();
 
       // Call again, should not call Lit SDK methods
-      await litProvider.getSessionSignatures(
-        mockSigner,
-        mockWalletAddress,
-        mockDomain,
-        mockStatement,
-      );
+      await litProvider.getSessionSignatures(mockSigner, mockWalletAddress);
 
       expect(mockLitClient.connect).not.toHaveBeenCalled();
       expect(mockLitClient.getLatestBlockhash).not.toHaveBeenCalled();
