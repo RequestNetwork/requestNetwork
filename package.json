@@ -64,6 +64,7 @@
     "underscore": "^1.12.1",
     "crypto-js": "^4.2.0",
     "minimist": "^0.2.4",
+    "node-gyp-build": "4.8.4",
     "semver": "^7.5.4",
     "json-schema": "^0.4.0",
     "json5": "^2.2.1"

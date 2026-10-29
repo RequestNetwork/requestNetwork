@@ -34,6 +34,8 @@ export default class Request {
   private paymentNetwork: PaymentTypes.IPaymentNetwork | null = null;
   private contentDataExtension: ContentDataExtension | null;
   private emitter: EventEmitter;
+  private confirmationPromise: Promise<Types.IRequestDataWithEvents>;
+  private refreshPromise: Promise<unknown> = Promise.resolve();
   private logger: SimpleLogger = new SimpleLogger(LogTypes.LogLevel.WARN);
 
   /**
@@ -119,6 +121,14 @@ export default class Request {
     this.contentDataExtension = options?.contentDataExtension || null;
     this.paymentNetwork = options?.paymentNetwork || null;
     this.emitter = new EventEmitter();
+    // Subscribe before refresh can finish creation, so late callers cannot miss its result.
+    this.confirmationPromise = new Promise((resolve, reject) => {
+      this.on('confirmed', resolve);
+      this.on('error', reject);
+    });
+    // Keep failures available to waitForConfirmation without an unhandled rejection
+    // when callers use the event API instead.
+    this.confirmationPromise.catch(() => undefined);
     this.skipPaymentDetection = options?.skipPaymentDetection || false;
     this.disableEvents = options?.disableEvents || false;
     this.currencyManager = currencyManager;
@@ -162,10 +172,7 @@ export default class Request {
    * @returns the request data
    */
   public waitForConfirmation(): Promise<Types.IRequestDataWithEvents> {
-    return new Promise((resolve, reject): any => {
-      this.on('confirmed', resolve);
-      this.on('error', reject);
-    });
+    return this.confirmationPromise;
   }
 
   /**
@@ -748,7 +755,17 @@ export default class Request {
    * @param requestAndMeta return from getRequestFromId to avoid asking twice
    * @returns Refreshed request data
    */
-  public async refresh(
+  public refresh(
+    requestAndMeta?: RequestLogicTypes.IReturnGetRequestFromId,
+  ): Promise<Types.IRequestDataWithEvents> {
+    // Finish the initial refresh before applying a newer confirmation refresh.
+    const refresh = this.refreshPromise.then(() => this.refreshData(requestAndMeta));
+    // A failed read must not prevent a later refresh from retrying.
+    this.refreshPromise = refresh.catch(() => undefined);
+    return refresh;
+  }
+
+  private async refreshData(
     requestAndMeta?: RequestLogicTypes.IReturnGetRequestFromId,
   ): Promise<Types.IRequestDataWithEvents> {
     if (this.confirmationErrorOccurredAtCreation) {

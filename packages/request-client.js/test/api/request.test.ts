@@ -9,6 +9,7 @@ import {
 import { EventEmitter } from 'events';
 
 import Request from '../../src/api/request';
+import { IRequestDataWithEvents } from '../../src/types';
 
 const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
   async createRequest(): Promise<any> {
@@ -151,6 +152,136 @@ describe('api/request', () => {
     testingEmitter.emit('error', 'error for test purpose');
     // 'error must be emitted'
     expect(handleError).toHaveBeenCalled();
+  });
+
+  describe('waitForConfirmation', () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('waits for refreshed confirmation data and supports repeated waits', async () => {
+      const emitter = new EventEmitter();
+      const request = new Request('1', mockRequestLogic, currencyManager, {
+        requestLogicCreateResult: emitter as any,
+      });
+      const data = request.getData();
+      let finishRefresh!: (value: IRequestDataWithEvents) => void;
+      jest.spyOn(request, 'refresh').mockReturnValue(
+        new Promise((resolve) => {
+          finishRefresh = resolve;
+        }),
+      );
+      const confirmed = jest.fn();
+      const pending = request.waitForConfirmation().then(confirmed);
+      emitter.emit('confirmed');
+      await Promise.resolve();
+      expect(confirmed).not.toHaveBeenCalled();
+
+      finishRefresh(data);
+      await pending;
+      expect(confirmed).toHaveBeenCalledWith(data);
+      await expect(request.waitForConfirmation()).resolves.toBe(data);
+    });
+
+    it('returns confirmation that arrived before the caller started waiting', async () => {
+      const emitter = new EventEmitter();
+      const request = new Request('1', mockRequestLogic, currencyManager, {
+        requestLogicCreateResult: emitter as any,
+      });
+      const data = request.getData();
+      jest.spyOn(request, 'refresh').mockResolvedValue(data);
+      const notified = new Promise<void>((resolve) => request.on('confirmed', () => resolve()));
+
+      emitter.emit('confirmed');
+      await notified;
+
+      await expect(request.waitForConfirmation()).resolves.toBe(data);
+    });
+
+    it('rejects a late wait when creation failed', async () => {
+      const emitter = new EventEmitter();
+      const request = new Request('1', mockRequestLogic, currencyManager, {
+        requestLogicCreateResult: emitter as any,
+      });
+      const error = new Error('creation failed');
+      const notified = jest.fn();
+      request.on('error', notified);
+
+      emitter.emit('error', error);
+      await new Promise<void>((resolve) => setImmediate(resolve));
+
+      expect(notified).toHaveBeenCalledWith(error);
+      await expect(request.waitForConfirmation()).rejects.toBe(error);
+    });
+
+    it('rejects when refreshing the confirmation fails', async () => {
+      const emitter = new EventEmitter();
+      const request = new Request('1', mockRequestLogic, currencyManager, {
+        requestLogicCreateResult: emitter as any,
+      });
+      const error = new Error('refresh failed');
+      jest.spyOn(request, 'refresh').mockRejectedValue(error);
+      const pending = expect(request.waitForConfirmation()).rejects.toBe(error);
+
+      emitter.emit('confirmed');
+
+      await pending;
+    });
+
+    it('keeps confirmed data when the initial refresh is still running', async () => {
+      const fixture = await mockRequestLogic.getRequestFromId('1');
+      const confirmed = {
+        ...fixture,
+        result: {
+          request: { ...fixture.result.request!, state: RequestLogicTypes.STATE.CREATED },
+          pending: null,
+        },
+      };
+      let finishInitial!: (value: RequestLogicTypes.IReturnGetRequestFromId) => void;
+      jest
+        .spyOn(mockRequestLogic, 'getRequestFromId')
+        .mockImplementationOnce(() => new Promise((resolve) => (finishInitial = resolve)))
+        .mockResolvedValue(confirmed);
+      const emitter = new EventEmitter();
+      const request = new Request('1', mockRequestLogic, currencyManager, {
+        requestLogicCreateResult: emitter as any,
+      });
+      const events: string[] = [];
+      request.on('confirmed', () => events.push('confirmed'));
+      const initial = request.refresh().then(() => events.push('initial'));
+
+      emitter.emit('confirmed');
+      await new Promise<void>((resolve) => setImmediate(resolve));
+      finishInitial({
+        ...fixture,
+        result: { request: null, pending: confirmed.result.request },
+      });
+      await initial;
+      await expect(request.waitForConfirmation()).resolves.toMatchObject({
+        state: RequestLogicTypes.STATE.CREATED,
+        pending: null,
+      });
+      expect(request.getData()).toMatchObject({
+        state: RequestLogicTypes.STATE.CREATED,
+        pending: null,
+      });
+      expect(events).toEqual(['initial', 'confirmed']);
+    });
+
+    it('can refresh again after an earlier refresh failed', async () => {
+      const fixture = await mockRequestLogic.getRequestFromId('1');
+      const error = new Error('initial refresh failed');
+      jest
+        .spyOn(mockRequestLogic, 'getRequestFromId')
+        .mockRejectedValueOnce(error)
+        .mockResolvedValue(fixture);
+      const request = new Request('1', mockRequestLogic, currencyManager);
+      const initial = expect(request.refresh()).rejects.toBe(error);
+      const next = request.refresh();
+
+      await initial;
+      await expect(next).resolves.toMatchObject({ requestId: '1' });
+    });
   });
 
   describe('accept', () => {

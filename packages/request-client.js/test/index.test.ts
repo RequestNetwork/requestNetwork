@@ -827,9 +827,10 @@ describe('request-client.js', () => {
         [idRaw1.encryptionParams],
       );
 
+      await request.waitForConfirmation();
       const requestFromId = await requestNetwork.fromRequestId(request.requestId);
 
-      expect(requestFromId).toMatchObject(request);
+      expect(requestFromId.getData()).toMatchObject(request.getData());
 
       const requestData = requestFromId.getData();
       expect(requestData.meta).not.toBeNull();
@@ -1008,7 +1009,7 @@ describe('request-client.js', () => {
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
 
-      expect(fetchedRequest).toMatchObject(request);
+      expect(fetchedRequest.getData()).toMatchObject(request.getData());
 
       const requestData = fetchedRequest.getData();
       expect(requestData.meta).not.toBeNull();
@@ -1038,7 +1039,7 @@ describe('request-client.js', () => {
       );
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
-      expect(fetchedRequest).toMatchObject(request);
+      expect(fetchedRequest.getData()).toMatchObject(request.getData());
 
       const requestData = fetchedRequest.getData();
       expect(requestData.meta).not.toBeNull();
@@ -1081,6 +1082,7 @@ describe('request-client.js', () => {
         [idRaw1.encryptionParams],
       );
 
+      await request.waitForConfirmation();
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
       const requestData = fetchedRequest.getData();
       expect(requestData).toMatchObject(request.getData());
@@ -1134,6 +1136,7 @@ describe('request-client.js', () => {
         },
         [idRaw1.encryptionParams, idRaw2.encryptionParams],
       );
+      await request.waitForConfirmation();
       const fetchedRequest = await payeeRequestNetwork.fromRequestId(request.requestId);
       const requestData = fetchedRequest.getData();
       expect(requestData).toMatchObject(request.getData());
