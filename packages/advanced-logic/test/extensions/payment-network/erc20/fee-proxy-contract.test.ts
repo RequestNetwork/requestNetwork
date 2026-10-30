@@ -290,6 +290,68 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
         ).toEqual(DataERC20FeeCreate.extensionFullState);
       });
 
+      describe('after the request creation', () => {
+        const requestAfterCreation: RequestLogicTypes.IRequest = deepCopy(
+          DataERC20FeeCreate.requestStateNoExtensions,
+        );
+        requestAfterCreation.events.push({
+          actionSigner: TestData.otherIdRaw.identity,
+          name: RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA,
+          parameters: { extensionsDataLength: 1 },
+          timestamp: TestData.arbitraryTimestamp,
+        });
+
+        it('can applyActionToExtensions of creation signed by the payee', () => {
+          expect(
+            erc20FeeProxyContract.applyActionToExtension(
+              requestAfterCreation.extensions,
+              DataERC20FeeCreate.actionCreationFull,
+              requestAfterCreation,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            ),
+          ).toEqual(DataERC20FeeCreate.extensionFullState);
+        });
+
+        it('cannot applyActionToExtensions of creation signed by someone else than the payee', () => {
+          expect(() => {
+            erc20FeeProxyContract.applyActionToExtension(
+              requestAfterCreation.extensions,
+              DataERC20FeeCreate.actionCreationFull,
+              requestAfterCreation,
+              TestData.otherIdRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }).toThrowError('The signer must be the payee');
+        });
+
+        it('cannot applyActionToExtensions of creation signed by the payer', () => {
+          expect(() => {
+            erc20FeeProxyContract.applyActionToExtension(
+              requestAfterCreation.extensions,
+              DataERC20FeeCreate.actionCreationFull,
+              requestAfterCreation,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }).toThrowError('The signer must be the payee');
+        });
+
+        it('cannot applyActionToExtensions of creation without payee', () => {
+          const requestNoPayee: RequestLogicTypes.IRequest = deepCopy(requestAfterCreation);
+          delete requestNoPayee.payee;
+          expect(() => {
+            erc20FeeProxyContract.applyActionToExtension(
+              requestNoPayee.extensions,
+              DataERC20FeeCreate.actionCreationFull,
+              requestNoPayee,
+              TestData.otherIdRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }).toThrowError('The request must have a payee');
+        });
+      });
+
       it('cannot applyActionToExtensions of creation with a previous state', () => {
         // 'must throw'
         expect(() => {

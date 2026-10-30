@@ -1,5 +1,5 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { deepCopy } from '@requestnetwork/utils';
+import { areEqualIdentities, deepCopy } from '@requestnetwork/utils';
 
 export interface ICreationContext {
   extensionsState: RequestLogicTypes.IExtensionStates;
@@ -65,6 +65,17 @@ export abstract class AbstractExtension<TCreationParameters> implements Extensio
     if (extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE) {
       if (requestState.extensions[extensionAction.id]) {
         throw Error(`This extension has already been created`);
+      }
+
+      // New extensions can supply payment instructions or content.
+      // After request creation, only the payee may add them.
+      if (!this.isRequestCreation(requestState)) {
+        if (!requestState.payee) {
+          throw Error(`The request must have a payee`);
+        }
+        if (!areEqualIdentities(actionSigner, requestState.payee)) {
+          throw Error(`The signer must be the payee`);
+        }
       }
 
       copiedExtensionState[extensionAction.id] = this.applyCreation(extensionAction, timestamp, {
@@ -141,4 +152,14 @@ export abstract class AbstractExtension<TCreationParameters> implements Extensio
     _extensionAction: ExtensionTypes.IAction,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
   ): void {}
+
+  /**
+   * Whether the action being applied is part of the request creation action.
+   * Every request action pushes an event before extensions are applied, so the request is
+   * being created only if its last event is the creation event.
+   */
+  private isRequestCreation(requestState: RequestLogicTypes.IRequest): boolean {
+    const lastEvent = requestState.events[requestState.events.length - 1];
+    return !lastEvent || lastEvent.name === RequestLogicTypes.ACTION_NAME.CREATE;
+  }
 }
