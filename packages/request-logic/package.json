@@ -48,6 +48,7 @@
     "tslib": "2.8.1"
   },
   "devDependencies": {
+    "@requestnetwork/currency": "0.34.0",
     "@types/jest": "29.5.6",
     "@types/semver": "7.3.4",
     "jest": "29.5.0",
