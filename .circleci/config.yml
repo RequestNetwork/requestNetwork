@@ -86,6 +86,9 @@ jobs:
       - run:
           name: Yarn install
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+      - run:
+          name: Verify native signature module
+          command: node -e 'require("secp256k1/bindings")'
       - save_cache:
           name: Save Yarn Package Cache
           key: yarn-packages-{{ checksum "yarn.lock" }}

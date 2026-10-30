@@ -10,6 +10,7 @@ class TestClass {
 describe('Retry', () => {
   afterEach(() => {
     jest.clearAllMocks();
+    jest.useRealTimers();
   });
   it('retries a sync function', () => {
     const spy = jest.fn();
@@ -78,7 +79,7 @@ describe('Retry', () => {
     await expect(retry(test.method, { context: test })()).resolves.toBe('private');
   });
 
-  it('waits for the delay before retring', async () => {
+  it('waits for the configured delay before retrying', async () => {
     jest.useFakeTimers();
     jest.setSystemTime(0);
 
@@ -92,9 +93,9 @@ describe('Retry', () => {
     const retryDelay = 1000;
 
     const promise = retry(throwOnce, { retryDelay })();
-    jest.advanceTimersByTime(500);
+    await jest.advanceTimersByTimeAsync(retryDelay - 1);
     expect(throwOnce).toHaveBeenCalledTimes(1);
-    jest.advanceTimersByTime(500);
+    await jest.advanceTimersByTimeAsync(1);
     const callTime = await promise;
 
     expect(callTime).toBe(retryDelay);
@@ -103,26 +104,6 @@ describe('Retry', () => {
   });
 
   /* eslint-disable no-magic-numbers */
-  it('waits for the delay before retring (without fake timer)', async () => {
-    let retrying = false;
-    const spy = jest.fn(() => Date.now());
-
-    function throwOnce(): Promise<any> {
-      if (retrying) {
-        return Promise.resolve(spy());
-      }
-      retrying = true;
-      throw new Error(`thew`);
-    }
-
-    const now = Date.now();
-
-    setTimeout(() => expect(spy).not.toHaveBeenCalled(), 200);
-    const after = await retry(throwOnce, { retryDelay: 500 })();
-
-    expect(after).toBeGreaterThanOrEqual(now + 500);
-  });
-
   it('delay increases exponentially if using exponentialBackoff', async () => {
     jest.useFakeTimers();
     jest.setSystemTime(0);
