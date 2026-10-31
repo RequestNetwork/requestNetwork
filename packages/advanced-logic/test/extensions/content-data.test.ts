@@ -1,4 +1,4 @@
-import { ExtensionTypes } from '@requestnetwork/types';
+import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { deepCopy } from '@requestnetwork/utils';
 
 import ContentData from '../../src/extensions/content-data';
@@ -28,6 +28,41 @@ describe('content-data', () => {
       expect(previousState).toEqual({});
       // 'previous request state must not change'
       expect(requestCreatedNoExtensionBefore).toEqual(TestData.requestCreatedNoExtension);
+    });
+    describe('after the request creation', () => {
+      const requestAfterCreation: RequestLogicTypes.IRequest = deepCopy(
+        TestData.requestCreatedNoExtension,
+      );
+      requestAfterCreation.events.push({
+        actionSigner: TestData.otherIdRaw.identity,
+        name: RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA,
+        parameters: { extensionsDataLength: 1 },
+        timestamp: TestData.arbitraryTimestamp,
+      });
+
+      it('can create state if signed by the payee', () => {
+        expect(
+          contentData.applyActionToExtension(
+            {},
+            TestData.createContentDataExtensionData,
+            requestAfterCreation,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          ),
+        ).toEqual(TestData.expectedCreatedContentDataState);
+      });
+
+      it('cannot create state if not signed by the payee', () => {
+        expect(() =>
+          contentData.applyActionToExtension(
+            {},
+            TestData.createContentDataExtensionData,
+            requestAfterCreation,
+            TestData.otherIdRaw.identity,
+            TestData.arbitraryTimestamp,
+          ),
+        ).toThrowError('The signer must be the payee');
+      });
     });
     it('cannot create state if already state', () => {
       expect(() =>

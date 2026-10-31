@@ -130,6 +130,27 @@ describe('extensions/payment-network/meta', () => {
         ).toEqual(MetaCreate.extensionFullStateMultipleAnyToErc20);
       });
 
+      it('cannot applyActionToExtensions of creation after the request creation if not signed by the payee', () => {
+        const requestAfterCreation: RequestLogicTypes.IRequest = deepCopy(
+          MetaCreate.requestStateNoExtensions,
+        );
+        requestAfterCreation.events.push({
+          actionSigner: TestData.otherIdRaw.identity,
+          name: RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA,
+          parameters: { extensionsDataLength: 1 },
+          timestamp: TestData.arbitraryTimestamp,
+        });
+        expect(() => {
+          metaPn.applyActionToExtension(
+            requestAfterCreation.extensions,
+            MetaCreate.actionCreationMultipleAnyToErc20,
+            requestAfterCreation,
+            TestData.otherIdRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError('The signer must be the payee');
+      });
+
       it('cannot applyActionToExtensions of creation with a previous state', () => {
         expect(() => {
           metaPn.applyActionToExtension(
@@ -357,6 +378,25 @@ describe('extensions/payment-network/meta', () => {
             TestData.arbitraryTimestamp,
           );
         }).toThrowError(`No payment network with identifier wrongId`);
+      });
+
+      it('cannot applyActionToExtensions applyApplyActionToExtension to create a sub-pn', () => {
+        expect(() => {
+          metaPn.applyActionToExtension(
+            MetaCreate.requestFullStateCreated.extensions,
+            {
+              ...MetaCreate.actionApplyActionToPn,
+              parameters: {
+                action: ExtensionTypes.PnMeta.ACTION.CREATE,
+                pnIdentifier: MetaCreate.salt1,
+                parameters: MetaCreate.baseParams(MetaCreate.salt1),
+              },
+            },
+            MetaCreate.requestFullStateCreated,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError('Invalid action');
       });
 
       it('cannot applyActionToExtensions applyApplyActionToExtension when the action does not exists on the sub pn', () => {

@@ -211,7 +211,12 @@ export default class MetaPaymentNetwork<
         }
       });
     } else if (extensionAction.action === ExtensionTypes.PnMeta.ACTION.APPLY_ACTION_TO_PN) {
-      const { pnIdentifier } = extensionAction.parameters;
+      const { pnIdentifier, action } = extensionAction.parameters;
+
+      // Sub-payment networks can only be created with the meta payment network
+      if (action === ExtensionTypes.PnMeta.ACTION.CREATE) {
+        throw new Error('Invalid action');
+      }
 
       const subPnState: ExtensionTypes.IState =
         request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.META]?.values?.[pnIdentifier];

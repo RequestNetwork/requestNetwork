@@ -1,5 +1,7 @@
 import { EventEmitter } from 'events';
 
+import { AdvancedLogic } from '@requestnetwork/advanced-logic';
+import { CurrencyManager } from '@requestnetwork/currency';
 import * as MultiFormat from '@requestnetwork/multi-format';
 import { AdvancedLogicTypes, RequestLogicTypes, TransactionTypes } from '@requestnetwork/types';
 
@@ -1015,6 +1017,83 @@ describe('index', () => {
   });
 
   describe('getRequestFromId', () => {
+    it('ignores an ACCEPT with an unauthorized new extension and allows a later valid ACCEPT', async () => {
+      const advancedLogic = new AdvancedLogic(CurrencyManager.getDefault());
+      const rejectedAccept = sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId,
+            extensionsData: [
+              advancedLogic.extensions.contentData.createCreationAction({
+                content: { invoiceNumber: 'test-invoice' },
+              }),
+            ],
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+      const transactions: TransactionTypes.IReturnGetTransactions['result']['transactions'] = [
+        {
+          state: TransactionTypes.TransactionState.CONFIRMED,
+          timestamp: 1,
+          transaction: { data: JSON.stringify(action) },
+        },
+        {
+          state: TransactionTypes.TransactionState.CONFIRMED,
+          timestamp: 2,
+          transaction: { data: JSON.stringify(rejectedAccept) },
+        },
+      ];
+      const transactionManager: TransactionTypes.ITransactionManager = {
+        ...fakeTransactionManager,
+        getTransactionsByChannelId: async () => ({
+          meta: { ignoredTransactions: [] },
+          result: { transactions },
+        }),
+      };
+      const requestLogic = new RequestLogic(transactionManager, undefined, advancedLogic);
+
+      const rejected = await requestLogic.getRequestFromId(requestId);
+
+      expect(rejected.result.request?.state).toBe(RequestLogicTypes.STATE.CREATED);
+      expect(rejected.result.request?.extensions).toEqual({});
+      expect(rejected.result.request?.events.map((event) => event.name)).toEqual([
+        RequestLogicTypes.ACTION_NAME.CREATE,
+      ]);
+      expect(rejected.meta.ignoredTransactions).toEqual([
+        expect.objectContaining({
+          reason: 'The signer must be the payee',
+          transaction: expect.objectContaining({ action: rejectedAccept }),
+        }),
+      ]);
+
+      const validAccept = sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+          parameters: { requestId },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+      transactions.push({
+        state: TransactionTypes.TransactionState.CONFIRMED,
+        timestamp: 3,
+        transaction: { data: JSON.stringify(validAccept) },
+      });
+
+      const accepted = await requestLogic.getRequestFromId(requestId);
+
+      expect(accepted.result.request?.state).toBe(RequestLogicTypes.STATE.ACCEPTED);
+      expect(accepted.result.request?.extensions).toEqual({});
+      expect(accepted.result.request?.events.map((event) => event.name)).toEqual([
+        RequestLogicTypes.ACTION_NAME.CREATE,
+        RequestLogicTypes.ACTION_NAME.ACCEPT,
+      ]);
+      expect(accepted.meta.ignoredTransactions).toEqual(rejected.meta.ignoredTransactions);
+    });
+
     it('can getRequestFromId', async () => {
       const actionCreate: RequestLogicTypes.IAction = sign(
         {
