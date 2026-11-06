@@ -66,6 +66,13 @@ function applyActionToRequest(
     // Will throw if the request is not valid
     Request.checkRequest(requestCopied);
 
+    if (
+      action.data.parameters.requestId &&
+      action.data.parameters.requestId.toLowerCase() !== requestCopied.requestId.toLowerCase()
+    ) {
+      throw new Error('The action requestId must match the request');
+    }
+
     if (action.data.name === RequestLogicTypes.ACTION_NAME.ACCEPT) {
       requestAfterApply = AcceptAction.applyActionToRequest(action, timestamp, requestCopied);
     }
