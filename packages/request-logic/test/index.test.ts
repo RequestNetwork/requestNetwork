@@ -3,7 +3,12 @@ import { EventEmitter } from 'events';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { CurrencyManager } from '@requestnetwork/currency';
 import * as MultiFormat from '@requestnetwork/multi-format';
-import { AdvancedLogicTypes, RequestLogicTypes, TransactionTypes } from '@requestnetwork/types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  RequestLogicTypes,
+  TransactionTypes,
+} from '@requestnetwork/types';
 
 import { RequestLogic } from '../src/index';
 import * as TestData from './unit/utils/test-data-generator';
@@ -1017,6 +1022,184 @@ describe('index', () => {
   });
 
   describe('getRequestFromId', () => {
+    describe('extension action validation', () => {
+      const advancedLogic = new AdvancedLogic(CurrencyManager.getDefault());
+      const salt = 'ea3bc7caf64110cb';
+      const feeParameters = {
+        paymentAddress: TestData.payeeRaw.identity.value,
+        refundAddress: TestData.payerRaw.identity.value,
+        feeAddress: TestData.otherIdRaw.identity.value,
+        feeAmount: '0',
+        salt,
+      };
+      const fixtures: Array<{
+        label: string;
+        currency: RequestLogicTypes.ICreateParameters['currency'];
+        creation: ExtensionTypes.IAction;
+        nested?: boolean;
+      }> = [
+        {
+          label: 'content',
+          currency: createParams.currency,
+          creation: advancedLogic.extensions.contentData.createCreationAction({
+            content: { invoiceNumber: 'test-invoice' },
+          }),
+        },
+        {
+          label: 'declarative',
+          currency: { type: RequestLogicTypes.CURRENCY.ISO4217, value: 'USD' },
+          creation: advancedLogic.extensions.declarative.createCreationAction({}),
+        },
+        {
+          label: 'erc20-fee-proxy',
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ERC20,
+            value: '0x0000000000000000000000000000000000000001',
+            network: 'mainnet',
+          },
+          creation:
+            advancedLogic.extensions.feeProxyContractErc20.createCreationAction(feeParameters),
+        },
+        {
+          label: 'eth-fee-proxy',
+          currency: { ...createParams.currency, network: 'mainnet' },
+          creation:
+            advancedLogic.extensions.feeProxyContractEth.createCreationAction(feeParameters),
+        },
+        ...[false, true].map((nested) => ({
+          label: nested ? 'nested-declarative' : 'meta',
+          nested,
+          currency: { type: RequestLogicTypes.CURRENCY.ISO4217, value: 'USD' },
+          creation: advancedLogic.extensions.metaPn.createCreationAction({
+            [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE]: [{ salt }],
+          }),
+        })),
+      ];
+
+      it.each(
+        fixtures.flatMap((fixture) =>
+          (fixture.label === 'content'
+            ? [...Object.getOwnPropertyNames(Object.prototype), 'unsupportedAction']
+            : ['toString', 'constructor']
+          ).flatMap((name) =>
+            [
+              TransactionTypes.TransactionState.CONFIRMED,
+              TransactionTypes.TransactionState.PENDING,
+            ].map((state) => ({ ...fixture, name, state })),
+          ),
+        ),
+      )(
+        'ignores $state $label action $name and permits a later valid update',
+        async ({ creation: extensionCreation, currency, nested, name, state }) => {
+          const creation = sign(
+            {
+              ...unsignedAction,
+              parameters: {
+                ...createParams,
+                currency,
+                extensionsData: [extensionCreation],
+              },
+            },
+            TestData.payeeRaw.signatureParams,
+          );
+          const extensionRequestId = MultiFormat.serialize(normalizeKeccak256Hash(creation));
+          const unsupportedExtensionAction = nested
+            ? advancedLogic.extensions.metaPn.createApplyActionToPn({
+                pnIdentifier: salt,
+                action: name,
+                parameters: {},
+              })
+            : { id: extensionCreation.id, action: name, parameters: {} };
+          const unsupportedUpdate = sign(
+            {
+              name: RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA,
+              parameters: {
+                requestId: extensionRequestId,
+                extensionsData: [unsupportedExtensionAction],
+              },
+              version: CURRENT_VERSION,
+            },
+            TestData.otherIdRaw.signatureParams,
+          );
+          const transactions: TransactionTypes.IReturnGetTransactions['result']['transactions'] = [
+            {
+              state: TransactionTypes.TransactionState.CONFIRMED,
+              timestamp: 1,
+              transaction: { data: JSON.stringify(creation) },
+            },
+          ];
+          const requestLogic = new RequestLogic(
+            {
+              ...fakeTransactionManager,
+              getTransactionsByChannelId: async () => ({
+                meta: { ignoredTransactions: [] },
+                result: { transactions },
+              }),
+            },
+            undefined,
+            advancedLogic,
+          );
+          const before = await requestLogic.getRequestFromId(extensionRequestId);
+          transactions.push({
+            state,
+            timestamp: 2,
+            transaction: { data: JSON.stringify(unsupportedUpdate) },
+          });
+          const rejected = await requestLogic.getRequestFromId(extensionRequestId);
+          expect(rejected.result).toEqual(before.result);
+          expect(rejected.meta.ignoredTransactions).toEqual([
+            expect.objectContaining({
+              reason: `Unknown action: ${name}`,
+              transaction: expect.objectContaining({ action: unsupportedUpdate }),
+            }),
+          ]);
+
+          const declaration =
+            advancedLogic.extensions.declarative.createDeclareReceivedPaymentAction({
+              amount: '0',
+              note: 'test payment declaration',
+            });
+          const validExtensionAction = nested
+            ? advancedLogic.extensions.metaPn.createApplyActionToPn({
+                pnIdentifier: salt,
+                action: declaration.action,
+                parameters: declaration.parameters,
+              })
+            : extensionCreation.id === ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE
+            ? declaration
+            : undefined;
+          const validUpdate = sign(
+            {
+              name: validExtensionAction
+                ? RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA
+                : RequestLogicTypes.ACTION_NAME.ACCEPT,
+              parameters: {
+                requestId: extensionRequestId,
+                ...(validExtensionAction ? { extensionsData: [validExtensionAction] } : {}),
+              },
+              version: CURRENT_VERSION,
+            },
+            validExtensionAction
+              ? TestData.payeeRaw.signatureParams
+              : TestData.payerRaw.signatureParams,
+          );
+          transactions.push({
+            state,
+            timestamp: 3,
+            transaction: { data: JSON.stringify(validUpdate) },
+          });
+          const mixed = await requestLogic.getRequestFromId(extensionRequestId);
+          expect(mixed.meta.ignoredTransactions).toEqual(rejected.meta.ignoredTransactions);
+
+          transactions.splice(1, 1);
+          const validOnly = await requestLogic.getRequestFromId(extensionRequestId);
+          expect(validOnly.meta.ignoredTransactions).toEqual([]);
+          expect(validOnly.result).not.toEqual(before.result);
+          expect(mixed.result).toEqual(validOnly.result);
+        },
+      );
+    });
+
     it.each(
       [
         { name: RequestLogicTypes.ACTION_NAME.ACCEPT, signer: TestData.payerRaw },
