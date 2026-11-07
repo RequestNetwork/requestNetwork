@@ -95,7 +95,10 @@ export abstract class AbstractExtension<TCreationParameters> implements Extensio
 
     const actionToApply: ExtensionTypes.ApplyAction = this.actions[extensionAction.action];
 
-    if (!actionToApply) {
+    if (
+      !Object.prototype.hasOwnProperty.call(this.actions, extensionAction.action) ||
+      typeof actionToApply !== 'function'
+    ) {
       throw Error(`Unknown action: ${extensionAction.action}`);
     }
 
