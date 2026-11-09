@@ -1017,6 +1017,155 @@ describe('index', () => {
   });
 
   describe('getRequestFromId', () => {
+    it.each(
+      [
+        { name: RequestLogicTypes.ACTION_NAME.ACCEPT, signer: TestData.payerRaw },
+        { name: RequestLogicTypes.ACTION_NAME.CANCEL, signer: TestData.payeeRaw },
+        {
+          name: RequestLogicTypes.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
+          signer: TestData.payerRaw,
+          deltaAmount: TestData.arbitraryDeltaAmount,
+        },
+        {
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          signer: TestData.payeeRaw,
+          deltaAmount: TestData.arbitraryDeltaAmount,
+        },
+        { name: RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA, signer: TestData.payeeRaw },
+        { name: RequestLogicTypes.ACTION_NAME.ADD_STAKEHOLDERS, signer: TestData.payeeRaw },
+      ].flatMap((update) =>
+        [
+          TransactionTypes.TransactionState.CONFIRMED,
+          TransactionTypes.TransactionState.PENDING,
+        ].map((state) => ({ ...update, state })),
+      ),
+    )(
+      'ignores a $state $name signed for another request and permits a later valid update',
+      async ({ state, name, signer, deltaAmount }) => {
+        const advancedLogic = new AdvancedLogic(CurrencyManager.getDefault());
+        const extensionsData =
+          name === RequestLogicTypes.ACTION_NAME.ADD_EXTENSIONS_DATA
+            ? [
+                advancedLogic.extensions.contentData.createCreationAction({
+                  content: { invoiceNumber: 'test-invoice' },
+                }),
+              ]
+            : [];
+        const otherCreation = sign(
+          { ...unsignedAction, parameters: { ...createParams, timestamp: 1544426031 } },
+          TestData.payeeRaw.signatureParams,
+        );
+        const otherRequestId = MultiFormat.serialize(normalizeKeccak256Hash(otherCreation));
+        expect(otherRequestId).not.toBe(requestId);
+        const update = sign(
+          {
+            name,
+            parameters: { requestId, deltaAmount, extensionsData },
+            version: CURRENT_VERSION,
+          },
+          signer.signatureParams,
+        );
+        const transactions: TransactionTypes.IReturnGetTransactions['result']['transactions'] = [
+          {
+            state: TransactionTypes.TransactionState.CONFIRMED,
+            timestamp: 1,
+            transaction: { data: JSON.stringify(otherCreation) },
+          },
+        ];
+        const requestLogic = new RequestLogic(
+          {
+            ...fakeTransactionManager,
+            getTransactionsByChannelId: async () => ({
+              meta: { ignoredTransactions: [] },
+              result: { transactions },
+            }),
+          },
+          undefined,
+          advancedLogic,
+        );
+        const before = await requestLogic.getRequestFromId(otherRequestId);
+        transactions.push({ state, timestamp: 2, transaction: { data: JSON.stringify(update) } });
+
+        const rejected = await requestLogic.getRequestFromId(otherRequestId);
+        expect(rejected.result).toEqual(before.result);
+        expect(rejected.meta.ignoredTransactions).toEqual([
+          expect.objectContaining({
+            reason: 'The action requestId must match the request',
+            transaction: expect.objectContaining({ action: update }),
+          }),
+        ]);
+
+        // The unchanged signature remains valid for the request it actually identifies.
+        transactions[0]!.transaction.data = JSON.stringify(action);
+        const accepted = await requestLogic.getRequestFromId(requestId);
+        const acceptedState = accepted.result.pending || accepted.result.request;
+        expect(acceptedState?.events).toEqual(
+          expect.arrayContaining([expect.objectContaining({ name })]),
+        );
+        expect(accepted.meta.ignoredTransactions).toEqual([]);
+
+        // A rejected update must not prevent a later correctly targeted update.
+        transactions[0]!.transaction.data = JSON.stringify(otherCreation);
+        const validUpdate = sign(
+          {
+            name,
+            parameters: { requestId: otherRequestId, deltaAmount, extensionsData },
+            version: CURRENT_VERSION,
+          },
+          signer.signatureParams,
+        );
+        transactions.push({
+          state,
+          timestamp: 3,
+          transaction: { data: JSON.stringify(validUpdate) },
+        });
+        const mixed = await requestLogic.getRequestFromId(otherRequestId);
+        expect(mixed.meta.ignoredTransactions).toEqual(rejected.meta.ignoredTransactions);
+
+        // Mixed history produces exactly the state of the valid update alone.
+        transactions.splice(1, 1);
+        const validOnly = await requestLogic.getRequestFromId(otherRequestId);
+        expect(validOnly.result).not.toEqual(before.result);
+        expect(validOnly.meta.ignoredTransactions).toEqual([]);
+        expect(mixed.result).toEqual(validOnly.result);
+      },
+    );
+
+    it.each([
+      TransactionTypes.TransactionState.CONFIRMED,
+      TransactionTypes.TransactionState.PENDING,
+    ])('accepts a %s update whose request ID differs only in casing', async (state) => {
+      expect(requestId.toUpperCase()).not.toBe(requestId);
+      const accept = sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+          parameters: { requestId: requestId.toUpperCase() },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+      const requestLogic = new RequestLogic({
+        ...fakeTransactionManager,
+        getTransactionsByChannelId: async () => ({
+          meta: { ignoredTransactions: [] },
+          result: {
+            transactions: [
+              {
+                state: TransactionTypes.TransactionState.CONFIRMED,
+                timestamp: 1,
+                transaction: { data: JSON.stringify(action) },
+              },
+              { state, timestamp: 2, transaction: { data: JSON.stringify(accept) } },
+            ],
+          },
+        }),
+      });
+      const accepted = await requestLogic.getRequestFromId(requestId);
+      const acceptedState = accepted.result.pending || accepted.result.request;
+      expect(acceptedState?.state).toBe(RequestLogicTypes.STATE.ACCEPTED);
+      expect(accepted.meta.ignoredTransactions).toEqual([]);
+    });
+
     it('ignores an ACCEPT with an unauthorized new extension and allows a later valid ACCEPT', async () => {
       const advancedLogic = new AdvancedLogic(CurrencyManager.getDefault());
       const rejectedAccept = sign(
@@ -1948,7 +2097,7 @@ describe('index', () => {
         unsignedActionCreation,
         TestData.payeeRaw.signatureParams,
       );
-      const newRequestId = MultiFormat.serialize(normalizeKeccak256Hash(unsignedActionCreation));
+      const newRequestId = MultiFormat.serialize(normalizeKeccak256Hash(actionCreate));
 
       const actionAccept: RequestLogicTypes.IAction = sign(
         {
@@ -1991,7 +2140,7 @@ describe('index', () => {
         unsignedActionCreation2,
         TestData.payeeRaw.signatureParams,
       );
-      const newRequestId2 = MultiFormat.serialize(normalizeKeccak256Hash(unsignedActionCreation2));
+      const newRequestId2 = MultiFormat.serialize(normalizeKeccak256Hash(actionCreate2));
 
       const actionCancel2: RequestLogicTypes.IAction = sign(
         {
@@ -2022,7 +2171,7 @@ describe('index', () => {
         unsignedActionCreation3,
         TestData.payeeRaw.signatureParams,
       );
-      const newRequestId3 = MultiFormat.serialize(normalizeKeccak256Hash(unsignedActionCreation3));
+      const newRequestId3 = MultiFormat.serialize(normalizeKeccak256Hash(actionCreate3));
 
       const meta = {
         dataAccessMeta: { [requestId]: [], [newRequestId2]: [], [newRequestId3]: [] },
@@ -2111,7 +2260,7 @@ describe('index', () => {
         unsignedActionCreation,
         TestData.payeeRaw.signatureParams,
       );
-      const newRequestId = MultiFormat.serialize(normalizeKeccak256Hash(unsignedActionCreation));
+      const newRequestId = MultiFormat.serialize(normalizeKeccak256Hash(actionCreate));
 
       const actionAccept: RequestLogicTypes.IAction = sign(
         {
@@ -2154,7 +2303,7 @@ describe('index', () => {
         unsignedActionCreation2,
         TestData.payeeRaw.signatureParams,
       );
-      const newRequestId2 = MultiFormat.serialize(normalizeKeccak256Hash(unsignedActionCreation2));
+      const newRequestId2 = MultiFormat.serialize(normalizeKeccak256Hash(actionCreate2));
 
       const actionCancel2: RequestLogicTypes.IAction = sign(
         {
@@ -2185,7 +2334,7 @@ describe('index', () => {
         unsignedActionCreation3,
         TestData.payeeRaw.signatureParams,
       );
-      const newRequestId3 = MultiFormat.serialize(normalizeKeccak256Hash(unsignedActionCreation3));
+      const newRequestId3 = MultiFormat.serialize(normalizeKeccak256Hash(actionCreate3));
 
       const meta = {
         dataAccessMeta: { [requestId]: [], [newRequestId2]: [], [newRequestId3]: [] },
@@ -2375,7 +2524,7 @@ describe('index', () => {
         unsignedActionCreation,
         TestData.payeeRaw.signatureParams,
       );
-      const newRequestId = MultiFormat.serialize(normalizeKeccak256Hash(unsignedActionCreation));
+      const newRequestId = MultiFormat.serialize(normalizeKeccak256Hash(actionCreate));
 
       const actionAccept: RequestLogicTypes.IAction = sign(
         {
@@ -2418,7 +2567,7 @@ describe('index', () => {
         unsignedActionCreation2,
         TestData.payeeRaw.signatureParams,
       );
-      const newRequestId2 = MultiFormat.serialize(normalizeKeccak256Hash(unsignedActionCreation2));
+      const newRequestId2 = MultiFormat.serialize(normalizeKeccak256Hash(actionCreate2));
 
       const actionCancel2: RequestLogicTypes.IAction = sign(
         {
@@ -2449,7 +2598,7 @@ describe('index', () => {
         unsignedActionCreation3,
         TestData.payeeRaw.signatureParams,
       );
-      const newRequestId3 = MultiFormat.serialize(normalizeKeccak256Hash(unsignedActionCreation3));
+      const newRequestId3 = MultiFormat.serialize(normalizeKeccak256Hash(actionCreate3));
 
       const meta = {
         dataAccessMeta: { [requestId]: [], [newRequestId2]: [], [newRequestId3]: [] },
