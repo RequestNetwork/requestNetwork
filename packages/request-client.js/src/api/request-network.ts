@@ -341,7 +341,7 @@ export default class RequestNetwork {
    * @returns the Requests
    */
   public async fromTopic(
-    topic: any,
+    topic: IdentityTypes.IIdentity | string,
     updatedBetween?: Types.ITimestampBoundaries,
     options?: {
       disablePaymentDetection?: boolean;
@@ -413,7 +413,7 @@ export default class RequestNetwork {
    * @returns the Requests
    */
   public async fromMultipleTopics(
-    topics: any[],
+    topics: Array<IdentityTypes.IIdentity | string>,
     updatedBetween?: Types.ITimestampBoundaries,
     options?: {
       disablePaymentDetection?: boolean;
