@@ -4,6 +4,19 @@ This directory contains architectural design documentation for the Request Netwo
 
 ## Documents
 
+### [Fee Burner Design](./FEE_BURNER_DESIGN.md)
+
+**Contract**: `RequestFeeBurner`
+
+- **Purpose**: Fee recipient that only ever turns fees into burned REQ
+- **Security model**: No withdrawal path, immutable router, keeper-gated swaps with enforced minimum output
+- **Operations**: Keeper workflow and on-chain verification of burns
+
+**Related Files**:
+
+- Contract: [`src/contracts/RequestFeeBurner.sol`](../../src/contracts/RequestFeeBurner.sol)
+- Tests: [`test/contracts/RequestFeeBurner.test.ts`](../../test/contracts/RequestFeeBurner.test.ts)
+
 ### [Fee Mechanism Design](./FEE_MECHANISM_DESIGN.md)
 
 **Contract**: `ERC20CommerceEscrowWrapper`
