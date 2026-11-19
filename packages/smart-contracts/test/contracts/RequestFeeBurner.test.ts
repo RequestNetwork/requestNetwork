@@ -28,17 +28,41 @@ const DEAD = '0x000000000000000000000000000000000000dEaD';
 const ZERO = ethers.constants.AddressZero;
 const ONE = ethers.utils.parseEther('1');
 
-/** Asserts that a call reverted with a given custom error (hardhat network message format). */
+const burnerInterface = RequestFeeBurner__factory.createInterface();
+
+/** Collects hex revert payloads from a provider error, skipping the sent transaction itself. */
+function collectRevertData(value: unknown, out: string[] = [], depth = 0): string[] {
+  if (depth > 6 || value === null || typeof value !== 'object') return out;
+  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+    if (key === 'transaction') continue;
+    if (
+      (key === 'data' || key === 'result') &&
+      typeof child === 'string' &&
+      /^0x[0-9a-f]{8}/i.test(child)
+    ) {
+      out.push(child.toLowerCase());
+    } else {
+      collectRevertData(child, out, depth + 1);
+    }
+  }
+  return out;
+}
+
+/**
+ * Asserts that a call reverted with a given RequestFeeBurner custom error.
+ * Works on the hardhat network (decoded message) and on ganache (raw revert data), as used in CI.
+ */
 async function expectCustomError(promise: Promise<unknown>, name: string): Promise<void> {
+  const selector = burnerInterface.getSighash(burnerInterface.getError(name)).toLowerCase();
   try {
     await promise;
   } catch (e) {
     const message = (e as Error).message;
-    // Transactions report "reverted with custom error 'X(...)'", view calls report errorName="X".
     const matched =
       message.includes(`reverted with custom error '${name}(`) ||
-      message.includes(`errorName="${name}"`);
-    expect(matched, message).to.equal(true);
+      (e as { errorName?: string }).errorName === name ||
+      collectRevertData(e).some((data) => data.startsWith(selector));
+    expect(matched, `Expected custom error ${name} (${selector}), got: ${message}`).to.equal(true);
     return;
   }
   expect.fail(`Expected custom error ${name}, but the call succeeded`);
@@ -400,6 +424,16 @@ describe('contract: RequestFeeBurner', () => {
 
     it('reverts when there is nothing to burn', async () => {
       await expectCustomError(burner.connect(stranger).burnHeldReq(), 'NothingToBurn');
+    });
+
+    it('error assertions reject the wrong custom error (helper sanity check)', async () => {
+      let helperFailed = false;
+      try {
+        await expectCustomError(burner.connect(stranger).burnHeldReq(), 'ZeroAmount');
+      } catch {
+        helperFailed = true;
+      }
+      expect(helperFailed).to.equal(true);
     });
   });
 
