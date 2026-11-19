@@ -80,6 +80,10 @@ The package stores the following smart contracts:
 - `ERC20SwapToPay` same as `ERC20FeeProxy` but allowing the payer to swap another token before paying
 - `ERC20SwapToConversion` same as `ERC20ConversionProxy` but allowing the payer to swap another token before paying
 
+**Smart contracts for fee burning**
+
+- `RequestFeeBurner` fee recipient that swaps the fees it collects into REQ and burns them. It has no withdrawal path. See [Fee Burner Design](./docs/design-decisions/FEE_BURNER_DESIGN.md).
+
 **Smart contracts for commerce payments**
 
 - `ERC20CommerceEscrowWrapper` wrapper around Coinbase Commerce Payments escrow for auth/capture flow with Request Network platform fee support. See [Fee Mechanism Design](./docs/design-decisions/FEE_MECHANISM_DESIGN.md) for architectural details.
@@ -88,6 +92,7 @@ The package stores the following smart contracts:
 
 Detailed architectural design documentation is available in the [`docs/design-decisions/`](./docs/design-decisions/) directory:
 
+- **[Fee Burner Design](./docs/design-decisions/FEE_BURNER_DESIGN.md)**: Design of `RequestFeeBurner`, which turns collected fees into burned REQ.
 - **[Fee Mechanism Design](./docs/design-decisions/FEE_MECHANISM_DESIGN.md)**: Comprehensive documentation of the `ERC20CommerceEscrowWrapper` fee architecture, including fee payer models, multi-recipient strategies, security considerations, and future extensibility paths.
 
 ## Local deployment
